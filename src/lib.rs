@@ -5,10 +5,13 @@
 
 #![forbid(unsafe_code)]
 
+mod atomic_batch; // Clone-validate-commit boundary and Kani rollback harnesses.
 pub mod bitcoin_chainwork; // Bitcoin mainnet nBits/MTP/chainwork from explicit checkpoints; not full consensus.
 pub mod bitcoin_forks; // Bounded greatest-work selection among observed header forks; no active-chain trust.
 pub mod bitcoin_inclusion; // Bitcoin SHA256d header and tx Merkle checks; no full consensus.
+mod canonical_columns; // Canonical nonzero map mutations for wallet and channel columns.
 pub mod chain; // Trust-boundary and reversible block progression, prototype only.
+mod checked_amounts; // Bit-precise checked debit/credit arithmetic; Kani proof harnesses.
 pub mod clearing_cadence; // Stage 24C read-only JS clearing callback and funding schedule observations.
 pub mod clearing_math; // Stage 24A diagnostic loss, funding and PnL equations; no ledger writes.
 pub mod clearing_sandbox; // Stage 25A isolated single-ledger derivative margin and funding research.
@@ -18,9 +21,11 @@ pub mod funding_audit; // Stage 24B read-only signed funding and conservation pr
 mod hash256; // Offline SHA-256d txid fingerprints; not trusted consensus.
 pub mod joint; // Stage 22 independent registry + sole spot-owned ledger in one mixed state.
 pub mod joint_chain; // Stage 22 mixed unverified block replay and TLJC checkpoints.
+mod journal_move; // Fail-closed single-use settlement journal movement; Kani harness.
 pub mod ledger; // In-memory atomic accounting primitives; not chain consensus.
 pub mod network_bound; // Stage 21 profile-bound replay and versioned checkpoint envelopes; unverified.
 pub mod network_profile; // Independent Bitcoin/Litecoin/Dogecoin mainnet identities and proof capabilities.
+mod ordered_columns; // Sorted Vec backend for wallet and channel accounting columns.
 pub mod protocol; // Audited legacy transaction catalog, not consensus execution.
 pub mod read_only; // Offline transaction scanning; cannot authorize ledger state.
 pub mod registry; // Standalone tx0/7-9/13-15 registry state; authentication external.

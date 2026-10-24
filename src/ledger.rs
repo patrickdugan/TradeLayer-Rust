@@ -13,6 +13,9 @@
 use core::fmt;
 use std::collections::{BTreeMap, BTreeSet};
 
+use crate::network_profile::TradeLayerMainnet;
+use crate::ordered_columns::OrderedColumns;
+
 /// Maximum opaque identifier length, matching the draft wire-v1 send field.
 pub const MAX_ACCOUNT_BYTES: usize = 90;
 
@@ -93,6 +96,73 @@ pub struct Property {
     pub issuer: AccountId,
     pub kind: PropertyKind,
     pub total_supply_atoms: u128,
+}
+
+/** A read-only summary of where the issued atoms for one property live.
+ * This is a deterministic audit projection, not a chain-authenticated proof. */
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SupplyAuditRow {
+    pub property: PropertyId,
+    pub total_supply_atoms: u128,
+    pub available_atoms: u128,
+    pub escrow_atoms: u128,
+    pub pending_withdrawal_atoms: u128,
+}
+
+/// Typed keys for each source of token supply; variants are disjoint.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub enum SupplyColumnSource {
+    Available(AccountId),
+    ChannelEscrow {
+        channel: AccountId,
+        side: ChannelSide,
+    },
+    ReservedWithdrawal(TxId),
+}
+
+/// The full atom amount in one canonical, typed accounting column.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct SupplyColumnRow {
+    pub property: PropertyId,
+    pub source: SupplyColumnSource,
+    pub atoms: u128,
+}
+
+/** A network-qualified, typed-key representation for the formal audit.
+ * The network is caller declared and remains unauthenticated. */
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct SupplyColumnProofKey {
+    pub network_tag: u8,
+    pub property_id: u32,
+    pub source_tag: u8,
+    pub identifier_bytes: Vec<u8>,
+}
+
+impl SupplyColumnRow {
+    /// The 4 namespaces are disjoint even with identical identifier bytes.
+    /// Wallet and channel identifiers retain exact validated ASCII bytes;
+    /// withdrawal requests retain their exact 32-byte TxId. Identity is
+    /// scoped by the caller-provided network (Bitcoin=1, Litecoin=2,
+    /// Dogecoin=3). Neither a signature nor chain history is checked here.
+    pub fn proof_key_unverified(&self, network: TradeLayerMainnet) -> SupplyColumnProofKey {
+        let (source_tag, identifier_bytes) = match &self.source {
+            SupplyColumnSource::Available(owner) => (0u8, owner.as_str().as_bytes().to_vec()),
+            SupplyColumnSource::ChannelEscrow { channel, side } => (
+                match side {
+                    ChannelSide::A => 1u8,
+                    ChannelSide::B => 2u8,
+                },
+                channel.as_str().as_bytes().to_vec(),
+            ),
+            SupplyColumnSource::ReservedWithdrawal(txid) => (3u8, txid.as_bytes().to_vec()),
+        };
+        SupplyColumnProofKey {
+            network_tag: network.tag(),
+            property_id: self.property.get(),
+            source_tag,
+            identifier_bytes,
+        }
+    }
 }
 
 /// Explicit ledger operations, intentionally separate from wire transaction
@@ -268,11 +338,32 @@ impl fmt::Display for LedgerError {
 
 impl std::error::Error for LedgerError {}
 
-/// BTree collections keep iteration and equality independent of HashMap seeds.
+/// Error-preserving adapter from the Kani-checked arithmetic kernel to
+/// LedgerError. Account identity and chain authorization stay with callers.
+fn checked_move_for_property(
+    id: PropertyId,
+    debit: u128,
+    credit: u128,
+    amount: u128,
+) -> Result<(u128, u128), LedgerError> {
+    use crate::checked_amounts::{move_atoms, MoveError};
+    move_atoms(debit, credit, amount).map_err(|err| match err {
+        MoveError::Zero => LedgerError::ZeroAmount,
+        MoveError::Insufficient => LedgerError::InsufficientAvailable {
+            property: id,
+            available: debit,
+            requested: amount,
+        },
+        MoveError::Overflow => LedgerError::ArithmeticOverflow,
+    })
+}
+
+/// Sorted vector columns and the remaining BTree collections provide stable
+/// iteration and structural equality independent of HashMap seeds.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct Ledger {
     properties: BTreeMap<PropertyId, Property>,
-    available: BTreeMap<(PropertyId, AccountId), u128>,
+    available: OrderedColumns<(PropertyId, AccountId)>,
     channels: BTreeMap<AccountId, ChannelState>,
     pending_withdrawals: BTreeMap<TxId, PendingWithdrawal>,
     pending_net_settlements: BTreeMap<TxId, NetClaim>,
@@ -346,24 +437,19 @@ impl Ledger {
         &mut self,
         transactions: impl IntoIterator<Item = (TxId, Operation)>,
     ) -> Result<(), LedgerError> {
-        let mut pending = self.clone();
-        for (txid, op) in transactions {
-            if !pending.processed.insert(txid) {
-                return Err(LedgerError::AlreadyProcessed(txid));
+        crate::atomic_batch::stage_validate_commit(self, |pending| {
+            for (txid, op) in transactions {
+                if !pending.processed.insert(txid) {
+                    return Err(LedgerError::AlreadyProcessed(txid));
+                }
+                pending.execute(txid, op)?;
             }
-            pending.execute(txid, op)?;
-        }
-        pending.verify_conservation()?;
-        *self = pending;
-        Ok(())
+            pending.verify_conservation()
+        })
     }
 
     fn put_balance(&mut self, id: PropertyId, account: AccountId, atoms: u128) {
-        if atoms == 0 {
-            self.available.remove(&(id, account));
-        } else {
-            self.available.insert((id, account), atoms);
-        }
+        crate::canonical_columns::put_nonzero(&mut self.available, (id, account), atoms);
     }
 
     fn existing_property(&self, id: PropertyId) -> Result<&Property, LedgerError> {
@@ -435,11 +521,13 @@ impl Ledger {
                 if from == to {
                     return Ok(());
                 }
-                let to_after = self
-                    .available_atoms(id, &to)
-                    .checked_add(amount_atoms)
-                    .ok_or(LedgerError::ArithmeticOverflow)?;
-                self.put_balance(id, from, from_before - amount_atoms);
+                let (from_after, to_after) = checked_move_for_property(
+                    id,
+                    from_before,
+                    self.available_atoms(id, &to),
+                    amount_atoms,
+                )?;
+                self.put_balance(id, from, from_after);
                 self.put_balance(id, to, to_after);
                 Ok(())
             }
@@ -597,6 +685,131 @@ impl Ledger {
         }
     }
 
+    /// A canonical audit of supply-bearing keys with exact source bytes.
+    /// These keys are scoped to a *declared* network, not verified chain data.
+    pub fn supply_proof_keys_unverified(
+        &self,
+        network: TradeLayerMainnet,
+    ) -> Result<Vec<(SupplyColumnProofKey, u128)>, LedgerError> {
+        let mut entries: Vec<_> = self
+            .supply_column_rows_unverified()?
+            .into_iter()
+            .map(|row| (row.proof_key_unverified(network), row.atoms))
+            .collect();
+        entries.sort_by(|a, b| a.0.cmp(&b.0));
+        Ok(entries)
+    }
+
+    /// Canonical finite support of the live ledger's supply columns.
+    ///
+    /// The different enum variants cannot alias. Output is ordered first
+    /// by property, then by the source variant and its native identifier.
+    /// Positive values and structural ownership constraints were checked
+    /// through verify_conservation. This is audit metadata only.
+    pub fn supply_column_rows_unverified(&self) -> Result<Vec<SupplyColumnRow>, LedgerError> {
+        self.verify_conservation()?;
+        let mut entries = Vec::new();
+        for ((property, owner), &atoms) in &self.available {
+            entries.push(SupplyColumnRow {
+                property: *property,
+                source: SupplyColumnSource::Available(owner.clone()),
+                atoms,
+            });
+        }
+        for (channel, book) in &self.channels {
+            for side in [ChannelSide::A, ChannelSide::B] {
+                for (&property, &atoms) in book.escrow(side) {
+                    entries.push(SupplyColumnRow {
+                        property,
+                        source: SupplyColumnSource::ChannelEscrow {
+                            channel: channel.clone(),
+                            side,
+                        },
+                        atoms,
+                    });
+                }
+            }
+        }
+        for (&txid, pending) in &self.pending_withdrawals {
+            entries.push(SupplyColumnRow {
+                property: pending.id,
+                source: SupplyColumnSource::ReservedWithdrawal(txid),
+                atoms: pending.atoms,
+            });
+        }
+        entries.sort();
+        Ok(entries)
+    }
+
+    /// Return canonical, property-ordered partitions of every minted unit.
+    /// Only reports states that already pass all of the ledger's structural
+    /// and journal invariants. Independent chain and signer authentication
+    /// remain external obligations.
+    pub fn supply_audit_rows_unverified(&self) -> Result<Vec<SupplyAuditRow>, LedgerError> {
+        self.verify_conservation()?;
+        let mut rows: BTreeMap<PropertyId, SupplyAuditRow> = self
+            .properties
+            .iter()
+            .map(|(&id, p)| {
+                (
+                    id,
+                    SupplyAuditRow {
+                        property: id,
+                        total_supply_atoms: p.total_supply_atoms,
+                        available_atoms: 0,
+                        escrow_atoms: 0,
+                        pending_withdrawal_atoms: 0,
+                    },
+                )
+            })
+            .collect();
+        for ((id, _owner), &atoms) in &self.available {
+            let row = rows
+                .get_mut(id)
+                .ok_or(LedgerError::BalanceWithoutProperty(*id))?;
+            row.available_atoms =
+                crate::checked_amounts::checked_supply_add(row.available_atoms, atoms)
+                    .ok_or(LedgerError::ArithmeticOverflow)?;
+        }
+        for channel in self.channels.values() {
+            for side in [ChannelSide::A, ChannelSide::B] {
+                for (&id, &atoms) in channel.escrow(side) {
+                    let row = rows
+                        .get_mut(&id)
+                        .ok_or(LedgerError::BalanceWithoutProperty(id))?;
+                    row.escrow_atoms =
+                        crate::checked_amounts::checked_supply_add(row.escrow_atoms, atoms)
+                            .ok_or(LedgerError::ArithmeticOverflow)?;
+                }
+            }
+        }
+        for reserved in self.pending_withdrawals.values() {
+            let row = rows
+                .get_mut(&reserved.id)
+                .ok_or(LedgerError::BalanceWithoutProperty(reserved.id))?;
+            row.pending_withdrawal_atoms = crate::checked_amounts::checked_supply_add(
+                row.pending_withdrawal_atoms,
+                reserved.atoms,
+            )
+            .ok_or(LedgerError::ArithmeticOverflow)?;
+        }
+        for row in rows.values() {
+            let total =
+                crate::checked_amounts::checked_supply_add(row.available_atoms, row.escrow_atoms)
+                    .and_then(|part| {
+                        crate::checked_amounts::checked_supply_add(
+                            part,
+                            row.pending_withdrawal_atoms,
+                        )
+                    })
+                    .ok_or(LedgerError::ArithmeticOverflow)?;
+            if total != row.total_supply_atoms {
+                return Err(LedgerError::SupplyMismatch(row.property));
+            }
+        }
+        Ok(rows.into_values().collect())
+    }
+
     /// Verify that each property's issued supply equals the sum of all
     /// available balances. This first slice has no reserved or other columns.
     pub fn verify_conservation(&self) -> Result<(), LedgerError> {
@@ -611,7 +824,7 @@ impl Ledger {
             let sum = sums.get(id).copied().unwrap_or(0);
             sums.insert(
                 *id,
-                sum.checked_add(*atoms)
+                crate::checked_amounts::checked_supply_add(sum, *atoms)
                     .ok_or(LedgerError::ArithmeticOverflow)?,
             );
         }
