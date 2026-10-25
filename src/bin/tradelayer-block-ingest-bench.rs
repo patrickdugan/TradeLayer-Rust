@@ -1,12 +1,14 @@
 //! Stage8C: synthetic raw-block preindex benchmark, NO Bitcoin consensus.
 //! One complete raw block is scanned using borrowed slices; reference path
 //! constructs one owned Vec per transaction and uses the same CPU workers.
+use std::collections::{BTreeMap, HashMap};
 use std::env;
 use std::hint::black_box;
 use std::time::{Duration, Instant};
 use tradelayer_core::parallel_txindex::{inspect_unverified_block_parallel, ParallelIndexConfig};
 use tradelayer_core::raw_block_ingest::{
-    fetch_and_inspect_unverified_block, merkle_root_unverified, UnverifiedRawBlockView,
+    fetch_and_inspect_unverified_block, merkle_root_unverified, merkle_root_unverified_inplace,
+    UnverifiedRawBlockView,
 };
 use tradelayer_core::read_only::{decode_hex, inspect_transaction};
 
@@ -59,6 +61,33 @@ fn median(mut durations: Vec<Duration>) -> Duration {
     durations.sort_unstable();
     durations[durations.len() / 2]
 }
+/// Measure the same source-order first/second duplicate rule without hashing.
+fn duplicate_tree(ids: &[[u8; 32]]) -> Result<(), (usize, usize)> {
+    let mut seen = BTreeMap::new();
+    for (index, &txid) in ids.iter().enumerate() {
+        if let Some(&first) = seen.get(&txid) {
+            return Err((first, index));
+        }
+        seen.insert(txid, index);
+    }
+    Ok(())
+}
+
+fn duplicate_hash(ids: &[[u8; 32]]) -> Result<(), (usize, usize)> {
+    let mut seen = HashMap::with_capacity(ids.len());
+    for (index, &txid) in ids.iter().enumerate() {
+        match seen.entry(txid) {
+            std::collections::hash_map::Entry::Occupied(found) => {
+                return Err((*found.get(), index));
+            }
+            std::collections::hash_map::Entry::Vacant(vacant) => {
+                vacant.insert(index);
+            }
+        }
+    }
+    Ok(())
+}
+
 fn main() {
     let args: Vec<_> = env::args().collect();
     if args.len() > 5 {
@@ -93,12 +122,39 @@ fn main() {
     assert_eq!(old, *new.ordered_preindex());
     let one_team = view.inspect_parallel_one_team(config).unwrap();
     assert_eq!(one_team, new);
+    let hash_seen = view.inspect_parallel_one_team_hash_seen(config).unwrap();
+    let inplace_merkle = view
+        .inspect_parallel_one_team_inplace_merkle(config)
+        .unwrap();
+    let fast_reduce = view.inspect_parallel_one_team_fast_reduce(config).unwrap();
+    assert_eq!(hash_seen, one_team);
+    assert_eq!(inplace_merkle, one_team);
+    assert_eq!(fast_reduce, one_team);
+    let observed_txids = one_team
+        .ordered_preindex()
+        .ordered()
+        .iter()
+        .map(|row| row.observation.txid)
+        .collect::<Vec<_>>();
+    assert_eq!(duplicate_tree(&observed_txids), Ok(()));
+    assert_eq!(duplicate_hash(&observed_txids), Ok(()));
+    assert_eq!(
+        merkle_root_unverified(&observed_txids),
+        merkle_root_unverified_inplace(&observed_txids)
+    );
     let mut owned_times = Vec::new();
     let mut full_owned_times = Vec::new();
     let mut prepared_times = Vec::new();
     let mut one_team_times = Vec::new();
+    let mut hash_seen_times = Vec::new();
+    let mut inplace_merkle_times = Vec::new();
+    let mut fast_reduce_times = Vec::new();
+    let mut tree_index_times = Vec::new();
+    let mut hash_index_times = Vec::new();
+    let mut merkle_reference_times = Vec::new();
+    let mut merkle_inplace_times = Vec::new();
     let mut bulk_times = Vec::new();
-    for _ in 0..repeats {
+    for repetition in 0..repeats {
         let start = Instant::now();
         let owned: Vec<_> = view
             .transaction_ranges()
@@ -138,11 +194,34 @@ fn main() {
         prepared_times.push(start.elapsed());
         assert_eq!(*prepared_only.ordered_preindex(), serial_by_slot);
         black_box(prepared_only);
-        let start = Instant::now();
-        let pooled = view.inspect_parallel_one_team(config).unwrap();
-        one_team_times.push(start.elapsed());
-        assert_eq!(*pooled.ordered_preindex(), serial_by_slot);
-        black_box(pooled);
+        // Counterbalance first/last variant position on alternating rounds
+        // to reduce warm-cache and frequency-scaling order bias.
+        let variants = if repetition % 2 == 0 {
+            [0, 1, 2, 3]
+        } else {
+            [3, 2, 1, 0]
+        };
+        for variant in variants {
+            let start = Instant::now();
+            let indexed = match variant {
+                0 => view.inspect_parallel_one_team(config),
+                1 => view.inspect_parallel_one_team_hash_seen(config),
+                2 => view.inspect_parallel_one_team_inplace_merkle(config),
+                3 => view.inspect_parallel_one_team_fast_reduce(config),
+                _ => unreachable!("fixed four-variant array"),
+            }
+            .unwrap();
+            let elapsed = start.elapsed();
+            assert_eq!(*indexed.ordered_preindex(), serial_by_slot);
+            black_box(indexed);
+            match variant {
+                0 => one_team_times.push(elapsed),
+                1 => hash_seen_times.push(elapsed),
+                2 => inplace_merkle_times.push(elapsed),
+                3 => fast_reduce_times.push(elapsed),
+                _ => unreachable!("fixed four-variant array"),
+            }
+        }
         let start = Instant::now();
         let observed =
             fetch_and_inspect_unverified_block(view.header_hash_raw(), config, |_| Ok(raw.clone()))
@@ -151,15 +230,50 @@ fn main() {
         assert_eq!(*observed.ordered_preindex(), serial_by_slot);
         black_box(observed);
     }
+    // Isolate index and Merkle reducer costs from thread scheduling and
+    // SHA256d transaction hashing. Use the exact same source-ordered IDs.
+    for _ in 0..repeats * 7 {
+        let start = Instant::now();
+        let baseline_index = duplicate_tree(&observed_txids);
+        tree_index_times.push(start.elapsed());
+        assert_eq!(baseline_index, Ok(()));
+        let _ = black_box(baseline_index);
+
+        let start = Instant::now();
+        let hashed_index = duplicate_hash(&observed_txids);
+        hash_index_times.push(start.elapsed());
+        assert_eq!(hashed_index, Ok(()));
+        let _ = black_box(hashed_index);
+
+        let start = Instant::now();
+        let root = merkle_root_unverified(&observed_txids).unwrap();
+        merkle_reference_times.push(start.elapsed());
+        assert_eq!(root, view.header_merkle_root_raw());
+        black_box(root);
+
+        let start = Instant::now();
+        let root = merkle_root_unverified_inplace(&observed_txids).unwrap();
+        merkle_inplace_times.push(start.elapsed());
+        assert_eq!(root, view.header_merkle_root_raw());
+        black_box(root);
+    }
     let baseline_ms = median(owned_times).as_secs_f64() * 1000.0;
     let full_owned_ms = median(full_owned_times).as_secs_f64() * 1000.0;
     let prepared_ms = median(prepared_times).as_secs_f64() * 1000.0;
     let one_team_ms = median(one_team_times).as_secs_f64() * 1000.0;
+    let hash_seen_ms = median(hash_seen_times).as_secs_f64() * 1000.0;
+    let inplace_merkle_ms = median(inplace_merkle_times).as_secs_f64() * 1000.0;
+    let fast_reduce_ms = median(fast_reduce_times).as_secs_f64() * 1000.0;
+    let tree_index_ms = median(tree_index_times).as_secs_f64() * 1000.0;
+    let hash_index_ms = median(hash_index_times).as_secs_f64() * 1000.0;
+    let merkle_reference_ms = median(merkle_reference_times).as_secs_f64() * 1000.0;
+    let merkle_inplace_ms = median(merkle_inplace_times).as_secs_f64() * 1000.0;
     let bulk_ms = median(bulk_times).as_secs_f64() * 1000.0;
     let bulk_seconds = (bulk_ms / 1000.0).max(1e-9);
     println!("benchmark=UNVERIFIED_SYNTHETIC_BULK_BLOCK_INGEST");
     println!("transaction_count={count}");
     println!("witness_percent={witness_percent}");
+    println!("one_team_variant_order=COUNTERBALANCED");
     println!("workers={workers}");
     println!("raw_block_bytes={}", raw.len());
     println!("declared_weight={}", view.block_weight());
@@ -171,6 +285,25 @@ fn main() {
     println!("full_owned_block_pipeline_median_ms={full_owned_ms:.3}");
     println!("fused_prepared_only_median_ms={prepared_ms:.3}");
     println!("one_team_prepared_only_median_ms={one_team_ms:.3}");
+    println!("one_team_hashed_prepared_only_median_ms={hash_seen_ms:.3}");
+    println!("one_team_inplace_merkle_prepared_only_median_ms={inplace_merkle_ms:.3}");
+    println!("one_team_fast_reduce_prepared_only_median_ms={fast_reduce_ms:.3}");
+    println!(
+        "fast_reduce_vs_one_team_ratio={:.3}",
+        one_team_ms / fast_reduce_ms.max(1e-9)
+    );
+    println!("duplicate_btree_median_ms={tree_index_ms:.3}");
+    println!("duplicate_hashmap_median_ms={hash_index_ms:.3}");
+    println!(
+        "duplicate_hashmap_vs_btree_ratio={:.3}",
+        tree_index_ms / hash_index_ms.max(1e-9)
+    );
+    println!("merkle_allocating_median_ms={merkle_reference_ms:.3}");
+    println!("merkle_inplace_median_ms={merkle_inplace_ms:.3}");
+    println!(
+        "merkle_inplace_vs_allocating_ratio={:.3}",
+        merkle_reference_ms / merkle_inplace_ms.max(1e-9)
+    );
     println!(
         "one_team_vs_windowed_ratio={:.3}",
         prepared_ms / one_team_ms.max(1e-9)
