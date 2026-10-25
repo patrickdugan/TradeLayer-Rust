@@ -56,6 +56,7 @@ pub mod spot; // Stage 19 isolated type-5/6 rational matching experiment; unveri
 pub mod spot_chain; // Stage 20 typed unverified spot block replay and complete TLSP/TLSC checkpoints.
 pub mod state_commitment; // Experimental domain-separated state and transition metadata; no proof verifier.
 pub mod unified_chain; // Offline reversible registry+ledger block projection; adapter external.
+pub mod wave_precheck; // Stage8D dependency-wave read-only probes, no Script/UTXO or Ledger permission.
 pub mod wire; // Read-only legacy ASCII format analysis; never auto-fallback.
 pub mod wire_v1;
 pub mod withdrawal_parity; // Read-only JS-like deferred queue oracle for differential tests.
