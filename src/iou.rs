@@ -549,3 +549,5 @@ fn order_claims(claims: &mut [Claim]) {
         )
     });
 }
+
+include!("iou_snapshot_impl.rs");

@@ -13,6 +13,12 @@ but does not actually credit it. Connecting allocations to the live ledger
 would require a separate authenticated settlement transition, replay evidence,
 and a decision about the source's repeated-payout behavior.
 
+The separate [funded local adapter](FUNDED_IOU.md) now connects these
+allocations to actual escrow transfers under an explicit atom policy.
+[Complete local checkpoints](IOU_CHECKPOINTS.md) preserve both source IOU state
+and the funded adapter's full ledger, ownership and replay metadata. Neither
+addition authenticates historical or live settlement inputs.
+
 ## Implemented behavior
 
 | Source functions | Rust behavior |

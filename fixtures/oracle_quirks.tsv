@@ -1,0 +1,18 @@
+# Actual source failure/unsafe-domain characterizations; not Rust success claims.
+failed-publish-watermark	5
+failed-publish-memory-price	10
+retry-same-block-record-count	0
+failed-insurance-still-closed	true
+unknown-publish-creates-memory	42
+unknown-publish-db-metadata-count	0
+undefined-sender-admin-on-missing	true
+nested-is-admin	true
+nested-verify-admin	false
+duplicate-add-memory-name	overwritten-memory
+duplicate-add-db-name-object	object
+bridge-base64-alias	ABCD/alias
+bridge-malformed	null
+invalid-price-query-default	1
+invalid-price-twap-is-nan	true
+fraud-prefix-collision-count	1
+fraud-prefix-collision-last-evidence	aaaaaaaaaaaaaaaaaaaaaaaay

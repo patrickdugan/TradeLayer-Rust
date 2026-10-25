@@ -34,6 +34,12 @@ typed behavior and remaining settlement/persistence requirements are recorded
 separately. Economic source oracles run offline from archived, hash-pinned
 JavaScript and BigNumber code; no npm installation is required.
 
+The [contract catalog](docs/CONTRACT_REGISTRY.md), [oracle history](docs/ORACLE.md)
+and [AMM lifecycle](docs/AMM.md) add source-tested definitions, calculations and
+local state. A [funded IOU adapter](docs/FUNDED_IOU.md) moves real atoms within
+one local ledger and [checkpoints its complete state](docs/IOU_CHECKPOINTS.md).
+Its atom policy is explicit; historical matching/clearing admission remains open.
+
 ### Supply-chain admission gate
 
 The consensus crate's **zero-third-party-crate baseline is now enforced**, not merely descriptive. CI and local Cargo builds refuse network resolution or lockfile updates; every PR runs a standard-library-only dependency gate and adversarial policy tests:

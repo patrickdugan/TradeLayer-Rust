@@ -17,7 +17,8 @@ cargo fmt --all -- --check
 rustfmt --check --edition 2021 \
   src/registry_snapshot_impl.rs src/execution_snapshot_impl.rs \
   src/ledger_channels_impl.rs src/ledger_settlement_impl.rs \
-  src/spot_snapshot_impl.rs src/joint_snapshot_impl.rs
+  src/spot_snapshot_impl.rs src/joint_snapshot_impl.rs \
+  src/iou_snapshot_impl.rs src/iou_ledger_snapshot_impl.rs
 
 cargo clippy --all-targets --locked -- -D warnings
 if [[ "$mode" == "--full" ]]; then

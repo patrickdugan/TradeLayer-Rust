@@ -5,6 +5,7 @@
 
 #![forbid(unsafe_code)]
 
+pub mod amm;
 pub mod bankruptcy_source_audit; // Stage25F pure source-level bankruptcy algebra, no market authority.
 pub mod bitcoin_chainwork; // Bitcoin mainnet nBits/MTP/chainwork from explicit checkpoints; not full consensus.
 pub mod bitcoin_forks; // Bounded greatest-work selection among observed header forks; no active-chain trust.
@@ -26,12 +27,14 @@ pub mod clearing_math; // Stage 24A diagnostic loss, funding and PnL equations; 
 pub mod clearing_pnl; // Stage 25C read-only per-address PnL and residual projection.
 pub mod clearing_sandbox; // Stage 25A isolated single-ledger derivative margin and funding research.
 mod codec; // Bounded, checksummed snapshot codec.
+pub mod contract_registry;
 pub mod decimal; // Finite decimal arithmetic with explicit precision and rounding.
 pub mod execution; // Prototype unified registry+ledger replay; input unverified.
 pub mod funding_audit; // Stage 24B read-only signed funding and conservation projections.
 mod hash160; // Dependency-free research RIPEMD160/HASH160, no production authorization.
 mod hash256; // Offline SHA-256d txid fingerprints; not trusted consensus.
 pub mod iou; // Source-compatible standalone IOU bucket and claim calculations.
+pub mod iou_ledger; // Funded atomic IOU payouts with an explicit local atom policy.
 pub mod joint; // Stage 22 independent registry + sole spot-owned ledger in one mixed state.
 pub mod joint_chain; // Stage 22 mixed unverified block replay and TLJC checkpoints.
 pub mod ledger; // In-memory atomic accounting primitives; not chain consensus.
@@ -50,6 +53,7 @@ pub mod liquidation_source_characterization; // Source-pinned read-only AMM prio
 pub mod network_bound; // Stage 21 profile-bound replay and versioned checkpoint envelopes; unverified.
 pub mod network_profile; // Independent Bitcoin/Litecoin/Dogecoin mainnet identities and proof capabilities.
 pub mod options; // Source options ticker, PnL, pricing and portfolio calculations.
+pub mod oracle;
 pub mod parallel_txindex; // Bounded parallel read-only runtime TXID/OP_RETURN scan and ordered fetch; never consensus.
 pub mod protocol; // Audited legacy transaction catalog, not consensus execution.
 pub mod raw_block_ingest; // Stage8C borrowed raw Bitcoin block preindex, not consensus.

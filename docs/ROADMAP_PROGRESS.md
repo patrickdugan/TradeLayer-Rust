@@ -12,13 +12,14 @@ that worker's branches, publish a branch, or authorize economic transitions.
 ## Tracking the 49 source modules
 
 [PARITY_ROADMAP.csv](PARITY_ROADMAP.csv) contains all 49 JavaScript source
-modules, excluding the experimental README. It records the seven assessed
-modules below and explicitly leaves the other 42 at their prior audit status.
+modules, excluding the experimental README. It records the ten assessed
+modules below; the other 39 retain their prior implementation assessment.
+The insurance row additionally records its external-worker assignment.
 It supplements the historical [full-tree inventory](JS_RUST_PORT_AUDIT.md),
 whose earlier mappings and assessment commit are preserved.
 
-[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 63
-source functions with their tested domains, Rust tests and remaining criteria.
+[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 148
+source entries with their tested domains, Rust tests and remaining criteria.
 None of these rows or modules is marked as a complete production port.
 
 | Module | Implemented and verified scope | Remaining completion criteria |
@@ -27,9 +28,12 @@ None of these rows or modules is marked as a complete production port.
 | `base256.js` | Six helper methods, exact custom Unicode alphabet, bounded arbitrary-size arithmetic and source hex quirks | General JS coercions and malformed UTF-16; accepted historical transactions and wire integration |
 | `tradeHistoryManager.js` | Seven query predicates, typed token/contract records, stable identities, atomic batches, canonical CRC checkpoint codec and rollback | Historical DB migration/order, positional/PnL/LIFO APIs, durable production persistence and chain-anchored replay |
 | `volumeIndex.js` | Exact bounded VWAP, half-up prices, constant-share fee rounding, typed inclusive totals, source reverse-pair/classification characterization and rollback | Legacy DB normalization, valuation and historical prices, logarithmic attenuation, production persistence and reward issuance |
-| `iou.js` | Stateful buckets and claims, source 20-place division/persistence rounding, claimant order, payout gates/reduction, totals and deletion; 67 actual-source transitions | Funded redemption and ledger/replay integration, production DB behavior, broader JS coercion/prototype domain and historical acceptance |
+| `iou.js` | Stateful buckets/claims and 67 source transitions; real-loss escrow and funded payouts; explicit atom policy; complete bounded IOU/ledger checkpoints | Authenticated matching/clearing integration and historical atom/dust rules, production DB behavior, broader JS coercion/prototype domain and historical acceptance |
 | `options.js` | All nine helper methods, decimal PnL/pricing/exposure/maintenance, ticker and numeric-prefix behavior, source greedy order; 118 actual-source vectors | Surrounding contract creation/exercise/assignment and margin/clearing integration; cross-platform binary64 bridge verification; historical acceptance |
 | `vaults.js` | Typed vault create/update/redeem, synthetic links, collateral interfaces and aggregate queries; 9 lifecycle seeds, 13 source queries and 30 characterized failures/quirks | Deliberate typed repairs differ from broken source paths; ledger mint/redeem, hedge lifecycle, durable persistence and funding/rebase specification remain open |
+| `contractRegistry.js` | Typed definitions and expiry/catalog queries, native/oracle notional/margin, AMM construction, funding journal and atomic collateral plans; all 40 distinct methods assessed; 219 source cases | Sole-ledger/channel/margin execution, broken oracle pricing/funding dependencies, AMM hydration, durability and historical acceptance |
+| `oracle.js` | Metadata/admin lifecycle, price history/circuit/TWAP, stake/fraud metadata and relay replay; 246 source vectors plus 17 quirks | Funded staking/slashing and insurance closure, authenticated prices/clearlist/DLC proofs, durable state and historical acceptance |
+| `amm.js` | Capital/share lifecycle and journals, quotes, inventory/curve/token intents, local registry and options adapter; all 25 declarations assessed; 275 source rows | Funded LP issuance/secondary reserves, safe-price execution, AMM-first orderbook/clearing, durability and historical acceptance |
 
 The combined [offline spot reporting adapter](OFFLINE_SPOT_REPORTING.md)
 inserts existing spot fills into both indexes atomically, rejects network
@@ -45,6 +49,19 @@ The shared engine is compared against 1,942 real BigNumber vectors and separate
 resource-limit/sign/ordering adversaries. Economic source oracles now run from
 complete archived, hash-pinned JavaScript and BigNumber code without an external
 legacy checkout or npm installation. They are included in CI.
+
+The third pass adds the [contract catalog](CONTRACT_REGISTRY.md),
+[oracle history](ORACLE.md) and [AMM lifecycle](AMM.md). Actual-source oracles
+keep source failures distinct from implemented local behaviors. Independent
+review corrected native-inverse invalid-mark metadata Number conversion and
+empty AMM percentage positive-zero behavior, with new source vectors.
+
+The [funded IOU adapter](FUNDED_IOU.md) owns one ledger and commits collected
+losses, source claims, actual escrow payouts and replay IDs atomically. Its
+atom policy is explicit and is not a historical tally rule. A review regression
+also prevents per-claim rounding from expanding the source current loss pool.
+[Combined checkpoints](IOU_CHECKPOINTS.md) preserve the full ledger, IOU
+counters/claim order, escrows and replay state across local restart/fork restore.
 
 ## Transaction throughput review
 
@@ -75,14 +92,31 @@ real RPC, authenticated parent UTXOs, script verification, canonical chain
 selection and serial TradeLayer economic application. The candidate pool's
 temporary 512-observation bound is not a measurement of total resident memory.
 
+The external ChatGPT worker owns subsequent tx-index/throughput work.
+[PR #141](https://github.com/patrickdugan/TradeLayer-Rust/pull/141), read at
+`8cb31416adf36dc7eefa53a396a40659eb3a6668`, is draft and unmerged. It succeeds
+the exploratory #139 and reports a narrower HashMap-only candidate with a
+process-separated real-block CPU/RSS harness and a mainnet block-1 smoke test.
+Representative Bitcoin Core block CPU runs and target-host peak-memory evidence
+remain promotion gates; block 1 has only one transaction.
+Those measurements and any promotion belong to that worker's lane. This local
+economic-module pass does not merge or select the performance candidates.
+
 ## Next independent work
 
-Connect the standalone IOU/vault state and options calculations to complete
-contract, clearing and ledger lifecycles, with explicit funded-transfer and
-replay rules. Source payout-pool reuse and contradictory vault persistence
-cannot silently become corrected economic consensus. Complete the remaining
-contract-registry, oracle, AMM/insurance/ADL and option-exercise/assignment paths
-against the pinned source and historical evidence.
+The external ChatGPT worker also owns the `insurance.js` port to
+`src/insurance.rs`, with `tests/insurance.rs`, its source oracle/fixtures and
+`docs/INSURANCE.md`. The local agents must leave those files to that worker.
+No insurance implementation or validation is claimed in this local batch.
+
+Connect contract collateral plans, oracle marks, AMM journals, vaults and options
+to complete matching/clearing and sole-ledger lifecycles. The funded IOU lane
+now has real transfers and local restart recovery; authenticated source matches,
+historical atom/dust rules and full clearing integration remain open. Source
+payout-pool reuse, contradictory vault persistence and broken contract funding
+cannot silently become corrected economic consensus. Complete funded LP and
+secondary-reserve accounting, insurance/ADL, option exercise/assignment, durable
+production storage and historical replay against the pinned source.
 Keep the separate worker's UTXO/script work and the Stage 25P/Q/R admission and
 signed-channel gates visible as outstanding dependencies. Subsequent source
 functions should receive individual test and historical-vector criteria before
@@ -124,3 +158,28 @@ The decimal adversarial review found no arithmetic defect within the documented
 bounds; the economic review found no parity or atomicity defect within the
 documented domains. Functional repairs to broken vault source paths remain
 explicit divergences, not historical acceptance claims.
+
+## Local validation for catalogs, oracle, AMM and funded IOUs
+
+Pinned Rust 1.90.0 on Windows/MSVC passed all 633 tests across 86 executables,
+formatting including the new included IOU codecs, all-target Clippy with
+warnings denied, the frozen all-target release build and doc tests (none
+defined). The dependency verifier and all 11 adversarial policy tests passed.
+These are local checks; no branch was pushed and no CI run, Lean/Kani proof
+or historical acceptance result is claimed for this local head.
+
+The actual-source oracles passed 219 contract-registry cases, 246 oracle
+lifecycle vectors plus 17 oracle quirks, and 275 AMM rows. Both archived and
+external pinned-source modes passed. The existing decimal, IOU, options,
+vault and volume source checks also passed unchanged.
+
+Independent review corrected two source-parity errors and added source-derived
+regressions. The funded IOU suite includes 13 real-ledger integration tests,
+nine restart/canonical-codec tests, and two additional capacity regressions.
+The latter exercise a valid standalone claim map exceeding the 64 MiB encoding
+cap and a real 100,000-ID ledger journal boundary. Funded construction and
+mutations now require successful complete serialization, rejecting an
+uncheckpointable import or rolling back a transition that crosses a bound.
+The standalone arithmetic store still has a separate serialization limit.
+This closes a local recovery gap; production durability and authenticated
+economic execution remain open.

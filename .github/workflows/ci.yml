@@ -42,6 +42,8 @@ jobs:
         run: rustfmt --check --edition 2021 src/joint_snapshot_impl.rs
       - name: Check included combined clearing snapshot formatting
         run: rustfmt --check --edition 2021 src/clearing_snapshot_impl.rs
+      - name: Check included IOU checkpoint formatting
+        run: rustfmt --check --edition 2021 src/iou_snapshot_impl.rs src/iou_ledger_snapshot_impl.rs
       - name: Check included research distressed closeout formatting
         run: rustfmt --check --edition 2021 src/clearing_distress_impl.rs
       - name: Check included synthetic bilateral partial reduction formatting
@@ -61,6 +63,9 @@ jobs:
           node scripts/options_vectors.cjs
           node scripts/vault_vectors.cjs --check
           node scripts/volume_index_vectors.cjs
+          node scripts/contract_registry_vectors.cjs
+          node scripts/oracle_vectors.cjs
+          node scripts/amm_vectors.cjs
       - name: Stage 25C atomic PnL and replay fence tests
         run: cargo test --frozen --test clearing_mark_to_market
       - name: Stage 25D full clearing state checkpoint and fork recovery
