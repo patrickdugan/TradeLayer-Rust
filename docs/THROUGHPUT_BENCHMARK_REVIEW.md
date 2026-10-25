@@ -133,6 +133,11 @@ The separate pooled branch and index benchmark remain unchanged.
 This document's source links and measured values refer to the reviewed candidate
 commit above, before those corrections.
 
+The later [barrier-pool review](TXINDEX_BARRIER_REVIEW.md) pins candidate
+`9091bcd` separately and adds an isolated Merkle phase to local main. The current
+benchmark therefore rotates nine phases; the eight-phase observations below
+describe the earlier instrumentation.
+
 The corrected release binary completed 1 transaction / 1 worker / 1 repeat;
 1,000 / 4 / 50% witness / 8 repeats; and 1 / 1 / 50 repeats. Every case passed
 full ordered equivalence, and a shell check verified exactly eight sample fields

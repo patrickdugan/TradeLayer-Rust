@@ -1,0 +1,116 @@
+--- a/src/parallel_txindex.rs
++++ b/src/parallel_txindex.rs
+@@ -35,7 +35,7 @@
+ use std::panic::{catch_unwind, AssertUnwindSafe};
+ use std::sync::atomic::{AtomicUsize, Ordering};
+ use std::sync::OnceLock;
+-use std::sync::{mpsc, Arc, Barrier, Mutex};
++use std::sync::{mpsc, Arc, Barrier, Condvar, Mutex};
+ use std::thread;
+ 
+ pub const MAX_PARALLEL_WORKERS: usize = 16;
+@@ -662,6 +662,48 @@
+     panicked: std::sync::atomic::AtomicBool,
+ }
+ 
++/// Keep partially started teams away from barriers with a fixed participant
++/// count. None means pending; Some(true) means all workers started; and
++/// Some(false) means startup was cancelled before the team became usable.
++struct BarrierPoolStartup {
++    state: Mutex<Option<bool>>,
++    changed: Condvar,
++}
++impl BarrierPoolStartup {
++    fn new() -> Self {
++        Self {
++            state: Mutex::new(None),
++            changed: Condvar::new(),
++        }
++    }
++
++    fn wait(&self) -> bool {
++        let state = self.state.lock().unwrap_or_else(|error| error.into_inner());
++        let state = self
++            .changed
++            .wait_while(state, |state| state.is_none())
++            .unwrap_or_else(|error| error.into_inner());
++        *state == Some(true)
++    }
++
++    fn release(&self, ready: bool) {
++        let mut state = self.state.lock().unwrap_or_else(|error| error.into_inner());
++        if state.is_none() {
++            *state = Some(ready);
++            self.changed.notify_all();
++        }
++    }
++}
++
++/// This guard must live inside thread::scope's closure so cancellation runs
++/// before scope tries to join workers during an early return or unwinding.
++struct CancelBarrierPoolStartup<'a>(&'a BarrierPoolStartup);
++impl Drop for CancelBarrierPoolStartup<'_> {
++    fn drop(&mut self) {
++        self.0.release(false);
++    }
++}
++
+ /// EXPERIMENTAL second bounded-pool scheduler. One reusable scoped worker
+ /// team runs for the whole block. The coordinator publishes a 1..=512-TX
+ /// window, releases a start barrier, and waits on a completion barrier.
+@@ -692,6 +734,7 @@
+         return inspect_prepared_block_parallel(transactions, config);
+     }
+     let workers = config.workers.min(transactions.len());
++    let startup = BarrierPoolStartup::new();
+     let published = Mutex::<Option<Arc<BarrierHashWindow>>>::new(None);
+     let start_barrier = Barrier::new(workers + 1);
+     let done_barrier = Barrier::new(workers + 1);
+@@ -701,6 +744,7 @@
+     let mut seen = BTreeMap::new();
+ 
+     thread::scope(|scope| {
++        let cancel_startup = CancelBarrierPoolStartup(&startup);
+         let mut handles = Vec::with_capacity(workers);
+         for _ in 0..workers {
+             let current = &published;
+@@ -708,7 +752,7 @@
+             let done = &done_barrier;
+             let stopping = &stop;
+             let failed = &shared_fault;
+-            handles.push(scope.spawn(move || loop {
++            let work = move || loop {
+                 start.wait();
+                 if stopping.load(Ordering::Acquire) {
+                     break;
+@@ -747,8 +791,28 @@
+                 // coordinator may unwrap and consume slots without cloning.
+                 drop(window);
+                 done.wait();
+-            }));
+-        }
++            };
++            let startup = &startup;
++            let spawned = thread::Builder::new().spawn_scoped(scope, move || {
++                if startup.wait() {
++                    work();
++                }
++            });
++            match spawned {
++                Ok(handle) => handles.push(handle),
++                Err(_) => {
++                    // No worker has entered a fixed-size barrier yet. Cancel
++                    // before joining every thread that did start successfully.
++                    drop(cancel_startup);
++                    for handle in handles {
++                        let _ = handle.join();
++                    }
++                    return Err(ParallelIndexError::WorkerPanicked);
++                }
++            }
++        }
++        startup.release(true);
++        drop(cancel_startup);
+ 
+         let scanned = (|| {
+             for (window_id, transactions_window) in

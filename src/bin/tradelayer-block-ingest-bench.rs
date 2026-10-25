@@ -72,9 +72,10 @@ enum Phase {
     OneTeamFull,
     BoundaryParse,
     DependencyPlan,
+    TxidMerkle,
 }
 
-const PHASES: [Phase; 8] = [
+const PHASES: [Phase; 9] = [
     Phase::Owned,
     Phase::FullOwned,
     Phase::Prepared,
@@ -83,6 +84,7 @@ const PHASES: [Phase; 8] = [
     Phase::OneTeamFull,
     Phase::BoundaryParse,
     Phase::DependencyPlan,
+    Phase::TxidMerkle,
 ];
 
 /// Equivalence checks and output destruction are outside every timer. Full
@@ -94,6 +96,7 @@ fn measure(
     config: ParallelIndexConfig,
     expected: &UnverifiedRawBlockIndex,
     dependency: &UnverifiedDependencyWaves,
+    txids: &[[u8; 32]],
 ) -> Duration {
     let start = Instant::now();
     match phase {
@@ -188,6 +191,16 @@ fn measure(
             black_box(planned);
             elapsed
         }
+        Phase::TxidMerkle => {
+            // Isolate the serial Merkle construction also performed inside
+            // every prepared/full block path. TXIDs are materialized before
+            // timing; the helper's level allocations are part of this phase.
+            let root = merkle_root_unverified(txids).unwrap();
+            let elapsed = start.elapsed();
+            assert_eq!(root, expected.txid_merkle_root_raw());
+            black_box(root);
+            elapsed
+        }
     }
 }
 
@@ -241,13 +254,27 @@ fn main() {
     let new = view.inspect_parallel(config).unwrap();
     assert_eq!(old, *new.ordered_preindex());
     let dependency = view.plan_dependency_waves(&new).unwrap();
+    let txids = new
+        .ordered_preindex()
+        .ordered()
+        .iter()
+        .map(|row| row.observation.txid)
+        .collect::<Vec<_>>();
     // Warm every measured phase, including full clones/parses and planning.
     for phase in PHASES {
-        black_box(measure(phase, &raw, &view, config, &new, &dependency));
+        black_box(measure(
+            phase,
+            &raw,
+            &view,
+            config,
+            &new,
+            &dependency,
+            &txids,
+        ));
     }
     let mut samples: [Vec<Duration>; PHASES.len()] = std::array::from_fn(|_| Vec::new());
     for repeat in 0..repeats {
-        // Deterministic rotation gives every phase each slot over eight
+        // Deterministic rotation gives every phase each slot over nine
         // repeats. Raw per-phase samples retain their chronological order.
         for offset in 0..PHASES.len() {
             let slot = (repeat + offset) % PHASES.len();
@@ -258,6 +285,7 @@ fn main() {
                 config,
                 &new,
                 &dependency,
+                &txids,
             ));
         }
     }
@@ -269,19 +297,21 @@ fn main() {
     let one_team_full_ms = median(&samples[5]).as_secs_f64() * 1000.0;
     let boundary_parse_ms = median(&samples[6]).as_secs_f64() * 1000.0;
     let dependency_plan_ms = median(&samples[7]).as_secs_f64() * 1000.0;
+    let txid_merkle_ms = median(&samples[8]).as_secs_f64() * 1000.0;
     let bulk_seconds = (bulk_ms / 1000.0).max(1e-9);
     println!("benchmark=UNVERIFIED_SYNTHETIC_BULK_BLOCK_INGEST");
     println!("transaction_count={count}");
     println!("witness_percent={witness_percent}");
     println!("workers={workers}");
     println!("repeats={repeats}");
-    println!("measurement_order=ROTATE_EIGHT_PHASES_BY_REPEAT");
+    println!("measurement_order=ROTATE_NINE_PHASES_BY_REPEAT");
     println!("warmup_runs_per_phase=1");
     println!("equivalence_checks=OUTSIDE_TIMERS");
     println!("prepared_phase_scope=PREPARSED_HASH_CARRIER_REDUCTION_TXID_MERKLE");
     println!("full_phase_scope=MOCK_CLONE_HEADER_BOUNDARIES_HASH_CARRIER_REDUCTION_TXID_MERKLE");
     println!("boundary_parse_scope=HEADER_HASH_BOUNDARIES_LAYOUTS_WEIGHT_NO_CLONE");
     println!("dependency_plan_scope=PREPARSED_PREINDEXED_UNVERIFIED_PREVOUT_GRAPH");
+    println!("txid_merkle_scope=PRECOMPUTED_TXIDS_SERIAL_HASHING_AND_LEVEL_ALLOCATIONS");
     println!("legacy_measured_ratio_scope=OWNED_TX_COPY_SCAN_OVER_FULL_BLOCK_WINDOWED");
     println!("raw_block_bytes={}", raw.len());
     println!("declared_weight={}", view.block_weight());
@@ -305,6 +335,7 @@ fn main() {
     println!("one_team_full_block_pipeline_median_ms={one_team_full_ms:.3}");
     println!("boundary_parse_median_ms={boundary_parse_ms:.3}");
     println!("dependency_plan_median_ms={dependency_plan_ms:.3}");
+    println!("txid_merkle_median_ms={txid_merkle_ms:.3}");
     println!("dependency_wave_count={}", dependency.waves().len());
     println!(
         "dependency_same_block_edges={}",
@@ -341,6 +372,7 @@ fn main() {
         "one_team_full_block_pipeline",
         "boundary_parse",
         "dependency_plan",
+        "txid_merkle",
     ]
     .into_iter()
     .zip(&samples)

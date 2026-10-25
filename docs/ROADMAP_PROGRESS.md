@@ -61,10 +61,14 @@ legacy checkout or npm installation. They are included in CI.
 - [Benchmark review](THROUGHPUT_BENCHMARK_REVIEW.md): identifies unequal timer
   boundaries, missing full-pipeline scheduler comparisons, fixed measurement
   order, limited sampling and uniform synthetic inputs. The current-main
-  executable now rotates eight phases, warms each one, prints raw timing
+  executable now rotates nine phases, warms each one, prints raw timing
   samples, and reports full one-team ingestion, structural parsing and
   dependency planning separately. Pooled candidate measurements remain scoped
   to their reviewed revision. No default scheduler is changed.
+- [Barrier-pool follow-up](TXINDEX_BARRIER_REVIEW.md): independently reviews
+  candidate `9091bcd`, reproduces a partial-startup barrier deadlock, confirms
+  its same-claim error/panic parity, and records remaining benchmark issues.
+  A separate local-main Merkle phase exposes serial work inside ingestion.
 
 Synthetic timings measure local parsing/hashing/indexing work. They exclude
 real RPC, authenticated parent UTXOs, script verification, canonical chain

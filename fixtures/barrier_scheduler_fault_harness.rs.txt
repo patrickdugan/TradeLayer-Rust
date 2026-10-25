@@ -1,0 +1,185 @@
+// Included by scripts/check_barrier_faults.py against exact 9091bcd.
+// The unmodified-source mode replaces only read_only with fault injection.
+// Separate temporary source copies inject startup panic immediately before
+// scoped spawn, characterizing fixed-barrier shutdown on partial creation.
+#![allow(dead_code)]
+
+mod read_only {
+    use std::thread;
+    use std::time::Duration;
+
+    pub const MAX_RAW_TRANSACTION: usize = 1_000_000;
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub enum ScanError { Truncated }
+    pub struct TransactionLayout { pub stripped: usize }
+    impl TransactionLayout {
+        pub const fn stripped_bytes(&self) -> usize { self.stripped }
+    }
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub struct TransactionObservation {
+        pub txid: [u8; 32],
+        pub op_return_count: u32,
+        pub carriers: Vec<()>,
+    }
+    pub fn inspect_prepared_transaction(raw: &[u8], _: &TransactionLayout)
+        -> Result<TransactionObservation, ScanError>
+    {
+        if raw[1] != 0 { thread::sleep(Duration::from_millis(u64::from(raw[1]))); }
+        match raw[0] {
+            1 => return Err(ScanError::Truncated),
+            2 => panic!("injected prepared-scanner panic"),
+            _ => {}
+        }
+        Ok(TransactionObservation {
+            txid: raw[2..34].try_into().unwrap(),
+            op_return_count: 0,
+            carriers: Vec::new(),
+        })
+    }
+    pub fn inspect_transaction(raw: &[u8]) -> Result<TransactionObservation, ScanError> {
+        inspect_prepared_transaction(raw, &TransactionLayout { stripped: raw.len() })
+    }
+}
+
+#[path = __SCHEDULER_SOURCE__]
+mod candidate;
+use candidate::{
+    inspect_prepared_block_parallel, inspect_prepared_block_pooled_barrier,
+    ParallelIndexConfig, ParallelIndexError, PreparedRawTransaction,
+};
+use read_only::{ScanError, TransactionLayout};
+
+fn config(workers: usize, window: usize) -> ParallelIndexConfig {
+    ParallelIndexConfig { workers, window_transactions: window }
+}
+fn rows(count: usize) -> Vec<Vec<u8>> {
+    (0..count).map(|i| {
+        let length = if i % 17 == 0 { 4_096 } else { 64 + i % 13 * 17 };
+        let mut raw = vec![0; length];
+        raw[2..10].copy_from_slice(&(i as u64).to_le_bytes());
+        raw[10] = 0x42;
+        raw
+    }).collect()
+}
+fn run(rows: &[Vec<u8>], cfg: ParallelIndexConfig, pooled: bool)
+    -> Result<candidate::UnverifiedOrderedBlockIndex, ParallelIndexError>
+{
+    let layouts: Vec<_> = rows.iter().enumerate().map(|(i, row)| TransactionLayout {
+        stripped: if i % 3 == 0 { row.len() / 2 } else { row.len() },
+    }).collect();
+    let prepared: Vec<_> = rows.iter().zip(&layouts).map(|(raw, layout)|
+        PreparedRawTransaction { raw, layout }).collect();
+    if pooled { inspect_prepared_block_pooled_barrier(&prepared, cfg) }
+    else { inspect_prepared_block_parallel(&prepared, cfg) }
+}
+
+#[test]
+fn out_of_order_weighted_multiwindow_results_equal_serial() {
+    let mut rows = rows(1_025);
+    for i in [0, 7, 63, 511, 512, 1_024] { rows[i][1] = 1; }
+    let expected = run(&rows, config(1, 512), false).unwrap();
+    for workers in [2, 4, 16] {
+        for window in [1, 7, 64, 512] {
+            assert_eq!(run(&rows, config(workers, window), true), Ok(expected.clone()),
+                "workers={workers} window={window}");
+        }
+    }
+}
+
+#[test]
+fn earliest_scan_error_survives_slow_low_position_and_shortened_claim() {
+    let mut rows = rows(140);
+    rows[3][0] = 1;
+    rows[3][1] = 12;
+    rows[19][0] = 1;
+    for workers in [1, 2, 4, 16] {
+        for window in [1, 7, 64, 512] {
+            assert_eq!(run(&rows, config(workers, window), true), Err(ParallelIndexError::RawScan {
+                index: 3, source: ScanError::Truncated,
+            }));
+        }
+    }
+}
+
+#[test]
+fn job_panics_return_and_join_on_first_middle_and_final_windows() {
+    for index in [0, 63, 64, 139] {
+        let mut rows = rows(140);
+        rows[index][0] = 2;
+        for workers in [2, 4, 16] {
+            for window in [1, 7, 64, 512] {
+                assert_eq!(run(&rows, config(workers, window), true),
+                    Err(ParallelIndexError::WorkerPanicked),
+                    "index={index} workers={workers} window={window}");
+            }
+        }
+    }
+}
+
+#[test]
+fn every_job_panicking_still_produces_results_and_releases_the_pool() {
+    let mut rows = rows(140);
+    for raw in &mut rows { raw[0] = 2; }
+    for workers in [2, 4, 16] {
+        assert_eq!(run(&rows, config(workers, 64), true), Err(ParallelIndexError::WorkerPanicked));
+    }
+    assert!(run(&self::rows(140), config(16, 64), true).is_ok());
+}
+
+#[test]
+fn panic_and_error_priority_matches_original_windows() {
+    let mut rows = rows(140);
+    rows[3][0] = 1;
+    rows[19][0] = 2;
+    for workers in [2, 4, 16] {
+        for window in [1, 7, 64, 512] {
+            let cfg = config(workers, window);
+            assert_eq!(run(&rows, cfg, true), run(&rows, cfg, false),
+                "workers={workers} window={window}");
+        }
+    }
+}
+
+#[test]
+fn same_claim_error_then_panic_matches_original_windowed_priority() {
+    let mut rows = rows(140);
+    rows[1][0] = 1;
+    rows[2][0] = 2;
+    let cfg = config(2, 512);
+    // The first weighted claim is 0..13. Barrier workers continue through
+    // ordinary errors, so the later same-claim panic retains precedence.
+    assert_eq!(run(&rows, cfg, false), Err(ParallelIndexError::WorkerPanicked));
+    assert_eq!(run(&rows, cfg, true), Err(ParallelIndexError::WorkerPanicked));
+}
+
+#[test]
+fn earlier_duplicate_beats_later_scan_error_across_claims_and_windows() {
+    let mut rows = rows(1_025);
+    let id = rows[2][2..34].to_vec();
+    rows[700][2..34].copy_from_slice(&id);
+    rows[900][0] = 1;
+    for workers in [2, 4, 16] {
+        for window in [1, 7, 64, 512] {
+            assert_eq!(run(&rows, config(workers, window), true),
+                Err(ParallelIndexError::DuplicateTxid { first: 2, second: 700 }));
+        }
+    }
+}
+
+#[test]
+fn scan_error_before_duplicate_wins_without_partial_success() {
+    let mut rows = rows(140);
+    let id = rows[2][2..34].to_vec();
+    rows[100][2..34].copy_from_slice(&id);
+    rows[3][0] = 1;
+    for workers in [2, 4, 16] {
+        assert_eq!(run(&rows, config(workers, 512), true), Err(ParallelIndexError::RawScan {
+            index: 3, source: ScanError::Truncated,
+        }));
+    }
+}
+
+#[test]
+fn startup_failure_case() {
+    assert!(run(&rows(140), config(4, 64), true).is_ok());
+}

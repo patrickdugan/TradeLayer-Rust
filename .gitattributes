@@ -20,3 +20,6 @@ fixtures/decimal_vectors.tsv text eol=lf
 fixtures/iou_vectors.tsv text eol=lf
 fixtures/options_*.tsv text eol=lf
 fixtures/vault_vectors.tsv text eol=lf
+
+# Unified patches contain significant blank context lines with a space prefix.
+fixtures/barrier_startup_cancellation.patch text eol=lf -whitespace
