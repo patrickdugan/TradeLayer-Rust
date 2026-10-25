@@ -414,3 +414,602 @@ fn randomized_legal_and_illegal_transfers_preserve_every_invariant() {
         assert_eq!(ledger.verify_conservation(), Ok(()), "after {i}");
     }
 }
+
+#[test]
+fn duplicate_late_in_batch_rolls_back_every_collection() {
+    let mut ledger = Ledger::new();
+    ledger
+        .apply(tx(1), create(20, PropertyKind::Fixed, 100))
+        .unwrap();
+    let before = ledger.clone();
+    let result = ledger.apply_batch([
+        (tx(2), send(20, "alice", "bob", 20)),
+        (tx(3), create(21, PropertyKind::Managed, 50)),
+        (tx(2), send(20, "bob", "carol", 1)),
+    ]);
+    assert_eq!(result, Err(LedgerError::AlreadyProcessed(tx(2))));
+    assert_eq!(ledger, before);
+    assert!(!ledger.is_processed(tx(2)));
+    assert!(!ledger.is_processed(tx(3)));
+    assert!(ledger.property(p(21)).is_none());
+    assert_eq!(ledger.verify_conservation(), Ok(()));
+}
+
+#[test]
+fn late_overflow_rolls_back_earlier_mint_and_replay_markers() {
+    let mut ledger = Ledger::new();
+    ledger
+        .apply(tx(1), create(22, PropertyKind::Managed, u128::MAX - 1))
+        .unwrap();
+    let before = ledger.clone();
+    let result = ledger.apply_batch([
+        (
+            tx(2),
+            Operation::Mint {
+                id: p(22),
+                issuer: a("alice"),
+                to: a("bob"),
+                amount_atoms: 1,
+            },
+        ),
+        (
+            tx(3),
+            Operation::Mint {
+                id: p(22),
+                issuer: a("alice"),
+                to: a("bob"),
+                amount_atoms: 1,
+            },
+        ),
+    ]);
+    assert_eq!(result, Err(LedgerError::ArithmeticOverflow));
+    assert_eq!(ledger, before);
+    assert!(!ledger.is_processed(tx(2)));
+    assert!(!ledger.is_processed(tx(3)));
+    assert_eq!(ledger.available_atoms(p(22), &a("bob")), 0);
+    assert_eq!(ledger.verify_conservation(), Ok(()));
+}
+
+#[test]
+fn iterator_panic_during_staging_preserves_public_ledger() {
+    let mut ledger = Ledger::new();
+    ledger
+        .apply(tx(1), create(23, PropertyKind::Fixed, 100))
+        .unwrap();
+    let before = ledger.clone();
+    let partial =
+        std::iter::once((tx(2), send(23, "alice", "bob", 20))).chain(std::iter::once_with(
+            || -> (TxId, Operation) { panic!("deliberate panic after a valid staged transaction") },
+        ));
+    let caught =
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ledger.apply_batch(partial)));
+    assert!(caught.is_err());
+    assert_eq!(ledger, before);
+    assert!(!ledger.is_processed(tx(2)));
+    assert_eq!(ledger.verify_conservation(), Ok(()));
+}
+
+#[test]
+fn journal_sweep_preserves_other_property_and_rejects_wrong_receipt_atomically() {
+    use tradelayer_core::ledger::ChannelSide;
+
+    let chan = a("chan");
+    let mut ledger = Ledger::new();
+    ledger
+        .apply(tx(1), create(7, PropertyKind::Fixed, 200))
+        .unwrap();
+    ledger.apply(tx(2), send(7, "alice", "bob", 100)).unwrap();
+    ledger
+        .apply(
+            tx(3),
+            Operation::ChannelCommit {
+                id: p(7),
+                owner: a("alice"),
+                channel: chan.clone(),
+                side: ChannelSide::A,
+                amount_atoms: 100,
+            },
+        )
+        .unwrap();
+    ledger
+        .apply(
+            tx(4),
+            Operation::ChannelCommit {
+                id: p(7),
+                owner: a("bob"),
+                channel: chan.clone(),
+                side: ChannelSide::B,
+                amount_atoms: 100,
+            },
+        )
+        .unwrap();
+    ledger
+        .apply(tx(5), create(8, PropertyKind::Managed, 50))
+        .unwrap();
+    ledger
+        .apply(
+            tx(6),
+            Operation::Mint {
+                id: p(8),
+                issuer: a("alice"),
+                to: a("bob"),
+                amount_atoms: 20,
+            },
+        )
+        .unwrap();
+    let property8_alice = ledger.available_atoms(p(8), &a("alice"));
+    let property8_bob = ledger.available_atoms(p(8), &a("bob"));
+
+    for (txid, side, atoms, reference, height) in [
+        (7, ChannelSide::A, 30, 50, 104),
+        (8, ChannelSide::B, 10, 51, 105),
+    ] {
+        ledger
+            .apply(
+                tx(txid),
+                Operation::ChannelNetClaim {
+                    id: p(7),
+                    channel: chan.clone(),
+                    payer_side: side,
+                    amount_atoms: atoms,
+                    trade_reference: tx(reference),
+                    height,
+                    expiry_height: 200,
+                },
+            )
+            .unwrap();
+    }
+    let preview = ledger
+        .preview_king_settlement_unverified(&chan, p(7), 104, 105, 106)
+        .unwrap();
+    assert_eq!(preview.net_atoms, 20);
+    let make_sweep = |net_atoms| Operation::ChannelKingSettle {
+        id: p(7),
+        channel: chan.clone(),
+        start_height: 104,
+        end_height: 105,
+        settled_at: 106,
+        expected_root: preview.root,
+        expected_count: preview.count,
+        payer_side: preview.payer_side,
+        net_atoms,
+    };
+
+    let prior = ledger.clone();
+    assert_eq!(
+        ledger.apply(tx(9), make_sweep(21)),
+        Err(LedgerError::SettlementCommitmentMismatch)
+    );
+    assert_eq!(ledger, prior);
+    assert!(!ledger.is_processed(tx(9)));
+
+    ledger.apply(tx(9), make_sweep(20)).unwrap();
+    assert_eq!(ledger.pending_net_settlement_count(), 0);
+    assert_eq!(ledger.swept_net_settlement_count(), 2);
+    assert_eq!(ledger.king_settlement_count(), 1);
+    assert_eq!(ledger.channel_atoms(p(7), &chan, ChannelSide::A), 80);
+    assert_eq!(ledger.channel_atoms(p(7), &chan, ChannelSide::B), 120);
+    assert_eq!(ledger.available_atoms(p(8), &a("alice")), property8_alice);
+    assert_eq!(ledger.available_atoms(p(8), &a("bob")), property8_bob);
+    assert_eq!(ledger.property(p(8)).unwrap().total_supply_atoms, 70);
+    assert_eq!(ledger.verify_conservation(), Ok(()));
+    let checkpoint = ledger.snapshot_bytes().unwrap();
+    assert_eq!(Ledger::from_snapshot_bytes(&checkpoint).unwrap(), ledger);
+}
+
+#[test]
+fn canonical_supply_audit_tracks_arbitrary_wallet_channel_and_pending_columns() {
+    use tradelayer_core::ledger::{
+        ChannelSide, SupplyAuditRow, SupplyColumnRow, SupplyColumnSource,
+    };
+
+    let mut ledger = Ledger::new();
+    ledger
+        .apply(tx(1), create(7, PropertyKind::Fixed, 1000))
+        .unwrap();
+    ledger.apply(tx(2), send(7, "alice", "bob", 400)).unwrap();
+    ledger.apply(tx(3), send(7, "bob", "carol", 100)).unwrap();
+    ledger
+        .apply(
+            tx(4),
+            Operation::ChannelCommit {
+                id: p(7),
+                owner: a("bob"),
+                channel: a("chan"),
+                side: ChannelSide::A,
+                amount_atoms: 150,
+            },
+        )
+        .unwrap();
+    ledger
+        .apply(
+            tx(5),
+            Operation::ChannelCommit {
+                id: p(7),
+                owner: a("carol"),
+                channel: a("chan"),
+                side: ChannelSide::B,
+                amount_atoms: 60,
+            },
+        )
+        .unwrap();
+    ledger
+        .apply(
+            tx(6),
+            Operation::ChannelWithdraw {
+                id: p(7),
+                owner: a("bob"),
+                channel: a("chan"),
+                side: ChannelSide::A,
+                amount_atoms: 35,
+                unlock_height: 150,
+            },
+        )
+        .unwrap();
+
+    ledger
+        .apply(tx(7), create(8, PropertyKind::Managed, 500))
+        .unwrap();
+    ledger
+        .apply(
+            tx(8),
+            Operation::Mint {
+                id: p(8),
+                issuer: a("alice"),
+                to: a("bob"),
+                amount_atoms: 70,
+            },
+        )
+        .unwrap();
+    ledger.apply(tx(9), send(8, "alice", "carol", 30)).unwrap();
+
+    let expected = vec![
+        SupplyAuditRow {
+            property: p(7),
+            total_supply_atoms: 1000,
+            available_atoms: 790,
+            escrow_atoms: 175,
+            pending_withdrawal_atoms: 35,
+        },
+        SupplyAuditRow {
+            property: p(8),
+            total_supply_atoms: 570,
+            available_atoms: 570,
+            escrow_atoms: 0,
+            pending_withdrawal_atoms: 0,
+        },
+    ];
+    assert_eq!(ledger.supply_audit_rows_unverified().unwrap(), expected);
+    let columns = ledger.supply_column_rows_unverified().unwrap();
+    let expected_columns = vec![
+        SupplyColumnRow {
+            property: p(7),
+            source: SupplyColumnSource::Available(a("alice")),
+            atoms: 600,
+        },
+        SupplyColumnRow {
+            property: p(7),
+            source: SupplyColumnSource::Available(a("bob")),
+            atoms: 150,
+        },
+        SupplyColumnRow {
+            property: p(7),
+            source: SupplyColumnSource::Available(a("carol")),
+            atoms: 40,
+        },
+        SupplyColumnRow {
+            property: p(7),
+            source: SupplyColumnSource::ChannelEscrow {
+                channel: a("chan"),
+                side: ChannelSide::A,
+            },
+            atoms: 115,
+        },
+        SupplyColumnRow {
+            property: p(7),
+            source: SupplyColumnSource::ChannelEscrow {
+                channel: a("chan"),
+                side: ChannelSide::B,
+            },
+            atoms: 60,
+        },
+        SupplyColumnRow {
+            property: p(7),
+            source: SupplyColumnSource::ReservedWithdrawal(tx(6)),
+            atoms: 35,
+        },
+        SupplyColumnRow {
+            property: p(8),
+            source: SupplyColumnSource::Available(a("alice")),
+            atoms: 470,
+        },
+        SupplyColumnRow {
+            property: p(8),
+            source: SupplyColumnSource::Available(a("bob")),
+            atoms: 70,
+        },
+        SupplyColumnRow {
+            property: p(8),
+            source: SupplyColumnSource::Available(a("carol")),
+            atoms: 30,
+        },
+    ];
+    assert_eq!(columns, expected_columns);
+    // Verify network-qualified byte keys against the actual heterogeneous
+    // BTreeMap columns, without rebuilding keys through the source adapter.
+    let proof_keys = ledger
+        .supply_proof_keys_unverified(tradelayer_core::network_profile::TradeLayerMainnet::Litecoin)
+        .unwrap();
+    assert_eq!(proof_keys.len(), 9);
+    assert!(proof_keys.windows(2).all(|pair| pair[0].0 < pair[1].0));
+    for (index, (key, atoms)) in proof_keys.iter().enumerate() {
+        assert_eq!(key.network_tag, 2);
+        assert_eq!(key.property_id, expected_columns[index].property.get());
+        assert_eq!(key.source_tag, [0, 0, 0, 1, 2, 3, 0, 0, 0][index]);
+        assert_eq!(*atoms, expected_columns[index].atoms);
+    }
+    assert_eq!(proof_keys[0].0.identifier_bytes, b"alice");
+    assert_eq!(proof_keys[3].0.identifier_bytes, b"chan");
+    assert_eq!(proof_keys[4].0.identifier_bytes, b"chan");
+    assert_eq!(proof_keys[5].0.identifier_bytes, tx(6).as_bytes().to_vec());
+    assert_eq!(proof_keys[5].0.identifier_bytes.len(), 32);
+    assert!(columns.windows(2).all(|pair| pair[0] < pair[1]));
+    assert!(columns.iter().all(|row| row.atoms > 0));
+    let mut grouped = std::collections::BTreeMap::new();
+    for row in &columns {
+        let amounts = grouped.entry(row.property).or_insert([0u128; 3]);
+        let group = match &row.source {
+            SupplyColumnSource::Available(_) => 0,
+            SupplyColumnSource::ChannelEscrow { .. } => 1,
+            SupplyColumnSource::ReservedWithdrawal(_) => 2,
+        };
+        amounts[group] = amounts[group].checked_add(row.atoms).unwrap();
+    }
+    assert_eq!(grouped.get(&p(7)), Some(&[790, 175, 35]));
+    assert_eq!(grouped.get(&p(8)), Some(&[570, 0, 0]));
+    assert_eq!(ledger.verify_conservation(), Ok(()));
+    let snapshot = ledger.snapshot_bytes().unwrap();
+    let reloaded = Ledger::from_snapshot_bytes(&snapshot).unwrap();
+    assert_eq!(reloaded, ledger);
+    assert_eq!(reloaded.supply_audit_rows_unverified().unwrap(), expected);
+    assert_eq!(
+        reloaded.supply_column_rows_unverified().unwrap(),
+        expected_columns
+    );
+    assert_eq!(
+        reloaded
+            .supply_proof_keys_unverified(
+                tradelayer_core::network_profile::TradeLayerMainnet::Litecoin,
+            )
+            .unwrap(),
+        proof_keys
+    );
+
+    let immutable = ledger.clone();
+    assert_eq!(ledger.settle_due_withdrawals_unverified(149), Ok(0));
+    assert_eq!(ledger, immutable);
+    assert_eq!(ledger.settle_due_withdrawals_unverified(150), Ok(1));
+    let mut matured = expected;
+    matured[0].available_atoms += 35;
+    matured[0].pending_withdrawal_atoms = 0;
+    assert_eq!(ledger.supply_audit_rows_unverified().unwrap(), matured);
+    assert_eq!(ledger.pending_withdrawal_count(), 0);
+    assert_eq!(ledger.verify_conservation(), Ok(()));
+}
+
+#[test]
+fn newly_seen_recipient_and_zero_pruning_change_only_column_support() {
+    use tradelayer_core::ledger::{SupplyColumnRow, SupplyColumnSource};
+
+    let mut ledger = Ledger::new();
+    ledger
+        .apply(tx(1), create(31, PropertyKind::Fixed, 100))
+        .unwrap();
+    let initial = ledger.supply_column_rows_unverified().unwrap();
+    assert_eq!(initial.len(), 1);
+    assert_eq!(initial[0].source, SupplyColumnSource::Available(a("alice")));
+
+    ledger
+        .apply(tx(2), send(31, "alice", "new-recipient", 100))
+        .unwrap();
+    let after = ledger.supply_column_rows_unverified().unwrap();
+    assert_eq!(
+        after,
+        vec![SupplyColumnRow {
+            property: p(31),
+            source: SupplyColumnSource::Available(a("new-recipient")),
+            atoms: 100,
+        }]
+    );
+    let first = ledger.supply_audit_rows_unverified().unwrap();
+    assert_eq!(first[0].available_atoms, 100);
+    assert_eq!(first[0].total_supply_atoms, 100);
+
+    // Identity sends consume replay IDs after checking funds without adding
+    // another balance column.
+    ledger
+        .apply(tx(3), send(31, "new-recipient", "new-recipient", 100))
+        .unwrap();
+    assert_eq!(ledger.supply_column_rows_unverified().unwrap(), after);
+    let snapshot = ledger.snapshot_bytes().unwrap();
+    let restored = Ledger::from_snapshot_bytes(&snapshot).unwrap();
+    assert_eq!(restored.supply_column_rows_unverified().unwrap(), after);
+    assert_eq!(restored.verify_conservation(), Ok(()));
+}
+
+#[test]
+fn independent_transfer_permutations_produce_identical_canonical_support() {
+    use tradelayer_core::ledger::{SupplyColumnRow, SupplyColumnSource};
+
+    fn init() -> Ledger {
+        let mut l = Ledger::new();
+        l.apply(tx(1), create(41, PropertyKind::Fixed, 1000))
+            .unwrap();
+        l.apply(tx(2), create(42, PropertyKind::Managed, 500))
+            .unwrap();
+        l
+    }
+    let sends = [
+        (3u64, "zulu", 200u128),
+        (4, "alpha", 150),
+        (5, "mike", 100),
+        (6, "bob", 50),
+    ];
+    let mut forward = init();
+    let mut reverse = init();
+    for &(t, recipient, atoms) in &sends {
+        forward
+            .apply(tx(t), send(41, "alice", recipient, atoms))
+            .unwrap();
+    }
+    for &(t, recipient, atoms) in sends.iter().rev() {
+        reverse
+            .apply(tx(t), send(41, "alice", recipient, atoms))
+            .unwrap();
+    }
+    assert_eq!(forward, reverse);
+    assert_eq!(
+        forward.supply_column_rows_unverified().unwrap(),
+        vec![
+            SupplyColumnRow {
+                property: p(41),
+                source: SupplyColumnSource::Available(a("alice")),
+                atoms: 500
+            },
+            SupplyColumnRow {
+                property: p(41),
+                source: SupplyColumnSource::Available(a("alpha")),
+                atoms: 150
+            },
+            SupplyColumnRow {
+                property: p(41),
+                source: SupplyColumnSource::Available(a("bob")),
+                atoms: 50
+            },
+            SupplyColumnRow {
+                property: p(41),
+                source: SupplyColumnSource::Available(a("mike")),
+                atoms: 100
+            },
+            SupplyColumnRow {
+                property: p(41),
+                source: SupplyColumnSource::Available(a("zulu")),
+                atoms: 200
+            },
+            SupplyColumnRow {
+                property: p(42),
+                source: SupplyColumnSource::Available(a("alice")),
+                atoms: 500
+            },
+        ]
+    );
+    // Deleting a middle BTreeMap entry and introducing a new lower-sorting
+    // account changes support at those keys only.
+    let mut pruned = forward.clone();
+    pruned
+        .apply(tx(7), send(41, "bob", "aardvark", 50))
+        .unwrap();
+    let records = pruned.supply_column_rows_unverified().unwrap();
+    assert!(records.iter().all(|r| r.atoms != 0));
+    assert!(!records
+        .iter()
+        .any(|r| r.source == SupplyColumnSource::Available(a("bob"))));
+    assert!(records
+        .iter()
+        .any(|r| r.source == SupplyColumnSource::Available(a("aardvark"))
+            && r.property == p(41)
+            && r.atoms == 50));
+    assert_eq!(pruned.available_atoms(p(42), &a("alice")), 500);
+    assert_eq!(pruned.verify_conservation(), Ok(()));
+    let roundtrip = Ledger::from_snapshot_bytes(&pruned.snapshot_bytes().unwrap()).unwrap();
+    assert_eq!(roundtrip.supply_column_rows_unverified().unwrap(), records);
+}
+
+#[test]
+fn network_qualified_column_key_mapping_is_injective_for_supported_sources() {
+    use std::collections::BTreeSet;
+    use tradelayer_core::ledger::{
+        ChannelSide, SupplyColumnProofKey, SupplyColumnRow, SupplyColumnSource,
+    };
+    use tradelayer_core::network_profile::TradeLayerMainnet;
+
+    let tx_bytes = [b's'; 32];
+    let account = a(std::str::from_utf8(&tx_bytes).unwrap());
+    let rows = [
+        SupplyColumnRow {
+            property: p(7),
+            source: SupplyColumnSource::Available(account.clone()),
+            atoms: 10,
+        },
+        SupplyColumnRow {
+            property: p(7),
+            source: SupplyColumnSource::ChannelEscrow {
+                channel: account.clone(),
+                side: ChannelSide::A,
+            },
+            atoms: 20,
+        },
+        SupplyColumnRow {
+            property: p(7),
+            source: SupplyColumnSource::ChannelEscrow {
+                channel: account.clone(),
+                side: ChannelSide::B,
+            },
+            atoms: 30,
+        },
+        SupplyColumnRow {
+            property: p(7),
+            source: SupplyColumnSource::ReservedWithdrawal(TxId::from_bytes(tx_bytes)),
+            atoms: 40,
+        },
+        SupplyColumnRow {
+            property: p(8),
+            source: SupplyColumnSource::Available(account),
+            atoms: 50,
+        },
+    ];
+    let mut keys = BTreeSet::<SupplyColumnProofKey>::new();
+    for network in [
+        TradeLayerMainnet::Bitcoin,
+        TradeLayerMainnet::Litecoin,
+        TradeLayerMainnet::Dogecoin,
+    ] {
+        for (index, row) in rows.iter().enumerate() {
+            let key = row.proof_key_unverified(network);
+            assert_eq!(key.network_tag, network.tag());
+            assert_eq!(key.property_id, row.property.get());
+            assert_eq!(key.source_tag, if index < 4 { index as u8 } else { 0 });
+            assert_eq!(key.identifier_bytes, tx_bytes.to_vec());
+            assert!(
+                keys.insert(key),
+                "source, property and network must be unique"
+            );
+        }
+    }
+    // Identical 32-byte identifier bytes across all four source kinds
+    // remain distinct solely through their typed source tags.
+    assert_eq!(keys.len(), 15);
+
+    let mut ledger = Ledger::new();
+    ledger
+        .apply(tx(1), create(7, PropertyKind::Fixed, 100))
+        .unwrap();
+    ledger.apply(tx(2), send(7, "alice", "same", 25)).unwrap();
+    for network in [
+        TradeLayerMainnet::Bitcoin,
+        TradeLayerMainnet::Litecoin,
+        TradeLayerMainnet::Dogecoin,
+    ] {
+        let projected = ledger.supply_proof_keys_unverified(network).unwrap();
+        assert_eq!(projected.len(), 2);
+        assert!(projected.windows(2).all(|pair| pair[0].0 < pair[1].0));
+        assert_eq!(projected.iter().map(|x| x.1).sum::<u128>(), 100);
+        assert_eq!(projected[0].0.identifier_bytes, b"alice");
+        assert_eq!(projected[1].0.identifier_bytes, b"same");
+        assert_eq!(projected[0].0.source_tag, 0);
+        assert_eq!(projected[1].0.source_tag, 0);
+        assert!(projected
+            .iter()
+            .all(|(key, _)| key.network_tag == network.tag()));
+    }
+}

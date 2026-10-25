@@ -5,12 +5,13 @@
 
 #![forbid(unsafe_code)]
 
+mod atomic_batch; // Clone-validate-commit boundary and Kani rollback harnesses.
 pub mod bankruptcy_source_audit; // Stage25F pure source-level bankruptcy algebra, no market authority.
 pub mod bitcoin_chainwork; // Bitcoin mainnet nBits/MTP/chainwork from explicit checkpoints; not full consensus.
 pub mod bitcoin_forks; // Bounded greatest-work selection among observed header forks; no active-chain trust.
-pub mod bitcoin_inclusion;
+pub mod bitcoin_inclusion; // Bitcoin SHA256d header and tx Merkle checks; no full consensus.
 pub mod bitcoin_witness_commitment; // Stage25M unverified Bitcoin BIP141 full-tx witness evidence.
-                                    // Bitcoin SHA256d header and tx Merkle checks; no full consensus.
+mod canonical_columns; // Canonical nonzero map mutations for wallet and channel columns.
 pub mod chain; // Trust-boundary and reversible block progression, prototype only.
 pub mod channel_admission_audit; // Stage25M claimed as-of type4/type19 direct clearlist evidence, never authorization.
 pub mod channel_bip143_audit; // Stage 25I exact SegWit-v0 SIGHASH_ALL digest; no signature verification.
@@ -20,6 +21,7 @@ pub mod channel_p2sh_sighash_audit; // Stage 25L read-only legacy P2SH SIGHASH_A
 pub mod channel_type9_inclusion_audit; // Stage25N raw type9 event/Bitcoin relative Merkle evidence, no admission.
 pub mod channel_type9_sender_audit; // Stage25O claimed Bitcoin P2WPKH first-input digest and sender-bound candidate, never permission.
 pub mod channel_witness_audit; // Stage 25H raw native P2WSH script/outpoint only; not ECDSA authorization.
+mod checked_amounts; // Bit-precise checked debit/credit arithmetic; Kani proof harnesses.
 pub mod clearing_cadence; // Stage 24C read-only JS clearing callback and funding schedule observations.
 pub mod clearing_chain; // Stage 25D unverified combined spot-clearing rollback and TLCC checkpoints.
 pub mod clearing_math; // Stage 24A diagnostic loss, funding and PnL equations; no ledger writes.
@@ -32,6 +34,7 @@ mod hash160; // Dependency-free research RIPEMD160/HASH160, no production author
 mod hash256; // Offline SHA-256d txid fingerprints; not trusted consensus.
 pub mod joint; // Stage 22 independent registry + sole spot-owned ledger in one mixed state.
 pub mod joint_chain; // Stage 22 mixed unverified block replay and TLJC checkpoints.
+mod journal_move; // Fail-closed single-use settlement journal movement; Kani harness.
 pub mod ledger; // In-memory atomic accounting primitives; not chain consensus.
 pub mod legacy_activation_audit; // Pinned activation.js read-only source semantics; genesis and authority denied.
 pub mod legacy_clearlist_audit; // Pinned clearlist.js read-only NeDB/root source behavior; authorization denied.
@@ -40,6 +43,7 @@ pub mod liquidation_input_gate; // Stage 25G read-only current-block provenance 
 pub mod liquidation_source_characterization; // Source-pinned read-only AMM priority and avg-vs-mark audit.
 pub mod network_bound; // Stage 21 profile-bound replay and versioned checkpoint envelopes; unverified.
 pub mod network_profile; // Independent Bitcoin/Litecoin/Dogecoin mainnet identities and proof capabilities.
+mod ordered_columns; // Sorted Vec backend for wallet and channel accounting columns.
 pub mod protocol; // Audited legacy transaction catalog, not consensus execution.
 pub mod read_only; // Offline transaction scanning; cannot authorize ledger state.
 pub mod registry; // Standalone tx0/7-9/13-15 registry state; authentication external.
