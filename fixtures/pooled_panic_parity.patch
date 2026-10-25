@@ -1,0 +1,14 @@
+--- a/src/parallel_txindex.rs
++++ b/src/parallel_txindex.rs
+@@ -542,11 +542,7 @@
+                         let index = job.first + offset;
+                         let row = inspect_prepared_transaction(item.raw, item.layout)
+                             .map_err(|source| ParallelIndexError::RawScan { index, source });
+-                        let failed = row.is_err();
+                         local.push(row);
+-                        if failed {
+-                            break;
+-                        }
+                     }
+                     local
+                 }))

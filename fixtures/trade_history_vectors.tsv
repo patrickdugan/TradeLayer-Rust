@@ -1,0 +1,39 @@
+# Synthetic query vectors for tradelayer.js@dca0888b tradeHistoryManager.js
+# source_sha256=670035f8153abda542c732deee0cf995fcd1e1e7c7b9f50464fce6ab1b5c1569
+# R id kind property1_or_contract property2 height event_index buyer seller liquidation
+R	9	contract	9	-	0	0	ALICE	bob	false
+R	8	token	5	6	9	0	ALICE	bob	-
+R	5	contract	9	-	10	0	alice	carol	true
+R	1	token	5	6	10	1	alice	bob	-
+R	3	token	5	7	10	2	alice	bob	-
+R	2	token	6	5	11	0	Alice	carol	-
+R	4	contract	9	-	12	0	alice	bob	false
+R	6	contract	9	-	12	1	Alice	dave	true
+R	7	contract	10	-	12	2	alice	bob	true
+R	10	token	5	6	13	0	bob	Alice	-
+# Q kind a b c address_mode expected_ids_or_first_block (- means empty)
+Q	token	5	6	Alice	legacy	1,2,10
+Q	token	6	5	Alice	legacy	1,2,10
+Q	token	5	6	alice	legacy	1
+Q	token	5	6	ALICE	legacy	8,1
+Q	token	5	6	Alice	exact	2,10
+Q	token	5	5	alice	legacy	-
+Q	token	5	6	nobody	legacy	-
+Q	contract	9	-	Alice	legacy	5,4,6
+Q	contract	9	-	alice	legacy	5,4
+Q	contract	9	-	ALICE	legacy	9,5,4
+Q	contract	9	-	Alice	exact	6
+Q	contract	10	-	alice	legacy	7
+Q	all	9	-	-	-	9,5,4,6
+Q	all	99	-	-	-	-
+Q	range	9	10	12	-	5,4,6
+Q	range	9	12	12	-	4,6
+Q	range	9	0	0	-	9
+Q	range	9	13	20	-	-
+Q	liquidation	9	12	-	-	6
+Q	liquidation	9	10	-	-	5
+Q	liquidation	10	12	-	-	7
+Q	liquidation	9	11	-	-	-
+Q	first	9	-	-	-	0
+Q	first	10	-	-	-	12
+Q	first	99	-	-	-	-

@@ -1,0 +1,9 @@
+# Source attenuation's constant-share subset only; no logarithm parity claim.
+# fee_atoms	share_numerator	share_denominator	reward_atoms
+0	35	100	0
+1	35	100	0
+9	35	100	3
+100000000	35	100	35000000
+123456789	2	100	2469135
+987654321	99	100	977777777
+101	1	1000	0

@@ -16,6 +16,17 @@ cargo clippy --all-targets --locked -- -D warnings
 
 The toolchain is pinned in `rust-toolchain.toml` and the crate has **zero third-party dependencies**. `Cargo.lock` is committed.
 
+### Supporting compatibility and reporting
+
+The standalone [legacy Base94/Base256 helpers](docs/legacy-base.md) preserve
+the pinned JavaScript's string behavior within explicit bounds. New
+[trade-history](docs/trade-history.md) and [volume](docs/volume-index.md)
+interfaces supply typed records, query predicates, exact arithmetic and
+rollback. An [offline spot reporting adapter](docs/OFFLINE_SPOT_REPORTING.md)
+updates both indexes atomically with explicit network and address metadata.
+These supporting APIs do not execute or authenticate trades. See the
+[49-module roadmap and function-level progress](docs/ROADMAP_PROGRESS.md).
+
 ### Supply-chain admission gate
 
 The consensus crate's **zero-third-party-crate baseline is now enforced**, not merely descriptive. CI and local Cargo builds refuse network resolution or lockfile updates; every PR runs a standard-library-only dependency gate and adversarial policy tests:

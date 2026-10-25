@@ -34,6 +34,7 @@ pub mod joint; // Stage 22 independent registry + sole spot-owned ledger in one 
 pub mod joint_chain; // Stage 22 mixed unverified block replay and TLJC checkpoints.
 pub mod ledger; // In-memory atomic accounting primitives; not chain consensus.
 pub mod legacy_activation_audit; // Pinned activation.js read-only source semantics; genesis and authority denied.
+pub mod legacy_base; // Bounded historical Base94/custom Base256 string compatibility.
 pub mod legacy_channel_audit; // Pinned channels.js direct A/B commit projections, never signed-state authority.
 pub mod legacy_clearlist_audit; // Pinned clearlist.js read-only NeDB/root source behavior; authorization denied.
 pub mod legacy_txdecoder_audit; // Pinned txDecoder.js typed body observations, never consensus.
@@ -51,11 +52,14 @@ pub mod protocol; // Audited legacy transaction catalog, not consensus execution
 pub mod raw_block_ingest; // Stage8C borrowed raw Bitcoin block preindex, not consensus.
 pub mod read_only; // Offline transaction scanning; cannot authorize ledger state.
 pub mod registry; // Standalone tx0/7-9/13-15 registry state; authentication external.
+pub mod reporting; // Atomic network-scoped offline spot history and volume observations.
 pub mod root_reconciliation; // Read-only TLPT and zkTL metadata consistency.
 pub mod spot; // Stage 19 isolated type-5/6 rational matching experiment; unverified.
 pub mod spot_chain; // Stage 20 typed unverified spot block replay and complete TLSP/TLSC checkpoints.
 pub mod state_commitment; // Experimental domain-separated state and transition metadata; no proof verifier.
+pub mod trade_history; // Caller-supplied trade reporting and canonical checkpoints; no settlement authority.
 pub mod unified_chain; // Offline reversible registry+ledger block projection; adapter external.
+pub mod volume_index; // Caller-supplied exact volume and VWAP reporting; no price authority.
 pub mod wire; // Read-only legacy ASCII format analysis; never auto-fallback.
 pub mod wire_v1;
 pub mod withdrawal_parity; // Read-only JS-like deferred queue oracle for differential tests.

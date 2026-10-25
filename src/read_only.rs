@@ -216,8 +216,12 @@ pub(crate) fn prepare_transaction_prefix(raw: &[u8]) -> Result<TransactionLayout
             if count > MAX_IO_COUNT {
                 return Err(ScanError::TooLong);
             }
+            // Bitcoin CScriptWitness::IsNull tests whether the stack is
+            // empty, not whether any stack item contains nonempty bytes.
+            // A one-item stack containing an empty vector is still witness.
+            nonempty |= count != 0;
             for _ in 0..count {
-                nonempty |= !reader.variable_bytes()?.is_empty();
+                reader.variable_bytes()?;
             }
         }
         if !nonempty {
