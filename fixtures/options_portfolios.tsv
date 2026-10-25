@@ -1,0 +1,24 @@
+# options.js LF SHA256=02277caaece5339a9ea0dac15437d14ce3fac8dc5ee92a727a0f544efcdbb703; source=dca0888b827c5bc28fa9189bc9e1d507f5c5670c; bignumber.js=9.3.1
+# name	spot	type:expiry:strike:qty;...	maintenance
+empty	100		0
+naked-call	100	Call:10:90:-2.5	25
+naked-put	100	Put:10:90:-2.5	22.5
+long-only	100	Call:10:90:2.5	0
+call-protection	100	Call:10:90:-2;Call:10:110:1	18
+put-protection	100	Put:10:110:-2;Put:10:90:1	20
+equal-strike-unprotected	100	Call:10:90:-2;Call:10:90:2	20
+wrong-side-unprotected	100	Call:10:90:-2;Call:10:80:2	20
+different-expiry	100	Call:10:90:-2;Call:11:110:2	20
+different-type	100	Call:10:90:-2;Put:10:80:2	20
+capped-offset	100	Call:10:90:-2;Call:10:300:2	0
+long-order-a	100	Call:10:90:-1;Call:10:100:1;Call:10:200:1	9
+long-order-b	100	Call:10:90:-1;Call:10:200:1;Call:10:100:1	0
+short-order-a	100	Call:10:90:-1;Call:10:110:-1;Call:10:120:1	17
+short-order-b	100	Call:10:110:-1;Call:10:90:-1;Call:10:120:1	19
+fractional-cover	100	Put:10:110.123456789012345678901:-2.5;Put:10:90.01234567890123456789:1.25	25.01697530848919753085
+nan-expiry-group	100	Call:NaN:90:-1;Call:NaN:110:1	8
+zero-expiry-group	100	Call:0:90:-1;Call:0:110:1	8
+infinite-expiry-group	100	Call:Infinity:90:-1;Call:Infinity:110:1	8
+unknown-type	100	unknown:10:90:-1;unknown:10:110:1	9
+empty-type-skipped	100	:10:90:-1	0
+negative-total-floor	-100	Call:10:90:-1	0

@@ -54,6 +54,13 @@ jobs:
         run: node scripts/legacy_base_vectors.cjs
       - name: Pinned trade-history query source vectors
         run: node scripts/trade_history_vectors.cjs --check --source fixtures/legacy_trade_history_source.txt
+      - name: Pinned finite decimal and economic-module source oracles
+        run: |
+          node scripts/decimal_vectors.cjs
+          node scripts/iou_vectors.cjs --check
+          node scripts/options_vectors.cjs
+          node scripts/vault_vectors.cjs --check
+          node scripts/volume_index_vectors.cjs
       - name: Stage 25C atomic PnL and replay fence tests
         run: cargo test --frozen --test clearing_mark_to_market
       - name: Stage 25D full clearing state checkpoint and fork recovery

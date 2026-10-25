@@ -27,6 +27,13 @@ updates both indexes atomically with explicit network and address metadata.
 These supporting APIs do not execute or authenticate trades. See the
 [49-module roadmap and function-level progress](docs/ROADMAP_PROGRESS.md).
 
+The [finite decimal engine](docs/DECIMAL.md) also supports the stateful
+[IOU bucket/claim port](docs/IOU.md), all nine [options helpers](docs/OPTIONS.md),
+and a typed [vault lifecycle](docs/VAULTS.md). Their source quirks, repaired
+typed behavior and remaining settlement/persistence requirements are recorded
+separately. Economic source oracles run offline from archived, hash-pinned
+JavaScript and BigNumber code; no npm installation is required.
+
 ### Supply-chain admission gate
 
 The consensus crate's **zero-third-party-crate baseline is now enforced**, not merely descriptive. CI and local Cargo builds refuse network resolution or lockfile updates; every PR runs a standard-library-only dependency gate and adversarial policy tests:

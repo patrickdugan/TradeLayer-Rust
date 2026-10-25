@@ -1,0 +1,62 @@
+# options.js LF SHA256=02277caaece5339a9ea0dac15437d14ce3fac8dc5ee92a727a0f544efcdbb703; source=dca0888b827c5bc28fa9189bc9e1d507f5c5670c; bignumber.js=9.3.1
+# name	method	method_arguments...	expected_outputs...
+reduce-0	reduce	0	5	0	5	5	null	LONG	LONG	0	0
+reduce-1	reduce	5	2	5	2	7	LONG	LONG	LONG	0	0
+reduce-2	reduce	5	-2	5	-2	3	LONG	SHORT	LONG	2	0
+reduce-3	reduce	5	-5	5	-5	0	LONG	SHORT	null	5	0
+reduce-4	reduce	5	-7	5	-7	-2	LONG	SHORT	SHORT	5	2
+reduce-5	reduce	-5	2	-5	2	-3	SHORT	LONG	SHORT	2	0
+reduce-6	reduce	-5	5	-5	5	0	SHORT	LONG	null	5	0
+reduce-7	reduce	-5	7	-5	7	2	SHORT	LONG	LONG	5	2
+reduce-8	reduce	-5	-2	-5	-2	-7	SHORT	SHORT	SHORT	0	0
+reduce-9	reduce	0.3	-0.1	0.3	-0.1	0.19999999999999998	LONG	SHORT	LONG	0.1	0
+reduce-10	reduce	NaN	3	0	3	3	null	LONG	LONG	0	0
+reduce-11	reduce	2	NaN	2	0	2	LONG	null	LONG	0	0
+reduce-12	reduce	Infinity	-Infinity	Infinity	-Infinity	NaN	LONG	SHORT	null	Infinity	0
+reduce-13	reduce	-Infinity	2	-Infinity	2	-Infinity	SHORT	LONG	SHORT	2	0
+reduce-14	reduce	0	0	0	0	0	null	null	null	0	0
+rpnl-0	rpnl	LONG	2.5	125.5	100.25	63.125
+rpnl-1	rpnl	SHORT	2.5	125.5	100.25	-63.125
+rpnl-2	rpnl	unexpected	2.5	125.5	100.25	-63.125
+rpnl-3	rpnl		3	1	2	0
+rpnl-4	rpnl	null	3	1	2	0
+rpnl-5	rpnl	LONG	0	1	2	0
+rpnl-6	rpnl	LONG	-2.5	125.5	100.25	-63.125
+rpnl-7	rpnl	LONG	0.0000000000000000000001	123456789012345678901234567890.5	0.1	12345678.90123456789012345678904
+intrinsic-0	intrinsic	Call	100	125	25
+naked-0	naked	Call	100	125	12.5
+intrinsic-1	intrinsic	Call	125	100	0
+naked-1	naked	Call	125	100	10
+intrinsic-2	intrinsic	Put	125	100	25
+naked-2	naked	Put	125	100	12.5
+intrinsic-3	intrinsic	Put	100	125	0
+naked-3	naked	Put	100	125	10
+intrinsic-4	intrinsic	unknown	125	100	25
+naked-4	naked	unknown	125	100	12.5
+intrinsic-5	intrinsic	Call	-2.5	-1	1.5
+naked-5	naked	Call	-2.5	-1	-0.1
+intrinsic-6	intrinsic	Put	-2.5	-1	0
+naked-6	naked	Put	-2.5	-1	-0.25
+intrinsic-7	intrinsic	Call	0.0000000000000000000001	0.0000000000000000000002	1e-22
+naked-7	naked	Call	0.0000000000000000000001	0.0000000000000000000002	0
+price-0	price	Call	100	110	0.2	365	7.978
+price-1	price	Call	100	90	0.2	365	17.978
+price-2	price	Put	100	110	0.2	30	12.28722151235409248554
+price-3	price	Call	100	110	0	30	0
+price-4	price	Call	100	90	-0.2	30	10
+price-5	price	Put	100	110	0.5	-5	10
+price-6	price	Call	100	110	0.2	0	0
+price-7	price	Put	100	110	0.2	NaN	10
+price-8	price	Call	123.456789012345678901	100	0.3333333333333333	0.125	23.76057401737686559695407679042722948753387064540978792084
+price-9	price	unexpected	100	110	0.7	13.25	15.32014639803975147148
+price-10	price	Call	-100	-110	0.2	30	10
+price-11	price	Call	0.000000000000000000001	0	0.123456789	1	1.002577701244706328890947532977e-21
+price-12	price	Put	123456789012345678901234567890.5	1	0.2	1	5.155402489928198030887885757104512553491074284033e+26
+mtm-empty	mtm	100	0.2	1440	144		0	0
+mtm-mixed	mtm	100	0.2	4320	144	Call:90:2.5;Put:110:-1.25	15.359026890442615606925	12.5
+mtm-default-bpd	mtm	100	0.2	144	0	Call:90:1	10.41758760544247248986	10
+mtm-negative-bpd	mtm	100	0.2	30	-5	Put:110:2	24.57444302470818497108	20
+mtm-expired	mtm	100	0.2	-1	144	Call:90:2;Put:110:-1	10	10
+mtm-nan-bpd	mtm	100	0.2	144	NaN	Call:90:1	10.41758760544247248986	10
+mtm-nan-blocks	mtm	100	0.2	NaN	144	Call:90:1	10	10
+mtm-long-decimal	mtm	123.456789012345678901	0.3333333333333333	18	144	Call:100:0.000000000000000000001;Put:150:-2.5	-67.11748998171376948736143140205069685323772253673404257261246612935459021207916	-66.358027469135802747476543210987654321099

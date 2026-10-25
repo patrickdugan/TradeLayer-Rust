@@ -74,7 +74,7 @@ behavior is inferred for those paths.
 
 `scripts/volume_index_vectors.cjs` verifies the pinned file digest and executes
 the source class in a VM with an in-memory DB stub. It loads the reference
-checkout's installed `bignumber.js`; network, disk DB, and contract-registry
+checkout's pinned BigNumber 9.3.1, now archived and hash-checked locally; network, disk DB, and contract-registry
 operations are not invoked. Eight source-executed VWAP vectors cover empty and
 zero weights, ordinary and contract-swapped entries, fractions, and sub-atom
 rounding. Seven vectors cover the source's constant-share fee rounding subset.
@@ -83,6 +83,7 @@ The committed TSV fixtures are consumed by Rust tests without Node dependencies.
 Regenerate with:
 
 ```powershell
+node scripts/volume_index_vectors.cjs
 node scripts/volume_index_vectors.cjs --source-root C:\path\to\tradelayer.js --write
 ```
 
@@ -90,3 +91,6 @@ Omit `--write` to verify source execution against the committed fixtures. Run
 `cargo test --frozen --test volume_index` for fixture comparison, atomic failure,
 inclusive window/type subtotal, source classification, reverse-pair behavior,
 rollback/replacement, and arithmetic/capacity boundary checks.
+
+The default command executes the archived source without a separate checkout
+or npm installation. See [decimal arithmetic](DECIMAL.md) for its pinned reference.

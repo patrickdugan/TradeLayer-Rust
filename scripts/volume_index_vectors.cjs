@@ -5,18 +5,20 @@ const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
 const crypto = require("node:crypto");
+const { fixtures, loadBigNumber } = require("./legacy_numeric_oracle.cjs");
 const args = process.argv.slice(2);
 const sourceFlag = args.indexOf("--source-root");
-if (sourceFlag < 0 || !args[sourceFlag + 1]) {
-  throw Error("usage: node scripts/volume_index_vectors.cjs --source-root PATH [--write]");
+if (sourceFlag >= 0 && !args[sourceFlag + 1]) {
+  throw Error("usage: node scripts/volume_index_vectors.cjs [--source-root PATH] [--write]");
 }
-const sourceRoot = path.resolve(args[sourceFlag + 1]);
-const source = fs.readFileSync(path.join(sourceRoot, "src", "volumeIndex.js"), "utf8").replace(/\r\n/g, "\n");
+const sourcePath = sourceFlag >= 0 ? path.join(path.resolve(args[sourceFlag + 1]), "src", "volumeIndex.js")
+  : path.join(fixtures, "legacy_volume_index_source.txt");
+const source = fs.readFileSync(sourcePath, "utf8").replace(/\r\n/g, "\n");
 const digest = crypto.createHash("sha256").update(source).digest("hex");
 if (digest !== "d4d4329254125ce8e4217d22b0ba57a1581c6279df999af60281b0365dffb08c") {
   throw Error("pinned volumeIndex.js source hash mismatch");
 }
-const BigNumber = require(require.resolve("bignumber.js", { paths: [sourceRoot] }));
+const BigNumber = loadBigNumber();
 let docs = [];
 const database = {
   findAsync: async () => docs,

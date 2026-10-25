@@ -1,0 +1,57 @@
+# vaults.js at tradelayer.js@dca0888b827c5bc28fa9189bc9e1d507f5c5670c
+# source_sha256=3dcf0554923864729bedcfc8244a06e4235d10a3241256eb3ba0a9d3d1534983
+# C id; U/S/R id contracts margin available outstanding (R outstanding is signed source delta)
+C	s-1-2
+U	s-1-2	-3	5	7	10
+C	s-1-3
+U	s-1-3	-4	11	13	20
+U	s-2-2	-9	17	19	30
+R	s-1-2	1	2	3	-4
+S	s-3-2	0	0.000000004	0	1.000000004
+S	s-3-3	0	0.000000004	0	0.000000004
+S	s-4-2	0	1.234567895	0	0.000000005
+# Q kind(B=collateral,O=outstanding) numeric_property_or_vault expected
+Q	B	1	31
+Q	B	2	36
+Q	B	3	0.00000001
+Q	B	4	1.2345679
+Q	B	99	0
+Q	O	1	26
+Q	O	2	30
+Q	O	3	1.00000001
+Q	O	4	0.00000001
+Q	O	99	0
+Q	O	s-1-2	6
+Q	O	s-1-3	20
+Q	O	s-99-2	0
+# K source_quirk expected (observations only; deliberately not typed store semantics)
+K	create_save_value	undefined
+K	create_repeated_resets	0
+K	exists_missing	true
+K	register_vault_link	undefined
+K	find_registered_synthetic	null
+K	find_compound_vault	null
+K	generate_id	1-2
+K	parse_generated	Error:Invalid synthetic token ID format
+K	parse_three_parts	s,1,2
+K	parse_empty_parts	,,
+K	invalid_property_valid_contract	true
+K	funding_scalar_contracts	-3
+K	funding_scalar_saves	0
+K	funding_object_contracts	11
+K	funding_object_save_value	undefined
+K	redeem_missing	undefined
+K	update_string_concatenates	10-2
+K	send_direct	ReferenceError:TallyMap is not defined
+K	send_channel	TypeError:this.getChannel is not a function
+K	trade_direct	ReferenceError:Orderbook is not defined
+K	trade_channel	TypeError:this.getChannel is not a function
+K	post_margin	TypeError:SynthRegistry.isValidSyntheticTokenId is not a function
+K	reuse_no_flags	TypeError:this.generateVaultId is not a function
+K	rebase_registered	Error:Synthetic token not found
+K	reload_saved_vault_count	0
+K	reload_saved_synthetic_count	0
+K	numeric_string_collateral_query	0
+K	numeric_string_outstanding_query	0
+K	update_accepts_negative_balances	-1,-2,-3
+K	redeem_accepts_negative_balances	1,-1,-1,-1
