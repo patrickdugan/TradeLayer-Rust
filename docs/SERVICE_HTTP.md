@@ -85,3 +85,10 @@ large balances, the original locked economic owner and restart at its unchanged
 head. Source oracles additionally use genuine installed Axios and Express in
 controlled dependency adapters. Deployment interoperability, authentication,
 full historical stores and all economic admission gates remain open.
+# Executed spot price extensions
+
+`GET /spotPrice/:base/:quote?height=H` and
+`GET /spotVwap/:base/:quote?startBlock=A&endBlock=B` query actual retained
+executions in the original owner. They preserve direction, exact atom sums and
+owner tip, with no source fallback. These are additional Rust read routes;
+see [ECONOMIC_SPOT_PRICES.md](ECONOMIC_SPOT_PRICES.md) for bounds and provenance.

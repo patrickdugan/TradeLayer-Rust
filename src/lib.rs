@@ -38,10 +38,12 @@ pub mod contract_orderbook; // Source matching metadata; custody stays in the ec
 pub mod contract_registry;
 pub mod daemon; // Synced bounded raw-block observations; no economic admission authority.
 pub mod decimal; // Finite decimal arithmetic with explicit precision and rounding.
+pub mod dlc_oracle_bridge; // Source relay verification and separate trusted payload-bound evidence.
 pub mod durable_iou; // Synced single-owner funded IOU operation batches and recovery.
 pub mod economic; // Atomic caller-driven contract matching with the sole joint Ledger.
 pub mod economic_chain; // Complete economic rollback and synced durable ownership.
 pub mod economic_reporting; // Exact immutable execution reports from the verified owner.
+pub mod economic_spot_prices; // Exact directed fill prices and VWAP from the original owner.
 pub mod execution; // Prototype unified registry+ledger replay; input unverified.
 pub mod funding; // Fractional source funding math and conserving payment plans.
 pub mod funding_audit; // Stage 24B read-only signed funding and conservation projections.
@@ -84,6 +86,7 @@ pub mod reporting; // Atomic network-scoped offline spot history and volume obse
 pub mod root_reconciliation; // Read-only TLPT and zkTL metadata consistency.
 pub mod runtime; // Concrete RPC/startup adapters with independent durable expectations.
 pub mod scaling; // Bounded L2 settlement lifecycle and checked channel custody plans.
+pub mod secp256k1; // Public ECDSA verification; no private-key or Bitcoin script API.
 pub mod service;
 pub mod service_client;
 pub mod service_routes;

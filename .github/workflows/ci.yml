@@ -40,6 +40,8 @@ jobs:
         run: rustfmt --check --edition 2021 src/rpc_json_impl.rs src/rpc_http_impl.rs
       - name: Check included exact trade-history formatting
         run: rustfmt --check --edition 2021 src/trade_history_position_impl.rs
+      - name: Check included VolumeIndex source metadata formatting
+        run: rustfmt --check --edition 2021 src/volume_index_source_impl.rs
       - name: Check included spot snapshot file formatting
         run: rustfmt --check --edition 2021 src/spot_snapshot_impl.rs
       - name: Check included joint snapshot file formatting
@@ -58,6 +60,12 @@ jobs:
         run: cargo test --frozen
       - name: Pinned Base94 and Base256 source compatibility vectors
         run: node scripts/legacy_base_vectors.cjs
+      - name: Install pinned test-only ECDSA reference
+        run: npm install --prefix "$RUNNER_TEMP/tl-secp-reference" --ignore-scripts --no-audit --no-fund --save-exact tiny-secp256k1@2.2.4
+      - name: Native public ECDSA independent and genuine reference vectors
+        run: node scripts/secp256k1_vectors.cjs --check --tiny-root "$RUNNER_TEMP/tl-secp-reference"
+      - name: Complete pinned DLC bridge with genuine ECDSA
+        run: node scripts/dlc_oracle_bridge_vectors.cjs --check --secp "$RUNNER_TEMP/tl-secp-reference/node_modules/tiny-secp256k1"
       - name: Pinned trade-history query source vectors
         run: node scripts/trade_history_vectors.cjs --check --source fixtures/legacy_trade_history_source.txt
       - name: Pinned finite decimal and economic-module source oracles

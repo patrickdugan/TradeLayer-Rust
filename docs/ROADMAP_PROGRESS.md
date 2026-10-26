@@ -20,18 +20,21 @@ do not complete native/dated/multicontract orchestration, full validity rules,
 insurance/ADL or chain authentication; no source module is promoted to complete.
 
 [PARITY_ROADMAP.csv](PARITY_ROADMAP.csv) contains all 49 JavaScript source
-modules, excluding the experimental README. It records thirty-six assessed
-modules below; the other 13 retain their prior implementation assessment.
+modules, excluding the experimental README. It records thirty-seven assessed
+TL modules below; 11 retain their prior assessment and one is an external
+UTXORef reference, excluded from the 48-module TL implementation scope.
 The insurance and property rows additionally record external-worker assignments.
 It supplements the historical [full-tree inventory](JS_RUST_PORT_AUDIT.md),
 whose earlier mappings and assessment commit are preserved.
 
-[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 786
+[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 817
 source entries with their tested domains, Rust tests and remaining criteria.
 None of these rows or modules is marked as a complete production port.
 
 | Module | Implemented and verified scope | Remaining completion criteria |
 | --- | --- | --- |
+| `dlcOracleBridge.js` | All7 functions;294 genuine-source observations; real native ECDSA and separate independently trusted payload-bound checks | Authenticated oracle/chain/state configuration, actual DLC economic integration and historical acceptance |
+| `experimental/binohash/binohashAdapter.js` | External UTXORef optional feature; user excludes it from TL implementation | No TL Binohash parity gate; TL exports checkable state-oracle data to the separate consumer |
 | `interface.js` | All26 active methods plus constructor;90 source scenes and5 stream cases; concrete immutable economic queries, exact custody and actual execution/funding/mark reporting | Historical/index/wallet/proof capabilities, complete external stores, deployment and authenticated inputs |
 | `interfaceExpress.js` | All16 active exports; genuine Axios behavior, source errors/absent bodies and actual HTTP client binding | Broader rawURL/JS domains, remote TLS/authentication and production backend completeness |
 | `walletInterface.js` | All19 active exports;213 combined client observations and named repaired routing; actual exact-balance HTTP integration | Actual wallet/key control, full database capabilities, deployment and authenticated state |
@@ -54,7 +57,7 @@ None of these rows or modules is marked as a complete production port.
 | `base94.js` | Eight helper methods, bounded string inputs, real-source golden vectors and preserved delimiter/fraction quirks | General JS coercions and malformed UTF-16; accepted historical wire transactions and admission integration |
 | `base256.js` | Six helper methods, exact custom Unicode alphabet, bounded arbitrary-size arithmetic and source hex quirks | General JS coercions and malformed UTF-16; accepted historical transactions and wire integration |
 | `tradeHistoryManager.js` | All18 methods characterized;43 scenes,205 helper cases,24 quirks; exact position/category/episode/LIFO/PnL reports, typed real/forced origins, TLTHv2 replay and immutable projection from the verified sole economic owner | Historical DB migration/order, broader JS domains, durable report service and authenticated fill provenance; unmarked ownerless receipts reject |
-| `volumeIndex.js` | Exact bounded VWAP, half-up prices, constant-share fee rounding, typed inclusive totals, source reverse-pair/classification characterization and rollback | Legacy DB normalization, valuation and historical prices, logarithmic attenuation, production persistence and reward issuance |
+| `volumeIndex.js` | All27 static methods plus constructor;49 scenes,312 numeric vectors,26 quirks; finite source metadata, atomic replay/rollback and actual sole-owner directed spot price/VWAP | Native-coin valuation/accepted metadata, reward issuance, production DB migration, transcendental portability and authenticated historical integration |
 | `iou.js` | Stateful buckets/claims and 67 source transitions; real-loss escrow and funded payouts; explicit atom policy; complete bounded IOU/ledger checkpoints | Authenticated matching/clearing integration and historical atom/dust rules, production DB behavior, broader JS coercion/prototype domain and historical acceptance |
 | `options.js` | All nine helper methods, decimal PnL/pricing/exposure/maintenance, ticker and numeric-prefix behavior, source greedy order; 118 actual-source vectors | Surrounding contract creation/exercise/assignment and margin/clearing integration; cross-platform binary64 bridge verification; historical acceptance |
 | `vaults.js` | Typed vault create/update/redeem, synthetic links, collateral interfaces and aggregate queries; 9 lifecycle seeds, 13 source queries and 30 characterized failures/quirks | Deliberate typed repairs differ from broken source paths; ledger mint/redeem, hedge lifecycle, durable persistence and funding/rebase specification remain open |
@@ -643,3 +646,45 @@ and the all-target release build. The zero-third-party-crate gate and11 mutation
 tests passed. Loopback tests preserve exact large supplies and the durable head,
 reject malformed requests before dispatch and stop a stalled body on control
 cancellation. No GitHub push or CI/Lean/Kani result is claimed for this batch.
+
+
+## Native relay verification and complete finite VolumeIndex coverage
+
+The DLC bridge now uses real dependency-free public secp256k1 ECDSA verification,
+with 1,497 independent BigInt/OpenSSL/genuine tiny-secp256k1 reference records.
+All seven bridge source functions have 294 complete-source observations. Source
+legacy fallback is retained as a compatibility observation; the separately
+configured payload-bound policy requires the independent key, event, outcome,
+index, state, time and exact raw payload. Neither policy grants economic or
+chain admission.
+
+VolumeIndex now inventories all 27 static methods plus constructor: 49 source
+scenes, 312 numeric vectors, 26 quirks and the original 15 unchanged rows. Finite
+metadata uses explicit atomic batches, prefix rollback and complete replayed
+checkpoints. Source DB failures and placeholder paths remain observations.
+Signed-zero tie/underflow regressions and the largest safe block's derived
+exclusive query bound are covered. Transcendental last-bit platform differences
+remain a documented metadata limitation.
+
+Executed spot-price and inclusive directed VWAP queries now borrow actual fills
+from the original economic owner, retain exact atom sums and owner tip, and
+recompute after complete restoration/rollback. No fallback price or fabricated
+native property metadata enters these queries. Native contract admission and
+the full state-oracle producer export remain separate integration gates.
+
+The user clarified that UTXORef is external and TL exports checkable state-oracle
+data to it. Binohash is excluded from this crate and tracked as an optional
+feature in UTXORef. The inventory therefore contains 48 TL modules and one
+external reference. Both encoder and decoder implementations are standalone
+ports with complete active-export coverage in documented domains; remaining
+legacy-domain, historical corpus and accepted-runtime checks stay explicit.
+A second external worker assignment reserves six new activation port files;
+execution is not inferred from that assignment. The hung external wire-corpus
+lane has been reassigned locally.
+
+Frozen local Rust 1.90/MSVC validation passed 1,101 tests across 134 executables,
+all-target Clippy with warnings denied, formatting of all modules/includes and
+the all-target release build (6m21s). The zero-third-party Rust gate and all 11
+mutation tests passed. Genuine pinned source/crypto oracles and original Git
+blob comparisons passed. No new GitHub CI, Lean/Kani, push or publication is
+claimed. Full historical/authenticated production parity remains open.

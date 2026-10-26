@@ -312,6 +312,23 @@ pub fn dispatch<B: ServiceBackend>(
                     RpcValue::unsigned(unsigned_text(parts[2], u64::from(u32::MAX), false)?),
                 ],
             )),
+            ("spotprice", 3) => Some((
+                "spot.last_price",
+                vec![
+                    RpcValue::unsigned(unsigned_text(parts[1], u64::from(u32::MAX), false)?),
+                    RpcValue::unsigned(unsigned_text(parts[2], u64::from(u32::MAX), false)?),
+                    optional_height(request, "height")?,
+                ],
+            )),
+            ("spotvwap", 3) => Some((
+                "spot.vwap",
+                vec![
+                    RpcValue::unsigned(unsigned_text(parts[1], u64::from(u32::MAX), false)?),
+                    RpcValue::unsigned(unsigned_text(parts[2], u64::from(u32::MAX), false)?),
+                    optional_height(request, "startBlock")?,
+                    optional_height(request, "endBlock")?,
+                ],
+            )),
             ("fundinghistory", 2) => {
                 return funding(
                     backend,

@@ -240,3 +240,10 @@ backend target, invalid inputs before backend calls, absent bodies, capability
 errors, commit restrictions, bounded lists, explicit wallet address repair,
 unknown heights, and source helper vectors. The parent build runs the Rust
 test and lint gates together with the real HTTP/runtime integration.
+# Additional executed-price queries
+
+The two Rust extensions `/spotPrice/:base/:quote` and `/spotVwap/:base/:quote`
+route to `spot.last_price` and `spot.vwap`. They read the actual sole-owner
+spot fills and are separate from the pinned source route inventory. Query
+heights use canonical bounded integers. See
+[ECONOMIC_SPOT_PRICES.md](ECONOMIC_SPOT_PRICES.md).

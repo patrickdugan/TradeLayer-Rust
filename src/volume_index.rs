@@ -342,3 +342,5 @@ impl VolumeHistory {
         previous - self.records.len()
     }
 }
+
+include!("volume_index_source_impl.rs");

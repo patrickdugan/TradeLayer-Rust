@@ -7,6 +7,9 @@ use crate::decimal::{Decimal, Rounding};
 use crate::economic::{EconomicState, FundingEpoch, MarkEvent, MarkEventKind};
 use crate::economic_chain::{DurableEconomicChain, EconomicChain};
 use crate::economic_reporting::EconomicHistory;
+use crate::economic_spot_prices::{
+    EconomicSpotPrices, ExecutedSpotPrice, SpotPriceError, PRICE_POLICY,
+};
 use crate::ledger::{AccountId, PropertyId, PropertyKind, TxId};
 use crate::mark_basis::BasisAction;
 use crate::registry::MAX_ACTIVATION_TYPE;
@@ -668,6 +671,63 @@ impl ServiceBackend for EconomicReadBackend<'_> {
                         }),
                 )
             }
+            "spot.last_price" | "spot.vwap" => {
+                args.count(if call.target == "spot.last_price" {
+                    3
+                } else {
+                    4
+                })?;
+                let base = args.property(0)?;
+                let quote = args.property(1)?;
+                let view = EconomicSpotPrices::from_verified_state(s);
+                let value = if call.target == "spot.last_price" {
+                    view.last_price(
+                        base,
+                        quote,
+                        args.optional_height(2)?.unwrap_or(self.chain.tip().height),
+                    )
+                } else {
+                    view.vwap(
+                        base,
+                        quote,
+                        args.optional_height(2)?.unwrap_or(0),
+                        args.optional_height(3)?.unwrap_or(self.chain.tip().height),
+                    )
+                }
+                .map_err(spot_price_error)?;
+                object(vec![
+                    ("policy", string(PRICE_POLICY)?),
+                    (
+                        "network",
+                        string(match s.config().network {
+                            crate::network_profile::TradeLayerMainnet::Bitcoin => "bitcoin",
+                            crate::network_profile::TradeLayerMainnet::Litecoin => "litecoin",
+                            crate::network_profile::TradeLayerMainnet::Dogecoin => "dogecoin",
+                        })?,
+                    ),
+                    ("authenticatedAdmission", RpcValue::boolean(false)),
+                    ("ownerHeight", num(self.chain.tip().height)),
+                    (
+                        "ownerTip",
+                        string(
+                            &self
+                                .chain
+                                .tip()
+                                .id
+                                .0
+                                .iter()
+                                .map(|b| format!("{b:02x}"))
+                                .collect::<String>(),
+                        )?,
+                    ),
+                    (
+                        "price",
+                        value
+                            .as_ref()
+                            .map_or_else(|| Ok(RpcValue::null()), spot_price_row)?,
+                    ),
+                ])
+            }
             "history.contract" => {
                 args.count(1)?;
                 self.selected(args.u32(0)?)?;
@@ -1111,6 +1171,41 @@ fn pretty_json(text: &str) -> Result<String> {
     String::from_utf8(original).map_err(|_| ServiceError::InvalidRequest)
 }
 struct Args<'a>(&'a [RpcValue]);
+fn spot_price_error(error: SpotPriceError) -> ServiceError {
+    match error {
+        SpotPriceError::UnknownProperty => ServiceError::NotFound,
+        SpotPriceError::SameAsset
+        | SpotPriceError::InvalidRange
+        | SpotPriceError::BeyondFinalizedHeight => ServiceError::InvalidRequest,
+        _ => ServiceError::Backend("executed_spot_price"),
+    }
+}
+fn spot_price_row(row: &ExecutedSpotPrice) -> Result<RpcValue> {
+    object(vec![
+        ("basePropertyId", num(row.base.get())),
+        ("quotePropertyId", num(row.quote.get())),
+        ("fromHeight", num(row.from_height)),
+        ("throughHeight", num(row.through_height)),
+        (
+            "firstFillIndex",
+            num(u64::try_from(row.first_fill_index).map_err(|_| ServiceError::Capacity)?),
+        ),
+        (
+            "lastFillIndex",
+            num(u64::try_from(row.last_fill_index).map_err(|_| ServiceError::Capacity)?),
+        ),
+        (
+            "sampleCount",
+            num(u64::try_from(row.sample_count).map_err(|_| ServiceError::Capacity)?),
+        ),
+        ("baseAtoms", atoms(row.base_atoms)?),
+        ("quoteAtoms", atoms(row.quote_atoms)?),
+        (
+            "quotePerBase",
+            decimal(&row.price(20, Rounding::HalfUp).map_err(spot_price_error)?)?,
+        ),
+    ])
+}
 impl Args<'_> {
     fn count(&self, n: usize) -> Result<()> {
         if self.0.len() == n {
