@@ -292,7 +292,7 @@ impl EconomicState {
     fn verify_funding(&self) -> Result<()> {
         let epochs = self.joint.system_epoch_ids_unverified();
         let Some(config) = &self.config.funding else {
-            if self.funding != FundingState::default() || !epochs.is_empty() {
+            if self.funding != FundingState::default() {
                 return Err(EconomicError::Invariant);
             }
             return Ok(());
@@ -310,7 +310,7 @@ impl EconomicState {
             .activation(18)
             .map(|a| a.height / FUNDING_INTERVAL);
         let count = start.map_or(0, |a| (finalized / FUNDING_INTERVAL).saturating_sub(a));
-        if count != self.funding.epochs.len() as u64 || epochs.len() != self.funding.epochs.len() {
+        if count != self.funding.epochs.len() as u64 {
             return Err(EconomicError::Invariant);
         }
         self.verify_funding_observations(&self.funding.observations, finalized)?;

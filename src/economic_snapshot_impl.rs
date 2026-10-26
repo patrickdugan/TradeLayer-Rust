@@ -4,6 +4,7 @@ use crate::codec::{verify_crc, with_crc, Cursor, MAX_CHECKPOINT_BYTES};
 use crate::contract_orderbook::{
     BookSnapshot, RestingOrder, MAX_CONTRACT_ORDERS, MAX_CONTRACT_ORDER_IDS,
 };
+use crate::mark_basis::{ExactRatio, MAX_BASIS_RATIO_DIGITS};
 use crate::tally::{
     FeeAccrualPlan, FeeBookSnapshot, FeeDrawPlan, FeeJournalEntry, FeeKey, FeeQueuePlan, FeeRow,
     QueuedFee, MAX_FEE_JOURNAL, MAX_FEE_ROWS, MAX_QUEUED_FEES,
@@ -11,6 +12,7 @@ use crate::tally::{
 
 const ECONOMIC_STATE_MAGIC: &[u8; 5] = b"TLEC\x01";
 const ECONOMIC_FUNDING_MAGIC: &[u8; 5] = b"TLEC\x02";
+const ECONOMIC_MARK_MAGIC: &[u8; 5] = b"TLEC\x03";
 const MAX_ECONOMIC_DECIMAL_TEXT: usize = 128;
 
 fn econ_snapshot_bad() -> EconomicError {
@@ -220,6 +222,9 @@ fn econ_write_config(out: &mut EconomicWriter, config: &EconomicConfig) -> Resul
     match config.policy {
         SettlementPolicy::ConservingV1 => out.byte(1)?,
     }
+    if config.marking.is_some() {
+        out.byte(u8::from(config.funding.is_some()))?;
+    }
     if let Some(funding) = &config.funding {
         out.u32(funding.oracle_id)?;
         out.u64(funding.max_staleness_blocks)?;
@@ -227,15 +232,25 @@ fn econ_write_config(out: &mut EconomicWriter, config: &EconomicConfig) -> Resul
             FundingPolicy::ConservingFundingV1 => out.byte(1)?,
         }
     }
+    if let Some(marking) = &config.marking {
+        out.u32(marking.oracle_id)?;
+        match marking.policy {
+            MarkPolicy::ConservingMarkBasisV1 => out.byte(1)?,
+        }
+    }
     Ok(())
 }
-fn econ_read_config(reader: &mut Cursor<'_>, has_funding: bool) -> Result<EconomicConfig> {
+fn econ_read_config(
+    reader: &mut Cursor<'_>,
+    has_funding: bool,
+    has_marking: bool,
+) -> Result<EconomicConfig> {
     let network = TradeLayerMainnet::from_tag(reader.u8().map_err(|_| econ_snapshot_bad())?)
         .map_err(|_| econ_snapshot_bad())?;
     if reader.fixed::<32>().map_err(|_| econ_snapshot_bad())? != network.genesis().0 {
         return Err(econ_snapshot_bad());
     }
-    let config = EconomicConfig {
+    let mut config = EconomicConfig {
         network,
         contract: econ_read_contract(reader)?,
         collateral: econ_read_property(reader)?,
@@ -247,18 +262,36 @@ fn econ_read_config(reader: &mut Cursor<'_>, has_funding: bool) -> Result<Econom
             1 => SettlementPolicy::ConservingV1,
             _ => return Err(econ_snapshot_bad()),
         },
-        funding: if has_funding {
-            Some(FundingConfig {
-                oracle_id: reader.u32().map_err(|_| econ_snapshot_bad())?,
-                max_staleness_blocks: econ_read_u64(reader)?,
-                policy: match reader.u8().map_err(|_| econ_snapshot_bad())? {
-                    1 => FundingPolicy::ConservingFundingV1,
-                    _ => return Err(econ_snapshot_bad()),
-                },
-            })
-        } else {
-            None
-        },
+        funding: None,
+        marking: None,
+    };
+    let has_funding = if has_marking {
+        econ_read_bool(reader)?
+    } else {
+        has_funding
+    };
+    config.funding = if has_funding {
+        Some(FundingConfig {
+            oracle_id: reader.u32().map_err(|_| econ_snapshot_bad())?,
+            max_staleness_blocks: econ_read_u64(reader)?,
+            policy: match reader.u8().map_err(|_| econ_snapshot_bad())? {
+                1 => FundingPolicy::ConservingFundingV1,
+                _ => return Err(econ_snapshot_bad()),
+            },
+        })
+    } else {
+        None
+    };
+    config.marking = if has_marking {
+        Some(MarkConfig {
+            oracle_id: reader.u32().map_err(|_| econ_snapshot_bad())?,
+            policy: match reader.u8().map_err(|_| econ_snapshot_bad())? {
+                1 => MarkPolicy::ConservingMarkBasisV1,
+                _ => return Err(econ_snapshot_bad()),
+            },
+        })
+    } else {
+        None
     };
     config.validate()?;
     Ok(config)
@@ -727,10 +760,280 @@ fn econ_read_funding(reader: &mut Cursor<'_>) -> Result<FundingState> {
     })
 }
 
+#[derive(Default)]
+struct MarkRecordBudget {
+    used: usize,
+}
+impl MarkRecordBudget {
+    fn take(&mut self, count: usize) -> Result<()> {
+        self.used = self
+            .used
+            .checked_add(count)
+            .ok_or(EconomicError::Capacity)?;
+        if self.used > MAX_MARK_RECORDS {
+            return Err(EconomicError::Capacity);
+        }
+        Ok(())
+    }
+}
+
+fn econ_write_ratio_integer(out: &mut EconomicWriter, value: &Decimal) -> Result<()> {
+    if value.decimal_places() != 0 || value.coefficient_digits() > MAX_BASIS_RATIO_DIGITS {
+        return Err(econ_snapshot_bad());
+    }
+    let text = value.to_string();
+    if text.len() > MAX_BASIS_RATIO_DIGITS + 1 {
+        return Err(EconomicError::Capacity);
+    }
+    out.put(&(text.len() as u16).to_be_bytes())?;
+    out.put(text.as_bytes())
+}
+fn econ_read_ratio_integer(reader: &mut Cursor<'_>) -> Result<Decimal> {
+    let length = u16::from_be_bytes(reader.fixed::<2>().map_err(|_| econ_snapshot_bad())?) as usize;
+    if length == 0 || length > MAX_BASIS_RATIO_DIGITS + 1 {
+        return Err(EconomicError::Capacity);
+    }
+    let text = core::str::from_utf8(reader.take(length).map_err(|_| econ_snapshot_bad())?)
+        .map_err(|_| econ_snapshot_bad())?;
+    let value: Decimal = text.parse().map_err(|_| econ_snapshot_bad())?;
+    if value.decimal_places() != 0
+        || value.coefficient_digits() > MAX_BASIS_RATIO_DIGITS
+        || value.to_string() != text
+    {
+        return Err(econ_snapshot_bad());
+    }
+    Ok(value)
+}
+fn econ_write_ratio(out: &mut EconomicWriter, value: &ExactRatio) -> Result<()> {
+    econ_write_ratio_integer(out, value.numerator())?;
+    econ_write_ratio_integer(out, value.denominator())
+}
+fn econ_read_ratio(reader: &mut Cursor<'_>) -> Result<ExactRatio> {
+    Ok(ExactRatio::from_parts(
+        econ_read_ratio_integer(reader)?,
+        econ_read_ratio_integer(reader)?,
+    )?)
+}
+fn econ_write_basis_action(out: &mut EconomicWriter, action: &BasisAction) -> Result<()> {
+    match action {
+        BasisAction::Trade { delta, price } => {
+            out.byte(0)?;
+            out.decimal(delta)?;
+            out.decimal(price)
+        }
+        BasisAction::Mark { price } => {
+            out.byte(1)?;
+            out.decimal(price)
+        }
+    }
+}
+fn econ_read_basis_action(reader: &mut Cursor<'_>) -> Result<BasisAction> {
+    match reader.u8().map_err(|_| econ_snapshot_bad())? {
+        0 => Ok(BasisAction::Trade {
+            delta: econ_read_decimal(reader)?,
+            price: econ_read_decimal(reader)?,
+        }),
+        1 => Ok(BasisAction::Mark {
+            price: econ_read_decimal(reader)?,
+        }),
+        _ => Err(econ_snapshot_bad()),
+    }
+}
+fn econ_write_marks(out: &mut EconomicWriter, marks: &MarkState) -> Result<()> {
+    let mut budget = MarkRecordBudget::default();
+    budget.take(marks.bases.len())?;
+    out.count(marks.bases.len(), MAX_ECONOMIC_POSITIONS)?;
+    for (owner, basis) in &marks.bases {
+        out.account(owner)?;
+        out.decimal(&basis.quantity)?;
+        econ_write_ratio(out, &basis.entry_basis)?;
+        econ_write_ratio(out, &basis.carry)?;
+    }
+    budget.take(marks.unpaid_losses.len())?;
+    out.count(marks.unpaid_losses.len(), MAX_ECONOMIC_POSITIONS)?;
+    for (owner, atoms) in &marks.unpaid_losses {
+        if *atoms == 0 {
+            return Err(econ_snapshot_bad());
+        }
+        out.account(owner)?;
+        out.atoms(*atoms)?;
+    }
+    out.count(marks.events.len(), MAX_MARK_EVENTS)?;
+    let mut epochs = 0;
+    for event in &marks.events {
+        out.u64(event.height)?;
+        match &event.kind {
+            MarkEventKind::Trade {
+                buy_txid,
+                sell_txid,
+            } => {
+                out.byte(0)?;
+                out.txid(*buy_txid)?;
+                out.txid(*sell_txid)?;
+            }
+            MarkEventKind::Mark { id, observation } => {
+                epochs += 1;
+                if epochs > MAX_MARK_EPOCHS {
+                    return Err(EconomicError::Capacity);
+                }
+                out.byte(1)?;
+                out.txid(*id)?;
+                econ_write_funding_observation(out, observation)?;
+            }
+        }
+        budget.take(event.entries.len())?;
+        out.count(event.entries.len(), MAX_ECONOMIC_POSITIONS)?;
+        for entry in &event.entries {
+            out.account(&entry.owner)?;
+            econ_write_basis_action(out, &entry.action)?;
+            if entry.atoms.negative && entry.atoms.atoms == 0 {
+                return Err(econ_snapshot_bad());
+            }
+            out.byte(u8::from(entry.atoms.negative))?;
+            out.atoms(entry.atoms.atoms)?;
+            out.atoms(entry.available_atoms)?;
+            out.atoms(entry.margin_atoms)?;
+            out.atoms(entry.collected_atoms)?;
+            out.atoms(entry.claim_offset_atoms)?;
+            out.atoms(entry.loss_offset_atoms)?;
+        }
+        out.atoms(event.collected_loss_atoms)?;
+        out.atoms(event.paid_claim_atoms)?;
+        out.atoms(event.unfunded_loss_atoms)?;
+    }
+    budget.take(marks.maintenance.len())?;
+    out.count(marks.maintenance.len(), MAX_ECONOMIC_POSITIONS)?;
+    for call in &marks.maintenance {
+        out.account(&call.owner)?;
+        out.decimal(&call.contracts)?;
+        out.atoms(call.required_atoms)?;
+        out.atoms(call.margin_atoms)?;
+    }
+    Ok(())
+}
+fn econ_read_marks(reader: &mut Cursor<'_>) -> Result<MarkState> {
+    let mut budget = MarkRecordBudget::default();
+    let count = econ_read_count(reader, MAX_ECONOMIC_POSITIONS)?;
+    budget.take(count)?;
+    let mut bases = BTreeMap::new();
+    let mut last = None;
+    for _ in 0..count {
+        let owner = econ_read_account(reader)?;
+        if last.as_ref().is_some_and(|previous| &owner <= previous) {
+            return Err(econ_snapshot_bad());
+        }
+        last = Some(owner.clone());
+        bases.insert(
+            owner,
+            BasisPosition {
+                quantity: econ_read_decimal(reader)?,
+                entry_basis: econ_read_ratio(reader)?,
+                carry: econ_read_ratio(reader)?,
+            },
+        );
+    }
+    let count = econ_read_count(reader, MAX_ECONOMIC_POSITIONS)?;
+    budget.take(count)?;
+    let mut unpaid_losses = BTreeMap::new();
+    let mut last = None;
+    for _ in 0..count {
+        let owner = econ_read_account(reader)?;
+        if last.as_ref().is_some_and(|previous| &owner <= previous) {
+            return Err(econ_snapshot_bad());
+        }
+        last = Some(owner.clone());
+        let atoms = econ_read_atoms(reader)?;
+        if atoms == 0 {
+            return Err(econ_snapshot_bad());
+        }
+        unpaid_losses.insert(owner, atoms);
+    }
+    let count = econ_read_count(reader, MAX_MARK_EVENTS)?;
+    let mut events = Vec::new();
+    let mut epochs = 0;
+    for _ in 0..count {
+        let height = econ_read_u64(reader)?;
+        let kind = match reader.u8().map_err(|_| econ_snapshot_bad())? {
+            0 => MarkEventKind::Trade {
+                buy_txid: econ_read_txid(reader)?,
+                sell_txid: econ_read_txid(reader)?,
+            },
+            1 => {
+                epochs += 1;
+                if epochs > MAX_MARK_EPOCHS {
+                    return Err(EconomicError::Capacity);
+                }
+                MarkEventKind::Mark {
+                    id: econ_read_txid(reader)?,
+                    observation: econ_read_funding_observation(reader)?,
+                }
+            }
+            _ => return Err(econ_snapshot_bad()),
+        };
+        let count = econ_read_count(reader, MAX_ECONOMIC_POSITIONS)?;
+        budget.take(count)?;
+        let mut entries = Vec::new();
+        for _ in 0..count {
+            let owner = econ_read_account(reader)?;
+            let action = econ_read_basis_action(reader)?;
+            let atoms = SignedAtoms {
+                negative: econ_read_bool(reader)?,
+                atoms: econ_read_atoms(reader)?,
+            };
+            if atoms.negative && atoms.atoms == 0 {
+                return Err(econ_snapshot_bad());
+            }
+            entries.push(MarkEventEntry {
+                owner,
+                action,
+                atoms,
+                available_atoms: econ_read_atoms(reader)?,
+                margin_atoms: econ_read_atoms(reader)?,
+                collected_atoms: econ_read_atoms(reader)?,
+                claim_offset_atoms: econ_read_atoms(reader)?,
+                loss_offset_atoms: econ_read_atoms(reader)?,
+            });
+        }
+        events.push(MarkEvent {
+            height,
+            kind,
+            entries,
+            collected_loss_atoms: econ_read_atoms(reader)?,
+            paid_claim_atoms: econ_read_atoms(reader)?,
+            unfunded_loss_atoms: econ_read_atoms(reader)?,
+        });
+    }
+    let count = econ_read_count(reader, MAX_ECONOMIC_POSITIONS)?;
+    budget.take(count)?;
+    let mut maintenance = Vec::new();
+    let mut last = None;
+    for _ in 0..count {
+        let owner = econ_read_account(reader)?;
+        if last.as_ref().is_some_and(|previous| &owner <= previous) {
+            return Err(econ_snapshot_bad());
+        }
+        last = Some(owner.clone());
+        maintenance.push(MaintenanceCall {
+            owner,
+            contracts: econ_read_decimal(reader)?,
+            required_atoms: econ_read_atoms(reader)?,
+            margin_atoms: econ_read_atoms(reader)?,
+        });
+    }
+    Ok(MarkState {
+        bases,
+        unpaid_losses,
+        events,
+        maintenance,
+    })
+}
+
 impl EconomicState {
     pub fn snapshot_bytes(&self) -> Result<Vec<u8>> {
         self.verify()?;
-        let mut out = EconomicWriter(if self.config.funding.is_some() {
+        let mut out = EconomicWriter(if self.config.marking.is_some() {
+            ECONOMIC_MARK_MAGIC.to_vec()
+        } else if self.config.funding.is_some() {
             ECONOMIC_FUNDING_MAGIC.to_vec()
         } else {
             ECONOMIC_STATE_MAGIC.to_vec()
@@ -803,6 +1106,9 @@ impl EconomicState {
         if self.config.funding.is_some() {
             econ_write_funding(&mut out, &self.funding)?;
         }
+        if self.config.marking.is_some() {
+            econ_write_marks(&mut out, &self.marking)?;
+        }
         with_crc(out.0).map_err(|_| EconomicError::Capacity)
     }
 
@@ -818,14 +1124,16 @@ impl EconomicState {
         let raw = verify_crc(bytes).map_err(|_| econ_snapshot_bad())?;
         let mut reader = Cursor::new(raw);
         let version = reader.fixed::<5>().map_err(|_| econ_snapshot_bad())?;
-        let has_funding = if version == *ECONOMIC_STATE_MAGIC {
-            false
+        let (has_funding, has_marking) = if version == *ECONOMIC_STATE_MAGIC {
+            (false, false)
         } else if version == *ECONOMIC_FUNDING_MAGIC {
-            true
+            (true, false)
+        } else if version == *ECONOMIC_MARK_MAGIC {
+            (false, true)
         } else {
             return Err(econ_snapshot_bad());
         };
-        let config = econ_read_config(&mut reader, has_funding)?;
+        let config = econ_read_config(&mut reader, has_funding, has_marking)?;
         if &config != expected_config {
             return Err(EconomicError::InvalidConfig);
         }
@@ -902,10 +1210,15 @@ impl EconomicState {
             });
         }
         let internal_sequence = econ_read_u64(&mut reader)?;
-        let funding = if has_funding {
+        let funding = if config.funding.is_some() {
             econ_read_funding(&mut reader)?
         } else {
             FundingState::default()
+        };
+        let marking = if has_marking {
+            econ_read_marks(&mut reader)?
+        } else {
+            MarkState::default()
         };
         reader.end().map_err(|_| econ_snapshot_bad())?;
         let result = Self {
@@ -924,6 +1237,7 @@ impl EconomicState {
             receipts,
             internal_sequence,
             funding,
+            marking,
         };
         result.verify()?;
         if result.snapshot_bytes()?.as_slice() != bytes {
@@ -968,6 +1282,7 @@ mod funding_codec_compat_tests {
             fee_route: FeeRoute::Native(1),
             policy: SettlementPolicy::ConservingV1,
             funding: None,
+            marking: None,
         };
         let mut state = EconomicState::from_joint_unverified(config, joint).unwrap();
         state
@@ -1004,5 +1319,33 @@ mod funding_codec_compat_tests {
         .unwrap();
         assert_eq!(restored, state);
         assert_eq!(restored.funding, FundingState::default());
+
+        // Independently captured from the pre-mark, funding-enabled compiled
+        // owner with this same activation/ledger and empty funding state.
+        state.config.fee_route = FeeRoute::Oracle(1);
+        state.config.funding = Some(FundingConfig {
+            oracle_id: 1,
+            max_staleness_blocks: 96,
+            policy: FundingPolicy::ConservingFundingV1,
+        });
+        let bytes = state.snapshot_bytes().unwrap();
+        assert_eq!(&bytes[..5], b"TLEC\x02");
+        assert_eq!(bytes.len(), 822);
+        assert_eq!(
+            crate::hash256::double_sha256(&bytes),
+            [
+                99, 2, 107, 167, 228, 167, 249, 119, 218, 220, 159, 146, 23, 215, 170, 239, 207,
+                125, 242, 70, 170, 104, 178, 232, 186, 1, 24, 145, 34, 176, 111, 1
+            ]
+        );
+        let restored = EconomicState::from_snapshot_bytes(
+            &bytes,
+            state.config(),
+            &"admin".try_into().unwrap(),
+            &BTreeSet::from([7.try_into().unwrap()]),
+        )
+        .unwrap();
+        assert_eq!(restored, state);
+        assert_eq!(restored.marking, MarkState::default());
     }
 }

@@ -39,6 +39,7 @@ fn config() -> EconomicConfig {
         fee_route: FeeRoute::Native(1),
         policy: SettlementPolicy::ConservingV1,
         funding: None,
+        marking: None,
     }
 }
 fn bootstrap() -> JointProtocolState {

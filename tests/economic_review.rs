@@ -103,6 +103,7 @@ mod combined_execution_review {
             fee_route: FeeRoute::Native(1),
             policy: SettlementPolicy::ConservingV1,
             funding: None,
+            marking: None,
         };
         let mut ledger = Ledger::new();
         ledger

@@ -10,7 +10,7 @@ The execution policy is explicitly `SettlementPolicy::ConservingV1`. It is a fun
 
 `from_joint_unverified` accepts an unfinalized Joint bootstrap state whose collateral exists and whose components pass their existing checks. It starts with no economic history. The first block is height 1, and subsequent heights must be contiguous. Registry activation uses the existing Joint checks: activating an opcode in a block does not authorize using it in that same block.
 
-The additional economic inputs are type-18 contract orders and type-6 owner cancellations. Ordinary implemented Joint inputs still use their original dispatch. This does not enable options, mark-to-market settlement, liquidation, ADL, channel transfer, insurance withdrawal, or unsupported economic opcodes. Type-3 UTXO trades and settlement opcodes requiring authentication retain their existing denial gates.
+The additional economic inputs are type-18 contract orders and type-6 owner cancellations. Ordinary implemented Joint inputs still use their original dispatch. Optional configured [mark epochs](ECONOMIC_MARKS.md) settle fresh admitted-oracle observations through the same Ledger. Options, liquidation, ADL, channel transfer, insurance withdrawal and unsupported economic opcodes remain separate work. Type-3 UTXO trades and settlement opcodes requiring authentication retain their existing denial gates.
 
 ## Block transaction and actual custody
 
@@ -66,7 +66,7 @@ Fee verification now builds the expected journal once through the private batch 
 
 ## Remaining integration gates
 
-Optional [funding epochs](ECONOMIC_FUNDING.md) extend this owner through the same Ledger, with complete source observations, explicit conserving allocation and TLJE/TLEC v2 recovery. The disabled default retains the original v1 encoding. Funding does not change the average-entry close basis; adding mark settlement still requires persisted settled-basis accounting to prevent paying PnL twice.
+Optional [funding epochs](ECONOMIC_FUNDING.md) extend this owner through the same Ledger, with complete source observations, explicit conserving allocation and TLJE/TLEC v2 recovery. The disabled default retains the original v1 encoding. Optional [mark epochs](ECONOMIC_MARKS.md) add separate exact settled basis and signed subatom carry, nominal default/reversal offsets and TLEC v3 recovery. Marking disabled retains prior v1/v2 bytes. The earlier average-entry close rules described above apply when marking is disabled; enabled marking uses its persisted basis while retaining the trade average as separate metadata. Funding remains independent of that close basis.
 
 The pending-insurance escrow is a real funded balance, but it is not the insurance module's lifecycle or an authenticated insurance deposit. The actual live insurance handoff, fund accounting, withdrawals, and receipt/reorg linkage must be integrated before that counter can be presented as an insurance balance. This owner does not call a substitute insurance allocator or debit a second ledger.
 

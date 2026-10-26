@@ -46,6 +46,8 @@ fixtures/persistence_vectors.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/reorg_vectors.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/clearing_vectors.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/clearing_quirks.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/mark_basis_vectors.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/mark_basis_quirks.tsv text eol=lf whitespace=-blank-at-eol
 
 # Unified patches contain significant blank context lines with a space prefix.
 fixtures/barrier_startup_cancellation.patch text eol=lf -whitespace

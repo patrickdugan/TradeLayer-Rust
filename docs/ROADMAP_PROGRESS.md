@@ -24,7 +24,7 @@ None of these rows or modules is marked as a complete production port.
 
 | Module | Implemented and verified scope | Remaining completion criteria |
 | --- | --- | --- |
-| `clearing.js` | Constructor and all 79 active methods assessed; source funding mean/rate/notional/payer vectors and concrete failures; funded fractional oracle-perpetual epochs in the existing Ledger with complete restart and rollback | Basis-aware marks, actual liquidation/AMM/ADL and insurance, native VWAP, full contract orchestration, authenticated marks/actors and historical acceptance |
+| `clearing.js` | Constructor and all 79 active methods assessed; source funding and mark arithmetic/quirks; funded fractional oracle-perpetual epochs, exact settled-basis marks and nominal default offsets in the existing Ledger with complete restart and rollback | Actual liquidation/AMM/ADL and insurance, native VWAP, full contract orchestration, complete admitted-publication history, authenticated marks/actors and historical acceptance |
 | `orderbook.js` | All 69 methods, constructor and two comparators assessed; 287 actual-source vectors and nine source defects; contract book, funded type18/6 matching, owner cancellation and complete recovery in the existing joint Ledger | Authenticated orders and contract configuration, funded AMM-first execution, liquidation/ADL, multicontract orchestration, channels, source reporting/rewards and historical acceptance |
 | `tally.js` | All 45 methods plus constructor assessed; 248 actual-source vectors and 32 source assertions; actual custody projections, funded match fee/rebate collection and complete FeeBook persistence | Legacy arbitrary-value/NeDB migration, authenticated channel/vesting rules, registered insurance lifecycle, buybacks, remaining shared economic stores and historical acceptance |
 | `base94.js` | Eight helper methods, bounded string inputs, real-source golden vectors and preserved delimiter/fraction quirks | General JS coercions and malformed UTF-16; accepted historical wire transactions and admission integration |
@@ -361,3 +361,57 @@ first-attempt guard and is documented rather than claimed as parity. Authenticat
 execution, full publication provenance, settled mark basis, liquidation,
 insurance lifecycle and historical acceptance remain open. No branch was pushed
 and no GitHub CI, Lean or Kani result is claimed.
+
+## Exact settled basis and funded marks
+
+The eighth local economic pass adds [exact rational basis](MARK_BASIS.md) and
+[funded oracle mark settlement](ECONOMIC_MARKS.md) to the same Ledger owner.
+Marks advance settlement basis without replacing historical trade averages;
+closes pay only the remaining change. Inverse additions use reciprocal-price
+exposure and signed subatom carry survives partial closes, flips and flat/reopen.
+
+Fresh final-accepted same-height oracle publications trigger one system epoch
+once type18 was active in a prior block. All matching precedes the mark; funding
+follows it. Negative PnL first cancels that owner's unpaid positive claims;
+positive PnL first offsets that owner's unpaid losses. Only remaining obligations
+can collect or create cash claims, and payouts remain limited by actual custody.
+A price round trip after default therefore cannot retain reversed nominal claims.
+Current below-half-initial-margin calls project actual margin, without executing
+liquidation or treating a wallet top-up as margin custody.
+
+The bounded action journal independently recomputes every basis/carry transition,
+trade average, realized amount, complete IOU state, current default liability,
+maintenance call and system replay union. Historical funding quantities are also
+bound to reconstructed positions, and overlapping same-oracle funding/mark price
+captures must agree. These consistency checks do not authenticate inputs or prove
+complete publication history. TLEC v3 persists all mark fields and owner offsets;
+marking disabled retains the prior v1/v2 formats. Full liquidation, funded AMM,
+insurance lifecycle, chain authorization and historical acceptance remain open.
+
+## Local validation for settled basis and funded marks
+
+Pinned Rust 1.90.0 on Windows/MSVC passed all 845 tests across 110 executables,
+formatting including every included implementation, all-target Clippy with
+warnings denied, and the frozen all-target release build. The zero-dependency
+gate and its 11 adversarial tests passed. Doc tests passed with none defined.
+The unchanged-source mark oracle passed 130 vectors and nine characterized
+quirks; the funding oracle retained its 117 vectors and 19 characterizations.
+Both complete clearing and margin-map archives match the pinned JavaScript
+checkout byte-for-byte after LF normalization and retain their declared hashes.
+
+Coverage includes linear/inverse adds, partial closes, flips and close after a
+paid mark, signed rational carry through flat/reopen, loss/claim offsets after
+default and price reversal, final same-height publications, maintenance deficits,
+late funding failure and full rollback. Repaired-checksum probes reject forged
+basis/carry/actions/offsets, noncanonical ratios and negative zero, excessive
+counts, historical funding quantities inconsistent with trade replay and mark
+observations inconsistent with known funding history. Full checkpoint and disk
+restart/rollback/replay pass on all three network profiles. Genuine pre-extension
+v1 (800 bytes) and v2 (822 bytes) checkpoint fingerprints remain unchanged when
+marking is disabled; v3 restores every basis, nominal obligation and event.
+
+The conserving basis and default-offset policy is explicit in
+[ECONOMIC_MARKS.md](ECONOMIC_MARKS.md). Untyped historical mark publication IDs,
+full publication provenance, contract configuration, native marks, funded
+liquidation/AMM/insurance and authenticated historical acceptance remain open.
+No branch was pushed and no GitHub CI, Lean or Kani result is claimed.

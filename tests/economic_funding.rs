@@ -78,6 +78,7 @@ fn config(network: TradeLayerMainnet, staleness: u64) -> EconomicConfig {
         initial_margin_per_contract: d("10"),
         fee_route: FeeRoute::Oracle(1),
         policy: SettlementPolicy::ConservingV1,
+        marking: None,
         funding: Some(FundingConfig {
             oracle_id: 1,
             max_staleness_blocks: staleness,

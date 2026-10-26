@@ -38,6 +38,7 @@ pub struct EconomicConfig {
     pub fee_route: FeeRoute,
     pub policy: SettlementPolicy,
     pub funding: Option<FundingConfig>,
+    pub marking: Option<MarkConfig>,
 }
 impl EconomicConfig {
     pub fn validate(&self) -> Result<(), EconomicError> {
@@ -53,6 +54,11 @@ impl EconomicConfig {
         if let Some(funding) = &self.funding {
             funding.validate()?;
             if !matches!(self.fee_route, FeeRoute::Oracle(_)) {
+                return Err(EconomicError::InvalidConfig);
+            }
+        }
+        if let Some(marking) = &self.marking {
+            if marking.oracle_id == 0 || !matches!(self.fee_route, FeeRoute::Oracle(_)) {
                 return Err(EconomicError::InvalidConfig);
             }
         }
@@ -110,6 +116,7 @@ pub enum EconomicError {
     Iou(IouError),
     Tally(TallyError),
     Funding(crate::funding::FundingError),
+    Basis(crate::mark_basis::BasisError),
 }
 impl core::fmt::Display for EconomicError {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -152,6 +159,11 @@ impl From<crate::funding::FundingError> for EconomicError {
         Self::Funding(e)
     }
 }
+impl From<crate::mark_basis::BasisError> for EconomicError {
+    fn from(e: crate::mark_basis::BasisError) -> Self {
+        Self::Basis(e)
+    }
+}
 type Result<T, E = EconomicError> = core::result::Result<T, E>;
 
 /// Metadata never owns a second Ledger. Every escrow balance below is a
@@ -173,6 +185,7 @@ pub struct EconomicState {
     receipts: Vec<TradeReceipt>,
     internal_sequence: u64,
     funding: FundingState,
+    marking: MarkState,
 }
 impl EconomicState {
     pub fn from_joint_unverified(
@@ -203,6 +216,7 @@ impl EconomicState {
             receipts: Vec::new(),
             internal_sequence: 0,
             funding: FundingState::default(),
+            marking: MarkState::default(),
         };
         state.verify()?;
         Ok(state)
@@ -270,13 +284,18 @@ impl EconomicState {
         self.verify()?;
         let mut next = self.clone();
         let before = next.receipts.len();
+        let mut mark_publication = None;
         for input in inputs {
             match input {
                 EconomicInput::Joint(tx) => {
                     let observed = next.funding_publication(&tx);
+                    let mark_id = next.mark_publication(&tx);
                     next.joint.apply_one_for_economic_unverified(height, tx)?;
                     if let Some((txid, closed)) = observed {
                         next.capture_funding_publication(height, txid, closed)?;
+                    }
+                    if let Some(id) = mark_id {
+                        mark_publication = Some(id);
                     }
                 }
                 EconomicInput::Order(order) => {
@@ -314,9 +333,11 @@ impl EconomicState {
             next.apply_transition(transition, height)?;
         }
         next.book.finish_height(height)?;
+        next.run_mark_epoch(height, mark_publication)?;
         next.run_funding_epoch(height)?;
         next.prune_funding_observations(height);
         next.refresh_positions()?;
+        next.refresh_maintenance()?;
         next.joint.finalize_block_for_economic_unverified(height)?;
         next.verify()?;
         // Refuse a successful mutation that cannot be checkpointed in full.
@@ -406,27 +427,69 @@ impl EconomicState {
         self.transfer(fee_escrow, insurance, accrued.insurance_atoms)?;
         self.insurance_custody_atoms = add(self.insurance_custody_atoms, accrued.insurance_atoms)?;
 
-        let mut collected = 0;
-        let mut bad_debt = 0;
-        for (owner, pnl) in [(&m.buyer, &buyer_pnl), (&m.seller, &seller_pnl)] {
-            if pnl.is_negative() {
-                let debt = atoms_down(&pnl.abs())?;
-                let paid = self.collect_loss(owner, debt)?;
-                collected = add(collected, paid)?;
-                bad_debt = add(bad_debt, debt - paid)?;
+        let mark_entries = if self.config.marking.is_some() {
+            Some(vec![
+                self.mark_entry(
+                    &m.buyer,
+                    crate::mark_basis::BasisAction::Trade {
+                        delta: m.quantity.clone(),
+                        price: m.price.clone(),
+                    },
+                )?,
+                self.mark_entry(
+                    &m.seller,
+                    crate::mark_basis::BasisAction::Trade {
+                        delta: m.quantity.negated(),
+                        price: m.price.clone(),
+                    },
+                )?,
+            ])
+        } else {
+            None
+        };
+        let buyer_pnl = mark_entries
+            .as_ref()
+            .map_or(buyer_pnl, |e| e[0].atoms.to_decimal());
+        let seller_pnl = mark_entries
+            .as_ref()
+            .map_or(seller_pnl, |e| e[1].atoms.to_decimal());
+        let (collected, bad_debt, paid) = if let Some(mut entries) = mark_entries {
+            let totals = self.settle_mark_entries(&mut entries, height)?;
+            self.record_mark_event(MarkEvent {
+                height,
+                kind: MarkEventKind::Trade {
+                    buy_txid: m.buy_txid,
+                    sell_txid: m.sell_txid,
+                },
+                entries,
+                collected_loss_atoms: totals.0,
+                paid_claim_atoms: totals.2,
+                unfunded_loss_atoms: totals.1,
+            })?;
+            totals
+        } else {
+            let mut collected = 0;
+            let mut bad_debt = 0;
+            for (owner, pnl) in [(&m.buyer, &buyer_pnl), (&m.seller, &seller_pnl)] {
+                if pnl.is_negative() {
+                    let debt = atoms_down(&pnl.abs())?;
+                    let paid = self.collect_loss(owner, debt)?;
+                    collected = add(collected, paid)?;
+                    bad_debt = add(bad_debt, debt - paid)?;
+                }
             }
-        }
-        self.unfunded_loss_atoms = add(self.unfunded_loss_atoms, bad_debt)?;
-        if collected != 0 {
-            self.ious
-                .add_loss(self.iou_key(), &tokens(collected)?, height)?;
-        }
-        for (owner, pnl) in [(&m.buyer, &buyer_pnl), (&m.seller, &seller_pnl)] {
-            if !pnl.is_negative() && !pnl.is_zero() {
-                self.add_claim(owner, atoms_down(pnl)?, height)?;
+            self.unfunded_loss_atoms = add(self.unfunded_loss_atoms, bad_debt)?;
+            if collected != 0 {
+                self.ious
+                    .add_loss(self.iou_key(), &tokens(collected)?, height)?;
             }
-        }
-        let paid = self.pay_claims(height)?;
+            for (owner, pnl) in [(&m.buyer, &buyer_pnl), (&m.seller, &seller_pnl)] {
+                if !pnl.is_negative() && !pnl.is_zero() {
+                    self.add_claim(owner, atoms_down(pnl)?, height)?;
+                }
+            }
+            (collected, bad_debt, self.pay_claims(height)?)
+        };
         self.receipts.push(TradeReceipt {
             height,
             buy_txid: m.buy_txid,
@@ -485,7 +548,7 @@ impl EconomicState {
                     .checked_div(&after.abs(), 20, Rounding::HalfUp)?,
             )
         };
-        let pnl = if close.is_zero() {
+        let pnl = if close.is_zero() || self.config.marking.is_some() {
             Decimal::zero()
         } else {
             price_delta(
@@ -500,7 +563,9 @@ impl EconomicState {
         let mut position = old.clone();
         position.contracts = after;
         position.avg_price = average;
-        position.realized_pnl = position.realized_pnl.checked_add(&pnl)?;
+        if self.config.marking.is_none() {
+            position.realized_pnl = position.realized_pnl.checked_add(&pnl)?;
+        }
         position.last_mark = Some(price.clone());
         self.positions.write_position(position)?;
         Ok(pnl)
@@ -685,6 +750,8 @@ impl EconomicState {
         self.config.validate()?;
         self.joint.verify_for_economic_owner_unverified()?;
         self.verify_funding()?;
+        self.verify_marks()?;
+        self.verify_system_epochs()?;
         if self.joint.network() != self.config.network
             || self.ledger().property(self.config.collateral).is_none()
             || self.book.contract() != self.config.contract
@@ -834,6 +901,13 @@ impl EconomicState {
         let mut collected = 0;
         let mut paid = 0;
         let mut bad_debt = 0;
+        for event in &self.marking.events {
+            if matches!(event.kind, MarkEventKind::Mark { .. }) {
+                collected = add(collected, event.collected_loss_atoms)?;
+                paid = add(paid, event.paid_claim_atoms)?;
+                bad_debt = add(bad_debt, event.unfunded_loss_atoms)?;
+            }
+        }
         let (expected_fees, expected_insurance) =
             FeeBook::from_accruals(self.receipts.iter().map(|receipt| {
                 (
@@ -930,3 +1004,4 @@ fn atoms_exact(value: &Decimal) -> Result<u128> {
 
 include!("economic_snapshot_impl.rs");
 include!("economic_funding_impl.rs");
+include!("economic_mark_impl.rs");

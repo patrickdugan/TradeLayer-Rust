@@ -41,6 +41,7 @@ fn config(network: TradeLayerMainnet) -> EconomicConfig {
         fee_route: FeeRoute::Native(1),
         policy: SettlementPolicy::ConservingV1,
         funding: None,
+        marking: None,
     }
 }
 fn pristine(network: TradeLayerMainnet) -> EconomicState {
