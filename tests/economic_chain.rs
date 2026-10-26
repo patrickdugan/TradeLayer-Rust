@@ -80,6 +80,7 @@ fn config(network: TradeLayerMainnet, rollback_limit: usize) -> EconomicChainCon
             initial_margin_per_contract: d("10"),
             fee_route: FeeRoute::Native(1),
             policy: SettlementPolicy::ConservingV1,
+            funding: None,
         },
         admin: a("admin"),
         permitted_spot_properties: BTreeSet::from([p()]),

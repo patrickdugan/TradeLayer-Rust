@@ -40,6 +40,7 @@ fn config(network: TradeLayerMainnet) -> EconomicConfig {
         initial_margin_per_contract: d("10"),
         fee_route: FeeRoute::Native(1),
         policy: SettlementPolicy::ConservingV1,
+        funding: None,
     }
 }
 fn pristine(network: TradeLayerMainnet) -> EconomicState {

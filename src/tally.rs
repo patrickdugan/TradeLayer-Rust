@@ -478,6 +478,24 @@ impl FeeBook {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Rebuild ordered receipt metadata on a fresh private value. Errors drop
+    /// the incomplete value; no caller-owned book is modified or published.
+    /// This reuses the exact accrual transition without cloning its growing
+    /// journal for every receipt. The returned total is the checked sum of
+    /// insurance requests, not a funded insurance balance.
+    pub(crate) fn from_accruals(
+        entries: impl IntoIterator<Item = (PropertyId, FeeRoute, u128, u64)>,
+    ) -> Result<(Self, u128)> {
+        let mut book = Self::new();
+        let mut insurance_total = 0_u128;
+        for (property, route, atoms, block) in entries {
+            let plan = book.accrue_inner(property, route, atoms, block, atoms)?;
+            insurance_total = insurance_total
+                .checked_add(plan.insurance_atoms)
+                .ok_or(TallyError::AmountOverflow)?;
+        }
+        Ok((book, insurance_total))
+    }
     pub fn rows(&self) -> impl Iterator<Item = (FeeKey, FeeRow)> + '_ {
         self.rows.iter().map(|(k, v)| (*k, *v))
     }
@@ -865,4 +883,117 @@ fn from_f64(n: f64) -> Result<Decimal> {
 }
 fn number(a: &Decimal) -> Result<Decimal> {
     from_f64(as_f64(a)?)
+}
+
+#[cfg(test)]
+mod replay_tests {
+    use super::*;
+
+    fn property(id: u32) -> PropertyId {
+        id.try_into().unwrap()
+    }
+
+    fn public_replay(
+        entries: impl IntoIterator<Item = (PropertyId, FeeRoute, u128, u64)>,
+    ) -> Result<(FeeBook, u128)> {
+        let mut book = FeeBook::new();
+        let mut insurance = 0_u128;
+        for (property, route, atoms, block) in entries {
+            let plan = book.accrue_atoms(property, route, atoms, block)?;
+            insurance = insurance
+                .checked_add(plan.insurance_atoms)
+                .ok_or(TallyError::AmountOverflow)?;
+        }
+        Ok((book, insurance))
+    }
+
+    #[test]
+    fn fresh_batch_replay_equals_complete_public_metadata_and_insurance() {
+        let mut entries = Vec::new();
+        for block in [0, 1, 1, MAX_SAFE_BLOCK] {
+            for property in [property(1), property(2)] {
+                for route in [
+                    FeeRoute::Spot,
+                    FeeRoute::Native(1),
+                    FeeRoute::Native(7),
+                    FeeRoute::Oracle(9),
+                ] {
+                    for atoms in [0, 1, 2, 3, 1_000_000_001] {
+                        entries.push((property, route, atoms, block));
+                    }
+                }
+            }
+        }
+        let (public, expected_insurance) = public_replay(entries.clone()).unwrap();
+        let (batch, actual_insurance) = FeeBook::from_accruals(entries).unwrap();
+        assert_eq!(batch, public);
+        assert_eq!(batch.snapshot(), public.snapshot());
+        assert_eq!(actual_insurance, expected_insurance);
+        assert_eq!(batch.journal().len(), 128);
+        assert!(batch.queued().next().is_none());
+        assert_eq!(FeeBook::from_snapshot(batch.snapshot()).unwrap(), batch);
+        assert_eq!(FeeBook::from_accruals([]).unwrap(), (FeeBook::new(), 0));
+    }
+
+    #[test]
+    fn late_replay_failure_matches_public_error_without_returning_partial_state() {
+        for entries in [
+            vec![
+                (property(1), FeeRoute::Oracle(9), 3, 1),
+                (property(1), FeeRoute::Native(0), 1, 2),
+            ],
+            vec![
+                (property(1), FeeRoute::Oracle(9), 3, 1),
+                (property(1), FeeRoute::Native(7), 1, MAX_SAFE_BLOCK + 1),
+            ],
+            vec![
+                (property(1), FeeRoute::Native(7), u128::MAX, 1),
+                (property(1), FeeRoute::Native(7), 1, 2),
+            ],
+            vec![
+                (property(1), FeeRoute::Oracle(7), u128::MAX, 1),
+                (property(1), FeeRoute::Oracle(8), u128::MAX, 1),
+                (property(1), FeeRoute::Oracle(9), u128::MAX, 1),
+            ],
+        ] {
+            let expected = public_replay(entries.clone()).unwrap_err();
+            assert_eq!(FeeBook::from_accruals(entries), Err(expected));
+        }
+    }
+
+    #[test]
+    fn batch_replay_preserves_journal_bound_and_zero_after_capacity() {
+        let entry = (property(1), FeeRoute::Native(7), 1, 1);
+        let mut entries = vec![entry; MAX_FEE_JOURNAL];
+        entries.push((property(2), FeeRoute::Oracle(9), 0, 2));
+        let (mut complete, insurance) = FeeBook::from_accruals(entries.clone()).unwrap();
+        assert_eq!(insurance, 0);
+        assert_eq!(complete.journal().len(), MAX_FEE_JOURNAL);
+        let before = complete.clone();
+        assert_eq!(
+            complete.accrue_atoms(entry.0, entry.1, entry.2, entry.3),
+            Err(TallyError::Capacity)
+        );
+        assert_eq!(complete, before);
+        entries.push(entry);
+        assert_eq!(FeeBook::from_accruals(entries), Err(TallyError::Capacity));
+    }
+
+    #[test]
+    fn batch_replay_preserves_row_capacity_and_shared_key_route_identity() {
+        let mut entries: Vec<_> = (1..=MAX_FEE_ROWS)
+            .map(|contract| (property(1), FeeRoute::Native(contract as u32), 1, 1))
+            .collect();
+        let (mut complete, _) = FeeBook::from_accruals(entries.clone()).unwrap();
+        assert_eq!(complete.rows().count(), MAX_FEE_ROWS);
+        let before = complete.clone();
+        let extra = (property(2), FeeRoute::Spot, 1, 1);
+        assert_eq!(
+            complete.accrue_atoms(extra.0, extra.1, extra.2, extra.3),
+            Err(TallyError::Capacity)
+        );
+        assert_eq!(complete, before);
+        entries.push(extra);
+        assert_eq!(FeeBook::from_accruals(entries), Err(TallyError::Capacity));
+    }
 }

@@ -138,6 +138,7 @@ pub struct JointProtocolState {
     global_input_ids: BTreeSet<TxId>,
     ledger_input_ids: BTreeSet<TxId>,
     economic_input_ids: BTreeSet<TxId>,
+    system_epoch_ids: BTreeSet<TxId>,
     economic_pending_height: Option<u64>,
     economic_pending_input: Option<TxId>,
     finalized_height: Option<u64>,
@@ -164,6 +165,7 @@ impl JointProtocolState {
             global_input_ids: BTreeSet::new(),
             ledger_input_ids: BTreeSet::new(),
             economic_input_ids: BTreeSet::new(),
+            system_epoch_ids: BTreeSet::new(),
             economic_pending_height: None,
             economic_pending_input: None,
             finalized_height: None,
@@ -208,6 +210,7 @@ impl JointProtocolState {
             global_input_ids,
             ledger_input_ids: BTreeSet::new(),
             economic_input_ids: BTreeSet::new(),
+            system_epoch_ids: BTreeSet::new(),
             economic_pending_height: None,
             economic_pending_input: None,
             finalized_height: Some(tip_height),
@@ -245,6 +248,7 @@ impl JointProtocolState {
             global_input_ids: old.input_txids_unverified().clone(),
             ledger_input_ids: old.ledger().input_txids_unverified().clone(),
             economic_input_ids: BTreeSet::new(),
+            system_epoch_ids: BTreeSet::new(),
             economic_pending_height: None,
             economic_pending_input: None,
             finalized_height: Some(tip_height),
@@ -306,13 +310,19 @@ impl JointProtocolState {
             return Err(JointError::FinalizedHeight);
         }
         if self.global_input_ids.contains(&txid)
+            || self.system_epoch_ids.contains(&txid)
             || self.spot.ledger().is_processed(txid)
             || self.registry.is_processed(txid)
             || self.spot.spot_input_ids_unverified().contains(&txid)
         {
             return Err(JointError::Replay(txid));
         }
-        if self.global_input_ids.len() >= MAX_JOINT_REPLAY_MARKERS {
+        if self
+            .global_input_ids
+            .len()
+            .saturating_add(self.system_epoch_ids.len())
+            >= MAX_JOINT_REPLAY_MARKERS
+        {
             return Err(JointError::ReplayLimit);
         }
         Ok(())
@@ -463,6 +473,7 @@ impl JointProtocolState {
 
     fn reject_economic_activity_unverified(&self) -> Result<(), JointError> {
         if !self.economic_input_ids.is_empty()
+            || !self.system_epoch_ids.is_empty()
             || self.economic_pending_height.is_some()
             || self.economic_pending_input.is_some()
         {
@@ -520,8 +531,15 @@ impl JointProtocolState {
                 return Err(JointError::ReplayConflict);
             }
         }
-        if union != self.global_input_ids || union.len() > MAX_JOINT_REPLAY_MARKERS {
+        if union != self.global_input_ids
+            || union.len().saturating_add(self.system_epoch_ids.len()) > MAX_JOINT_REPLAY_MARKERS
+        {
             return Err(JointError::ReplayConflict);
+        }
+        for id in &self.system_epoch_ids {
+            if union.contains(id) || self.ledger().is_processed(*id) {
+                return Err(JointError::ReplayConflict);
+            }
         }
         Ok(())
     }

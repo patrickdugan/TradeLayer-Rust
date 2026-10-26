@@ -12,18 +12,19 @@ that worker's branches, publish a branch, or authorize economic transitions.
 ## Tracking the 49 source modules
 
 [PARITY_ROADMAP.csv](PARITY_ROADMAP.csv) contains all 49 JavaScript source
-modules, excluding the experimental README. It records the nineteen assessed
-modules below; the other 30 retain their prior implementation assessment.
-The insurance row additionally records its external-worker assignment.
+modules, excluding the experimental README. It records the twenty assessed
+modules below; the other 29 retain their prior implementation assessment.
+The insurance and property rows additionally record external-worker assignments.
 It supplements the historical [full-tree inventory](JS_RUST_PORT_AUDIT.md),
 whose earlier mappings and assessment commit are preserved.
 
-[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 369
+[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 449
 source entries with their tested domains, Rust tests and remaining criteria.
 None of these rows or modules is marked as a complete production port.
 
 | Module | Implemented and verified scope | Remaining completion criteria |
 | --- | --- | --- |
+| `clearing.js` | Constructor and all 79 active methods assessed; source funding mean/rate/notional/payer vectors and concrete failures; funded fractional oracle-perpetual epochs in the existing Ledger with complete restart and rollback | Basis-aware marks, actual liquidation/AMM/ADL and insurance, native VWAP, full contract orchestration, authenticated marks/actors and historical acceptance |
 | `orderbook.js` | All 69 methods, constructor and two comparators assessed; 287 actual-source vectors and nine source defects; contract book, funded type18/6 matching, owner cancellation and complete recovery in the existing joint Ledger | Authenticated orders and contract configuration, funded AMM-first execution, liquidation/ADL, multicontract orchestration, channels, source reporting/rewards and historical acceptance |
 | `tally.js` | All 45 methods plus constructor assessed; 248 actual-source vectors and 32 source assertions; actual custody projections, funded match fee/rebate collection and complete FeeBook persistence | Legacy arbitrary-value/NeDB migration, authenticated channel/vesting rules, registered insurance lifecycle, buybacks, remaining shared economic stores and historical acceptance |
 | `base94.js` | Eight helper methods, bounded string inputs, real-source golden vectors and preserved delimiter/fraction quirks | General JS coercions and malformed UTF-16; accepted historical wire transactions and admission integration |
@@ -120,6 +121,34 @@ archive or patch is not yet present in this checkout. Rust verification,
 genuine BigNumber 9.1.2 oracle execution, import and sole-Ledger insurance
 lifecycle integration remain pending. Pending insurance fees in the new
 runtime are funded escrow custody, not a registered insurance lifecycle.
+
+The external worker also owns the six new property-port paths (`property.rs`,
+its tests/oracle/source/vector fixtures and `PROPERTY.md`). Its separate task
+covers the seven property kinds, catalog/circulation/admin metadata, source
+vectors, complete restoration and plans reconciled to the existing Ledger.
+Local funding and recovery work leaves those paths untouched. Assignment is not
+an implementation or verification claim.
+
+The seventh pass adds [funded periodic epochs](ECONOMIC_FUNDING.md) without a
+second Ledger. Every eligible 24-block epoch completes even on an empty block,
+with explicit outcomes for absent, stale or closed oracles and zero payment.
+Source mean, rate and collateral-notional arithmetic are separated from the
+named conserving policy for fractional payer charges and exact receiver
+allocation. All payer debits precede receiver credits from a real transient
+escrow; insufficient available funds reject the whole staged block.
+
+Dedicated system-epoch IDs never masquerade as external type18 inputs or
+authorize wire23/31. TLJE/TLEC v2 preserve bounded price/closure history,
+captured positions, plans and epoch replay together. Representable v1 bytes
+remain unchanged. Restored windows are reconciled across retained history,
+and an epoch at the tip must retain the current nonflat contracts. The owner
+uses the existing Registry's last accepted quote per oracle/height; high-level
+OracleList first-update-wins admission remains a separate historical gate.
+
+Fee receipt validation now uses one private replay builder, preserving exact
+FeeBook rows, complete journal order/fields and insurance totals. This removes
+growing per-receipt journal copies; end-to-end economic-owner throughput and
+representative memory/storage measurements remain open.
 
 ## Transaction throughput review
 
@@ -304,3 +333,31 @@ The explicit ConservingV1 policy, pending insurance custody and remaining
 performance/integration gates are documented in [ECONOMIC.md](ECONOMIC.md).
 These checks do not establish historical acceptance or authenticated settlement.
 No branch was pushed and no GitHub CI, Lean or Kani result is claimed.
+
+## Local validation for funded perpetual funding epochs
+
+Pinned Rust 1.90.0 on Windows/MSVC passed all 820 tests across 107 executables,
+formatting including every included implementation, all-target Clippy with
+warnings denied, and the frozen all-target release build. The zero-dependency
+gate and its 11 adversarial tests passed. Doc tests passed with none defined.
+The unchanged-source funding oracle passed 117 average, rate, notional and
+payer vectors plus 19 behavior characterizations in both archived-source and
+external pinned-checkout modes. The complete clearing archive retains its
+declared SHA256 and matches the pinned source after LF normalization.
+
+Coverage includes positive and negative fractional funding, funded conservation,
+empty-block cadence, same-height final-accepted observations, stale/closed/missing
+prices, zero-leg replay fences, failed-block rollback and restart on all three
+networks. Rechecksummed corruption tests reject inconsistent epoch windows,
+outdated as-of indices, closure metadata, position captures, plans and aggregate
+allocation bounds. Existing v1 checkpoint fingerprints remain unchanged when
+funding is disabled. Fee journal reconstruction preserves exact complete state
+while avoiding repeated full-journal clones; helper measurements are exploratory
+and do not establish end-to-end throughput or peak-memory improvements.
+
+Funding follows the explicit conserving policy in [ECONOMIC_FUNDING.md](ECONOMIC_FUNDING.md).
+Registry duplicate-publication admission differs from the source OracleList's
+first-attempt guard and is documented rather than claimed as parity. Authenticated
+execution, full publication provenance, settled mark basis, liquidation,
+insurance lifecycle and historical acceptance remain open. No branch was pushed
+and no GitHub CI, Lean or Kani result is claimed.

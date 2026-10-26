@@ -37,6 +37,7 @@ pub struct EconomicConfig {
     pub initial_margin_per_contract: Decimal,
     pub fee_route: FeeRoute,
     pub policy: SettlementPolicy,
+    pub funding: Option<FundingConfig>,
 }
 impl EconomicConfig {
     pub fn validate(&self) -> Result<(), EconomicError> {
@@ -48,6 +49,12 @@ impl EconomicConfig {
             || self.fee_route.contract() != self.contract.get()
         {
             return Err(EconomicError::InvalidConfig);
+        }
+        if let Some(funding) = &self.funding {
+            funding.validate()?;
+            if !matches!(self.fee_route, FeeRoute::Oracle(_)) {
+                return Err(EconomicError::InvalidConfig);
+            }
         }
         Ok(())
     }
@@ -102,6 +109,7 @@ pub enum EconomicError {
     Margin(MarginError),
     Iou(IouError),
     Tally(TallyError),
+    Funding(crate::funding::FundingError),
 }
 impl core::fmt::Display for EconomicError {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -139,6 +147,11 @@ impl From<TallyError> for EconomicError {
         Self::Tally(e)
     }
 }
+impl From<crate::funding::FundingError> for EconomicError {
+    fn from(e: crate::funding::FundingError) -> Self {
+        Self::Funding(e)
+    }
+}
 type Result<T, E = EconomicError> = core::result::Result<T, E>;
 
 /// Metadata never owns a second Ledger. Every escrow balance below is a
@@ -159,6 +172,7 @@ pub struct EconomicState {
     unfunded_loss_atoms: u128,
     receipts: Vec<TradeReceipt>,
     internal_sequence: u64,
+    funding: FundingState,
 }
 impl EconomicState {
     pub fn from_joint_unverified(
@@ -188,6 +202,7 @@ impl EconomicState {
             unfunded_loss_atoms: 0,
             receipts: Vec::new(),
             internal_sequence: 0,
+            funding: FundingState::default(),
         };
         state.verify()?;
         Ok(state)
@@ -258,7 +273,11 @@ impl EconomicState {
         for input in inputs {
             match input {
                 EconomicInput::Joint(tx) => {
-                    next.joint.apply_one_for_economic_unverified(height, tx)?
+                    let observed = next.funding_publication(&tx);
+                    next.joint.apply_one_for_economic_unverified(height, tx)?;
+                    if let Some((txid, closed)) = observed {
+                        next.capture_funding_publication(height, txid, closed)?;
+                    }
                 }
                 EconomicInput::Order(order) => {
                     if order.height != height {
@@ -295,6 +314,8 @@ impl EconomicState {
             next.apply_transition(transition, height)?;
         }
         next.book.finish_height(height)?;
+        next.run_funding_epoch(height)?;
+        next.prune_funding_observations(height);
         next.refresh_positions()?;
         next.joint.finalize_block_for_economic_unverified(height)?;
         next.verify()?;
@@ -663,6 +684,7 @@ impl EconomicState {
     pub fn verify(&self) -> Result<()> {
         self.config.validate()?;
         self.joint.verify_for_economic_owner_unverified()?;
+        self.verify_funding()?;
         if self.joint.network() != self.config.network
             || self.ledger().property(self.config.collateral).is_none()
             || self.book.contract() != self.config.contract
@@ -812,8 +834,15 @@ impl EconomicState {
         let mut collected = 0;
         let mut paid = 0;
         let mut bad_debt = 0;
-        let mut expected_fees = FeeBook::new();
-        let mut expected_insurance = 0;
+        let (expected_fees, expected_insurance) =
+            FeeBook::from_accruals(self.receipts.iter().map(|receipt| {
+                (
+                    self.config.collateral,
+                    self.config.fee_route,
+                    receipt.retained_fee_atoms,
+                    receipt.height,
+                )
+            }))?;
         for receipt in &self.receipts {
             if receipt.height < last
                 || receipt.height == 0
@@ -831,13 +860,6 @@ impl EconomicState {
             collected = add(collected, receipt.collected_loss_atoms)?;
             paid = add(paid, receipt.paid_claim_atoms)?;
             bad_debt = add(bad_debt, receipt.unfunded_loss_atoms)?;
-            let fee = expected_fees.accrue_atoms(
-                self.config.collateral,
-                self.config.fee_route,
-                receipt.retained_fee_atoms,
-                receipt.height,
-            )?;
-            expected_insurance = add(expected_insurance, fee.insurance_atoms)?;
             last = receipt.height;
         }
         if collected.checked_sub(paid) != Some(self.loss_pool_atoms)
@@ -907,3 +929,4 @@ fn atoms_exact(value: &Decimal) -> Result<u128> {
 }
 
 include!("economic_snapshot_impl.rs");
+include!("economic_funding_impl.rs");

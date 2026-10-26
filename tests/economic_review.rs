@@ -102,6 +102,7 @@ mod combined_execution_review {
             initial_margin_per_contract: "10".parse().unwrap(),
             fee_route: FeeRoute::Native(1),
             policy: SettlementPolicy::ConservingV1,
+            funding: None,
         };
         let mut ledger = Ledger::new();
         ledger

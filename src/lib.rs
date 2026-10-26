@@ -36,6 +36,7 @@ pub mod durable_iou; // Synced single-owner funded IOU operation batches and rec
 pub mod economic; // Atomic caller-driven contract matching with the sole joint Ledger.
 pub mod economic_chain; // Complete economic rollback and synced durable ownership.
 pub mod execution; // Prototype unified registry+ledger replay; input unverified.
+pub mod funding; // Fractional source funding math and conserving payment plans.
 pub mod funding_audit; // Stage 24B read-only signed funding and conservation projections.
 mod hash160; // Dependency-free research RIPEMD160/HASH160, no production authorization.
 mod hash256; // Offline SHA-256d txid fingerprints; not trusted consensus.

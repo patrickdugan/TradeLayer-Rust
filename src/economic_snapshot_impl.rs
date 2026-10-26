@@ -10,6 +10,7 @@ use crate::tally::{
 };
 
 const ECONOMIC_STATE_MAGIC: &[u8; 5] = b"TLEC\x01";
+const ECONOMIC_FUNDING_MAGIC: &[u8; 5] = b"TLEC\x02";
 const MAX_ECONOMIC_DECIMAL_TEXT: usize = 128;
 
 fn econ_snapshot_bad() -> EconomicError {
@@ -217,10 +218,18 @@ fn econ_write_config(out: &mut EconomicWriter, config: &EconomicConfig) -> Resul
     out.decimal(&config.initial_margin_per_contract)?;
     out.route(config.fee_route)?;
     match config.policy {
-        SettlementPolicy::ConservingV1 => out.byte(1),
+        SettlementPolicy::ConservingV1 => out.byte(1)?,
     }
+    if let Some(funding) = &config.funding {
+        out.u32(funding.oracle_id)?;
+        out.u64(funding.max_staleness_blocks)?;
+        match funding.policy {
+            FundingPolicy::ConservingFundingV1 => out.byte(1)?,
+        }
+    }
+    Ok(())
 }
-fn econ_read_config(reader: &mut Cursor<'_>) -> Result<EconomicConfig> {
+fn econ_read_config(reader: &mut Cursor<'_>, has_funding: bool) -> Result<EconomicConfig> {
     let network = TradeLayerMainnet::from_tag(reader.u8().map_err(|_| econ_snapshot_bad())?)
         .map_err(|_| econ_snapshot_bad())?;
     if reader.fixed::<32>().map_err(|_| econ_snapshot_bad())? != network.genesis().0 {
@@ -237,6 +246,18 @@ fn econ_read_config(reader: &mut Cursor<'_>) -> Result<EconomicConfig> {
         policy: match reader.u8().map_err(|_| econ_snapshot_bad())? {
             1 => SettlementPolicy::ConservingV1,
             _ => return Err(econ_snapshot_bad()),
+        },
+        funding: if has_funding {
+            Some(FundingConfig {
+                oracle_id: reader.u32().map_err(|_| econ_snapshot_bad())?,
+                max_staleness_blocks: econ_read_u64(reader)?,
+                policy: match reader.u8().map_err(|_| econ_snapshot_bad())? {
+                    1 => FundingPolicy::ConservingFundingV1,
+                    _ => return Err(econ_snapshot_bad()),
+                },
+            })
+        } else {
+            None
         },
     };
     config.validate()?;
@@ -502,10 +523,218 @@ fn econ_read_fees(reader: &mut Cursor<'_>) -> Result<FeeBook> {
     })?)
 }
 
+#[derive(Default)]
+struct FundingRecordBudget {
+    used: usize,
+}
+impl FundingRecordBudget {
+    // The common budget covers retained observations, epoch window samples,
+    // captured positions and both payment lists. Epoch/index/plan headers have
+    // their independent 4096-epoch bound and cannot amplify vector counts.
+    fn take(&mut self, count: usize) -> Result<()> {
+        self.used = self
+            .used
+            .checked_add(count)
+            .ok_or(EconomicError::Capacity)?;
+        if self.used > MAX_FUNDING_RECORDS {
+            return Err(EconomicError::Capacity);
+        }
+        Ok(())
+    }
+}
+
+fn econ_write_funding_observation(
+    out: &mut EconomicWriter,
+    observation: &FundingObservation,
+) -> Result<()> {
+    out.txid(observation.txid)?;
+    out.u64(observation.height)?;
+    out.decimal(&observation.price)
+}
+fn econ_read_funding_observation(reader: &mut Cursor<'_>) -> Result<FundingObservation> {
+    Ok(FundingObservation {
+        txid: econ_read_txid(reader)?,
+        height: econ_read_u64(reader)?,
+        price: econ_read_decimal(reader)?,
+    })
+}
+fn econ_write_funding_payment(
+    out: &mut EconomicWriter,
+    payment: &crate::funding::FundingPayment,
+) -> Result<()> {
+    out.account(&payment.owner)?;
+    out.atoms(payment.atoms)
+}
+fn econ_read_funding_payment(reader: &mut Cursor<'_>) -> Result<crate::funding::FundingPayment> {
+    Ok(crate::funding::FundingPayment {
+        owner: econ_read_account(reader)?,
+        atoms: econ_read_atoms(reader)?,
+    })
+}
+fn econ_write_funding(out: &mut EconomicWriter, funding: &FundingState) -> Result<()> {
+    let mut budget = FundingRecordBudget::default();
+    budget.take(funding.observations.len())?;
+    out.count(funding.observations.len(), MAX_FUNDING_OBSERVATIONS)?;
+    for observation in &funding.observations {
+        econ_write_funding_observation(out, observation)?;
+    }
+    match &funding.closed_at {
+        None => out.byte(0)?,
+        Some(closure) => {
+            out.byte(1)?;
+            out.txid(closure.txid)?;
+            out.u64(closure.height)?;
+        }
+    }
+    out.count(funding.epochs.len(), MAX_FUNDING_EPOCHS)?;
+    for epoch in &funding.epochs {
+        out.u64(epoch.height)?;
+        out.txid(epoch.id)?;
+        out.byte(match epoch.status {
+            FundingStatus::Paid => 0,
+            FundingStatus::ZeroRate => 1,
+            FundingStatus::NoPositions => 2,
+            FundingStatus::MissingPrice => 3,
+            FundingStatus::StalePrice => 4,
+            FundingStatus::ClosedOracle => 5,
+        })?;
+        match &epoch.index {
+            None => out.byte(0)?,
+            Some(index) => {
+                out.byte(1)?;
+                econ_write_funding_observation(out, index)?;
+            }
+        }
+        budget.take(epoch.window.len())?;
+        out.count(epoch.window.len(), MAX_FUNDING_OBSERVATIONS)?;
+        for observation in &epoch.window {
+            econ_write_funding_observation(out, observation)?;
+        }
+        budget.take(epoch.positions.len())?;
+        out.count(epoch.positions.len(), MAX_ECONOMIC_POSITIONS)?;
+        for position in &epoch.positions {
+            out.account(&position.owner)?;
+            out.decimal(&position.contracts)?;
+            out.atoms(position.available_atoms)?;
+        }
+        match &epoch.plan {
+            None => out.byte(0)?,
+            Some(plan) => {
+                out.byte(1)?;
+                out.decimal(&plan.rate_bps)?;
+                out.decimal(&plan.collateral_notional)?;
+                out.atoms(plan.total_atoms)?;
+                for payments in [&plan.debits, &plan.credits] {
+                    budget.take(payments.len())?;
+                    out.count(payments.len(), MAX_ECONOMIC_POSITIONS)?;
+                    for payment in payments {
+                        econ_write_funding_payment(out, payment)?;
+                    }
+                }
+            }
+        }
+    }
+    Ok(())
+}
+fn econ_read_funding(reader: &mut Cursor<'_>) -> Result<FundingState> {
+    let mut budget = FundingRecordBudget::default();
+    let count = econ_read_count(reader, MAX_FUNDING_OBSERVATIONS)?;
+    budget.take(count)?;
+    let mut observations = Vec::new();
+    for _ in 0..count {
+        observations.push(econ_read_funding_observation(reader)?);
+    }
+    let closed_at = if econ_read_bool(reader)? {
+        Some(FundingClosure {
+            txid: econ_read_txid(reader)?,
+            height: econ_read_u64(reader)?,
+        })
+    } else {
+        None
+    };
+    let count = econ_read_count(reader, MAX_FUNDING_EPOCHS)?;
+    let mut epochs = Vec::new();
+    for _ in 0..count {
+        let height = econ_read_u64(reader)?;
+        let id = econ_read_txid(reader)?;
+        let status = match reader.u8().map_err(|_| econ_snapshot_bad())? {
+            0 => FundingStatus::Paid,
+            1 => FundingStatus::ZeroRate,
+            2 => FundingStatus::NoPositions,
+            3 => FundingStatus::MissingPrice,
+            4 => FundingStatus::StalePrice,
+            5 => FundingStatus::ClosedOracle,
+            _ => return Err(econ_snapshot_bad()),
+        };
+        let index = if econ_read_bool(reader)? {
+            Some(econ_read_funding_observation(reader)?)
+        } else {
+            None
+        };
+        let count = econ_read_count(reader, MAX_FUNDING_OBSERVATIONS)?;
+        budget.take(count)?;
+        let mut window = Vec::new();
+        for _ in 0..count {
+            window.push(econ_read_funding_observation(reader)?);
+        }
+        let count = econ_read_count(reader, MAX_ECONOMIC_POSITIONS)?;
+        budget.take(count)?;
+        let mut positions = Vec::new();
+        for _ in 0..count {
+            positions.push(FundingPosition {
+                owner: econ_read_account(reader)?,
+                contracts: econ_read_decimal(reader)?,
+                available_atoms: econ_read_atoms(reader)?,
+            });
+        }
+        let plan = if econ_read_bool(reader)? {
+            let rate_bps = econ_read_decimal(reader)?;
+            let collateral_notional = econ_read_decimal(reader)?;
+            let total_atoms = econ_read_atoms(reader)?;
+            let mut debits = Vec::new();
+            let mut credits = Vec::new();
+            for payments in [&mut debits, &mut credits] {
+                let count = econ_read_count(reader, MAX_ECONOMIC_POSITIONS)?;
+                budget.take(count)?;
+                for _ in 0..count {
+                    payments.push(econ_read_funding_payment(reader)?);
+                }
+            }
+            Some(FundingPlan {
+                rate_bps,
+                collateral_notional,
+                total_atoms,
+                debits,
+                credits,
+            })
+        } else {
+            None
+        };
+        epochs.push(FundingEpoch {
+            height,
+            id,
+            status,
+            index,
+            window,
+            positions,
+            plan,
+        });
+    }
+    Ok(FundingState {
+        observations,
+        closed_at,
+        epochs,
+    })
+}
+
 impl EconomicState {
     pub fn snapshot_bytes(&self) -> Result<Vec<u8>> {
         self.verify()?;
-        let mut out = EconomicWriter(ECONOMIC_STATE_MAGIC.to_vec());
+        let mut out = EconomicWriter(if self.config.funding.is_some() {
+            ECONOMIC_FUNDING_MAGIC.to_vec()
+        } else {
+            ECONOMIC_STATE_MAGIC.to_vec()
+        });
         econ_write_config(&mut out, &self.config)?;
         out.embedded(
             &self
@@ -571,6 +800,9 @@ impl EconomicState {
             }
         }
         out.u64(self.internal_sequence)?;
+        if self.config.funding.is_some() {
+            econ_write_funding(&mut out, &self.funding)?;
+        }
         with_crc(out.0).map_err(|_| EconomicError::Capacity)
     }
 
@@ -585,10 +817,15 @@ impl EconomicState {
         expected_config.validate()?;
         let raw = verify_crc(bytes).map_err(|_| econ_snapshot_bad())?;
         let mut reader = Cursor::new(raw);
-        if reader.fixed::<5>().map_err(|_| econ_snapshot_bad())? != *ECONOMIC_STATE_MAGIC {
+        let version = reader.fixed::<5>().map_err(|_| econ_snapshot_bad())?;
+        let has_funding = if version == *ECONOMIC_STATE_MAGIC {
+            false
+        } else if version == *ECONOMIC_FUNDING_MAGIC {
+            true
+        } else {
             return Err(econ_snapshot_bad());
-        }
-        let config = econ_read_config(&mut reader)?;
+        };
+        let config = econ_read_config(&mut reader, has_funding)?;
         if &config != expected_config {
             return Err(EconomicError::InvalidConfig);
         }
@@ -665,6 +902,11 @@ impl EconomicState {
             });
         }
         let internal_sequence = econ_read_u64(&mut reader)?;
+        let funding = if has_funding {
+            econ_read_funding(&mut reader)?
+        } else {
+            FundingState::default()
+        };
         reader.end().map_err(|_| econ_snapshot_bad())?;
         let result = Self {
             config,
@@ -681,11 +923,86 @@ impl EconomicState {
             unfunded_loss_atoms,
             receipts,
             internal_sequence,
+            funding,
         };
         result.verify()?;
         if result.snapshot_bytes()?.as_slice() != bytes {
             return Err(econ_snapshot_bad());
         }
         Ok(result)
+    }
+}
+
+#[cfg(test)]
+mod funding_codec_compat_tests {
+    use super::*;
+
+    #[test]
+    fn disabled_funding_preserves_genuine_pre_funding_tlec_v1_bytes() {
+        let mut ledger = Ledger::new();
+        ledger
+            .apply(
+                TxId::from_bytes([1; 32]),
+                crate::ledger::Operation::CreateProperty {
+                    id: 7.try_into().unwrap(),
+                    issuer: "alice".try_into().unwrap(),
+                    kind: crate::ledger::PropertyKind::Fixed,
+                    initial_atoms: 1000,
+                },
+            )
+            .unwrap();
+        let joint = JointProtocolState::from_bootstrap_unverified(
+            TradeLayerMainnet::Bitcoin,
+            "admin".try_into().unwrap(),
+            ledger,
+            BTreeSet::from([7.try_into().unwrap()]),
+        )
+        .unwrap();
+        let config = EconomicConfig {
+            network: TradeLayerMainnet::Bitcoin,
+            contract: 1.try_into().unwrap(),
+            collateral: 7.try_into().unwrap(),
+            inverse: false,
+            notional: "1".parse().unwrap(),
+            initial_margin_per_contract: "10".parse().unwrap(),
+            fee_route: FeeRoute::Native(1),
+            policy: SettlementPolicy::ConservingV1,
+            funding: None,
+        };
+        let mut state = EconomicState::from_joint_unverified(config, joint).unwrap();
+        state
+            .apply_block_unverified(
+                1,
+                vec![EconomicInput::Joint(UnverifiedJointTx {
+                    txid: TxId::from_bytes([10; 32]),
+                    actor: "admin".try_into().unwrap(),
+                    operation: crate::joint::JointOperation::Registry(
+                        crate::registry::RegistryAction::Activate {
+                            types: vec![1, 2, 5, 6, 18],
+                            code_hash: [0x51; 32],
+                        },
+                    ),
+                })],
+            )
+            .unwrap();
+        let bytes = state.snapshot_bytes().unwrap();
+        // Captured from the pre-funding compiled owner, not this encoder.
+        assert_eq!(bytes.len(), 800);
+        assert_eq!(
+            crate::hash256::double_sha256(&bytes),
+            [
+                162, 132, 6, 167, 118, 174, 82, 22, 72, 182, 150, 144, 228, 90, 170, 1, 229, 76,
+                147, 103, 41, 63, 157, 33, 143, 205, 144, 232, 244, 246, 14, 208,
+            ]
+        );
+        let restored = EconomicState::from_snapshot_bytes(
+            &bytes,
+            state.config(),
+            &"admin".try_into().unwrap(),
+            &BTreeSet::from([7.try_into().unwrap()]),
+        )
+        .unwrap();
+        assert_eq!(restored, state);
+        assert_eq!(restored.funding, FundingState::default());
     }
 }

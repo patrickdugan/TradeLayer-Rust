@@ -3,6 +3,7 @@
 // This layer provides no sender, chain or economic settlement authentication.
 
 const JOINT_ECONOMIC_MAGIC: &[u8; 5] = b"TLJE\x01";
+const JOINT_ECONOMIC_EPOCH_MAGIC: &[u8; 5] = b"TLJE\x02";
 
 impl JointProtocolState {
     pub(crate) fn verify_for_economic_owner_unverified(&self) -> Result<(), JointError> {
@@ -10,6 +11,7 @@ impl JointProtocolState {
     }
 
     fn verify_economic_custody_fence_unverified(&self) -> Result<(), JointError> {
+        let has_activity = !self.economic_input_ids.is_empty() || !self.system_epoch_ids.is_empty();
         if !self
             .ledger()
             .has_no_channel_or_settlement_liabilities_unverified()
@@ -18,14 +20,14 @@ impl JointProtocolState {
         }
         if self.economic_pending_height.is_some()
             || self.economic_pending_input.is_some()
-            || (!self.economic_input_ids.is_empty() && self.finalized_height.is_none())
+            || (has_activity && self.finalized_height.is_none())
         {
             return Err(JointError::InconsistentComponents);
         }
-        if self.spot.has_clearing_activity_unverified() == self.economic_input_ids.is_empty() {
+        if self.spot.has_clearing_activity_unverified() != has_activity {
             return Err(JointError::ReplayConflict);
         }
-        if self.economic_input_ids.is_empty()
+        if !has_activity
             && !self
                 .ledger()
                 .balances_with_account_prefix("~econ:")
@@ -96,6 +98,28 @@ impl JointProtocolState {
         Ok(())
     }
 
+    /// Register a system funding epoch on the outer owner's staged block.
+    /// The owner derives its identity and verifies exact epoch policy/receipt
+    /// metadata; this is not an external transaction or wire authorization.
+    pub(crate) fn note_economic_epoch_unverified(
+        &mut self,
+        epoch_id: TxId,
+        height: u64,
+    ) -> Result<(), JointError> {
+        self.check_economic_pending_height(height)?;
+        self.check_new_input_unverified(height, epoch_id)?;
+        self.check_activated(18, height)?;
+        self.system_epoch_ids.insert(epoch_id);
+        self.economic_pending_height = Some(height);
+        self.economic_pending_input = Some(epoch_id);
+        self.spot.note_clearing_event_unverified();
+        Ok(())
+    }
+
+    pub(crate) fn system_epoch_ids_unverified(&self) -> &BTreeSet<TxId> {
+        &self.system_epoch_ids
+    }
+
     /// The outer owner derives all addresses and fingerprints and commits its
     /// exact metadata with these movements. External event IDs cannot be reused
     /// as internal ledger-transfer IDs, including registry/spot/economic IDs.
@@ -111,6 +135,7 @@ impl JointProtocolState {
             return Err(JointError::InconsistentComponents);
         }
         if self.global_input_ids.contains(&internal_id)
+            || self.system_epoch_ids.contains(&internal_id)
             || self.registry.is_processed(internal_id)
             || self.spot.spot_input_ids_unverified().contains(&internal_id)
             || self.ledger().is_processed(internal_id)
@@ -150,7 +175,11 @@ impl JointProtocolState {
     pub(crate) fn snapshot_for_economic_bytes(&self) -> Result<Vec<u8>, JointSnapshotError> {
         self.verify_for_economic_owner_unverified()
             .map_err(JointSnapshotError::Joint)?;
-        let mut out = JOINT_ECONOMIC_MAGIC.to_vec();
+        let mut out = if self.system_epoch_ids.is_empty() {
+            JOINT_ECONOMIC_MAGIC.to_vec()
+        } else {
+            JOINT_ECONOMIC_EPOCH_MAGIC.to_vec()
+        };
         out.push(self.network.tag());
         out.extend_from_slice(&self.network.genesis().0);
         out.push(u8::from(self.spot.has_clearing_activity_unverified()));
@@ -175,6 +204,10 @@ impl JointProtocolState {
         ] {
             economic_check_append(&out, 4 + ids.len() * 32)?;
             joint_write_replay_ids(&mut out, ids)?;
+        }
+        if !self.system_epoch_ids.is_empty() {
+            economic_check_append(&out, 4 + self.system_epoch_ids.len() * 32)?;
+            joint_write_replay_ids(&mut out, &self.system_epoch_ids)?;
         }
         economic_check_append(
             &out,
@@ -203,13 +236,16 @@ impl JointProtocolState {
     ) -> Result<Self, JointSnapshotError> {
         let raw = verify_crc(bytes).map_err(|_| joint_bad("economic joint CRC/size"))?;
         let mut reader = Cursor::new(raw);
-        if reader
+        let version = reader
             .fixed::<5>()
-            .map_err(|_| joint_bad("economic joint magic"))?
-            != *JOINT_ECONOMIC_MAGIC
-        {
+            .map_err(|_| joint_bad("economic joint magic"))?;
+        let has_epochs = if version == *JOINT_ECONOMIC_MAGIC {
+            false
+        } else if version == *JOINT_ECONOMIC_EPOCH_MAGIC {
+            true
+        } else {
             return Err(joint_bad("economic joint version"));
-        }
+        };
         let network = TradeLayerMainnet::from_tag(
             reader.u8().map_err(|_| joint_bad("economic network tag"))?,
         )
@@ -235,7 +271,16 @@ impl JointProtocolState {
         let global_input_ids = joint_read_replay_ids(&mut reader)?;
         let ledger_input_ids = joint_read_replay_ids(&mut reader)?;
         let economic_input_ids = joint_read_replay_ids(&mut reader)?;
-        if activity == economic_input_ids.is_empty() {
+        let system_epoch_ids = if has_epochs {
+            let ids = joint_read_replay_ids(&mut reader)?;
+            if ids.is_empty() {
+                return Err(joint_bad("v2 requires system epochs"));
+            }
+            ids
+        } else {
+            BTreeSet::new()
+        };
+        if activity != (!economic_input_ids.is_empty() || !system_epoch_ids.is_empty()) {
             return Err(joint_bad("economic activity/replay mismatch"));
         }
         let finalized_height = match reader
@@ -266,6 +311,7 @@ impl JointProtocolState {
             global_input_ids,
             ledger_input_ids,
             economic_input_ids,
+            system_epoch_ids,
             finalized_height,
             economic_pending_height: None,
             economic_pending_input: None,
@@ -772,6 +818,396 @@ mod economic_bridge_tests {
         .is_err());
         state.economic_input_ids.insert(id(1));
         state.global_input_ids.insert(id(1));
+        assert_eq!(
+            state.verify_for_economic_owner_unverified(),
+            Err(JointError::ReplayConflict)
+        );
+    }
+
+    #[test]
+    fn system_epoch_uses_same_ledger_without_becoming_an_external_input() {
+        let mut state = ready();
+        let external_ids = state.global_input_ids.clone();
+        state.note_economic_epoch_unverified(id(40), 2).unwrap();
+        assert_eq!(
+            state.system_epoch_ids_unverified(),
+            &BTreeSet::from([id(40)])
+        );
+        assert_eq!(state.global_input_ids, external_ids);
+        assert!(state.economic_input_ids_unverified().is_empty());
+        assert!(state.snapshot_for_economic_bytes().is_err());
+        state
+            .apply_economic_transfer_unverified(
+                id(41),
+                property(7),
+                account("alice"),
+                account("~econ:funding"),
+                25,
+            )
+            .unwrap();
+        state
+            .apply_economic_transfer_unverified(
+                id(42),
+                property(7),
+                account("~econ:funding"),
+                account("bob"),
+                25,
+            )
+            .unwrap();
+        state.finalize_block_for_economic_unverified(2).unwrap();
+        assert_eq!(
+            state
+                .ledger()
+                .available_atoms(property(7), &account("alice")),
+            975
+        );
+        assert_eq!(
+            state.ledger().available_atoms(property(7), &account("bob")),
+            25
+        );
+        assert_eq!(
+            state
+                .ledger()
+                .available_atoms(property(7), &account("~econ:funding")),
+            0
+        );
+        state.verify_for_economic_owner_unverified().unwrap();
+        let bytes = state.snapshot_for_economic_bytes().unwrap();
+        assert_eq!(&bytes[..5], JOINT_ECONOMIC_EPOCH_MAGIC);
+        assert_eq!(decode(&bytes).unwrap(), state);
+        assert!(state.snapshot_bytes().is_err());
+        assert!(state.spot().snapshot_bytes().is_err());
+    }
+
+    #[test]
+    fn zero_leg_epoch_fences_history_and_must_be_registered_again_next_block() {
+        let mut state = ready();
+        state.note_economic_epoch_unverified(id(40), 2).unwrap();
+        let pending = state.clone();
+        assert_eq!(
+            state.finalize_block_for_economic_unverified(3),
+            Err(JointError::InvalidHeight)
+        );
+        assert_eq!(
+            state.note_economic_epoch_unverified(id(41), 3),
+            Err(JointError::InvalidHeight)
+        );
+        assert_eq!(state, pending);
+        state.finalize_block_for_economic_unverified(2).unwrap();
+        let mut restored = decode(&state.snapshot_for_economic_bytes().unwrap()).unwrap();
+        assert_eq!(
+            restored.verify_components_unverified(),
+            Err(JointError::UnsupportedLegacyLiabilities)
+        );
+        assert!(restored.snapshot_bytes().is_err());
+        assert!(restored.spot().snapshot_bytes().is_err());
+        assert_eq!(
+            restored.apply_economic_transfer_unverified(
+                id(41),
+                property(7),
+                account("alice"),
+                account("~econ:funding"),
+                1
+            ),
+            Err(JointError::InconsistentComponents)
+        );
+        assert_eq!(
+            restored.note_economic_input_unverified(id(40), 3, 18),
+            Err(JointError::Replay(id(40)))
+        );
+        assert_eq!(
+            restored.note_economic_epoch_unverified(id(40), 3),
+            Err(JointError::Replay(id(40)))
+        );
+        assert_eq!(
+            restored.apply_one_for_economic_unverified(
+                3,
+                command(
+                    40,
+                    "alice",
+                    JointOperation::Send {
+                        id: property(7),
+                        recipient: account("bob"),
+                        amount_atoms: 1,
+                    }
+                )
+            ),
+            Err(JointError::Replay(id(40)))
+        );
+        restored.note_economic_epoch_unverified(id(41), 3).unwrap();
+        assert_eq!(
+            restored.apply_economic_transfer_unverified(
+                id(40),
+                property(7),
+                account("alice"),
+                account("~econ:funding"),
+                1
+            ),
+            Err(JointError::Replay(id(40)))
+        );
+        restored.finalize_block_for_economic_unverified(3).unwrap();
+        assert_eq!(
+            decode(&restored.snapshot_for_economic_bytes().unwrap()).unwrap(),
+            restored
+        );
+    }
+
+    #[test]
+    fn epoch_registration_preserves_activation_and_all_existing_replay_categories() {
+        let mut fresh = JointProtocolState::from_bootstrap_unverified(
+            TradeLayerMainnet::Bitcoin,
+            account("admin"),
+            Ledger::new(),
+            BTreeSet::new(),
+        )
+        .unwrap();
+        assert_eq!(
+            fresh.note_economic_epoch_unverified(id(40), 1),
+            Err(JointError::NoActivation(18))
+        );
+        fresh
+            .apply_one_for_economic_unverified(
+                1,
+                command(
+                    10,
+                    "admin",
+                    JointOperation::Registry(RegistryAction::Activate {
+                        types: vec![18],
+                        code_hash: [0; 32],
+                    }),
+                ),
+            )
+            .unwrap();
+        assert_eq!(
+            fresh.note_economic_epoch_unverified(id(40), 1),
+            Err(JointError::ActivatedInSameBlock(18))
+        );
+        let mut state = ready();
+        state.note_economic_input_unverified(id(20), 2, 18).unwrap();
+        state
+            .apply_economic_transfer_unverified(
+                id(21),
+                property(7),
+                account("alice"),
+                account("~econ:test"),
+                1,
+            )
+            .unwrap();
+        state
+            .apply_one_for_economic_unverified(
+                2,
+                command(
+                    22,
+                    "alice",
+                    JointOperation::Send {
+                        id: property(7),
+                        recipient: account("bob"),
+                        amount_atoms: 1,
+                    },
+                ),
+            )
+            .unwrap();
+        for marker in [1, 10, 20, 21, 22] {
+            let before = state.clone();
+            assert_eq!(
+                state.note_economic_epoch_unverified(id(marker), 2),
+                Err(JointError::Replay(id(marker)))
+            );
+            assert_eq!(state, before);
+        }
+        state.note_economic_epoch_unverified(id(40), 2).unwrap();
+        assert_eq!(
+            state.note_economic_epoch_unverified(id(41), 0),
+            Err(JointError::InvalidHeight)
+        );
+        state.finalize_block_for_economic_unverified(2).unwrap();
+        assert_eq!(
+            state.note_economic_epoch_unverified(id(41), 2),
+            Err(JointError::FinalizedHeight)
+        );
+
+        // Spot inputs share the exact collision fence, even while queued.
+        let mut ledger = Ledger::new();
+        for (marker, property_id) in [(1, 7), (2, 8)] {
+            ledger
+                .apply(
+                    id(marker),
+                    Operation::CreateProperty {
+                        id: property(property_id),
+                        issuer: account("alice"),
+                        kind: PropertyKind::Fixed,
+                        initial_atoms: 100,
+                    },
+                )
+                .unwrap();
+        }
+        let mut state = JointProtocolState::from_bootstrap_unverified(
+            TradeLayerMainnet::Bitcoin,
+            account("admin"),
+            ledger,
+            BTreeSet::from([property(7), property(8)]),
+        )
+        .unwrap();
+        state
+            .apply_one_for_economic_unverified(
+                1,
+                command(
+                    10,
+                    "admin",
+                    JointOperation::Registry(RegistryAction::Activate {
+                        types: vec![5, 18],
+                        code_hash: [0; 32],
+                    }),
+                ),
+            )
+            .unwrap();
+        state.finalize_block_for_economic_unverified(1).unwrap();
+        state
+            .apply_one_for_economic_unverified(
+                2,
+                command(
+                    20,
+                    "alice",
+                    JointOperation::SpotPlace(SpotIntent {
+                        offered: property(7),
+                        desired: property(8),
+                        offered_atoms: 10,
+                        expected_atoms: 10,
+                        post: false,
+                        stop: false,
+                    }),
+                ),
+            )
+            .unwrap();
+        assert_eq!(
+            state.note_economic_epoch_unverified(id(20), 2),
+            Err(JointError::Replay(id(20)))
+        );
+        state.note_economic_epoch_unverified(id(40), 2).unwrap();
+        assert_eq!(
+            state.apply_one_for_economic_unverified(
+                2,
+                command(
+                    40,
+                    "alice",
+                    JointOperation::SpotPlace(SpotIntent {
+                        offered: property(7),
+                        desired: property(8),
+                        offered_atoms: 10,
+                        expected_atoms: 10,
+                        post: false,
+                        stop: false,
+                    })
+                )
+            ),
+            Err(JointError::Replay(id(40)))
+        );
+        state.finalize_block_for_economic_unverified(2).unwrap();
+    }
+
+    #[test]
+    fn v1_bytes_stay_canonical_and_v2_requires_sorted_disjoint_nonempty_epochs() {
+        let state = ready();
+        let v1 = state.snapshot_for_economic_bytes().unwrap();
+        assert_eq!(&v1[..5], JOINT_ECONOMIC_MAGIC);
+        // Captured from the genuinely pre-epoch compiled owner, not generated
+        // by the current codec. Fingerprint pins all 580 canonical v1 bytes.
+        assert_eq!(v1.len(), 580);
+        assert_eq!(
+            crate::hash256::double_sha256(&v1),
+            [
+                133, 107, 140, 74, 162, 14, 84, 219, 201, 168, 163, 172, 90, 187, 17, 32, 178, 40,
+                229, 100, 70, 246, 114, 149, 6, 89, 250, 152, 212, 94, 130, 29,
+            ]
+        );
+        assert!(decode(&v1)
+            .unwrap()
+            .system_epoch_ids_unverified()
+            .is_empty());
+        let mut raw = verify_crc(&v1).unwrap().to_vec();
+        raw[4] = 2;
+        raw.splice(raw.len() - 9..raw.len() - 9, 0u32.to_be_bytes());
+        assert!(decode(&with_crc(raw).unwrap()).is_err());
+        let mut state = state;
+        state.note_economic_epoch_unverified(id(40), 2).unwrap();
+        state.note_economic_epoch_unverified(id(41), 2).unwrap();
+        state.finalize_block_for_economic_unverified(2).unwrap();
+        let bytes = state.snapshot_for_economic_bytes().unwrap();
+        let mut cursor = Cursor::new(verify_crc(&bytes).unwrap());
+        cursor.take(39).unwrap();
+        let registry_size = joint_read_embedded(&mut cursor).unwrap().len();
+        let spot_size = joint_read_embedded(&mut cursor).unwrap().len();
+        let mut offset = 39 + 4 + registry_size + 4 + spot_size;
+        for _ in 0..3 {
+            let count = u32::from_be_bytes(bytes[offset..offset + 4].try_into().unwrap()) as usize;
+            offset += 4 + count * 32;
+        }
+        assert_eq!(
+            u32::from_be_bytes(bytes[offset..offset + 4].try_into().unwrap()),
+            2
+        );
+        for replacement in [id(1), id(10), id(41)] {
+            let mut raw = verify_crc(&bytes).unwrap().to_vec();
+            raw[offset + 4..offset + 36].copy_from_slice(&replacement.as_bytes());
+            assert!(decode(&with_crc(raw).unwrap()).is_err());
+        }
+        let mut raw = verify_crc(&bytes).unwrap().to_vec();
+        raw[offset..offset + 4].copy_from_slice(&100_001u32.to_be_bytes());
+        assert!(decode(&with_crc(raw).unwrap()).is_err());
+        let mut raw = verify_crc(&bytes).unwrap().to_vec();
+        raw[38] = 0;
+        assert!(decode(&with_crc(raw).unwrap()).is_err());
+        for length in 0..bytes.len() {
+            assert!(decode(&bytes[..length]).is_err());
+        }
+        assert!(JointProtocolState::from_snapshot_bytes(
+            &bytes,
+            state.network(),
+            &account("admin"),
+            state.spot().permitted_properties()
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn aggregate_external_and_system_epoch_capacity_is_shared() {
+        let mut state = ready();
+        state.note_economic_epoch_unverified(id(40), 2).unwrap();
+        state.finalize_block_for_economic_unverified(2).unwrap();
+        for counter in 0..MAX_JOINT_REPLAY_MARKERS - 2 {
+            let mut bytes = [0xa5; 32];
+            bytes[..8].copy_from_slice(&(counter as u64).to_be_bytes());
+            assert!(state.system_epoch_ids.insert(TxId::from_bytes(bytes)));
+        }
+        assert_eq!(
+            state.global_input_ids.len() + state.system_epoch_ids.len(),
+            MAX_JOINT_REPLAY_MARKERS
+        );
+        state.verify_for_economic_owner_unverified().unwrap();
+        assert_eq!(
+            state.note_economic_epoch_unverified(id(41), 3),
+            Err(JointError::ReplayLimit)
+        );
+        assert_eq!(
+            state.note_economic_input_unverified(id(42), 3, 18),
+            Err(JointError::ReplayLimit)
+        );
+        assert_eq!(
+            state.apply_one_for_economic_unverified(
+                3,
+                command(
+                    43,
+                    "alice",
+                    JointOperation::Send {
+                        id: property(7),
+                        recipient: account("bob"),
+                        amount_atoms: 1,
+                    }
+                )
+            ),
+            Err(JointError::ReplayLimit)
+        );
+        state.system_epoch_ids.insert(id(41));
         assert_eq!(
             state.verify_for_economic_owner_unverified(),
             Err(JointError::ReplayConflict)

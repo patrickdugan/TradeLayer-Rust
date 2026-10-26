@@ -20,7 +20,8 @@ opcodes gain no authority here.
 
 A transient height records an in-progress combined block. Every ordinary or
 economic command must use that height. Custody legs additionally require an
-economic event registered in that current block. Finalization clears those
+external economic event or a system epoch registered in that current block.
+Finalization clears those
 transient markers on a staged copy and validates the complete Joint portion
 before publishing. Empty blocks can finalize. Neither public nor private
 snapshots accept a partially processed combined block. The outer owner must
@@ -44,7 +45,8 @@ reader requires independently supplied network, administrator and permitted
 spot properties, validates category disjointness and component heights, and
 requires canonical byte-for-byte reencoding.
 
-The activity flag must equal the presence of economic replay IDs. Combined
+The activity flag must equal the presence of external economic or system-epoch
+replay IDs. Combined
 Joint verification rejects reserved account families other than `~spot:` and
 `~econ:`, economic balances without economic event history, and preexisting
 channel or legacy settlement liabilities that this owner cannot advance.
@@ -59,6 +61,33 @@ block boundaries, replay collisions, reserved account denial, full roundtrip,
 truncation, rechecksummed flag/version/network/replay tampering and independent
 configuration. Public integration tests pin pre-bridge TLJP bytes and retain
 legacy opcode denial with atomic block rejection.
+
+## System funding epochs and TLJE v2
+
+The separate `system_epoch_ids` set records private system funding epochs.
+These identities are never inserted into the global external-input set and
+never masquerade as a type-18 transaction. Registration requires type 18 to
+have activated in a prior block, a nonfinalized current height, one consistent
+pending-block height and a fresh ID across all external and internal replay
+categories. The outer owner derives each funding ID from the network genesis,
+contract, collateral, height and event kind, and reconciles the exact epoch set
+against its complete configured schedule and persisted receipts.
+
+An epoch permits custody legs on an empty due block. Even a zero-leg epoch
+permanently fences old public Joint, Spot, TLJP and TLJC exports. Future
+ordinary inputs, external economic inputs, epochs and custody fingerprints
+cannot reuse an epoch ID. External input and system-epoch counts together
+obey the existing 100,000 marker bound. The external replay union continues
+to exclude all system epochs.
+
+TLJE v1 bytes remain unchanged whenever the epoch set is empty. TLJE v2 adds
+one bounded, sorted, nonempty system-epoch ID set immediately after the three
+existing external replay sets and before finalized height. Its reader rejects
+v2 with an empty epoch set, category collisions, noncanonical IDs, mismatched
+activity, and all preexisting deployment/configuration errors. V1 decoding
+initializes an empty epoch set. This private extension grants no authority to
+wire settlement types 23 or 31 and provides no independent proof of funding
+eligibility, price observations or recipient amounts.
 
 ## Enclosing TLEC v1 economic checkpoint
 
@@ -93,3 +122,33 @@ loss collection and payment, exact restoration across all three networks,
 funded resting-order cancellation, cross-category replay, independent config
 checks, truncation and rechecksummed structural corruption. A nested ledger
 with valid CRCs and conserved supply still rejects an unowned economic escrow.
+
+## Funding-enabled TLEC v2
+
+Funding-disabled economic states retain the exact TLEC v1 format and an empty
+funding state. An independently expected `FundingConfig` selects TLEC v2 even
+before the first due epoch. Its configuration appends the bound oracle ID,
+maximum staleness in blocks and `ConservingFundingV1` policy. The full funding
+state follows the existing internal-leg sequence: retained price observations,
+optional admitted oracle closure `(txid, height)`, then scheduled epoch receipts.
+Each receipt preserves height, derived system ID, status, optional index
+observation, complete averaging window, fractional positions and their
+available balances, and optional calculated plan with rate, collateral
+notional, total atoms and all payer/receiver entries.
+
+The decoder applies the existing canonical decimal, integer and byte limits.
+There are at most 4,096 retained observations and 4,096 epochs. A shared 65,536
+record budget covers retained observations, epoch window samples, captured
+positions and both payment lists; count declarations charge this budget before
+their vectors expand. Fixed optional index and closure records are separately
+bounded by the epoch and owner counts. The complete owner reprojects plans,
+checks the configured schedule against the private system-epoch set, and
+derives closed status from admitted closure history. A checkpoint cannot alter
+the expected funding configuration or discard a closure to change prior
+funding decisions. These remain structural checks of unverified inputs.
+
+Regressions pin genuine pre-funding TLJE and TLEC v1 byte fingerprints from
+the preceding compiled owner. Public tests exercise a paid epoch on an empty
+block, restoration on all three networks, later closure and a closed skip
+epoch, configuration mismatches, valid-CRC plan/history tampering and the
+aggregate count bound across individually valid windows.

@@ -62,9 +62,11 @@ TLEC v1 stores the explicit economic config, the crate-private complete Joint pa
 
 Limits are explicit: 4,096 block inputs, 8,192 trade receipts, 4,096 positions, 65,536 internal transfer legs, component replay/order limits, bounded rollback depth, and the shared 64 MiB checkpoint cap. These bounds can reject an otherwise arithmetically valid research workload. They do not imply production throughput or historical protocol limits.
 
-Resource review identified repeated complete-state verification and growing FeeBook journal clones during receipt replay. Full chain validation also decodes and canonically reencodes every retained frame. These checks preserve recovery invariants but require representative workload and peak-memory measurements before deployment. A batch fee replay API and fewer repeated checks at proven immutable boundaries are follow-up candidates; no speedup is claimed by this implementation.
+Fee verification now builds the expected journal once through the private batch accrual API, while retaining exact row/journal/insurance equality. Full chain validation still repeatedly decodes and canonically reencodes every retained frame. These checks preserve recovery invariants but require representative workload and peak-memory measurements before deployment. Fewer repeated checks at proven immutable boundaries remain a follow-up candidate; no end-to-end speedup is claimed.
 
 ## Remaining integration gates
+
+Optional [funding epochs](ECONOMIC_FUNDING.md) extend this owner through the same Ledger, with complete source observations, explicit conserving allocation and TLJE/TLEC v2 recovery. The disabled default retains the original v1 encoding. Funding does not change the average-entry close basis; adding mark settlement still requires persisted settled-basis accounting to prevent paying PnL twice.
 
 The pending-insurance escrow is a real funded balance, but it is not the insurance module's lifecycle or an authenticated insurance deposit. The actual live insurance handoff, fund accounting, withdrawals, and receipt/reorg linkage must be integrated before that counter can be presented as an insurance balance. This owner does not call a substitute insurance allocator or debit a second ledger.
 
