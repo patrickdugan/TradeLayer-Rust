@@ -888,3 +888,21 @@ recovery; fixture rows are not counted as separate Rust tests. The ledger keeps
 49 module rows (48 TL plus one external feature) and958 unique function entries,
 preserving all914 previous entries and adding43 channel methods plus constructor.
 No module is promoted to complete historical or authenticated parity.
+
+## Native initialization and entitlement source audit
+
+[NATIVE_GENESIS_SOURCE.md](NATIVE_GENESIS_SOURCE.md) records22 executable source
+scenes:18 complete activation/vesting/property/tally compositions with1,647
+dependency events, plus four logic/tally/vesting entitlement scenes. Seven exact
+source archives are pinned by literal hashes. The ordinary async DB-factory
+behavior and the explicitly conditional synchronous repair stay separate.
+
+Declarations, current issued custody, source curve scales and vesting markers
+are distinct. Source initialization can persist partial state then report a
+complete flag on retry. A reachable fractional coupon transfer creates marker
+rounding drift; the repaired synchronous payout can then credit one holder before
+failing on another. These observations justify atomic owner transitions but
+select no genesis amount, residual beneficiary, cap, mint or default payout
+policy. Existing Rust code is unchanged by this audit; its1,200-execution checked
+baseline remains70dd911. The two new Node oracles and exact regeneration checks
+are the relevant new checks, not additional Rust test counts.

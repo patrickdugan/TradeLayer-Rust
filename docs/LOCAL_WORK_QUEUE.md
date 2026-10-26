@@ -12,7 +12,7 @@ remaining gates stay in [PARITY_ROADMAP.csv](PARITY_ROADMAP.csv).
 | `activation.js` | Local team | Integrated source and canonical owner-history subset | 18 methods plus constructor/static singleton; 670 exact observations plus5 explicit domains; derived accepted origins, prior-height queries, restart/rollback and exact durable head; native genesis and authenticated historical provenance remain open |
 | `channels.js` source | Local team | Integrated bounded source conformance | All43 static methods and constructor; explicit prototype/reference domains remain rejected; diagnostic metadata has no custody authority |
 | Canonical signed allocations | Local team | Integrated opt-in funded owner | Independently pinned SupersedingCoSignedAllocationV1; both signatures, actual escrow, full recovery and retained transition checks; L1 funding/scripts/revocation remain external |
-| Native genesis | Local source audit and owner design | Source evidence verified; owner design in progress | Resolve declared supply versus source credits and BTC residual before selecting a conserving actual-owner policy |
+| Native genesis | Local source audit and owner design | 22 source scenes verified; owner implementation in progress | Resolve declared supply versus source credits and BTC residual before selecting a conserving actual-owner policy |
 
 The user reassigned activation to the local queue because the web worker
 stalled. Its earlier external reservation is lifted. The local standalone source
@@ -68,3 +68,10 @@ revision signatures remain mathematically valid after local supersession; the
 actual owner refuses them as a current head. Authenticated funding/outpoints,
 participant identity, parent-UTXO/scripts, pruned header ancestry and historical
 acceptance remain separate gates. No source module is marked full parity.
+
+The native source audit is preserved in[NATIVE_GENESIS_SOURCE.md](NATIVE_GENESIS_SOURCE.md)
+and offline Node fixtures. The next implementation requires an independently
+configured pre-funded owner and no default economic policy. The web insurance
+worker reports49 executed adversarial observations; the actual patch bytes are
+not present locally. Those remain external evidence. A local review is checking
+real clearing/Economic custody and durable replay against the reported mechanisms.

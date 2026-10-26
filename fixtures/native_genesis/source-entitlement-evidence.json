@@ -1,0 +1,842 @@
+{
+  "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "sourcePins": {
+    "logic": {
+      "source": "src/logic.js",
+      "bytes": 118868,
+      "sha256": "f09d476e581d38cf7278f1424aadba7266f25e0fbc23763ceba4afa79c5b3e1d"
+    },
+    "tally": {
+      "source": "src/tally.js",
+      "bytes": 59507,
+      "sha256": "cfde9e5845f810bf62d9f1a07d4db4ea011b11d3d2bb63f041d39bea557cddef"
+    },
+    "vesting": {
+      "source": "src/vesting.js",
+      "bytes": 19178,
+      "sha256": "4c134b6871f450d3190a0958b629731d960540069d0c8c37a6da33d6e1f70d2b"
+    },
+    "main": {
+      "source": "src/main.js",
+      "bytes": 43435,
+      "sha256": "006d59ba3d28d802b0e0c5be2d9d661b58caf1c919a704b3f0d40bc9613c4009"
+    },
+    "db": {
+      "source": "src/db.js",
+      "bytes": 4177,
+      "sha256": "b92a05fee6652494b72bf6893d9633850c697be773e88b24d62798a8bc8f5e38"
+    }
+  },
+  "policy": "source observation only; no funded policy/default/amount selected",
+  "scenes": [
+    {
+      "name": "actual-async-db-factory-empty-address-path",
+      "syncDatabaseFactory": false,
+      "send": {
+        "returned": {
+          "$undefined": true
+        }
+      },
+      "afterSend": [
+        [
+          "alice",
+          {
+            "1": {
+              "amount": 0,
+              "available": 0,
+              "reserved": 0,
+              "margin": 0,
+              "vesting": 0,
+              "channelBalance": 0
+            },
+            "2": {
+              "amount": 8.9,
+              "available": 8.9,
+              "reserved": 0,
+              "margin": 0,
+              "vesting": 9,
+              "channelBalance": 0
+            }
+          }
+        ],
+        [
+          "bob",
+          {
+            "1": {
+              "amount": 0,
+              "available": 0,
+              "reserved": 0,
+              "margin": 0,
+              "vesting": 0,
+              "channelBalance": 0
+            },
+            "2": {
+              "amount": 11.1,
+              "available": 11.1,
+              "reserved": 0,
+              "margin": 0,
+              "vesting": 11,
+              "channelBalance": 0
+            }
+          }
+        ]
+      ],
+      "apply": {
+        "returned": {
+          "$undefined": true
+        }
+      },
+      "afterApply": [
+        [
+          "alice",
+          {
+            "1": {
+              "amount": 0,
+              "available": 0,
+              "reserved": 0,
+              "margin": 0,
+              "vesting": 0,
+              "channelBalance": 0
+            },
+            "2": {
+              "amount": 8.9,
+              "available": 8.9,
+              "reserved": 0,
+              "margin": 0,
+              "vesting": 9,
+              "channelBalance": 0
+            }
+          }
+        ],
+        [
+          "bob",
+          {
+            "1": {
+              "amount": 0,
+              "available": 0,
+              "reserved": 0,
+              "margin": 0,
+              "vesting": 0,
+              "channelBalance": 0
+            },
+            "2": {
+              "amount": 11.1,
+              "available": 11.1,
+              "reserved": 0,
+              "margin": 0,
+              "vesting": 11,
+              "channelBalance": 0
+            }
+          }
+        ]
+      ],
+      "trace": [
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMapDelta"
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMapDelta",
+          "query": {
+            "_id": "alice-2-entitlement-1-10"
+          }
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.insertAsync",
+          "category": "tallyMapDelta"
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.updateAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMapDelta"
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMapDelta",
+          "query": {
+            "_id": "bob-2-entitlement-2-10"
+          }
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.insertAsync",
+          "category": "tallyMapDelta"
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.updateAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMapDelta"
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMapDelta",
+          "query": {
+            "_id": "alice-2-entitlement-3-10"
+          }
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.insertAsync",
+          "category": "tallyMapDelta"
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.updateAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMapDelta"
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMapDelta",
+          "query": {
+            "_id": "bob-2-entitlement-4-10"
+          }
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.insertAsync",
+          "category": "tallyMapDelta"
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.updateAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "Property.getPropertyData",
+          "id": 2
+        }
+      ]
+    },
+    {
+      "name": "sync-adapter-reachable-marker-shortfall",
+      "syncDatabaseFactory": true,
+      "send": {
+        "returned": {
+          "$undefined": true
+        }
+      },
+      "afterSend": [
+        [
+          "alice",
+          {
+            "1": {
+              "amount": 0,
+              "available": 0,
+              "reserved": 0,
+              "margin": 0,
+              "vesting": 0,
+              "channelBalance": 0
+            },
+            "2": {
+              "amount": 8.9,
+              "available": 8.9,
+              "reserved": 0,
+              "margin": 0,
+              "vesting": 9,
+              "channelBalance": 0
+            }
+          }
+        ],
+        [
+          "bob",
+          {
+            "1": {
+              "amount": 0,
+              "available": 0,
+              "reserved": 0,
+              "margin": 0,
+              "vesting": 0,
+              "channelBalance": 0
+            },
+            "2": {
+              "amount": 11.1,
+              "available": 11.1,
+              "reserved": 0,
+              "margin": 0,
+              "vesting": 11,
+              "channelBalance": 0
+            }
+          }
+        ]
+      ],
+      "apply": {
+        "thrown": {
+          "name": "Error",
+          "message": "Vesting balance cannot go negative 11 change -11.1"
+        }
+      },
+      "afterApply": [
+        [
+          "alice",
+          {
+            "1": {
+              "amount": 8.9,
+              "available": 8.9,
+              "reserved": 0,
+              "margin": 0,
+              "vesting": 0,
+              "channelBalance": 0
+            },
+            "2": {
+              "amount": 8.9,
+              "available": 8.9,
+              "reserved": 0,
+              "margin": 0,
+              "vesting": 0.1,
+              "channelBalance": 0
+            }
+          }
+        ],
+        [
+          "bob",
+          {
+            "1": {
+              "amount": 0,
+              "available": 0,
+              "reserved": 0,
+              "margin": 0,
+              "vesting": 0,
+              "channelBalance": 0
+            },
+            "2": {
+              "amount": 11.1,
+              "available": 11.1,
+              "reserved": 0,
+              "margin": 0,
+              "vesting": 11,
+              "channelBalance": 0
+            }
+          }
+        ]
+      ],
+      "trace": [
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMapDelta"
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMapDelta",
+          "query": {
+            "_id": "alice-2-entitlement-1-10"
+          }
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.insertAsync",
+          "category": "tallyMapDelta"
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.updateAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMapDelta"
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMapDelta",
+          "query": {
+            "_id": "bob-2-entitlement-2-10"
+          }
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.insertAsync",
+          "category": "tallyMapDelta"
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.updateAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMapDelta"
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMapDelta",
+          "query": {
+            "_id": "alice-2-entitlement-3-10"
+          }
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.insertAsync",
+          "category": "tallyMapDelta"
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.updateAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMapDelta"
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMapDelta",
+          "query": {
+            "_id": "bob-2-entitlement-4-10"
+          }
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.insertAsync",
+          "category": "tallyMapDelta"
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.updateAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "Property.getPropertyData",
+          "id": 2
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMapDelta"
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMapDelta",
+          "query": {
+            "_id": "alice-2-entitlement-5-11"
+          }
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.insertAsync",
+          "category": "tallyMapDelta"
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.updateAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMapDelta"
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMapDelta",
+          "query": {
+            "_id": "alice-1-entitlement-6-11"
+          }
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.insertAsync",
+          "category": "tallyMapDelta"
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.updateAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        },
+        {
+          "target": "DB.getDatabase",
+          "category": "tallyMap"
+        },
+        {
+          "target": "DB.findOneAsync",
+          "category": "tallyMap",
+          "query": {
+            "_id": "tallyMap"
+          }
+        }
+      ]
+    },
+    {
+      "name": "curve-is-cumulative-repeated-call",
+      "first": {
+        "two": 20,
+        "three": 20
+      },
+      "second": {
+        "two": 20,
+        "three": 20
+      }
+    },
+    {
+      "name": "fraction-below-one-whole-coupon-rejected",
+      "outcome": {
+        "thrown": {
+          "name": "Error",
+          "message": "Amount must be greater than zero"
+        }
+      },
+      "balances": [
+        [
+          "alice",
+          {
+            "1": {
+              "amount": 0,
+              "available": 0,
+              "reserved": 0,
+              "margin": 0,
+              "vesting": 0,
+              "channelBalance": 0
+            },
+            "2": {
+              "amount": 10,
+              "available": 10,
+              "reserved": 0,
+              "margin": 0,
+              "vesting": 10,
+              "channelBalance": 0
+            }
+          }
+        ],
+        [
+          "bob",
+          {
+            "1": {
+              "amount": 0,
+              "available": 0,
+              "reserved": 0,
+              "margin": 0,
+              "vesting": 0,
+              "channelBalance": 0
+            },
+            "2": {
+              "amount": 10,
+              "available": 10,
+              "reserved": 0,
+              "margin": 0,
+              "vesting": 10,
+              "channelBalance": 0
+            }
+          }
+        ]
+      ]
+    }
+  ]
+}

@@ -67,6 +67,8 @@ fixtures/channel_owner_vectors.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/channel_owner_bootstrap.hex text eol=lf
 fixtures/channels_vectors.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/legacy_channels_source.txt -text -whitespace
+fixtures/native_genesis/source/*.js -text -whitespace
+fixtures/native_genesis/*.json text eol=lf
 fixtures/consensus_legacy_snapshot_vectors.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/volume_index_methods.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/volume_index_quirks.tsv text eol=lf whitespace=-blank-at-eol

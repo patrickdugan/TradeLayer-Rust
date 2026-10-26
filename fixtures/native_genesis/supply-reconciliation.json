@@ -1,0 +1,765 @@
+{
+  "interpretation": "Arithmetic observations only. Source totalInCirculation is a declared field; it is not proven equal to current issued custody or a formally enforced cap. Insurance amounts are launched calls, not proven custody. Vesting markers overlap available coupon units. Differences below authorize no mint and identify no beneficiary.",
+  "networks": [
+    {
+      "chain": "BTC",
+      "admin": "bc1qktknrnx2jcchjht9anz0uy8ae02xryxq2vxeem",
+      "sponsor": "bc1qhc2cj60auf67e0pa3dfd46cvg0fehchx56vw0f",
+      "initialParameterTokens": "100000",
+      "fractions": {
+        "sale": 0,
+        "free": 0.1,
+        "insurance": 0.1,
+        "vesting": 0.5
+      },
+      "roles": [
+        {
+          "id": 1,
+          "ticker": "TL",
+          "declared": "100000",
+          "tallyOwned": "10000",
+          "vestingMarker": "0",
+          "insuranceLaunched": "10000",
+          "declaredLessOwnedAndLaunched": "80000",
+          "sourceType": 1,
+          "declaredAtoms": "10000000000000",
+          "tallyOwnedAtoms": "1000000000000",
+          "vestingMarkerAtoms": "0"
+        },
+        {
+          "id": 2,
+          "ticker": "TLVEST",
+          "declared": "50000",
+          "tallyOwned": "50000",
+          "vestingMarker": "50000",
+          "insuranceLaunched": "0",
+          "declaredLessOwnedAndLaunched": "0",
+          "sourceType": 4,
+          "declaredAtoms": "5000000000000",
+          "tallyOwnedAtoms": "5000000000000",
+          "vestingMarkerAtoms": "5000000000000"
+        },
+        {
+          "id": 3,
+          "ticker": "TLI",
+          "declared": "300000",
+          "tallyOwned": "1500000",
+          "vestingMarker": "1500000",
+          "insuranceLaunched": "0",
+          "declaredLessOwnedAndLaunched": "-1200000",
+          "sourceType": 4,
+          "declaredAtoms": "30000000000000",
+          "tallyOwnedAtoms": "150000000000000",
+          "vestingMarkerAtoms": "150000000000000"
+        },
+        {
+          "id": 4,
+          "ticker": "TLIVEST",
+          "declared": "300001",
+          "tallyOwned": "1",
+          "vestingMarker": "0",
+          "insuranceLaunched": "0",
+          "declaredLessOwnedAndLaunched": "300000",
+          "sourceType": 3,
+          "declaredAtoms": "30000100000000",
+          "tallyOwnedAtoms": "100000000",
+          "vestingMarkerAtoms": "0"
+        }
+      ],
+      "property1Arithmetic": {
+        "adminAvailable": "0",
+        "sponsorAvailable": "10000",
+        "insuranceCallLaunched": "10000",
+        "declarationLessCurrentTallyAndLaunchedInsurance": "80000",
+        "property2MarkerPotentialRedemption": "50000",
+        "differenceAfterHypotheticalFullProperty2Backing": "30000",
+        "noResidualBeneficiaryOrMintAuthorityInferred": true
+      },
+      "nativeContractRequest": [
+        {
+          "$undefined": true
+        },
+        {
+          "initialMargin": 0.2,
+          "maintenanceMargin": 0.1,
+          "expiry": "perp",
+          "onChainData": [
+            [
+              1,
+              0
+            ]
+          ],
+          "expiryInterval": {
+            "$undefined": true
+          },
+          "leverage": 5,
+          "seriesLength": 6,
+          "native": true,
+          "inverse": true,
+          "fee": false,
+          "notionalPropertyId": 0,
+          "notionalValue": 0.001,
+          "collateralPropertyId": 1
+        },
+        77
+      ],
+      "clearlistRequests": [
+        [
+          {
+            "$undefined": true
+          },
+          "Issuer Clearlist",
+          "",
+          "Oracles and Tokens included in Liquidity Reward",
+          {
+            "$undefined": true
+          },
+          1
+        ],
+        [
+          {
+            "$undefined": true
+          },
+          "Market Maker Clearlist",
+          "",
+          "Market Makers and active traders who do not wash trade.",
+          {
+            "$undefined": true
+          },
+          2
+        ],
+        [
+          {
+            "$undefined": true
+          },
+          "Accredited Clearlist",
+          "",
+          "Exempt from restrictions on native tokens.",
+          {
+            "$undefined": true
+          },
+          3
+        ]
+      ]
+    },
+    {
+      "chain": "LTC",
+      "admin": "MTmoypkhRQoJ172ZqxcsVumPZfJ8KCrQCB",
+      "sponsor": "MWip91xMhaEmDn5oUW5NDNbWSDyG5dSK9Q",
+      "initialParameterTokens": "500000",
+      "fractions": {
+        "sale": 0.1,
+        "free": 0.1,
+        "insurance": 0.3,
+        "vesting": 0.5
+      },
+      "roles": [
+        {
+          "id": 1,
+          "ticker": "TLITE",
+          "declared": "500000",
+          "tallyOwned": "100000",
+          "vestingMarker": "0",
+          "insuranceLaunched": "150000",
+          "declaredLessOwnedAndLaunched": "250000",
+          "sourceType": 1,
+          "declaredAtoms": "50000000000000",
+          "tallyOwnedAtoms": "10000000000000",
+          "vestingMarkerAtoms": "0"
+        },
+        {
+          "id": 2,
+          "ticker": "TLITEVEST",
+          "declared": "250000",
+          "tallyOwned": "250000",
+          "vestingMarker": "250000",
+          "insuranceLaunched": "0",
+          "declaredLessOwnedAndLaunched": "0",
+          "sourceType": 4,
+          "declaredAtoms": "25000000000000",
+          "tallyOwnedAtoms": "25000000000000",
+          "vestingMarkerAtoms": "25000000000000"
+        },
+        {
+          "id": 3,
+          "ticker": "TLITEI",
+          "declared": "1500000",
+          "tallyOwned": "1500000",
+          "vestingMarker": "1500000",
+          "insuranceLaunched": "0",
+          "declaredLessOwnedAndLaunched": "0",
+          "sourceType": 4,
+          "declaredAtoms": "150000000000000",
+          "tallyOwnedAtoms": "150000000000000",
+          "vestingMarkerAtoms": "150000000000000"
+        },
+        {
+          "id": 4,
+          "ticker": "TLITEIVEST",
+          "declared": "1500001",
+          "tallyOwned": "1",
+          "vestingMarker": "0",
+          "insuranceLaunched": "0",
+          "declaredLessOwnedAndLaunched": "1500000",
+          "sourceType": 3,
+          "declaredAtoms": "150000100000000",
+          "tallyOwnedAtoms": "100000000",
+          "vestingMarkerAtoms": "0"
+        }
+      ],
+      "property1Arithmetic": {
+        "adminAvailable": "50000",
+        "sponsorAvailable": "50000",
+        "insuranceCallLaunched": "150000",
+        "declarationLessCurrentTallyAndLaunchedInsurance": "250000",
+        "property2MarkerPotentialRedemption": "250000",
+        "differenceAfterHypotheticalFullProperty2Backing": "0",
+        "noResidualBeneficiaryOrMintAuthorityInferred": true
+      },
+      "nativeContractRequest": [
+        {
+          "$undefined": true
+        },
+        {
+          "initialMargin": 0.2,
+          "maintenanceMargin": 0.1,
+          "expiry": "perp",
+          "onChainData": [
+            [
+              1,
+              0
+            ]
+          ],
+          "expiryInterval": {
+            "$undefined": true
+          },
+          "leverage": 5,
+          "seriesLength": 6,
+          "native": true,
+          "inverse": true,
+          "fee": false,
+          "notionalPropertyId": 0,
+          "notionalValue": 0.001,
+          "collateralPropertyId": 1
+        },
+        77
+      ],
+      "clearlistRequests": [
+        [
+          {
+            "$undefined": true
+          },
+          "Issuer Clearlist",
+          "",
+          "Oracles and Tokens included in Liquidity Reward",
+          {
+            "$undefined": true
+          },
+          1
+        ],
+        [
+          {
+            "$undefined": true
+          },
+          "Market Maker Clearlist",
+          "",
+          "Market Makers and active traders who do not wash trade.",
+          {
+            "$undefined": true
+          },
+          2
+        ],
+        [
+          {
+            "$undefined": true
+          },
+          "Accredited Clearlist",
+          "",
+          "Exempt from restrictions on native tokens.",
+          {
+            "$undefined": true
+          },
+          3
+        ]
+      ]
+    },
+    {
+      "chain": "DOGE",
+      "admin": "DLSfu9qvEggkeXAgCAwBBw5BVLvMCtkewz",
+      "sponsor": "D8HA73pAhxK7eNXSUVhQrWpUkrszUDGs7Z",
+      "initialParameterTokens": "200000000",
+      "fractions": {
+        "sale": 0,
+        "free": 0.25,
+        "insurance": 0.25,
+        "vesting": 0.5
+      },
+      "roles": [
+        {
+          "id": 1,
+          "ticker": "TD",
+          "declared": "200000000",
+          "tallyOwned": "50000000",
+          "vestingMarker": "0",
+          "insuranceLaunched": "50000000",
+          "declaredLessOwnedAndLaunched": "100000000",
+          "sourceType": 1,
+          "declaredAtoms": "20000000000000000",
+          "tallyOwnedAtoms": "5000000000000000",
+          "vestingMarkerAtoms": "0"
+        },
+        {
+          "id": 2,
+          "ticker": "TDVEST",
+          "declared": "100000000",
+          "tallyOwned": "100000000",
+          "vestingMarker": "100000000",
+          "insuranceLaunched": "0",
+          "declaredLessOwnedAndLaunched": "0",
+          "sourceType": 4,
+          "declaredAtoms": "10000000000000000",
+          "tallyOwnedAtoms": "10000000000000000",
+          "vestingMarkerAtoms": "10000000000000000"
+        },
+        {
+          "id": 3,
+          "ticker": "TDI",
+          "declared": "600000000",
+          "tallyOwned": "1500000",
+          "vestingMarker": "1500000",
+          "insuranceLaunched": "0",
+          "declaredLessOwnedAndLaunched": "598500000",
+          "sourceType": 4,
+          "declaredAtoms": "60000000000000000",
+          "tallyOwnedAtoms": "150000000000000",
+          "vestingMarkerAtoms": "150000000000000"
+        },
+        {
+          "id": 4,
+          "ticker": "TDIVEST",
+          "declared": "600000001",
+          "tallyOwned": "1",
+          "vestingMarker": "0",
+          "insuranceLaunched": "0",
+          "declaredLessOwnedAndLaunched": "600000000",
+          "sourceType": 3,
+          "declaredAtoms": "60000000100000000",
+          "tallyOwnedAtoms": "100000000",
+          "vestingMarkerAtoms": "0"
+        }
+      ],
+      "property1Arithmetic": {
+        "adminAvailable": "0",
+        "sponsorAvailable": "50000000",
+        "insuranceCallLaunched": "50000000",
+        "declarationLessCurrentTallyAndLaunchedInsurance": "100000000",
+        "property2MarkerPotentialRedemption": "100000000",
+        "differenceAfterHypotheticalFullProperty2Backing": "0",
+        "noResidualBeneficiaryOrMintAuthorityInferred": true
+      },
+      "nativeContractRequest": [
+        {
+          "$undefined": true
+        },
+        {
+          "initialMargin": 0.2,
+          "maintenanceMargin": 0.1,
+          "expiry": "perp",
+          "onChainData": [
+            [
+              1,
+              0
+            ]
+          ],
+          "expiryInterval": {
+            "$undefined": true
+          },
+          "leverage": 5,
+          "seriesLength": 6,
+          "native": true,
+          "inverse": true,
+          "fee": false,
+          "notionalPropertyId": 0,
+          "notionalValue": 0.001,
+          "collateralPropertyId": 1
+        },
+        77
+      ],
+      "clearlistRequests": [
+        [
+          {
+            "$undefined": true
+          },
+          "Issuer Clearlist",
+          "",
+          "Oracles and Tokens included in Liquidity Reward",
+          {
+            "$undefined": true
+          },
+          1
+        ],
+        [
+          {
+            "$undefined": true
+          },
+          "Market Maker Clearlist",
+          "",
+          "Market Makers and active traders who do not wash trade.",
+          {
+            "$undefined": true
+          },
+          2
+        ],
+        [
+          {
+            "$undefined": true
+          },
+          "Accredited Clearlist",
+          "",
+          "Exempt from restrictions on native tokens.",
+          {
+            "$undefined": true
+          },
+          3
+        ]
+      ]
+    }
+  ],
+  "failureSummary": [
+    {
+      "name": "nonempty-property-catalog",
+      "outputs": [
+        {
+          "height": 77,
+          "outcome": {
+            "returned": {
+              "$undefined": true
+            }
+          },
+          "initialized": true,
+          "activation0": {
+            "name": "Activate TradeLayer",
+            "active": true,
+            "activationBlock": 77,
+            "codeHash": "first"
+          },
+          "ids": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "tallyOwned": [
+            [
+              5,
+              "0"
+            ],
+            [
+              6,
+              "100000"
+            ],
+            [
+              7,
+              "250000"
+            ],
+            [
+              8,
+              "1500000"
+            ],
+            [
+              9,
+              "1"
+            ]
+          ],
+          "pendingLaunches": []
+        }
+      ]
+    },
+    {
+      "name": "already-initialized-without-genesis-record",
+      "outputs": [
+        {
+          "height": 77,
+          "outcome": {
+            "returned": {
+              "$undefined": true
+            }
+          },
+          "initialized": true,
+          "activation0": {
+            "name": "Activate TradeLayer",
+            "active": true,
+            "activationBlock": 77,
+            "codeHash": "first"
+          },
+          "ids": [],
+          "tallyOwned": [],
+          "pendingLaunches": []
+        }
+      ]
+    },
+    {
+      "name": "deferred-insurance-and-clearlists",
+      "outputs": [
+        {
+          "height": 77,
+          "outcome": {
+            "returned": {
+              "$undefined": true
+            }
+          },
+          "initialized": true,
+          "activation0": {
+            "name": "Activate TradeLayer",
+            "active": true,
+            "activationBlock": 77,
+            "codeHash": "first"
+          },
+          "ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "tallyOwned": [
+            [
+              1,
+              "100000"
+            ],
+            [
+              2,
+              "250000"
+            ],
+            [
+              3,
+              "1500000"
+            ],
+            [
+              4,
+              "1"
+            ]
+          ],
+          "pendingLaunches": [
+            "Insurance.deposit",
+            "ClearList.createClearlist",
+            "ClearList.createClearlist",
+            "ClearList.createClearlist"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "delta-failure-and-retry",
+      "outputs": [
+        {
+          "height": 77,
+          "outcome": {
+            "thrown": {
+              "name": "Error",
+              "message": "injected delta write failure"
+            }
+          },
+          "initialized": false,
+          "activation0": {
+            "name": "Activate TradeLayer",
+            "active": false
+          },
+          "ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "tallyOwned": [
+            [
+              1,
+              "50000"
+            ],
+            [
+              2,
+              "0"
+            ],
+            [
+              3,
+              "0"
+            ],
+            [
+              4,
+              "0"
+            ]
+          ],
+          "pendingLaunches": []
+        },
+        {
+          "height": 78,
+          "outcome": {
+            "returned": {
+              "$undefined": true
+            }
+          },
+          "initialized": true,
+          "activation0": {
+            "name": "Activate TradeLayer",
+            "active": true,
+            "activationBlock": 78,
+            "codeHash": "second"
+          },
+          "ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "tallyOwned": [
+            [
+              1,
+              "50000"
+            ],
+            [
+              2,
+              "0"
+            ],
+            [
+              3,
+              "0"
+            ],
+            [
+              4,
+              "0"
+            ]
+          ],
+          "pendingLaunches": []
+        }
+      ]
+    },
+    {
+      "name": "swallowed-tally-save-failure",
+      "outputs": [
+        {
+          "height": 77,
+          "outcome": {
+            "returned": {
+              "$undefined": true
+            }
+          },
+          "initialized": true,
+          "activation0": {
+            "name": "Activate TradeLayer",
+            "active": true,
+            "activationBlock": 77,
+            "codeHash": "first"
+          },
+          "ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "tallyOwned": [
+            [
+              1,
+              "100000"
+            ],
+            [
+              2,
+              "250000"
+            ],
+            [
+              3,
+              "0"
+            ],
+            [
+              4,
+              "1"
+            ]
+          ],
+          "pendingLaunches": []
+        }
+      ]
+    },
+    {
+      "name": "initialization-flag-failure-and-retry",
+      "outputs": [
+        {
+          "height": 77,
+          "outcome": {
+            "thrown": {
+              "name": "Error",
+              "message": "injected initialization flag failure"
+            }
+          },
+          "initialized": false,
+          "activation0": {
+            "name": "Activate TradeLayer",
+            "active": false
+          },
+          "ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "tallyOwned": [
+            [
+              1,
+              "100000"
+            ],
+            [
+              2,
+              "250000"
+            ],
+            [
+              3,
+              "1500000"
+            ],
+            [
+              4,
+              "1"
+            ]
+          ],
+          "pendingLaunches": []
+        },
+        {
+          "height": 78,
+          "outcome": {
+            "thrown": {
+              "name": "Error",
+              "message": "injected initialization flag failure"
+            }
+          },
+          "initialized": false,
+          "activation0": {
+            "name": "Activate TradeLayer",
+            "active": false
+          },
+          "ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "tallyOwned": [
+            [
+              1,
+              "100000"
+            ],
+            [
+              2,
+              "250000"
+            ],
+            [
+              3,
+              "1500000"
+            ],
+            [
+              4,
+              "1"
+            ]
+          ],
+          "pendingLaunches": []
+        }
+      ]
+    }
+  ]
+}

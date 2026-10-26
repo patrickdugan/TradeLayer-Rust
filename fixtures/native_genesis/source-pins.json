@@ -1,0 +1,40 @@
+{
+  "commit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "files": [
+    {
+      "file": "src/activation.js",
+      "bytes": 12976,
+      "sha256": "268f08438eb80765587b8ce24d719f41de573648e108ef64df557faad870ea0e"
+    },
+    {
+      "file": "src/vesting.js",
+      "bytes": 19178,
+      "sha256": "4c134b6871f450d3190a0958b629731d960540069d0c8c37a6da33d6e1f70d2b"
+    },
+    {
+      "file": "src/property.js",
+      "bytes": 17638,
+      "sha256": "ef0ee7ba5c362227a8bfd44192e351c107871a93a3dc93b04ce6d1a5ebfc70b1"
+    },
+    {
+      "file": "src/tally.js",
+      "bytes": 59507,
+      "sha256": "cfde9e5845f810bf62d9f1a07d4db4ea011b11d3d2bb63f041d39bea557cddef"
+    },
+    {
+      "file": "src/logic.js",
+      "bytes": 118868,
+      "sha256": "f09d476e581d38cf7278f1424aadba7266f25e0fbc23763ceba4afa79c5b3e1d"
+    },
+    {
+      "file": "src/main.js",
+      "bytes": 43435,
+      "sha256": "006d59ba3d28d802b0e0c5be2d9d661b58caf1c919a704b3f0d40bc9613c4009"
+    },
+    {
+      "file": "src/db.js",
+      "bytes": 4177,
+      "sha256": "b92a05fee6652494b72bf6893d9633850c697be773e88b24d62798a8bc8f5e38"
+    }
+  ]
+}

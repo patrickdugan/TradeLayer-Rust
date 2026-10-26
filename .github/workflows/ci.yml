@@ -92,6 +92,8 @@ jobs:
           node scripts/types_vectors.cjs --check
           node scripts/consensus_vectors.cjs --check
           node scripts/activation_vectors.cjs --check
+          node scripts/native_genesis_vectors.cjs --check
+          node scripts/native_entitlement_vectors.cjs --check
           node scripts/channels_vectors.cjs --check
           node scripts/oracle_vectors.cjs
           node scripts/amm_vectors.cjs
