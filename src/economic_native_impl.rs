@@ -184,6 +184,7 @@ impl EconomicState {
         if self.replaying_native_history
             || self.replaying_contract_history
             || self.replaying_source_history
+            || self.catalog_inner_source_verified
             || self.config.source_consensus.is_some()
         {
             return Ok(());

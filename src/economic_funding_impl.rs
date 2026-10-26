@@ -99,9 +99,7 @@ impl EconomicState {
         if closed {
             if self.funding.closed_at.is_some()
                 || !self
-                    .joint
-                    .registry()
-                    .oracle(config.oracle_id)
+                    .market_oracle_view(config.oracle_id)?
                     .is_some_and(|o| o.closed)
             {
                 return Err(EconomicError::Invariant);
@@ -110,19 +108,13 @@ impl EconomicState {
             return Ok(());
         }
         let quote = self
-            .joint
-            .registry()
-            .oracle(config.oracle_id)
-            .and_then(|o| o.latest.as_ref())
+            .market_oracle_view(config.oracle_id)?
+            .and_then(|o| o.latest)
             .ok_or(EconomicError::Invariant)?;
         if quote.height != height {
             return Err(EconomicError::Invariant);
         }
-        let price = Decimal::from(quote.price_1e4).checked_div(
-            &Decimal::from(10_000),
-            4,
-            Rounding::Down,
-        )?;
+        let price = quote.price;
         bounded(&price)?;
         let observation = FundingObservation {
             txid,
@@ -205,9 +197,7 @@ impl EconomicState {
             })
             .collect();
         let closed = self
-            .joint
-            .registry()
-            .oracle(config.oracle_id)
+            .market_oracle_view(config.oracle_id)?
             .is_some_and(|o| o.closed);
         let (status, plan) = self.project_funding_epoch(
             height,
@@ -328,16 +318,14 @@ impl EconomicState {
                 return Err(EconomicError::Invariant);
             }
         }
-        if let Some(oracle) = self.joint.registry().oracle(config.oracle_id) {
+        if let Some(oracle) = self.market_oracle_view(config.oracle_id)? {
             if oracle.closed != self.funding.closed_at.is_some() {
                 return Err(EconomicError::Invariant);
             }
             match (&oracle.latest, self.funding.observations.last()) {
                 (None, None) => (),
                 (Some(quote), Some(observation))
-                    if quote.height == observation.height
-                        && observation.price.checked_mul(&Decimal::from(10_000))?
-                            == Decimal::from(quote.price_1e4) => {}
+                    if quote.height == observation.height && observation.price == quote.price => {}
                 _ => return Err(EconomicError::Invariant),
             }
         } else if !self.funding.observations.is_empty() || self.funding.closed_at.is_some() {
@@ -503,25 +491,48 @@ impl EconomicState {
     ) -> Result<()> {
         let mut last = 0;
         let mut seen = BTreeSet::new();
+        let actual_oracle = self
+            .source_catalog_owners()
+            .and_then(|owners| owners.oracles.as_ref())
+            .or(self.catalog_inner_oracle.as_ref())
+            .is_some();
+        // Actual source publications retain their original SourceMetadata ID,
+        // without inventing a second oracle in Registry. Full raw-source replay
+        // binds the publication and observation; the private encoding context
+        // is available only after that complete replay has succeeded.
+        let source_ids = if actual_oracle {
+            self.source_metadata_ids()?
+        } else {
+            BTreeSet::new()
+        };
         for observation in observations {
+            let recorded = if actual_oracle {
+                source_ids.contains(&observation.txid)
+            } else {
+                self.joint.registry().is_processed(observation.txid)
+            };
             if observation.height == 0
                 || observation.height <= last
                 || observation.height > through
                 || observation.price <= Decimal::zero()
-                || !self.joint.registry().is_processed(observation.txid)
+                || !recorded
                 || !seen.insert(observation.txid)
             {
                 return Err(EconomicError::Invariant);
             }
             bounded(&observation.price)?;
-            let units = observation.price.checked_mul(&Decimal::from(10_000))?;
-            if units.quantize(0, Rounding::Down)? != units {
-                return Err(EconomicError::Invariant);
+            if !actual_oracle {
+                // The legacy typed Registry stores u128 fixed-four prices.
+                // Actual source data can retain more precise decimal strings.
+                let units = observation.price.checked_mul(&Decimal::from(10_000))?;
+                if units.quantize(0, Rounding::Down)? != units {
+                    return Err(EconomicError::Invariant);
+                }
+                units
+                    .to_string()
+                    .parse::<u128>()
+                    .map_err(|_| EconomicError::Invariant)?;
             }
-            units
-                .to_string()
-                .parse::<u128>()
-                .map_err(|_| EconomicError::Invariant)?;
             last = observation.height;
         }
         Ok(())

@@ -51,13 +51,21 @@ earlier full-suite baseline have separate execution records. A required
 post-state witness must state which rules it proves: a conserving runtime
 outcome cannot substitute for observing the source's partial-failure effects.
 
-`ConservingSequentialV1` uses atomic candidate rollback and once-per-block owner
+`ConservingSequentialV1` uses atomic funded-mutation rollback and once-per-block owner
 phases. The source can retain effects before a later failure and has different
 live/catch-up phase ordering. Native entitlement, signed-channel allocation,
 AMM and insurance policies also have explicit scopes. Their local integration
 tests verify those policies, not blanket historical JavaScript equivalence. See
 `CONSENSUS_SOURCE.md`, `NATIVE_ENTITLEMENTS.md`, `ECONOMIC_INSURANCE.md` and each
 module's policy documentation.
+
+Actual source oracle metadata now has its own complete owner. Its cache,
+watermarks, document history and source-thrown partial prefixes are retained;
+funded views use real persisted prices without a substitute Registry row.
+That distinction, source send failures and the explicitly conserving spot
+settlement differences are documented in `SOURCE_ORACLE_EXECUTION.md`,
+`SOURCE_SEND_EXECUTION.md` and `SOURCE_SPOT_EXECUTION.md`. Missing contract
+Margin dependencies still prevent genuine raw matched-order admission.
 
 Independent property and clearlist reviews are linked from the transaction
 inventory. Inaccessible web-worker patches are not part of the reviewed code,

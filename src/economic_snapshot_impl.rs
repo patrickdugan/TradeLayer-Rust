@@ -2498,7 +2498,7 @@ fn econ_write_input(
 ) -> Result<()> {
     match input {
         EconomicInput::SourceMetadata { txid, ty } => {
-            if !matches!(ty, 7..=9) {
+            if !matches!(ty, 7..=9 | 13 | 14) {
                 return Err(EconomicError::InvalidInput);
             }
             out.byte(7)?;
@@ -2568,7 +2568,7 @@ fn econ_read_input(
         7 => {
             let txid = econ_read_txid(reader)?;
             let ty = reader.u8().map_err(|_| econ_snapshot_bad())?;
-            if !matches!(ty, 7..=9) {
+            if !matches!(ty, 7..=9 | 13 | 14) {
                 return Err(econ_snapshot_bad());
             }
             EconomicInput::SourceMetadata { txid, ty }
@@ -2989,6 +2989,8 @@ impl EconomicState {
             source_consensus: SourceConsensusState::default(),
             replaying_source_history: false,
             catalog_inner_metadata_ids,
+            catalog_inner_oracle: None,
+            catalog_inner_source_verified: false,
             native_entitlements: NativeEconomicState::default(),
             replaying_native_history: false,
         };

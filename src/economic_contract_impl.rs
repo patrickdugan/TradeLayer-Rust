@@ -135,15 +135,13 @@ impl EconomicState {
             let contract = self.selected_contract()?;
             self.validate_selected_contract(contract)?;
             let oracle = self
-                .joint
-                .registry()
-                .oracle(
+                .market_oracle_view(
                     contract
                         .definition
                         .parameters
                         .underlying_oracle_id
                         .ok_or(EconomicError::InvalidInput)?,
-                )
+                )?
                 .ok_or(EconomicError::InvalidInput)?;
             if oracle.closed {
                 return Err(EconomicError::InvalidInput);
@@ -158,20 +156,14 @@ impl EconomicState {
         }
         let parameters = &self.selected_contract()?.definition.parameters;
         let reference = self
-            .joint
-            .registry()
-            .oracle(
+            .market_oracle_view(
                 parameters
                     .underlying_oracle_id
                     .ok_or(EconomicError::InvalidInput)?,
-            )
-            .and_then(|oracle| oracle.latest.as_ref())
+            )?
+            .and_then(|oracle| oracle.latest)
             .ok_or(EconomicError::InvalidInput)?;
-        let mark = Decimal::from(reference.price_1e4).checked_div(
-            &Decimal::from(10_000_u32),
-            4,
-            Rounding::Down,
-        )?;
+        let mark = reference.price;
         bounded(&order.price)?;
         if order.price <= Decimal::zero()
             || order.price > Decimal::from(9_007_199_254_740_991_u64)
@@ -256,9 +248,7 @@ impl EconomicState {
             return Err(EconomicError::InvalidInput);
         }
         let oracle = self
-            .joint
-            .registry()
-            .oracle(oracle_id)
+            .market_oracle_view(oracle_id)?
             .ok_or(EconomicError::InvalidInput)?;
         if oracle.closed {
             return Err(EconomicError::InvalidInput);
@@ -509,6 +499,7 @@ impl EconomicState {
         // and the same money stage below. It includes all accepted catalog inputs.
         if self.replaying_contract_history
             || self.replaying_native_history
+            || self.catalog_inner_source_verified
             || self.config.source_consensus.is_some()
         {
             return Ok(());

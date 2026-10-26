@@ -122,6 +122,7 @@ fn catalogs(label: &str) -> SourceCatalogOwners {
     SourceCatalogOwners {
         properties,
         clearlists,
+        oracles: None,
     }
 }
 

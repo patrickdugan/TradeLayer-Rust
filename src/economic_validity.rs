@@ -5,7 +5,7 @@ use crate::contract_registry::ContractId;
 use crate::decimal::{Decimal, Rounding};
 use crate::economic::EconomicState;
 use crate::economic_chain::{DurableEconomicChain, EconomicChain, EconomicHead};
-use crate::ledger::{AccountId, PropertyId};
+use crate::ledger::{AccountId, PropertyId, TxId};
 use crate::network_profile::TradeLayerMainnet;
 use crate::validity_source::{
     DependencyCall, DependencyReturn, SourceBackend, SourceRuleError, SourceValue,
@@ -56,12 +56,22 @@ impl<'a> EconomicSourceBackend<'a> {
         Self::from_state_unverified(chain.state(), expected_parent)
     }
 
-    /// Inspect a genuine owner directly, with the same exact-height and
-    /// invariant checks used by the chain-backed constructor.
+    /// Inspect a genuine owner directly, with invariant and exact-height
+    /// checks. Source-enabled owners also retain and check the actual parent
+    /// ID. A source-free state alone has no stored block ID; callers requiring
+    /// that binding must use the chain-backed constructor.
     pub fn from_state_unverified(
         state: &'a EconomicState,
         expected_parent: Tip,
     ) -> Result<Self, EconomicValidityError> {
+        if state.config().source_consensus.is_some()
+            && state
+                .source_parent_unverified()
+                .map_err(|_| EconomicValidityError::WrongHead)?
+                != expected_parent
+        {
+            return Err(EconomicValidityError::WrongHead);
+        }
         state
             .verify()
             .map_err(|_| EconomicValidityError::Invariants)?;
@@ -200,6 +210,80 @@ impl<'a> EconomicSourceBackend<'a> {
             ("vesting", token_number(c.vesting)?),
             ("channel", token_number(c.channel)?),
         ]))
+    }
+
+    fn address_balances(
+        &mut self,
+        call: &DependencyCall,
+    ) -> Result<DependencyReturn, SourceRuleError> {
+        arity(call, 1)?;
+        // Source Map.has uses the unchanged address value. Non-string keys
+        // cannot match any genuine Ledger account and return the empty list.
+        let SourceValue::String(address) = &call.arguments[0] else {
+            return Ok(DependencyReturn::Pending(SourceValue::Array(vec![])));
+        };
+        let Ok(owner) = AccountId::try_from(address.as_str()) else {
+            return Ok(DependencyReturn::Pending(SourceValue::Array(vec![])));
+        };
+        // Conserving escrows are custody implementation accounts, never
+        // source address-map owners with independently spendable balances.
+        if address.starts_with('~') {
+            return Ok(DependencyReturn::Pending(SourceValue::Array(vec![])));
+        }
+        let ids: Vec<_> = self
+            .state
+            .ledger()
+            .property_rows()
+            .map(|(id, _)| id)
+            .collect();
+        let mut rows = Vec::new();
+        for id in ids {
+            let Some(c) = self.custody(&owner, id)? else {
+                continue;
+            };
+            // Object iteration yields string property IDs. This actual source
+            // lookup also retains the catalog's genuine typed-key/cache effect.
+            let property_id = text(&id.get().to_string());
+            let info = match self
+                .catalogs
+                .as_mut()
+                .ok_or(SourceRuleError::UnknownDependency)?
+                .invoke_read(&DependencyCall {
+                    target: "Property.getPropertyData".into(),
+                    arguments: vec![property_id.clone()],
+                })? {
+                DependencyReturn::Immediate(value) | DependencyReturn::Pending(value) => value,
+                other => return Ok(other),
+            };
+            if matches!(info, SourceValue::Null | SourceValue::Undefined) {
+                // Pinned code computes a fallback ticker, then nevertheless
+                // dereferences info.ticker in its result object.
+                let kind = if info == SourceValue::Null {
+                    "null"
+                } else {
+                    "undefined"
+                };
+                return Ok(DependencyReturn::PendingThrow(
+                    crate::validity_source::SourceException {
+                        name: "TypeError".into(),
+                        message: format!("Cannot read properties of {kind} (reading 'ticker')"),
+                    },
+                ));
+            }
+            rows.push(object([
+                ("propertyId", property_id),
+                ("ticker", info.get("ticker")),
+                ("amount", token_number(c.total)?),
+                ("available", token_number(c.available)?),
+                ("reserved", token_number(c.reserve)?),
+                ("margin", token_number(c.margin)?),
+                ("vesting", token_number(c.vesting)?),
+                ("channel", token_number(c.channel)?),
+            ]));
+        }
+        let result = SourceValue::Array(rows);
+        result.validate()?;
+        Ok(DependencyReturn::Pending(result))
     }
 
     fn sufficient(
@@ -363,6 +447,147 @@ impl<'a> EconomicSourceBackend<'a> {
             ),
         ]))
     }
+
+    /// Source loads the literal database key. In particular, the address query
+    /// does not normalize a reversed token pair and does not inspect the queue.
+    /// The rows come only from settled, still-open orders of the sole owner.
+    fn orderbook(&self, key: &str) -> Result<SourceValue, SourceRuleError> {
+        let mut buy = Vec::new();
+        let mut sell = Vec::new();
+        if key == self.state.book().contract().get().to_string() {
+            for row in self.state.book().resting() {
+                let order = &row.order;
+                let value = object([
+                    ("contractId", n(f64::from(order.contract.get()))),
+                    ("amount", decimal_number(&row.remaining)?),
+                    ("price", decimal_number(&order.price)?),
+                    ("blockTime", safe_integer(order.height)?),
+                    (
+                        "sell",
+                        SourceValue::Bool(order.side == crate::contract_orderbook::Side::Sell),
+                    ),
+                    (
+                        "initMargin",
+                        token_number(self.state.reserve_atoms(order.txid))?,
+                    ),
+                    ("sender", text(order.owner.as_str())),
+                    ("txid", text(&order_id_text(order.txid))),
+                    ("post", SourceValue::Bool(order.post)),
+                    ("initialReduce", SourceValue::Bool(row.initial_reduce)),
+                ]);
+                if order.side == crate::contract_orderbook::Side::Buy {
+                    buy.push(value);
+                } else {
+                    sell.push(value);
+                }
+            }
+        } else {
+            for row in self.state.joint().spot().open_order_rows() {
+                let pair = row.pair();
+                if key != format!("{}-{}", pair.base.get(), pair.quote.get()) {
+                    continue;
+                }
+                // Source calculatePrice keeps the initial offered/expected
+                // ratio even as matching reduces the two amounts.
+                let price = Decimal::from(row.offered_atoms)
+                    .checked_div(&Decimal::from(row.expected_atoms), 8, Rounding::HalfUp)
+                    .map_err(|_| SourceRuleError::UnsupportedNumericDomain)?;
+                let remaining_expected = if row.side() == crate::spot::SpotSide::SellBase {
+                    // The conserving book only needs the seller's remaining
+                    // offered atoms. Source also reduces amountExpected by
+                    // each actual quote leg, so derive that field from fills.
+                    let delivered = sum(self
+                        .state
+                        .joint()
+                        .spot()
+                        .fills()
+                        .iter()
+                        .filter(|fill| fill.sell_txid == row.txid)
+                        .map(|fill| u128::from(fill.quote_atoms)))?;
+                    u128::from(row.expected_atoms)
+                        .checked_sub(delivered)
+                        .ok_or(SourceRuleError::UnsupportedNumericDomain)?
+                } else {
+                    u128::from(row.remaining_desired)
+                };
+                let id = order_id_text(row.txid);
+                let value = object([
+                    ("offeredPropertyId", n(f64::from(row.offered.get()))),
+                    ("desiredPropertyId", n(f64::from(row.desired.get()))),
+                    (
+                        "amountOffered",
+                        token_number(u128::from(row.remaining_offered))?,
+                    ),
+                    ("amountExpected", token_number(remaining_expected)?),
+                    ("blockTime", safe_integer(row.height)?),
+                    ("sender", text(row.owner.as_str())),
+                    ("stop", SourceValue::Bool(false)),
+                    ("post", SourceValue::Bool(false)),
+                    ("price", decimal_number(&price)?),
+                    // The pinned JS truncates only this display field. The
+                    // actual owner retains all 32 bytes for reserve/replay.
+                    (
+                        "txid",
+                        text(&format!("{}{}", &id[..3], &id[id.len() - 4..])),
+                    ),
+                ]);
+                if row.side() == crate::spot::SpotSide::BuyBase {
+                    buy.push(value);
+                } else {
+                    sell.push(value);
+                }
+            }
+        }
+        Ok(object([
+            ("buy", SourceValue::Array(buy)),
+            ("sell", SourceValue::Array(sell)),
+        ]))
+    }
+
+    fn orderbook_instance(&self, call: &DependencyCall) -> Result<SourceValue, SourceRuleError> {
+        arity(call, 1)?;
+        let key = orderbook_key(&call.arguments[0])?;
+        Ok(object([
+            ("tickSize", SourceValue::BigNumber("0.00000001".into())),
+            ("orderBookKey", call.arguments[0].clone()),
+            (
+                "orderBooks",
+                SourceValue::Object(vec![(key.clone(), self.orderbook(&key)?)]),
+            ),
+            ("block", n(1.0)),
+        ]))
+    }
+
+    fn orders_for_address(&self, call: &DependencyCall) -> Result<SourceValue, SourceRuleError> {
+        if call.arguments.len() != 2 && call.arguments.len() != 4 {
+            return Err(SourceRuleError::InvalidInput);
+        }
+        let contract = &call.arguments[1];
+        let key = if source_truth(contract) {
+            orderbook_key(contract)?
+        } else {
+            format!(
+                "{}-{}",
+                orderbook_key(call.arguments.get(2).unwrap_or(&SourceValue::Undefined))?,
+                orderbook_key(call.arguments.get(3).unwrap_or(&SourceValue::Undefined))?
+            )
+        };
+        if !matches!(call.arguments[0], SourceValue::String(_)) {
+            return Ok(SourceValue::Array(vec![]));
+        }
+        let book = self.orderbook(&key)?;
+        let mut result = Vec::new();
+        for side in ["buy", "sell"] {
+            let SourceValue::Array(rows) = book.get(side) else {
+                return Err(SourceRuleError::Backend);
+            };
+            result.extend(
+                rows.into_iter()
+                    .filter(|row| row.get("sender") == call.arguments[0]),
+            );
+        }
+        Ok(SourceValue::Array(result))
+    }
 }
 impl SourceBackend for EconomicSourceBackend<'_> {
     fn invoke(&mut self, call: &DependencyCall) -> Result<DependencyReturn, SourceRuleError> {
@@ -397,6 +622,35 @@ impl SourceBackend for EconomicSourceBackend<'_> {
                     message: format!("Invalid checksum or encoding for {address}"),
                 }),
             });
+        }
+        if call.target == "Tally.getAddressBalances" {
+            return self.address_balances(call);
+        }
+        if let Some(method) = call.target.strip_prefix("Oracle.") {
+            if let Some(owner) = self
+                .catalogs
+                .as_mut()
+                .and_then(|owners| owners.oracles.as_mut())
+            {
+                if !matches!(
+                    method,
+                    "getOracleInfo"
+                        | "getOraclePrice"
+                        | "isAdmin"
+                        | "verifyAdmin"
+                        | "getAllOracles"
+                        | "getTWAP"
+                        | "getNextId"
+                        | "loadOracleData"
+                        | "getStake"
+                ) {
+                    return Err(SourceRuleError::UnknownDependency);
+                }
+                // Genuine owner reads retain cache/DB effects in the pending
+                // catalogs. In particular getOraclePrice keeps source's 1
+                // fallback; funded market reads use market_oracle_view instead.
+                return owner.invoke_source(method, &call.arguments);
+            }
         }
         let registry = self.state.joint().registry();
         let value = match call.target.as_str() {
@@ -448,6 +702,10 @@ impl SourceBackend for EconomicSourceBackend<'_> {
                 scaled_number(quote.price_1e4, 4)?
             }
             "Contract.getContractInfo" => self.contract_info(call)?,
+            "Orderbook.getOrderbookInstance" => self.orderbook_instance(call)?,
+            // Both source methods are async. Keeping Pending here is vital:
+            // validateCancelOrder reads Promise.length without awaiting it.
+            "Orderbook.getOrdersForAddress" => self.orders_for_address(call)?,
             "TxUtils.validateAddressWrapper" => {
                 arity(call, 1)?;
                 let SourceValue::String(address) = &call.arguments[0] else {
@@ -472,6 +730,63 @@ struct Custody {
     channel: u128,
     total: u128,
     vesting: u128,
+}
+fn order_id_text(id: TxId) -> String {
+    id.as_bytes()
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect()
+}
+fn source_truth(value: &SourceValue) -> bool {
+    match value {
+        SourceValue::Undefined | SourceValue::Null => false,
+        SourceValue::Bool(value) => *value,
+        SourceValue::Number(bits) => {
+            let value = f64::from_bits(*bits);
+            value != 0.0 && !value.is_nan()
+        }
+        SourceValue::String(value) => !value.is_empty(),
+        _ => true,
+    }
+}
+fn orderbook_key(value: &SourceValue) -> Result<String, SourceRuleError> {
+    Ok(match value {
+        SourceValue::Undefined => "undefined".into(),
+        SourceValue::Null => "null".into(),
+        SourceValue::Bool(value) => value.to_string(),
+        SourceValue::String(value) | SourceValue::BigNumber(value) => value.clone(),
+        SourceValue::Number(bits) => {
+            let value = f64::from_bits(*bits);
+            if value.is_nan() {
+                "NaN".into()
+            } else if value == f64::INFINITY {
+                "Infinity".into()
+            } else if value == f64::NEG_INFINITY {
+                "-Infinity".into()
+            } else {
+                crate::state_oracle::source_number_text(value)
+                    .map_err(|_| SourceRuleError::UnsupportedNumericDomain)?
+            }
+        }
+        SourceValue::Array(values) => values
+            .iter()
+            .map(|value| {
+                if matches!(value, SourceValue::Undefined | SourceValue::Null) {
+                    Ok(String::new())
+                } else {
+                    orderbook_key(value)
+                }
+            })
+            .collect::<Result<Vec<_>, _>>()?
+            .join(","),
+        SourceValue::Object(fields) => {
+            if fields.iter().any(|(name, _)| name == "toString") {
+                return Err(SourceRuleError::UnsupportedNumericDomain);
+            }
+            "[object Object]".into()
+        }
+        SourceValue::Promise => "[object Promise]".into(),
+    })
 }
 fn n(value: f64) -> SourceValue {
     SourceValue::number(value)

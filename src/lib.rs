@@ -84,6 +84,7 @@ pub mod network_bound; // Stage 21 profile-bound replay and versioned checkpoint
 pub mod network_profile; // Independent Bitcoin/Litecoin/Dogecoin mainnet identities and proof capabilities.
 pub mod options; // Source options ticker, PnL, pricing and portfolio calculations.
 pub mod oracle;
+pub mod oracle_source_owner; // Actual source documents, cache and publication watermarks.
 pub mod parallel_txindex; // Bounded parallel read-only runtime TXID/OP_RETURN scan and ordered fetch; never consensus.
 pub mod persistence; // Atomic persisted joint replay and rollback, no chain authentication.
 pub mod procedural; // Source procedural metadata and context gates, no proof authority.
@@ -103,7 +104,7 @@ pub mod service_client;
 pub mod service_routes;
 pub mod service_runtime;
 pub mod service_view;
-pub mod source_catalogs; // Coupled actual property/clearlist metadata owners.
+pub mod source_catalogs; // Actual property/clearlist and optional oracle metadata owners.
 pub mod spot; // Stage 19 isolated type-5/6 rational matching experiment; unverified.
 pub mod spot_chain; // Stage 20 typed unverified spot block replay and complete TLSP/TLSC checkpoints.
 pub mod state_commitment; // Experimental domain-separated state and transition metadata; no proof verifier.

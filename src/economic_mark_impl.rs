@@ -157,9 +157,7 @@ impl EconomicState {
             return Ok(());
         }
         let oracle = self
-            .joint
-            .registry()
-            .oracle(config.oracle_id)
+            .market_oracle_view(config.oracle_id)?
             .ok_or(EconomicError::Invariant)?;
         if oracle.closed {
             return Ok(());
@@ -181,11 +179,7 @@ impl EconomicState {
         let observation = FundingObservation {
             txid,
             height,
-            price: Decimal::from(quote.price_1e4).checked_div(
-                &Decimal::from(10_000),
-                4,
-                Rounding::Down,
-            )?,
+            price: quote.price.clone(),
         };
         let id = self.mark_epoch_id(height);
         self.joint.note_economic_epoch_unverified(id, height)?;
@@ -702,8 +696,11 @@ impl EconomicState {
                 return Err(EconomicError::Invariant);
             }
         }
-        if let Some(oracle) = self.joint.registry().oracle(config.oracle_id) {
+        if let Some(oracle) = self.market_oracle_view(config.oracle_id)? {
             if !oracle.closed
+                // Match run_mark_epoch: a publication can precede creation of
+                // the deployment's selected contract without creating a mark.
+                && self.selected_contract_exists()
                 && self
                     .joint
                     .registry()
@@ -724,10 +721,7 @@ impl EconomicState {
                         else {
                             return Err(EconomicError::Invariant);
                         };
-                        if observation.height != quote.height
-                            || observation.price.checked_mul(&Decimal::from(10_000))?
-                                != Decimal::from(quote.price_1e4)
-                        {
+                        if observation.height != quote.height || observation.price != quote.price {
                             return Err(EconomicError::Invariant);
                         }
                     }

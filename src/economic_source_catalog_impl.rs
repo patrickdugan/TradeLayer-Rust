@@ -82,7 +82,10 @@ impl EconomicState {
 
     fn source_metadata_ids(&self) -> Result<BTreeSet<TxId>> {
         if self.config.source_consensus.is_some() {
-            if !self.catalog_inner_metadata_ids.is_empty() {
+            if !self.catalog_inner_metadata_ids.is_empty()
+                || self.catalog_inner_oracle.is_some()
+                || self.catalog_inner_source_verified
+            {
                 return Err(EconomicError::Invariant);
             }
             return Self::metadata_ids_from_source(&self.source_consensus);
@@ -101,7 +104,7 @@ impl EconomicState {
             let mut ids = BTreeSet::new();
             for input in frames.iter().flat_map(|frame| &frame.inputs) {
                 if let EconomicInput::SourceMetadata { txid, ty } = input {
-                    if !matches!(ty, 7..=9) || !ids.insert(*txid) {
+                    if !matches!(ty, 7..=9 | 13 | 14) || !ids.insert(*txid) {
                         return Err(EconomicError::Invariant);
                     }
                 }
@@ -129,7 +132,18 @@ impl EconomicState {
                     .ok_or(EconomicError::Invariant)?;
                 let metadata = match tx.transaction_type() {
                     Some(7 | 9) => true,
-                    Some(8) => tx.payload.get(1..).and_then(|s| s.split(',').nth(1)) == Some("1"),
+                    Some(8) => tx.payload.get(1..).is_some_and(|s| {
+                        s.split(',').nth(1) == Some("1")
+                            || (source
+                                .catalogs
+                                .as_ref()
+                                .is_some_and(|c| c.oracles.is_some())
+                                && s.split(',').nth(2) == Some("1"))
+                    }),
+                    Some(13 | 14) => source
+                        .catalogs
+                        .as_ref()
+                        .is_some_and(|c| c.oracles.is_some()),
                     _ => false,
                 };
                 if metadata && !ids.insert(tx.txid) {

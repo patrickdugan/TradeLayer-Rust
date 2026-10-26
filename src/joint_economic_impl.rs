@@ -109,7 +109,7 @@ impl JointProtocolState {
         height: u64,
         legacy_type: u8,
     ) -> Result<(), JointError> {
-        if !matches!(legacy_type, 7..=9) {
+        if !matches!(legacy_type, 7..=9 | 13 | 14) {
             return Err(JointError::UnsupportedOperation(legacy_type));
         }
         self.check_economic_pending_height(height)?;

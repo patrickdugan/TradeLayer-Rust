@@ -389,6 +389,39 @@ fn rejected_actual_source_validation_keeps_real_loaded_cache_in_pending_backend(
 }
 
 #[test]
+fn address_balances_keeps_source_null_ticker_exception_and_absent_owner_result() {
+    let state = actual_catalog_state();
+    let mut backend = owner_backend(&state);
+    assert_eq!(
+        backend
+            .invoke(&call("Tally.getAddressBalances", vec![s("never-funded")]))
+            .unwrap(),
+        DependencyReturn::Pending(V::Array(vec![]))
+    );
+    for value in [V::Undefined, V::Null, n(1.0), s("")] {
+        assert_eq!(
+            backend
+                .invoke(&call("Tally.getAddressBalances", vec![value]))
+                .unwrap(),
+            DependencyReturn::Pending(V::Array(vec![]))
+        );
+    }
+    // The sole funded Ledger has property 7; the genuine catalog deliberately
+    // has only property 1. Source reads info.ticker after the null lookup.
+    let DependencyReturn::PendingThrow(error) = backend
+        .invoke(&call("Tally.getAddressBalances", vec![s("alice")]))
+        .unwrap()
+    else {
+        panic!("source's null metadata dereference must remain async");
+    };
+    assert_eq!(error.name, "TypeError");
+    assert_eq!(
+        error.message,
+        "Cannot read properties of null (reading 'ticker')"
+    );
+}
+
+#[test]
 fn actual_contract_reserve_margin_and_free_balance_remain_distinct_on_three_mainnets() {
     for network in [
         TradeLayerMainnet::Bitcoin,
@@ -425,6 +458,53 @@ fn actual_contract_reserve_margin_and_free_balance_remain_distinct_on_three_main
         assert_eq!(chain.checkpoint_bytes().unwrap(), before);
         assert_eq!(tally(&chain, "alice").get("reserved"), n(10.0));
     }
+}
+
+#[test]
+fn actual_contract_order_reads_are_pending_literal_key_queries() {
+    let mut chain = chain(TradeLayerMainnet::Bitcoin, 100 * ATOMS);
+    apply(&mut chain, 11, vec![activation()]);
+    apply(&mut chain, 12, vec![order(30, "alice", Side::Buy, 2)]);
+    let before = chain.checkpoint_bytes().unwrap();
+    let mut backend = EconomicSourceBackend::from_chain_unverified(&chain, chain.tip()).unwrap();
+    let DependencyReturn::Pending(instance) = backend
+        .invoke(&call("Orderbook.getOrderbookInstance", vec![n(1.0)]))
+        .unwrap()
+    else {
+        panic!("source instance creation is async");
+    };
+    assert_eq!(instance.get("orderBookKey"), n(1.0));
+    let V::Array(rows) = instance.get("orderBooks").get("1").get("buy") else {
+        panic!("actual contract buy array missing");
+    };
+    assert_eq!(rows.len(), 1);
+    assert_eq!(rows[0].get("sender"), s("alice"));
+    assert_eq!(rows[0].get("amount"), n(1.0));
+    assert_eq!(rows[0].get("initMargin"), n(10.0));
+    assert_eq!(rows[0].get("txid"), s(&"1e".repeat(32)));
+    assert_eq!(
+        backend
+            .invoke(&call(
+                "Orderbook.getOrdersForAddress",
+                vec![s("alice"), n(1.0)]
+            ))
+            .unwrap(),
+        DependencyReturn::Pending(V::Array(rows))
+    );
+    for args in [
+        vec![V::Undefined, n(1.0)],
+        vec![s("alice"), V::Undefined],
+        vec![s("alice"), s("01")],
+        vec![s("bob"), n(1.0)],
+    ] {
+        assert_eq!(
+            backend
+                .invoke(&call("Orderbook.getOrdersForAddress", args))
+                .unwrap(),
+            DependencyReturn::Pending(V::Array(vec![]))
+        );
+    }
+    assert_eq!(chain.checkpoint_bytes().unwrap(), before);
 }
 
 #[test]

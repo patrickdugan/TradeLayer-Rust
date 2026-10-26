@@ -10,7 +10,7 @@ def main():
     data = json.loads((root / 'docs/LOGIC_BY_TX_TYPE.json').read_text(encoding='utf-8'))
     assert data['schema'] == 'tl-logic-reference-review-v1'
     assert data['jsCommit'] == 'dca0888b827c5bc28fa9189bc9e1d507f5c5670c'
-    assert data['evidenceScope'] == 'static per-type inventory; executed property and clearlist checks are recorded separately'
+    assert data['evidenceScope'] == 'static per-type inventory; executed property, clearlist, send and oracle checks are recorded separately'
     for pin in data['sourcePins'] + data['runtimePins']:
         raw = (root / pin['path']).read_bytes()
         if pin.get('lfNormalized'):
@@ -29,7 +29,7 @@ def main():
     assert match is not None
     mapped = {int(n.strip()) for n in match[1].split('|')}
     rows = data['rows']
-    assert data['catalogExecutionTypes'] == [1, 7, 8, 9, 11, 12]
+    assert data['catalogExecutionTypes'] == [1, 7, 8, 9, 11, 12, 13, 14]
     assert [row['type'] for row in rows] == list(range(37))
     fields = ['sourceRoute', 'sourceEffects', 'sourceDefects', 'runtimeScope', 'missingLogic',
               'nextTask', 'evidence', 'preStateWitness', 'postStateWitness', 'inputWitness',

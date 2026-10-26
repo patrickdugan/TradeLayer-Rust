@@ -1,7 +1,8 @@
 # Complete source catalog checkpoints
 
 TLECv10 is the economic checkpoint wrapper for deployments that opt into the
-actual source property and clearlist owners. Deployment configuration supplies
+actual source property and clearlist owners, with an optional actual oracle
+owner. Deployment configuration supplies
 two independent pins: the pristine Joint bootstrap commitment and the complete
 source catalog bootstrap commitment. Restoring a checkpoint never adopts pins
 from its own bytes as deployment authority.
@@ -49,6 +50,14 @@ and compares the entire resulting owner. Finally, the complete TLECv10 bytes
 must match canonical re-encoding exactly. A checksum repaired after stripping
 history, replacing a catalog or altering a rejected candidate does not satisfy
 those replay and equality checks.
+
+When the initial catalogs contain the optional oracle owner, restore instead
+builds the entire economic owner directly from both independently expected
+bootstraps and every original raw frame. Supplied inner owner bytes and current
+catalogs are comparison targets; they do not seed that reconstruction. This
+preserves oracle documents, cache/watermarks, retained source exceptions and
+funded price observations that the source-free typed history cannot replay.
+See [SOURCE_ORACLE_CHECKPOINTS.md](SOURCE_ORACLE_CHECKPOINTS.md).
 
 Native entitlement deployments compose through a canonical source-free TLECv8
 owner embedded in TLECv10. Its native policy, original typed native/contract

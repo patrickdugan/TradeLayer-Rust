@@ -38,14 +38,18 @@ height while commands are pending. Each candidate follows this order:
    Run actual Types and validity with `EconomicSourceBackend` borrowed from
    the current pending owner. A prior accepted create-oracle therefore affects
    the next publish-oracle validation in the same block.
-3. Require a successful genuine validity result and run the strict mapper.
+3. Require a successful genuine validity result and dispatch an actual owned
+   source send/catalog/oracle handler when configured, or the strict mapper.
    Unsupported metadata, missing dependency reads, deferred source rejection,
    fractional atomic amounts and unrepresented operations cannot become
    successful economic commands.
 4. Preflight the borrowed cumulative typed inputs. Stage a candidate copy and
    publish it into the pending block only after the actual handler succeeds.
-   A failed create, cancellation or multi-leg transfer leaves no partial IDs,
+   A failed funded create, cancellation or multi-leg transfer leaves no partial IDs,
    allocated registry counters, custody, orderbook or fee state.
+   Actual source oracle exceptions retain their written metadata/cache/watermark
+   prefix without a successful input marker or funded hook; raw replay binds
+   those effects. See `SOURCE_ORACLE_EXECUTION.md`.
 5. Record the position, ID, exact outcome class, bounded reason and evaluation
    commitment. The commitment includes Types diagnostics, real dependency call
    arguments/results, deferred errors and source global-write diagnostics.
@@ -77,7 +81,7 @@ block driver is `main.js`.
 | Indexed replay funding order | Types 4 and 20 first, stable database order | Same stable partition of bounded asserted source positions |
 | Live funding order | Literal prefixes `4` and lowercase `m` (22) first | Same, including uppercase `M` remaining in the other partition |
 | Decode and state reads | Decode/validate each candidate after preceding logic | Same pending-owner ordering for represented commands |
-| Failed logic | Marks invalid/processed after a throw; earlier mutations may survive | Candidate rollback plus retained economic rejection |
+| Failed logic | Marks invalid/processed after a throw; earlier mutations may survive | Funded economic rollback; actual oracle source-thrown metadata prefixes survive, with raw receipts |
 | Invalid/repeated transaction IDs | Invalid IDs marked processed; repeats skipped | All processed IDs retained/replayed and undone with the block |
 | Live activation | Unbound `activationInstance` throws for nonzero decoded types | Genuine source Types plus actual handler's prior-block activation fence |
 | Same-block activation | Paths disagree and source async checks have defects | Existing owner requires activation strictly before this block |
@@ -92,8 +96,8 @@ orders, channel queued trades, optional vesting, withdrawals, clearing. Live
 mid processing runs clearing before withdrawals and block-end vesting compares
 an object to zero. This module does not claim those paths are economically
 equivalent. It uses the existing explicitly conserving owner pipeline.
-Standalone channel withdrawal, reward/vesting and clearlist/property metadata
-owners still require genuine integration before their source paths can be
+Standalone channel withdrawal and reward/vesting paths
+still require genuine integration before their source paths can be
 promoted into this owner. No second Ledger is introduced for those gaps.
 
 Source Type0 maps to actual registry activation only. It does not silently

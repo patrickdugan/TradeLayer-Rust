@@ -23,6 +23,7 @@ rustfmt --check --edition 2021 \
   src/trade_history_position_impl.rs src/volume_index_source_impl.rs \
   src/economic_block_stage_impl.rs src/economic_consensus_impl.rs \
   src/economic_source_catalog_impl.rs src/economic_source_catalog_snapshot_impl.rs \
+  src/economic_source_send_impl.rs src/economic_source_oracle_impl.rs \
   src/economic_native_impl.rs src/economic_insurance_impl.rs src/economic_insurance_snapshot_impl.rs \
   src/joint_economic_impl.rs src/economic_snapshot_impl.rs src/economic_funding_impl.rs src/economic_mark_impl.rs src/economic_contract_impl.rs \
   src/economic_liquidation_impl.rs src/economic_liquidation_replay_impl.rs src/contract_orderbook_liquidation_impl.rs src/economic_amm_impl.rs src/economic_amm_replay_impl.rs \

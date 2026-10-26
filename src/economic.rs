@@ -245,6 +245,8 @@ pub struct EconomicState {
     // Public legacy decoders never supply these IDs. The outer audit is fully
     // replayed before this temporary context is removed and state is exposed.
     catalog_inner_metadata_ids: BTreeSet<TxId>,
+    catalog_inner_oracle: Option<crate::oracle_source_owner::OracleSourceOwner>,
+    catalog_inner_source_verified: bool,
     native_entitlements: NativeEconomicState,
     replaying_native_history: bool,
     insurance: InsuranceState,
@@ -343,6 +345,8 @@ impl EconomicState {
             source_consensus,
             replaying_source_history: false,
             catalog_inner_metadata_ids: BTreeSet::new(),
+            catalog_inner_oracle: None,
+            catalog_inner_source_verified: false,
             native_entitlements,
             replaying_native_history: replaying_native,
             insurance: InsuranceState::default(),
@@ -840,6 +844,14 @@ impl EconomicState {
     }
 
     pub fn verify(&self) -> Result<()> {
+        if self.catalog_inner_source_verified != self.catalog_inner_oracle.is_some()
+            || (self.catalog_inner_source_verified
+                && (self.config.source_consensus.is_some()
+                    || self.source_consensus != SourceConsensusState::default()
+                    || self.replaying_source_history))
+        {
+            return Err(EconomicError::Invariant);
+        }
         self.config.validate()?;
         self.verify_native_entitlements()?;
         self.verify_contract_binding()?;
@@ -1158,6 +1170,8 @@ include!("economic_contract_impl.rs");
 
 include!("economic_block_stage_impl.rs");
 include!("economic_consensus_impl.rs");
+include!("economic_source_send_impl.rs");
+include!("economic_source_oracle_impl.rs");
 include!("economic_source_catalog_impl.rs");
 include!("economic_source_catalog_snapshot_impl.rs");
 

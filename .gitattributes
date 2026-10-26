@@ -120,3 +120,5 @@ fixtures/legacy_clearlist_audit_reference.txt -text -whitespace
 fixtures/property_catalog_vectors.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/clearlist_source_owner_vectors.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/bip32_public_vectors.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/oracle_source_owner_vectors.tsv text eol=lf
+fixtures/source_send_vectors.tsv text eol=lf -whitespace

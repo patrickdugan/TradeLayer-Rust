@@ -2,6 +2,7 @@
 use crate::clearlist_source_owner::ClearlistSourceOwner;
 use crate::codec::{verify_crc, with_crc, Cursor};
 use crate::hash256::double_sha256_parts;
+use crate::oracle_source_owner::OracleSourceOwner;
 use crate::property_catalog::{CatalogError, PropertyCatalog};
 use crate::validity_source::{
     DependencyCall, DependencyReturn, SourceBackend, SourceOutcome, SourceRuleError,
@@ -9,34 +10,55 @@ use crate::validity_source::{
 
 pub const MAX_SOURCE_CATALOG_BYTES: usize = 32 * 1024 * 1024;
 const MAGIC: &[u8; 5] = b"TLSC\x01";
+const ORACLE_MAGIC: &[u8; 5] = b"TLSC\x02";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SourceCatalogOwners {
     pub properties: PropertyCatalog,
     pub clearlists: ClearlistSourceOwner,
+    pub oracles: Option<OracleSourceOwner>,
 }
 impl SourceCatalogOwners {
     pub fn new(properties: PropertyCatalog, clearlists: ClearlistSourceOwner) -> Self {
         Self {
             properties,
             clearlists,
+            oracles: None,
         }
+    }
+    pub fn with_oracles(mut self, oracles: OracleSourceOwner) -> Self {
+        self.oracles = Some(oracles);
+        self
     }
     pub fn checkpoint_bytes(&self) -> Result<Vec<u8>, SourceRuleError> {
         let property = self.properties.checkpoint_bytes().map_err(catalog_error)?;
         let clearlist = self.clearlists.checkpoint()?;
+        let oracle = self
+            .oracles
+            .as_ref()
+            .map(OracleSourceOwner::encode)
+            .transpose()?;
         let length = 17usize
             .checked_add(property.len())
             .and_then(|n| n.checked_add(clearlist.len()))
+            .and_then(|n| n.checked_add(oracle.as_ref().map_or(0, |v| v.len() + 4)))
             .ok_or(SourceRuleError::Capacity)?;
         if length > MAX_SOURCE_CATALOG_BYTES {
             return Err(SourceRuleError::Capacity);
         }
-        let mut out = MAGIC.to_vec();
+        let mut out = if oracle.is_some() {
+            ORACLE_MAGIC.to_vec()
+        } else {
+            MAGIC.to_vec()
+        };
         out.extend_from_slice(&(property.len() as u32).to_be_bytes());
         out.extend_from_slice(&property);
         out.extend_from_slice(&(clearlist.len() as u32).to_be_bytes());
         out.extend_from_slice(&clearlist);
+        if let Some(bytes) = oracle {
+            out.extend_from_slice(&(bytes.len() as u32).to_be_bytes());
+            out.extend_from_slice(&bytes);
+        }
         with_crc(out).map_err(|_| SourceRuleError::Capacity)
     }
     pub fn from_checkpoint_bytes(bytes: &[u8]) -> Result<Self, SourceRuleError> {
@@ -45,7 +67,8 @@ impl SourceCatalogOwners {
         }
         let raw = verify_crc(bytes).map_err(|_| SourceRuleError::InvalidInput)?;
         let mut r = Cursor::new(raw);
-        if r.fixed::<5>().map_err(|_| SourceRuleError::InvalidInput)? != *MAGIC {
+        let magic = r.fixed::<5>().map_err(|_| SourceRuleError::InvalidInput)?;
+        if magic != *MAGIC && magic != *ORACLE_MAGIC {
             return Err(SourceRuleError::InvalidInput);
         }
         let property_length = r.u32().map_err(|_| SourceRuleError::InvalidInput)? as usize;
@@ -59,10 +82,19 @@ impl SourceCatalogOwners {
             r.take(clearlist_length)
                 .map_err(|_| SourceRuleError::InvalidInput)?,
         )?;
+        let oracles = if magic == *ORACLE_MAGIC {
+            let length = r.u32().map_err(|_| SourceRuleError::InvalidInput)? as usize;
+            Some(OracleSourceOwner::decode(
+                r.take(length).map_err(|_| SourceRuleError::InvalidInput)?,
+            )?)
+        } else {
+            None
+        };
         r.end().map_err(|_| SourceRuleError::InvalidInput)?;
         let state = Self {
             properties,
             clearlists,
+            oracles,
         };
         if state.checkpoint_bytes()? != bytes {
             return Err(SourceRuleError::InvalidInput);
@@ -75,6 +107,27 @@ impl SourceCatalogOwners {
         &mut self,
         call: &DependencyCall,
     ) -> Result<DependencyReturn, SourceRuleError> {
+        if let Some(method) = call.target.strip_prefix("Oracle.") {
+            if !matches!(
+                method,
+                "getAllOracles"
+                    | "getOracleInfo"
+                    | "getOraclePrice"
+                    | "isAdmin"
+                    | "verifyAdmin"
+                    | "getStake"
+                    | "getTWAP"
+                    | "loadOracleData"
+                    | "getNextId"
+            ) {
+                return Err(SourceRuleError::UnknownDependency);
+            }
+            return self
+                .oracles
+                .as_mut()
+                .ok_or(SourceRuleError::UnknownDependency)?
+                .invoke_source(method, &call.arguments);
+        }
         if let Some(method) = call.target.strip_prefix("Property.") {
             if !matches!(
                 method,

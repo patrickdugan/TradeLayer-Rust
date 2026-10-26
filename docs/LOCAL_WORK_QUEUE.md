@@ -14,6 +14,7 @@ remaining gates stay in [PARITY_ROADMAP.csv](PARITY_ROADMAP.csv).
 | Canonical signed allocations | Local team | Integrated opt-in funded owner | Independently pinned SupersedingCoSignedAllocationV1; both signatures, actual escrow, full recovery and retained transition checks; L1 funding/scripts/revocation remain external |
 | Native genesis/entitlements | Local team |24 source scenes and opt-in funded owner integrated | Authenticated type0/genesis, accepted property/clearlist admission, automatic schedule and positive-height migration remain open; no default economics |
 | Main-owner insurance backstop | Local team; independent source support | Opt-in actual oracle-perpetual backstop integrated | Full source lifecycle, source+insurance raw replay, ADL and authenticated admission remain open; external source artifacts are unimported |
+| Source send/spot/oracle execution | Local team | Partial actual runtime ownership | Scalar/native sends, async real book reads, actual13/14/8 oracle documents and complete TLECv10 replay; Margin dependencies block genuine raw contract matches; conserving differences remain explicit |
 
 The user reassigned activation to the local queue because the web worker
 stalled. Its earlier external reservation is lifted. The local standalone source
@@ -43,10 +44,12 @@ authenticated historical administration remain open. Importing the standalone re
 backend does not grant that authority. The current sequential runner maps Type0
 to the existing Registry activation subset and retains its conserving gates.
 
-The current integrated batch passes 1,230 top-level Rust tests plus one
-subprocess lock check across 153 executable targets. Formatting, explicit
-included-file rustfmt, all-target frozen Clippy with warnings denied, the
-zero-third-party policy and 11 mutation tests, and all-target release pass.
+The earlier supported-source batch passed 1,230 top-level Rust tests plus one
+subprocess lock check across 153 executable targets. Later source-catalog and
+send/spot/oracle batch evidence is recorded separately under
+`fixtures/reference_fidelity/`; the completeness workbook reports the latest
+verified committed count. Source conformance, actual runtime coverage and
+full-reference parity remain separate measurements.
 
 The parent integrator retains ownership of shared exports, workflow gates,
 Registry and sole-Ledger coordination, complete Cargo checks and local commits.

@@ -1,0 +1,19 @@
+# Complete pinned source dca0888b827c5bc28fa9189bc9e1d507f5c5670c; see scripts/source_send_vectors.cjs
+scene	body	valid	outcome	sender_atoms	recipient_atoms	sender_markers	recipient_markers	deltas	reason
+scalar-whole	0;1BitcoinEaterAddressDontSendf59kuE;7;a	true	returned	9000000000	1000000000	0	0	send,receive	-
+scalar-fraction	0;1BitcoinEaterAddressDontSendf59kuE;7;1thojk~	true	returned	9890000000	110000000	0	0	send,receive	-
+scalar-self	0;1BoatSLRHtKNngkdXEeobR76b53LETtpyT;7;a	true	returned	10000000000	0	0	0	send,receive	-
+comma-four-fields-collapse-to-scalar	0;1BitcoinEaterAddressDontSendf59kuE;7,8;2,3	true	returned	9800000000	200000000	0	0	send,receive	-
+source-send-all-missing-property	1;1BitcoinEaterAddressDontSendf59kuE	false	returned	10000000000	0	0	0	-	propertyId not found in Property List
+source-wire-multi-missing-address	0;1BitcoinEaterAddressDontSendf59kuE;7,8;2,3;;	(direct)	TypeError: Cannot read properties of undefined (reading 'startsWith')	10000000000	0	0	0	-	-
+source-insufficient	0;1BitcoinEaterAddressDontSendf59kuE;7;2t	false	returned	10000000000	0	0	0	-	Insufficient available balance
+source-no-tally	0;1BitcoinEaterAddressDontSendf59kuE;7;1	false	returned	0	0	0	0	-	Insufficient available balance
+source-clearlist-recipient-field-defect	0;1BitcoinEaterAddressDontSendf59kuE;7;1	false	returned	10000000000	0	0	0	-	Sender address not whitelisted in clearlistRecipient address not whitelisted in clearlist; 
+source-inactive	0;1BitcoinEaterAddressDontSendf59kuE;7;1	false	returned	10000000000	0	0	0	-	Tx type not yet activated 
+source-native2-coupled	0;1BitcoinEaterAddressDontSendf59kuE;2;1thojk~	true	returned	890000000	1110000000	900000000	1100000000	vestingSend,vestingSend,vestingDrag,vestingFollow	-
+source-native3-coupled	0;1BitcoinEaterAddressDontSendf59kuE;3;1thojk~	true	returned	890000000	1110000000	900000000	1100000000	vestingSend,vestingSend,vestingDrag,vestingFollow	-
+source-native-subwhole-throws	0;1BitcoinEaterAddressDontSendf59kuE;2;tro8w~	true	Error: Amount must be greater than zero	1000000000	1000000000	1000000000	1000000000	-	-
+source-recipient-number-loss	0;1BitcoinEaterAddressDontSendf59kuE;7;1	true	returned	9900000000	900719925474099200000000	0	0	send,receive	-
+direct-logic-send-all-shadow	(direct)	(direct)	TypeError: sendAll is not a function	10000000000	0	0	0	-	-
+direct-logic-multi-unbound-processSend	(direct)	(direct)	ReferenceError: processSend is not defined	10000000000	0	0	0	-	-
+direct-logic-multi-length-error	(direct)	(direct)	Error: Property IDs, amounts, and recipient addresses arrays must have the same length.	10000000000	0	0	0	-	-

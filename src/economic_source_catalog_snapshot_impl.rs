@@ -54,6 +54,14 @@ impl EconomicState {
         base.config.source_consensus = None;
         base.source_consensus = SourceConsensusState::default();
         base.replaying_source_history = false;
+        if let Some(oracles) = &catalogs.oracles {
+            // Only the complete raw-source replay above authorizes this private
+            // structural-encoding context. Native/contract typed frames omit
+            // actual oracle document mutations and cannot replay those effects
+            // independently. Neither context field is serialized or exposed.
+            base.catalog_inner_oracle = Some(oracles.clone());
+            base.catalog_inner_source_verified = true;
+        }
         if base.config.native_entitlements.is_none() && base.config.contract_binding.is_none() {
             // Generic owners have no typed frame history. These identities
             // remain bound to the outer original source audit and are accepted
@@ -160,6 +168,67 @@ impl EconomicState {
         }
         source.catalog_bootstrap = initial_catalog_bytes.to_vec();
         source.catalogs = Some(current);
+
+        if initial.oracles.is_some() {
+            // The supplied current catalogs and embedded owner are comparison
+            // targets only. Build the entire owner independently from BOTH
+            // expected bootstrap pins and replay every original source frame.
+            let bootstrap = match &expected.native_entitlements {
+                Some(policy) => {
+                    JointProtocolState::from_economic_snapshot_bytes_with_native_policy(
+                        &source.bootstrap,
+                        expected.network,
+                        admin,
+                        permitted,
+                        policy,
+                    )
+                }
+                None => JointProtocolState::from_economic_snapshot_bytes(
+                    &source.bootstrap,
+                    expected.network,
+                    admin,
+                    permitted,
+                ),
+            }
+            .map_err(|_| econ_snapshot_bad())?;
+            if Self::source_bootstrap_commitment(&bootstrap)? != joint_pin {
+                return Err(econ_snapshot_bad());
+            }
+            let mut replay = Self::from_joint_with_source_catalogs_unverified(
+                expected.clone(),
+                bootstrap,
+                initial,
+            )?;
+            replay.replaying_source_history = true;
+            for frame in &source.frames {
+                let (next, _) = consensus_source::execute_block_unverified(
+                    &replay,
+                    frame.header,
+                    frame.mode,
+                    &frame.transactions,
+                )
+                .map_err(|_| econ_snapshot_bad())?;
+                replay = next;
+                if replay.source_consensus.frames.last() != Some(frame) {
+                    return Err(econ_snapshot_bad());
+                }
+            }
+            replay.replaying_source_history = false;
+            replay.catalog_inner_metadata_ids.clear();
+            replay.catalog_inner_oracle = None;
+            replay.catalog_inner_source_verified = false;
+            if replay.source_consensus != source {
+                return Err(econ_snapshot_bad());
+            }
+            // This re-encodes the actual funded Joint, books, all typed native
+            // and contract frames, and current document owner. No supplied
+            // verdict, current state, or independently decodable legacy owner
+            // can substitute for the raw-frame replay that produced it.
+            if replay.source_catalog_snapshot_bytes()?.as_slice() != bytes {
+                return Err(econ_snapshot_bad());
+            }
+            return Ok(replay);
+        }
 
         let mut base_config = expected.clone();
         base_config.source_consensus = None;

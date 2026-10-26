@@ -11,6 +11,20 @@ that worker's branches, publish a branch, or authorize economic transitions.
 
 ## Tracking the 49 source modules
 
+Actual source sends, asynchronous spot reads and an optional complete oracle
+owner now compose with the same Ledger. The oracle corpus executes 311 actions
+across all19 active methods; 17 complete-source send scenes preserve scalar,
+vesting, malformed batch and Number-storage behavior. Types13/14 and oracle
+administration mutate the actual documents, cache and watermarks without a
+duplicate strict Registry. TLECv10 restore replays original source inputs from
+both expected bootstrap pins. Source-thrown metadata prefixes survive, while
+funded admission uses the named conserving policy. See
+[SOURCE_ORACLE_EXECUTION.md](SOURCE_ORACLE_EXECUTION.md),
+[SOURCE_SEND_EXECUTION.md](SOURCE_SEND_EXECUTION.md) and
+[SOURCE_SPOT_EXECUTION.md](SOURCE_SPOT_EXECUTION.md). Genuine raw contract-order
+validation still requires missing Margin dependencies; matched raw positions
+and paid source funding are not established by metadata or empty-position tests.
+
 The actual local property and clearlist catalogs now have owned source state,
 103 property scenarios and 200 clearlist observations, with genuine bitcore
 public derivation comparisons. Opt-in types1/7/8/9/11/12 reach those owners;
@@ -108,7 +122,7 @@ None of these rows or modules is marked as a complete production port.
 | `options.js` | All nine helper methods, decimal PnL/pricing/exposure/maintenance, ticker and numeric-prefix behavior, source greedy order; 118 actual-source vectors | Surrounding contract creation/exercise/assignment and margin/clearing integration; cross-platform binary64 bridge verification; historical acceptance |
 | `vaults.js` | Typed vault create/update/redeem, synthetic links, collateral interfaces and aggregate queries; 9 lifecycle seeds, 13 source queries and 30 characterized failures/quirks | Deliberate typed repairs differ from broken source paths; ledger mint/redeem, hedge lifecycle, durable persistence and funding/rebase specification remain open |
 | `contractRegistry.js` | Typed definitions and expiry/catalog queries, native/oracle notional/margin, AMM construction, funding journal and atomic collateral plans; all 40 distinct methods assessed; 219 source cases | Sole-ledger/channel/margin execution, broken oracle pricing/funding dependencies, AMM hydration, durability and historical acceptance |
-| `oracle.js` | Metadata/admin lifecycle, price history/circuit/TWAP, stake/fraud metadata and relay replay; 246 source vectors plus 17 quirks | Funded staking/slashing and insurance closure, authenticated prices/clearlist/DLC proofs, durable state and historical acceptance |
+| `oracle.js` | Runtime subset: complete actual document/cache/watermark owner, all19 active methods,311 complete-source actions; actual13/14/8 metadata execution, exact persisted funded price views and full raw-source TLECv10 restore; legacy typed API remains separate | Funded staking/slashing and insurance closure, missing Margin/Contract orchestration, broader DB/JS domains, authenticated prices/actors and historical acceptance |
 | `amm.js` | Capital/share lifecycle and journals, quotes, inventory/curve/token intents, local registry and options adapter; all 25 declarations assessed; 275 source rows | Funded LP issuance/secondary reserves, safe-price execution, AMM-first orderbook/clearing, durability and historical acceptance |
 | `marginMap.js` | Positions, signed margin/PnL, option protection, liquidation/ADL plans and first mint; 246 source vectors plus 10 characterizations; constructor, 2 static and 43 active instance methods assessed | Authenticated funded collateral and clearing integration, broken source dynamic orchestration/redemption, durable position/delta adapters and historical acceptance |
 | `vesting.js` | All 22 source members assessed; initialization/failure journals, chain retries, rebates and numerical helpers; 151 actual-source cases | Authorized genesis, supply discrepancy decisions, funded backend and durable partial-initialization recovery; historical acceptance |

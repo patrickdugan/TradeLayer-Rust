@@ -51,7 +51,7 @@ other unsupported dependencies remain explicit failures.
 
 `ConservingSequentialV1` is an explicit repaired execution policy, not a claim of
 complete source parity. It requires prior activation for the typed economic
-operation, stages each candidate atomically, preserves rejected-candidate replay
+operation, stages funded economic mutations atomically, preserves rejected-candidate replay
 evidence, and publishes the finished block once. The source's raw property
 helpers can leave changed singleton state or tally effects after later failure;
 this outer candidate policy discards those candidate business mutations.
@@ -63,6 +63,13 @@ still retained in raw source history and cannot be retried as a new transaction.
 Genuine validator query/cache observations can also remain in the catalog
 journal after rejection. Atomic business state therefore does not mean that the
 complete diagnostic/history state remains unchanged.
+
+The optional actual oracle owner retains source-thrown metadata prefixes,
+including cache and publication watermarks written before a later failure.
+Those exceptions do not create a metadata input marker or funded publication.
+Their original candidates and receipts remain replay-bound. See
+[SOURCE_ORACLE_EXECUTION.md](SOURCE_ORACLE_EXECUTION.md) for this distinct
+metadata failure behavior and its funded integration limits.
 
 The raw property owner, bounded clearlist owner, BIP32 public derivation and
 existing strict Ledger each retain their documented domains. This integration

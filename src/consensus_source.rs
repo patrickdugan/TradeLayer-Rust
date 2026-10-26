@@ -339,8 +339,18 @@ pub(crate) fn execute_block_unverified(
                         TypesOutcome::Returned(params)
                             if params.get("valid") == SourceValue::Bool(true) =>
                         {
-                            if let Some(result) =
-                                stage.try_apply_source_catalog_unverified(&arguments, &evaluation)
+                            if let Some(result) = stage
+                                .try_apply_source_send_unverified(&arguments, &evaluation)
+                                .or_else(|| {
+                                    stage
+                                        .try_apply_source_oracle_unverified(&arguments, &evaluation)
+                                })
+                                .or_else(|| {
+                                    stage.try_apply_source_catalog_unverified(
+                                        &arguments,
+                                        &evaluation,
+                                    )
+                                })
                             {
                                 use crate::economic::SourceCatalogExecutionError;
                                 match result {
