@@ -20,18 +20,21 @@ do not complete native/dated/multicontract orchestration, full validity rules,
 insurance/ADL or chain authentication; no source module is promoted to complete.
 
 [PARITY_ROADMAP.csv](PARITY_ROADMAP.csv) contains all 49 JavaScript source
-modules, excluding the experimental README. It records the twenty assessed
-modules below; the other 29 retain their prior implementation assessment.
+modules, excluding the experimental README. It records twenty-three assessed
+modules below; the other 26 retain their prior implementation assessment.
 The insurance and property rows additionally record external-worker assignments.
 It supplements the historical [full-tree inventory](JS_RUST_PORT_AUDIT.md),
 whose earlier mappings and assessment commit are preserved.
 
-[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 449
+[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 462
 source entries with their tested domains, Rust tests and remaining criteria.
 None of these rows or modules is marked as a complete production port.
 
 | Module | Implemented and verified scope | Remaining completion criteria |
 | --- | --- | --- |
+| `adjuster.js` | Constructor and all three methods; 641 finite source rows and 19 source-only observations; exact tick/minimum and event order with atomic complete replayed metadata | Applying policy to orders, production persistence, wider JS domains and historical acceptance |
+| `issuanceIntent.js` | All three methods; 321 source observations; arbitrary bounded ordered JSON, upsert/query, source ID quirks, nested address arrays and strict full replay | Functional metadata repair differs from the source missing DB category; token issuance authority, production persistence and broader NeDB/historical behavior |
+| `stateOracle.js` | All six functions; 2319 complete-source numeric/payload/encoding/hash observations; immutable available-only Ledger queries, source locale/JSON bytes and separate strict decode | Signed state provenance/relay integration, other locale/Unicode/nonfinite domains and historical payload corpus |
 | `clearing.js` | Constructor and all 79 active methods assessed; source funding and mark arithmetic/quirks; funded fractional oracle-perpetual epochs, exact settled-basis marks and nominal default offsets in the existing Ledger with complete restart and rollback | Actual liquidation/AMM/ADL and insurance, native VWAP, full contract orchestration, complete admitted-publication history, authenticated marks/actors and historical acceptance |
 | `orderbook.js` | All 69 methods, constructor and two comparators assessed; 287 actual-source vectors and nine source defects; contract book, funded type18/6 matching, owner cancellation and complete recovery in the existing joint Ledger | Authenticated orders and contract configuration, funded AMM-first execution, liquidation/ADL, multicontract orchestration, channels, source reporting/rewards and historical acceptance |
 | `tally.js` | All 45 methods plus constructor assessed; 248 actual-source vectors and 32 source assertions; actual custody projections, funded match fee/rebate collection and complete FeeBook persistence | Legacy arbitrary-value/NeDB migration, authenticated channel/vesting rules, registered insurance lifecycle, buybacks, remaining shared economic stores and historical acceptance |

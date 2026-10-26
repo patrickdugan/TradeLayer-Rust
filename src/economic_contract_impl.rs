@@ -96,6 +96,11 @@ impl EconomicState {
         }
         Ok(registry)
     }
+    /// A detached query/calculation view of definitions admitted by this owner.
+    /// Mutating the returned catalog cannot authorize economic transitions.
+    pub fn accepted_contract_catalog(&self) -> Result<ContractRegistry> {
+        self.contract_registry()
+    }
     fn selected_contract(&self) -> Result<&AcceptedContract> {
         self.contract(self.config.contract)
             .ok_or(EconomicError::InvalidInput)
@@ -207,8 +212,9 @@ impl EconomicState {
         let parameters = &input.parameters;
         bounded(&parameters.notional_value)?;
         bounded(&parameters.leverage)?;
-        // Native references and dated settlement are separate lifecycle gates.
-        // This initial executable catalog admits source oracle perpetuals only.
+        // Native references need accepted property tickers and funded spot data.
+        // Oracle maturity rows are catalog metadata; only the independently
+        // selected perpetual may execute until dated settlement is implemented.
         let oracle_id = parameters
             .underlying_oracle_id
             .filter(|id| *id != 0)
@@ -219,9 +225,6 @@ impl EconomicState {
         if parameters.native
             || parameters.notional_value <= Decimal::zero()
             || parameters.leverage <= Decimal::zero()
-            || parameters.expiry_period != 0
-            || parameters.series != 1
-            || parameters.whitelist.unwrap_or(0) != 0
             || !parameters.on_chain_data.is_empty()
             || (parameters.fee != Decimal::zero() && parameters.fee != Decimal::from(1_u32))
             || self.ledger().property(collateral).is_none()

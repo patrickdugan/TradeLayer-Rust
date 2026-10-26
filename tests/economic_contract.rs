@@ -1261,3 +1261,105 @@ fn full_chain_rollback_removes_creation_and_replays_its_same_ids_once() {
     assert_eq!(chain.state(), &admitted);
     assert_conserved(chain.state());
 }
+
+#[test]
+fn accepted_oracle_catalog_retains_finite_and_empty_maturity_metadata() {
+    let mut state = new(false);
+    let mut finite = creation(false, "2");
+    finite.txid = id(40);
+    finite.parameters.expiry_period = 10;
+    finite.parameters.series = 3;
+    finite.parameters.whitelist = Some(91);
+    let mut empty = creation(false, "3");
+    empty.txid = id(41);
+    empty.parameters.expiry_period = 20;
+    empty.parameters.series = 0;
+    state
+        .apply_block_unverified(
+            3,
+            vec![
+                EconomicInput::CreateContract(finite.clone()),
+                EconomicInput::CreateContract(empty),
+            ],
+        )
+        .unwrap();
+    let second = ContractId::try_from(2).unwrap();
+    let row = state.contract(second).unwrap();
+    assert_eq!(row.creation_txid, finite.txid);
+    assert_eq!(
+        row.definition_hash,
+        contract_definition_commitment(&finite).unwrap()
+    );
+    assert_eq!(row.definition.parameters.whitelist, Some(91));
+    assert_eq!(
+        row.definition
+            .unexpired
+            .iter()
+            .map(|c| c.expiration_block)
+            .collect::<Vec<_>>(),
+        vec![13, 23, 33]
+    );
+    assert!(state
+        .contract(3.try_into().unwrap())
+        .unwrap()
+        .definition
+        .unexpired
+        .is_empty());
+    let mut detached = state.accepted_contract_catalog().unwrap();
+    assert_eq!(detached.all_contracts().count(), 3);
+    // The source ticker contains PERP even for finite definitions; retain this
+    // query quirk without using it to grant trading permission.
+    assert!(detached.all_perpetual_contracts().contains(&second));
+    detached
+        .create_contract_series(
+            a("other"),
+            parameters(false, "5"),
+            TickerContext {
+                oracle_ticker: Some("OTHER"),
+                ..TickerContext::default()
+            },
+            3,
+        )
+        .unwrap();
+    assert!(state.contract(4.try_into().unwrap()).is_none());
+    let before = state.clone();
+    let EconomicInput::Order(mut forbidden) = order(42, "alice", Side::Buy, "1", "100", 4) else {
+        unreachable!()
+    };
+    forbidden.contract = second;
+    assert!(state
+        .apply_block_unverified(4, vec![EconomicInput::Order(forbidden)])
+        .is_err());
+    assert_eq!(state, before);
+    restored(&state);
+}
+
+#[test]
+fn finite_metadata_generation_failure_preserves_ids_and_prior_catalog() {
+    let mut state = new(false);
+    let before = state.clone();
+    let mut invalid = creation(false, "1");
+    invalid.txid = id(45);
+    invalid.parameters.expiry_period = tradelayer_core::contract_registry::MAX_JS_SAFE_HEIGHT;
+    invalid.parameters.series = 2;
+    assert!(state
+        .apply_block_unverified(3, vec![EconomicInput::CreateContract(invalid.clone())])
+        .is_err());
+    assert_eq!(state, before);
+    invalid.parameters.expiry_period = 7;
+    state
+        .apply_block_unverified(3, vec![EconomicInput::CreateContract(invalid)])
+        .unwrap();
+    assert_eq!(
+        state
+            .contract(2.try_into().unwrap())
+            .unwrap()
+            .definition
+            .unexpired
+            .iter()
+            .map(|c| c.expiration_block)
+            .collect::<Vec<_>>(),
+        vec![10, 17]
+    );
+    restored(&state);
+}

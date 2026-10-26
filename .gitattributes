@@ -1,4 +1,7 @@
 # Preserve audited JavaScript blob bytes, including their existing LF endings.
+fixtures/legacy_adjuster_source.txt -text -whitespace
+fixtures/legacy_issuance_intent_source.txt -text -whitespace
+fixtures/legacy_state_oracle_source.txt -text -whitespace
 fixtures/legacy_base94_source.txt -text -whitespace
 fixtures/legacy_base256_source.txt -text -whitespace
 fixtures/legacy_base_converter_source.txt -text -whitespace
@@ -23,6 +26,9 @@ fixtures/legacy_reorg_source.txt -text -whitespace
 fixtures/legacy_clearing_source.txt -text -whitespace
 
 # Node fixture generators compare exact bytes across Windows and Linux.
+fixtures/adjuster_vectors.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/issuance_intent_vectors.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/state_oracle_vectors.tsv text eol=lf whitespace=-blank-at-eol
 # Empty final TSV fields are meaningful, including the terminal separator.
 fixtures/legacy_base_vectors.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/trade_history_vectors.tsv text eol=lf

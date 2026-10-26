@@ -5,6 +5,7 @@
 
 #![forbid(unsafe_code)]
 
+pub mod adjuster; // Source tick adjustment metadata; no automatic orderbook policy.
 pub mod amm;
 pub mod bankruptcy_source_audit; // Stage25F pure source-level bankruptcy algebra, no market authority.
 pub mod bitcoin_chainwork; // Bitcoin mainnet nBits/MTP/chainwork from explicit checkpoints; not full consensus.
@@ -42,6 +43,7 @@ mod hash160; // Dependency-free research RIPEMD160/HASH160, no production author
 mod hash256; // Offline SHA-256d txid fingerprints; not trusted consensus.
 pub mod iou; // Source-compatible standalone IOU bucket and claim calculations.
 pub mod iou_ledger; // Funded atomic IOU payouts with an explicit local atom policy.
+pub mod issuance_intent; // Bounded issuance request metadata; no token creation authority.
 pub mod joint; // Stage 22 independent registry + sole spot-owned ledger in one mixed state.
 pub mod joint_chain; // Stage 22 mixed unverified block replay and TLJC checkpoints.
 pub mod ledger; // In-memory atomic accounting primitives; not chain consensus.
@@ -76,6 +78,7 @@ pub mod root_reconciliation; // Read-only TLPT and zkTL metadata consistency.
 pub mod spot; // Stage 19 isolated type-5/6 rational matching experiment; unverified.
 pub mod spot_chain; // Stage 20 typed unverified spot block replay and complete TLSP/TLSC checkpoints.
 pub mod state_commitment; // Experimental domain-separated state and transition metadata; no proof verifier.
+pub mod state_oracle; // Immutable Ledger balance payloads; hashes are not signed attestations.
 pub mod storage; // Bounded OS-locked disk journal and explicit restart recovery.
 pub mod tally; // Source tally projections and fee metadata, no independent spendable ledger.
 pub mod trade_history; // Caller-supplied trade reporting and canonical checkpoints; no settlement authority.

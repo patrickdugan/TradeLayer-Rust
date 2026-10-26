@@ -448,3 +448,16 @@ src/clearing.js,calculateTotalMargin,source-assessed-funding-subset-or-documente
 src/clearing.js,isMarginConsistent,source-assessed-funding-subset-or-documented-characterization,tests/funding.rs;tests/economic_funding.rs;tests/economic_funding_snapshot.rs,docs/FUNDING.md;docs/ECONOMIC_FUNDING.md,unverified,not-granted
 src/clearing.js,saveFundingEvent,source-assessed-funding-subset-or-documented-characterization,tests/funding.rs;tests/economic_funding.rs;tests/economic_funding_snapshot.rs,docs/FUNDING.md;docs/ECONOMIC_FUNDING.md,unverified,not-granted
 src/clearing.js,loadFundingEvents,source-assessed-funding-subset-or-documented-characterization,tests/funding.rs;tests/economic_funding.rs;tests/economic_funding_snapshot.rs,docs/FUNDING.md;docs/ECONOMIC_FUNDING.md,unverified,not-granted
+src/adjuster.js,constructor,bounded-source-semantics-and-explicit-repair-where-documented,tests/adjuster.rs,docs/ADJUSTER.md,unverified,not-granted
+src/adjuster.js,adjustTickSize,bounded-source-semantics-and-explicit-repair-where-documented,tests/adjuster.rs,docs/ADJUSTER.md,unverified,not-granted
+src/adjuster.js,increaseNotionalSize,bounded-source-semantics-and-explicit-repair-where-documented,tests/adjuster.rs,docs/ADJUSTER.md,unverified,not-granted
+src/adjuster.js,saveAdjustmentEvent,bounded-source-semantics-and-explicit-repair-where-documented,tests/adjuster.rs,docs/ADJUSTER.md,unverified,not-granted
+src/issuanceIntent.js,recordIntent,bounded-source-semantics-and-explicit-repair-where-documented,tests/issuance_intent.rs,docs/ISSUANCE_INTENT.md,unverified,not-granted
+src/issuanceIntent.js,getIntent,bounded-source-semantics-and-explicit-repair-where-documented,tests/issuance_intent.rs,docs/ISSUANCE_INTENT.md,unverified,not-granted
+src/issuanceIntent.js,getIntentsByAddress,bounded-source-semantics-and-explicit-repair-where-documented,tests/issuance_intent.rs,docs/ISSUANCE_INTENT.md,unverified,not-granted
+src/stateOracle.js,sha256Hex,bounded-source-semantics-and-explicit-repair-where-documented,tests/state_oracle.rs,docs/STATE_ORACLE.md,unverified,not-granted
+src/stateOracle.js,quantize8,bounded-source-semantics-and-explicit-repair-where-documented,tests/state_oracle.rs,docs/STATE_ORACLE.md,unverified,not-granted
+src/stateOracle.js,bucketize,bounded-source-semantics-and-explicit-repair-where-documented,tests/state_oracle.rs,docs/STATE_ORACLE.md,unverified,not-granted
+src/stateOracle.js,buildAddressBalancePayload,bounded-source-semantics-and-explicit-repair-where-documented,tests/state_oracle.rs,docs/STATE_ORACLE.md,unverified,not-granted
+src/stateOracle.js,encodeBalancePayload,bounded-source-semantics-and-explicit-repair-where-documented,tests/state_oracle.rs,docs/STATE_ORACLE.md,unverified,not-granted
+src/stateOracle.js,payloadHashFromB64,bounded-source-semantics-and-explicit-repair-where-documented,tests/state_oracle.rs,docs/STATE_ORACLE.md,unverified,not-granted

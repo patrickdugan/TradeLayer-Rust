@@ -26,7 +26,11 @@ notional and leverage, one generated series, whitelist zero, no native data
 pairs, real token collateral, and the source boolean fee metadata represented
 as Decimal zero or one. Native prices, base-chain collateral, dated exercise,
 nonzero clearlist enforcement and general multicontract execution remain
-separate gates. Multiple accepted definitions can be metadata; this owner
+separate gates. Additional oracle definitions may retain finite maturity rows,
+zero/multiple generated series and nonzero whitelist metadata using the source
+catalog's generation and normalization rules. Those metadata fields grant no
+new execution permission. `accepted_contract_catalog()` returns a detached
+query/calculation view; its mutation cannot change admitted owner state. This owner
 executes the independently selected contract. Existing country and address
 authentication rules are outside the typed caller boundary.
 

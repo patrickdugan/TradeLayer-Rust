@@ -65,6 +65,9 @@ jobs:
           node scripts/volume_index_vectors.cjs
           node scripts/contract_registry_vectors.cjs
           node scripts/contract_binding_vectors.cjs --check
+          node scripts/adjuster_vectors.cjs --check
+          node scripts/issuance_intent_vectors.cjs --check
+          node scripts/state_oracle_vectors.cjs --check
           node scripts/oracle_vectors.cjs
           node scripts/amm_vectors.cjs
           node scripts/margin_map_vectors.cjs
