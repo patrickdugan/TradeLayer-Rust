@@ -1,0 +1,691 @@
+// TLEC v1: complete combined economic metadata plus the sole Joint-owned
+// Ledger. Canonical structure and CRC are not authentication of state/history.
+use crate::codec::{verify_crc, with_crc, Cursor, MAX_CHECKPOINT_BYTES};
+use crate::contract_orderbook::{
+    BookSnapshot, RestingOrder, MAX_CONTRACT_ORDERS, MAX_CONTRACT_ORDER_IDS,
+};
+use crate::tally::{
+    FeeAccrualPlan, FeeBookSnapshot, FeeDrawPlan, FeeJournalEntry, FeeKey, FeeQueuePlan, FeeRow,
+    QueuedFee, MAX_FEE_JOURNAL, MAX_FEE_ROWS, MAX_QUEUED_FEES,
+};
+
+const ECONOMIC_STATE_MAGIC: &[u8; 5] = b"TLEC\x01";
+const MAX_ECONOMIC_DECIMAL_TEXT: usize = 128;
+
+fn econ_snapshot_bad() -> EconomicError {
+    EconomicError::InvalidSnapshot
+}
+
+struct EconomicWriter(Vec<u8>);
+impl EconomicWriter {
+    fn put(&mut self, bytes: &[u8]) -> Result<()> {
+        if self
+            .0
+            .len()
+            .checked_add(bytes.len())
+            .is_none_or(|n| n > MAX_CHECKPOINT_BYTES - 4)
+        {
+            return Err(EconomicError::Capacity);
+        }
+        self.0.extend_from_slice(bytes);
+        Ok(())
+    }
+    fn byte(&mut self, value: u8) -> Result<()> {
+        self.put(&[value])
+    }
+    fn u32(&mut self, value: u32) -> Result<()> {
+        self.put(&value.to_be_bytes())
+    }
+    fn u64(&mut self, value: u64) -> Result<()> {
+        self.put(&value.to_be_bytes())
+    }
+    fn atoms(&mut self, value: u128) -> Result<()> {
+        self.put(&value.to_be_bytes())
+    }
+    fn count(&mut self, value: usize, limit: usize) -> Result<()> {
+        if value > limit {
+            return Err(EconomicError::Capacity);
+        }
+        self.u32(u32::try_from(value).map_err(|_| EconomicError::Capacity)?)
+    }
+    fn embedded(&mut self, bytes: &[u8]) -> Result<()> {
+        self.count(bytes.len(), MAX_CHECKPOINT_BYTES)?;
+        self.put(bytes)
+    }
+    fn decimal(&mut self, value: &Decimal) -> Result<()> {
+        bounded(value)?;
+        let text = value.to_string();
+        if text.len() > MAX_ECONOMIC_DECIMAL_TEXT {
+            return Err(EconomicError::Capacity);
+        }
+        self.byte(text.len() as u8)?;
+        self.put(text.as_bytes())
+    }
+    fn optional_decimal(&mut self, value: &Option<Decimal>) -> Result<()> {
+        match value {
+            None => self.byte(0),
+            Some(value) => {
+                self.byte(1)?;
+                self.decimal(value)
+            }
+        }
+    }
+    fn height(&mut self, value: Option<u64>) -> Result<()> {
+        match value {
+            None => self.byte(0),
+            Some(value) => {
+                self.byte(1)?;
+                self.u64(value)
+            }
+        }
+    }
+    fn account(&mut self, value: &AccountId) -> Result<()> {
+        self.byte(value.as_str().len() as u8)?;
+        self.put(value.as_str().as_bytes())
+    }
+    fn txid(&mut self, value: TxId) -> Result<()> {
+        self.put(&value.as_bytes())
+    }
+    fn route(&mut self, value: FeeRoute) -> Result<()> {
+        match value {
+            FeeRoute::Spot => self.byte(0),
+            FeeRoute::Native(id) => {
+                self.byte(1)?;
+                self.u32(id)
+            }
+            FeeRoute::Oracle(id) => {
+                self.byte(2)?;
+                self.u32(id)
+            }
+        }
+    }
+    fn fee_key(&mut self, value: FeeKey) -> Result<()> {
+        self.u32(value.property.get())?;
+        self.u32(value.contract)
+    }
+}
+
+fn econ_read_count(reader: &mut Cursor<'_>, limit: usize) -> Result<usize> {
+    let count = reader.u32().map_err(|_| econ_snapshot_bad())? as usize;
+    if count > limit {
+        return Err(EconomicError::Capacity);
+    }
+    Ok(count)
+}
+fn econ_read_bool(reader: &mut Cursor<'_>) -> Result<bool> {
+    match reader.u8().map_err(|_| econ_snapshot_bad())? {
+        0 => Ok(false),
+        1 => Ok(true),
+        _ => Err(econ_snapshot_bad()),
+    }
+}
+fn econ_read_decimal(reader: &mut Cursor<'_>) -> Result<Decimal> {
+    let length = reader.u8().map_err(|_| econ_snapshot_bad())? as usize;
+    if length == 0 || length > MAX_ECONOMIC_DECIMAL_TEXT {
+        return Err(econ_snapshot_bad());
+    }
+    let text = core::str::from_utf8(reader.take(length).map_err(|_| econ_snapshot_bad())?)
+        .map_err(|_| econ_snapshot_bad())?;
+    let value: Decimal = text.parse().map_err(|_| econ_snapshot_bad())?;
+    bounded(&value)?;
+    if value.to_string() != text {
+        return Err(econ_snapshot_bad());
+    }
+    Ok(value)
+}
+fn econ_read_optional_decimal(reader: &mut Cursor<'_>) -> Result<Option<Decimal>> {
+    if econ_read_bool(reader)? {
+        Ok(Some(econ_read_decimal(reader)?))
+    } else {
+        Ok(None)
+    }
+}
+fn econ_read_height(reader: &mut Cursor<'_>) -> Result<Option<u64>> {
+    if econ_read_bool(reader)? {
+        Ok(Some(reader.u64().map_err(|_| econ_snapshot_bad())?))
+    } else {
+        Ok(None)
+    }
+}
+fn econ_read_account(reader: &mut Cursor<'_>) -> Result<AccountId> {
+    let length = reader.u8().map_err(|_| econ_snapshot_bad())? as usize;
+    if length == 0 || length > crate::ledger::MAX_ACCOUNT_BYTES {
+        return Err(econ_snapshot_bad());
+    }
+    let text = core::str::from_utf8(reader.take(length).map_err(|_| econ_snapshot_bad())?)
+        .map_err(|_| econ_snapshot_bad())?;
+    text.try_into().map_err(|_| econ_snapshot_bad())
+}
+fn econ_read_txid(reader: &mut Cursor<'_>) -> Result<TxId> {
+    Ok(TxId::from_bytes(
+        reader.fixed::<32>().map_err(|_| econ_snapshot_bad())?,
+    ))
+}
+fn econ_read_atoms(reader: &mut Cursor<'_>) -> Result<u128> {
+    reader.u128().map_err(|_| econ_snapshot_bad())
+}
+fn econ_read_u64(reader: &mut Cursor<'_>) -> Result<u64> {
+    reader.u64().map_err(|_| econ_snapshot_bad())
+}
+fn econ_read_property(reader: &mut Cursor<'_>) -> Result<PropertyId> {
+    reader
+        .u32()
+        .map_err(|_| econ_snapshot_bad())?
+        .try_into()
+        .map_err(|_| econ_snapshot_bad())
+}
+fn econ_read_contract(reader: &mut Cursor<'_>) -> Result<ContractId> {
+    reader
+        .u32()
+        .map_err(|_| econ_snapshot_bad())?
+        .try_into()
+        .map_err(|_| econ_snapshot_bad())
+}
+fn econ_read_route(reader: &mut Cursor<'_>) -> Result<FeeRoute> {
+    match reader.u8().map_err(|_| econ_snapshot_bad())? {
+        0 => Ok(FeeRoute::Spot),
+        1 => Ok(FeeRoute::Native(
+            reader.u32().map_err(|_| econ_snapshot_bad())?,
+        )),
+        2 => Ok(FeeRoute::Oracle(
+            reader.u32().map_err(|_| econ_snapshot_bad())?,
+        )),
+        _ => Err(econ_snapshot_bad()),
+    }
+}
+fn econ_read_fee_key(reader: &mut Cursor<'_>) -> Result<FeeKey> {
+    Ok(FeeKey {
+        property: econ_read_property(reader)?,
+        contract: reader.u32().map_err(|_| econ_snapshot_bad())?,
+    })
+}
+fn econ_read_embedded<'a>(reader: &mut Cursor<'a>) -> Result<&'a [u8]> {
+    let length = econ_read_count(reader, MAX_CHECKPOINT_BYTES)?;
+    if length == 0 {
+        return Err(econ_snapshot_bad());
+    }
+    reader.take(length).map_err(|_| econ_snapshot_bad())
+}
+
+fn econ_write_config(out: &mut EconomicWriter, config: &EconomicConfig) -> Result<()> {
+    out.byte(config.network.tag())?;
+    out.put(&config.network.genesis().0)?;
+    out.u32(config.contract.get())?;
+    out.u32(config.collateral.get())?;
+    out.byte(u8::from(config.inverse))?;
+    out.decimal(&config.notional)?;
+    out.decimal(&config.initial_margin_per_contract)?;
+    out.route(config.fee_route)?;
+    match config.policy {
+        SettlementPolicy::ConservingV1 => out.byte(1),
+    }
+}
+fn econ_read_config(reader: &mut Cursor<'_>) -> Result<EconomicConfig> {
+    let network = TradeLayerMainnet::from_tag(reader.u8().map_err(|_| econ_snapshot_bad())?)
+        .map_err(|_| econ_snapshot_bad())?;
+    if reader.fixed::<32>().map_err(|_| econ_snapshot_bad())? != network.genesis().0 {
+        return Err(econ_snapshot_bad());
+    }
+    let config = EconomicConfig {
+        network,
+        contract: econ_read_contract(reader)?,
+        collateral: econ_read_property(reader)?,
+        inverse: econ_read_bool(reader)?,
+        notional: econ_read_decimal(reader)?,
+        initial_margin_per_contract: econ_read_decimal(reader)?,
+        fee_route: econ_read_route(reader)?,
+        policy: match reader.u8().map_err(|_| econ_snapshot_bad())? {
+            1 => SettlementPolicy::ConservingV1,
+            _ => return Err(econ_snapshot_bad()),
+        },
+    };
+    config.validate()?;
+    Ok(config)
+}
+
+fn econ_write_order(out: &mut EconomicWriter, order: &Order) -> Result<()> {
+    out.txid(order.txid)?;
+    out.account(&order.owner)?;
+    out.u32(order.contract.get())?;
+    out.u64(order.height)?;
+    out.byte(match order.side {
+        Side::Buy => 0,
+        Side::Sell => 1,
+    })?;
+    out.decimal(&order.quantity)?;
+    out.decimal(&order.price)?;
+    out.byte(u8::from(order.post))?;
+    out.byte(u8::from(order.is_market))
+}
+fn econ_read_order(reader: &mut Cursor<'_>) -> Result<Order> {
+    Ok(Order {
+        txid: econ_read_txid(reader)?,
+        owner: econ_read_account(reader)?,
+        contract: econ_read_contract(reader)?,
+        height: econ_read_u64(reader)?,
+        side: match reader.u8().map_err(|_| econ_snapshot_bad())? {
+            0 => Side::Buy,
+            1 => Side::Sell,
+            _ => return Err(econ_snapshot_bad()),
+        },
+        quantity: econ_read_decimal(reader)?,
+        price: econ_read_decimal(reader)?,
+        post: econ_read_bool(reader)?,
+        is_market: econ_read_bool(reader)?,
+    })
+}
+fn econ_write_book(out: &mut EconomicWriter, book: &ContractOrderbook) -> Result<()> {
+    let snapshot = book.snapshot();
+    out.u32(snapshot.contract.get())?;
+    for orders in [&snapshot.queued, &snapshot.drained] {
+        out.count(orders.len(), MAX_CONTRACT_ORDERS)?;
+        for order in orders {
+            econ_write_order(out, order)?;
+        }
+    }
+    out.count(snapshot.resting.len(), MAX_CONTRACT_ORDERS)?;
+    for resting in &snapshot.resting {
+        econ_write_order(out, &resting.order)?;
+        out.decimal(&resting.remaining)?;
+        out.decimal(&resting.reserve_quantity)?;
+        out.byte(u8::from(resting.initial_reduce))?;
+        out.u64(resting.sequence)?;
+    }
+    out.count(snapshot.seen.len(), MAX_CONTRACT_ORDER_IDS)?;
+    for id in snapshot.seen {
+        out.txid(id)?;
+    }
+    out.u64(snapshot.next_sequence)?;
+    out.height(snapshot.processed_through)
+}
+fn econ_read_book(reader: &mut Cursor<'_>) -> Result<ContractOrderbook> {
+    let contract = econ_read_contract(reader)?;
+    let mut queued = Vec::new();
+    let mut drained = Vec::new();
+    for orders in [&mut queued, &mut drained] {
+        let count = econ_read_count(reader, MAX_CONTRACT_ORDERS)?;
+        for _ in 0..count {
+            orders.push(econ_read_order(reader)?);
+        }
+    }
+    let count = econ_read_count(reader, MAX_CONTRACT_ORDERS)?;
+    let mut resting = Vec::new();
+    for _ in 0..count {
+        resting.push(RestingOrder {
+            order: econ_read_order(reader)?,
+            remaining: econ_read_decimal(reader)?,
+            reserve_quantity: econ_read_decimal(reader)?,
+            initial_reduce: econ_read_bool(reader)?,
+            sequence: econ_read_u64(reader)?,
+        });
+    }
+    let count = econ_read_count(reader, MAX_CONTRACT_ORDER_IDS)?;
+    let mut seen = Vec::new();
+    for _ in 0..count {
+        seen.push(econ_read_txid(reader)?);
+    }
+    Ok(ContractOrderbook::from_snapshot(BookSnapshot {
+        contract,
+        queued,
+        drained,
+        resting,
+        seen,
+        next_sequence: econ_read_u64(reader)?,
+        processed_through: econ_read_height(reader)?,
+    })?)
+}
+
+fn econ_write_positions(out: &mut EconomicWriter, positions: &MarginMap) -> Result<()> {
+    let mut runtime = MarginMap::new(positions.contract());
+    out.u32(positions.contract().get())?;
+    out.count(positions.positions().count(), MAX_ECONOMIC_POSITIONS)?;
+    for p in positions.positions() {
+        runtime.write_position(p.clone())?;
+        if !p.options.is_empty() {
+            return Err(econ_snapshot_bad());
+        }
+        out.account(&p.address)?;
+        out.decimal(&p.contracts)?;
+        out.optional_decimal(&p.avg_price)?;
+        out.decimal(&p.realized_pnl)?;
+        out.optional_decimal(&p.last_mark)?;
+        out.decimal(&p.margin)?;
+        out.decimal(&p.iou_claim)?;
+    }
+    // No hidden deltas, expiry indexes or option OI may disappear on restart.
+    if runtime != *positions {
+        return Err(econ_snapshot_bad());
+    }
+    Ok(())
+}
+fn econ_read_positions(reader: &mut Cursor<'_>) -> Result<MarginMap> {
+    let mut positions = MarginMap::new(econ_read_contract(reader)?);
+    let count = econ_read_count(reader, MAX_ECONOMIC_POSITIONS)?;
+    for _ in 0..count {
+        let mut p = Position::new(econ_read_account(reader)?);
+        if positions.get(&p.address).is_some() {
+            return Err(econ_snapshot_bad());
+        }
+        p.contracts = econ_read_decimal(reader)?;
+        p.avg_price = econ_read_optional_decimal(reader)?;
+        p.realized_pnl = econ_read_decimal(reader)?;
+        p.last_mark = econ_read_optional_decimal(reader)?;
+        p.margin = econ_read_decimal(reader)?;
+        p.iou_claim = econ_read_decimal(reader)?;
+        positions.write_position(p)?;
+    }
+    Ok(positions)
+}
+
+fn econ_write_queued_fee(out: &mut EconomicWriter, q: QueuedFee) -> Result<()> {
+    out.u64(q.block)?;
+    out.fee_key(q.key)?;
+    out.route(q.route)?;
+    out.atoms(q.atoms)
+}
+fn econ_read_queued_fee(reader: &mut Cursor<'_>) -> Result<QueuedFee> {
+    Ok(QueuedFee {
+        block: econ_read_u64(reader)?,
+        key: econ_read_fee_key(reader)?,
+        route: econ_read_route(reader)?,
+        atoms: econ_read_atoms(reader)?,
+    })
+}
+fn econ_write_fees(out: &mut EconomicWriter, fees: &FeeBook) -> Result<()> {
+    let snapshot = fees.snapshot();
+    out.count(snapshot.rows.len(), MAX_FEE_ROWS)?;
+    for (key, row) in snapshot.rows {
+        out.fee_key(key)?;
+        out.atoms(row.value_atoms)?;
+        out.atoms(row.stash_atoms)?;
+    }
+    out.count(snapshot.queued.len(), MAX_QUEUED_FEES)?;
+    for q in snapshot.queued {
+        econ_write_queued_fee(out, q)?;
+    }
+    out.count(snapshot.journal.len(), MAX_FEE_JOURNAL)?;
+    for entry in snapshot.journal {
+        match entry {
+            FeeJournalEntry::Accrued(p) => {
+                out.byte(0)?;
+                out.u64(p.block)?;
+                out.fee_key(p.key)?;
+                out.route(p.route)?;
+                for atoms in [
+                    p.amount_atoms,
+                    p.collection_atoms,
+                    p.value_added_atoms,
+                    p.stash_added_atoms,
+                    p.insurance_atoms,
+                    p.custody_before_atoms,
+                    p.custody_after_atoms,
+                ] {
+                    out.atoms(atoms)?;
+                }
+            }
+            FeeJournalEntry::Queued(p) => {
+                out.byte(1)?;
+                econ_write_queued_fee(out, p.entry)?;
+                out.atoms(p.custody_before_atoms)?;
+                out.atoms(p.custody_after_atoms)?;
+            }
+            FeeJournalEntry::Drawn(p) => {
+                out.byte(2)?;
+                out.u64(p.block)?;
+                out.fee_key(p.key)?;
+                for atoms in [
+                    p.value_atoms,
+                    p.stash_atoms,
+                    p.custody_before_atoms,
+                    p.custody_after_atoms,
+                ] {
+                    out.atoms(atoms)?;
+                }
+            }
+        }
+    }
+    Ok(())
+}
+fn econ_read_fees(reader: &mut Cursor<'_>) -> Result<FeeBook> {
+    let count = econ_read_count(reader, MAX_FEE_ROWS)?;
+    let mut rows = Vec::new();
+    for _ in 0..count {
+        rows.push((
+            econ_read_fee_key(reader)?,
+            FeeRow {
+                value_atoms: econ_read_atoms(reader)?,
+                stash_atoms: econ_read_atoms(reader)?,
+            },
+        ));
+    }
+    let count = econ_read_count(reader, MAX_QUEUED_FEES)?;
+    let mut queued = Vec::new();
+    for _ in 0..count {
+        queued.push(econ_read_queued_fee(reader)?);
+    }
+    let count = econ_read_count(reader, MAX_FEE_JOURNAL)?;
+    let mut journal = Vec::new();
+    for _ in 0..count {
+        journal.push(match reader.u8().map_err(|_| econ_snapshot_bad())? {
+            0 => FeeJournalEntry::Accrued(FeeAccrualPlan {
+                block: econ_read_u64(reader)?,
+                key: econ_read_fee_key(reader)?,
+                route: econ_read_route(reader)?,
+                amount_atoms: econ_read_atoms(reader)?,
+                collection_atoms: econ_read_atoms(reader)?,
+                value_added_atoms: econ_read_atoms(reader)?,
+                stash_added_atoms: econ_read_atoms(reader)?,
+                insurance_atoms: econ_read_atoms(reader)?,
+                custody_before_atoms: econ_read_atoms(reader)?,
+                custody_after_atoms: econ_read_atoms(reader)?,
+            }),
+            1 => FeeJournalEntry::Queued(FeeQueuePlan {
+                entry: econ_read_queued_fee(reader)?,
+                custody_before_atoms: econ_read_atoms(reader)?,
+                custody_after_atoms: econ_read_atoms(reader)?,
+            }),
+            2 => FeeJournalEntry::Drawn(FeeDrawPlan {
+                block: econ_read_u64(reader)?,
+                key: econ_read_fee_key(reader)?,
+                value_atoms: econ_read_atoms(reader)?,
+                stash_atoms: econ_read_atoms(reader)?,
+                custody_before_atoms: econ_read_atoms(reader)?,
+                custody_after_atoms: econ_read_atoms(reader)?,
+            }),
+            _ => return Err(econ_snapshot_bad()),
+        });
+    }
+    Ok(FeeBook::from_snapshot(FeeBookSnapshot {
+        rows,
+        queued,
+        journal,
+    })?)
+}
+
+impl EconomicState {
+    pub fn snapshot_bytes(&self) -> Result<Vec<u8>> {
+        self.verify()?;
+        let mut out = EconomicWriter(ECONOMIC_STATE_MAGIC.to_vec());
+        econ_write_config(&mut out, &self.config)?;
+        out.embedded(
+            &self
+                .joint
+                .snapshot_for_economic_bytes()
+                .map_err(|_| econ_snapshot_bad())?,
+        )?;
+        econ_write_book(&mut out, &self.book)?;
+        econ_write_positions(&mut out, &self.positions)?;
+        out.embedded(
+            &self
+                .ious
+                .snapshot_bytes()
+                .map_err(|_| econ_snapshot_bad())?,
+        )?;
+        econ_write_fees(&mut out, &self.fees)?;
+        out.count(self.reserves.len(), MAX_CONTRACT_ORDERS)?;
+        for (id, reserve) in &self.reserves {
+            out.txid(*id)?;
+            out.account(&reserve.owner)?;
+            out.decimal(&reserve.quantity)?;
+            out.atoms(reserve.atoms)?;
+        }
+        out.count(self.margins.len(), MAX_ECONOMIC_POSITIONS)?;
+        for (owner, atoms) in &self.margins {
+            out.account(owner)?;
+            out.atoms(*atoms)?;
+        }
+        out.count(
+            self.cancel_ids.len(),
+            crate::joint::MAX_JOINT_REPLAY_MARKERS,
+        )?;
+        for id in &self.cancel_ids {
+            out.txid(*id)?;
+        }
+        for atoms in [
+            self.loss_pool_atoms,
+            self.insurance_custody_atoms,
+            self.unfunded_loss_atoms,
+        ] {
+            out.atoms(atoms)?;
+        }
+        out.count(self.receipts.len(), MAX_ECONOMIC_RECEIPTS)?;
+        for receipt in &self.receipts {
+            out.u64(receipt.height)?;
+            out.txid(receipt.buy_txid)?;
+            out.txid(receipt.sell_txid)?;
+            for value in [
+                &receipt.quantity,
+                &receipt.price,
+                &receipt.buyer_pnl,
+                &receipt.seller_pnl,
+            ] {
+                out.decimal(value)?;
+            }
+            for atoms in [
+                receipt.retained_fee_atoms,
+                receipt.collected_loss_atoms,
+                receipt.paid_claim_atoms,
+                receipt.unfunded_loss_atoms,
+            ] {
+                out.atoms(atoms)?;
+            }
+        }
+        out.u64(self.internal_sequence)?;
+        with_crc(out.0).map_err(|_| EconomicError::Capacity)
+    }
+
+    /// Config, administrator and spot policy must come from independent
+    /// deployment inputs; checkpoint bytes establish no authority of their own.
+    pub fn from_snapshot_bytes(
+        bytes: &[u8],
+        expected_config: &EconomicConfig,
+        admin: &AccountId,
+        permitted: &BTreeSet<PropertyId>,
+    ) -> Result<Self> {
+        expected_config.validate()?;
+        let raw = verify_crc(bytes).map_err(|_| econ_snapshot_bad())?;
+        let mut reader = Cursor::new(raw);
+        if reader.fixed::<5>().map_err(|_| econ_snapshot_bad())? != *ECONOMIC_STATE_MAGIC {
+            return Err(econ_snapshot_bad());
+        }
+        let config = econ_read_config(&mut reader)?;
+        if &config != expected_config {
+            return Err(EconomicError::InvalidConfig);
+        }
+        let joint = JointProtocolState::from_economic_snapshot_bytes(
+            econ_read_embedded(&mut reader)?,
+            config.network,
+            admin,
+            permitted,
+        )
+        .map_err(|_| econ_snapshot_bad())?;
+        let book = econ_read_book(&mut reader)?;
+        let positions = econ_read_positions(&mut reader)?;
+        let ious = IouStore::from_snapshot_bytes(econ_read_embedded(&mut reader)?)
+            .map_err(|_| econ_snapshot_bad())?;
+        let fees = econ_read_fees(&mut reader)?;
+        let mut reserves = BTreeMap::new();
+        let mut last = None;
+        let count = econ_read_count(&mut reader, MAX_CONTRACT_ORDERS)?;
+        for _ in 0..count {
+            let id = econ_read_txid(&mut reader)?;
+            if last.is_some_and(|p| id <= p) {
+                return Err(econ_snapshot_bad());
+            }
+            last = Some(id);
+            reserves.insert(
+                id,
+                OrderReserve {
+                    owner: econ_read_account(&mut reader)?,
+                    quantity: econ_read_decimal(&mut reader)?,
+                    atoms: econ_read_atoms(&mut reader)?,
+                },
+            );
+        }
+        let mut margins = BTreeMap::new();
+        let mut last = None;
+        let count = econ_read_count(&mut reader, MAX_ECONOMIC_POSITIONS)?;
+        for _ in 0..count {
+            let owner = econ_read_account(&mut reader)?;
+            if last.as_ref().is_some_and(|p| &owner <= p) {
+                return Err(econ_snapshot_bad());
+            }
+            last = Some(owner.clone());
+            margins.insert(owner, econ_read_atoms(&mut reader)?);
+        }
+        let mut cancel_ids = BTreeSet::new();
+        let mut last = None;
+        let count = econ_read_count(&mut reader, crate::joint::MAX_JOINT_REPLAY_MARKERS)?;
+        for _ in 0..count {
+            let id = econ_read_txid(&mut reader)?;
+            if last.is_some_and(|p| id <= p) {
+                return Err(econ_snapshot_bad());
+            }
+            last = Some(id);
+            cancel_ids.insert(id);
+        }
+        let loss_pool_atoms = econ_read_atoms(&mut reader)?;
+        let insurance_custody_atoms = econ_read_atoms(&mut reader)?;
+        let unfunded_loss_atoms = econ_read_atoms(&mut reader)?;
+        let count = econ_read_count(&mut reader, MAX_ECONOMIC_RECEIPTS)?;
+        let mut receipts = Vec::new();
+        for _ in 0..count {
+            receipts.push(TradeReceipt {
+                height: econ_read_u64(&mut reader)?,
+                buy_txid: econ_read_txid(&mut reader)?,
+                sell_txid: econ_read_txid(&mut reader)?,
+                quantity: econ_read_decimal(&mut reader)?,
+                price: econ_read_decimal(&mut reader)?,
+                buyer_pnl: econ_read_decimal(&mut reader)?,
+                seller_pnl: econ_read_decimal(&mut reader)?,
+                retained_fee_atoms: econ_read_atoms(&mut reader)?,
+                collected_loss_atoms: econ_read_atoms(&mut reader)?,
+                paid_claim_atoms: econ_read_atoms(&mut reader)?,
+                unfunded_loss_atoms: econ_read_atoms(&mut reader)?,
+            });
+        }
+        let internal_sequence = econ_read_u64(&mut reader)?;
+        reader.end().map_err(|_| econ_snapshot_bad())?;
+        let result = Self {
+            config,
+            joint,
+            book,
+            positions,
+            ious,
+            fees,
+            reserves,
+            margins,
+            cancel_ids,
+            loss_pool_atoms,
+            insurance_custody_atoms,
+            unfunded_loss_atoms,
+            receipts,
+            internal_sequence,
+        };
+        result.verify()?;
+        if result.snapshot_bytes()?.as_slice() != bytes {
+            return Err(econ_snapshot_bad());
+        }
+        Ok(result)
+    }
+}

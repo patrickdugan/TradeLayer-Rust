@@ -137,6 +137,9 @@ pub struct JointProtocolState {
     spot: SpotExchange,
     global_input_ids: BTreeSet<TxId>,
     ledger_input_ids: BTreeSet<TxId>,
+    economic_input_ids: BTreeSet<TxId>,
+    economic_pending_height: Option<u64>,
+    economic_pending_input: Option<TxId>,
     finalized_height: Option<u64>,
 }
 
@@ -160,6 +163,9 @@ impl JointProtocolState {
             spot,
             global_input_ids: BTreeSet::new(),
             ledger_input_ids: BTreeSet::new(),
+            economic_input_ids: BTreeSet::new(),
+            economic_pending_height: None,
+            economic_pending_input: None,
             finalized_height: None,
         };
         state.verify_components_unverified()?;
@@ -201,6 +207,9 @@ impl JointProtocolState {
             spot,
             global_input_ids,
             ledger_input_ids: BTreeSet::new(),
+            economic_input_ids: BTreeSet::new(),
+            economic_pending_height: None,
+            economic_pending_input: None,
             finalized_height: Some(tip_height),
         };
         state.verify_components_unverified()?;
@@ -235,6 +244,9 @@ impl JointProtocolState {
             spot,
             global_input_ids: old.input_txids_unverified().clone(),
             ledger_input_ids: old.ledger().input_txids_unverified().clone(),
+            economic_input_ids: BTreeSet::new(),
+            economic_pending_height: None,
+            economic_pending_input: None,
             finalized_height: Some(tip_height),
         };
         result.verify_components_unverified()?;
@@ -282,22 +294,37 @@ impl JointProtocolState {
         height: u64,
         transaction: UnverifiedJointTx,
     ) -> Result<(), JointError> {
+        self.reject_economic_activity_unverified()?;
+        self.apply_inner_unverified(height, transaction)
+    }
+
+    fn check_new_input_unverified(&self, height: u64, txid: TxId) -> Result<(), JointError> {
         if height == 0 {
             return Err(JointError::InvalidHeight);
         }
         if self.finalized_height.is_some_and(|last| height <= last) {
             return Err(JointError::FinalizedHeight);
         }
-        let txid = transaction.txid;
         if self.global_input_ids.contains(&txid)
             || self.spot.ledger().is_processed(txid)
             || self.registry.is_processed(txid)
+            || self.spot.spot_input_ids_unverified().contains(&txid)
         {
             return Err(JointError::Replay(txid));
         }
         if self.global_input_ids.len() >= MAX_JOINT_REPLAY_MARKERS {
             return Err(JointError::ReplayLimit);
         }
+        Ok(())
+    }
+
+    fn apply_inner_unverified(
+        &mut self,
+        height: u64,
+        transaction: UnverifiedJointTx,
+    ) -> Result<(), JointError> {
+        let txid = transaction.txid;
+        self.check_new_input_unverified(height, txid)?;
         let actor = transaction.actor;
         match transaction.operation {
             JointOperation::Registry(action) => {
@@ -412,21 +439,54 @@ impl JointProtocolState {
     /// End-of-block queue matching spends the exact same ledger balances
     /// touched by preceding ordinary token operations in the block.
     pub(crate) fn finalize_block_unverified(&mut self, height: u64) -> Result<(), JointError> {
+        self.reject_economic_activity_unverified()?;
+        self.finalize_block_mode_unverified(height, false)
+    }
+
+    fn finalize_block_mode_unverified(
+        &mut self,
+        height: u64,
+        economic: bool,
+    ) -> Result<(), JointError> {
         if height == 0 || self.finalized_height.is_some_and(|prior| height <= prior) {
             return Err(JointError::InvalidHeight);
         }
         self.spot.process_through_unverified(height)?;
         self.finalized_height = Some(height);
-        self.verify_components_unverified()
+        self.verify_components_mode_unverified(economic)
     }
 
     pub fn verify_components_unverified(&self) -> Result<(), JointError> {
+        self.reject_economic_activity_unverified()?;
+        self.verify_components_mode_unverified(false)
+    }
+
+    fn reject_economic_activity_unverified(&self) -> Result<(), JointError> {
+        if !self.economic_input_ids.is_empty()
+            || self.economic_pending_height.is_some()
+            || self.economic_pending_input.is_some()
+        {
+            return Err(JointError::UnsupportedLegacyLiabilities);
+        }
+        // Preserve the established legacy clearing migration/error boundary.
+        // Its history predates this owner and has no economic replay category.
+        if self.spot.has_clearing_activity_unverified() {
+            return Err(JointError::Spot(SpotError::ReservedAccount));
+        }
+        Ok(())
+    }
+
+    fn verify_components_mode_unverified(&self, economic: bool) -> Result<(), JointError> {
         self.spot
             .ledger()
             .verify_conservation()
             .map_err(SpotError::Ledger)?;
         self.spot.verify_reserves()?;
-        self.spot.reject_foreign_reserves_for_joint_unverified()?;
+        if economic {
+            self.verify_economic_custody_fence_unverified()?;
+        } else {
+            self.spot.reject_foreign_reserves_for_joint_unverified()?;
+        }
         if self.spot.processed_through() != self.finalized_height {
             return Err(JointError::InconsistentComponents);
         }
@@ -455,6 +515,11 @@ impl JointProtocolState {
                 return Err(JointError::ReplayConflict);
             }
         }
+        for id in &self.economic_input_ids {
+            if self.ledger().is_processed(*id) || !union.insert(*id) {
+                return Err(JointError::ReplayConflict);
+            }
+        }
         if union != self.global_input_ids || union.len() > MAX_JOINT_REPLAY_MARKERS {
             return Err(JointError::ReplayConflict);
         }
@@ -465,3 +530,7 @@ impl JointProtocolState {
 // Full canonical registry + sole-ledger spot snapshot lives in this module
 // to preserve the private global input-ID audit invariants.
 include!("joint_snapshot_impl.rs");
+
+// Private custody/replay bridge for the sole-ledger economic owner. TLJP and
+// TLJC continue to reject these states; the outer owner audits exact metadata.
+include!("joint_economic_impl.rs");

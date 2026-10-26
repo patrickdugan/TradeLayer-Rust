@@ -1,0 +1,11 @@
+# Full unchanged orderbook.js c368acbc04f988b989fa320b3a1aefdb9522b9f9f5eff536137e7a2e8e9f4f98; 15 static +54 instance methods; external adapters explicit
+# kind	name	input	output	dependency_trace
+cancel	all-owner-noop	{"address":"alice"}	|1,1|2,2|0	[["write","orderBooks","1"]]
+cancel	buy-txid-foreign	{"txid":"0101010101010101010101010101010101010101010101010101010101010101","buy":true}	1||2,2|0	[["write","orderBooks","1"]]
+cancel	sell-txid-wrong-side	{"txid":"0202020202020202020202020202020202020202020202020202020202020202","buy":false}	2||2,2|0	[["write","orderBooks","1"]]
+cancel	price-without-txid-noop	{"price":"99","buy":false}	|1,1|2,2|0	[["write","orderBooks","1"]]
+cancel	price-with-txid-foreign	{"txid":"missing","price":"999","buy":true}	1,2|||6	[["write","orderBooks","1"]]
+load	corrupt-json-swallowed	{bad-json	|	[]
+failure	short-settlement-unqualified		ReferenceError:validateMatch is not defined	[]
+failure	contract-txid-missing-buy		TypeError:Cannot read properties of undefined (reading 'price')	[["write","orderBooks","1"]]
+failure	token-txid-undefined-order		ReferenceError:order is not defined	[["write","orderBooks","1-2"]]

@@ -12,18 +12,20 @@ that worker's branches, publish a branch, or authorize economic transitions.
 ## Tracking the 49 source modules
 
 [PARITY_ROADMAP.csv](PARITY_ROADMAP.csv) contains all 49 JavaScript source
-modules, excluding the experimental README. It records the seventeen assessed
-modules below; the other 32 retain their prior implementation assessment.
+modules, excluding the experimental README. It records the nineteen assessed
+modules below; the other 30 retain their prior implementation assessment.
 The insurance row additionally records its external-worker assignment.
 It supplements the historical [full-tree inventory](JS_RUST_PORT_AUDIT.md),
 whose earlier mappings and assessment commit are preserved.
 
-[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 251
+[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 369
 source entries with their tested domains, Rust tests and remaining criteria.
 None of these rows or modules is marked as a complete production port.
 
 | Module | Implemented and verified scope | Remaining completion criteria |
 | --- | --- | --- |
+| `orderbook.js` | All 69 methods, constructor and two comparators assessed; 287 actual-source vectors and nine source defects; contract book, funded type18/6 matching, owner cancellation and complete recovery in the existing joint Ledger | Authenticated orders and contract configuration, funded AMM-first execution, liquidation/ADL, multicontract orchestration, channels, source reporting/rewards and historical acceptance |
+| `tally.js` | All 45 methods plus constructor assessed; 248 actual-source vectors and 32 source assertions; actual custody projections, funded match fee/rebate collection and complete FeeBook persistence | Legacy arbitrary-value/NeDB migration, authenticated channel/vesting rules, registered insurance lifecycle, buybacks, remaining shared economic stores and historical acceptance |
 | `base94.js` | Eight helper methods, bounded string inputs, real-source golden vectors and preserved delimiter/fraction quirks | General JS coercions and malformed UTF-16; accepted historical wire transactions and admission integration |
 | `base256.js` | Six helper methods, exact custom Unicode alphabet, bounded arbitrary-size arithmetic and source hex quirks | General JS coercions and malformed UTF-16; accepted historical transactions and wire integration |
 | `tradeHistoryManager.js` | Seven query predicates, typed token/contract records, stable identities, atomic batches, canonical CRC checkpoint codec and rollback | Historical DB migration/order, positional/PnL/LIFO APIs, durable production persistence and chain-anchored replay |
@@ -93,10 +95,31 @@ rollback history above the original anchor, with explicit floor equal to its
 current tip. This lets the oldest retained state survive restart without
 inventing an older ancestor or silently changing the configured anchor.
 
-The persisted joint owner and funded IOU owner remain separate experiments.
-They must not become two live ledgers for one deployment. A single owner and
-complete shared checkpoint across registry/spot, margin, oracle, AMM, IOU,
-vault, vesting and procedural state remain required for full economic recovery.
+The sixth pass adds [atomic contract execution](ECONOMIC.md) to the existing
+Joint-owned Ledger. The contract book, positions, source PnL, actual order
+reserves, margin, collected losses, IOU claims, fees, receipts and replay state
+commit together. Partial-fill/self-cross release ordering was corrected during
+independent review. Maker rebates require actual fee collection, and IOU
+payouts stop at actual remaining pool funds. `ConservingV1` explicitly names
+these repairs and its sequential allocation policy; it does not promote them
+to historical consensus rules.
+
+TLEC/TLEH checkpoints preserve this complete runtime subset and every retained
+before-state. Durable restart requires an independently expected sequence,
+tip and full-state commitment. Rollback restores balances and all economic
+metadata together, including an empty history at an evicted floor. The decoder
+rejects an unreachable positive-height genesis floor even with a repaired CRC.
+The standalone funded IOU and ClearingSandbox owners remain separate
+experiments; they must not become additional live Ledgers alongside the new
+owner. Oracle, AMM, vault, vesting, procedural and full clearing state still
+need coherent integration before claiming complete economic recovery.
+
+The external insurance worker reports local commit
+`e9995caf83ca40db644211d9fec60b2acfacd12e` and six reserved files. Its actual
+archive or patch is not yet present in this checkout. Rust verification,
+genuine BigNumber 9.1.2 oracle execution, import and sole-Ledger insurance
+lifecycle integration remain pending. Pending insurance fees in the new
+runtime are funded escrow custody, not a registered insurance lifecycle.
 
 ## Transaction throughput review
 
@@ -255,3 +278,29 @@ All 16 existing joint-chain tests also pass with v1 encoding/validation retained
 These checks do not establish production daemon operation, authenticated inputs,
 unified recovery across all economic modules, deployment power-loss guarantees
 or historical acceptance. No branch was pushed and no GitHub CI result is claimed.
+
+## Local validation for atomic contract execution and recovery
+
+Pinned Rust 1.90.0 on Windows/MSVC passed all 786 tests across 104 executables,
+formatting including every included implementation, all-target Clippy with
+warnings denied, and the frozen all-target release build. The zero-dependency
+gate and its 11 adversarial tests passed. Doc tests passed with none defined.
+The new source oracles passed 287 orderbook and 248 tally vectors, plus nine
+orderbook defects and 32 tally behavior assertions. Both complete JavaScript
+archives match the clean pinned source checkout byte-for-byte after LF
+normalization and retain their declared SHA256 hashes.
+
+Coverage includes fractional position open/increase/reduce/close/flip,
+actually funded maker rebates and deferred IOU payouts, owner cancellation,
+late-leg failure/retry, shared replay fences, partial-fill/self-cross reserve
+release and complete state restart on all three networks. Corruption tests
+repair nested CRCs before checking orphan custody, fee-journal route/height
+forgery and unreachable history-floor rejection. Durable tests exercise
+retention eviction, oldest-floor rollback/rebranching, exact freshness tokens,
+explicit torn-tail recovery and a second-process OS lock. Existing clearing
+migration error behavior and legacy Joint checkpoint bytes remain compatible.
+
+The explicit ConservingV1 policy, pending insurance custody and remaining
+performance/integration gates are documented in [ECONOMIC.md](ECONOMIC.md).
+These checks do not establish historical acceptance or authenticated settlement.
+No branch was pushed and no GitHub CI, Lean or Kani result is claimed.

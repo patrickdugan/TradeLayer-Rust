@@ -166,6 +166,9 @@ impl JointProtocolState {
             spot,
             global_input_ids,
             ledger_input_ids,
+            economic_input_ids: BTreeSet::new(),
+            economic_pending_height: None,
+            economic_pending_input: None,
             finalized_height,
         };
         result

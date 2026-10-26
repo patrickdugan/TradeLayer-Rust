@@ -29,9 +29,12 @@ pub mod clearing_math; // Stage 24A diagnostic loss, funding and PnL equations; 
 pub mod clearing_pnl; // Stage 25C read-only per-address PnL and residual projection.
 pub mod clearing_sandbox; // Stage 25A isolated single-ledger derivative margin and funding research.
 mod codec; // Bounded, checksummed snapshot codec.
+pub mod contract_orderbook; // Source matching metadata; custody stays in the economic owner.
 pub mod contract_registry;
 pub mod decimal; // Finite decimal arithmetic with explicit precision and rounding.
 pub mod durable_iou; // Synced single-owner funded IOU operation batches and recovery.
+pub mod economic; // Atomic caller-driven contract matching with the sole joint Ledger.
+pub mod economic_chain; // Complete economic rollback and synced durable ownership.
 pub mod execution; // Prototype unified registry+ledger replay; input unverified.
 pub mod funding_audit; // Stage 24B read-only signed funding and conservation projections.
 mod hash160; // Dependency-free research RIPEMD160/HASH160, no production authorization.
@@ -72,6 +75,7 @@ pub mod spot; // Stage 19 isolated type-5/6 rational matching experiment; unveri
 pub mod spot_chain; // Stage 20 typed unverified spot block replay and complete TLSP/TLSC checkpoints.
 pub mod state_commitment; // Experimental domain-separated state and transition metadata; no proof verifier.
 pub mod storage; // Bounded OS-locked disk journal and explicit restart recovery.
+pub mod tally; // Source tally projections and fee metadata, no independent spendable ledger.
 pub mod trade_history; // Caller-supplied trade reporting and canonical checkpoints; no settlement authority.
 pub mod unified_chain; // Offline reversible registry+ledger block projection; adapter external.
 pub mod vaults; // Standalone vault metadata and collateral lifecycle.

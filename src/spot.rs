@@ -385,6 +385,45 @@ impl SpotExchange {
         self.clearing_activity
     }
 
+    /// Private combined-economic custody leg. The outer economic owner must
+    /// derive and reconcile every ~econ: account with its complete metadata.
+    /// No public ledger mutability or access to spot/clearing/insurance escrow.
+    pub(crate) fn apply_economic_transfer_unverified(
+        &mut self,
+        txid: TxId,
+        property: PropertyId,
+        from: AccountId,
+        to: AccountId,
+        amount_atoms: u128,
+    ) -> Result<(), SpotError> {
+        let economic_from = from.as_str().starts_with("~econ:");
+        let economic_to = to.as_str().starts_with("~econ:");
+        if amount_atoms == 0
+            || !(economic_from || economic_to)
+            || (from.as_str().starts_with('~') && !economic_from)
+            || (to.as_str().starts_with('~') && !economic_to)
+        {
+            return Err(SpotError::ReservedAccount);
+        }
+        if self.seen.contains(&txid) || self.ledger.is_processed(txid) {
+            return Err(SpotError::Replay(txid));
+        }
+        let mut staged = self.clone();
+        staged.ledger.apply(
+            txid,
+            Operation::Transfer {
+                id: property,
+                from,
+                to,
+                amount_atoms,
+            },
+        )?;
+        staged.verify_reserves()?;
+        staged.clearing_activity = true;
+        *self = staged;
+        Ok(())
+    }
+
     /// A completed clearing event may have zero transfer legs. Persist the
     /// in-memory research-history fence even when no margin atoms move;
     /// otherwise TLSP or an old joint checkpoint can orphan its replay ID.
