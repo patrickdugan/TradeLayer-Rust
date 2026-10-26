@@ -42,8 +42,10 @@ pub mod client; // Bounded Core HTTP JSON-RPC; readiness is bound to network and
 mod codec; // Bounded, checksummed snapshot codec.
 pub mod consensus_source; // Replayed sequential source dispatch in the sole economic owner.
 pub mod contract_orderbook; // Source matching metadata; custody stays in the economic owner.
+pub mod contract_placement_source; // Literal source placement over the actual queue.
 pub mod contract_queue_source_owner; // Actual source queue documents and placement capability.
 pub mod contract_registry;
+pub mod contract_settlement_source; // Literal source settlement over explicit live owners.
 pub mod daemon; // Synced bounded raw-block observations; no economic admission authority.
 pub mod decimal; // Finite decimal arithmetic with explicit precision and rounding.
 pub mod dlc_oracle_bridge; // Source relay verification and separate trusted payload-bound evidence.
@@ -80,6 +82,7 @@ pub mod liquidation_audit; // Stage 25E1 read-only maintenance, bankruptcy and i
 pub mod liquidation_input_gate; // Stage 25G read-only current-block provenance and mandatory authorization gap.
 pub mod liquidation_source_characterization; // Source-pinned read-only AMM priority and avg-vs-mark audit.
 pub mod margin_map; // Local position accounting; authenticated collateral orchestration external.
+pub mod margin_map_source_owner; // Literal source instance maps and position identity.
 pub mod mark_basis; // Exact settled basis and subatom carry; no separate Ledger.
 pub mod network_bound; // Stage 21 profile-bound replay and versioned checkpoint envelopes; unverified.
 pub mod network_profile; // Independent Bitcoin/Litecoin/Dogecoin mainnet identities and proof capabilities.
@@ -106,6 +109,9 @@ pub mod service_routes;
 pub mod service_runtime;
 pub mod service_view;
 pub mod source_catalogs; // Actual property/clearlist and optional oracle metadata owners.
+pub mod source_contract_replay; // Literal source contract owners; alternative to conserving settlement.
+pub mod source_contract_runtime;
+mod source_contract_values;
 pub mod spot; // Stage 19 isolated type-5/6 rational matching experiment; unverified.
 pub mod spot_chain; // Stage 20 typed unverified spot block replay and complete TLSP/TLSC checkpoints.
 pub mod state_commitment; // Experimental domain-separated state and transition metadata; no proof verifier.

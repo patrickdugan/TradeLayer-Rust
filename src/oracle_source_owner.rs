@@ -41,11 +41,66 @@ pub(crate) fn source_number_unverified(value: &V) -> Result<f64, SourceRuleError
         Fault::Thrown(_) => SourceRuleError::UnsupportedNumericDomain,
     })
 }
+/// Finite BigNumber boundary for the composed source financial runtime.
+/// BigNumber(null/boolean) remains NaN rather than JavaScript Number(0/1).
+pub(crate) fn source_finite_decimal_unverified(value: &V) -> Result<Decimal, SourceRuleError> {
+    match Bn::new(value) {
+        Ok(Bn::Finite(value)) => Ok(value),
+        Ok(Bn::NegativeZero) => Ok(Decimal::zero()),
+        Ok(Bn::Special(_)) | Err(Fault::Thrown(_)) => {
+            Err(SourceRuleError::UnsupportedNumericDomain)
+        }
+        Err(Fault::Local(error)) => Err(error),
+    }
+}
 pub(crate) fn source_greater_unverified(left: &V, right: &V) -> Result<bool, SourceRuleError> {
     relational(left, right)
         .map(|o| o == Some(core::cmp::Ordering::Greater))
         .map_err(|fault| match fault {
             Fault::Local(e) => e,
+            Fault::Thrown(_) => SourceRuleError::UnsupportedNumericDomain,
+        })
+}
+/// Literal publishData circuit calculation shared by the composed source DB
+/// owner. This helper owns no rows, singleton cache, or watermark.
+pub(crate) fn source_circuit_price_unverified(
+    price: &V,
+    last: &V,
+) -> Result<SourceOutcome, SourceRuleError> {
+    let result = (|| -> Eval<V> {
+        Bn::new(price)?;
+        let up = Bn::new(&V::number(1.05))?
+            .op(Bn::new(last)?, 2)?
+            .q(4, Rounding::HalfUp)?
+            .number();
+        let down = Bn::new(&V::number(0.95))?
+            .op(Bn::new(last)?, 2)?
+            .q(4, Rounding::HalfUp)?
+            .number();
+        if number(last)? != 1.0 {
+            if number(price)? > up {
+                return Ok(V::number(up));
+            }
+            if number(price)? < down {
+                return Ok(V::number(down));
+            }
+        }
+        Ok(price.clone())
+    })();
+    match result {
+        Ok(value) => Ok(SourceOutcome::Returned(value)),
+        Err(Fault::Thrown(error)) => Ok(SourceOutcome::Thrown(error)),
+        Err(Fault::Local(error)) => Err(error),
+    }
+}
+pub(crate) fn source_greater_equal_unverified(
+    left: &V,
+    right: &V,
+) -> Result<bool, SourceRuleError> {
+    relational(left, right)
+        .map(|value| value.is_some_and(|order| order != core::cmp::Ordering::Less))
+        .map_err(|fault| match fault {
+            Fault::Local(error) => error,
             Fault::Thrown(_) => SourceRuleError::UnsupportedNumericDomain,
         })
 }

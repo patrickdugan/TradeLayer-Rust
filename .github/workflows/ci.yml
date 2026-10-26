@@ -41,7 +41,7 @@ jobs:
       - name: Check included exact trade-history formatting
         run: rustfmt --check --edition 2021 src/trade_history_position_impl.rs
       - name: Check included VolumeIndex source metadata formatting
-        run: rustfmt --check --edition 2021 src/volume_index_source_impl.rs
+        run: rustfmt --check --edition 2021 src/volume_index_source_impl.rs src/source_contract_accounting_impl.rs src/source_contract_aux_impl.rs src/source_contract_fee_impl.rs src/source_contract_oracle_impl.rs
       - name: Check included spot snapshot file formatting
         run: rustfmt --check --edition 2021 src/spot_snapshot_impl.rs src/ledger_native_impl.rs src/spot_native_impl.rs src/joint_native_impl.rs src/joint_chain_native_impl.rs src/economic_native_impl.rs src/economic_insurance_impl.rs src/economic_insurance_snapshot_impl.rs
       - name: Check included joint snapshot file formatting
@@ -56,14 +56,16 @@ jobs:
         run: rustfmt --check --edition 2021 src/clearing_partial_impl.rs
       - name: Lint
         run: cargo clippy --all-targets --frozen -- -D warnings
-      - name: Run tests
-        run: cargo test --frozen
-      - name: Pinned Base94 and Base256 source compatibility vectors
-        run: node scripts/legacy_base_vectors.cjs
       - name: Install pinned test-only cryptographic references
         # Pin every direct external import used by the composed source oracle.
         # These are the executed reference versions, not the legacy JS lockfile.
         run: npm install --prefix "$RUNNER_TEMP/tl-secp-reference" --ignore-scripts --no-audit --no-fund --save-exact tiny-secp256k1@2.2.4 bitcore-lib-ltc@10.10.5 bitcore-lib@8.25.47 bitcoinjs-lib@6.1.8 bip32@5.0.1
+      - name: Run tests
+        env:
+          TRADELAYER_JS_ROOT: ${{ runner.temp }}/tl-secp-reference
+        run: cargo test --frozen
+      - name: Pinned Base94 and Base256 source compatibility vectors
+        run: node scripts/legacy_base_vectors.cjs
       - name: Genuine BIP32 and complete source catalog owner vectors
         run: |
           node scripts/bip32_public_vectors.cjs --check --lib-root "$RUNNER_TEMP/tl-secp-reference"
@@ -82,6 +84,12 @@ jobs:
           node --require ./scripts/bignumber_lock_reference.cjs scripts/source_contract_execution_vectors.cjs --check --module-root "$RUNNER_TEMP/tl-secp-reference"
           node --require ./scripts/bignumber_lock_reference.cjs scripts/source_send_vectors.cjs --check
           node --require ./scripts/bignumber_lock_reference.cjs scripts/oracle_source_owner_vectors.cjs --check --module-root "$RUNNER_TEMP/tl-secp-reference"
+      - name: Literal contract runtime with exact source-lock BigNumber
+        env:
+          TRADELAYER_JS_ROOT: ${{ runner.temp }}/tl-secp-reference
+          TL_BIGNUMBER_LOCK_ROOT: ${{ runner.temp }}/tl-bignumber-lock
+          NODE_OPTIONS: --require ${{ github.workspace }}/scripts/bignumber_lock_reference.cjs
+        run: cargo test --frozen --test contract_placement_source --test contract_settlement_source --test margin_map_source_owner --test source_contract_runtime --test source_contract_fees --test source_contract_oracle --test source_contract_adapters --test source_contract_clearing --test source_contract_replay
       - name: Native public ECDSA independent and genuine reference vectors
         run: node scripts/secp256k1_vectors.cjs --check --tiny-root "$RUNNER_TEMP/tl-secp-reference"
       - name: Co-signed allocation transcripts and actual-owner signed fixtures

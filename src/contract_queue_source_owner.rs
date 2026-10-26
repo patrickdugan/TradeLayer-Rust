@@ -472,6 +472,11 @@ struct BookJsonParser<'a> {
     at: usize,
     nodes: usize,
 }
+pub(crate) fn parse_book_json_unverified(
+    text: &str,
+) -> Result<V, crate::issuance_intent::IntentError> {
+    BookJsonParser::parse(text)
+}
 impl<'a> BookJsonParser<'a> {
     fn parse(text: &'a str) -> Result<V, crate::issuance_intent::IntentError> {
         use crate::issuance_intent::{IntentError, MAX_JSON_BYTES};
@@ -1172,7 +1177,59 @@ impl ContractQueueSourceOwner {
         }
         Ok(())
     }
+    pub(crate) fn load_book_with_alias(
+        &mut self,
+        instance: u64,
+        key: V,
+    ) -> Result<(SourceOutcome, Option<String>), SourceRuleError> {
+        let before = self.clone();
+        let mut parsed = false;
+        let result = self.load_book_status(instance, key.clone(), &mut parsed);
+        match result {
+            Ok(value) => {
+                let alias = if parsed && matches!(value, V::Object(_) | V::Array(_)) {
+                    Some(text(&key).map_err(|_| SourceRuleError::InvalidInput)?)
+                } else {
+                    None
+                };
+                Ok((SourceOutcome::Returned(value), alias))
+            }
+            Err(Fault::Thrown(error)) => Ok((SourceOutcome::Thrown(error), None)),
+            Err(Fault::Local(error)) => {
+                *self = before;
+                Err(error)
+            }
+            Err(Fault::Boundary(error)) => Err(error),
+        }
+    }
+    pub(crate) fn set_cached_book_unverified(
+        &mut self,
+        instance: u64,
+        key: &str,
+        value: V,
+    ) -> Result<(), SourceRuleError> {
+        value.validate()?;
+        let before = self.clone();
+        match self
+            .instance_mut(instance)
+            .map_err(Fault::Local)
+            .and_then(|i| set_object(&mut i.books, key, value))
+        {
+            Ok(()) => Ok(()),
+            Err(Fault::Local(error) | Fault::Boundary(error)) => {
+                *self = before;
+                Err(error)
+            }
+            Err(Fault::Thrown(_)) => {
+                *self = before;
+                Err(SourceRuleError::InvalidInput)
+            }
+        }
+    }
     fn load_book(&mut self, instance: u64, key: V) -> Eval<V> {
+        self.load_book_status(instance, key, &mut false)
+    }
+    fn load_book_status(&mut self, instance: u64, key: V, parsed_alias: &mut bool) -> Eval<V> {
         let key = text(&key)?;
         self.database()?;
         let result = (|| -> Eval<V> {
@@ -1199,6 +1256,7 @@ impl ContractQueueSourceOwner {
                 &key,
                 parsed.clone(),
             )?;
+            *parsed_alias = true;
             Ok(parsed)
         })();
         match result {

@@ -1,12 +1,13 @@
 # Contract execution fidelity audit
 
 Review and bounded execution evidence for archived source commit
-`dca0888b827c5bc28fa9189bc9e1d507f5c5670c`. V2 now supplies three actual-owner
-validation reads and reaches real raw matched positions and paid conserving
-funding. A frozen genuine JavaScript composition separately records the source
-write graph. The ordinary cash/position intersection is compared explicitly;
-neither those results nor the standalone queue owner establish complete source
-collateral, position, clearing or failure/retry parity.
+`dca0888b827c5bc28fa9189bc9e1d507f5c5670c`. The literal `SourceContractRuntime`
+now connects actual raw type18 validation, queue, placement and financial
+settlement and compares all32 full-JavaScript scenes/135 observations, including
+persisted collections, live caches and partial failure/retry behavior. It is an
+explicit alternative to the separately named conserving EconomicState. See
+[SOURCE_CONTRACT_RUNTIME.md](SOURCE_CONTRACT_RUNTIME.md) for the execution API,
+source defects, evidence and remaining whole-module gates.
 
 ## Raw type 18 dispatch
 
@@ -192,9 +193,9 @@ The standalone `ContractQueueSourceOwner` covers nine genuine queue/book
 methods with 117 differential actions. It compares outcomes, complete documents,
 instance caches, ordered DB/placement calls and retained exception prefixes;
 every action continues through complete checkpoint restore. A separate test
-matches 57 enqueue boundaries from the frozen composition. Placement remains
-an explicit capability into a future sole-ledger implementation. This owner is
-not yet integrated into the economic runner's financial queue/matching graph.
+matches 57 enqueue boundaries from the frozen composition. Placement now calls the actual literal settlement graph through an owner-aware
+capability into the same source balance authority. This changes the separate
+source runtime; the conserving economic runner remains a distinct policy.
 See `CONTRACT_QUEUE_SOURCE_OWNER.md` for storage, capacity and durable-restart
 boundaries.
 
@@ -232,13 +233,20 @@ source observation separators are preserved.
 
 ## Remaining source graph
 
-Complete source orchestration still requires the real financial placement
-capability over the sole Ledger and coordinated queue/cache persistence:
-reserve/margin deltas, all position fields, fee buffers and flush, mutable
-Clearing mark/PnL pools, history, volume/rewards, IOU records and exact failure/
-retry prefixes. The present corpus does not establish global clearing,
-liquidation/deleveraging/insurance payouts, native-index contracts, channel
-queues, cross-contract reserve cancellation, enhanced rewards, all rounding
-domains or real disk restart behavior. Retained source metadata exceptions and
-standalone queue prefixes remain distinct from the economic runner's atomic
-funded/admission rollback policy.
+The literal `SourceContractRuntime` now executes the actual on-chain placement,
+reserve/margin deltas, position fields, fee buffers/flush, mutable Clearing
+mark/open-close/PnL pools, history, volume/rewards, IOU records and partial
+failure/retry prefixes over one source Tally authority. Actual cross-contract
+reserve cancellation and its source defects are composed through the same queue.
+All135 frozen full-source observations compare complete persisted collections and
+live caches, with additional component and adapter adversaries. Replay recovery
+recomputes original inputs and complete continuation state.
+
+This does not establish full global clearing, liquidation/deleveraging/insurance
+payout orchestration, expiry/options, native-index/multicontract lifecycle,
+channel queues, every enhanced reward path, all nonfinite/unbounded rounding
+or comparator domains, or production NeDB/disk behavior. Source actor/state
+provenance and portable per-transaction proof witnesses remain separate gates.
+The literal owner is an explicit alternative to the conserving EconomicState;
+its retained source failures remain distinct from atomic funded/admission
+rollback. See `SOURCE_CONTRACT_RUNTIME.md` and `SOURCE_CONTRACT_REPLAY.md`.

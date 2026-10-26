@@ -11,16 +11,20 @@ that worker's branches, publish a branch, or authorize economic transitions.
 
 ## Tracking the 49 source modules
 
-The selected-contract/queue batch passes **1,339 Rust test executions**
-(1,338 top-level plus one subprocess check) across167 executable targets,
-including19 new tests. Rust1.90 formatting, all-target Clippy, all-target release,
-zero-external-crate policy and11 policy-mutation tests pass against637 frozen
-inputs. The committed record is
-`fixtures/reference_fidelity/source-contract-execution.json`. Its source queue
-corpus has117 actions;32 composed full-JavaScript scenes produce135 observations
-and57 independently replayed enqueue boundaries. Genuine locked BigNumber9.1.2
-also passes31 corpus checks, with three portable preload checks added to CI.
-This advances actual coverage without establishing full reference parity.
+The literal on-chain settlement batch passes **1,357 Rust test executions**
+(1,356 top-level plus one subprocess check) across176 executable targets,
+including18 new tests. Rust1.90 formatting, all-target Clippy, all-target release,
+zero-external-crate policy and11 policy-mutation tests pass against660 frozen
+inputs. All18 new tests also pass with genuine source-lock BigNumber9.1.2.
+The committed record is
+`fixtures/reference_fidelity/source-contract-settlement.json`. All32 complete-JS
+scenes/135 observations now compare actual Rust queue-to-financial execution,
+complete collections/caches and retained failure/retry effects. Focused suites
+cover placement, actual reserve reclaim, margin aliases, fees/Insurance, IOUs,
+oracle publication and storage/coercion adversaries; full command replay binds
+complete continuation state. Earlier queue/read evidence remains in
+`fixtures/reference_fidelity/source-contract-execution.json`. Whole-module parity,
+authenticated history and exported transition witnesses remain open.
 
 Actual source sends, asynchronous spot reads and an optional complete oracle
 owner now compose with the same Ledger. The oracle corpus executes 311 actions
@@ -36,11 +40,13 @@ funded admission uses the named conserving policy. See
 validation now has actual selected-contract Margin and initial-margin reads
 under explicit `ConservingSequentialV2`; V1 preserves its original unavailable
 receipts. Genuine raw matched positions, Paid funding at24, and restore/flip/close
-are tested through the sole conserving Ledger. An independent full-JavaScript
-corpus executes32 scenes/135 observations; ordinary cash/positions agree, while
-the complete source financial write graph remains unfinished. The standalone
-queue owner preserves nine source methods and57 genuine enqueue boundaries,
-but is not yet connected to source placement and settlement. See
+are tested through the sole conserving Ledger. The literal SourceContractRuntime now connects the actual raw18/queue/placement/
+financial graph and compares all32 scenes/135 full-source observations, including
+complete persisted collections, caches, fees, PNL/IOUs/rewards and retained failure
+prefixes. SourceContractReplay restores the actual owner by replaying original
+commands and checking outcomes/effects/full continuation state against an
+independently expected head. This is an alternative source execution policy;
+channel/global-clearing/ADL/expiry and authenticated history remain open. See
 [SOURCE_CONTRACT_READS.md](SOURCE_CONTRACT_READS.md),
 [SOURCE_CONTRACT_EXECUTION_REVIEW.md](SOURCE_CONTRACT_EXECUTION_REVIEW.md) and
 [CONTRACT_QUEUE_SOURCE_OWNER.md](CONTRACT_QUEUE_SOURCE_OWNER.md).

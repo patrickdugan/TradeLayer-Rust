@@ -1029,7 +1029,7 @@ fn bn_number(d: &Decimal) -> SourceResult<f64> {
             .map_err(|_| SourceVolumeError::Arithmetic)?,
     )
 }
-fn number_fixed_eight(n: f64) -> SourceResult<f64> {
+pub(crate) fn number_fixed_eight(n: f64) -> SourceResult<f64> {
     finite(n)?;
     // Number((-0).toFixed(8)) is positive zero. A nonzero negative input
     // which rounds to zero still emits a minus sign and returns negative zero.
