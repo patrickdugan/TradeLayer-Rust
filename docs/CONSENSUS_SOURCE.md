@@ -1,8 +1,9 @@
 # Sequential source consensus orchestration
 
-The opt-in `ConservingSequentialV1` runner evaluates the pinned Types dispatcher
-and actual source validity rules against the pending `EconomicState`, maps only
-representable commands, and applies them to its existing sole Ledger owner.
+The opt-in `ConservingSequentialV1` and `ConservingSequentialV2` policies evaluate
+the pinned Types dispatcher and actual source validity rules against the pending
+`EconomicState`, map only representable commands, and apply them to its existing
+sole Ledger owner.
 Rejected candidates remain in the same durable checkpoint as accepted commands.
 The runner provides no authenticated L1 admission capability.
 
@@ -11,6 +12,29 @@ The source is `tradelayer.js@dca0888b827c5bc28fa9189bc9e1d507f5c5670c`.
 `af4c2fe7c37680be018dcb0df9f2cf8b348baac8aec1fe2335a220ce27dc0230`.
 The existing unchanged `legacy_main_source.txt` has SHA256
 `006d59ba3d28d802b0e0c5be2d9d661b58caf1c919a704b3f0d40bc9613c4009`.
+
+## Versioned selected-contract reads
+
+V2 adds three actual-owner reads used by source type18 validation:
+
+| Source dependency | Pending-owner projection |
+| --- | --- |
+| `Margin.loadMarginMap` | Pending instance handle for the selected numeric contract; no second margin store |
+| `Margin.getPositionForAddress` | Actual signed position, margin and unrealized PnL; the source three-field zero object when missing |
+| `Contract.getInitialMargin` | Dynamic margin from the accepted contract definition, price and source rounding/Number boundary |
+
+Position lookup preserves exact addresses and the source lowercase-Bech32
+fallback. Missing selected contract definitions produce PendingThrow. Signed
+position values outside the lossless source Number domain fail explicitly.
+Other contract IDs and unrelated Margin methods remain unavailable. See
+`SOURCE_CONTRACT_READS.md` for the exact projection and supported domain.
+
+V1 continues returning UnknownDependency for precisely these three reads. Its
+recorded DependencyUnavailable receipts and full raw replay remain reproducible;
+restoring an old checkpoint does not silently enable V2 admission. Policy bytes
+1 and 2 are independently expected and cannot be exchanged during restore.
+Source-free typed owners can use the reads without adding source history.
+Both source policies retain the existing named conserving settlement pipeline.
 
 ## Actual owner lifecycle
 
@@ -226,3 +250,31 @@ original accepted/rejected source candidates to full economic replay. Native
 composition retains canonical v8 typed histories. Public typed metadata bypass
 remains denied. The existing TLSE producer has not been extended to codecs8,9
 or10, and no exported transition witness is claimed.
+
+## Raw contract execution and source comparison boundary
+
+`tests/economic_source_oracle_contracts.rs` now runs actual raw13/14/16/18
+through V2, with actual source oracle/catalog owners and genuine country
+self-certification for the non-admin actor. Opposing quantity-two orders create
+real sole-owner positions +2/-2 and margin 20 per actor. Actual publication data
+then produces a Paid funding epoch at height 24 with one Ledger debit and one
+credit. Full TLECv10 raw replay preserves the paid epoch, subsequent flip to
+-3/+3, and close to flat. V1 rejection/unavailable-read history remains separately
+covered. These are funded conserving-owner results, not full source financial
+graph parity.
+
+The frozen `source_contract_execution_vectors.tsv` comes from 32 genuine
+composed JavaScript scenes / 135 observations across 25 unchanged hash-pinned
+modules. CI reruns `scripts/source_contract_execution_vectors.cjs --check`.
+Its ordinary quantity-two cash/position intersection is compared independently
+with the Rust owner; source queue flags, fee buffering, mutable Clearing caches,
+failure prefixes, retries and other financial writes remain distinct. See
+`SOURCE_CONTRACT_EXECUTION_REVIEW.md` and `CONTRACT_EXECUTION_FIDELITY.md`.
+
+The standalone `ContractQueueSourceOwner` separately reproduces nine actual
+queue/book methods, 117 differential actions and 57 enqueue boundaries extracted
+from that genuine composition. It owns documents and instance caches without a
+second Ledger. Its placement capability boundary is explicit; it has not replaced
+the economic runner's queue/matching pipeline. See `CONTRACT_QUEUE_SOURCE_OWNER.md`.
+Completing the source reserve/margin, fee, position/delta, Clearing/PnL, history,
+volume/reward, IOU and failure/retry write graph remains required.

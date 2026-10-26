@@ -10,7 +10,7 @@ def main():
     data = json.loads((root / 'docs/LOGIC_BY_TX_TYPE.json').read_text(encoding='utf-8'))
     assert data['schema'] == 'tl-logic-reference-review-v1'
     assert data['jsCommit'] == 'dca0888b827c5bc28fa9189bc9e1d507f5c5670c'
-    assert data['evidenceScope'] == 'static per-type inventory; executed property, clearlist, send and oracle checks are recorded separately'
+    assert data['evidenceScope'] == 'static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately'
     for pin in data['sourcePins'] + data['runtimePins']:
         raw = (root / pin['path']).read_bytes()
         if pin.get('lfNormalized'):

@@ -56,6 +56,7 @@ impl EconomicState {
                 out.put(&s.bootstrap_commitment)?;
                 match s.policy {
                     SourceConsensusPolicy::ConservingSequentialV1 => out.byte(1)?,
+                    SourceConsensusPolicy::ConservingSequentialV2 => out.byte(2)?,
                 }
             }
         }

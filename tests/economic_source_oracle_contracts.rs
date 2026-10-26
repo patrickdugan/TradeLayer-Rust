@@ -1,5 +1,5 @@
-//! Genuine raw13/14/16/18 over actual oracle + contract owners. The missing
-//! Margin dependency is retained explicitly; no validated params are invented.
+//! Genuine raw13/14/16/18 over actual oracle + contract owners. V1 retains
+//! unavailable reads; V2 reaches the named conserving settlement owner.
 use std::collections::BTreeSet;
 use tradelayer_core::chain::{BlockHeader, BlockId, Tip};
 use tradelayer_core::clearlist_source_owner::ClearlistSourceOwner;
@@ -10,10 +10,11 @@ use tradelayer_core::consensus_source::{
 use tradelayer_core::contract_registry::{ContractAsset, ContractParameters};
 use tradelayer_core::economic::{
     contract_definition_commitment, ContractBindingConfig, ContractRiskPolicy, CreateContractInput,
-    EconomicConfig, EconomicState, FundingConfig, FundingPolicy, MarkConfig, MarkEventKind,
-    MarkPolicy, SettlementPolicy,
+    EconomicConfig, EconomicState, FundingConfig, FundingPolicy, FundingStatus, MarkConfig,
+    MarkEventKind, MarkPolicy, SettlementPolicy,
 };
 use tradelayer_core::economic_validity::EconomicSourceBackend;
+use tradelayer_core::issuance_intent::JsonValue;
 use tradelayer_core::joint::JointProtocolState;
 use tradelayer_core::ledger::{AccountId, Ledger, Operation, PropertyId, PropertyKind, TxId};
 use tradelayer_core::network_profile::TradeLayerMainnet;
@@ -74,7 +75,7 @@ impl SourceBackend for NoTally {
         Err(SourceRuleError::UnknownDependency)
     }
 }
-fn fixture() -> EconomicState {
+fn fixture_with_policy(policy: SourceConsensusPolicy) -> EconomicState {
     let network = TradeLayerMainnet::Bitcoin;
     let mut ledger = Ledger::new();
     ledger
@@ -84,7 +85,7 @@ fn fixture() -> EconomicState {
                 id: p(),
                 issuer: a(A),
                 kind: PropertyKind::Fixed,
-                initial_atoms: 4000 * U,
+                initial_atoms: 2000 * U,
             },
         )
         .unwrap();
@@ -95,7 +96,7 @@ fn fixture() -> EconomicState {
                 id: p(),
                 from: a(A),
                 to: a(B),
-                amount_atoms: 2000 * U,
+                amount_atoms: 1000 * U,
             },
         )
         .unwrap();
@@ -110,7 +111,7 @@ fn fixture() -> EconomicState {
                 &[
                     n(7.0),
                     s("COLL"),
-                    n(4000.0),
+                    n(2000.0),
                     s("Fixed"),
                     n(0.0),
                     s(A),
@@ -157,7 +158,7 @@ fn fixture() -> EconomicState {
             catalog_bootstrap_commitment: Some(bootstrap_commitment(
                 &catalogs.checkpoint_bytes().unwrap(),
             )),
-            policy: SourceConsensusPolicy::ConservingSequentialV1,
+            policy,
         }),
     };
     EconomicState::from_joint_with_source_catalogs_unverified(config, joint, catalogs).unwrap()
@@ -213,12 +214,74 @@ fn order(position: u32, number: u64, price: u128) -> SourceTransaction {
         A,
     )
 }
+fn order_for(
+    position: u32,
+    number: u64,
+    actor: &str,
+    price: u128,
+    quantity: u128,
+    sell: bool,
+) -> SourceTransaction {
+    tx(
+        position,
+        number,
+        &format!(
+            "i1,{},{},{},0,0,0,0",
+            base36(price * U),
+            base36(quantity),
+            u8::from(sell)
+        ),
+        actor,
+    )
+}
+fn available(state: &EconomicState, owner: &str) -> u128 {
+    state.ledger().available_atoms(p(), &a(owner))
+}
+fn position(state: &EconomicState, owner: &str) -> String {
+    state
+        .positions()
+        .get(&a(owner))
+        .unwrap()
+        .contracts
+        .to_string()
+}
+fn matched_state() -> EconomicState {
+    let mut state = opened_metadata();
+    // This is genuine raw country self-certification, not supplied validity.
+    let report = apply(
+        &mut state,
+        &[
+            tx(0, 80, &format!("90,0,{B},NZ"), B),
+            order_for(1, 81, B, 100, 2, true),
+            order_for(2, 82, A, 100, 2, false),
+        ],
+    );
+    assert_eq!(report.accepted, 3, "{:?}", report.receipts);
+    assert_eq!(position(&state, A), "2");
+    assert_eq!(position(&state, B), "-2");
+    assert_eq!(state.margin_atoms(&a(A)), 20 * U);
+    assert_eq!(state.margin_atoms(&a(B)), 20 * U);
+    assert_eq!(state.reserve_atoms(id(81)), 0);
+    assert_eq!(state.reserve_atoms(id(82)), 0);
+    assert!(state.book().resting().is_empty());
+    assert_eq!(state.receipts().len(), 1);
+    let receipt = &state.receipts()[0];
+    assert_eq!(receipt.buy_txid, id(82));
+    assert_eq!(receipt.sell_txid, id(81));
+    assert_eq!(receipt.quantity.to_string(), "2");
+    assert_eq!(receipt.price.to_string(), "100");
+    state.ledger().verify_conservation().unwrap();
+    state
+}
 fn opened_metadata() -> EconomicState {
-    let mut state = fixture();
+    opened_metadata_with_policy(SourceConsensusPolicy::ConservingSequentialV2)
+}
+fn opened_metadata_with_policy(policy: SourceConsensusPolicy) -> EconomicState {
+    let mut state = fixture_with_policy(policy);
     assert_eq!(
         apply(
             &mut state,
-            &[tx(0, 10, &format!("013;14;16;18,{}", "11".repeat(32)), A)]
+            &[tx(0, 10, &format!("09;13;14;16;18,{}", "11".repeat(32)), A)]
         )
         .accepted,
         1
@@ -331,8 +394,8 @@ fn raw_oracle_and_contract_creation_bind_actual_ticker_price_and_mark_history() 
 }
 
 #[test]
-fn raw_leverage_rejection_and_missing_margin_dependency_are_audited_and_restored() {
-    let mut state = opened_metadata();
+fn v1_raw_leverage_rejection_and_unavailable_margin_replay_are_preserved() {
+    let mut state = opened_metadata_with_policy(SourceConsensusPolicy::ConservingSequentialV1);
     let over_band = order(0, 70, 150);
     let mut backend = recording(&state);
     let evaluation = decode_payload_unverified(
@@ -372,7 +435,7 @@ fn raw_leverage_rejection_and_missing_margin_dependency_are_audited_and_restored
     assert_eq!(missing.arguments, vec![n(1.0)]);
     assert_eq!(*result, Err(SourceRuleError::UnknownDependency));
     // The actual dependency is forwarded, including its unavailable result.
-    // Matching or paid funding cannot be claimed until this read adapter exists.
+    // V1 deliberately preserves its original unavailable-dependency result.
     drop(backend);
     let before = state.ledger().snapshot_bytes().unwrap();
     let report = apply(&mut state, &[over_band, within_band]);
@@ -403,4 +466,170 @@ fn raw_leverage_rejection_and_missing_margin_dependency_are_audited_and_restored
     );
     assert_eq!(state, replay);
     restored(&replay);
+}
+
+#[test]
+fn v2_genuine_raw_orders_read_pending_country_and_settle_actual_sole_ledger_positions() {
+    let mut state = opened_metadata();
+    let before = state.ledger().snapshot_bytes().unwrap();
+    let denied = order_for(0, 70, B, 100, 2, true);
+    let report = apply(&mut state, std::slice::from_ref(&denied));
+    assert_eq!(report.receipts[0].disposition, SourceDisposition::Invalid);
+    assert!(report.receipts[0].reason.contains("country"));
+    assert_eq!(state.ledger().snapshot_bytes().unwrap(), before);
+    let report = apply(
+        &mut state,
+        &[
+            tx(0, 80, &format!("90,0,{B},NZ"), B),
+            order_for(1, 81, B, 100, 2, true),
+            order_for(2, 82, A, 100, 2, false),
+        ],
+    );
+    assert_eq!(report.accepted, 3, "{:?}", report.receipts);
+    assert_eq!(position(&state, A), "2");
+    assert_eq!(position(&state, B), "-2");
+    assert_eq!(state.margin_atoms(&a(A)), 20 * U);
+    assert_eq!(state.margin_atoms(&a(B)), 20 * U);
+    let mut replay = restored(&state);
+    assert_eq!(
+        apply(&mut state, std::slice::from_ref(&denied)).already_processed,
+        1
+    );
+    assert_eq!(apply(&mut replay, &[denied]).already_processed, 1);
+    assert_eq!(state, replay);
+    restored(&state);
+}
+
+#[test]
+fn v2_ordinary_match_cash_and_positions_equal_independently_executed_full_source() {
+    // Read the frozen genuine JS composition at runtime: its full-state trace
+    // is large and is not a Rust snapshot or supplied dependency response.
+    let fixture = std::fs::read_to_string(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/fixtures/source_contract_execution_vectors.tsv"
+    ))
+    .unwrap();
+    let summary = fixture
+        .lines()
+        .find_map(|row| {
+            let columns: Vec<_> = row.split('\t').collect();
+            (columns.len() == 7 && columns[1] == "ordinary-matched-quantity-two/3")
+                .then(|| columns[6])
+        })
+        .expect("independently executed ordinary quantity-two match");
+    let source = V::from_json(&JsonValue::parse(summary).unwrap()).unwrap();
+    let V::Array(actors) = source.get("actors") else {
+        panic!("source actors")
+    };
+    assert_eq!(actors.len(), 2);
+    let state = matched_state();
+    for actor in actors {
+        let V::String(address) = actor.get("address") else {
+            panic!("source address")
+        };
+        assert!([A, B].contains(&address.as_str()));
+        let owner = a(&address);
+        let position = state.positions().get(&owner).unwrap();
+        let margin = state.margin_atoms(&owner);
+        assert_eq!(
+            actor.get("available"),
+            n(available(&state, &address) as f64 / U as f64)
+        );
+        assert_eq!(actor.get("reserved"), n(0.0));
+        assert_eq!(actor.get("margin"), n(margin as f64 / U as f64));
+        assert_eq!(actor.get("positionMargin"), n(margin as f64 / U as f64));
+        assert_eq!(
+            actor.get("contracts"),
+            n(position.contracts.to_string().parse().unwrap())
+        );
+        assert_eq!(
+            actor.get("amount"),
+            n((available(&state, &address) + margin) as f64 / U as f64)
+        );
+    }
+    assert_eq!(source.get("fees").get("bufferedPlusPersisted"), s("0.001"));
+    assert_eq!(state.receipts()[0].retained_fee_atoms, 100_000);
+    // This comparison establishes the ordinary cash/position intersection.
+    // JS buffers these fees and has different queue flags, IDs, persistence
+    // and failure prefixes; this is not a complete-state parity assertion.
+    restored(&state);
+}
+
+#[test]
+fn v2_actual_source_prices_fund_positions_at_24_and_restore_flip_and_close() {
+    let mut state = matched_state();
+    while state.finalized_height().unwrap() < 22 {
+        apply(&mut state, &[]);
+    }
+    let report = apply(&mut state, &[publish(0, 90, 104)]);
+    assert_eq!(report.accepted, 1);
+    let before_a = available(&state, A);
+    let before_b = available(&state, B);
+    let margin_a = state.margin_atoms(&a(A));
+    let margin_b = state.margin_atoms(&a(B));
+    apply(&mut state, &[]);
+    let epoch = &state.funding_state().epochs[0];
+    assert_eq!(epoch.height, 24);
+    assert_eq!(epoch.status, FundingStatus::Paid);
+    assert_eq!(epoch.positions.len(), 2);
+    let plan = epoch.plan.as_ref().unwrap();
+    assert!(plan.total_atoms > 0);
+    assert_eq!(plan.debits.len(), 1);
+    assert_eq!(plan.credits.len(), 1);
+    assert_eq!(plan.debits[0].owner, a(A));
+    assert_eq!(plan.credits[0].owner, a(B));
+    assert_eq!(available(&state, A), before_a - plan.total_atoms);
+    assert_eq!(available(&state, B), before_b + plan.total_atoms);
+    assert_eq!(state.margin_atoms(&a(A)), margin_a);
+    assert_eq!(state.margin_atoms(&a(B)), margin_b);
+    let paid = epoch.clone();
+    let mut replay = restored(&state);
+    let flip = [
+        order_for(0, 91, A, 104, 5, true),
+        order_for(1, 92, B, 104, 5, false),
+    ];
+    assert_eq!(apply(&mut state, &flip), apply(&mut replay, &flip));
+    assert_eq!(position(&state, A), "-3");
+    assert_eq!(position(&state, B), "3");
+    assert_eq!(state.funding_state().epochs, [paid]);
+    assert_eq!(state, replay);
+    let close = [
+        order_for(0, 93, A, 104, 3, false),
+        order_for(1, 94, B, 104, 3, true),
+    ];
+    assert_eq!(apply(&mut state, &close), apply(&mut replay, &close));
+    assert_eq!(position(&state, A), "0");
+    assert_eq!(position(&state, B), "0");
+    assert_eq!(state.margin_atoms(&a(A)), 0);
+    assert_eq!(state.margin_atoms(&a(B)), 0);
+    assert_eq!(state, replay);
+    state.ledger().verify_conservation().unwrap();
+    restored(&state);
+}
+
+#[test]
+fn source_policy_version_is_independently_expected_and_v1_history_remains_replayable() {
+    let v1 = opened_metadata_with_policy(SourceConsensusPolicy::ConservingSequentialV1);
+    let v2 = opened_metadata();
+    let v1_bytes = v1.snapshot_bytes().unwrap();
+    let v2_bytes = v2.snapshot_bytes().unwrap();
+    assert_eq!(v1_bytes[37], 1);
+    assert_eq!(v2_bytes[37], 2);
+    assert_ne!(v1_bytes, v2_bytes);
+    assert!(EconomicState::from_snapshot_bytes(
+        &v1_bytes,
+        v2.config(),
+        &a(A),
+        &BTreeSet::from([p()])
+    )
+    .is_err());
+    assert!(EconomicState::from_snapshot_bytes(
+        &v2_bytes,
+        v1.config(),
+        &a(A),
+        &BTreeSet::from([p()])
+    )
+    .is_err());
+    restored(&v1);
+    restored(&v2);
 }

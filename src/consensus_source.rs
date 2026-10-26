@@ -27,6 +27,9 @@ pub enum SourceConsensusPolicy {
     /// Source phase order with candidate rollback, exact owner custody,
     /// previously activated operations and atomic end-of-block publication.
     ConservingSequentialV1,
+    /// V1 settlement with genuine selected-contract Margin and initial-margin
+    /// reads. V1 retains its earlier unavailable-dependency replay outcomes.
+    ConservingSequentialV2,
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SourceConsensusConfig {

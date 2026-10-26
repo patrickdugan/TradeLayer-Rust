@@ -1,10 +1,12 @@
 # Contract execution fidelity audit
 
-Static review of archived source commit
-`dca0888b827c5bc28fa9189bc9e1d507f5c5670c`. This document records inspected
-control flow and proposed composed-source cases; it reports no new execution
-results or runtime parity. Completing three validation reads does not establish
-the source's subsequent queue, collateral, position and clearing effects.
+Review and bounded execution evidence for archived source commit
+`dca0888b827c5bc28fa9189bc9e1d507f5c5670c`. V2 now supplies three actual-owner
+validation reads and reaches real raw matched positions and paid conserving
+funding. A frozen genuine JavaScript composition separately records the source
+write graph. The ordinary cash/position intersection is compared explicitly;
+neither those results nor the standalone queue owner establish complete source
+collateral, position, clearing or failure/retry parity.
 
 ## Raw type 18 dispatch
 
@@ -49,9 +51,19 @@ Verified references in `fixtures/legacy_orderbook_source.txt`:
 
 ## Effects beyond the three validation adapters
 
-The validation calls `Margin.loadMarginMap`, `Margin.getPositionForAddress` and
-`Contract.getInitialMargin` need genuine pending-owner reads. The actual source
-also performs this write graph after validation:
+`EconomicSourceReadV2` supplies `Margin.loadMarginMap`,
+`Margin.getPositionForAddress` and `Contract.getInitialMargin` from the actual
+selected numeric contract, sole position owner and accepted contract catalog.
+The load returns a Pending instance-handle projection; a missing position keeps
+the exact three-field zero shape, while a missing definition produces
+PendingThrow. Exact/lowercase-Bech32 lookup and lossless signed Number bounds
+remain explicit. These reads create no second margin store and do not enable
+unrelated Margin methods. See `SOURCE_CONTRACT_READS.md`.
+
+`ConservingSequentialV2` enables those reads. V1 keeps precisely those targets
+unavailable, preserving earlier DependencyUnavailable receipts and independently
+expected checkpoint policy. Source-free typed owners also support the reads.
+The actual source additionally performs this write graph after validation:
 
 1. Persist `queue-<contractId>`, `activePairs`, and the complete JSON orderbook.
    Placement reads positions again, reserves initial margin for new exposure,
@@ -99,7 +111,8 @@ Verified references:
 
 ## Source defects and ConservingV1 distinctions
 
-These are observable source behaviors, not reasons to silently repair dispatch:
+The composed harness now executes the source behaviors below; they must remain
+distinct from the named conserving settlement choices:
 
 - The validator does not check positive/integer contract amount. Zero/default
   amount can validate and queue; placement reserves zero and successfully skips
@@ -126,33 +139,106 @@ These are observable source behaviors, not reasons to silently repair dispatch:
   prefix while the ready queue remains uncleared. Original raw transactions were
   processed when queued; an end-phase retry can process retained entries again.
 
-Current `src/types_economic.rs:816` projects type 18 into typed `Order`, rejects
+Current `src/types_economic.rs` projects type 18 into typed `Order`, rejects
 insurance/reduce/stop, requires positive quantity, and directly maps decoded post.
 That direct post mapping differs from the actual Logic argument shift.
-`src/economic_block_stage_impl.rs:229`, `src/economic.rs:422` and `:473`, and
-`src/contract_orderbook.rs:314` implement the current coordinated economic path.
+`src/economic_block_stage_impl.rs`, `src/economic.rs` and
+`src/contract_orderbook.rs` implement the current coordinated economic path.
 Atomic late-failure rollback, replay-fenced drain, reserve refunds, collected
 funding before payouts, and integer conservation are deliberate ConservingV1
 choices. They must remain distinguished from the inspected source write graph.
 
-## High-value composed-source cases
+## Concrete raw-owner and composed-source evidence
 
-The next corpus should execute unchanged Types, validator, Logic, Orderbook,
-ContractRegistry, MarginMap, Tally and the reached Clearing/volume/history paths
-against declared storage/services. Fixed dependency answers alone cannot prove
-matched-position ownership.
+`tests/economic_source_oracle_contracts.rs` feeds real raw13/14/16/18 through
+the actual oracle/catalog owners and V2 validation. The non-admin actor first
+fails the genuine country predicate, then a raw country self-certification in
+the pending owner permits subsequent orders. Two opposing quantity-two orders
+at 100 create positions +2/-2, margin 20 per actor, no remaining reserve and
+one real matching receipt with original transaction IDs. The ordinary cash,
+position and total-fee values match the independently executed source fixture's
+`ordinary-matched-quantity-two/3` observation. That assertion deliberately does
+not compare source fee buffering, source queue flags, full IDs, persistence or
+failure prefixes as though they were the same policy.
 
-- Ordinary unmatched placement, then opposite-side matching in the same and a
-  later block; inspect queue flags, reserves, fees, complete positions and maps.
-- Each raw flag separately, especially post versus stop, plus insurance's unused
-  argument and reduce's liquidation shift.
-- Zero amount, negative amount, insufficient collateral, and two individually
-  valid queued orders competing for one balance.
-- Pure close, exact close, flip, partial fill, same-block reopen/close, and a
-  later queue entry whose reserve decision depends on an earlier match.
-- Self-cross collateral, source Number/eight-place boundaries, and fee payments
-  sourced separately from available, reserve and margin.
-- Missing source price default 1, a newly published mark with multiple matches,
-  and actual mutable Clearing trade/cache continuation across restart.
-- Failures after book save, fee write, position write or volume conversion;
-  compare retained prefixes, processed raw IDs, uncleared queues and retry effects.
+An actual source publication at 104 then drives a Paid funding epoch at height
+24, with one positive Ledger debit from the long and credit to the short.
+Complete TLECv10 raw replay preserves the epoch and continues through a flip
+to -3/+3 and a close to flat. This proves funded execution and recovery in
+`ConservingFundingV1` / `ConservingV1`, not literal source funding parity.
+Separate V1 regressions preserve its rejected/unavailable-read history and
+reject a restore under the independently expected V2 policy.
+
+`scripts/source_contract_execution_vectors.cjs --check` executes 25 complete,
+unchanged hash-pinned source modules in one CommonJS realm. Its frozen TSV has
+32 scenes / 135 observations, including initial state, exact raw decoding and
+validation, real Logic enqueue, actual queue drain and financial methods. No
+validation, match, reserve, PnL, fee, reward or insurance outcome is supplied.
+The explicit async document store, activation, clock, deterministic identifier
+and unowned-service boundaries are detailed in `SOURCE_CONTRACT_EXECUTION_REVIEW.md`.
+Module import order and captured circular partial exports remain observable.
+
+The corpus executes ordinary and partial matches, each raw flag, zero/negative
+quantity, oversubscribed reserves, self-cross, close/flip, same-block mutable
+marks, buffered fees, real IOU paths and an explicitly imported reward alias.
+Injected history/volume failures retain genuine prior effects and queues;
+retry can execute the original orders again. A tiny contract-unit value reaches
+an uninjected financial throw. Main-reachable, Tally-first and VolumeIndex-first
+loads expose distinct fee/volume outcomes. These are concrete source results,
+including defects; they are not instructions to normalize the source into the
+conserving owner.
+
+The standalone `ContractQueueSourceOwner` covers nine genuine queue/book
+methods with 117 differential actions. It compares outcomes, complete documents,
+instance caches, ordered DB/placement calls and retained exception prefixes;
+every action continues through complete checkpoint restore. A separate test
+matches 57 enqueue boundaries from the frozen composition. Placement remains
+an explicit capability into a future sole-ledger implementation. This owner is
+not yet integrated into the economic runner's financial queue/matching graph.
+See `CONTRACT_QUEUE_SOURCE_OWNER.md` for storage, capacity and durable-restart
+boundaries.
+
+## Numeric dependency provenance and CI
+
+The committed oracle loader and fixtures retain their genuine archived
+BigNumber **9.3.1** provenance, LF-normalized source SHA256
+`58ba6fb59668342346f17983a61ace455f6f425ac4fbfab84f489df257594d16`.
+The pinned JavaScript commit's package-lock instead resolves BigNumber
+**9.1.2**. A separate work-only comparison downloaded that official npm tarball
+and verified the lock's exact SHA512 integrity before executing it. Tarball
+SHA256 is `819bd8cc7ee880c2bb5014f45c0c4593300810de7e1fe348ef3e6bed35be149c`;
+raw CommonJS source SHA256 is
+`20db2d8d32fd388a927588beb9c1cdbb2c91ddf0273a180161334b28cb00902e`.
+
+That comparison replaced only the shared loader's exported `loadBigNumber`
+with a fresh VM constructor from verified 9.1.2, retaining all source effects,
+fixture bytes and original version/hash labels. On Node v24.19.0 all 31 invoked
+generator/audit checks passed, including the composed 32 scenes / 135
+observations, sends 17, oracle owner 311, margin 246, orderbook 287, clearing
+117, decimal 1942, validity 564 and Types 1228. This establishes tested corpus
+equality under 9.1.2, not whole-version equivalence or a change in fixture
+provenance. The temporary preload/evidence stay outside the repository; CI's
+normal source checks continue using the archived 9.3.1 loader.
+
+The composed harness directly loads genuine `bitcoinjs-lib`, `tiny-secp256k1`
+and `bip32`. CI explicitly installs the executed test-reference versions
+6.1.8, 2.2.4 and 5.0.1, respectively, under its temporary reference prefix,
+then passes that prefix with `--module-root`. It does not depend on a local JS
+checkout or an accidental transitive installation of these direct imports.
+These test versions are distinct from the pinned JS lock's 6.1.7, 2.2.3 and
+5.0.0 entries. Existing genuine bitcore test references remain pinned separately.
+The composed TSV uses LF with whitespace diagnostics disabled so significant
+source observation separators are preserved.
+
+## Remaining source graph
+
+Complete source orchestration still requires the real financial placement
+capability over the sole Ledger and coordinated queue/cache persistence:
+reserve/margin deltas, all position fields, fee buffers and flush, mutable
+Clearing mark/PnL pools, history, volume/rewards, IOU records and exact failure/
+retry prefixes. The present corpus does not establish global clearing,
+liquidation/deleveraging/insurance payouts, native-index contracts, channel
+queues, cross-contract reserve cancellation, enhanced rewards, all rounding
+domains or real disk restart behavior. Retained source metadata exceptions and
+standalone queue prefixes remain distinct from the economic runner's atomic
+funded/admission rollback policy.

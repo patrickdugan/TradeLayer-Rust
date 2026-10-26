@@ -60,8 +60,10 @@ jobs:
         run: cargo test --frozen
       - name: Pinned Base94 and Base256 source compatibility vectors
         run: node scripts/legacy_base_vectors.cjs
-      - name: Install pinned test-only ECDSA reference
-        run: npm install --prefix "$RUNNER_TEMP/tl-secp-reference" --ignore-scripts --no-audit --no-fund --save-exact tiny-secp256k1@2.2.4 bitcore-lib-ltc@10.10.5 bitcore-lib@8.25.47
+      - name: Install pinned test-only cryptographic references
+        # Pin every direct external import used by the composed source oracle.
+        # These are the executed reference versions, not the legacy JS lockfile.
+        run: npm install --prefix "$RUNNER_TEMP/tl-secp-reference" --ignore-scripts --no-audit --no-fund --save-exact tiny-secp256k1@2.2.4 bitcore-lib-ltc@10.10.5 bitcore-lib@8.25.47 bitcoinjs-lib@6.1.8 bip32@5.0.1
       - name: Genuine BIP32 and complete source catalog owner vectors
         run: |
           node scripts/bip32_public_vectors.cjs --check --lib-root "$RUNNER_TEMP/tl-secp-reference"
@@ -69,6 +71,17 @@ jobs:
           node scripts/property_catalog_vectors.cjs --check
           node scripts/oracle_source_owner_vectors.cjs --check --module-root "$RUNNER_TEMP/tl-secp-reference"
           node scripts/source_send_vectors.cjs --check
+      - name: Genuine composed source contract execution observations
+        run: node scripts/source_contract_execution_vectors.cjs --check --module-root "$RUNNER_TEMP/tl-secp-reference"
+      - name: Install exact source-lock numeric reference
+        run: npm install --prefix "$RUNNER_TEMP/tl-bignumber-lock" --ignore-scripts --no-audit --no-fund --save-exact bignumber.js@9.1.2
+      - name: Compare unchanged corpus with source-lock BigNumber
+        env:
+          TL_BIGNUMBER_LOCK_ROOT: ${{ runner.temp }}/tl-bignumber-lock
+        run: |
+          node --require ./scripts/bignumber_lock_reference.cjs scripts/source_contract_execution_vectors.cjs --check --module-root "$RUNNER_TEMP/tl-secp-reference"
+          node --require ./scripts/bignumber_lock_reference.cjs scripts/source_send_vectors.cjs --check
+          node --require ./scripts/bignumber_lock_reference.cjs scripts/oracle_source_owner_vectors.cjs --check --module-root "$RUNNER_TEMP/tl-secp-reference"
       - name: Native public ECDSA independent and genuine reference vectors
         run: node scripts/secp256k1_vectors.cjs --check --tiny-root "$RUNNER_TEMP/tl-secp-reference"
       - name: Co-signed allocation transcripts and actual-owner signed fixtures

@@ -12,7 +12,7 @@ use crate::validity_source::{
 };
 use core::str::FromStr;
 
-pub const READ_POLICY: &str = "EconomicSourceReadV1";
+pub const READ_POLICY: &str = "EconomicSourceReadV2";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ValidationContext {
@@ -448,6 +448,120 @@ impl<'a> EconomicSourceBackend<'a> {
         ]))
     }
 
+    fn selected_contract_read(&self, value: &SourceValue) -> Result<ContractId, SourceRuleError> {
+        let SourceValue::Number(bits) = value else {
+            return Err(SourceRuleError::InvalidInput);
+        };
+        let number = f64::from_bits(*bits);
+        if !number.is_finite() || number.fract() != 0.0 {
+            return Err(SourceRuleError::UnsupportedNumericDomain);
+        }
+        let id = self.state.config().contract;
+        if number != f64::from(id.get()) {
+            return Err(SourceRuleError::UnknownDependency);
+        }
+        Ok(id)
+    }
+
+    fn margin_handle(&self, call: &DependencyCall) -> Result<SourceValue, SourceRuleError> {
+        arity(call, 1)?;
+        let id = self.selected_contract_read(&call.arguments[0])?;
+        // Source's async load resolves to an instance, including when its DB
+        // has no document. Type18 only calls the independent async getter on
+        // that instance. Project its actual series identity, never a mock Map.
+        Ok(object([("seriesId", n(f64::from(id.get())))]))
+    }
+
+    fn margin_position(&self, call: &DependencyCall) -> Result<DependencyReturn, SourceRuleError> {
+        arity(call, 2)?;
+        self.selected_contract_read(&call.arguments[1])?;
+        let SourceValue::String(address) = &call.arguments[0] else {
+            let message = match call.arguments[0] {
+                SourceValue::Null => "Cannot read properties of null (reading 'startsWith')",
+                SourceValue::Undefined => {
+                    "Cannot read properties of undefined (reading 'startsWith')"
+                }
+                _ => "address.startsWith is not a function",
+            };
+            return Ok(DependencyReturn::PendingThrow(
+                crate::validity_source::SourceException {
+                    name: "TypeError".into(),
+                    message: message.into(),
+                },
+            ));
+        };
+        let positions = self.state.positions();
+        let existing = positions
+            .positions()
+            .find(|row| row.address.as_str() == address)
+            .or_else(|| {
+                ["ltc1", "tltc1", "bc1", "tb1"]
+                    .iter()
+                    .any(|prefix| address.starts_with(prefix))
+                    .then(|| {
+                        positions
+                            .positions()
+                            .find(|row| row.address.as_str().eq_ignore_ascii_case(address))
+                    })
+                    .flatten()
+            });
+        let value = if let Some(position) = existing {
+            // These are the stored owner fields relevant to this read slice.
+            // Source injects the map key as address when a stored row lacks it.
+            object([
+                ("address", text(position.address.as_str())),
+                ("contracts", signed_decimal_number(&position.contracts)?),
+                ("margin", signed_decimal_number(&position.margin)?),
+                (
+                    "unrealizedPNL",
+                    signed_decimal_number(&position.unrealized_pnl)?,
+                ),
+            ])
+        } else {
+            // Preserve the actual source default, rather than serializing the
+            // richer typed Position::new and inventing additional fields.
+            object([
+                ("contracts", n(0.0)),
+                ("margin", n(0.0)),
+                ("unrealizedPNL", n(0.0)),
+            ])
+        };
+        value.validate()?;
+        Ok(DependencyReturn::Pending(value))
+    }
+
+    fn initial_margin(&self, call: &DependencyCall) -> Result<DependencyReturn, SourceRuleError> {
+        arity(call, 2)?;
+        let id = self.selected_contract_read(&call.arguments[0])?;
+        if self.state.contract(id).is_none() {
+            return Ok(DependencyReturn::PendingThrow(
+                crate::validity_source::SourceException {
+                    name: "Error".into(),
+                    message: format!("Contract info not found for contract ID: {}", id.get()),
+                },
+            ));
+        }
+        // Raw type18 supplies a positive finite Number. Keep unsupported
+        // nonfinite/zero/string forms outside this funded read projection.
+        if !matches!(call.arguments[1], SourceValue::Number(_)) {
+            return Err(SourceRuleError::InvalidInput);
+        }
+        let price = nonnegative_decimal(&call.arguments[1])?;
+        if price.is_zero() {
+            return Err(SourceRuleError::UnsupportedNumericDomain);
+        }
+        let catalog = self
+            .state
+            .accepted_contract_catalog()
+            .map_err(|_| SourceRuleError::Backend)?;
+        let margin = catalog
+            .initial_margin(id, &price)
+            .map_err(|_| SourceRuleError::UnsupportedNumericDomain)?;
+        // initial_margin already executes the source .toNumber boundary after
+        // its linear half-up / inverse ceiling quantization, in source order.
+        Ok(DependencyReturn::Pending(signed_decimal_number(&margin)?))
+    }
+
     /// Source loads the literal database key. In particular, the address query
     /// does not normalize a reversed token pair and does not inspect the queue.
     /// The rows come only from settled, still-open orders of the sole owner.
@@ -597,6 +711,23 @@ impl SourceBackend for EconomicSourceBackend<'_> {
         for arg in &call.arguments {
             arg.validate()?;
         }
+        if matches!(
+            call.target.as_str(),
+            "Margin.loadMarginMap" | "Margin.getPositionForAddress" | "Contract.getInitialMargin"
+        ) && self
+            .state
+            .config()
+            .source_consensus
+            .as_ref()
+            .is_some_and(|config| {
+                config.policy
+                    == crate::consensus_source::SourceConsensusPolicy::ConservingSequentialV1
+            })
+        {
+            // V1 raw checkpoints recorded these dependencies as unavailable.
+            // Preserve their receipts; V2 and source-free typed reads opt in.
+            return Err(SourceRuleError::UnknownDependency);
+        }
         if call.target.starts_with("Property.") || call.target.starts_with("ClearList.") {
             return self
                 .catalogs
@@ -625,6 +756,12 @@ impl SourceBackend for EconomicSourceBackend<'_> {
         }
         if call.target == "Tally.getAddressBalances" {
             return self.address_balances(call);
+        }
+        if call.target == "Margin.getPositionForAddress" {
+            return self.margin_position(call);
+        }
+        if call.target == "Contract.getInitialMargin" {
+            return self.initial_margin(call);
         }
         if let Some(method) = call.target.strip_prefix("Oracle.") {
             if let Some(owner) = self
@@ -702,6 +839,7 @@ impl SourceBackend for EconomicSourceBackend<'_> {
                 scaled_number(quote.price_1e4, 4)?
             }
             "Contract.getContractInfo" => self.contract_info(call)?,
+            "Margin.loadMarginMap" => self.margin_handle(call)?,
             "Orderbook.getOrderbookInstance" => self.orderbook_instance(call)?,
             // Both source methods are async. Keeping Pending here is vital:
             // validateCancelOrder reads Promise.length without awaiting it.
@@ -953,6 +1091,18 @@ fn decimal_number(value: &Decimal) -> Result<SourceValue, SourceRuleError> {
         return Err(SourceRuleError::UnsupportedNumericDomain);
     }
     Ok(result)
+}
+fn signed_decimal_number(value: &Decimal) -> Result<SourceValue, SourceRuleError> {
+    let number: f64 = value
+        .to_string()
+        .parse()
+        .map_err(|_| SourceRuleError::UnsupportedNumericDomain)?;
+    let text = crate::state_oracle::source_number_text(number)
+        .map_err(|_| SourceRuleError::UnsupportedNumericDomain)?;
+    if Decimal::from_str(&text).map_err(|_| SourceRuleError::UnsupportedNumericDomain)? != *value {
+        return Err(SourceRuleError::UnsupportedNumericDomain);
+    }
+    Ok(n(number))
 }
 fn scaled_number(value: u128, scale: u32) -> Result<SourceValue, SourceRuleError> {
     let divisor = 10u128

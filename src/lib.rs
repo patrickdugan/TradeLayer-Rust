@@ -42,6 +42,7 @@ pub mod client; // Bounded Core HTTP JSON-RPC; readiness is bound to network and
 mod codec; // Bounded, checksummed snapshot codec.
 pub mod consensus_source; // Replayed sequential source dispatch in the sole economic owner.
 pub mod contract_orderbook; // Source matching metadata; custody stays in the economic owner.
+pub mod contract_queue_source_owner; // Actual source queue documents and placement capability.
 pub mod contract_registry;
 pub mod daemon; // Synced bounded raw-block observations; no economic admission authority.
 pub mod decimal; // Finite decimal arithmetic with explicit precision and rounding.

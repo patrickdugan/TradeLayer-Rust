@@ -80,6 +80,7 @@ impl EconomicState {
         out.put(&source_config.bootstrap_commitment)?;
         match source_config.policy {
             SourceConsensusPolicy::ConservingSequentialV1 => out.byte(1)?,
+            SourceConsensusPolicy::ConservingSequentialV2 => out.byte(2)?,
         }
         out.put(&catalog_pin)?;
         out.embedded(&owner_bytes)?;
@@ -114,6 +115,7 @@ impl EconomicState {
         let joint_pin: [u8; 32] = reader.fixed().map_err(|_| econ_snapshot_bad())?;
         let policy = match reader.u8().map_err(|_| econ_snapshot_bad())? {
             1 => SourceConsensusPolicy::ConservingSequentialV1,
+            2 => SourceConsensusPolicy::ConservingSequentialV2,
             _ => return Err(econ_snapshot_bad()),
         };
         let catalog_pin: [u8; 32] = reader.fixed().map_err(|_| econ_snapshot_bad())?;

@@ -50,8 +50,9 @@ watermark; the next source publication then skips and succeeds while no
 durable price exists. A failed save can additionally leave the latest price
 in the metadata cache. Complete raw-source restoration reconstructs both.
 
-Economic and admission failures retain `ConservingSequentialV1` candidate
-rollback. This differs from retaining a source exception's metadata prefix:
+Economic and admission failures retain the candidate rollback of both
+`ConservingSequentialV1` and `ConservingSequentialV2`. This differs from
+retaining a source exception's metadata prefix:
 no failed economic operation, funded Ledger movement, or publication hook is
 committed. Capacity/unsupported-domain/unknown-dependency failures remain
 explicit local errors rather than fabricated source exceptions.
@@ -90,16 +91,35 @@ funding/mark history, and complete raw-source checkpoint replay.
 the source's string-height comparison, full decimal String precision, pure
 reads, and the distinction between an absent funded quote and source default 1.
 
-Genuine raw type18 currently reaches the missing `Margin.loadMarginMap` read
-after its actual oracle price/risk checks; these tests do not claim matched raw
-positions or paid source funding. The existing typed contract policy also
-differs from the pinned Logic dispatcher, whose argument order assigns
+V2 now supplies actual selected-contract `Margin.loadMarginMap`,
+`Margin.getPositionForAddress` and `Contract.getInitialMargin` reads. V1 keeps
+their previous UnknownDependency results so its recorded unavailable-dependency
+receipts replay unchanged. The Pending instance projection, source missing-row
+shape, address lookup, accepted definition and signed Number bounds are described
+in `SOURCE_CONTRACT_READS.md`; no second position store or supplied validity
+verdict is introduced.
+
+`tests/economic_source_oracle_contracts.rs` combines genuine raw13/14/16/18 and
+the actual non-admin country attestation with these reads. Opposing orders reach
+real funded +2/-2 positions, then actual persisted source prices drive a Paid
+funding epoch at height 24 with a genuine debit/credit between the actors.
+TLECv10 restoration reexecutes the complete raw history and continues through
+a flip and close, preserving the paid epoch and sole-Ledger conservation.
+This demonstrates the named conserving funding/settlement owner; it does not
+claim literal source funding or complete-state financial parity.
+
+The conserving contract mapping still differs from the pinned Logic dispatcher,
+whose argument order assigns
 `isLiq = params.reduce`, `reduce = params.post`, `post = params.stop`, and
-`stop = params.block`. Supplying the missing Margin reads alone will not make
-that typed flag policy literal source behavior.
+`stop = params.block`. Owner-backed validation does not make that typed flag
+policy literal source behavior.
 
 The source also writes its own queue/active-pair documents, reserve and margin
 deltas, fee cache, trade/PNL history, mutable Clearing mark caches, volume and
-liquidity rewards, and closeout IOU accounting. Missing validation reads are
-the first admission gap; supplying them would still dispatch into the existing
-conserving settlement owner, rather than complete that source write graph.
+liquidity rewards, and closeout IOU accounting. The frozen genuine composed
+source harness now records 32 scenes / 135 observations, while the standalone
+queue owner has nine-method / 109-action differential coverage plus 57 genuine
+enqueue boundaries. Those document/instance and source-observation results do
+not integrate the entire financial write graph into the economic runner. See
+`SOURCE_CONTRACT_EXECUTION_REVIEW.md`, `CONTRACT_QUEUE_SOURCE_OWNER.md` and
+`CONTRACT_EXECUTION_FIDELITY.md` for the observed matches and remaining gaps.

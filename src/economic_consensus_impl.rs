@@ -186,6 +186,7 @@ impl EconomicState {
         out.put(&config.bootstrap_commitment)?;
         match config.policy {
             SourceConsensusPolicy::ConservingSequentialV1 => out.byte(1)?,
+            SourceConsensusPolicy::ConservingSequentialV2 => out.byte(2)?,
         }
         out.embedded(&bytes)?;
         let mut source = EconomicWriter(Vec::new());
@@ -218,6 +219,7 @@ impl EconomicState {
             bootstrap_commitment: reader.fixed().map_err(|_| econ_snapshot_bad())?,
             policy: match reader.u8().map_err(|_| econ_snapshot_bad())? {
                 1 => SourceConsensusPolicy::ConservingSequentialV1,
+                2 => SourceConsensusPolicy::ConservingSequentialV2,
                 _ => return Err(econ_snapshot_bad()),
             },
         };

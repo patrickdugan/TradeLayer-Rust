@@ -502,6 +502,52 @@ fn valid_other_owner_audit_or_catalog_sections_cannot_be_spliced_with_fresh_crc(
 }
 
 #[test]
+fn v2_policy_binds_legacy_v7_and_actual_native_catalog_recovery() {
+    for native in [false, true] {
+        let (initial, mut config, permitted) = fixture(native);
+        config.source_consensus.as_mut().unwrap().policy =
+            SourceConsensusPolicy::ConservingSequentialV2;
+        let mut state = if native {
+            EconomicState::from_joint_with_source_catalogs_unverified(
+                config.clone(),
+                initial.joint().clone(),
+                initial.source_catalog_owners().unwrap().clone(),
+            )
+            .unwrap()
+        } else {
+            config
+                .source_consensus
+                .as_mut()
+                .unwrap()
+                .catalog_bootstrap_commitment = None;
+            EconomicState::from_joint_unverified(config.clone(), initial.joint().clone()).unwrap()
+        };
+        apply(
+            &mut state,
+            &[tx(0, 1, &format!("02,{}", "11".repeat(32)), "admin")],
+        );
+        if native {
+            apply(
+                &mut state,
+                &[tx(0, 53, &format!("20;{B};2;{}~", base36(U)), A)],
+            );
+            assert_eq!(state.ledger().available_atoms(p(2), &a(B)), 10 * U + U);
+        }
+        let bytes = state.snapshot_bytes().unwrap();
+        assert_eq!(&bytes[..5], if native { b"TLEC\x0a" } else { b"TLEC\x07" });
+        let replay =
+            EconomicState::from_snapshot_bytes(&bytes, &config, &a("admin"), &permitted).unwrap();
+        assert_eq!(replay, state);
+        assert_eq!(replay.snapshot_bytes().unwrap(), bytes);
+        config.source_consensus.as_mut().unwrap().policy =
+            SourceConsensusPolicy::ConservingSequentialV1;
+        assert!(
+            EconomicState::from_snapshot_bytes(&bytes, &config, &a("admin"), &permitted).is_err()
+        );
+    }
+}
+
+#[test]
 fn canonical_current_oracle_metadata_price_history_and_owner_presence_are_compared() {
     for native in [false, true] {
         let (mut state, config, permitted) = fixture(native);

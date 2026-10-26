@@ -11,6 +11,17 @@ that worker's branches, publish a branch, or authorize economic transitions.
 
 ## Tracking the 49 source modules
 
+The selected-contract/queue batch passes **1,339 Rust test executions**
+(1,338 top-level plus one subprocess check) across167 executable targets,
+including19 new tests. Rust1.90 formatting, all-target Clippy, all-target release,
+zero-external-crate policy and11 policy-mutation tests pass against637 frozen
+inputs. The committed record is
+`fixtures/reference_fidelity/source-contract-execution.json`. Its source queue
+corpus has117 actions;32 composed full-JavaScript scenes produce135 observations
+and57 independently replayed enqueue boundaries. Genuine locked BigNumber9.1.2
+also passes31 corpus checks, with three portable preload checks added to CI.
+This advances actual coverage without establishing full reference parity.
+
 Actual source sends, asynchronous spot reads and an optional complete oracle
 owner now compose with the same Ledger. The oracle corpus executes 311 actions
 across all19 active methods; 17 complete-source send scenes preserve scalar,
@@ -22,8 +33,17 @@ funded admission uses the named conserving policy. See
 [SOURCE_ORACLE_EXECUTION.md](SOURCE_ORACLE_EXECUTION.md),
 [SOURCE_SEND_EXECUTION.md](SOURCE_SEND_EXECUTION.md) and
 [SOURCE_SPOT_EXECUTION.md](SOURCE_SPOT_EXECUTION.md). Genuine raw contract-order
-validation still requires missing Margin dependencies; matched raw positions
-and paid source funding are not established by metadata or empty-position tests.
+validation now has actual selected-contract Margin and initial-margin reads
+under explicit `ConservingSequentialV2`; V1 preserves its original unavailable
+receipts. Genuine raw matched positions, Paid funding at24, and restore/flip/close
+are tested through the sole conserving Ledger. An independent full-JavaScript
+corpus executes32 scenes/135 observations; ordinary cash/positions agree, while
+the complete source financial write graph remains unfinished. The standalone
+queue owner preserves nine source methods and57 genuine enqueue boundaries,
+but is not yet connected to source placement and settlement. See
+[SOURCE_CONTRACT_READS.md](SOURCE_CONTRACT_READS.md),
+[SOURCE_CONTRACT_EXECUTION_REVIEW.md](SOURCE_CONTRACT_EXECUTION_REVIEW.md) and
+[CONTRACT_QUEUE_SOURCE_OWNER.md](CONTRACT_QUEUE_SOURCE_OWNER.md).
 
 The actual local property and clearlist catalogs now have owned source state,
 103 property scenarios and 200 clearlist observations, with genuine bitcore

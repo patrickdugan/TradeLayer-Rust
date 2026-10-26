@@ -14,7 +14,8 @@ remaining gates stay in [PARITY_ROADMAP.csv](PARITY_ROADMAP.csv).
 | Canonical signed allocations | Local team | Integrated opt-in funded owner | Independently pinned SupersedingCoSignedAllocationV1; both signatures, actual escrow, full recovery and retained transition checks; L1 funding/scripts/revocation remain external |
 | Native genesis/entitlements | Local team |24 source scenes and opt-in funded owner integrated | Authenticated type0/genesis, accepted property/clearlist admission, automatic schedule and positive-height migration remain open; no default economics |
 | Main-owner insurance backstop | Local team; independent source support | Opt-in actual oracle-perpetual backstop integrated | Full source lifecycle, source+insurance raw replay, ADL and authenticated admission remain open; external source artifacts are unimported |
-| Source send/spot/oracle execution | Local team | Partial actual runtime ownership | Scalar/native sends, async real book reads, actual13/14/8 oracle documents and complete TLECv10 replay; Margin dependencies block genuine raw contract matches; conserving differences remain explicit |
+| Source send/spot/oracle execution | Local team | Partial actual runtime ownership | Scalar/native sends, async real book reads, actual13/14/8 oracle documents and complete TLECv10 replay; V2 actual selected-contract reads now permit genuine raw matches and Paid funding24 under conserving settlement |
+| Source contract queue and financial graph | Local team | Queue component ported; settlement graph incomplete | Nine source queue/book methods and57 independent enqueue boundaries;32 complete-JS scenes/135 observations expose shifted flags, fees, PNL/IOU/reward and failure effects. Connect actual source placement/financial writes; ordinary cash equality is not complete parity |
 
 The user reassigned activation to the local queue because the web worker
 stalled. Its earlier external reservation is lifted. The local standalone source

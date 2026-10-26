@@ -1,0 +1,282 @@
+{
+  "schema": "source-contract-local-validation-v1",
+  "verifiedAtUtc": "2026-10-26T20:41:04Z",
+  "parentCommit": "a5efe8507445f998c0742bf14e61fb90995357e2",
+  "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "rustVersion": "1.90.0",
+  "passedTestExecutions": 1339,
+  "topLevelTests": 1338,
+  "subprocessTestPasses": 1,
+  "executableTargets": 167,
+  "newRustTests": 19,
+  "contractSourceScenes": 32,
+  "contractSourceObservations": 135,
+  "queueMethods": 9,
+  "queueSourceActions": 117,
+  "genuineEnqueueBoundaries": 57,
+  "oracleSourceActions": 311,
+  "composedSendScenes": 17,
+  "sourceConsensusPolicies": {
+    "V1": "old three-dependency unavailable receipts preserved",
+    "V2": "actual selected-contract position and initial-margin reads; conserving settlement"
+  },
+  "fundedValidation": "genuine raw18 matches actual sole-Ledger positions; source prices drive Paid epoch24; full raw snapshot restore, flip and close; independently compared ordinary JS cash/position intersection",
+  "queueValidation": "actual full documents/caches/DB and placement calls; complete and durable recovery; negative-zero/overflow/underflow source Number preservation; valid-CRC and resource adversaries",
+  "genuineDependencies": {
+    "archivedBigNumber": "9.3.1 fixture provenance unchanged",
+    "lockedBigNumber": "9.1.2 exact source SHA verified;31 prior corpus checks plus3 portable preload checks",
+    "bitcoinjs-lib": "6.1.8",
+    "bip32": "5.0.1",
+    "tiny-secp256k1": "2.2.4"
+  },
+  "numericReference": {
+    "acquisition": {
+      "commit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+      "packageLockSha256": "cb7f2b040efe779e43d4aeddd56f406079c10c6083f21c990ee76c92e7110a8d",
+      "dependency": {
+        "version": "9.1.2",
+        "resolved": "https://registry.npmjs.org/bignumber.js/-/bignumber.js-9.1.2.tgz",
+        "integrity": "sha512-2/mKyZH9K85bzOEfhXDBFZTGd1CTs+5IHpeFQo9luiBG7hghdC851Pj2WAhb6E3R6b9tZj/XKhbg4fum+Kepug==",
+        "engines": {
+          "node": "*"
+        }
+      },
+      "archiveBytes": 79226,
+      "archiveSha256": "819bd8cc7ee880c2bb5014f45c0c4593300810de7e1fe348ef3e6bed35be149c",
+      "sourceBytes": 89661,
+      "sourceSha256": "20db2d8d32fd388a927588beb9c1cdbb2c91ddf0273a180161334b28cb00902e",
+      "sourceLfSha256": "d3e239b4b1a78eb2a900f751e4c3b8370a9cef2f99c711ca19bb2149fb22656d"
+    },
+    "invocations": 31,
+    "successful": 31,
+    "comparisonScope": "Only legacy_numeric_oracle.cjs exported loadBigNumber replaced with fresh VM constructor from verified public 9.1.2; no source expressions, effect dependencies, archived version/hash constants, or fixtures changed. Assertions compare original fixture outputs or existing direct source assertions; no whole-version equivalence claimed.",
+    "results": [
+      {
+        "script": "source_contract_execution_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "c618f0191b46d6e46225f835c3a2bef68369993eb41565e176c5b1e458682e53"
+      },
+      {
+        "script": "source_send_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "d8207f5c2b1f09ad62d631ad7be3fc3f3ae3a73a98e31a0708251c942a710eb4"
+      },
+      {
+        "script": "oracle_source_owner_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "c8a1c36b4290b66ff7e7bd29793ec3f1e915460993d8d5642d83c871aa5585da"
+      },
+      {
+        "script": "margin_map_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "6a1482870c1b16bf60839b2c9b9f95539f22a69721f698a2e8068ccf48b429ef"
+      },
+      {
+        "script": "orderbook_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "67647a6eb7ac8e3825d5b2fba8b9bd59785b2ec98d2018786803e66c9d9c285c"
+      },
+      {
+        "script": "contract_registry_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "83be2947a4892ab6ed0cc8fb00924137ee70b6f4996c5c7b1a172714481541a1"
+      },
+      {
+        "script": "decimal_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "8c961bb2d308e2d1b5bd783dfaae37d66678abe75e2b19e9a5b169f107776ba1"
+      },
+      {
+        "script": "clearing_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "10c36a8bd1cf43f6f8e3121604b01c9f693c200ead568bfcbc24b1940d01bbdd"
+      },
+      {
+        "script": "mark_basis_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "18f23f957b287cdd2aabc5bcf06d6e2bda468f0ffeaeb5c5f74166ae857f85eb"
+      },
+      {
+        "script": "oracle_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "b463d3db42568f8db9be3dd1c839bcad7d5706ca518fd30ec60217d9baa61d37"
+      },
+      {
+        "script": "validity_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "c81cc1ad1a2b35aa1053750e8e97274f0bc0129471bd643d7e31ee3a0ef8142a"
+      },
+      {
+        "script": "types_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "4d487c01aaa4ac443f80d218b9d9c3d92f07e832fbce31ac08eafef3f8ac98d7"
+      },
+      {
+        "script": "amm_liquidation_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "4ae57f437f108882c3cdf28f945899c292a8da66051c022b1ae6851bf3dd2d4b"
+      },
+      {
+        "script": "audit_legacy_txdecoder_source.cjs",
+        "status": 0,
+        "stdoutSha256": "a702fb3dd6bc83c47b55f0032c8990bb2bb18764e1a44c7cc22d061b51aa3a36"
+      },
+      {
+        "script": "audit_legacy_txencoder_source.cjs",
+        "status": 0,
+        "stdoutSha256": "adc6fc729c634408733cb953119838cf21f3608cffe5d30868507a20cdad8b46"
+      },
+      {
+        "script": "channels_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "c500da799e081116897c69e62f6ec55d65e6c87a4081a9003260b5080d9ea7d0"
+      },
+      {
+        "script": "contract_binding_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "e1da33153806a84aa462bcd85e36029ef15980da4c27dcc32a887f551b89683e"
+      },
+      {
+        "script": "iou_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "1adeb661b554e3473be23c50a748c0eb34c0b0730934d89a09cb942ec827cc60"
+      },
+      {
+        "script": "native_entitlement_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "00e03c376da0dcbd1388f26b2b836613aba359c29336fb7d2b3da02b13f55e45"
+      },
+      {
+        "script": "native_entitlement_owner_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "716845df433e0a838a73139809618d560add3b7aec64c9c8032e592f533907ba"
+      },
+      {
+        "script": "native_genesis_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "1639536a059e9640234c708ea4a7af0d1766956f37ec1309555e827bfa26cb2d"
+      },
+      {
+        "script": "property_catalog_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "23e5618d44e805da98cf14a8540aa60368067f27ac74325d5f429669e178a18c"
+      },
+      {
+        "script": "tally_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "33a591e834b351ec64a31ce79072587e3503a487bce29899bb6c06b46da40943"
+      },
+      {
+        "script": "txencoder_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "b022ee56ad9a2e22573234941424280395ce290fc45638398f555733e7989a33"
+      },
+      {
+        "script": "trade_history_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "5b3d706ad30bf6e0099dfb7a6e364a18cc07ba6d80ccd365e2a0527213503802"
+      },
+      {
+        "script": "vault_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "5a1e81e95239e9b4576df8dc1ecbef3ff671380772d88a2f44695c014b997337"
+      },
+      {
+        "script": "vesting_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "3ea6774272dc34c5db120154d098d1c760f988cfb795649a7183dbd982555663"
+      },
+      {
+        "script": "wire_roundtrip_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "3180cf5daebf26ec6601513985da0c0ecaaee02670360b966560f0effd8bdcf9"
+      },
+      {
+        "script": "options_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "dda11112f0f6251ceb9c1b7bc317db91daff6ae1b04a8202a1a1d2efa043f52f"
+      },
+      {
+        "script": "volume_index_vectors.cjs",
+        "status": 0,
+        "stdoutSha256": "279bca99d80a3d0020bad3af7ea424bb746f67e3dd0c5472e1eb70bbe02a9678"
+      },
+      {
+        "script": "audit_property_reference.cjs",
+        "status": 0,
+        "stdoutSha256": "fd0f8c5f670f5453e032f0e1d9f36874b40341450096d8aa359ef3a986a0c4f4"
+      }
+    ]
+  },
+  "commands": [
+    "cargo test --offline --all-targets",
+    "cargo test --offline --doc",
+    "cargo clippy --offline --all-targets -- -D warnings",
+    "cargo build --offline --release --all-targets",
+    "cargo fmt --all -- --check",
+    "rustfmt --check --edition 2021 <CI included implementations>",
+    "node --require ./scripts/bignumber_lock_reference.cjs scripts/source_contract_execution_vectors.cjs --check",
+    "node --require ./scripts/bignumber_lock_reference.cjs scripts/source_send_vectors.cjs --check",
+    "node --require ./scripts/bignumber_lock_reference.cjs scripts/oracle_source_owner_vectors.cjs --check",
+    "python -B scripts/check_logic_inventory.py",
+    "python -B scripts/check_rust_supply_chain.py",
+    "python -B -m unittest discover -s tests -p test_rust_supply_chain.py -v"
+  ],
+  "supplyMutationTests": 11,
+  "thirdPartyRustCrates": 0,
+  "fullReferenceParityEstablished": false,
+  "exportedTransitionWitness": "not-exported",
+  "remainingSourceWriteGraph": "queue owner is not wired into actual source placement, financial position/clearing/cache/fee/reward/IOU effects and retained partial failures; source-compatible end-phase orchestration remains incomplete",
+  "policyDifferences": "Conserving settlement/rollback and bounded source domains remain explicit; new V2 opt-in never relabels the conserving owner as complete source parity.",
+  "environment": "Pinned installed MSVC toolchain and local HTTP test fixtures require host permissions; no test or source acceptance rule was weakened.",
+  "frozenInputHash": "15e69ea5c2daa03ef382fa9b0c763b502d24cad581be9d045845f1248b03cd65",
+  "implementationInputs": 637,
+  "logs": {
+    "full-tests": {
+      "name": "source-contract-full-tests.log",
+      "sha256": "1f23fa01ffbf2ed9386854bf805e22c824e761c3f38cd3e286bbaf689d75e4d3"
+    },
+    "clippy": {
+      "name": "source-contract-clippy.log",
+      "sha256": "ef8c2a7f003cc6ff75f49ebdd2599d7fdc1880ff433f9543e0e7486629f7f347"
+    },
+    "release": {
+      "name": "source-contract-release.log",
+      "sha256": "e552b9bab6de6ef291b4db4f8f7f39d3d56678cafb2533c5fac0657cd94d01fa"
+    },
+    "doctest": {
+      "name": "source-contract-doctest.log",
+      "sha256": "677e85b42110b8ac8698f4a3868c16ee654c97f8323ed951042f64cfac1c30b8"
+    },
+    "format": {
+      "result": "passed with no output; sequential runner verified exit status before later gates"
+    },
+    "includes-format": {
+      "result": "passed with no output; sequential runner verified exit status before later gates"
+    },
+    "supply": {
+      "name": "source-contract-supply.log",
+      "sha256": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01"
+    },
+    "supply-mutations": {
+      "name": "source-contract-supply-mutations.log",
+      "sha256": "a5eee07f4cf9a5fc6def7a81d7422e4a0be8768284d034dcd8bf9e5e37772472"
+    },
+    "inventory": {
+      "name": "source-contract-inventory.log",
+      "sha256": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393"
+    },
+    "lock-composed": {
+      "name": "source-contract-lock-composed.log",
+      "sha256": "951c46f1b03e2bfae463f9b372b8dbea588c8ee813e5ebaa205025e405e09df2"
+    },
+    "lock-send": {
+      "name": "source-contract-lock-send.log",
+      "sha256": "eb685c72ee71b495d2026636cdf425b04073f78034761315f67d924ed6ee88ce"
+    },
+    "lock-oracle": {
+      "name": "source-contract-lock-oracle.log",
+      "sha256": "25e7cd656aaba8dd98ce8d88f9ac74720db51b49b28ffe1abd656dba6b342cec"
+    }
+  }
+}

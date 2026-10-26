@@ -1,10 +1,10 @@
 {
   "schema": "tl-logic-reference-review-v1",
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
-  "rustCommit": "58dc1f64318c4c97ba4c948807cc4cec4c33ffb2",
-  "rustCommitScope": "Immutable parent baseline; runtimePins bind the later actual send/spot/oracle owner integration. Executed tests and committed validation are recorded separately.",
-  "reviewedAtUtc": "2026-10-26T19:18:26Z",
-  "evidenceScope": "static per-type inventory; executed property, clearlist, send and oracle checks are recorded separately",
+  "rustCommit": "a5efe8507445f998c0742bf14e61fb90995357e2",
+  "rustCommitScope": "Immutable parent baseline; runtimePins bind later selected-contract reads, policy versioning and standalone source queue ownership. Executed tests and committed validation are recorded separately.",
+  "reviewedAtUtc": "2026-10-26T20:09:02Z",
+  "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
     {
       "path": "fixtures/native_genesis/source/logic.js",
@@ -30,7 +30,7 @@
     },
     {
       "path": "src/economic_validity.rs",
-      "sha256": "371ab4042d1fee385a1b8bad282b99d7e40f2991cf9a8e48aa81864cf378b416",
+      "sha256": "83dfbcf683ae993678f75462557d1e753dbb9c01ca347ed2b97cf490c4ae7a44",
       "lfNormalized": true
     },
     {
@@ -70,7 +70,12 @@
     },
     {
       "path": "src/consensus_source.rs",
-      "sha256": "bfe7363576f728b8d8495e4ac5c539b1642c63332e4603bb47da8cc89c66c86e",
+      "sha256": "b40ced0f9f707f0c6c13b7d9450f249f3a67034f74749b9ac5524efece772912",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/contract_queue_source_owner.rs",
+      "sha256": "161fea381f36554e26224518c04462baf01c1fd0b21a3a765f4a14c582ada9dd",
       "lfNormalized": true
     },
     {
@@ -80,7 +85,7 @@
     },
     {
       "path": "src/economic_source_catalog_snapshot_impl.rs",
-      "sha256": "afb8aed9879485b3088e472686e959b7f9f72198e579bf243cf46c1ee9b83395",
+      "sha256": "2a434550d3b662c58cf563d6b64b92b602d5763ba2836b5ef9c2bdb3d411a708",
       "lfNormalized": true
     },
     {
@@ -547,10 +552,10 @@
       "sourceRoute": "14 / base36 e / Logic.publishOracleData",
       "sourceEffects": "Forwards oracle ID, price/OHLC and block to OracleList.publishData; metadata/data rows drive later funding and marks.",
       "sourceDefects": "Source watermark/cache may survive later DB failure and suppress same-height retry. Any record type may supply a price, IDs remain strictly typed, height comparison follows JS, first ties win and original String prices retain precision. Those metadata effects are preserved; funded admission remains bounded.",
-      "runtimeScope": "Actual source publishData retains complete documents/cache/watermarks and source circuit behavior. Source exceptions retain their written prefix; duplicate heights remain no-ops. Configured funded views read persisted exact Decimal prices and original publication IDs, with no fabricated default1.",
-      "missingLogic": "Staking/slashing/insurance and source trade orchestration remain outside this path. Source-valid metadata can exceed funded numeric domains; funded admission rolls back on economic errors. Broader DB/JS domains and authenticated input remain open.",
-      "nextTask": "Connect missing actual Margin/Contract dependencies and compare paid funding/mark effects, persistence faults and exact historical prices.",
-      "evidence": "JS dca0888b src/types.js decodePayload case14; src/logic.js typeSwitch case14; src/types_economic.rs; src/registry.rs; src/economic_funding_impl.rs; src/economic_mark_impl.rs; tests/consensus_source.rs; tests/economic_funding.rs Actual send/spot/oracle follow-up: docs/SOURCE_SEND_EXECUTION.md (17 composed unchanged-source scenes); docs/ORACLE_SOURCE_OWNER.md (311 actual source actions/all19methods); docs/SOURCE_SPOT_EXECUTION.md; docs/SOURCE_ORACLE_EXECUTION.md; docs/SOURCE_ORACLE_CHECKPOINTS.md; tests/economic_source_oracle_contracts.rs. Runtime checks are recorded separately; no blanket parity claim.",
+      "runtimeScope": "Actual source publication documents and exact persisted prices feed real raw18 matched positions, marks and Paid epoch24 funding under ConservingSequentialV2. Restore/flip/close replay uses actual sole-Ledger custody.",
+      "missingLogic": "Full source mutable cache/open-close pools/PNL/IOU/failure write sequence differs from the conserving funded policy. Broader source domains, production DB and authenticated prices/history remain open.",
+      "nextTask": "Integrate the observed complete source financial write graph and compare nontrivial closing/funding/failure effects without promoting conserving settlement to parity.",
+      "evidence": "JS dca0888b src/types.js decodePayload case14; src/logic.js typeSwitch case14; src/types_economic.rs; src/registry.rs; src/economic_funding_impl.rs; src/economic_mark_impl.rs; tests/consensus_source.rs; tests/economic_funding.rs docs/SOURCE_CONTRACT_READS.md; docs/SOURCE_CONTRACT_EXECUTION_REVIEW.md; docs/CONTRACT_QUEUE_SOURCE_OWNER.md; tests/economic_validity_contracts.rs; tests/economic_source_oracle_contracts.rs; 32 genuinely composed scenes/135 observations;57 independent enqueue boundaries. Archived9.3.1 corpus also compared byte-for-byte using genuine locked9.1.2; this is tested equality only. Actual send/spot/oracle follow-up: docs/SOURCE_SEND_EXECUTION.md (17 composed unchanged-source scenes); docs/ORACLE_SOURCE_OWNER.md (311 actual source actions/all19methods); docs/SOURCE_SPOT_EXECUTION.md; docs/SOURCE_ORACLE_EXECUTION.md; docs/SOURCE_ORACLE_CHECKPOINTS.md; tests/economic_source_oracle_contracts.rs. Runtime checks are recorded separately; no blanket parity claim.",
       "preStateWitness": "Exact oracle admin/backup, prior accepted publications, close state, height and derivative observation windows.",
       "postStateWitness": "Admitted price/OHLC data and exact cache/observation state; dependent mark/funding effects occur in actual ordered block phase.",
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
@@ -605,10 +610,10 @@
       "sourceRoute": "16 / base36 g / Logic.createContractSeries",
       "sourceEffects": "Builds full source parameters and calls ContractRegistry.createContractSeries, allocating definition/series plus source contract metadata.",
       "sourceDefects": "Source native and oracle definitions have different price/dependency needs; source class/expiry/oracle behavior is not safely inferred from numbers alone. Runtime differences: SourceContextsConservingV1 binds accepted definitions/bootstrap and dynamic margin; unsupported native definitions stay closed.",
-      "runtimeScope": "Supported oracle-perpetual definitions read the actual source oracle ticker/closed state when configured; the same owner feeds exact funded market prices. Complete raw source/catalog checkpoint replay retains accepted definitions.",
-      "missingLogic": "Native/dated/multicontract modes and full source Contract/Margin state ownership remain incomplete. Actual oracle-backed raw type18 still reaches missing Margin dependencies.",
-      "nextTask": "Add actual Margin.loadMarginMap/getPositionForAddress and Contract initial-margin reads before widening funded raw contract orders.",
-      "evidence": "JS dca0888b src/types.js decodePayload case16; src/logic.js typeSwitch case16; src/types_economic.rs; src/contract_registry.rs; src/economic_contract_impl.rs; tests/economic_contract.rs; tests/economic_contract_snapshot.rs Actual send/spot/oracle follow-up: docs/SOURCE_SEND_EXECUTION.md (17 composed unchanged-source scenes); docs/ORACLE_SOURCE_OWNER.md (311 actual source actions/all19methods); docs/SOURCE_SPOT_EXECUTION.md; docs/SOURCE_ORACLE_EXECUTION.md; docs/SOURCE_ORACLE_CHECKPOINTS.md; tests/economic_source_oracle_contracts.rs. Runtime checks are recorded separately; no blanket parity claim. Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
+      "runtimeScope": "Accepted oracle-perpetual definitions read actual source oracle metadata. Dynamic Contract.getInitialMargin now uses the real selected catalog with source linear/inverse rounding. V2 admits represented raw18 trades.",
+      "missingLogic": "Native/dated/multicontract lifecycle and complete source Contract/Margin financial/persistence orchestration remain incomplete. A selected-contract read projection does not own every source method.",
+      "nextTask": "Connect actual source collateral/position/clearing writes and compare broader contract lifecycle paths with the unchanged source.",
+      "evidence": "JS dca0888b src/types.js decodePayload case16; src/logic.js typeSwitch case16; src/types_economic.rs; src/contract_registry.rs; src/economic_contract_impl.rs; tests/economic_contract.rs; tests/economic_contract_snapshot.rs docs/SOURCE_CONTRACT_READS.md; docs/SOURCE_CONTRACT_EXECUTION_REVIEW.md; docs/CONTRACT_QUEUE_SOURCE_OWNER.md; tests/economic_validity_contracts.rs; tests/economic_source_oracle_contracts.rs; 32 genuinely composed scenes/135 observations;57 independent enqueue boundaries. Archived9.3.1 corpus also compared byte-for-byte using genuine locked9.1.2; this is tested equality only. Actual send/spot/oracle follow-up: docs/SOURCE_SEND_EXECUTION.md (17 composed unchanged-source scenes); docs/ORACLE_SOURCE_OWNER.md (311 actual source actions/all19methods); docs/SOURCE_SPOT_EXECUTION.md; docs/SOURCE_ORACLE_EXECUTION.md; docs/SOURCE_ORACLE_CHECKPOINTS.md; tests/economic_source_oracle_contracts.rs. Runtime checks are recorded separately; no blanket parity claim. Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
       "preStateWitness": "Accepted property/oracle definitions, contract ID frontier, source risk fields, collateral/notional classes and pinned pristine bootstrap.",
       "postStateWitness": "Exact admitted series/definition, dynamic risk context and replay allocation, with no invented native prices.",
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
@@ -663,10 +668,10 @@
       "sourceRoute": "decodeTradeContractOnchain → validateTradeContractOnchain → Logic.tradeContractOnchain.",
       "sourceEffects": "Queues an on-chain contract order in Orderbook; immediate matching is deferred.",
       "sourceDefects": "The positional switch shifts params.reduce→isLiq, params.post→reduce, params.stop→post, and params.block→stop in the actual handler signature. Logic.typeSwitch shifts the order flags: isLiq receives params.reduce, reduce receives params.post, post receives params.stop, and stop receives params.block. Existing typed flag mapping is an explicit conserving difference.",
-      "runtimeScope": "Source validity now reads actual oracle price and actual async contract-order books. The typed funded contract owner remains available under its named conserving policy, with source-derived risk/fee contexts.",
-      "missingLogic": "Genuine raw order admission reaches missing Margin.loadMarginMap after source price checks; matched raw source positions, source fee/reward/failure behavior and full oracle/contract orchestration remain unimplemented.",
-      "nextTask": "Own real Margin and Contract validation reads from the sole Ledger/positions, then compare genuine raw matched orders and paid funding.",
-      "evidence": "Static: fixtures/native_genesis/source/logic.js:244,1069; src/legacy_types_audit.rs:206; src/types_economic.rs:442; src/economic.rs. Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Detailed write-graph and source policy audit: docs/CONTRACT_EXECUTION_FIDELITY.md. Missing validation reads are distinct from the remaining source queue, reserve, fee, margin, Clearing, history, reward and IOU mutation graph. Actual send/spot/oracle follow-up: docs/SOURCE_SEND_EXECUTION.md (17 composed unchanged-source scenes); docs/ORACLE_SOURCE_OWNER.md (311 actual source actions/all19methods); docs/SOURCE_SPOT_EXECUTION.md; docs/SOURCE_ORACLE_EXECUTION.md; docs/SOURCE_ORACLE_CHECKPOINTS.md; tests/economic_source_oracle_contracts.rs. Runtime checks are recorded separately; no blanket parity claim. Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
+      "runtimeScope": "V2 supplies actual pending Margin load/position and Contract initial-margin reads. Genuine raw country/order candidates produce funded matched positions, Paid funding24 and restore/flip/close through the sole conserving Ledger; ordinary cash/position intersection matches independently executed full JS. Standalone source queue owner preserves nine methods, full docs/caches and actual shifted enqueue params.",
+      "missingLogic": "Queue owner is not yet wired to actual source placement and financial writes. Shifted raw flags, source fee buffering, mutable clearing caches, PNL/IOUs/rewards and retained partial-failure prefixes differ from conserving settlement. Full source parity is unestablished.",
+      "nextTask": "Integrate the actual source placement-to-financial-write graph under an explicit source-compatible policy. Compare all32 genuine scenes, not only ordinary cash, preserving source failures and exact state effects.",
+      "evidence": "Static: fixtures/native_genesis/source/logic.js:244,1069; src/legacy_types_audit.rs:206; src/types_economic.rs:442; src/economic.rs. Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). docs/SOURCE_CONTRACT_READS.md; docs/SOURCE_CONTRACT_EXECUTION_REVIEW.md; docs/CONTRACT_QUEUE_SOURCE_OWNER.md; tests/economic_validity_contracts.rs; tests/economic_source_oracle_contracts.rs; 32 genuinely composed scenes/135 observations;57 independent enqueue boundaries. Archived9.3.1 corpus also compared byte-for-byte using genuine locked9.1.2; this is tested equality only. Detailed write-graph and source policy audit: docs/CONTRACT_EXECUTION_FIDELITY.md. Missing validation reads are distinct from the remaining source queue, reserve, fee, margin, Clearing, history, reward and IOU mutation graph. Actual send/spot/oracle follow-up: docs/SOURCE_SEND_EXECUTION.md (17 composed unchanged-source scenes); docs/ORACLE_SOURCE_OWNER.md (311 actual source actions/all19methods); docs/SOURCE_SPOT_EXECUTION.md; docs/SOURCE_ORACLE_EXECUTION.md; docs/SOURCE_ORACLE_CHECKPOINTS.md; tests/economic_source_oracle_contracts.rs. Runtime checks are recorded separately; no blanket parity claim. Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
       "preStateWitness": "Existing economic checkpoints can anchor the actual owner, but no complete JS queue pre-state witness is exported.",
       "postStateWitness": "Economic receipts/checkpoints describe funded typed outcomes, not a complete JS queue post-state witness.",
       "inputWitness": "Typed Order binds txid/owner/contract/quantity/price; no exported input witness binds the shifted source argument list to execution.",
