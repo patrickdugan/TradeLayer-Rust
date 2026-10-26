@@ -82,7 +82,8 @@ client even for that literal, probes and may change ports, uses two different
 Dogecoin test ports, never clears its initialization flag, and only recognizes
 literal chain names in subversion. These facts are characterized rather than
 copied into node readiness. Testnet deployment, automatic discovery/redirect,
-production TLS, transport pooling and daemon/listener wiring remain open.
+production TLS, transport pooling and subscription/listener wiring remain open.
+The owned polling daemon now uses this transport; see [RUNTIME.md](RUNTIME.md).
 
 `scripts/client_vectors.cjs` executes the complete unchanged source with a
 captured library RPC boundary. Its 68 observations cover bootstrap/defaults,
@@ -92,3 +93,12 @@ temporary loopback mock servers for real HTTP requests, large block replies,
 chunking, truncation, framing/JSON adversaries, cookie rotation, deadline expiry,
 remote errors without retry and all three mainnet genesis expectations. They do
 not call a real wallet or prove interoperability with an installed Core daemon.
+
+`call_controlled` and `verify_network_controlled` accept `BootstrapControl`.
+They check cancellation before request work, connection, each write/read stage
+and response publication; the deadline also bounds socket I/O. Cancellation
+inside a blocked OS call may wait for its configured timeout. A shared control
+can stop later identity requests and the observation daemon before commit.
+The original uncontrolled APIs remain available. The transport never retries
+wallet mutations; the observation state machine separately schedules selected
+read-only RPC retries.

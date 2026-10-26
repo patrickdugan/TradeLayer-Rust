@@ -20,19 +20,23 @@ do not complete native/dated/multicontract orchestration, full validity rules,
 insurance/ADL or chain authentication; no source module is promoted to complete.
 
 [PARITY_ROADMAP.csv](PARITY_ROADMAP.csv) contains all 49 JavaScript source
-modules, excluding the experimental README. It records twenty-seven assessed
-modules below; the other 22 retain their prior implementation assessment.
+modules, excluding the experimental README. It records thirty-one assessed
+modules below; the other 18 retain their prior implementation assessment.
 The insurance and property rows additionally record external-worker assignments.
 It supplements the historical [full-tree inventory](JS_RUST_PORT_AUDIT.md),
 whose earlier mappings and assessment commit are preserved.
 
-[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 590
+[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 657
 source entries with their tested domains, Rust tests and remaining criteria.
 None of these rows or modules is marked as a complete production port.
 
 | Module | Implemented and verified scope | Remaining completion criteria |
 | --- | --- | --- |
-| `client.js` | All source members mapped and 21 RPC wrapper routes; 68 source observations; concrete bounded Core HTTP/JSON transport, cookie rotation, wallet routing and explicit three-mainnet/genesis readiness | Real Core interoperability, daemon integration, TLS/pooling/testnet/DNS deployment and authenticated chain admission |
+| `main.js` | All30 active methods plus constructor characterized in21 observations; durable bounded raw spool, cursor, retries, retained forks, cooperative cancellation and concrete Core polling CLI | Authenticated parent UTXO/scripts and economic sequencing, Dogecoin AuxPoW, subscriptions, indefinite archival and deployed Core interoperability |
+| `bitvmBundle.js` | All6 functions,23 full-source observations; source JSON/hash semantics and bounded actual artifact file reads | Independently trusted expected hash, production integration and real proof/signature authority |
+| `bitvmCache.js` | All8 methods,52 full-source observations; source lifecycle quirks and atomic finite complete replayed metadata | Actual bond/escrow custody, authenticated actors, adjudication and durable cross-store integration |
+| `bitvmRisk.js` | All11 functions,48 full-source observations; cap/window/clamp and repeated-call semantics with atomic metadata replay repair | Accepted event deduplication, actual custody reconciliation, authenticated sweep/escrow and policy promotion |
+| `client.js` | All source members mapped and21 wrapper routes;68 observations; bounded HTTP/JSON, cookie rotation, wallet routing, controlled cancellation/deadlines and three-mainnet/genesis startup and daemon wiring | Real Core interoperability, TLS/pooling/testnet/DNS deployment, subscriptions and authenticated chain admission |
 | `scaling.js` | All 18 source methods, 167 observations; keepalive/close/net/king metadata, explicit expiry repairs, complete replay checkpoint and real immutable-Ledger custody plans | Signed revisions/root/UTXO rotation, actual sole-Ledger settlement/margin integration, durable migration and historical acceptance |
 | `txEncoder.js` | All 39 exported methods, genuine source numeric/string/framing/coercion vectors and separate dispatch defects | Broader Number radix36/Unicode domains, historical acceptance and authenticated wire-to-execution integration |
 | `txDecoder.js` | All 36 active exports, genuine complete-source numeric/malformed/base vectors and later Type23 shadow behavior | Target-engine promotion and historical chain corpus, raw-transaction/signature/admission integration |
@@ -44,7 +48,7 @@ None of these rows or modules is marked as a complete production port.
 | `tally.js` | All 45 methods plus constructor assessed; 248 actual-source vectors and 32 source assertions; actual custody projections, funded match fee/rebate collection and complete FeeBook persistence | Legacy arbitrary-value/NeDB migration, authenticated channel/vesting rules, registered insurance lifecycle, buybacks, remaining shared economic stores and historical acceptance |
 | `base94.js` | Eight helper methods, bounded string inputs, real-source golden vectors and preserved delimiter/fraction quirks | General JS coercions and malformed UTF-16; accepted historical wire transactions and admission integration |
 | `base256.js` | Six helper methods, exact custom Unicode alphabet, bounded arbitrary-size arithmetic and source hex quirks | General JS coercions and malformed UTF-16; accepted historical transactions and wire integration |
-| `tradeHistoryManager.js` | Seven query predicates, typed token/contract records, stable identities, atomic batches, canonical CRC checkpoint codec and rollback | Historical DB migration/order, positional/PnL/LIFO APIs, durable production persistence and chain-anchored replay |
+| `tradeHistoryManager.js` | All18 methods characterized;43 scenes,205 helper cases,24 quirks; exact position/category/episode/LIFO/PnL reports, typed real/forced origins, TLTHv2 replay and immutable projection from the verified sole economic owner | Historical DB migration/order, broader JS domains, durable report service and authenticated fill provenance; unmarked ownerless receipts reject |
 | `volumeIndex.js` | Exact bounded VWAP, half-up prices, constant-share fee rounding, typed inclusive totals, source reverse-pair/classification characterization and rollback | Legacy DB normalization, valuation and historical prices, logarithmic attenuation, production persistence and reward issuance |
 | `iou.js` | Stateful buckets/claims and 67 source transitions; real-loss escrow and funded payouts; explicit atom policy; complete bounded IOU/ledger checkpoints | Authenticated matching/clearing integration and historical atom/dust rules, production DB behavior, broader JS coercion/prototype domain and historical acceptance |
 | `options.js` | All nine helper methods, decimal PnL/pricing/exposure/maintenance, ticker and numeric-prefix behavior, source greedy order; 118 actual-source vectors | Surrounding contract creation/exercise/assignment and margin/clearing integration; cross-platform binary64 bridge verification; historical acceptance |
@@ -58,7 +62,7 @@ None of these rows or modules is marked as a complete production port.
 | `db.js` | Source 32 categories and seven folder/bootstrap cases; bounded exclusively locked disk journal with atomic synced batches, explicit torn-tail recovery and complete funded IOU restart | NeDB query/shape migration, compaction, trusted rollback detection, broader state adapters and deployment power-loss validation including Windows directory entries |
 | `persistence.js` | All 17 methods plus constructor assessed; 41 source observations; atomic persisted joint apply/rollback, bounded headers, independently expected configuration/tip, lost-acknowledgement and torn-write recovery | NeDB migration, unified state across all economic modules, trusted branch/tip evidence, compaction and deployment power-loss validation |
 | `reOrg.js` | All three source methods, exact tip/RPC/log order and swallowed-failure behavior; 20 actual-source scenarios | Production bounded RPC transport and authenticated active-branch evidence; the source observer performs no economic rollback |
-| `init.js` | Both literal source functions and 12 source cases; repaired owned startup plus concrete complete joint/IOU restoration, identity consistency and failure cleanup | Live client/daemon and shutdown, cooperative I/O timeouts, testnet profiles, source environment migration and authenticated readiness |
+| `init.js` | Both source functions and12 source cases; owned startup, complete joint/IOU/economic restoration, concrete controlled HTTP readiness, exact heads, exclusive ownership and failure cleanup | Testnet profiles, broader source environment/deployment behavior, trusted checkpoint provenance and authenticated readiness |
 
 The combined [offline spot reporting adapter](OFFLINE_SPOT_REPORTING.md)
 inserts existing spot fills into both indexes atomically, rejects network
@@ -563,3 +567,38 @@ repairs with complete checkpoint replay. Its King settlement consumes immutable
 Ledger custody observations and returns a checked transfer plan. It does not
 claim a co-signature, rotate UTXOs or mutate a separate spendable balance store.
 All four module completion gates remain open in the 49-file ledger.
+
+## Durable observations, complete history reports and BitVM metadata
+
+[RUNTIME.md](RUNTIME.md) connects controlled Core HTTP with the owned bootstrap,
+complete durable economic restoration and a runnable bounded observation CLI.
+The [daemon](DAEMON.md) journals raw material and an observation cursor only;
+its node reports never authorize economic apply or rollback. Both successful
+and failed RPC returns check cancellation before retry or publication. The
+concrete wrapper keeps the economic owner immutable and checks journal health
+without repeatedly hashing the unchanged checkpoint during polling.
+
+[Economic reporting](ECONOMIC_REPORTING.md) projects exact real execution facts
+from the verified complete owner into expanded [trade history](trade-history.md).
+Ordinary orders, forced book and private AMM origins remain distinct. Booked
+PnL, collected cash, offsets and event-wide payouts retain separate meanings.
+Pure marks and funding are borrowed rather than recalculated or settled by a
+second store. Source method failures and repaired reporting are characterized
+separately; missing historical owner evidence fails explicitly.
+
+The three BitVM modules cover artifact integrity, cache lifecycle metadata and
+risk counters. Their123 full-source observations use genuine Node crypto and
+explicit database/file/environment boundaries. Atomic metadata writes and
+strict full replay repair partial source writes while retaining repeated-call
+semantics. These modules grant no proof, signature, custody or payout authority.
+External property, insurance, clearlist and authenticated txIndex work remains
+reserved and unimported unless actual accessible code is independently checked.
+
+Local Rust1.90/MSVC validation passed1,039 tests across127 executables, frozen
+all-target Clippy with warnings denied, formatting including every included
+implementation, and the frozen all-target release build. The zero-external-crate
+gate and11 adversarial tests passed. All five changed source oracles passed
+against both archived and actual pinned source. Local loopback/process tests
+exercise cancellation, exact restart tokens and real journal ownership; they do
+not establish deployed Core or historical-chain acceptance. No push or GitHub
+CI, Lean or Kani result is claimed for this local batch.

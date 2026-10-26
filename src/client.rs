@@ -1,5 +1,6 @@
 //! Bounded Core JSON-RPC over HTTP, with explicit credentials and network checks.
 //! The transport is independent of protocol admission and never retries a call.
+use crate::bootstrap::{BootstrapControl, StopReason};
 use crate::network_profile::TradeLayerMainnet;
 use std::collections::BTreeMap;
 use std::io::{Read, Write};
@@ -21,6 +22,7 @@ pub enum RpcError {
     InvalidJson,
     Capacity,
     Timeout,
+    Cancelled,
     Transport(std::io::ErrorKind),
     InvalidHttp,
     HttpStatus(u16),
@@ -429,6 +431,32 @@ impl RpcClient {
         params: &[RpcValue],
         wallet_scoped: bool,
     ) -> Result<RpcValue> {
+        self.call_inner(method, params, wallet_scoped, None)
+    }
+    pub fn expected_network(&self) -> TradeLayerMainnet {
+        self.expected_network
+    }
+    /// Cooperatively checks cancellation between socket operations. A blocked
+    /// operation is bounded by the smaller request/control deadline.
+    pub fn call_controlled(
+        &mut self,
+        method: &str,
+        params: &[RpcValue],
+        wallet_scoped: bool,
+        control: &BootstrapControl,
+    ) -> Result<RpcValue> {
+        let result = self.call_inner(method, params, wallet_scoped, Some(control));
+        rpc_check_control(Some(control))?;
+        result
+    }
+    fn call_inner(
+        &mut self,
+        method: &str,
+        params: &[RpcValue],
+        wallet_scoped: bool,
+        control: Option<&BootstrapControl>,
+    ) -> Result<RpcValue> {
+        rpc_check_control(control)?;
         if method.is_empty()
             || method.len() > 96
             || !method
@@ -468,12 +496,22 @@ impl RpcClient {
         let auth = self.auth.authorization()?;
         let request = format!("POST {path} HTTP/1.1\r\nHost: {}\r\nAuthorization: Basic {auth}\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", self.endpoint, body.len());
         let started = Instant::now();
-        let mut stream =
-            TcpStream::connect_timeout(&self.endpoint, self.timeout).map_err(io_error)?;
+        rpc_check_control(control)?;
+        let timeout = match control.and_then(BootstrapControl::deadline) {
+            Some(deadline) => self.timeout.min(
+                deadline
+                    .checked_duration_since(started)
+                    .filter(|d| !d.is_zero())
+                    .ok_or(RpcError::Timeout)?,
+            ),
+            None => self.timeout,
+        };
+        let mut stream = TcpStream::connect_timeout(&self.endpoint, timeout).map_err(io_error)?;
         let mut pending = request.as_bytes();
         while !pending.is_empty() {
+            rpc_check_control(control)?;
             stream
-                .set_write_timeout(Some(remaining(started, self.timeout)?))
+                .set_write_timeout(Some(remaining(started, timeout)?))
                 .map_err(io_error)?;
             let written = stream.write(pending).map_err(io_error)?;
             if written == 0 {
@@ -481,7 +519,7 @@ impl RpcClient {
             }
             pending = &pending[written..];
         }
-        let (status, body) = read_http(&mut stream, started, self.timeout)?;
+        let (status, body) = read_http(&mut stream, started, timeout, control)?;
         let fields = json_fields(&body).map_err(|_| {
             if status == 200 {
                 RpcError::InvalidResponse
@@ -489,7 +527,8 @@ impl RpcClient {
                 RpcError::HttpStatus(status)
             }
         })?;
-        remaining(started, self.timeout)?;
+        rpc_check_control(control)?;
+        remaining(started, timeout)?;
         let lookup = |key: &str| {
             fields
                 .iter()
@@ -511,20 +550,30 @@ impl RpcClient {
                 .field("message")?
                 .ok_or(RpcError::InvalidResponse)?
                 .as_string()?;
-            remaining(started, self.timeout)?;
+            rpc_check_control(control)?;
+            remaining(started, timeout)?;
             return Err(RpcError::Remote { code, message });
         }
         if status != 200 {
             return Err(RpcError::HttpStatus(status));
         }
         let result = RpcValue::parse(lookup("result").ok_or(RpcError::InvalidResponse)?)?;
-        remaining(started, self.timeout)?;
+        rpc_check_control(control)?;
+        remaining(started, timeout)?;
         Ok(result)
     }
     /// Readiness is independently bound to chain family, mainnet and genesis.
     /// A mismatch does not rewrite the expected network or redirect the endpoint.
     pub fn verify_network(&mut self) -> Result<()> {
-        let network = self.call("getnetworkinfo", &[], false)?;
+        self.verify_network_inner(None)
+    }
+    pub fn verify_network_controlled(&mut self, control: &BootstrapControl) -> Result<()> {
+        let result = self.verify_network_inner(Some(control));
+        rpc_check_control(Some(control))?;
+        result
+    }
+    fn verify_network_inner(&mut self, control: Option<&BootstrapControl>) -> Result<()> {
+        let network = self.call_inner("getnetworkinfo", &[], false, control)?;
         let version = network
             .field("subversion")?
             .ok_or(RpcError::InvalidResponse)?
@@ -544,7 +593,7 @@ impl RpcClient {
         if runtime_chain != self.expected_network {
             return Err(RpcError::WrongChain);
         }
-        let blockchain = self.call("getblockchaininfo", &[], false)?;
+        let blockchain = self.call_inner("getblockchaininfo", &[], false, control)?;
         if blockchain
             .field("chain")?
             .ok_or(RpcError::InvalidResponse)?
@@ -554,7 +603,7 @@ impl RpcClient {
             return Err(RpcError::WrongChain);
         }
         let genesis = self
-            .call("getblockhash", &[RpcValue::unsigned(0)], false)?
+            .call_inner("getblockhash", &[RpcValue::unsigned(0)], false, control)?
             .as_string()?;
         let expected = self
             .expected_network
@@ -566,8 +615,18 @@ impl RpcClient {
         if genesis != expected {
             return Err(RpcError::WrongGenesis);
         }
+        rpc_check_control(control)?;
         Ok(())
     }
+}
+fn rpc_check_control(control: Option<&BootstrapControl>) -> Result<()> {
+    if let Some(control) = control {
+        control.check().map_err(|stop| match stop {
+            StopReason::Cancelled => RpcError::Cancelled,
+            StopReason::DeadlineExceeded => RpcError::Timeout,
+        })?;
+    }
+    Ok(())
 }
 fn remaining(start: Instant, timeout: Duration) -> Result<Duration> {
     timeout

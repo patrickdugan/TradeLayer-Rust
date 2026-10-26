@@ -38,6 +38,8 @@ jobs:
         run: rustfmt --check --edition 2021 src/registry_snapshot_impl.rs src/execution_snapshot_impl.rs src/ledger_channels_impl.rs src/ledger_settlement_impl.rs
       - name: Check included bounded RPC parser formatting
         run: rustfmt --check --edition 2021 src/rpc_json_impl.rs src/rpc_http_impl.rs
+      - name: Check included exact trade-history formatting
+        run: rustfmt --check --edition 2021 src/trade_history_position_impl.rs
       - name: Check included spot snapshot file formatting
         run: rustfmt --check --edition 2021 src/spot_snapshot_impl.rs
       - name: Check included joint snapshot file formatting
@@ -82,6 +84,10 @@ jobs:
           node scripts/mark_basis_vectors.cjs --check
           node scripts/vesting_vectors.cjs
           node scripts/procedural_vectors.cjs
+          node scripts/daemon_vectors.cjs --check
+          node scripts/bitvm_bundle_vectors.cjs --check
+          node scripts/bitvm_cache_vectors.cjs --check
+          node scripts/bitvm_risk_vectors.cjs --check
           node scripts/storage_layout_vectors.cjs
           node scripts/bootstrap_vectors.cjs
           node scripts/persistence_vectors.cjs

@@ -219,6 +219,32 @@ fn mark(state: &EconomicState) -> &MarkEvent {
 }
 fn assert_conserved(state: &EconomicState) {
     state.verify().unwrap();
+    let report = tradelayer_core::economic_reporting::EconomicHistory::from_state(state).unwrap();
+    for position in state.positions().positions() {
+        let snapshots = report
+            .history()
+            .position_history(&position.address, c().get())
+            .unwrap();
+        assert_eq!(
+            snapshots
+                .last()
+                .map_or_else(Decimal::zero, |snapshot| snapshot.effect.after.clone()),
+            position.contracts
+        );
+        let mut booked = report
+            .history()
+            .pnl_summary(&position.address, c().get())
+            .unwrap()
+            .booked;
+        for event in report.marks() {
+            for entry in &event.entries {
+                if entry.owner == position.address {
+                    booked = booked.checked_add(&entry.atoms.to_decimal()).unwrap();
+                }
+            }
+        }
+        assert_eq!(booked, position.realized_pnl);
+    }
     state.ledger().verify_conservation().unwrap();
     let available: u128 = ["alice", "bob", "carol", "dave"]
         .iter()

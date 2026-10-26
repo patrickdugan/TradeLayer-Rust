@@ -1,7 +1,8 @@
 //! Bounded, deterministic offline trade-history storage and queries.
 //!
 //! Records are caller assertions, not authenticated chain events. This module
-//! neither executes trades nor reconstructs positions/PnL. It mirrors the useful
+//! never executes trades. Exact contract events support derived position, lot
+//! and PnL reports without creating balances. It mirrors the useful
 //! query predicates in pinned `tradeHistoryManager.js` while deliberately using
 //! stable IDs and canonical ordering instead of random database document IDs.
 //! Checkpoints use CRC32 for accidental corruption detection, not authentication.
@@ -74,6 +75,8 @@ pub enum TradeHistoryError {
     CapacityExceeded,
     ReversedBlockRange,
     InvalidCheckpoint(&'static str),
+    InvalidExecution(&'static str),
+    Arithmetic,
 }
 
 impl core::fmt::Display for TradeHistoryError {
@@ -88,6 +91,7 @@ type Position = (u64, u32);
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct TradeHistory {
     records: BTreeMap<Position, TradeRecord>,
+    executions: BTreeMap<Position, ContractExecution>,
     ids: BTreeMap<TradeId, Position>,
 }
 
@@ -144,15 +148,15 @@ impl TradeHistory {
     }
 
     pub fn len(&self) -> usize {
-        self.records.len()
+        self.records.len() + self.executions.len()
     }
 
     pub fn is_empty(&self) -> bool {
-        self.records.is_empty()
+        self.records.is_empty() && self.executions.is_empty()
     }
 
-    /// Always chronological by (block height, event index), independent of
-    /// insertion order. Missing blocks and event indices are permitted.
+    /// Original integer/token observation rows, chronological by event position.
+    /// Exact contract execution rows are exposed separately by `executions`.
     pub fn records(&self) -> impl Iterator<Item = &TradeRecord> {
         self.records.values()
     }
@@ -165,15 +169,15 @@ impl TradeHistory {
     /// assigning two IDs to one event position fails without changing history.
     pub fn insert(&mut self, record: TradeRecord) -> Result<InsertOutcome, TradeHistoryError> {
         record.validate()?;
-        if let Some(existing) = self.get(record.id) {
-            return if existing == &record {
+        if let Some(position) = self.ids.get(&record.id) {
+            return if self.records.get(position) == Some(&record) {
                 Ok(InsertOutcome::AlreadyPresent)
             } else {
                 Err(TradeHistoryError::ConflictingId(record.id))
             };
         }
         let position = record.position();
-        if self.records.contains_key(&position) {
+        if self.records.contains_key(&position) || self.executions.contains_key(&position) {
             return Err(TradeHistoryError::ConflictingPosition {
                 block_height: record.block_height,
                 event_index: record.event_index,
@@ -213,7 +217,11 @@ impl TradeHistory {
         for record in removed.values() {
             self.ids.remove(&record.id);
         }
-        removed.len()
+        let removed_executions = self.executions.split_off(&(next_height, 0));
+        for record in removed_executions.values() {
+            self.ids.remove(&record.id);
+        }
+        removed.len() + removed_executions.len()
     }
 
     pub fn contract_trades(&self, contract_id: u32) -> Vec<&TradeRecord> {
@@ -284,15 +292,24 @@ impl TradeHistory {
     }
 
     pub fn first_trade_block(&self, contract_id: u32) -> Option<u64> {
-        self.records()
+        let legacy = self
+            .records()
             .find(|r| r.is_contract(contract_id))
-            .map(|r| r.block_height)
+            .map(|r| r.block_height);
+        let exact = self
+            .executions()
+            .find(|r| r.contract_id == contract_id)
+            .map(|r| r.block_height);
+        legacy.into_iter().chain(exact).min()
     }
 
     /// Canonical bounded checkpoint, independent of insertion order. The
     /// caller owns filesystem durability and must persist/reorg it alongside
     /// the corresponding ledger, chain identity and execution checkpoint.
     pub fn encode_checkpoint(&self) -> Result<Vec<u8>, TradeHistoryError> {
+        if !self.executions.is_empty() {
+            return self.encode_exact_checkpoint();
+        }
         let mut bytes = MAGIC.to_vec();
         bytes.extend_from_slice(&(self.len() as u32).to_be_bytes());
         for row in self.records() {
@@ -339,6 +356,9 @@ impl TradeHistory {
 
     pub fn decode_checkpoint(bytes: &[u8]) -> Result<Self, TradeHistoryError> {
         let payload = verify_crc(bytes).map_err(checkpoint_codec_error)?;
+        if payload.starts_with(b"TLTH\x02") {
+            return Self::decode_exact_checkpoint(payload);
+        }
         let mut reader = Cursor::new(payload);
         if reader.take(MAGIC.len()).map_err(checkpoint_codec_error)? != MAGIC {
             return Err(checkpoint_invalid("magic/version"));
@@ -399,6 +419,8 @@ impl TradeHistory {
         Ok(history)
     }
 }
+
+include!("trade_history_position_impl.rs");
 
 fn matches_address(
     row: &TradeRecord,

@@ -5,9 +5,11 @@ struct RpcReader<'a> {
     at: usize,
     start: Instant,
     timeout: Duration,
+    control: Option<&'a BootstrapControl>,
 }
 impl RpcReader<'_> {
     fn more(&mut self) -> Result<()> {
+        rpc_check_control(self.control)?;
         self.stream
             .set_read_timeout(Some(remaining(self.start, self.timeout)?))
             .map_err(io_error)?;
@@ -26,6 +28,7 @@ impl RpcReader<'_> {
     }
     fn line(&mut self, cap: usize) -> Result<String> {
         loop {
+            rpc_check_control(self.control)?;
             let rest = &self.buffer[self.at..];
             if let Some(end) = rest.windows(2).position(|w| w == b"\r\n") {
                 if end > cap {
@@ -56,6 +59,7 @@ impl RpcReader<'_> {
         }
         let mut left = count;
         while left > 0 {
+            rpc_check_control(self.control)?;
             if self.at == self.buffer.len() {
                 self.more()?;
             }
@@ -78,13 +82,19 @@ fn header(line: &str) -> Result<(String, &str)> {
     }
     Ok((name.to_ascii_lowercase(), value.trim_matches([' ', '\t'])))
 }
-fn read_http(stream: &mut TcpStream, start: Instant, timeout: Duration) -> Result<(u16, String)> {
+fn read_http(
+    stream: &mut TcpStream,
+    start: Instant,
+    timeout: Duration,
+    control: Option<&BootstrapControl>,
+) -> Result<(u16, String)> {
     let mut reader = RpcReader {
         stream,
         buffer: Vec::new(),
         at: 0,
         start,
         timeout,
+        control,
     };
     let line = reader.line(1024)?;
     let mut parts = line.split(' ');

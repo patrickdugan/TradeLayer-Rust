@@ -12,7 +12,10 @@ pub mod bitcoin_chainwork; // Bitcoin mainnet nBits/MTP/chainwork from explicit 
 pub mod bitcoin_forks; // Bounded greatest-work selection among observed header forks; no active-chain trust.
 pub mod bitcoin_inclusion;
 pub mod bitcoin_witness_commitment; // Stage25M unverified Bitcoin BIP141 full-tx witness evidence.
-                                    // Bitcoin SHA256d header and tx Merkle checks; no full consensus.
+pub mod bitvm_bundle; // Bounded source artifact integrity, no execution-proof verification.
+pub mod bitvm_cache; // Source cache challenge lifecycle metadata, no funded custody.
+pub mod bitvm_risk; // Atomic source counter/window metadata, no spend authorization.
+                    // Bitcoin SHA256d header and tx Merkle checks; no full consensus.
 pub mod bootstrap; // Owned startup readiness with explicit source characterization.
 pub mod bootstrap_storage; // Concrete restoration of complete durable state owners.
 pub mod chain; // Trust-boundary and reversible block progression, prototype only.
@@ -33,10 +36,12 @@ pub mod client; // Bounded Core HTTP JSON-RPC; readiness is bound to network and
 mod codec; // Bounded, checksummed snapshot codec.
 pub mod contract_orderbook; // Source matching metadata; custody stays in the economic owner.
 pub mod contract_registry;
+pub mod daemon; // Synced bounded raw-block observations; no economic admission authority.
 pub mod decimal; // Finite decimal arithmetic with explicit precision and rounding.
 pub mod durable_iou; // Synced single-owner funded IOU operation batches and recovery.
 pub mod economic; // Atomic caller-driven contract matching with the sole joint Ledger.
 pub mod economic_chain; // Complete economic rollback and synced durable ownership.
+pub mod economic_reporting; // Exact immutable execution reports from the verified owner.
 pub mod execution; // Prototype unified registry+ledger replay; input unverified.
 pub mod funding; // Fractional source funding math and conserving payment plans.
 pub mod funding_audit; // Stage 24B read-only signed funding and conservation projections.
@@ -76,6 +81,7 @@ pub mod registry; // Standalone tx0/7-9/13-15 registry state; authentication ext
 pub mod reorg; // Source RPC tip observations; never authorization to roll back.
 pub mod reporting; // Atomic network-scoped offline spot history and volume observations.
 pub mod root_reconciliation; // Read-only TLPT and zkTL metadata consistency.
+pub mod runtime; // Concrete RPC/startup adapters with independent durable expectations.
 pub mod scaling; // Bounded L2 settlement lifecycle and checked channel custody plans.
 pub mod spot; // Stage 19 isolated type-5/6 rational matching experiment; unverified.
 pub mod spot_chain; // Stage 20 typed unverified spot block replay and complete TLSP/TLSC checkpoints.

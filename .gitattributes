@@ -26,6 +26,10 @@ fixtures/legacy_reorg_source.txt -text -whitespace
 fixtures/legacy_clearing_source.txt -text -whitespace
 fixtures/legacy_client_source.txt -text -whitespace
 fixtures/legacy_scaling_source.txt -text -whitespace
+fixtures/legacy_main_source.txt -text -whitespace
+fixtures/legacy_bitvm_bundle_source.txt -text -whitespace
+fixtures/legacy_bitvm_cache_source.txt -text -whitespace
+fixtures/legacy_bitvm_risk_source.txt -text -whitespace
 
 # Node fixture generators compare exact bytes across Windows and Linux.
 fixtures/adjuster_vectors.tsv text eol=lf whitespace=-blank-at-eol
@@ -33,6 +37,12 @@ fixtures/issuance_intent_vectors.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/state_oracle_vectors.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/client_vectors.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/scaling_vectors.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/daemon_vectors.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/trade_history_method_vectors.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/trade_history_quirks.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/bitvm_bundle_vectors.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/bitvm_cache_vectors.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/bitvm_risk_vectors.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/txencoder_vectors.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/txencoder_quirks.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/legacy_txdecoder_historical_vectors.tsv text eol=lf whitespace=-blank-at-eol

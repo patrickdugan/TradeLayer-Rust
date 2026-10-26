@@ -1,9 +1,10 @@
 # Startup compatibility and owned local readiness
 
 `src/bootstrap.rs` implements both functions in the pinned `init.js` and adds an
-explicitly repaired, caller-owned startup coordinator. It does not implement
-RPC transport, chain consensus, transaction authentication, genesis issuance or
-a production daemon loop.
+explicitly repaired, caller-owned startup coordinator. Concrete controlled RPC
+transport and a bounded observation runner are now connected through
+[RUNTIME.md](RUNTIME.md). Chain consensus, transaction authentication and
+genesis issuance remain separate requirements.
 
 The complete unmodified source is archived in `fixtures/legacy_init_source.txt`
 at JS commit `dca0888b827c5bc28fa9189bc9e1d507f5c5670c`, LF SHA256
@@ -136,16 +137,16 @@ an actual `Journal` into its restored owner, checks retained lock exclusion,
 then demonstrates invalid-restore cleanup and successful reopening. Its small
 test checkpoint is an ownership fixture, not economic-state acceptance proof.
 
-Live RPC readiness/transport, source environment semantics, testnet profiles,
-historical checkpoint
-authentication, daemon subscriptions and shutdown orchestration remain open.
+Real Core deployment/interoperability, broader source environment semantics,
+testnet profiles, historical checkpoint authentication and daemon subscriptions
+remain open. The concrete polling runner supplies bounded cooperative shutdown.
 The readiness coordinator is functional local orchestration; these independent
 requirements are not inferred from its successful tests.
 
 ## Concrete durable-owner restoration
 
 `src/bootstrap_storage.rs` supplies restoration-only implementations of the
-store interfaces for both complete durable owners:
+store interfaces for three complete durable owners:
 
 * `FundedIouStoreFactory` uses an independent `FundedIouRestoreConfig` containing
   expected mainnet, payout atom policy, a **mandatory exact `DurableIouHead`**
@@ -155,6 +156,10 @@ store interfaces for both complete durable owners:
   `PersistenceConfig`, exact expected tip and recovery policy. It calls
   `PersistentJointChain::load`, including configuration, complete chain snapshot
   and retained-header validation.
+* `EconomicStoreFactory` uses `EconomicRestoreConfig` with the complete economic
+  chain configuration, mandatory exact `EconomicHead` and recovery policy. It
+  restores `DurableEconomicChain` in the `clearing` namespace, preserving the
+  sole funded Ledger, complete economic replay, journal lock and poison checks.
 
 These factories validate the bootstrap category/namespace and network before
 any opening. Their `open` step prepares a root-bound, one-shot restore adapter;
@@ -187,5 +192,7 @@ persist an alternate branch. Additional cases cover pre-open scope/root
 rejection, independently mismatched head/tip/policy, missing state, malformed
 complete checkpoints, one-shot semantics, cancellation after both actual loads,
 lock cleanup/reopening, and explicit torn-tail policy/report propagation.
-The injected client supplies node identity only; these tests establish local
-durable orchestration, not authenticated historical acceptance.
+The original injected client supplies node identity only. `tests/runtime.rs`
+also uses the actual controlled HTTP client against local mock servers for all
+three mainnet identities and complete economic-owner restoration. These tests
+establish local durable orchestration, not authenticated historical acceptance.

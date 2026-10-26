@@ -255,6 +255,27 @@ fn fractional_open_increase_reduce_close_and_flip_move_real_collateral() {
 }
 
 #[test]
+fn unmarked_legacy_receipts_cannot_fabricate_reported_owners() {
+    use tradelayer_core::economic_reporting::{EconomicHistory, EconomicReportingError};
+    let mut state = new();
+    assert_eq!(
+        EconomicHistory::from_state(&state)
+            .unwrap()
+            .history()
+            .executions()
+            .count(),
+        0
+    );
+    pair(&mut state, 2, 40, "alice", "bob", "0.5", "100");
+    let bytes = state.snapshot_bytes().unwrap();
+    assert!(matches!(
+        EconomicHistory::from_state(&state),
+        Err(EconomicReportingError::MissingOwnerEvidence)
+    ));
+    assert_eq!(state.snapshot_bytes().unwrap(), bytes);
+}
+
+#[test]
 fn resting_maker_rebate_is_paid_only_from_funded_taker_fee() {
     let mut state = new();
     state

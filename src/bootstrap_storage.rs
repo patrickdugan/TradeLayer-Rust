@@ -7,6 +7,9 @@ use crate::bootstrap::{
 };
 use crate::chain::Tip;
 use crate::durable_iou::{DurableFundedIou, DurableIouError, DurableIouHead};
+use crate::economic_chain::{
+    DurableEconomicChain, DurableEconomicError, EconomicChainConfig, EconomicHead,
+};
 use crate::iou_ledger::PayoutAtomPolicy;
 use crate::network_profile::TradeLayerMainnet;
 use crate::persistence::{PersistenceConfig, PersistenceError, PersistentJointChain};
@@ -20,6 +23,7 @@ pub enum RestoreAdapterError {
     Namespace(StorageError),
     FundedIou(DurableIouError),
     Joint(PersistenceError),
+    Economic(DurableEconomicError),
 }
 impl core::fmt::Display for RestoreAdapterError {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -245,6 +249,115 @@ impl JointRestoreStore {
 }
 impl BootstrapStore for JointRestoreStore {
     type State = PersistentJointChain;
+    fn restore(
+        &mut self,
+        config: &BootstrapConfig,
+        control: &BootstrapControl,
+    ) -> Result<RestoredState<Self::State>, String> {
+        self.restore_checked(config, control)
+            .map_err(|error| error.to_string())
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct EconomicRestoreConfig {
+    pub chain: EconomicChainConfig,
+    pub expected_head: EconomicHead,
+    pub recovery: Recovery,
+}
+#[derive(Debug, Clone)]
+pub struct EconomicStoreFactory {
+    expected: EconomicRestoreConfig,
+}
+impl EconomicStoreFactory {
+    pub fn new(expected: EconomicRestoreConfig) -> Self {
+        Self { expected }
+    }
+    pub fn expected(&self) -> &EconomicRestoreConfig {
+        &self.expected
+    }
+    pub fn open_checked(
+        &self,
+        config: &BootstrapConfig,
+        control: &BootstrapControl,
+    ) -> Result<EconomicRestoreStore, RestoreAdapterError> {
+        check(control)?;
+        scope(config, self.expected.chain.economics.network, "clearing")?;
+        self.expected
+            .chain
+            .validate()
+            .map_err(|e| RestoreAdapterError::Economic(DurableEconomicError::Economic(e)))?;
+        Ok(EconomicRestoreStore {
+            bound: config.clone(),
+            expected: self.expected.clone(),
+            attempted: false,
+            recovery_report: None,
+        })
+    }
+}
+impl BootstrapStoreFactory for EconomicStoreFactory {
+    type Store = EconomicRestoreStore;
+    fn open(
+        &mut self,
+        config: &BootstrapConfig,
+        control: &BootstrapControl,
+    ) -> Result<Self::Store, String> {
+        self.open_checked(config, control)
+            .map_err(|error| error.to_string())
+    }
+}
+/// Restoration configuration/report only; the returned runtime retains the sole
+/// durable owner and its OS lock. No Ledger or chain copy remains in this store.
+#[derive(Debug)]
+pub struct EconomicRestoreStore {
+    bound: BootstrapConfig,
+    expected: EconomicRestoreConfig,
+    attempted: bool,
+    recovery_report: Option<RecoveryReport>,
+}
+impl EconomicRestoreStore {
+    pub fn recovery_report(&self) -> Option<RecoveryReport> {
+        self.recovery_report
+    }
+    pub fn restore_checked(
+        &mut self,
+        config: &BootstrapConfig,
+        control: &BootstrapControl,
+    ) -> Result<RestoredState<DurableEconomicChain>, RestoreAdapterError> {
+        check(control)?;
+        scope(config, self.expected.chain.economics.network, "clearing")?;
+        if config != &self.bound {
+            return Err(RestoreAdapterError::ScopeMismatch);
+        }
+        if self.attempted {
+            return Err(RestoreAdapterError::AlreadyAttempted);
+        }
+        self.attempted = true;
+        let restored = DurableEconomicChain::load(
+            config.root(),
+            self.expected.chain.clone(),
+            self.expected.expected_head,
+            self.expected.recovery,
+        );
+        check(control)?;
+        let (owner, report) = restored.map_err(RestoreAdapterError::Economic)?;
+        self.recovery_report = Some(report);
+        let network = owner
+            .chain()
+            .map_err(RestoreAdapterError::Economic)?
+            .config()
+            .economics
+            .network;
+        check(control)?;
+        Ok(RestoredState {
+            state: owner,
+            network,
+            genesis: network.genesis(),
+        })
+    }
+}
+impl BootstrapStore for EconomicRestoreStore {
+    type State = DurableEconomicChain;
     fn restore(
         &mut self,
         config: &BootstrapConfig,

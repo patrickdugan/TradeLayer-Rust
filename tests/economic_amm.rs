@@ -226,6 +226,17 @@ fn realized(state: &EconomicState, owner: &str) -> Decimal {
 }
 fn assert_conserved(state: &EconomicState) {
     state.verify().unwrap();
+    let report = tradelayer_core::economic_reporting::EconomicHistory::from_state(state).unwrap();
+    for position in state.positions().positions() {
+        let snapshots = report
+            .history()
+            .position_history(&position.address, c().get())
+            .unwrap();
+        let quantity = snapshots
+            .last()
+            .map_or_else(Decimal::zero, |snapshot| snapshot.effect.after.clone());
+        assert_eq!(quantity, position.contracts);
+    }
     state.ledger().verify_conservation().unwrap();
     let available: u128 = ["alice", "bob", "carol", "dave"]
         .iter()
@@ -525,6 +536,35 @@ fn actual_pool_fills_before_better_firm_book_on_both_sides_and_inverse_contracts
         assert!(matches!(actions[0], MarkEventKind::Mark { .. }));
         assert!(matches!(actions[1], MarkEventKind::AmmForced { .. }));
         assert!(matches!(actions[2], MarkEventKind::Forced { .. }));
+        let report =
+            tradelayer_core::economic_reporting::EconomicHistory::from_state(&state).unwrap();
+        let fills = report.history().executions().collect::<Vec<_>>();
+        assert_eq!(fills.len(), 3);
+        assert!(matches!(
+            fills[0].origin,
+            tradelayer_core::trade_history::ContractEventOrigin::Orders { .. }
+        ));
+        assert!(matches!(
+            fills[1].origin,
+            tradelayer_core::trade_history::ContractEventOrigin::ForcedAmm { pool_id: 7, .. }
+        ));
+        assert!(
+            matches!(fills[2].origin,tradelayer_core::trade_history::ContractEventOrigin::ForcedBook{maker_txid,..} if maker_txid==id(220))
+        );
+        let counterparties = [&fills[1].buyer, &fills[1].seller];
+        assert!(counterparties.contains(&&pool));
+        assert!(report
+            .history()
+            .transaction_references(&pool, c().get())
+            .unwrap()
+            .iter()
+            .all(|r| r.participant_order_txid.is_none()));
+        let bytes = report.history().encode_checkpoint().unwrap();
+        assert_eq!(&bytes[..5], b"TLTH\x02");
+        assert_eq!(
+            tradelayer_core::trade_history::TradeHistory::decode_checkpoint(&bytes).unwrap(),
+            *report.history()
+        );
         restored(&state);
     }
 }
