@@ -39,6 +39,7 @@ pub struct EconomicConfig {
     pub policy: SettlementPolicy,
     pub funding: Option<FundingConfig>,
     pub marking: Option<MarkConfig>,
+    pub liquidation: Option<LiquidationConfig>,
 }
 impl EconomicConfig {
     pub fn validate(&self) -> Result<(), EconomicError> {
@@ -59,6 +60,15 @@ impl EconomicConfig {
         }
         if let Some(marking) = &self.marking {
             if marking.oracle_id == 0 || !matches!(self.fee_route, FeeRoute::Oracle(_)) {
+                return Err(EconomicError::InvalidConfig);
+            }
+        }
+        if let Some(liquidation) = &self.liquidation {
+            if self.marking.is_none()
+                || liquidation.max_price_deviation_bps > 9999
+                || liquidation.max_fills_per_owner == 0
+                || liquidation.max_fills_per_owner > MAX_LIQUIDATION_FILLS
+            {
                 return Err(EconomicError::InvalidConfig);
             }
         }
@@ -186,6 +196,7 @@ pub struct EconomicState {
     internal_sequence: u64,
     funding: FundingState,
     marking: MarkState,
+    liquidation: LiquidationState,
 }
 impl EconomicState {
     pub fn from_joint_unverified(
@@ -217,6 +228,7 @@ impl EconomicState {
             internal_sequence: 0,
             funding: FundingState::default(),
             marking: MarkState::default(),
+            liquidation: LiquidationState::default(),
         };
         state.verify()?;
         Ok(state)
@@ -284,6 +296,11 @@ impl EconomicState {
         self.verify()?;
         let mut next = self.clone();
         let before = next.receipts.len();
+        let mut book_frame = LiquidationBookFrame {
+            height,
+            inputs: Vec::new(),
+            placements: Vec::new(),
+        };
         let mut mark_publication = None;
         for input in inputs {
             match input {
@@ -304,6 +321,11 @@ impl EconomicState {
                     }
                     next.joint
                         .note_economic_input_unverified(order.txid, height, 18)?;
+                    if next.config.liquidation.is_some() {
+                        book_frame
+                            .inputs
+                            .push(LiquidationBookInput::Order(order.clone()));
+                    }
                     next.book.queue(order)?;
                 }
                 EconomicInput::Cancel {
@@ -315,6 +337,13 @@ impl EconomicState {
                     next.joint.note_economic_input_unverified(txid, height, 6)?;
                     if !next.cancel_ids.insert(txid) {
                         return Err(EconomicError::InvalidInput);
+                    }
+                    if next.config.liquidation.is_some() {
+                        book_frame.inputs.push(LiquidationBookInput::Cancel {
+                            txid,
+                            owner: owner.clone(),
+                            criteria: criteria.clone(),
+                        });
                     }
                     let removed = next.book.cancel(&owner, criteria)?;
                     for order in removed.resting {
@@ -329,13 +358,26 @@ impl EconomicState {
                 .positions
                 .get(&order.owner)
                 .map_or_else(Decimal::zero, |p| p.contracts.clone());
+            if next.config.liquidation.is_some() {
+                book_frame.placements.push(LiquidationBookPlacement {
+                    order: order.clone(),
+                    position: position.clone(),
+                });
+            }
             let transition = next.book.place(order, &position)?;
             next.apply_transition(transition, height)?;
         }
         next.book.finish_height(height)?;
+        if next.config.liquidation.is_some() {
+            next.liquidation.book_frames.push(book_frame);
+            next.liquidation_record_count()?;
+        }
         next.run_mark_epoch(height, mark_publication)?;
         next.run_funding_epoch(height)?;
         next.prune_funding_observations(height);
+        next.refresh_positions()?;
+        next.refresh_maintenance()?;
+        next.run_liquidations(height)?;
         next.refresh_positions()?;
         next.refresh_maintenance()?;
         next.joint.finalize_block_for_economic_unverified(height)?;
@@ -751,6 +793,7 @@ impl EconomicState {
         self.joint.verify_for_economic_owner_unverified()?;
         self.verify_funding()?;
         self.verify_marks()?;
+        self.verify_liquidations()?;
         self.verify_system_epochs()?;
         if self.joint.network() != self.config.network
             || self.ledger().property(self.config.collateral).is_none()
@@ -902,21 +945,13 @@ impl EconomicState {
         let mut paid = 0;
         let mut bad_debt = 0;
         for event in &self.marking.events {
-            if matches!(event.kind, MarkEventKind::Mark { .. }) {
+            if !matches!(event.kind, MarkEventKind::Trade { .. }) {
                 collected = add(collected, event.collected_loss_atoms)?;
                 paid = add(paid, event.paid_claim_atoms)?;
                 bad_debt = add(bad_debt, event.unfunded_loss_atoms)?;
             }
         }
-        let (expected_fees, expected_insurance) =
-            FeeBook::from_accruals(self.receipts.iter().map(|receipt| {
-                (
-                    self.config.collateral,
-                    self.config.fee_route,
-                    receipt.retained_fee_atoms,
-                    receipt.height,
-                )
-            }))?;
+        let (expected_fees, expected_insurance) = self.expected_economic_fees()?;
         for receipt in &self.receipts {
             if receipt.height < last
                 || receipt.height == 0
@@ -1005,3 +1040,5 @@ fn atoms_exact(value: &Decimal) -> Result<u128> {
 include!("economic_snapshot_impl.rs");
 include!("economic_funding_impl.rs");
 include!("economic_mark_impl.rs");
+include!("economic_liquidation_impl.rs");
+include!("economic_liquidation_replay_impl.rs");

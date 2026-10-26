@@ -10,7 +10,7 @@ The execution policy is explicitly `SettlementPolicy::ConservingV1`. It is a fun
 
 `from_joint_unverified` accepts an unfinalized Joint bootstrap state whose collateral exists and whose components pass their existing checks. It starts with no economic history. The first block is height 1, and subsequent heights must be contiguous. Registry activation uses the existing Joint checks: activating an opcode in a block does not authorize using it in that same block.
 
-The additional economic inputs are type-18 contract orders and type-6 owner cancellations. Ordinary implemented Joint inputs still use their original dispatch. Optional configured [mark epochs](ECONOMIC_MARKS.md) settle fresh admitted-oracle observations through the same Ledger. Options, liquidation, ADL, channel transfer, insurance withdrawal and unsupported economic opcodes remain separate work. Type-3 UTXO trades and settlement opcodes requiring authentication retain their existing denial gates.
+The additional economic inputs are type-18 contract orders and type-6 owner cancellations. Ordinary implemented Joint inputs still use their original dispatch. Optional configured [mark epochs](ECONOMIC_MARKS.md) settle fresh admitted-oracle observations through the same Ledger. Optional [liquidation epochs](ECONOMIC_LIQUIDATION.md) close deficient positions against actual funded resting makers, with protected system identities rather than fabricated external orders. Options, ADL, channel transfer, insurance withdrawal and unsupported economic opcodes remain separate work. Type-3 UTXO trades and settlement opcodes requiring authentication retain their existing denial gates.
 
 ## Block transaction and actual custody
 
@@ -36,7 +36,7 @@ The runtime calls the authoritative `tally::calculate_match_fees` at the fill pr
 
 Settlement ordering is deliberate: position/reserve and target margin reconciliation, fee collection/rebate/routing, negative realized PnL collection, positive realized claim creation, then claim payment. Positive realized PnL is first a nonspendable claim, even if it is paid later in the same match. A new position or flip cannot rely on a later realized-profit payout to meet its earlier margin/fee debit.
 
-Negative realized PnL is collected from the owner's actual available atoms first, then from that owner's actual margin escrow. Payment stops at the funds present. Collected atoms enter the loss pool. The unpaid portion is recorded in `unfunded_loss_atoms`; it is neither spendable pool balance nor an automatic debit against a future wallet deposit. Consuming margin for a loss can leave an open position below its configured initial target. Automatic maintenance-margin enforcement and liquidation are outside this slice; a later position transition still must fund its explicit reconciliation.
+Negative realized PnL is collected from the owner's actual available atoms first, then from that owner's actual margin escrow. Payment stops at the funds present. Collected atoms enter the loss pool. The unpaid portion is recorded in `unfunded_loss_atoms`; it is neither spendable pool balance nor an automatic debit against a future wallet deposit. Consuming margin for a loss can leave an open position below its configured initial target. With optional liquidation disabled, automatic maintenance-margin enforcement and liquidation remain outside this slice; a later position transition still must fund its explicit reconciliation.
 
 All positive realized amounts create or increase integer-atom IOU claims. `ConservingV1` pays those claims in the existing claim map's canonical order, capped at the remaining actual loss-pool balance. Ordinary string addresses retain insertion order; array-index-like addresses follow the source object-key numeric ordering. It is therefore not universally chronological FIFO. Every payout reduces both the real pool and the outstanding claim by the same atoms. Repeated matches cannot reuse a former same-block pool.
 
@@ -71,3 +71,14 @@ Optional [funding epochs](ECONOMIC_FUNDING.md) extend this owner through the sam
 The pending-insurance escrow is a real funded balance, but it is not the insurance module's lifecycle or an authenticated insurance deposit. The actual live insurance handoff, fund accounting, withdrawals, and receipt/reorg linkage must be integrated before that counter can be presented as an insurance balance. This owner does not call a substitute insurance allocator or debit a second ledger.
 
 Authenticated actor/transaction/block provenance, parent-UTXO and script verification, historical activation and contract-registry configuration, authoritative marks/oracles, historical bootstrap supply, representative replay evidence, maintenance-margin/liquidation/ADL and default handling, funded buybacks, channel/options/vesting integration, and source-versus-repair promotion remain separate gates. The new APIs keep their `unverified` names and do not manufacture authenticated settlement capabilities. The external insurance and txindex/UTXO/script/performance lanes retain their existing ownership.
+
+Optional [funded liquidation](ECONOMIC_LIQUIDATION.md) uses separate system epochs,
+actual owner reserve refunds and margin top-ups, guarded firm resting makers,
+release-only distressed margin, and explicitly capped actual fees/rebates.
+It records initial captured maintenance calls in canonical owner order; new
+maker deficits wait for another fresh mark. Version4 retains complete ordinary
+book input/placement frames plus forced fills and known margin replay. The
+4096-block frame limit and shared record/checkpoint bounds require an explicit
+future compaction design for indefinite operation. This is an unverified
+conserving closeout policy; funded AMM/insurance/ADL, complete wallet provenance,
+contract authority and historical acceptance remain open.

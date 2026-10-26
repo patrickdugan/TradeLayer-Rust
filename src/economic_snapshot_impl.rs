@@ -1,4 +1,4 @@
-// TLEC v1: complete combined economic metadata plus the sole Joint-owned
+// Versioned TLEC: complete combined economic metadata plus the sole Joint-owned
 // Ledger. Canonical structure and CRC are not authentication of state/history.
 use crate::codec::{verify_crc, with_crc, Cursor, MAX_CHECKPOINT_BYTES};
 use crate::contract_orderbook::{
@@ -13,6 +13,7 @@ use crate::tally::{
 const ECONOMIC_STATE_MAGIC: &[u8; 5] = b"TLEC\x01";
 const ECONOMIC_FUNDING_MAGIC: &[u8; 5] = b"TLEC\x02";
 const ECONOMIC_MARK_MAGIC: &[u8; 5] = b"TLEC\x03";
+const ECONOMIC_LIQUIDATION_MAGIC: &[u8; 5] = b"TLEC\x04";
 const MAX_ECONOMIC_DECIMAL_TEXT: usize = 128;
 
 fn econ_snapshot_bad() -> EconomicError {
@@ -238,12 +239,20 @@ fn econ_write_config(out: &mut EconomicWriter, config: &EconomicConfig) -> Resul
             MarkPolicy::ConservingMarkBasisV1 => out.byte(1)?,
         }
     }
+    if let Some(liquidation) = &config.liquidation {
+        out.u32(liquidation.max_price_deviation_bps)?;
+        out.u32(liquidation.max_fills_per_owner)?;
+        match liquidation.policy {
+            LiquidationPolicy::ConservingLiquidationV1 => out.byte(1)?,
+        }
+    }
     Ok(())
 }
 fn econ_read_config(
     reader: &mut Cursor<'_>,
     has_funding: bool,
     has_marking: bool,
+    has_liquidation: bool,
 ) -> Result<EconomicConfig> {
     let network = TradeLayerMainnet::from_tag(reader.u8().map_err(|_| econ_snapshot_bad())?)
         .map_err(|_| econ_snapshot_bad())?;
@@ -264,6 +273,7 @@ fn econ_read_config(
         },
         funding: None,
         marking: None,
+        liquidation: None,
     };
     let has_funding = if has_marking {
         econ_read_bool(reader)?
@@ -287,6 +297,18 @@ fn econ_read_config(
             oracle_id: reader.u32().map_err(|_| econ_snapshot_bad())?,
             policy: match reader.u8().map_err(|_| econ_snapshot_bad())? {
                 1 => MarkPolicy::ConservingMarkBasisV1,
+                _ => return Err(econ_snapshot_bad()),
+            },
+        })
+    } else {
+        None
+    };
+    config.liquidation = if has_liquidation {
+        Some(LiquidationConfig {
+            max_price_deviation_bps: reader.u32().map_err(|_| econ_snapshot_bad())?,
+            max_fills_per_owner: reader.u32().map_err(|_| econ_snapshot_bad())?,
+            policy: match reader.u8().map_err(|_| econ_snapshot_bad())? {
+                1 => LiquidationPolicy::ConservingLiquidationV1,
                 _ => return Err(econ_snapshot_bad()),
             },
         })
@@ -328,6 +350,22 @@ fn econ_read_order(reader: &mut Cursor<'_>) -> Result<Order> {
         is_market: econ_read_bool(reader)?,
     })
 }
+fn econ_write_resting(out: &mut EconomicWriter, resting: &RestingOrder) -> Result<()> {
+    econ_write_order(out, &resting.order)?;
+    out.decimal(&resting.remaining)?;
+    out.decimal(&resting.reserve_quantity)?;
+    out.byte(u8::from(resting.initial_reduce))?;
+    out.u64(resting.sequence)
+}
+fn econ_read_resting(reader: &mut Cursor<'_>) -> Result<RestingOrder> {
+    Ok(RestingOrder {
+        order: econ_read_order(reader)?,
+        remaining: econ_read_decimal(reader)?,
+        reserve_quantity: econ_read_decimal(reader)?,
+        initial_reduce: econ_read_bool(reader)?,
+        sequence: econ_read_u64(reader)?,
+    })
+}
 fn econ_write_book(out: &mut EconomicWriter, book: &ContractOrderbook) -> Result<()> {
     let snapshot = book.snapshot();
     out.u32(snapshot.contract.get())?;
@@ -339,11 +377,7 @@ fn econ_write_book(out: &mut EconomicWriter, book: &ContractOrderbook) -> Result
     }
     out.count(snapshot.resting.len(), MAX_CONTRACT_ORDERS)?;
     for resting in &snapshot.resting {
-        econ_write_order(out, &resting.order)?;
-        out.decimal(&resting.remaining)?;
-        out.decimal(&resting.reserve_quantity)?;
-        out.byte(u8::from(resting.initial_reduce))?;
-        out.u64(resting.sequence)?;
+        econ_write_resting(out, resting)?;
     }
     out.count(snapshot.seen.len(), MAX_CONTRACT_ORDER_IDS)?;
     for id in snapshot.seen {
@@ -353,27 +387,36 @@ fn econ_write_book(out: &mut EconomicWriter, book: &ContractOrderbook) -> Result
     out.height(snapshot.processed_through)
 }
 fn econ_read_book(reader: &mut Cursor<'_>) -> Result<ContractOrderbook> {
+    econ_read_book_budgeted(reader, None)
+}
+fn econ_read_book_budgeted(
+    reader: &mut Cursor<'_>,
+    mut budget: Option<&mut LiquidationRecordBudget>,
+) -> Result<ContractOrderbook> {
     let contract = econ_read_contract(reader)?;
     let mut queued = Vec::new();
     let mut drained = Vec::new();
     for orders in [&mut queued, &mut drained] {
         let count = econ_read_count(reader, MAX_CONTRACT_ORDERS)?;
+        if let Some(budget) = budget.as_deref_mut() {
+            budget.take(count)?;
+        }
         for _ in 0..count {
             orders.push(econ_read_order(reader)?);
         }
     }
     let count = econ_read_count(reader, MAX_CONTRACT_ORDERS)?;
+    if let Some(budget) = budget.as_deref_mut() {
+        budget.take(count)?;
+    }
     let mut resting = Vec::new();
     for _ in 0..count {
-        resting.push(RestingOrder {
-            order: econ_read_order(reader)?,
-            remaining: econ_read_decimal(reader)?,
-            reserve_quantity: econ_read_decimal(reader)?,
-            initial_reduce: econ_read_bool(reader)?,
-            sequence: econ_read_u64(reader)?,
-        });
+        resting.push(econ_read_resting(reader)?);
     }
     let count = econ_read_count(reader, MAX_CONTRACT_ORDER_IDS)?;
+    if let Some(budget) = budget {
+        budget.take(count)?;
+    }
     let mut seen = Vec::new();
     for _ in 0..count {
         seen.push(econ_read_txid(reader)?);
@@ -839,7 +882,7 @@ fn econ_read_basis_action(reader: &mut Cursor<'_>) -> Result<BasisAction> {
         _ => Err(econ_snapshot_bad()),
     }
 }
-fn econ_write_marks(out: &mut EconomicWriter, marks: &MarkState) -> Result<()> {
+fn econ_write_marks(out: &mut EconomicWriter, marks: &MarkState, allow_forced: bool) -> Result<()> {
     let mut budget = MarkRecordBudget::default();
     budget.take(marks.bases.len())?;
     out.count(marks.bases.len(), MAX_ECONOMIC_POSITIONS)?;
@@ -880,6 +923,21 @@ fn econ_write_marks(out: &mut EconomicWriter, marks: &MarkState) -> Result<()> {
                 out.txid(*id)?;
                 econ_write_funding_observation(out, observation)?;
             }
+            MarkEventKind::Forced {
+                epoch_id,
+                fill_index,
+                maker_txid,
+                distressed_owner,
+            } => {
+                if !allow_forced {
+                    return Err(econ_snapshot_bad());
+                }
+                out.byte(2)?;
+                out.txid(*epoch_id)?;
+                out.u32(*fill_index)?;
+                out.txid(*maker_txid)?;
+                out.account(distressed_owner)?;
+            }
         }
         budget.take(event.entries.len())?;
         out.count(event.entries.len(), MAX_ECONOMIC_POSITIONS)?;
@@ -911,7 +969,7 @@ fn econ_write_marks(out: &mut EconomicWriter, marks: &MarkState) -> Result<()> {
     }
     Ok(())
 }
-fn econ_read_marks(reader: &mut Cursor<'_>) -> Result<MarkState> {
+fn econ_read_marks(reader: &mut Cursor<'_>, allow_forced: bool) -> Result<MarkState> {
     let mut budget = MarkRecordBudget::default();
     let count = econ_read_count(reader, MAX_ECONOMIC_POSITIONS)?;
     budget.take(count)?;
@@ -968,6 +1026,12 @@ fn econ_read_marks(reader: &mut Cursor<'_>) -> Result<MarkState> {
                     observation: econ_read_funding_observation(reader)?,
                 }
             }
+            2 if allow_forced => MarkEventKind::Forced {
+                epoch_id: econ_read_txid(reader)?,
+                fill_index: reader.u32().map_err(|_| econ_snapshot_bad())?,
+                maker_txid: econ_read_txid(reader)?,
+                distressed_owner: econ_read_account(reader)?,
+            },
             _ => return Err(econ_snapshot_bad()),
         };
         let count = econ_read_count(reader, MAX_ECONOMIC_POSITIONS)?;
@@ -1028,10 +1092,306 @@ fn econ_read_marks(reader: &mut Cursor<'_>) -> Result<MarkState> {
     })
 }
 
+#[derive(Default)]
+struct LiquidationRecordBudget {
+    used: usize,
+}
+impl LiquidationRecordBudget {
+    fn take(&mut self, count: usize) -> Result<()> {
+        self.used = self
+            .used
+            .checked_add(count)
+            .ok_or(EconomicError::Capacity)?;
+        if self.used > MAX_LIQUIDATION_RECORDS {
+            return Err(EconomicError::Capacity);
+        }
+        Ok(())
+    }
+}
+fn econ_write_forced_receipt(out: &mut EconomicWriter, fill: &ForcedCloseReceipt) -> Result<()> {
+    econ_write_resting(out, &fill.maker_before)?;
+    for value in [
+        &fill.quantity,
+        &fill.price,
+        &fill.distressed_pnl,
+        &fill.maker_pnl,
+    ] {
+        out.decimal(value)?;
+    }
+    for value in [
+        fill.maker_available_before_atoms,
+        fill.maker_margin_before_atoms,
+        fill.distressed_available_before_fee_atoms,
+        fill.distressed_margin_before_fee_atoms,
+        fill.nominal_fee_atoms,
+        fill.charged_fee_atoms,
+        fill.maker_rebate_atoms,
+        fill.retained_fee_atoms,
+        fill.collected_loss_atoms,
+        fill.paid_claim_atoms,
+        fill.unfunded_loss_atoms,
+        fill.distressed_margin_after_atoms,
+    ] {
+        out.atoms(value)?;
+    }
+    Ok(())
+}
+fn econ_read_forced_receipt(reader: &mut Cursor<'_>) -> Result<ForcedCloseReceipt> {
+    Ok(ForcedCloseReceipt {
+        maker_before: econ_read_resting(reader)?,
+        quantity: econ_read_decimal(reader)?,
+        price: econ_read_decimal(reader)?,
+        distressed_pnl: econ_read_decimal(reader)?,
+        maker_pnl: econ_read_decimal(reader)?,
+        maker_available_before_atoms: econ_read_atoms(reader)?,
+        maker_margin_before_atoms: econ_read_atoms(reader)?,
+        distressed_available_before_fee_atoms: econ_read_atoms(reader)?,
+        distressed_margin_before_fee_atoms: econ_read_atoms(reader)?,
+        nominal_fee_atoms: econ_read_atoms(reader)?,
+        charged_fee_atoms: econ_read_atoms(reader)?,
+        maker_rebate_atoms: econ_read_atoms(reader)?,
+        retained_fee_atoms: econ_read_atoms(reader)?,
+        collected_loss_atoms: econ_read_atoms(reader)?,
+        paid_claim_atoms: econ_read_atoms(reader)?,
+        unfunded_loss_atoms: econ_read_atoms(reader)?,
+        distressed_margin_after_atoms: econ_read_atoms(reader)?,
+    })
+}
+fn econ_write_cancel_criteria(out: &mut EconomicWriter, criteria: &CancelCriteria) -> Result<()> {
+    match criteria {
+        CancelCriteria::All => out.byte(0),
+        CancelCriteria::Txid(id) => {
+            out.byte(1)?;
+            out.txid(*id)
+        }
+        CancelCriteria::Price { side, price } => {
+            out.byte(2)?;
+            out.byte(match side {
+                Side::Buy => 0,
+                Side::Sell => 1,
+            })?;
+            out.decimal(price)
+        }
+    }
+}
+fn econ_read_cancel_criteria(reader: &mut Cursor<'_>) -> Result<CancelCriteria> {
+    match reader.u8().map_err(|_| econ_snapshot_bad())? {
+        0 => Ok(CancelCriteria::All),
+        1 => Ok(CancelCriteria::Txid(econ_read_txid(reader)?)),
+        2 => Ok(CancelCriteria::Price {
+            side: match reader.u8().map_err(|_| econ_snapshot_bad())? {
+                0 => Side::Buy,
+                1 => Side::Sell,
+                _ => return Err(econ_snapshot_bad()),
+            },
+            price: econ_read_decimal(reader)?,
+        }),
+        _ => Err(econ_snapshot_bad()),
+    }
+}
+fn econ_write_liquidation(out: &mut EconomicWriter, state: &LiquidationState) -> Result<()> {
+    let mut budget = LiquidationRecordBudget::default();
+    out.count(state.events.len(), MAX_LIQUIDATION_EVENTS)?;
+    for event in &state.events {
+        for count in [
+            event.book_before.queued.len(),
+            event.book_before.drained.len(),
+            event.book_before.resting.len(),
+            event.book_before.seen.len(),
+            event.cancelled.len(),
+            event.fills.len(),
+            usize::from(event.blocked_maker.is_some()),
+        ] {
+            budget.take(count)?;
+        }
+        out.u64(event.height)?;
+        out.txid(event.id)?;
+        out.txid(event.mark_id)?;
+        out.account(&event.owner)?;
+        out.decimal(&event.quantity_before)?;
+        for value in [
+            event.margin_before_atoms,
+            event.available_before_atoms,
+            event.required_before_atoms,
+        ] {
+            out.atoms(value)?;
+        }
+        out.decimal(&event.guard_price)?;
+        econ_write_book(
+            out,
+            &ContractOrderbook::from_snapshot(event.book_before.clone())?,
+        )?;
+        out.count(event.cancelled.len(), MAX_CONTRACT_ORDERS)?;
+        for cancellation in &event.cancelled {
+            econ_write_resting(out, &cancellation.order)?;
+            out.atoms(cancellation.reserve_atoms)?;
+        }
+        out.atoms(event.top_up_atoms)?;
+        out.count(event.fills.len(), MAX_LIQUIDATION_FILLS as usize)?;
+        for fill in &event.fills {
+            econ_write_forced_receipt(out, fill)?;
+        }
+        match &event.blocked_maker {
+            None => out.byte(0)?,
+            Some(blocked) => {
+                out.byte(1)?;
+                econ_write_resting(out, &blocked.order)?;
+                out.atoms(blocked.available_atoms)?;
+                out.atoms(blocked.margin_atoms)?;
+            }
+        }
+        out.byte(match event.status {
+            LiquidationStatus::Cured => 0,
+            LiquidationStatus::Closed => 1,
+            LiquidationStatus::NoLiquidityWithinGuard => 2,
+            LiquidationStatus::UnfundedBestMaker => 3,
+            LiquidationStatus::FillLimit => 4,
+        })?;
+    }
+    out.count(state.book_frames.len(), MAX_BOOK_FRAMES)?;
+    for frame in &state.book_frames {
+        budget.take(frame.inputs.len())?;
+        budget.take(frame.placements.len())?;
+        out.u64(frame.height)?;
+        out.count(frame.inputs.len(), MAX_ECONOMIC_INPUTS)?;
+        for input in &frame.inputs {
+            match input {
+                LiquidationBookInput::Order(order) => {
+                    out.byte(0)?;
+                    econ_write_order(out, order)?;
+                }
+                LiquidationBookInput::Cancel {
+                    txid,
+                    owner,
+                    criteria,
+                } => {
+                    out.byte(1)?;
+                    out.txid(*txid)?;
+                    out.account(owner)?;
+                    econ_write_cancel_criteria(out, criteria)?;
+                }
+            }
+        }
+        out.count(frame.placements.len(), MAX_ECONOMIC_INPUTS)?;
+        for placement in &frame.placements {
+            econ_write_order(out, &placement.order)?;
+            out.decimal(&placement.position)?;
+        }
+    }
+    Ok(())
+}
+fn econ_read_liquidation(reader: &mut Cursor<'_>) -> Result<LiquidationState> {
+    let mut budget = LiquidationRecordBudget::default();
+    let count = econ_read_count(reader, MAX_LIQUIDATION_EVENTS)?;
+    let mut events = Vec::new();
+    for _ in 0..count {
+        let height = econ_read_u64(reader)?;
+        let id = econ_read_txid(reader)?;
+        let mark_id = econ_read_txid(reader)?;
+        let owner = econ_read_account(reader)?;
+        let quantity_before = econ_read_decimal(reader)?;
+        let margin_before_atoms = econ_read_atoms(reader)?;
+        let available_before_atoms = econ_read_atoms(reader)?;
+        let required_before_atoms = econ_read_atoms(reader)?;
+        let guard_price = econ_read_decimal(reader)?;
+        let book_before = econ_read_book_budgeted(reader, Some(&mut budget))?.snapshot();
+        let count = econ_read_count(reader, MAX_CONTRACT_ORDERS)?;
+        budget.take(count)?;
+        let mut cancelled = Vec::new();
+        for _ in 0..count {
+            cancelled.push(LiquidationCancellation {
+                order: econ_read_resting(reader)?,
+                reserve_atoms: econ_read_atoms(reader)?,
+            });
+        }
+        let top_up_atoms = econ_read_atoms(reader)?;
+        let count = econ_read_count(reader, MAX_LIQUIDATION_FILLS as usize)?;
+        budget.take(count)?;
+        let mut fills = Vec::new();
+        for _ in 0..count {
+            fills.push(econ_read_forced_receipt(reader)?);
+        }
+        let blocked_maker = if econ_read_bool(reader)? {
+            budget.take(1)?;
+            Some(BlockedLiquidationMaker {
+                order: econ_read_resting(reader)?,
+                available_atoms: econ_read_atoms(reader)?,
+                margin_atoms: econ_read_atoms(reader)?,
+            })
+        } else {
+            None
+        };
+        let status = match reader.u8().map_err(|_| econ_snapshot_bad())? {
+            0 => LiquidationStatus::Cured,
+            1 => LiquidationStatus::Closed,
+            2 => LiquidationStatus::NoLiquidityWithinGuard,
+            3 => LiquidationStatus::UnfundedBestMaker,
+            4 => LiquidationStatus::FillLimit,
+            _ => return Err(econ_snapshot_bad()),
+        };
+        events.push(LiquidationEvent {
+            height,
+            id,
+            mark_id,
+            owner,
+            quantity_before,
+            margin_before_atoms,
+            available_before_atoms,
+            required_before_atoms,
+            guard_price,
+            book_before,
+            cancelled,
+            top_up_atoms,
+            fills,
+            blocked_maker,
+            status,
+        });
+    }
+    let count = econ_read_count(reader, MAX_BOOK_FRAMES)?;
+    let mut book_frames = Vec::new();
+    for _ in 0..count {
+        let height = econ_read_u64(reader)?;
+        let count = econ_read_count(reader, MAX_ECONOMIC_INPUTS)?;
+        budget.take(count)?;
+        let mut inputs = Vec::new();
+        for _ in 0..count {
+            inputs.push(match reader.u8().map_err(|_| econ_snapshot_bad())? {
+                0 => LiquidationBookInput::Order(econ_read_order(reader)?),
+                1 => LiquidationBookInput::Cancel {
+                    txid: econ_read_txid(reader)?,
+                    owner: econ_read_account(reader)?,
+                    criteria: econ_read_cancel_criteria(reader)?,
+                },
+                _ => return Err(econ_snapshot_bad()),
+            });
+        }
+        let count = econ_read_count(reader, MAX_ECONOMIC_INPUTS)?;
+        budget.take(count)?;
+        let mut placements = Vec::new();
+        for _ in 0..count {
+            placements.push(LiquidationBookPlacement {
+                order: econ_read_order(reader)?,
+                position: econ_read_decimal(reader)?,
+            });
+        }
+        book_frames.push(LiquidationBookFrame {
+            height,
+            inputs,
+            placements,
+        });
+    }
+    Ok(LiquidationState {
+        events,
+        book_frames,
+    })
+}
+
 impl EconomicState {
     pub fn snapshot_bytes(&self) -> Result<Vec<u8>> {
         self.verify()?;
-        let mut out = EconomicWriter(if self.config.marking.is_some() {
+        let mut out = EconomicWriter(if self.config.liquidation.is_some() {
+            ECONOMIC_LIQUIDATION_MAGIC.to_vec()
+        } else if self.config.marking.is_some() {
             ECONOMIC_MARK_MAGIC.to_vec()
         } else if self.config.funding.is_some() {
             ECONOMIC_FUNDING_MAGIC.to_vec()
@@ -1107,7 +1467,10 @@ impl EconomicState {
             econ_write_funding(&mut out, &self.funding)?;
         }
         if self.config.marking.is_some() {
-            econ_write_marks(&mut out, &self.marking)?;
+            econ_write_marks(&mut out, &self.marking, self.config.liquidation.is_some())?;
+        }
+        if self.config.liquidation.is_some() {
+            econ_write_liquidation(&mut out, &self.liquidation)?;
         }
         with_crc(out.0).map_err(|_| EconomicError::Capacity)
     }
@@ -1124,16 +1487,18 @@ impl EconomicState {
         let raw = verify_crc(bytes).map_err(|_| econ_snapshot_bad())?;
         let mut reader = Cursor::new(raw);
         let version = reader.fixed::<5>().map_err(|_| econ_snapshot_bad())?;
-        let (has_funding, has_marking) = if version == *ECONOMIC_STATE_MAGIC {
-            (false, false)
+        let (has_funding, has_marking, has_liquidation) = if version == *ECONOMIC_STATE_MAGIC {
+            (false, false, false)
         } else if version == *ECONOMIC_FUNDING_MAGIC {
-            (true, false)
+            (true, false, false)
         } else if version == *ECONOMIC_MARK_MAGIC {
-            (false, true)
+            (false, true, false)
+        } else if version == *ECONOMIC_LIQUIDATION_MAGIC {
+            (false, true, true)
         } else {
             return Err(econ_snapshot_bad());
         };
-        let config = econ_read_config(&mut reader, has_funding, has_marking)?;
+        let config = econ_read_config(&mut reader, has_funding, has_marking, has_liquidation)?;
         if &config != expected_config {
             return Err(EconomicError::InvalidConfig);
         }
@@ -1216,9 +1581,14 @@ impl EconomicState {
             FundingState::default()
         };
         let marking = if has_marking {
-            econ_read_marks(&mut reader)?
+            econ_read_marks(&mut reader, has_liquidation)?
         } else {
             MarkState::default()
+        };
+        let liquidation = if has_liquidation {
+            econ_read_liquidation(&mut reader)?
+        } else {
+            LiquidationState::default()
         };
         reader.end().map_err(|_| econ_snapshot_bad())?;
         let result = Self {
@@ -1238,6 +1608,7 @@ impl EconomicState {
             internal_sequence,
             funding,
             marking,
+            liquidation,
         };
         result.verify()?;
         if result.snapshot_bytes()?.as_slice() != bytes {
@@ -1250,6 +1621,46 @@ impl EconomicState {
 #[cfg(test)]
 mod funding_codec_compat_tests {
     use super::*;
+
+    #[test]
+    fn forced_mark_tags_are_explicitly_gated_by_format_version() {
+        let marks = MarkState {
+            events: vec![MarkEvent {
+                height: 1,
+                kind: MarkEventKind::Forced {
+                    epoch_id: TxId::from_bytes([1; 32]),
+                    fill_index: 0,
+                    maker_txid: TxId::from_bytes([2; 32]),
+                    distressed_owner: "alice".try_into().unwrap(),
+                },
+                entries: vec![],
+                collected_loss_atoms: 0,
+                paid_claim_atoms: 0,
+                unfunded_loss_atoms: 0,
+            }],
+            ..MarkState::default()
+        };
+        assert!(econ_write_marks(&mut EconomicWriter(vec![]), &marks, false).is_err());
+        let mut out = EconomicWriter(vec![]);
+        econ_write_marks(&mut out, &marks, true).unwrap();
+        assert!(econ_read_marks(&mut Cursor::new(&out.0), false).is_err());
+        let mut reader = Cursor::new(&out.0);
+        assert_eq!(econ_read_marks(&mut reader, true).unwrap(), marks);
+        reader.end().unwrap();
+    }
+
+    #[test]
+    fn nested_liquidation_book_budget_is_checked_before_reading_declared_ids() {
+        let mut raw = vec![];
+        for number in [1u32, 0, 0, 0, MAX_LIQUIDATION_RECORDS as u32] {
+            raw.extend_from_slice(&number.to_be_bytes());
+        }
+        let mut budget = LiquidationRecordBudget { used: 1 };
+        assert_eq!(
+            econ_read_book_budgeted(&mut Cursor::new(&raw), Some(&mut budget)),
+            Err(EconomicError::Capacity)
+        );
+    }
 
     #[test]
     fn disabled_funding_preserves_genuine_pre_funding_tlec_v1_bytes() {
@@ -1283,6 +1694,7 @@ mod funding_codec_compat_tests {
             policy: SettlementPolicy::ConservingV1,
             funding: None,
             marking: None,
+            liquidation: None,
         };
         let mut state = EconomicState::from_joint_unverified(config, joint).unwrap();
         state
@@ -1347,5 +1759,31 @@ mod funding_codec_compat_tests {
         .unwrap();
         assert_eq!(restored, state);
         assert_eq!(restored.marking, MarkState::default());
+
+        // Captured from the compiled pre-liquidation owner, with both funding
+        // and marking configured and the same activation/bootstrap fixture.
+        state.config.marking = Some(MarkConfig {
+            oracle_id: 1,
+            policy: MarkPolicy::ConservingMarkBasisV1,
+        });
+        let bytes = state.snapshot_bytes().unwrap();
+        assert_eq!(&bytes[..5], b"TLEC\x03");
+        assert_eq!(bytes.len(), 844);
+        assert_eq!(
+            crate::hash256::double_sha256(&bytes),
+            [
+                106, 202, 8, 228, 68, 191, 224, 11, 18, 183, 235, 80, 104, 33, 189, 255, 217, 151,
+                228, 71, 150, 178, 56, 237, 2, 86, 192, 193, 222, 222, 208, 89
+            ]
+        );
+        let restored = EconomicState::from_snapshot_bytes(
+            &bytes,
+            state.config(),
+            &"admin".try_into().unwrap(),
+            &BTreeSet::from([7.try_into().unwrap()]),
+        )
+        .unwrap();
+        assert_eq!(restored, state);
+        assert_eq!(restored.liquidation, LiquidationState::default());
     }
 }

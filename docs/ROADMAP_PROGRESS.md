@@ -415,3 +415,63 @@ The conserving basis and default-offset policy is explicit in
 full publication provenance, contract configuration, native marks, funded
 liquidation/AMM/insurance and authenticated historical acceptance remain open.
 No branch was pushed and no GitHub CI, Lean or Kani result is claimed.
+
+## Guarded funded liquidation and complete book replay
+
+The ninth local economic pass adds [guarded funded closeouts](ECONOMIC_LIQUIDATION.md)
+against actual firm resting makers in the same Ledger. Private system IDs do
+not create external orders. Owner-order cancellation refunds real reserve atoms;
+actual available custody can cure margin; forced reductions release surplus
+margin without requiring distressed initial-margin funding. Capped collected
+fees alone fund maker rebates and retained fee/insurance-pending custody.
+
+The v4 journal retains every block's ordinary book inputs, cancellation criteria
+and source-ordered placements. Replay reconstructs the entire book and positions,
+binds computed maker roles and ordinary fee amounts, checks each forced candidate
+and cancellation, and follows known margin targets, losses, fee consumption and
+top-ups to actual final margin custody. This prevents an empty later block from
+hiding a forged historical book and rejects a fabricated zero-fill top-up.
+Replay derives the initial deficit-owner set and requires every still-distressed
+owner's attempt, including a zero-effect no-liquidity outcome; deleting both its
+receipt and private replay ID does not make an incomplete history valid.
+Funding positions bind before forced same-height reductions; the exact system
+replay union covers funding, marks and liquidations. Full-state rollback retains
+all these records together.
+
+The named conserving policy is bounded and differs from source coverage, sizing
+and orchestration. It uses the initial captured maintenance-call set and does
+not claim a cascade into newly deficient makers. Complete wallet/publication
+provenance, authenticated historical acceptance, funded AMM/insurance/ADL, native
+marks, multi-contract operation and indefinite-history compaction remain open.
+Frames cover every applied block from bootstrap and impose a documented
+4096-block bound until a separately verified compaction format exists. Earlier
+v1/v2/v3 checkpoint formats retain their disabled-feature bytes.
+
+## Local validation for guarded funded liquidation
+
+Pinned Rust 1.90.0 on Windows/MSVC passed all 872 tests across 112 executables,
+formatting including every included implementation, all-target Clippy with
+warnings denied, and the frozen all-target release build. The zero-dependency
+gate and its 11 adversarial tests passed. Doc tests passed with none defined.
+The unchanged-source oracles passed 130 mark vectors and nine characterizations,
+117 funding vectors and 19 characterizations, 287 orderbook vectors and nine
+characterizations, and 248 tally vectors and 32 behavior assertions. Their
+complete clearing, margin-map, orderbook and tally archives match the pinned
+JavaScript checkout after LF normalization.
+
+Coverage includes linear and inverse full/partial closeouts, real reserve
+cancellation and margin cures, inclusive price guards, price/time priority,
+unfunded best makers, per-owner fill bounds, capped funded fees and odd-atom
+rebates, funding before forced reductions, later ordinary matching, late-leg
+overflow rollback and alternate-fork replay. Repaired-checksum probes reject
+forged full book frames, positions, margin top-ups, forced identities, fees,
+fill ordering and omitted zero-effect attempts. Complete checkpoint and durable
+restart/rollback/replay pass on Bitcoin, Litecoin and Dogecoin profiles.
+Genuine pre-liquidation v1 (800 bytes), v2 (822 bytes) and v3 (844 bytes)
+checkpoint fingerprints retain their existing disabled-feature bytes.
+
+The explicit policy and bounded-history limit are documented in
+[ECONOMIC_LIQUIDATION.md](ECONOMIC_LIQUIDATION.md). These checks establish local
+funded consistency, not authenticated inputs, historical liquidation acceptance,
+AMM/insurance/ADL integration or indefinite operation. No branch was pushed and
+no GitHub CI, Lean or Kani result is claimed.

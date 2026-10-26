@@ -104,6 +104,7 @@ mod combined_execution_review {
             policy: SettlementPolicy::ConservingV1,
             funding: None,
             marking: None,
+            liquidation: None,
         };
         let mut ledger = Ledger::new();
         ledger

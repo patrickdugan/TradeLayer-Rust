@@ -42,6 +42,7 @@ fn config(network: TradeLayerMainnet) -> EconomicConfig {
         policy: SettlementPolicy::ConservingV1,
         funding: None,
         marking: None,
+        liquidation: None,
     }
 }
 fn pristine(network: TradeLayerMainnet) -> EconomicState {

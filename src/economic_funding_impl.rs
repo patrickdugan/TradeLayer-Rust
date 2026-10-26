@@ -453,7 +453,7 @@ impl EconomicState {
             if !open_interest.is_zero() {
                 return Err(EconomicError::Invariant);
             }
-            if epoch.height == finalized {
+            if epoch.height == finalized && self.config.liquidation.is_none() {
                 let captured: BTreeMap<_, _> = epoch
                     .positions
                     .iter()

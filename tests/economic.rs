@@ -40,6 +40,7 @@ fn config() -> EconomicConfig {
         policy: SettlementPolicy::ConservingV1,
         funding: None,
         marking: None,
+        liquidation: None,
     }
 }
 fn bootstrap() -> JointProtocolState {

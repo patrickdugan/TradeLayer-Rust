@@ -26,6 +26,8 @@ pub enum BookError {
     DuplicateInput,
     Capacity,
     InvalidSnapshot,
+    InvalidReduceOnly,
+    StaleLiquidationCandidate,
     Arithmetic,
 }
 impl fmt::Display for BookError {
@@ -742,3 +744,6 @@ fn from_number(value: f64) -> Result<Decimal> {
 fn number(value: &Decimal) -> Result<Decimal> {
     from_number(as_number(value)?)
 }
+
+// Crate-private system liquidation metadata; no external order or custody.
+include!("contract_orderbook_liquidation_impl.rs");

@@ -51,6 +51,7 @@ fn config(inverse: bool, funding_oracle: Option<u32>) -> EconomicConfig {
             max_staleness_blocks: 32,
             policy: FundingPolicy::ConservingFundingV1,
         }),
+        liquidation: None,
         marking: Some(MarkConfig {
             oracle_id: 1,
             policy: MarkPolicy::ConservingMarkBasisV1,

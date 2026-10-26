@@ -25,6 +25,12 @@ pub enum MarkEventKind {
         id: TxId,
         observation: FundingObservation,
     },
+    Forced {
+        epoch_id: TxId,
+        fill_index: u32,
+        maker_txid: TxId,
+        distressed_owner: AccountId,
+    },
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MarkEventEntry {
@@ -299,18 +305,19 @@ impl EconomicState {
     }
     fn verify_system_epochs(&self) -> Result<()> {
         let mut expected = BTreeSet::new();
-        for id in
-            self.funding
-                .epochs
-                .iter()
-                .map(|e| e.id)
-                .chain(self.marking.events.iter().filter_map(|e| {
-                    if let MarkEventKind::Mark { id, .. } = e.kind {
-                        Some(id)
-                    } else {
-                        None
-                    }
-                }))
+        for id in self
+            .funding
+            .epochs
+            .iter()
+            .map(|e| e.id)
+            .chain(self.marking.events.iter().filter_map(|e| {
+                if let MarkEventKind::Mark { id, .. } = e.kind {
+                    Some(id)
+                } else {
+                    None
+                }
+            }))
+            .chain(self.liquidation.events.iter().map(|e| e.id))
         {
             if !expected.insert(id) {
                 return Err(EconomicError::Invariant);
@@ -379,10 +386,11 @@ impl EconomicState {
             .ok_or(EconomicError::Invariant)?
             .total_supply_atoms;
         for event in &self.marking.events {
-            while funding_epochs
-                .peek()
-                .is_some_and(|e| e.height < event.height)
-            {
+            while funding_epochs.peek().is_some_and(|e| {
+                e.height < event.height
+                    || (e.height == event.height
+                        && matches!(event.kind, MarkEventKind::Forced { .. }))
+            }) {
                 mark_verify_funding_positions(
                     funding_epochs.next().ok_or(EconomicError::Invariant)?,
                     &bases,
@@ -391,7 +399,8 @@ impl EconomicState {
             if event.height == 0
                 || event.height < last_height
                 || event.height > finalized
-                || (event.height == mark_height)
+                || (event.height == mark_height
+                    && !matches!(event.kind, MarkEventKind::Forced { .. }))
             {
                 return Err(EconomicError::Invariant);
             }
@@ -434,6 +443,12 @@ impl EconomicState {
                             return Err(EconomicError::Invariant);
                         }
                     }
+                }
+                MarkEventKind::Forced { .. } => {
+                    if mark_height != event.height {
+                        return Err(EconomicError::Invariant);
+                    }
+                    self.verify_forced_mark_entry(event, &bases)?;
                 }
                 MarkEventKind::Mark { id, observation } => {
                     mark_count += 1;
@@ -602,7 +617,12 @@ impl EconomicState {
                         let Some(MarkEvent {
                             kind: MarkEventKind::Mark { observation, .. },
                             ..
-                        }) = self.marking.events.last()
+                        }) = self
+                            .marking
+                            .events
+                            .iter()
+                            .rev()
+                            .find(|e| matches!(e.kind, MarkEventKind::Mark { .. }))
                         else {
                             return Err(EconomicError::Invariant);
                         };

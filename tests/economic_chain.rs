@@ -82,6 +82,7 @@ fn config(network: TradeLayerMainnet, rollback_limit: usize) -> EconomicChainCon
             policy: SettlementPolicy::ConservingV1,
             funding: None,
             marking: None,
+            liquidation: None,
         },
         admin: a("admin"),
         permitted_spot_properties: BTreeSet::from([p()]),

@@ -1,0 +1,362 @@
+// Canonical ordinary-book and margin history for the liquidation owner.
+// This binds stored liquidation evidence to prior computed transitions. It is
+// not authentication of actors, oracle claims or historical available wallets.
+
+pub const MAX_BOOK_FRAMES: usize = 4096;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum LiquidationBookInput {
+    Order(Order),
+    Cancel {
+        txid: TxId,
+        owner: AccountId,
+        criteria: CancelCriteria,
+    },
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LiquidationBookPlacement {
+    pub order: Order,
+    pub position: Decimal,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LiquidationBookFrame {
+    pub height: u64,
+    pub inputs: Vec<LiquidationBookInput>,
+    pub placements: Vec<LiquidationBookPlacement>,
+}
+
+impl EconomicState {
+    fn verify_liquidation_book_history(&self) -> Result<()> {
+        if self.config.liquidation.is_none() {
+            return if self.liquidation.book_frames.is_empty() {
+                Ok(())
+            } else {
+                Err(EconomicError::Invariant)
+            };
+        }
+        let finalized = self.finalized_height().unwrap_or(0);
+        if self.liquidation.book_frames.len() > MAX_BOOK_FRAMES {
+            return Err(EconomicError::Capacity);
+        }
+        if self.liquidation.book_frames.len() as u64 != finalized {
+            return Err(EconomicError::Invariant);
+        }
+        let mut records = 0usize;
+        for frame in &self.liquidation.book_frames {
+            if frame.inputs.len() > MAX_ECONOMIC_INPUTS
+                || frame.placements.len() > MAX_ECONOMIC_INPUTS
+            {
+                return Err(EconomicError::Capacity);
+            }
+            records = records
+                .checked_add(frame.inputs.len())
+                .and_then(|n| n.checked_add(frame.placements.len()))
+                .ok_or(EconomicError::Capacity)?;
+            if records > MAX_LIQUIDATION_RECORDS {
+                return Err(EconomicError::Capacity);
+            }
+        }
+        let mut book = ContractOrderbook::new(self.config.contract);
+        let mut positions = BTreeMap::<AccountId, Decimal>::new();
+        let mut margins = BTreeMap::<AccountId, u128>::new();
+        let mut cancellations = BTreeSet::new();
+        let mut marks = self.marking.events.iter().peekable();
+        let mut ordinary_receipts = self.receipts.iter();
+        let mut liquidations = self.liquidation.events.iter().peekable();
+        for (index, frame) in self.liquidation.book_frames.iter().enumerate() {
+            if frame.height != index as u64 + 1 {
+                return Err(EconomicError::Invariant);
+            }
+            for input in &frame.inputs {
+                match input {
+                    LiquidationBookInput::Order(order) => {
+                        if order.height != frame.height || cancellations.contains(&order.txid) {
+                            return Err(EconomicError::Invariant);
+                        }
+                        book.queue(order.clone())?;
+                    }
+                    LiquidationBookInput::Cancel {
+                        txid,
+                        owner,
+                        criteria,
+                    } => {
+                        if book.has_seen(*txid) || !cancellations.insert(*txid) {
+                            return Err(EconomicError::Invariant);
+                        }
+                        normal_owner(owner)?;
+                        book.cancel(owner, criteria.clone())?;
+                    }
+                }
+            }
+            let drained = book.drain_queued_through(frame.height)?;
+            if drained.len() != frame.placements.len() {
+                return Err(EconomicError::Invariant);
+            }
+            for (order, placement) in drained.into_iter().zip(&frame.placements) {
+                let position = positions.get(&order.owner).cloned().unwrap_or_default();
+                if placement.order != order || placement.position != position {
+                    return Err(EconomicError::Invariant);
+                }
+                let transition = book.place(order, &position)?;
+                for matched in transition.matches {
+                    let receipt = ordinary_receipts.next().ok_or(EconomicError::Invariant)?;
+                    let fee = calculate_match_fees(&MatchFeeInput {
+                        amount_buy: matched.quantity.clone(),
+                        amount_sell: matched.quantity.clone(),
+                        buy_maker: maker(matched.buy_maker),
+                        sell_maker: maker(matched.sell_maker),
+                        inverse: self.config.inverse,
+                        last_mark: matched.price.clone(),
+                        notional_value: self.config.notional.clone(),
+                        channel: false,
+                    })?;
+                    if receipt.height != frame.height
+                        || receipt.buy_txid != matched.buy_txid
+                        || receipt.sell_txid != matched.sell_txid
+                        || receipt.quantity != matched.quantity
+                        || receipt.price != matched.price
+                        || receipt.retained_fee_atoms != fee.retained_atoms
+                    {
+                        return Err(EconomicError::Invariant);
+                    }
+                    let event = marks.next().ok_or(EconomicError::Invariant)?;
+                    if event.height != frame.height
+                        || event.kind
+                            != (MarkEventKind::Trade {
+                                buy_txid: matched.buy_txid,
+                                sell_txid: matched.sell_txid,
+                            })
+                        || event.entries.len() != 2
+                        || event.entries[0].owner != matched.buyer
+                        || event.entries[1].owner != matched.seller
+                    {
+                        return Err(EconomicError::Invariant);
+                    }
+                    for (entry, delta) in [
+                        (&event.entries[0], matched.quantity.clone()),
+                        (&event.entries[1], matched.quantity.negated()),
+                    ] {
+                        if entry.action
+                            != (BasisAction::Trade {
+                                delta: delta.clone(),
+                                price: matched.price.clone(),
+                            })
+                        {
+                            return Err(EconomicError::Invariant);
+                        }
+                        let before = positions.get(&entry.owner).cloned().unwrap_or_default();
+                        let after = before.checked_add(&delta)?;
+                        let target = self.required_margin(&after.abs())?;
+                        positions.insert(entry.owner.clone(), after);
+                        liquidation_replay_set_margin(&mut margins, &entry.owner, target);
+                    }
+                    liquidation_replay_margin_loss(&mut margins, event)?;
+                }
+            }
+            book.finish_height(frame.height)?;
+            let mut mark_id = None;
+            if marks.peek().is_some_and(|event| {
+                event.height == frame.height && matches!(event.kind, MarkEventKind::Mark { .. })
+            }) {
+                let event = marks.next().ok_or(EconomicError::Invariant)?;
+                if let MarkEventKind::Mark { id, .. } = event.kind {
+                    mark_id = Some(id);
+                }
+                liquidation_replay_margin_loss(&mut margins, event)?;
+            }
+            // Funding is deliberately between Mark and Forced. It moves only
+            // available balances, so it does not alter either replayed map.
+            // Runtime snapshots the initial maintenance set once, in sorted
+            // owner order. Earlier forced fills can then cure/flatten a later
+            // target; newly distressed makers are left for the next sweep.
+            let mut targets = Vec::new();
+            if mark_id.is_some() {
+                for (owner, quantity) in &positions {
+                    if !quantity.is_zero()
+                        && liquidation_replay_margin(&margins, owner)
+                            < self.maintenance_atoms(quantity)?
+                    {
+                        targets.push(owner.clone());
+                    }
+                }
+            }
+            for target in targets {
+                let quantity = positions.get(&target).ok_or(EconomicError::Invariant)?;
+                if quantity.is_zero()
+                    || liquidation_replay_margin(&margins, &target)
+                        >= self.maintenance_atoms(quantity)?
+                {
+                    continue;
+                }
+                let event = liquidations.next().ok_or(EconomicError::Invariant)?;
+                if event.height != frame.height
+                    || event.owner != target
+                    || Some(event.mark_id) != mark_id
+                    || book.snapshot() != event.book_before
+                    || positions.get(&event.owner) != Some(&event.quantity_before)
+                    || liquidation_replay_margin(&margins, &event.owner)
+                        != event.margin_before_atoms
+                {
+                    return Err(EconomicError::Invariant);
+                }
+                let cancelled = book.cancel(&event.owner, CancelCriteria::All)?;
+                if !cancelled.queued.is_empty() || cancelled.resting.len() != event.cancelled.len()
+                {
+                    return Err(EconomicError::Invariant);
+                }
+                for (order, capture) in cancelled.resting.iter().zip(&event.cancelled) {
+                    if order != &capture.order
+                        || self.required_margin(&order.reserve_quantity)? != capture.reserve_atoms
+                    {
+                        return Err(EconomicError::Invariant);
+                    }
+                }
+                let margin = add(event.margin_before_atoms, event.top_up_atoms)?;
+                liquidation_replay_set_margin(&mut margins, &event.owner, margin);
+                for (fill_index, receipt) in event.fills.iter().enumerate() {
+                    let old_quantity = positions
+                        .get(&event.owner)
+                        .cloned()
+                        .ok_or(EconomicError::Invariant)?;
+                    let request = self.liquidation_request(event, &old_quantity);
+                    let candidate = book
+                        .next_reduce_only_candidate(&request, &old_quantity)?
+                        .ok_or(EconomicError::Invariant)?;
+                    if candidate.maker_before != receipt.maker_before
+                        || candidate.maximum_quantity != receipt.quantity
+                        || receipt.maker_margin_before_atoms
+                            != liquidation_replay_margin(
+                                &margins,
+                                &candidate.maker_before.order.owner,
+                            )
+                    {
+                        return Err(EconomicError::Invariant);
+                    }
+                    let fill = book.consume_reduce_only_candidate(
+                        &candidate,
+                        &old_quantity,
+                        &receipt.quantity,
+                    )?;
+                    let delta = if fill.distressed_side == Side::Buy {
+                        fill.quantity.clone()
+                    } else {
+                        fill.quantity.negated()
+                    };
+                    let after = old_quantity.checked_add(&delta)?;
+                    let maker_old = positions
+                        .get(&fill.maker_owner)
+                        .cloned()
+                        .unwrap_or_default();
+                    let maker_after = maker_old.checked_sub(&delta)?;
+                    let maker_target = self.required_margin(&maker_after.abs())?;
+                    liquidation_replay_set_margin(&mut margins, &fill.maker_owner, maker_target);
+                    let before_fee = liquidation_replay_margin(&margins, &event.owner)
+                        .min(self.required_margin(&after.abs())?);
+                    let available_fee = receipt
+                        .nominal_fee_atoms
+                        .min(receipt.distressed_available_before_fee_atoms);
+                    let margin_fee = (receipt.nominal_fee_atoms - available_fee).min(before_fee);
+                    if receipt.distressed_margin_before_fee_atoms != before_fee
+                        || receipt.charged_fee_atoms != add(available_fee, margin_fee)?
+                    {
+                        return Err(EconomicError::Invariant);
+                    }
+                    liquidation_replay_set_margin(
+                        &mut margins,
+                        &event.owner,
+                        before_fee - margin_fee,
+                    );
+                    positions.insert(event.owner.clone(), after);
+                    positions.insert(fill.maker_owner.clone(), maker_after);
+                    let forced = marks.next().ok_or(EconomicError::Invariant)?;
+                    if forced.height != frame.height
+                        || forced.kind
+                            != (MarkEventKind::Forced {
+                                epoch_id: event.id,
+                                fill_index: fill_index as u32,
+                                maker_txid: fill.maker_txid,
+                                distressed_owner: event.owner.clone(),
+                            })
+                        || forced.entries.len() != 2
+                        || forced.entries[0].owner != event.owner
+                        || forced.entries[1].owner != fill.maker_owner
+                    {
+                        return Err(EconomicError::Invariant);
+                    }
+                    liquidation_replay_margin_loss(&mut margins, forced)?;
+                    if receipt.distressed_margin_after_atoms
+                        != liquidation_replay_margin(&margins, &event.owner)
+                    {
+                        return Err(EconomicError::Invariant);
+                    }
+                }
+                if event.blocked_maker.as_ref().is_some_and(|blocked| {
+                    blocked.margin_atoms
+                        != liquidation_replay_margin(&margins, &blocked.order.order.owner)
+                }) {
+                    return Err(EconomicError::Invariant);
+                }
+            }
+            if marks
+                .peek()
+                .is_some_and(|event| event.height <= frame.height)
+                || liquidations
+                    .peek()
+                    .is_some_and(|event| event.height <= frame.height)
+            {
+                return Err(EconomicError::Invariant);
+            }
+        }
+        let actual_positions: BTreeMap<_, _> = self
+            .positions
+            .positions()
+            .map(|position| (position.address.clone(), position.contracts.clone()))
+            .collect();
+        if marks.next().is_some()
+            || ordinary_receipts.next().is_some()
+            || liquidations.next().is_some()
+            || book != self.book
+            || positions != actual_positions
+            || margins != self.margins
+            || cancellations != self.cancel_ids
+        {
+            return Err(EconomicError::Invariant);
+        }
+        Ok(())
+    }
+}
+
+fn liquidation_replay_margin(margins: &BTreeMap<AccountId, u128>, owner: &AccountId) -> u128 {
+    margins.get(owner).copied().unwrap_or(0)
+}
+fn liquidation_replay_set_margin(
+    margins: &mut BTreeMap<AccountId, u128>,
+    owner: &AccountId,
+    atoms: u128,
+) {
+    if atoms == 0 {
+        margins.remove(owner);
+    } else {
+        margins.insert(owner.clone(), atoms);
+    }
+}
+fn liquidation_replay_margin_loss(
+    margins: &mut BTreeMap<AccountId, u128>,
+    event: &MarkEvent,
+) -> Result<()> {
+    for entry in &event.entries {
+        let before = liquidation_replay_margin(margins, &entry.owner);
+        if entry.margin_atoms != before {
+            return Err(EconomicError::Invariant);
+        }
+        let from_margin = entry
+            .collected_atoms
+            .checked_sub(entry.collected_atoms.min(entry.available_atoms))
+            .ok_or(EconomicError::Invariant)?;
+        let after = before
+            .checked_sub(from_margin)
+            .ok_or(EconomicError::Invariant)?;
+        liquidation_replay_set_margin(margins, &entry.owner, after);
+    }
+    Ok(())
+}
