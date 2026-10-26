@@ -1,9 +1,9 @@
 {
   "schema": "tl-logic-reference-review-v1",
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
-  "rustCommit": "89852594c4a83ddc9460797da0b01eb1d0f00179",
-  "rustCommitScope": "Immutable review baseline; runtimePins also bind the focused type9 mapper follow-up, whose executed scope is archived separately.",
-  "reviewedAtUtc": "2026-10-26T16:31:08Z",
+  "rustCommit": "c190350d4de071d4169d3b24c23e1aafe162fa80",
+  "rustCommitScope": "Immutable parent baseline; runtimePins bind the later actual property/clearlist owner integration. Executed tests and committed validation are recorded separately.",
+  "reviewedAtUtc": "2026-10-26T18:02:14Z",
   "evidenceScope": "static per-type inventory; executed property and clearlist checks are recorded separately",
   "sourcePins": [
     {
@@ -25,14 +25,77 @@
   "runtimePins": [
     {
       "path": "src/types_economic.rs",
-      "sha256": "107d846b6937a241b9d0af50259d7f08d3c685e52e3af7461ace8f3beca7991c",
+      "sha256": "59fdc48349b43dc5add66314caa52a89e50600d6aa413dbe1cc53c9eb442d11b",
       "lfNormalized": true
     },
     {
       "path": "src/economic_validity.rs",
-      "sha256": "49abe8fa421081799d54c3041f807703325c9d4f3aa84c579eb8016d4164670a",
+      "sha256": "9a30c53331b09ff36b56ce932bbcdac61295994579f5e65563d87fe7d603fc0d",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/property_catalog.rs",
+      "sha256": "e8d8922228b95e700c489dcb87cf823c8294fc98def5864bf22ead3812764953",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/property_catalog_numeric.rs",
+      "sha256": "071beceae8a7800e65276341b6f98018a5ee63eeb79634e54ac705daecd13438",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/property_catalog_codec.rs",
+      "sha256": "162c7c0463451d1dd6a20030cf9665cfebe9fd69933a305ea3fa16a1acacb67e",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/clearlist_source_owner.rs",
+      "sha256": "6a3ff2f06cfcd2912bfd70a6109030dee9bbc09041e0bc023d79a76db1d01499",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/clearlist_source_owner_values.rs",
+      "sha256": "f75dfff34db2916bd3b00343fe1705c0b6000329948f799dcdb2674f6e496495",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/bip32_public.rs",
+      "sha256": "a4c7750dbf91cda4b6a9dbb333356706218816c0176c5cd7d2efdaf42fa774dd",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_catalogs.rs",
+      "sha256": "a5c5a4718921d4d7e73a637069848c86a8dc04139e251d11d2601a31eaae0bea",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/consensus_source.rs",
+      "sha256": "1a1f7c91fec6662d46623daf7197a5afbf016851fb287f46adb9f6a323356985",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/economic_source_catalog_impl.rs",
+      "sha256": "de704f154f3d11ec0bd098f3659975dd8c975e77d777726d741bd0d26a7481f2",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/economic_source_catalog_snapshot_impl.rs",
+      "sha256": "cbf9910e259d9c2f6d65e2be0d2b29442660eb696404b3167b7b3612ef2c1c5d",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/economic_chain.rs",
+      "sha256": "06665bda6c29d7e43023677f96921cc27c2efeeb8e928197eef16369f9567170",
       "lfNormalized": true
     }
+  ],
+  "catalogExecutionTypes": [
+    1,
+    7,
+    8,
+    9,
+    11,
+    12
   ],
   "transitionWitness": "not-exported",
   "definitions": {
@@ -49,13 +112,13 @@
       "runtimeScope": "Source mapper maps0 to actual Registry Activate; actual v7 activation/history, rollback and replay tests exist. No funded genesis is created.",
       "missingLogic": "Full source activation metadata/persistence semantics and funded type0 genesis are not integrated as historical behavior.",
       "nextTask": "Compare full activation metadata and initializer/failure effects from identical configured initial state; keep authenticated genesis admission separate.",
-      "evidence": "JS dca0888b src/types.js decodePayload case0; src/logic.js typeSwitch case0; src/activation.rs; src/activation_history.rs; src/registry.rs; tests/activation_history.rs; tests/consensus_source.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1).",
+      "evidence": "JS dca0888b src/types.js decodePayload case0; src/logic.js typeSwitch case0; src/activation.rs; src/activation_history.rs; src/registry.rs; tests/activation_history.rs; tests/consensus_source.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
       "preStateWitness": "Independent configured Registry activation/admin and ordered accepted activation origins.",
       "postStateWitness": "Activation metadata/code hashes and any explicitly authorized genesis effects, with global replay IDs.",
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
       "contextWitness": "Explicit network/genesis, actual parent/header and height, prior activation, full ordered same-block inputs/end-phase order and independently expected configuration/bootstrap.",
       "dependencyWitness": "Actual accepted property/list/country/oracle/book/channel facts used on this path, including missing/absent rows and asynchronous call semantics; caller-provided answers are not trusted. See missingLogic for route-specific gaps.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "endToEndSourceParity": false,
       "transitionFraudProofComplete": false,
@@ -67,23 +130,24 @@
       "sourceHandler": "activateTradeLayer",
       "mapperCandidate": true,
       "transitionProofComplete": false,
-      "fidelity": "Partial; differs"
+      "fidelity": "Partial; differs",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 1,
       "sourceRoute": "1 / base36 1 / Logic.tokenIssue",
       "sourceEffects": "Creates property metadata with source Fixed/Managed/NFT/Procedural class, allocated ID, ticker, issuer, backup and clearlist; then credits initial supply through Tally.",
       "sourceDefects": "Catches errors and returns error text after earlier metadata writes may already occur; URL argument is unused; source class differs from Ledger kind. Runtime differences: Explicit-ID typed issuance is a conserved accounting primitive, not source property-ID/catalog allocation.",
-      "runtimeScope": "Typed Joint Issue/actual sole Ledger exists with explicit property ID. Types source diagnostic exists, but mapper has no type1 projection.",
-      "missingLogic": "Accepted source property catalog/ID allocation/ticker/class/clearlist/procedural metadata and atomic source issuance integration are missing.",
-      "nextTask": "Implement the property catalog owner and source-derived ID/ticker/class/admin lifecycle, then wire type1 into the existing sole Ledger.",
-      "evidence": "JS dca0888b src/types.js decodePayload case1; src/logic.js typeSwitch case1; src/types_economic.rs; src/joint.rs; src/ledger.rs; tests/protocol_execution.rs; tests/ledger_invariants.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1).",
+      "runtimeScope": "Owned source path allocates through actual PropertyCatalog.createToken, retains seven-kind metadata, and issues exact atoms on the sole Ledger using the original txid. Generic public mapper still rejects type1.",
+      "missingLogic": "Initialization preserves source class6 metadata with its ordinary balance-credit path. Procedural follow-on contract context, bootstrap provenance, source partial-failure execution and historical acceptance remain open.",
+      "nextTask": "Compare composed unchanged Logic/tally failure effects and remaining class-specific operations; keep any conserving differences explicit.",
+      "evidence": "JS dca0888b src/types.js decodePayload case1; src/logic.js typeSwitch case1; src/types_economic.rs; src/joint.rs; src/ledger.rs; tests/protocol_execution.rs; tests/ledger_invariants.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
       "preStateWitness": "Property allocation frontier, ticker uniqueness, issuer/admin, source catalog classes, current supply and recipient custody.",
       "postStateWitness": "Exactly one admitted property definition, allocated ID, actual initial issuance and updated replay markers.",
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
       "contextWitness": "Explicit network/genesis, actual parent/header and height, prior activation, full ordered same-block inputs/end-phase order and independently expected configuration/bootstrap.",
       "dependencyWitness": "Actual accepted property/list/country/oracle/book/channel facts used on this path, including missing/absent rows and asynchronous call semantics; caller-provided answers are not trusted. See missingLogic for route-specific gaps.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "endToEndSourceParity": false,
       "transitionFraudProofComplete": false,
@@ -95,23 +159,24 @@
       "sourceHandler": "tokenIssue",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path"
+      "fidelity": "Partial; owned path",
+      "catalogExecutionCandidate": true
     },
     {
       "type": 2,
       "sourceRoute": "2 / base36 2 / Logic.sendToken",
       "sourceEffects": "Scalar ordinary sends debit/credit Tally; coupon2/3 sends also move whole-token-rounded vesting markers. Multi-send iterates recipients; sendAll attempts all balances.",
       "sourceDefects": "sendAll parameter shadows callable helper; multi-send calls unqualified processSend, whose body also uses missing tallyMap. Source debits and credits are not one atomic Ledger operation. Runtime differences: Atomic conserved transfer; optional SourceQuoteExactOrRejectV1 prefunded native coupling rejects lossy/unfunded source paths.",
-      "runtimeScope": "Mapper supports scalar normal send only. Actual Joint/Ledger transfers and opt-in coupled native coupon sends are functional; raw source send remains dependency-gated.",
-      "missingLogic": "No sendAll/multi-send/colored-output projection; accepted Property/ClearList/country facts remain unavailable. Native strict funded mechanism is an explicit repair, not source parity.",
-      "nextTask": "Connect accepted property/clearlist/country state and add exact source cases for each send mode before widening the mapper.",
-      "evidence": "JS dca0888b src/types.js decodePayload case2; src/logic.js typeSwitch case2; src/types_economic.rs; src/joint_native_impl.rs; src/ledger_native_impl.rs; tests/types_economic.rs; tests/native_economic.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified).",
+      "runtimeScope": "Existing scalar typed mapper plus actual pending property/clearlist/country owners and native network-bound address-format reads. Tally scalar/singleton-array key queries use the sole Ledger.",
+      "missingLogic": "Complete source sendAll/multisend/vesting/colored modes and their active defects remain outside the scalar mapper; exact composed Logic effects and authentication remain gates.",
+      "nextTask": "Run composed unchanged-source send cases against actual owned catalogs/custody before extending individual send modes.",
+      "evidence": "JS dca0888b src/types.js decodePayload case2; src/logic.js typeSwitch case2; src/types_economic.rs; src/joint_native_impl.rs; src/ledger_native_impl.rs; tests/types_economic.rs; tests/native_economic.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
       "preStateWitness": "Sender/recipient actual available balances, property metadata, native markers and funded target policy if enabled.",
       "postStateWitness": "Conserved available balances plus exact coupled marker movement, deterministic receipt and replay state.",
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
       "contextWitness": "Explicit network/genesis, actual parent/header and height, prior activation, full ordered same-block inputs/end-phase order and independently expected configuration/bootstrap.",
       "dependencyWitness": "Actual accepted property/list/country/oracle/book/channel facts used on this path, including missing/absent rows and asynchronous call semantics; caller-provided answers are not trusted. See missingLogic for route-specific gaps.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "endToEndSourceParity": false,
       "transitionFraudProofComplete": false,
@@ -123,7 +188,8 @@
       "sourceHandler": "sendToken",
       "mapperCandidate": true,
       "transitionProofComplete": false,
-      "fidelity": "Partial; differs"
+      "fidelity": "Partial; differs",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 3,
@@ -139,7 +205,7 @@
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
       "contextWitness": "Explicit network/genesis, actual parent/header and height, prior activation, full ordered same-block inputs/end-phase order and independently expected configuration/bootstrap.",
       "dependencyWitness": "Actual accepted property/list/country/oracle/book/channel facts used on this path, including missing/absent rows and asynchronous call semantics; caller-provided answers are not trusted. See missingLogic for route-specific gaps.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "endToEndSourceParity": false,
       "transitionFraudProofComplete": false,
@@ -151,7 +217,8 @@
       "sourceHandler": "tradeTokenForUTXO",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path"
+      "fidelity": "Unmapped source path",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 4,
@@ -161,13 +228,13 @@
       "runtimeScope": "Standalone actual Protocol/Ledger channel commit and strict signed-channel opt-in exist; Joint/Economic source channel path is fenced, and mapper has no type4.",
       "missingLogic": "Source-v7 channel creation/column ownership/pay/clearlist integration into the economic owner is absent.",
       "nextTask": "Bind source commit metadata and custody to the actual Joint owner; compare source partial-failure effects explicitly.",
-      "evidence": "JS dca0888b src/types.js decodePayload case4; src/logic.js typeSwitch case4; src/ledger_channels_impl.rs; src/execution.rs; src/channel_revision.rs; tests/channel_escrow.rs; tests/signed_channel_owner.rs Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified).",
+      "evidence": "JS dca0888b src/types.js decodePayload case4; src/logic.js typeSwitch case4; src/ledger_channels_impl.rs; src/execution.rs; src/channel_revision.rs; tests/channel_escrow.rs; tests/signed_channel_owner.rs Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
       "preStateWitness": "Actual available funds, destination channel columns/participants, pay/list metadata and independently pinned channel policy.",
       "postStateWitness": "Conserved available-to-channel custody and participant ownership, with no stranded partial commit.",
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
       "contextWitness": "Explicit network/genesis, actual parent/header and height, prior activation, full ordered same-block inputs/end-phase order and independently expected configuration/bootstrap.",
       "dependencyWitness": "Actual accepted property/list/country/oracle/book/channel facts used on this path, including missing/absent rows and asynchronous call semantics; caller-provided answers are not trusted. See missingLogic for route-specific gaps.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "endToEndSourceParity": false,
       "transitionFraudProofComplete": false,
@@ -179,7 +246,8 @@
       "sourceHandler": "commitToken",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path"
+      "fidelity": "Unmapped source path",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 5,
@@ -189,13 +257,13 @@
       "runtimeScope": "Mapper supports SpotPlace; actual same-Ledger spot reserves/fills/cancels and exact filled-price view exist. Source Property/ClearList/country reads can still block admission.",
       "missingLogic": "Complete accepted property/country/list projection and full source queue/stop/post lifecycle parity remain missing.",
       "nextTask": "Supply real metadata/clearlist facts and compare queued stop/post order semantics and end-phase timing against unchanged source.",
-      "evidence": "JS dca0888b src/types.js decodePayload case5; src/logic.js typeSwitch case5; src/types_economic.rs; src/spot.rs; src/economic_spot_prices.rs; tests/spot_exchange.rs; tests/spot_clearing_one_ledger.rs Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified).",
+      "evidence": "JS dca0888b src/types.js decodePayload case5; src/logic.js typeSwitch case5; src/types_economic.rs; src/spot.rs; src/economic_spot_prices.rs; tests/spot_exchange.rs; tests/spot_clearing_one_ledger.rs Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
       "preStateWitness": "Both asset balances, property/clearlist rules, book priority/queues, reserves and source confirmation context.",
       "postStateWitness": "Queued/resting state or actual fills, reserves, conserved custody, fees and recorded spot-price facts.",
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
       "contextWitness": "Explicit network/genesis, actual parent/header and height, prior activation, full ordered same-block inputs/end-phase order and independently expected configuration/bootstrap.",
       "dependencyWitness": "Actual accepted property/list/country/oracle/book/channel facts used on this path, including missing/absent rows and asynchronous call semantics; caller-provided answers are not trusted. See missingLogic for route-specific gaps.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "endToEndSourceParity": false,
       "transitionFraudProofComplete": false,
@@ -207,7 +275,8 @@
       "sourceHandler": "onChainTokenToToken",
       "mapperCandidate": true,
       "transitionProofComplete": false,
-      "fidelity": "Partial; differs"
+      "fidelity": "Partial; differs",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 6,
@@ -223,7 +292,7 @@
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
       "contextWitness": "Explicit network/genesis, actual parent/header and height, prior activation, full ordered same-block inputs/end-phase order and independently expected configuration/bootstrap.",
       "dependencyWitness": "Actual accepted property/list/country/oracle/book/channel facts used on this path, including missing/absent rows and asynchronous call semantics; caller-provided answers are not trusted. See missingLogic for route-specific gaps.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "endToEndSourceParity": false,
       "transitionFraudProofComplete": false,
@@ -235,23 +304,24 @@
       "sourceHandler": "cancelOrder",
       "mapperCandidate": true,
       "transitionProofComplete": false,
-      "fidelity": "Partial; differs"
+      "fidelity": "Partial; differs",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 7,
       "sourceRoute": "7 / base36 7 / Logic.createClearList",
       "sourceEffects": "Calls ClearList.createClearlist with admin/name/url/description/backup, then returns a new-ID message.",
-      "sourceDefects": "Source createClearlist returns id/admin/name/description/backup and discards URL; the Registry retains URL and requires nonempty bounded ASCII metadata. Runtime differences: Actual Registry bounded list definition is not a reconstructed complete source clearlist database.",
-      "runtimeScope": "Mapper projects bounded CreateWhitelist into actual Registry. This is a useful typed registry, not the complete source ClearList database.",
-      "missingLogic": "Complete source clearlist IDs, country/xpub/derived memberships and immutable owner-backed validator dependencies remain missing.",
-      "nextTask": "Resolve source ID/metadata/URL/cache behavior against the corrected Registry and implement the selected compatibility rules explicitly.",
-      "evidence": "JS dca0888b src/types.js decodePayload case7; src/logic.js typeSwitch case7; src/types_economic.rs; src/registry.rs; src/legacy_clearlist_audit.rs; tests/registry_transitions.rs Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified).",
+      "sourceDefects": "Source drops URL, leaves created list out of the singleton cache, and uses its own ID/database lookup behavior; these are preserved by the actual clearlist owner. Outer candidate rollback/prior activation remain deliberate differences.",
+      "runtimeScope": "Actual source createClearlist writes owned collection state, source ID/metadata/cache behavior and source URL omission. Original metadata txid is replay-bound without creating substitute Registry rows.",
+      "missingLogic": "Full composed JavaScript failure scheduling, unsupported value domains and authenticated actors remain unverified; external six-file patch is not imported.",
+      "nextTask": "Extend composed Logic failure sequences while preserving actual source storage/cache behavior.",
+      "evidence": "JS dca0888b src/types.js decodePayload case7; src/logic.js typeSwitch case7; src/types_economic.rs; src/registry.rs; src/legacy_clearlist_audit.rs; tests/registry_transitions.rs Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
       "preStateWitness": "Clearlist allocation frontier, administrator/backup and current exact list metadata.",
       "postStateWitness": "New accepted list definition and allocation/replay state, with no invented membership.",
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
       "contextWitness": "Explicit network/genesis, actual parent/header and height, prior activation, full ordered same-block inputs/end-phase order and independently expected configuration/bootstrap.",
       "dependencyWitness": "Actual accepted property/list/country/oracle/book/channel facts used on this path, including missing/absent rows and asynchronous call semantics; caller-provided answers are not trusted. See missingLogic for route-specific gaps.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "endToEndSourceParity": false,
       "transitionFraudProofComplete": false,
@@ -263,23 +333,24 @@
       "sourceHandler": "createClearList",
       "mapperCandidate": true,
       "transitionProofComplete": false,
-      "fidelity": "Partial; differs"
+      "fidelity": "Partial; differs",
+      "catalogExecutionCandidate": true
     },
     {
       "type": 8,
       "sourceRoute": "8 / base36 8 / Logic.updateAdmin",
       "sourceEffects": "Branches whitelist, token or oracle to update admin/backup metadata.",
-      "sourceDefects": "Token branch refers to undefined PropertyList rather than imported PropertyManager; branch priority differs from a simultaneous-target interpretation. Runtime differences: Token-target rejection is a runtime limit; direct list lookup/field compatibility and durable admin updates differ from source. Exactly-one-target validation is already present in the reference.",
-      "runtimeScope": "Mapper permits exactly one supported list/oracle target; rejects token-admin changes. Actual Registry updates are checked and co-snapshotted.",
-      "missingLogic": "Token admin/backup ownership is missing. Whitelist lookup/field compatibility and durable numeric-ID admin mutation differ from source; the exactly-one-target predicate already exists in pinned validity.js.",
-      "nextTask": "Add token administration and compare genuine list storage/lookup/admin transitions; preserve the source Type8 mismatch in compatibility evidence.",
-      "evidence": "JS dca0888b src/types.js decodePayload case8; src/logic.js typeSwitch case8; src/types_economic.rs; src/registry.rs; tests/protocol_execution.rs; tests/registry_transitions.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified).",
+      "sourceDefects": "Source whitelist validation reads the attestations collection through getList and expects fields unlike ordinary createClearlist output. Logic token target refers to undefined PropertyList. These source failures remain visible.",
+      "runtimeScope": "Actual clearlist updateAdmin path and genuine source validator getList reads; normal-created list mismatch is preserved. Token target preserves PropertyList ReferenceError; oracle target remains the existing mapper/Registry path.",
+      "missingLogic": "Functional token-admin repair requires an explicit versioned decision; source whitelist lookup/field defects can reject ordinary updates. Full composed failure effects and oracle metadata parity remain open.",
+      "nextTask": "Characterize source getList field mismatches and token ReferenceError end-to-end before specifying any functional repair.",
+      "evidence": "JS dca0888b src/types.js decodePayload case8; src/logic.js typeSwitch case8; src/types_economic.rs; src/registry.rs; tests/protocol_execution.rs; tests/registry_transitions.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
       "preStateWitness": "Exact existing admin/backup and target kind, claimed actor and independent governance policy.",
       "postStateWitness": "Exactly selected admin or backup changes, preserving balances and unrelated definitions.",
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
       "contextWitness": "Explicit network/genesis, actual parent/header and height, prior activation, full ordered same-block inputs/end-phase order and independently expected configuration/bootstrap.",
       "dependencyWitness": "Actual accepted property/list/country/oracle/book/channel facts used on this path, including missing/absent rows and asynchronous call semantics; caller-provided answers are not trusted. See missingLogic for route-specific gaps.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "endToEndSourceParity": false,
       "transitionFraudProofComplete": false,
@@ -291,23 +362,24 @@
       "sourceHandler": "updateAdmin",
       "mapperCandidate": true,
       "transitionProofComplete": false,
-      "fidelity": "Partial; differs"
+      "fidelity": "Partial; differs",
+      "catalogExecutionCandidate": true
     },
     {
       "type": 9,
       "sourceRoute": "9 / base36 9 / Logic.issueOrRevokeAttestation",
       "sourceEffects": "For list0 BANLIST normalizes country codes and sets banlist; otherwise adds/revokes attestation and optionally stores a Merkle root for xpub batches.",
-      "sourceDefects": "List0 country/self-cert/banlist roles are distinct from positive-list membership; source writes and optional root storage are sequential. Runtime differences: Explicit unsupported-effect rejection; scoped duplicate/actor rules and atomic Registry events remain different from JS storage/effects. Source-only audit fixes do not fill this runtime gap.",
-      "runtimeScope": "Mapper supports direct nonzero-list attest/empty-string-reason revoke only, rejecting truthy issuance roots, lowercase xpub: issuance metadata and unrepresented revoke reasons. Source-ignored roots on revoke remain ignored. Registry rejects active duplicates and keys by(list,address); source keys by address.",
-      "missingLogic": "No actual source country/banlist/root/xpub/revoke-reason owner. The decoder uppercases metaData and emits no merkleRoot, so enriched mapper guard tests are not ordinary wire conformance or accepted source transitions.",
-      "nextTask": "Implement the missing list0/country/banlist/root/xpub/reason state under an explicit source-compatible owner before expanding admission.",
-      "evidence": "JS dca0888b src/types.js decodePayload case9; src/logic.js typeSwitch case9; src/types_economic.rs; src/registry.rs; src/legacy_clearlist_audit.rs; tests/registry_transitions.rs Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified).",
+      "sourceDefects": "Source address-only keys can overwrite another list, list0 self-cert/country records have special routing, and source banlist getter returns Undefined. Root/xpub/revocation behavior is bounded by actual owner conformance. Outer atomic rollback differs from source partial failures.",
+      "runtimeScope": "Actual source clearlist owner performs attestation, revocation reasons/timestamps, list0 countries/banlist and root/xpub helpers; source address-only cross-list overwrite persists. Genuine LTC/BTC public derivation is tested; the wire decoder still uppercases metadata and omits merkleRoot.",
+      "missingLogic": "Whole-source async/partial failure scheduling, private extended keys/reference-identity domains and bounded pathological history sorting remain explicit limits. Generic diagnostic mapper is narrower than actual owned execution.",
+      "nextTask": "Add composed unchanged Logic/root/revocation failure cases and exact historical state inputs; preserve documented source defects.",
+      "evidence": "JS dca0888b src/types.js decodePayload case9; src/logic.js typeSwitch case9; src/types_economic.rs; src/registry.rs; src/legacy_clearlist_audit.rs; tests/registry_transitions.rs Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
       "preStateWitness": "Exact list administrator, subject attestation, banlist/country state and any xpub root/context.",
       "postStateWitness": "Correct attestation/revocation or banlist/root update, with exact provenance and replay markers.",
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
       "contextWitness": "Explicit network/genesis, actual parent/header and height, prior activation, full ordered same-block inputs/end-phase order and independently expected configuration/bootstrap.",
       "dependencyWitness": "Actual accepted property/list/country/oracle/book/channel facts used on this path, including missing/absent rows and asynchronous call semantics; caller-provided answers are not trusted. See missingLogic for route-specific gaps.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "endToEndSourceParity": false,
       "transitionFraudProofComplete": false,
@@ -319,7 +391,8 @@
       "sourceHandler": "issueOrRevokeAttestation",
       "mapperCandidate": true,
       "transitionProofComplete": false,
-      "fidelity": "Partial; differs"
+      "fidelity": "Partial; differs",
+      "catalogExecutionCandidate": true
     },
     {
       "type": 10,
@@ -329,13 +402,13 @@
       "runtimeScope": "Actual funded contract-AMM capital, LP shares, quotes and cash replay exist as typed EconomicInput::Amm operations. There is no source type10 mapper.",
       "missingLogic": "Wire-to-actual pool configuration/ownership/capital mapping and property-AMM execution are missing.",
       "nextTask": "Port the source capital/share/property lifecycle and compare it with the separately funded private-pool implementation.",
-      "evidence": "JS dca0888b src/types.js decodePayload case10; src/logic.js typeSwitch case10; src/economic_amm_impl.rs; src/economic_amm_replay_impl.rs; src/amm.rs; tests/economic_amm.rs; tests/economic_amm_snapshot.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified).",
+      "evidence": "JS dca0888b src/types.js decodePayload case10; src/logic.js typeSwitch case10; src/economic_amm_impl.rs; src/economic_amm_replay_impl.rs; src/amm.rs; tests/economic_amm.rs; tests/economic_amm_snapshot.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
       "preStateWitness": "Actual pool cash, LP shares, position/margin, funded quotes, accepted contract or property pair and immutable AMM config.",
       "postStateWitness": "Real capital debit/redemption, exact LP accounting, quote funding and conserved pool custody.",
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
       "contextWitness": "Explicit network/genesis, actual parent/header and height, prior activation, full ordered same-block inputs/end-phase order and independently expected configuration/bootstrap.",
       "dependencyWitness": "Actual accepted property/list/country/oracle/book/channel facts used on this path, including missing/absent rows and asynchronous call semantics; caller-provided answers are not trusted. See missingLogic for route-specific gaps.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "endToEndSourceParity": false,
       "transitionFraudProofComplete": false,
@@ -347,23 +420,24 @@
       "sourceHandler": "AMMPool",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path"
+      "fidelity": "Unmapped source path",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 11,
       "sourceRoute": "11 / base36 b / Logic.grantManagedToken",
       "sourceEffects": "Checks managed admin; procedural type7 additionally requires issuance DLC context; invokes property grant for destination.",
       "sourceDefects": "Source property/procedural class and context cannot be inferred from Ledger Managed alone. Runtime differences: Plain managed grants require actual issuer/kind and exact atoms; procedural/DLC context is explicitly excluded.",
-      "runtimeScope": "Mapper supports only plain context-free grants; actual Joint/Ledger supply and issuer checks exist.",
-      "missingLogic": "Accepted source property/procedural metadata and funded authenticated DLC issuance context are not integrated.",
-      "nextTask": "Bind property class/administrator and procedural state, then compare source grant rounding and partial-failure effects with actual custody.",
-      "evidence": "JS dca0888b src/types.js decodePayload case11; src/logic.js typeSwitch case11; src/types_economic.rs; src/ledger.rs; src/procedural.rs; src/issuance_intent.rs; tests/protocol_execution.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1).",
+      "runtimeScope": "Ordinary managed grant uses actual class/admin reads and PropertyCatalog.grantTokens. Its exact Tally.updateBalance call applies once to the sole Ledger; circulation, custody, original txid and complete history restore together.",
+      "missingLogic": "Procedural issuance contexts and full source partial-failure behavior remain open; outer ConservingSequentialV1 intentionally rolls back failed business mutations.",
+      "nextTask": "Integrate genuine procedural issuance owner and compare composed source failures without relabeling conserving behavior as parity.",
+      "evidence": "JS dca0888b src/types.js decodePayload case11; src/logic.js typeSwitch case11; src/types_economic.rs; src/ledger.rs; src/procedural.rs; src/issuance_intent.rs; tests/protocol_execution.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
       "preStateWitness": "Managed/procedural property definition, issuer authority, current supply/ceiling and receiver custody, plus issuance context if procedural.",
       "postStateWitness": "Exact supply/recipient increase and unchanged other custody; procedural gate must be independently verified.",
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
       "contextWitness": "Explicit network/genesis, actual parent/header and height, prior activation, full ordered same-block inputs/end-phase order and independently expected configuration/bootstrap.",
       "dependencyWitness": "Actual accepted property/list/country/oracle/book/channel facts used on this path, including missing/absent rows and asynchronous call semantics; caller-provided answers are not trusted. See missingLogic for route-specific gaps.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "endToEndSourceParity": false,
       "transitionFraudProofComplete": false,
@@ -375,23 +449,24 @@
       "sourceHandler": "grantManagedToken",
       "mapperCandidate": true,
       "transitionProofComplete": false,
-      "fidelity": "Partial; differs"
+      "fidelity": "Partial; differs",
+      "catalogExecutionCandidate": true
     },
     {
       "type": 12,
       "sourceRoute": "12 / base36 c / Logic.redeemManagedToken",
       "sourceEffects": "Allows managed administrator or procedural branch, checks redemption context for procedural tokens, then calls property redemption.",
       "sourceDefects": "Procedural holder exception differs from plain issuer-only managed redemption; source property metadata is required. Runtime differences: Plain managed redemption requires actual issuer/kind/custody; procedural holder exceptions are not silently enabled.",
-      "runtimeScope": "Mapper supports plain context-free managed redemption; actual Joint/Ledger burns are conserved and issuer-checked.",
-      "missingLogic": "Procedural redemption permission/lifecycle and accepted property catalog facts are absent from the source economic path.",
-      "nextTask": "Bind property/holder/procedural redemption rules and compare exact supply/tally/failure effects before mapping additional modes.",
-      "evidence": "JS dca0888b src/types.js decodePayload case12; src/logic.js typeSwitch case12; src/types_economic.rs; src/ledger.rs; src/procedural.rs; tests/protocol_execution.rs; tests/types_economic.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1).",
+      "runtimeScope": "Ordinary issuer managed redemption uses real property/admin/holder reads and PropertyCatalog.redeemTokens. Exact signed Tally call burns the sole Ledger and records source circulation/history under the original txid.",
+      "missingLogic": "Procedural redemption context, unsupported numeric domains and exact source late-failure effects remain open; conservation policy differs explicitly.",
+      "nextTask": "Complete procedural redemption ownership and composed source failure cases with actual holder custody.",
+      "evidence": "JS dca0888b src/types.js decodePayload case12; src/logic.js typeSwitch case12; src/types_economic.rs; src/ledger.rs; src/procedural.rs; tests/protocol_execution.rs; tests/types_economic.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
       "preStateWitness": "Property issuer/class, holder custody, current supply and procedural/DLC redemption state.",
       "postStateWitness": "Exact available balance and total-supply reduction with no unfunded collateral credit.",
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
       "contextWitness": "Explicit network/genesis, actual parent/header and height, prior activation, full ordered same-block inputs/end-phase order and independently expected configuration/bootstrap.",
       "dependencyWitness": "Actual accepted property/list/country/oracle/book/channel facts used on this path, including missing/absent rows and asynchronous call semantics; caller-provided answers are not trusted. See missingLogic for route-specific gaps.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "endToEndSourceParity": false,
       "transitionFraudProofComplete": false,
@@ -403,7 +478,8 @@
       "sourceHandler": "redeemManagedToken",
       "mapperCandidate": true,
       "transitionProofComplete": false,
-      "fidelity": "Partial; differs"
+      "fidelity": "Partial; differs",
+      "catalogExecutionCandidate": true
     },
     {
       "type": 13,
@@ -419,7 +495,7 @@
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
       "contextWitness": "Explicit network/genesis, actual parent/header and height, prior activation, full ordered same-block inputs/end-phase order and independently expected configuration/bootstrap.",
       "dependencyWitness": "Actual accepted property/list/country/oracle/book/channel facts used on this path, including missing/absent rows and asynchronous call semantics; caller-provided answers are not trusted. See missingLogic for route-specific gaps.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "endToEndSourceParity": false,
       "transitionFraudProofComplete": false,
@@ -431,7 +507,8 @@
       "sourceHandler": "createOracle",
       "mapperCandidate": true,
       "transitionProofComplete": false,
-      "fidelity": "Partial; differs"
+      "fidelity": "Partial; differs",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 14,
@@ -447,7 +524,7 @@
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
       "contextWitness": "Explicit network/genesis, actual parent/header and height, prior activation, full ordered same-block inputs/end-phase order and independently expected configuration/bootstrap.",
       "dependencyWitness": "Actual accepted property/list/country/oracle/book/channel facts used on this path, including missing/absent rows and asynchronous call semantics; caller-provided answers are not trusted. See missingLogic for route-specific gaps.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "endToEndSourceParity": false,
       "transitionFraudProofComplete": false,
@@ -459,7 +536,8 @@
       "sourceHandler": "publishOracleData",
       "mapperCandidate": true,
       "transitionProofComplete": false,
-      "fidelity": "Partial; differs"
+      "fidelity": "Partial; differs",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 15,
@@ -475,7 +553,7 @@
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
       "contextWitness": "Explicit network/genesis, actual parent/header and height, prior activation, full ordered same-block inputs/end-phase order and independently expected configuration/bootstrap.",
       "dependencyWitness": "Actual accepted property/list/country/oracle/book/channel facts used on this path, including missing/absent rows and asynchronous call semantics; caller-provided answers are not trusted. See missingLogic for route-specific gaps.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "endToEndSourceParity": false,
       "transitionFraudProofComplete": false,
@@ -487,7 +565,8 @@
       "sourceHandler": "closeOracle",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path"
+      "fidelity": "Unmapped source path",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 16,
@@ -497,13 +576,13 @@
       "runtimeScope": "Mapper supports representable oracle-based definitions only. Actual accepted catalog, full bound input replay, dynamic margin/notional contexts and expiry checks exist.",
       "missingLogic": "Native definitions/execution require accepted property metadata and real price origin; full source permission/expiry/series surfaces and raw source dependencies remain incomplete.",
       "nextTask": "Complete accepted property/oracle/risk definitions and compare native/dated/series creation before admitting those modes.",
-      "evidence": "JS dca0888b src/types.js decodePayload case16; src/logic.js typeSwitch case16; src/types_economic.rs; src/contract_registry.rs; src/economic_contract_impl.rs; tests/economic_contract.rs; tests/economic_contract_snapshot.rs",
+      "evidence": "JS dca0888b src/types.js decodePayload case16; src/logic.js typeSwitch case16; src/types_economic.rs; src/contract_registry.rs; src/economic_contract_impl.rs; tests/economic_contract.rs; tests/economic_contract_snapshot.rs Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
       "preStateWitness": "Accepted property/oracle definitions, contract ID frontier, source risk fields, collateral/notional classes and pinned pristine bootstrap.",
       "postStateWitness": "Exact admitted series/definition, dynamic risk context and replay allocation, with no invented native prices.",
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
       "contextWitness": "Explicit network/genesis, actual parent/header and height, prior activation, full ordered same-block inputs/end-phase order and independently expected configuration/bootstrap.",
       "dependencyWitness": "Actual accepted property/list/country/oracle/book/channel facts used on this path, including missing/absent rows and asynchronous call semantics; caller-provided answers are not trusted. See missingLogic for route-specific gaps.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "endToEndSourceParity": false,
       "transitionFraudProofComplete": false,
@@ -515,7 +594,8 @@
       "sourceHandler": "createContractSeries",
       "mapperCandidate": true,
       "transitionProofComplete": false,
-      "fidelity": "Partial; differs"
+      "fidelity": "Partial; differs",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 17,
@@ -531,7 +611,7 @@
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
       "contextWitness": "Explicit network/genesis, actual parent/header and height, prior activation, full ordered same-block inputs/end-phase order and independently expected configuration/bootstrap.",
       "dependencyWitness": "Actual accepted property/list/country/oracle/book/channel facts used on this path, including missing/absent rows and asynchronous call semantics; caller-provided answers are not trusted. See missingLogic for route-specific gaps.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "endToEndSourceParity": false,
       "transitionFraudProofComplete": false,
@@ -543,7 +623,8 @@
       "sourceHandler": "exerciseDerivative",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path"
+      "fidelity": "Unmapped source path",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 18,
@@ -553,19 +634,20 @@
       "runtimeScope": "types_economic maps a positive limit order only, rejecting insurance/reduce/stop flags; EconomicState supplies separate ConservingV1 funded matching.",
       "missingLogic": "A typed funded order repair does not reproduce the shifted JS queue fields or establish all source dependency behavior.",
       "nextTask": "Characterize the unchanged switch-to-queue call and choose explicit compatibility versus repaired flag mapping.",
-      "evidence": "Static: fixtures/native_genesis/source/logic.js:244,1069; src/legacy_types_audit.rs:206; src/types_economic.rs:442; src/economic.rs. Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified).",
+      "evidence": "Static: fixtures/native_genesis/source/logic.js:244,1069; src/legacy_types_audit.rs:206; src/types_economic.rs:442; src/economic.rs. Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
       "preStateWitness": "Existing economic checkpoints can anchor the actual owner, but no complete JS queue pre-state witness is exported.",
       "postStateWitness": "Economic receipts/checkpoints describe funded typed outcomes, not a complete JS queue post-state witness.",
       "inputWitness": "Typed Order binds txid/owner/contract/quantity/price; no exported input witness binds the shifted source argument list to execution.",
       "contextWitness": "Height/configuration are typed caller claims and independently configured policy, not authenticated source context.",
       "dependencyWitness": "Source Orderbook queue and actual owner reads require explicit evidence; source dispatch/evaluation transcripts are diagnostic, not a complete transition verifier.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "sourceRouted": true,
       "sourceHandler": "tradeContractOnchain",
       "mapperCandidate": true,
       "transitionProofComplete": false,
-      "fidelity": "Partial; differs"
+      "fidelity": "Partial; differs",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 19,
@@ -575,19 +657,20 @@
       "runtimeScope": "Standalone channel/margin/contract matching models exist, but types_economic rejects type19 and the joint owner has no general channel-contract trade path.",
       "missingLogic": "No integrated source-equivalent channel match/fee/margin/custody transition or source admission map is available.",
       "nextTask": "Capture genuine processContractMatches effects from funded channel pre-state before designing an owner-bound type19 map.",
-      "evidence": "Static: fixtures/native_genesis/source/logic.js:247,1097; src/legacy_types_audit.rs:215; src/types_economic.rs:168; src/joint.rs. Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified).",
+      "evidence": "Static: fixtures/native_genesis/source/logic.js:247,1097; src/legacy_types_audit.rs:215; src/types_economic.rs:168; src/joint.rs. Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
       "preStateWitness": "Channel/margin snapshots are separate models; no complete source pre-state witness unifies committers, positions, prices and custody.",
       "postStateWitness": "No exported full source post-state witness binds resulting channel, fee, margin and trade-history mutations.",
       "inputWitness": "Decoder/validity diagnostics exist, but no admitted type19 input witness reaches the economic owner.",
       "contextWitness": "Expiry, maker flags, channel identity, activation and contract configuration need authenticated context not supplied by a route.",
       "dependencyWitness": "Commit-address, margin, inverse and Orderbook dependencies have no complete owner-backed source transition witness.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "sourceRouted": true,
       "sourceHandler": "tradeContractChannel",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path"
+      "fidelity": "Unmapped source path",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 20,
@@ -597,19 +680,20 @@
       "runtimeScope": "Standalone channel/source and spot models exist; types_economic excludes type20 and typed joint spot matching is a different on-chain path.",
       "missingLogic": "No integrated source channel token matching, fee/volume mutation and full seven-kind metadata admission.",
       "nextTask": "Characterize both maker columns and asynchronous price behavior against a funded channel and actual source dependencies.",
-      "evidence": "Static: fixtures/native_genesis/source/logic.js:250,1178; src/legacy_types_audit.rs:224; src/types_economic.rs:168. Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified).",
+      "evidence": "Static: fixtures/native_genesis/source/logic.js:250,1178; src/legacy_types_audit.rs:224; src/types_economic.rs:168. Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
       "preStateWitness": "No complete pre-state witness binds both channel columns, property metadata, fee policy and price source.",
       "postStateWitness": "No complete post-state witness binds channel matches and volume recording to one atomic owner.",
       "inputWitness": "Source decoder/validator calls are observable diagnostics; no economic type20 input witness is mapped.",
       "contextWitness": "Channel actor, maker flags, expiry and price provenance remain externally established claims.",
       "dependencyWitness": "Actual Channels, Orderbook, VolumeIndex and property getters must be witnessed together; standalone source modules do not provide that verifier.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "sourceRouted": true,
       "sourceHandler": "tradeTokensChannel",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path"
+      "fidelity": "Unmapped source path",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 21,
@@ -625,13 +709,14 @@
       "inputWitness": "ProtocolOperation carries one property/amount/column; source withdrawAll and original decoder input are not bound by a full transition input witness.",
       "contextWitness": "Seven-block maturity, request height and channel participant/column identity require explicit verified context.",
       "dependencyWitness": "Source Channels queue/save/RPC behavior is not replaced by a source-only oracle or the typed Ledger reservation.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "sourceRouted": true,
       "sourceHandler": "withdrawal",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path"
+      "fidelity": "Unmapped source path",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 22,
@@ -641,19 +726,20 @@
       "runtimeScope": "ProtocolState ChannelTransfer conserves one property and column owner; source actor is channel identity and pay reassignment is outside that repair; economic mapping excludes22.",
       "missingLogic": "No complete source pay/payRefAddress reassignment and registry+tally transition is integrated into the economic owner.",
       "nextTask": "Record genuine column-selection/pay behavior and define an atomic owner-bound transfer policy with explicit differences.",
-      "evidence": "Static: fixtures/native_genesis/source/logic.js:259,1277; src/legacy_types_audit.rs:242; src/execution.rs:55,389; src/types_economic.rs:168. Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified).",
+      "evidence": "Static: fixtures/native_genesis/source/logic.js:259,1277; src/legacy_types_audit.rs:242; src/execution.rs:55,389; src/types_economic.rs:168. Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
       "preStateWitness": "Typed channel balances can be checkpointed, but no full source pre-state witness binds both registries and tally buckets.",
       "postStateWitness": "No exported complete source post-state witness proves both launched deltas and registry saves settled together.",
       "inputWitness": "Typed transfer fields are narrower than source flags and participant reassignment; no full source input-to-owner witness.",
       "contextWitness": "Authenticated source-channel actor, destination participants, columns and pay reference must be bound independently.",
       "dependencyWitness": "Channels recordCommit/get/save and both tally operations need a combined transcript and owner-state binding.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "sourceRouted": true,
       "sourceHandler": "transfer",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path"
+      "fidelity": "Unmapped source path",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 23,
@@ -669,13 +755,14 @@
       "inputWitness": "Source txParams and enum/reference IDs are decoded, but no full source transition input witness is exported.",
       "contextWitness": "Referenced trade status, mark price, block range, channel actor and Date.now observations require explicit context.",
       "dependencyWitness": "Channels, ScalingLogic.recordSettlement, DB and conditional Orderbook offsets are not jointly witnessed by an exported source verifier.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "sourceRouted": true,
       "sourceHandler": "settleChannelPNL",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path"
+      "fidelity": "Unmapped source path",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 24,
@@ -685,19 +772,20 @@
       "runtimeScope": "VaultRegistry and margin arithmetic exist as bounded independent models; Ledger has no Synthetic class and types_economic excludes24.",
       "missingLogic": "No integrated atomic property+margin+vault+custody mint path or economic source admission map.",
       "nextTask": "Capture the exact source dependency sequence and define funded synthetic issuance with explicit rounding and rollback policy.",
-      "evidence": "Static: fixtures/native_genesis/source/logic.js:265,1430; src/legacy_types_audit.rs:260; src/types_economic.rs:168; src/vaults.rs; src/ledger.rs:85. Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1).",
+      "evidence": "Static: fixtures/native_genesis/source/logic.js:265,1430; src/legacy_types_audit.rs:260; src/types_economic.rs:168; src/vaults.rs; src/ledger.rs:85. Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
       "preStateWitness": "No full pre-state witness binds collateral, short positions, vault links and catalog supply in one owner.",
       "postStateWitness": "Vault/margin records do not export a complete post-state witness for actual funded synthetic issuance.",
       "inputWitness": "Decoded grossRequired/contracts/margin are source-derived claims; no exported verifier binds them to a funded mint input.",
       "contextWitness": "Contract definition, mark price, collateral metadata, activation and source rounding context need verified provenance.",
       "dependencyWitness": "PropertyManager, MarginMap, ContractRegistry, Tally and SynthRegistry effects require a combined owner-backed dependency witness.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "sourceRouted": true,
       "sourceHandler": "mintSynthetic",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path"
+      "fidelity": "Unmapped source path",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 25,
@@ -707,19 +795,20 @@
       "runtimeScope": "Vault redemption calculations are independent accounting metadata; no synthetic Ledger class or type25 economic map exists.",
       "missingLogic": "No atomic source-equivalent redemption integrating catalog, vault, margin, actual funds and return/PnL legs.",
       "nextTask": "Characterize null-vault/oracle/catalog failure paths before implementing a funded redemption repair.",
-      "evidence": "Static: fixtures/native_genesis/source/logic.js:268,1503; fixtures/native_genesis/source/property.js:218; src/legacy_types_audit.rs:269; src/types_economic.rs:168; src/vaults.rs. Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1).",
+      "evidence": "Static: fixtures/native_genesis/source/logic.js:268,1503; fixtures/native_genesis/source/property.js:218; src/legacy_types_audit.rs:269; src/types_economic.rs:168; src/vaults.rs. Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
       "preStateWitness": "No unified witness binds synth ownership, outstanding debt, pledged collateral and live margin before redemption.",
       "postStateWitness": "No complete source post-state witness proves burn, collateral release, PnL and vault reduction agree.",
       "inputWitness": "A string synth ID is required by split; decoder/validity diagnostics do not establish actual redeemable ownership.",
       "contextWitness": "Native versus oracle mark provenance and rounding/contract-notional context remain unwitnessed together.",
       "dependencyWitness": "Source vault, oracle/volume, margin and property/tally sequence has no exported combined transition verifier.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "sourceRouted": true,
       "sourceHandler": "redeemSynthetic",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path"
+      "fidelity": "Unmapped source path",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 26,
@@ -735,13 +824,14 @@
       "inputWitness": "No exported witness binds the shifted source call arguments to a valid distribution input.",
       "contextWitness": "Holder snapshot height, eligibility and rounding/remainder recipient policy are not established by decoding.",
       "dependencyWitness": "Unbound tallyMap and currentBlockHeight are source defects; no actual dependency set or full transition verifier repairs them implicitly.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "sourceRouted": true,
       "sourceHandler": "payToTokens",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path"
+      "fidelity": "Unmapped source path",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 27,
@@ -757,13 +847,14 @@
       "inputWitness": "The helper mutates params and revalidates; no complete exported input witness binds both validation passes to actual execution.",
       "contextWitness": "Option series/strike/expiry, channel committers, mark prices and collateral rules require verified context.",
       "dependencyWitness": "Validity, OptionsEngine, Channels, ContractRegistry, Tally, MarginMap and TradeHistory dependencies lack a combined transition witness.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "sourceRouted": true,
       "sourceHandler": "processOptionTrade",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path"
+      "fidelity": "Unmapped source path",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 28,
@@ -779,13 +870,14 @@
       "inputWitness": "The named decoder is absent, so no normal decoded source input reaches this logic route.",
       "contextWitness": "Deposit basis points, price, amount and expiry context are not consistently bound across the switch and helper.",
       "dependencyWitness": "The helper expects tally/margin/channel objects that the switch does not provide; these are source gaps, not implicit Rust capabilities.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "sourceRouted": true,
       "sourceHandler": "tradeBaiUrbun",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path"
+      "fidelity": "Unmapped source path",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 29,
@@ -801,13 +893,14 @@
       "inputWitness": "Missing source decoder prevents a normal route-bound input witness.",
       "contextWitness": "Buyer/seller authority, markup and scheduled payment-height context remain external claims.",
       "dependencyWitness": "Unbound channel registry/marginMap and TxUtils checks cannot be replaced by unrelated typed modules without an explicit repair.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "sourceRouted": true,
       "sourceHandler": "tradeMurabaha",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path"
+      "fidelity": "Unmapped source path",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 30,
@@ -823,13 +916,14 @@
       "inputWitness": "Decoded action/relayBlob/evidenceHash remain claims; source value diagnostics and ECDSA payload checks do not form a complete admitted transition witness.",
       "contextWitness": "Oracle authority, trusted relay key/payload, source block and optional environment gates must be independently pinned.",
       "dependencyWitness": "Tally, Oracle, ProceduralRegistry, BitvmRisk/Cache, bundle and state-root dependencies are not jointly bound to actual owner effects.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "sourceRouted": true,
       "sourceHandler": "processStakeFraudProof",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path"
+      "fidelity": "Unmapped source path",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 31,
@@ -845,13 +939,14 @@
       "inputWitness": "Root/count-bound typed claims exist, but no witness binds source KingSettle bytes/params to an authenticated accepted source transition.",
       "contextWitness": "Channel actor, block range, exact journal root/count and settlement-height policy need verified context.",
       "dependencyWitness": "Source scaling DB and Channels persistence are sequential dependencies; no complete source transition verifier joins them.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "sourceRouted": true,
       "sourceHandler": "batchSettlement",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path"
+      "fidelity": "Unmapped source path",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 32,
@@ -867,13 +962,14 @@
       "inputWitness": "Parsed rollup claims are metadata, not verified public inputs for this transition.",
       "contextWitness": "Verifier identity/version, proof system and independently trusted roots/context are not established by the source route.",
       "dependencyWitness": "An injected zkVerifier.verify callback and read-only Rust claim parsers do not supply a genuine full transition proof verifier.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "sourceRouted": true,
       "sourceHandler": "batchMoveZkRollup",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path"
+      "fidelity": "Unmapped source path",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 33,
@@ -889,13 +985,14 @@
       "inputWitness": "A decoded source object exists, but no valid admitted transition input witness.",
       "contextWitness": "UTXO/output index, ownership, activation and backing context remain unbound.",
       "dependencyWitness": "The missing Logic.coloredCoin method and absent verifier cannot be supplied by route metadata.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "sourceRouted": true,
       "sourceHandler": "coloredCoin",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path"
+      "fidelity": "Unmapped source path",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 34,
@@ -911,13 +1008,14 @@
       "inputWitness": "Missing decoder means no normal route input witness; encoder naming alone proves no bridge input semantics.",
       "contextWitness": "Layer identity, verified inclusion/finality, replay domain and authoritative keys are unspecified here.",
       "dependencyWitness": "No source crossLayerBridge dependency implementation or full proof verifier exists.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "sourceRouted": true,
       "sourceHandler": "crossLayerBridge",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path"
+      "fidelity": "Unmapped source path",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 35,
@@ -933,13 +1031,14 @@
       "inputWitness": "Missing decoder prevents a normal typed source binding input witness.",
       "contextWitness": "Target chain, contract/code identity, signer authority and upgrade policy are not established by a route.",
       "dependencyWitness": "The empty bindSmartContract placeholder is not a dependency implementation or transition verifier.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "sourceRouted": true,
       "sourceHandler": "smartContractBind",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path"
+      "fidelity": "Unmapped source path",
+      "catalogExecutionCandidate": false
     },
     {
       "type": 36,
@@ -955,13 +1054,14 @@
       "inputWitness": "No source input schema or admitted type36 input witness exists.",
       "contextWitness": "No activation/authorization context is defined for36.",
       "dependencyWitness": "No type36 dependency set or verifier is defined.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports state/checkpoint commitments and available local replay material for codecs1-7; native8/insurance9 exports remain pending.",
+      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
       "fullReferenceParity": false,
       "sourceRouted": false,
       "sourceHandler": null,
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unrouted in reference"
+      "fidelity": "Unrouted in reference",
+      "catalogExecutionCandidate": false
     }
   ]
 }

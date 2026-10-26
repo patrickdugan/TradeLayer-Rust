@@ -1,5 +1,6 @@
 // Included inside economic.rs: private pre-finalization access, never a second
 // committed Ledger. A failed candidate restores its entire staged owner.
+#[derive(Clone)]
 pub(crate) struct EconomicBlockStage {
     state: EconomicState,
     height: u64,
@@ -105,6 +106,21 @@ impl EconomicBlockStage {
         input: EconomicInput,
     ) -> Result<()> {
         match input {
+            EconomicInput::SourceMetadata { txid, ty } => {
+                if pending
+                    .config
+                    .source_consensus
+                    .as_ref()
+                    .is_none_or(|s| s.catalog_bootstrap_commitment.is_none())
+                    && !pending.replaying_contract_history
+                    && !pending.replaying_native_history
+                {
+                    return Err(EconomicError::InvalidInput);
+                }
+                pending
+                    .joint
+                    .note_source_catalog_input_unverified(txid, height, ty)?;
+            }
             EconomicInput::NativeTarget(request) => {
                 if pending.config.native_entitlements.is_none()
                     || pending.config.source_consensus.is_some()

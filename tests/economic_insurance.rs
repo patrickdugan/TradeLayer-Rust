@@ -792,6 +792,7 @@ fn bounded_receipt_count_and_source_history_configuration_fail_closed() {
     let mut cfg = config(TradeLayerMainnet::Bitcoin);
     cfg.economics.source_consensus =
         Some(tradelayer_core::consensus_source::SourceConsensusConfig {
+            catalog_bootstrap_commitment: None,
             bootstrap_commitment: [0; 32],
             policy:
                 tradelayer_core::consensus_source::SourceConsensusPolicy::ConservingSequentialV1,

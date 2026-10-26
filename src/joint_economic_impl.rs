@@ -101,6 +101,28 @@ impl JointProtocolState {
         Ok(())
     }
 
+    /// Actual metadata-only source command. Its complete effects live in the
+    /// outer source catalog owner; this records its original ID and activation.
+    pub(crate) fn note_source_catalog_input_unverified(
+        &mut self,
+        txid: TxId,
+        height: u64,
+        legacy_type: u8,
+    ) -> Result<(), JointError> {
+        if !matches!(legacy_type, 7..=9) {
+            return Err(JointError::UnsupportedOperation(legacy_type));
+        }
+        self.check_economic_pending_height(height)?;
+        self.check_new_input_unverified(height, txid)?;
+        self.check_activated(legacy_type, height)?;
+        self.economic_input_ids.insert(txid);
+        self.global_input_ids.insert(txid);
+        self.economic_pending_height = Some(height);
+        self.economic_pending_input = Some(txid);
+        self.spot.note_clearing_event_unverified();
+        Ok(())
+    }
+
     /// Register a system funding epoch on the outer owner's staged block.
     /// The owner derives its identity and verifies exact epoch policy/receipt
     /// metadata; this is not an external transaction or wire authorization.

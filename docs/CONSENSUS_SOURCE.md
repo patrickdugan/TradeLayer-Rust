@@ -203,3 +203,22 @@ authenticated historical bootstrap/activation, real property metadata, complete
 source native issuance, all missing runtime owners, signatures/parent UTXOs,
 wire-to-actor binding and an authorized ingestion adapter remain required.
 The raw RPC observer's journal remains separate and cannot authorize this runner.
+
+## Actual source catalog option
+
+Set the independently expected `catalog_bootstrap_commitment` and construct the
+state with `from_joint_with_source_catalogs_unverified`, or use
+`EconomicChain::new_with_source_catalogs_unverified`. Actual property and
+clearlist owners supply pending dependency reads; genuine query/cache effects
+are retained even when validation rejects. The owned path allocates type1 IDs,
+applies ordinary types11/12 through the sole Ledger, and performs types7/9 and
+representable type8 clearlist mutations without substitute Registry rows. The
+source token-admin ReferenceError remains visible. A missing owner is still an
+explicit unavailable dependency. See `SOURCE_CATALOG_EXECUTION.md`,
+`PROPERTY_CATALOG.md` and `CLEARLIST_SOURCE_OWNER.md`.
+
+TLECv10 binds both complete catalog bootstraps, complete current owners and all
+original accepted/rejected source candidates to full economic replay. Native
+composition retains canonical v8 typed histories. Public typed metadata bypass
+remains denied. The existing TLSE producer has not been extended to codecs8,9
+or10, and no exported transition witness is claimed.

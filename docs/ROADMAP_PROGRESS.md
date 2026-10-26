@@ -11,6 +11,15 @@ that worker's branches, publish a branch, or authorize economic transitions.
 
 ## Tracking the 49 source modules
 
+The actual local property and clearlist catalogs now have owned source state,
+103 property scenarios and 200 clearlist observations, with genuine bitcore
+public derivation comparisons. Opt-in types1/7/8/9/11/12 reach those owners;
+ordinary grants/redemptions use the existing sole Ledger. Complete v10 restore,
+raw-candidate replay, durable recovery and rollback compose with native history.
+See [SOURCE_CATALOG_EXECUTION.md](SOURCE_CATALOG_EXECUTION.md). Whole-reference
+parity remains unestablished: outer rollback/activation policies, unsupported
+domains and missing transaction paths are tracked separately.
+
 The completeness workbook now uses **Runtime subset** for partial owner wiring,
 with reference fidelity assessed separately. The new per-transaction inventory
 in [LOGIC_BY_TX_TYPE.json](LOGIC_BY_TX_TYPE.json) covers the 36 routed source
@@ -47,7 +56,7 @@ the actual locked owner's canonical full economic state with independently
 expected configuration/head, exact network/genesis/tip, and separate
 state/checkpoint/export commitments. Its binary/file export preserves exact
 amounts and complete available replay validation. The state-oracle row is an
-**Integrated subset**; authenticated admission, transition-witness export and
+**Runtime subset**; authenticated admission, transition-witness export and
 external consumer integration remain open. The codecs additionally have
 [169 source composition cases](WIRE_ROUNDTRIP_REVIEW.md) and four passing
 integrated tests, while their standalone classification remains unchanged.
@@ -87,7 +96,7 @@ None of these rows or modules is marked as a complete production port.
 | `txDecoder.js` | Standalone: all 36 active exports, genuine complete-source numeric/malformed/base vectors and later Type23 shadow behavior; 169 composition rows and 4 passing integrated tests | Target-engine promotion and historical chain corpus, raw-transaction/signature/admission integration; source Types identity adapter observes dispatch only |
 | `adjuster.js` | Constructor and all three methods; 641 finite source rows and 19 source-only observations; exact tick/minimum and event order with atomic complete replayed metadata | Applying policy to orders, production persistence, wider JS domains and historical acceptance |
 | `issuanceIntent.js` | All three methods; 321 source observations; arbitrary bounded ordered JSON, upsert/query, source ID quirks, nested address arrays and strict full replay | Functional metadata repair differs from the source missing DB category; token issuance authority, production persistence and broader NeDB/historical behavior |
-| `stateOracle.js` | Integrated subset: all6 functions and2319 source observations; actual locked full-owner TLSEv1 export supports canonical TLECv1-v7/full-TLEH bytes, independent config/head/state checks, exact network/genesis/tip and new-file-only synced transport;7 baseline integration tests plus poisoned-owner regression | Authenticated admission and producer/oracle provenance, explicit external transition witness, UTXORef consumer integration and historical acceptance; broader legacy locale/Unicode/nonfinite domains remain bounded |
+| `stateOracle.js` | Runtime subset: all6 functions and2319 source observations; actual locked full-owner TLSEv1 export supports canonical TLECv1-v7/full-TLEH bytes, independent config/head/state checks, exact network/genesis/tip and new-file-only synced transport;7 baseline integration tests plus poisoned-owner regression | Authenticated admission and producer/oracle provenance, explicit external transition witness, UTXORef consumer integration and historical acceptance; broader legacy locale/Unicode/nonfinite domains remain bounded |
 | `clearing.js` | Constructor and all 79 active methods assessed; source funding and mark arithmetic/quirks; funded fractional oracle-perpetual epochs, exact settled-basis marks and nominal default offsets in the existing Ledger with complete restart and rollback | Actual liquidation/AMM/ADL and insurance, native VWAP, full contract orchestration, complete admitted-publication history, authenticated marks/actors and historical acceptance |
 | `orderbook.js` | All 69 methods, constructor and two comparators assessed; 287 actual-source vectors and nine source defects; contract book, funded type18/6 matching, owner cancellation and complete recovery in the existing joint Ledger | Authenticated orders and contract configuration, funded AMM-first execution, liquidation/ADL, multicontract orchestration, channels, source reporting/rewards and historical acceptance |
 | `tally.js` | All 45 methods plus constructor assessed; 248 actual-source vectors and 32 source assertions; actual custody projections, funded match fee/rebate collection and complete FeeBook persistence | Legacy arbitrary-value/NeDB migration, authenticated channel/vesting rules, registered insurance lifecycle, buybacks, remaining shared economic stores and historical acceptance |

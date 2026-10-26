@@ -74,6 +74,33 @@ impl EconomicChain {
         ledger: Ledger,
     ) -> Result<Self, EconomicError> {
         config.validate()?;
+        let joint = Self::pristine_joint(&config, ledger)?;
+        let state = EconomicState::from_joint_unverified(config.economics.clone(), joint)?;
+        Self::from_initial_state(config, state)
+    }
+
+    /// Enter the ordinary checkpoint/rollback/durable workflow with complete
+    /// actual catalogs and both independently expected bootstrap commitments.
+    /// Initial funds still come only from the supplied pristine sole Ledger.
+    pub fn new_with_source_catalogs_unverified(
+        config: EconomicChainConfig,
+        ledger: Ledger,
+        owners: crate::source_catalogs::SourceCatalogOwners,
+    ) -> Result<Self, EconomicError> {
+        config.validate()?;
+        let joint = Self::pristine_joint(&config, ledger)?;
+        let state = EconomicState::from_joint_with_source_catalogs_unverified(
+            config.economics.clone(),
+            joint,
+            owners,
+        )?;
+        Self::from_initial_state(config, state)
+    }
+
+    fn pristine_joint(
+        config: &EconomicChainConfig,
+        ledger: Ledger,
+    ) -> Result<JointProtocolState, EconomicError> {
         let joint = if let Some(policy) = &config.economics.native_entitlements {
             let mut native_ledger = ledger;
             native_ledger
@@ -94,7 +121,13 @@ impl EconomicChain {
                 config.permitted_spot_properties.clone(),
             )?
         };
-        let state = EconomicState::from_joint_unverified(config.economics.clone(), joint)?;
+        Ok(joint)
+    }
+
+    fn from_initial_state(
+        config: EconomicChainConfig,
+        state: EconomicState,
+    ) -> Result<Self, EconomicError> {
         let anchor = config.anchor();
         let chain = Self {
             config,

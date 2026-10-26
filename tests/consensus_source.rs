@@ -72,6 +72,7 @@ fn fixture(network: TradeLayerMainnet) -> EconomicChain {
         amm: None,
         contract_binding: None,
         source_consensus: Some(SourceConsensusConfig {
+            catalog_bootstrap_commitment: None,
             bootstrap_commitment,
             policy: SourceConsensusPolicy::ConservingSequentialV1,
         }),

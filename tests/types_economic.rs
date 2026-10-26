@@ -301,3 +301,12 @@ fn type9_mapper_scope_rejects_list_zero_country_and_banlist_routes() {
         );
     }
 }
+
+#[test]
+fn generic_mapper_keeps_type1_unsupported_without_an_owned_catalog_allocation() {
+    let (args, result) = evaluated(1, "a,ABC,,1,backup,0,0");
+    assert_eq!(
+        map_economic_input_unverified(&args, &result, 101, c(1)),
+        Err(MappingError::Unsupported(1))
+    );
+}

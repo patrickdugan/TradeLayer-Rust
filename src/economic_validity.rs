@@ -36,12 +36,14 @@ impl core::fmt::Display for EconomicValidityError {
 }
 impl std::error::Error for EconomicValidityError {}
 
-/// The borrow prevents economic mutation during evaluation. No Ledger,
-/// property catalog, price database or balance map is retained or fabricated.
+/// The borrow prevents economic mutation during evaluation. Catalog queries
+/// run on a clone of the actual pending metadata owners; the sole Ledger stays
+/// borrowed. The sequential owner can retain genuine query/cache effects.
 pub struct EconomicSourceBackend<'a> {
     state: &'a EconomicState,
     context: ValidationContext,
     durable_head: Option<EconomicHead>,
+    catalogs: Option<crate::source_catalogs::SourceCatalogOwners>,
 }
 impl<'a> EconomicSourceBackend<'a> {
     pub fn from_chain_unverified(
@@ -51,19 +53,27 @@ impl<'a> EconomicSourceBackend<'a> {
         if chain.tip() != expected_parent {
             return Err(EconomicValidityError::WrongHead);
         }
-        chain
-            .state()
+        Self::from_state_unverified(chain.state(), expected_parent)
+    }
+
+    /// Inspect a genuine owner directly, with the same exact-height and
+    /// invariant checks used by the chain-backed constructor.
+    pub fn from_state_unverified(
+        state: &'a EconomicState,
+        expected_parent: Tip,
+    ) -> Result<Self, EconomicValidityError> {
+        state
             .verify()
             .map_err(|_| EconomicValidityError::Invariants)?;
         let context = ValidationContext {
-            network: chain.config().economics.network,
+            network: state.config().network,
             height: expected_parent
                 .height
                 .checked_add(1)
                 .ok_or(EconomicValidityError::WrongContext)?,
             parent: expected_parent,
         };
-        Self::for_staged_input(chain.state(), context)
+        Self::for_staged_input(state, context)
     }
 
     pub fn from_durable(
@@ -103,6 +113,7 @@ impl<'a> EconomicSourceBackend<'a> {
             state,
             context,
             durable_head: None,
+            catalogs: state.source_catalog_owners().cloned(),
         })
     }
     pub fn context(&self) -> ValidationContext {
@@ -110,6 +121,9 @@ impl<'a> EconomicSourceBackend<'a> {
     }
     pub fn durable_head(&self) -> Option<EconomicHead> {
         self.durable_head
+    }
+    pub(crate) fn into_catalogs(self) -> Option<crate::source_catalogs::SourceCatalogOwners> {
+        self.catalogs
     }
     pub const fn require_authenticated_admission(&self) -> Result<(), SourceRuleError> {
         Err(SourceRuleError::UnauthenticatedInputAndState)
@@ -172,7 +186,9 @@ impl<'a> EconomicSourceBackend<'a> {
     fn tally(&self, call: &DependencyCall) -> Result<SourceValue, SourceRuleError> {
         arity(call, 2)?;
         let owner = account(&call.arguments[0])?;
-        let property = property(&call.arguments[1])?;
+        let Some(property) = tally_property(&call.arguments[1])? else {
+            return Ok(n(0.0));
+        };
         let Some(c) = self.custody(&owner, property)? else {
             return Ok(n(0.0));
         };
@@ -193,14 +209,19 @@ impl<'a> EconomicSourceBackend<'a> {
     ) -> Result<SourceValue, SourceRuleError> {
         arity(call, 3)?;
         let owner = account(&call.arguments[0])?;
-        let property = property(&call.arguments[1])?;
+        let property = tally_property(&call.arguments[1])?;
         let required = nonnegative_decimal(&call.arguments[2])?;
         // Source compares its bucket and requirement with JavaScript '<'
         // before BigNumber shortfall arithmetic. Exclude a string/BigNumber
         // requirement whose Number coercion loses value; an exact Decimal
         // comparison would otherwise silently introduce a different rule.
         decimal_number(&required)?;
-        let Some(c) = self.custody(&owner, property)? else {
+        let custody = if let Some(property) = property {
+            self.custody(&owner, property)?
+        } else {
+            None
+        };
+        let Some(c) = custody else {
             return Ok(if channel {
                 object([
                     ("hasSufficient", SourceValue::Bool(false)),
@@ -351,6 +372,32 @@ impl SourceBackend for EconomicSourceBackend<'_> {
         for arg in &call.arguments {
             arg.validate()?;
         }
+        if call.target.starts_with("Property.") || call.target.starts_with("ClearList.") {
+            return self
+                .catalogs
+                .as_mut()
+                .ok_or(SourceRuleError::UnknownDependency)?
+                .invoke_read(call);
+        }
+        if call.target == "Bech32.decode" {
+            arity(call, 1)?;
+            let SourceValue::String(address) = &call.arguments[0] else {
+                return Err(SourceRuleError::InvalidInput);
+            };
+            return Ok(match decode_bech32(address) {
+                Some((prefix, words, 1)) => DependencyReturn::Immediate(object([
+                    ("prefix", text(&prefix)),
+                    (
+                        "words",
+                        SourceValue::Array(words.into_iter().map(|w| n(f64::from(w))).collect()),
+                    ),
+                ])),
+                _ => DependencyReturn::Throw(crate::validity_source::SourceException {
+                    name: "Error".into(),
+                    message: format!("Invalid checksum or encoding for {address}"),
+                }),
+            });
+        }
         let registry = self.state.joint().registry();
         let value = match call.target.as_str() {
             "Activation.getAdmin" => {
@@ -401,6 +448,16 @@ impl SourceBackend for EconomicSourceBackend<'_> {
                 scaled_number(quote.price_1e4, 4)?
             }
             "Contract.getContractInfo" => self.contract_info(call)?,
+            "TxUtils.validateAddressWrapper" => {
+                arity(call, 1)?;
+                let SourceValue::String(address) = &call.arguments[0] else {
+                    return Err(SourceRuleError::InvalidInput);
+                };
+                object([(
+                    "isvalid",
+                    SourceValue::Bool(address_format_valid(self.context.network, address)?),
+                )])
+            }
             _ => return Err(SourceRuleError::UnknownDependency),
         };
         value.validate()?;
@@ -472,6 +529,76 @@ fn identifier(value: &SourceValue) -> Result<u32, SourceRuleError> {
 fn property(value: &SourceValue) -> Result<PropertyId, SourceRuleError> {
     PropertyId::try_from(identifier(value)?).map_err(|_| SourceRuleError::InvalidInput)
 }
+// Pinned tally.js getTally uses `addressObj[propertyId]`. In particular the
+// source send validator passes its entire propertyIds array: [7] names key
+// "7", while [7,8] names the absent key "7,8" and returns zero. Keep the
+// established canonical domain for scalar queries; do not broaden those IDs.
+fn tally_property(value: &SourceValue) -> Result<Option<PropertyId>, SourceRuleError> {
+    if !matches!(value, SourceValue::Array(_)) {
+        return property(value).map(Some);
+    }
+    fn key(value: &SourceValue) -> Result<String, SourceRuleError> {
+        Ok(match value {
+            SourceValue::Array(values) => values
+                .iter()
+                .map(key)
+                .collect::<Result<Vec<_>, _>>()?
+                .join(","),
+            SourceValue::Undefined | SourceValue::Null => String::new(),
+            SourceValue::String(text) => text.clone(),
+            SourceValue::Bool(value) => value.to_string(),
+            SourceValue::Number(bits) => {
+                let number = f64::from_bits(*bits);
+                if number.is_nan() {
+                    "NaN".into()
+                } else if number == f64::INFINITY {
+                    "Infinity".into()
+                } else if number == f64::NEG_INFINITY {
+                    "-Infinity".into()
+                } else {
+                    crate::state_oracle::source_number_text(number)
+                        .map_err(|_| SourceRuleError::UnsupportedNumericDomain)?
+                }
+            }
+            SourceValue::Object(fields) => {
+                if fields.iter().any(|(name, _)| name == "toString") {
+                    return Err(SourceRuleError::InvalidInput);
+                }
+                "[object Object]".into()
+            }
+            SourceValue::Promise => "[object Promise]".into(),
+            SourceValue::BigNumber(_) => return Err(SourceRuleError::UnsupportedNumericDomain),
+        })
+    }
+    let text = key(value)?;
+    if matches!(
+        text.as_str(),
+        "__proto__"
+            | "constructor"
+            | "toString"
+            | "valueOf"
+            | "hasOwnProperty"
+            | "isPrototypeOf"
+            | "propertyIsEnumerable"
+            | "toLocaleString"
+            | "__defineGetter__"
+            | "__defineSetter__"
+            | "__lookupGetter__"
+            | "__lookupSetter__"
+    ) {
+        return Err(SourceRuleError::InvalidInput);
+    }
+    let Some(id) = text
+        .parse::<u32>()
+        .ok()
+        .filter(|id| *id != 0 && id.to_string() == text)
+    else {
+        return Ok(None);
+    };
+    Ok(Some(
+        PropertyId::try_from(id).map_err(|_| SourceRuleError::InvalidInput)?,
+    ))
+}
 fn account(value: &SourceValue) -> Result<AccountId, SourceRuleError> {
     let SourceValue::String(text) = value else {
         return Err(SourceRuleError::InvalidInput);
@@ -527,4 +654,145 @@ fn scaled_number(value: u128, scale: u32) -> Result<SourceValue, SourceRuleError
 }
 fn token_number(value: u128) -> Result<SourceValue, SourceRuleError> {
     scaled_number(value, 8)
+}
+
+// txUtils.validateAddressWrapper delegates to a node RPC. This bounded native
+// replacement supplies its address-format `isvalid` fact only. It does not
+// fabricate wallet, script, public-key, ownership or transaction-output data.
+// Network versions follow the mainnet chainparams; witness rules follow BIP350:
+// https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki
+// https://github.com/litecoin-project/litecoin/blob/v0.21.4/src/key_io.cpp
+// https://github.com/dogecoin/dogecoin/blob/v1.14.9/src/chainparams.cpp
+fn address_format_valid(
+    network: TradeLayerMainnet,
+    address: &str,
+) -> Result<bool, SourceRuleError> {
+    if network == TradeLayerMainnet::Litecoin
+        && address.to_ascii_lowercase().starts_with("ltcmweb1")
+    {
+        return Err(SourceRuleError::UnknownDependency);
+    }
+    let versions: &[u8] = match network {
+        TradeLayerMainnet::Bitcoin => &[0, 5],
+        TradeLayerMainnet::Litecoin => &[48, 5, 50],
+        TradeLayerMainnet::Dogecoin => &[30, 22],
+    };
+    if let Some(bytes) = decode_base58_address(address) {
+        if versions.contains(&bytes[0])
+            && crate::hash256::double_sha256(&bytes[..21])[..4] == bytes[21..]
+        {
+            return Ok(true);
+        }
+    }
+    let Some((hrp, words, encoding)) = decode_bech32(address) else {
+        return Ok(false);
+    };
+    let expected = match network {
+        TradeLayerMainnet::Bitcoin => "bc",
+        TradeLayerMainnet::Litecoin => "ltc",
+        TradeLayerMainnet::Dogecoin => return Ok(false),
+    };
+    if hrp != expected || words.is_empty() || words[0] > 16 {
+        return Ok(false);
+    }
+    let version = words[0];
+    let mut accumulator = 0_u32;
+    let mut bits = 0_u32;
+    let mut length = 0;
+    for word in &words[1..] {
+        accumulator = ((accumulator << 5) | u32::from(*word)) & 0x7fff;
+        bits += 5;
+        if bits >= 8 {
+            bits -= 8;
+            length += 1;
+        }
+    }
+    if bits >= 5 || ((accumulator << (8 - bits)) & 255) != 0 || !(2..=40).contains(&length) {
+        return Ok(false);
+    }
+    Ok(if version == 0 {
+        (length == 20 || length == 32) && encoding == 1
+    } else {
+        encoding == 0x2bc8_30a3
+    })
+}
+fn decode_base58_address(address: &str) -> Option<[u8; 25]> {
+    const ALPHABET: &[u8] = b"123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+    let address = address.trim_matches(|c: char| c.is_ascii_whitespace());
+    if address.is_empty() || address.len() > 35 {
+        return None;
+    }
+    let zeros = address.bytes().take_while(|b| *b == b'1').count();
+    let mut bytes = vec![];
+    for ch in address.bytes().skip(zeros) {
+        let mut carry = ALPHABET.iter().position(|b| *b == ch)? as u32;
+        for byte in bytes.iter_mut().rev() {
+            carry += u32::from(*byte) * 58;
+            *byte = (carry & 255) as u8;
+            carry >>= 8;
+        }
+        while carry != 0 {
+            bytes.insert(0, (carry & 255) as u8);
+            carry >>= 8;
+        }
+        if zeros + bytes.len() > 25 {
+            return None;
+        }
+    }
+    if zeros + bytes.len() != 25 {
+        return None;
+    }
+    let mut output = [0; 25];
+    output[zeros..].copy_from_slice(&bytes);
+    Some(output)
+}
+fn decode_bech32(address: &str) -> Option<(String, Vec<u8>, u32)> {
+    if !(8..=90).contains(&address.len()) || !address.bytes().all(|b| (33..=126).contains(&b)) {
+        return None;
+    }
+    if address.bytes().any(|b| b.is_ascii_lowercase())
+        && address.bytes().any(|b| b.is_ascii_uppercase())
+    {
+        return None;
+    }
+    let lower = address.to_ascii_lowercase();
+    let separator = lower.rfind('1')?;
+    if separator == 0 || separator + 7 > lower.len() {
+        return None;
+    }
+    let prefix = &lower[..separator];
+    const CHARSET: &[u8] = b"qpzry9x8gf2tvdw0s3jn54khce6mua7l";
+    let words = lower.as_bytes()[separator + 1..]
+        .iter()
+        .map(|b| CHARSET.iter().position(|v| v == b).map(|i| i as u8))
+        .collect::<Option<Vec<_>>>()?;
+    let values = prefix
+        .bytes()
+        .map(|b| b >> 5)
+        .chain(core::iter::once(0))
+        .chain(prefix.bytes().map(|b| b & 31))
+        .chain(words.iter().copied());
+    let mut checksum = 1_u32;
+    for value in values {
+        let top = checksum >> 25;
+        checksum = ((checksum & 0x1ff_ffff) << 5) ^ u32::from(value);
+        for (bit, generator) in [
+            0x3b6a_57b2,
+            0x2650_8e6d,
+            0x1ea1_19fa,
+            0x3d42_33dd,
+            0x2a14_62b3,
+        ]
+        .iter()
+        .enumerate()
+        {
+            if top & (1 << bit) != 0 {
+                checksum ^= generator;
+            }
+        }
+    }
+    if checksum != 1 && checksum != 0x2bc8_30a3 {
+        return None;
+    }
+    Some((prefix.into(), words[..words.len() - 6].to_vec(), checksum))
 }

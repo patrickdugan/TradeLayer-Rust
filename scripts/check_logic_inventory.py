@@ -29,6 +29,7 @@ def main():
     assert match is not None
     mapped = {int(n.strip()) for n in match[1].split('|')}
     rows = data['rows']
+    assert data['catalogExecutionTypes'] == [1, 7, 8, 9, 11, 12]
     assert [row['type'] for row in rows] == list(range(37))
     fields = ['sourceRoute', 'sourceEffects', 'sourceDefects', 'runtimeScope', 'missingLogic',
               'nextTask', 'evidence', 'preStateWitness', 'postStateWitness', 'inputWitness',
@@ -39,6 +40,7 @@ def main():
         assert row['sourceRouted'] == (number in routes)
         assert row['sourceHandler'] == routes.get(number)
         assert row['mapperCandidate'] == (number in mapped)
+        assert row['catalogExecutionCandidate'] == (number in data['catalogExecutionTypes'])
         assert row['fullReferenceParity'] is False
         assert row['transitionProofComplete'] is False
     assert data['transitionWitness'] == 'not-exported'

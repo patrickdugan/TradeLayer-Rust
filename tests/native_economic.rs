@@ -258,6 +258,7 @@ fn source_execution_composes_native_snapshot_but_forbids_explicit_target_inputs(
     };
     let (mut s, mut c) = ready(TradeLayerMainnet::Bitcoin);
     c.source_consensus = Some(SourceConsensusConfig {
+        catalog_bootstrap_commitment: None,
         bootstrap_commitment: EconomicState::source_bootstrap_commitment(s.joint()).unwrap(),
         policy: SourceConsensusPolicy::ConservingSequentialV1,
     });

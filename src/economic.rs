@@ -106,6 +106,12 @@ impl EconomicConfig {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum EconomicInput {
+    /// Original source metadata transaction identity, with effects retained by
+    /// the actual source catalogs and replayed from the outer raw-source audit.
+    SourceMetadata {
+        txid: TxId,
+        ty: u8,
+    },
     Insurance(UnverifiedInsuranceInput),
     Joint(UnverifiedJointTx),
     NativeTarget(crate::native_entitlement::UnverifiedNativeTarget),
@@ -235,6 +241,10 @@ pub struct EconomicState {
     replaying_contract_history: bool,
     source_consensus: SourceConsensusState,
     replaying_source_history: bool,
+    // Private decode/encode context for a generic owner nested inside TLECv10.
+    // Public legacy decoders never supply these IDs. The outer audit is fully
+    // replayed before this temporary context is removed and state is exposed.
+    catalog_inner_metadata_ids: BTreeSet<TxId>,
     native_entitlements: NativeEconomicState,
     replaying_native_history: bool,
     insurance: InsuranceState,
@@ -291,6 +301,9 @@ impl EconomicState {
             ContractBindingState::default()
         };
         let source_consensus = if let Some(source) = &config.source_consensus {
+            if source.catalog_bootstrap_commitment.is_some() {
+                return Err(EconomicError::InvalidConfig);
+            }
             let bootstrap = joint
                 .snapshot_for_economic_bytes()
                 .map_err(|_| EconomicError::InvalidSnapshot)?;
@@ -300,6 +313,8 @@ impl EconomicState {
             SourceConsensusState {
                 bootstrap,
                 frames: Vec::new(),
+                catalog_bootstrap: Vec::new(),
+                catalogs: None,
             }
         } else {
             SourceConsensusState::default()
@@ -327,6 +342,7 @@ impl EconomicState {
             replaying_contract_history: false,
             source_consensus,
             replaying_source_history: false,
+            catalog_inner_metadata_ids: BTreeSet::new(),
             native_entitlements,
             replaying_native_history: replaying_native,
             insurance: InsuranceState::default(),
@@ -853,6 +869,11 @@ impl EconomicState {
             return Err(EconomicError::Invariant);
         }
         let mut inputs: BTreeSet<_> = self.book.snapshot().seen.into_iter().collect();
+        for id in self.source_metadata_ids()? {
+            if !inputs.insert(id) {
+                return Err(EconomicError::Invariant);
+            }
+        }
         for contract in &self.contract_binding.contracts {
             if !inputs.insert(contract.creation_txid) {
                 return Err(EconomicError::Invariant);
@@ -1137,6 +1158,8 @@ include!("economic_contract_impl.rs");
 
 include!("economic_block_stage_impl.rs");
 include!("economic_consensus_impl.rs");
+include!("economic_source_catalog_impl.rs");
+include!("economic_source_catalog_snapshot_impl.rs");
 
 include!("economic_native_impl.rs");
 include!("economic_insurance_impl.rs");

@@ -93,6 +93,7 @@ impl EconomicState {
             };
         };
         let mut out = EconomicWriter(Vec::new());
+        let initial_catalogs = self.source_catalog_bootstrap()?;
         econ_write_source_state(
             &mut out,
             &self.source_consensus,
@@ -143,6 +144,8 @@ impl EconomicState {
         replay.source_consensus = SourceConsensusState {
             bootstrap: self.source_consensus.bootstrap.clone(),
             frames: Vec::new(),
+            catalog_bootstrap: self.source_consensus.catalog_bootstrap.clone(),
+            catalogs: initial_catalogs,
         };
         replay.replaying_source_history = true;
         for frame in &self.source_consensus.frames {
@@ -211,6 +214,7 @@ impl EconomicState {
             return Err(econ_snapshot_bad());
         }
         let config = SourceConsensusConfig {
+            catalog_bootstrap_commitment: None,
             bootstrap_commitment: reader.fixed().map_err(|_| econ_snapshot_bad())?,
             policy: match reader.u8().map_err(|_| econ_snapshot_bad())? {
                 1 => SourceConsensusPolicy::ConservingSequentialV1,
@@ -532,7 +536,12 @@ fn econ_read_source_state(
             receipts,
         });
     }
-    Ok(SourceConsensusState { bootstrap, frames })
+    Ok(SourceConsensusState {
+        bootstrap,
+        frames,
+        catalog_bootstrap: Vec::new(),
+        catalogs: None,
+    })
 }
 
 #[cfg(test)]
@@ -569,6 +578,7 @@ mod source_consensus_poison_tests {
         )
         .unwrap();
         let source = SourceConsensusConfig {
+            catalog_bootstrap_commitment: None,
             bootstrap_commitment: EconomicState::source_bootstrap_commitment(&joint).unwrap(),
             policy: SourceConsensusPolicy::ConservingSequentialV1,
         };

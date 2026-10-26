@@ -2497,6 +2497,14 @@ fn econ_write_input(
     budget: &mut ContractRecordBudget,
 ) -> Result<()> {
     match input {
+        EconomicInput::SourceMetadata { txid, ty } => {
+            if !matches!(ty, 7..=9) {
+                return Err(EconomicError::InvalidInput);
+            }
+            out.byte(7)?;
+            out.txid(*txid)?;
+            out.byte(*ty)
+        }
         EconomicInput::NativeTarget(request) => {
             out.byte(5)?;
             out.txid(request.txid)?;
@@ -2557,6 +2565,14 @@ fn econ_read_input(
             requested_target_atoms: econ_read_atoms(reader)?,
         }),
         6 => EconomicInput::Insurance(insurance_read_input(reader)?),
+        7 => {
+            let txid = econ_read_txid(reader)?;
+            let ty = reader.u8().map_err(|_| econ_snapshot_bad())?;
+            if !matches!(ty, 7..=9) {
+                return Err(econ_snapshot_bad());
+            }
+            EconomicInput::SourceMetadata { txid, ty }
+        }
         _ => return Err(econ_snapshot_bad()),
     })
 }
@@ -2628,6 +2644,14 @@ fn econ_read_contract_state(reader: &mut Cursor<'_>) -> Result<ContractBindingSt
 
 impl EconomicState {
     pub fn snapshot_bytes(&self) -> Result<Vec<u8>> {
+        if self
+            .config
+            .source_consensus
+            .as_ref()
+            .is_some_and(|s| s.catalog_bootstrap_commitment.is_some())
+        {
+            return self.source_catalog_snapshot_bytes();
+        }
         if self.config.insurance.is_some() {
             return self.insurance_snapshot_bytes();
         }
@@ -2758,7 +2782,31 @@ impl EconomicState {
         admin: &AccountId,
         permitted: &BTreeSet<PropertyId>,
     ) -> Result<Self> {
+        Self::from_snapshot_bytes_mode(bytes, expected_config, admin, permitted, BTreeSet::new())
+    }
+    fn from_snapshot_bytes_mode(
+        bytes: &[u8],
+        expected_config: &EconomicConfig,
+        admin: &AccountId,
+        permitted: &BTreeSet<PropertyId>,
+        catalog_inner_metadata_ids: BTreeSet<TxId>,
+    ) -> Result<Self> {
         expected_config.validate()?;
+        if bytes.starts_with(ECONOMIC_SOURCE_CATALOG_MAGIC) {
+            return Self::from_source_catalog_snapshot_bytes(
+                bytes,
+                expected_config,
+                admin,
+                permitted,
+            );
+        }
+        if expected_config
+            .source_consensus
+            .as_ref()
+            .is_some_and(|s| s.catalog_bootstrap_commitment.is_some())
+        {
+            return Err(EconomicError::InvalidConfig);
+        }
         if bytes.starts_with(ECONOMIC_INSURANCE_MAGIC) {
             return Self::from_insurance_snapshot_bytes(bytes, expected_config, admin, permitted);
         }
@@ -2940,6 +2988,7 @@ impl EconomicState {
             replaying_contract_history: false,
             source_consensus: SourceConsensusState::default(),
             replaying_source_history: false,
+            catalog_inner_metadata_ids,
             native_entitlements: NativeEconomicState::default(),
             replaying_native_history: false,
         };

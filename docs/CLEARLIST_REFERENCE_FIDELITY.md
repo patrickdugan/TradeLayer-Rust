@@ -100,3 +100,11 @@ Focused Rust commands from the repository root:
 ```
 
 The parent owns repository integration, final review and the required local commit. This delegated review did not commit, push, publish or open a PR.
+
+## Subsequent owned-state implementation
+
+The review above describes its immutable baseline. The later actual local
+owner and its bounded source conformance are documented in `CLEARLIST_SOURCE_OWNER.md`;
+`SOURCE_CATALOG_EXECUTION.md` describes its opt-in sole-Ledger integration and
+remaining policy differences. The external six-file handoff remains unimported
+and is not used as evidence for this independently implemented local owner.

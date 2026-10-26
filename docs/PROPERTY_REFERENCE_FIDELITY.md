@@ -65,3 +65,11 @@ node --test --test-reporter=tap scripts/audit_property_reference.cjs
 ```
 
 The harness checks the exact property SHA256 and the existing loader checks the genuine archived BigNumber pin before source tests execute. Optionally set `PROPERTY_REVIEW_MANIFEST` to a writable file to capture runtime and dependency boundaries. Committed TAP/manifest evidence records the reviewed run; it is not a claim that an unavailable patch or Rust target was executed. Source provenance hashes can be reproduced with `git cat-file blob <revision>:<path>` at the two stated pins.
+
+## Subsequent owned-state implementation
+
+The review above describes its immutable baseline. The later actual local
+owner and its bounded source conformance are documented in `PROPERTY_CATALOG.md`;
+`SOURCE_CATALOG_EXECUTION.md` describes its opt-in sole-Ledger integration and
+remaining policy differences. The external six-file handoff remains unimported
+and is not used as evidence for this independently implemented local owner.

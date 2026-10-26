@@ -27,12 +27,13 @@ reconstruction error needs a regression against the unchanged source and a fix.
 Missing behavior remains missing. Authentication and historical-chain evidence
 are additional gates; they must not hide ordinary functional discrepancies.
 
-For example, the current Ledger represents fixed and managed token classes,
-while the source property catalog represents seven kinds and additional ticker,
-metadata and administration behavior. The separate native-entitlement policy
-does not fill that whole catalog. The runtime Registry scopes attestations to a
-list, while the JavaScript clearlist store can overwrite another list's record
-at the same address. Those are concrete gaps or differences, not full ports.
+The actual source property and clearlist owners now preserve all seven property
+kinds and bounded metadata/cache/database behavior, including source address-only
+attestation overwrites. Their opt-in sequential integration is documented in
+`SOURCE_CATALOG_EXECUTION.md`. The separate strict Registry still scopes its own
+attestations by list; it is not substituted for the source clearlist state. Raw
+helper conformance and an integrated conserving transaction remain different
+measurements. Unrepresented domains and outer policy differences remain open.
 
 ## Transaction logic inventory
 
@@ -69,7 +70,9 @@ empty-string-reason revocation, including the source's ignored root on revoke.
 The pinned decoder uppercases metadata and emits no `merkleRoot`; the extra
 field tests therefore enrich an explicitly diagnostic validity adapter. They
 verify the mapper's represented scope, not authenticated wire acceptance or a
-new complete clearlist owner. Nine focused mapper tests passed; their captured
+the later actual source owner. The opt-in catalog path now executes those
+effects through the owned clearlist state instead of that generic mapper.
+Nine focused generic mapper tests passed; their captured
 checks and final hashes are in
 `fixtures/reference_fidelity/type9-mapper-execution.json`. The captured
 `committed:false` value describes the delegated check before the parent commit.

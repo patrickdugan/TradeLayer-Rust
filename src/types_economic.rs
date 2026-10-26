@@ -5,7 +5,7 @@ use crate::contract_registry::{ContractAsset, ContractId, ContractParameters};
 use crate::decimal::Decimal;
 use crate::economic::{CreateContractInput, EconomicInput};
 use crate::joint::{JointOperation, UnverifiedJointTx};
-use crate::ledger::{AccountId, PropertyId, TxId};
+use crate::ledger::{AccountId, PropertyId, PropertyKind, TxId};
 use crate::registry::{AdminTarget, RegistryAction};
 use crate::spot::{CancelSelector, SpotIntent};
 use crate::types_source::{TypesEvaluation, TypesOutcome};
@@ -20,6 +20,258 @@ pub enum MappingError {
     SourceRejected,
     MissingValidation,
     MismatchedEvaluation,
+}
+
+#[cfg(test)]
+mod source_issuance_mapping_tests {
+    use super::*;
+    use crate::types_source::{decode_with_validity_unverified, SourceValidityAdapter};
+    use crate::validity_source::{
+        DependencyCall, DependencyReturn, SourceBackend, SourceException, SourceRuleError,
+    };
+
+    // Runs the actual Types decoder and source validator over explicit test
+    // dependency reads. These fixed replies supply no real owner authority.
+    struct IssuanceReads {
+        ticker_exists: bool,
+    }
+    impl SourceBackend for IssuanceReads {
+        fn invoke(
+            &mut self,
+            call: &DependencyCall,
+        ) -> core::result::Result<DependencyReturn, SourceRuleError> {
+            Ok(DependencyReturn::Pending(match call.target.as_str() {
+                "Activation.isTxTypeActive" => {
+                    assert_eq!(call.arguments, vec![V::number(1.0)]);
+                    V::Bool(true)
+                }
+                "Property.doesTickerExist" => V::Bool(self.ticker_exists),
+                _ => return Err(SourceRuleError::UnknownDependency),
+            }))
+        }
+    }
+    fn evaluated(body: &str) -> (Vec<V>, TypesEvaluation) {
+        let args = vec![
+            V::String("ab".repeat(32)),
+            V::number(1.0),
+            V::String("tl".into()),
+            V::String(body.into()),
+            V::String("alice".into()),
+            V::Array(vec![]),
+            V::number(0.0),
+            V::number(0.0),
+            V::number(101.0),
+        ];
+        let evaluation = decode_with_validity_unverified(
+            &args,
+            &mut SourceValidityAdapter {
+                backend: &mut IssuanceReads {
+                    ticker_exists: false,
+                },
+            },
+        )
+        .unwrap();
+        (args, evaluation)
+    }
+    fn mapped(args: &[V], evaluation: &TypesEvaluation) -> Result<SourceIssuanceMapping> {
+        map_source_issuance_unverified(args, evaluation, 101, PropertyId::try_from(42).unwrap())
+    }
+
+    #[test]
+    fn allocated_source_issuance_preserves_all_class_precedence_and_original_atoms() {
+        for (body, class, kind) in [
+            ("a,ABC,,0,backup,0,0", "Fixed", PropertyKind::Fixed),
+            ("a,ABC,,1,backup,0,0", "Managed", PropertyKind::Managed),
+            ("a,ABC,,0,backup,1,0", "Non-Fungible", PropertyKind::Fixed),
+            ("a,ABC,,1,backup,1,0", "Non-Fungible", PropertyKind::Fixed),
+            ("a,ABC,,1,backup,1,0,0", "Procedural", PropertyKind::Managed),
+            ("a,ABC,,1,backup,0,0,2", "Procedural", PropertyKind::Managed),
+            // Logic.tokenIssue ignores coloredCoinHybrid in this source path.
+            ("a,ABC,,0,backup,0,1", "Fixed", PropertyKind::Fixed),
+        ] {
+            let (args, evaluation) = evaluated(body);
+            let before = evaluation.clone();
+            let mapping = mapped(&args, &evaluation).unwrap();
+            assert_eq!(mapping.catalog_type, class);
+            let EconomicInput::Joint(tx) = mapping.input else {
+                panic!("joint issuance expected")
+            };
+            assert_eq!(tx.txid.as_bytes(), [0xab; 32]);
+            assert_eq!(tx.actor.as_str(), "alice");
+            assert_eq!(
+                tx.operation,
+                JointOperation::Issue {
+                    id: PropertyId::try_from(42).unwrap(),
+                    kind,
+                    initial_atoms: 1_000_000_000
+                }
+            );
+            assert_eq!(evaluation, before);
+            assert_eq!(
+                map_economic_input_unverified(
+                    &args,
+                    &evaluation,
+                    101,
+                    ContractId::try_from(1).unwrap()
+                ),
+                Err(MappingError::Unsupported(1))
+            );
+        }
+        let (args, evaluation) = evaluated("1,ABC,,0,backup,0,0");
+        let second = map_source_issuance_unverified(
+            &args,
+            &evaluation,
+            101,
+            PropertyId::try_from(43).unwrap(),
+        )
+        .unwrap();
+        let EconomicInput::Joint(tx) = second.input else {
+            panic!("joint issuance expected")
+        };
+        assert!(
+            matches!(tx.operation,JointOperation::Issue{id,initial_atoms:100_000_000,..}if id.get()==43)
+        );
+    }
+
+    #[test]
+    fn allocated_source_issuance_retains_original_binding_and_failure_guards() {
+        let (args, evaluation) = evaluated("a,ABC,,1,backup,0,0");
+        for (index, value) in [
+            (0, V::String("cd".repeat(32))),
+            (1, V::number(2.0)),
+            (3, V::String("b,ABC,,1,backup,0,0".into())),
+            (4, V::String("bob".into())),
+            (8, V::number(102.0)),
+        ] {
+            let mut changed = args.clone();
+            changed[index] = value;
+            assert_eq!(
+                mapped(&changed, &evaluation),
+                Err(MappingError::MismatchedEvaluation)
+            );
+        }
+        assert_eq!(
+            map_source_issuance_unverified(
+                &args,
+                &evaluation,
+                102,
+                PropertyId::try_from(42).unwrap()
+            ),
+            Err(MappingError::MismatchedEvaluation)
+        );
+        assert_eq!(
+            map_source_issuance_unverified(
+                &args,
+                &evaluation,
+                0,
+                PropertyId::try_from(42).unwrap()
+            ),
+            Err(MappingError::InvalidInput)
+        );
+        let mut changed = evaluation.clone();
+        changed.validity = None;
+        assert_eq!(
+            mapped(&args, &changed),
+            Err(MappingError::MissingValidation)
+        );
+        let mut changed = evaluation.clone();
+        changed.decoder.as_mut().unwrap().method = "decodeSend".into();
+        assert_eq!(
+            mapped(&args, &changed),
+            Err(MappingError::MismatchedEvaluation)
+        );
+        let mut changed = evaluation.clone();
+        changed
+            .validity
+            .as_mut()
+            .unwrap()
+            .settlement
+            .evaluation
+            .deferred_rejections
+            .push(SourceException {
+                name: "Error".into(),
+                message: "deferred source rejection".into(),
+            });
+        assert_eq!(mapped(&args, &changed), Err(MappingError::SourceFailure));
+        let mut changed = evaluation.clone();
+        let TypesOutcome::Returned(params) = &mut changed.outcome else {
+            unreachable!()
+        };
+        params.insert("initialAmount", V::number(20.0)).unwrap();
+        assert_eq!(
+            mapped(&args, &changed),
+            Err(MappingError::MismatchedEvaluation)
+        );
+        for body in [
+            "0,ABC,,0,backup,0,0",
+            "-1,ABC,,0,backup,0,0",
+            "a,ABC,,0,backup,0,0,1",
+            "a,sBAD,,0,backup,0,0",
+        ] {
+            let (args, evaluation) = evaluated(body);
+            assert_eq!(
+                mapped(&args, &evaluation),
+                Err(MappingError::SourceRejected),
+                "{body}"
+            );
+        }
+    }
+
+    #[test]
+    fn shared_catalog_guard_is_bound_and_type1_atoms_never_round_or_use_caller_ids() {
+        let (args, mut evaluation) = evaluated("a,ABC,,1,backup,0,0");
+        let (params, txid, actor, ty) = bound_source_params(&args, &evaluation, 101).unwrap();
+        assert_eq!(ty, 1);
+        assert_eq!(txid.as_bytes(), [0xab; 32]);
+        assert_eq!(actor.as_str(), "alice");
+        assert_eq!(params.get("initialAmount"), V::number(10.0));
+        // Deliberately forged diagnostic output tests representability only; the
+        // caller still must obtain a fresh evaluation from its actual owner.
+        let set = |evaluation: &mut TypesEvaluation, key: &str, value: V| {
+            let TypesOutcome::Returned(params) = &mut evaluation.outcome else {
+                unreachable!()
+            };
+            params.insert(key, value).unwrap();
+            evaluation
+                .validity
+                .as_mut()
+                .unwrap()
+                .settlement
+                .evaluation
+                .outcome = SourceOutcome::Returned(params.clone());
+        };
+        set(&mut evaluation, "initialAmount", V::number(1.000_000_001));
+        assert_eq!(
+            mapped(&args, &evaluation),
+            Err(MappingError::Unrepresentable("exact atom precision"))
+        );
+        set(
+            &mut evaluation,
+            "initialAmount",
+            V::number(9_007_199_254_740_992.0),
+        );
+        assert_eq!(
+            mapped(&args, &evaluation),
+            Err(MappingError::Unrepresentable("finite safe Number"))
+        );
+        set(
+            &mut evaluation,
+            "initialAmount",
+            V::number(9_007_199_254_740_991.0),
+        );
+        set(&mut evaluation, "propertyId", V::number(999.0));
+        let EconomicInput::Joint(tx) = mapped(&args, &evaluation).unwrap().input else {
+            panic!("joint issuance expected")
+        };
+        assert!(
+            matches!(tx.operation,JointOperation::Issue{id,initial_atoms:900_719_925_474_099_100_000_000,..} if id.get()==42)
+        );
+        set(&mut evaluation, "senderAddress", V::String("bob".into()));
+        assert_eq!(
+            mapped(&args, &evaluation),
+            Err(MappingError::MismatchedEvaluation)
+        );
+    }
 }
 impl core::fmt::Display for MappingError {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -151,15 +403,11 @@ fn no_extra_context(params: &V, names: &[&str]) -> Result<()> {
     Ok(())
 }
 
-/// The consensus stage must compute `evaluation` itself against its actual staged
-/// owner. This public diagnostic struct is not an authenticated capability.
-/// Original txid/actor/type/height are checked; no caller `valid` argument is read.
-pub fn map_economic_input_unverified(
+fn source_header<'a>(
     original_arguments: &[V],
-    evaluation: &TypesEvaluation,
+    evaluation: &'a TypesEvaluation,
     height: u64,
-    configured_contract: ContractId,
-) -> Result<EconomicInput> {
+) -> Result<(u8, &'a V)> {
     if original_arguments.len() < 9
         || original_arguments.len() > crate::types_source::MAX_ARGUMENTS
         || height == 0
@@ -176,9 +424,16 @@ pub fn map_economic_input_unverified(
         return Err(MappingError::SourceFailure);
     };
     params.validate().map_err(|_| MappingError::InvalidInput)?;
-    if !matches!(ty, 0 | 2 | 5 | 6 | 7 | 8 | 9 | 11 | 12 | 13 | 14 | 16 | 18) {
-        return Err(MappingError::Unsupported(ty));
-    }
+    Ok((ty, params))
+}
+
+fn source_bindings<'a>(
+    original_arguments: &[V],
+    evaluation: &TypesEvaluation,
+    height: u64,
+    ty: u8,
+    params: &'a V,
+) -> Result<(&'a V, TxId, AccountId, u8)> {
     let validity = evaluation
         .validity
         .as_ref()
@@ -217,6 +472,96 @@ pub fn map_economic_input_unverified(
     }
     let txid = TxId::from_bytes(hash(&original_arguments[0])?);
     let actor = account(&original_arguments[4])?;
+    Ok((params, txid, actor, ty))
+}
+
+/// Shared binding checks for source-catalog execution. The caller must compute
+/// this evaluation freshly against its actual staged owner; a public diagnostic
+/// struct and a successful binding check are not authenticated authority.
+pub(crate) fn bound_source_params<'a>(
+    original_arguments: &[V],
+    evaluation: &'a TypesEvaluation,
+    height: u64,
+) -> Result<(&'a V, TxId, AccountId, u8)> {
+    let (ty, params) = source_header(original_arguments, evaluation, height)?;
+    source_bindings(original_arguments, evaluation, height, ty, params)
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct SourceIssuanceMapping {
+    pub(crate) input: EconomicInput,
+    pub(crate) catalog_type: &'static str,
+}
+
+/// Project type1 only after the actual PropertyCatalog has allocated its ID.
+/// Catalog class precedence is the pinned Logic.tokenIssue rule. NFT custody
+/// uses the existing Fixed Ledger and Procedural custody the existing Managed
+/// Ledger; this supplies no per-unit NFT or procedural contract semantics.
+pub(crate) fn map_source_issuance_unverified(
+    original_arguments: &[V],
+    evaluation: &TypesEvaluation,
+    height: u64,
+    allocated_id: PropertyId,
+) -> Result<SourceIssuanceMapping> {
+    let (params, txid, actor, ty) = bound_source_params(original_arguments, evaluation, height)?;
+    if ty != 1 {
+        return Err(MappingError::Unsupported(ty));
+    }
+    if params.get("senderAddress") != original_arguments[4] {
+        return Err(MappingError::MismatchedEvaluation);
+    }
+    let fallback = |primary: &str, legacy: &str| {
+        let value = params.get(primary);
+        if matches!(value, V::Null | V::Undefined) {
+            params.get(legacy)
+        } else {
+            value
+        }
+    };
+    let managed = source_truthy(&fallback("managed", "isManaged"));
+    let nft = source_truthy(&fallback("nft", "isNFT"));
+    let procedural = params.get("proceduralType");
+    let catalog_type = if managed && !matches!(procedural, V::Null | V::Undefined) {
+        "Procedural"
+    } else if nft {
+        "Non-Fungible"
+    } else if managed {
+        "Managed"
+    } else {
+        "Fixed"
+    };
+    let kind = match catalog_type {
+        "Managed" | "Procedural" => PropertyKind::Managed,
+        _ => PropertyKind::Fixed,
+    };
+    Ok(SourceIssuanceMapping {
+        input: EconomicInput::Joint(UnverifiedJointTx {
+            txid,
+            actor,
+            operation: JointOperation::Issue {
+                id: allocated_id,
+                kind,
+                initial_atoms: scaled(&params.get("initialAmount"), 8)?,
+            },
+        }),
+        catalog_type,
+    })
+}
+
+/// The consensus stage must compute `evaluation` itself against its actual staged
+/// owner. This public diagnostic struct is not an authenticated capability.
+/// Original txid/actor/type/height are checked; no caller `valid` argument is read.
+pub fn map_economic_input_unverified(
+    original_arguments: &[V],
+    evaluation: &TypesEvaluation,
+    height: u64,
+    configured_contract: ContractId,
+) -> Result<EconomicInput> {
+    let (ty, params) = source_header(original_arguments, evaluation, height)?;
+    if !matches!(ty, 0 | 2 | 5 | 6 | 7 | 8 | 9 | 11 | 12 | 13 | 14 | 16 | 18) {
+        return Err(MappingError::Unsupported(ty));
+    }
+    let (_, txid, actor, _) = source_bindings(original_arguments, evaluation, height, ty, params)?;
     let get = |name| params.get(name);
     let registry = |action| {
         EconomicInput::Joint(UnverifiedJointTx {

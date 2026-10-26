@@ -117,3 +117,6 @@ fixtures/reference_fidelity/*.js -text -whitespace
 fixtures/reference_fidelity/*.json text eol=lf
 fixtures/reference_fidelity/*.tap text eol=lf
 fixtures/legacy_clearlist_audit_reference.txt -text -whitespace
+fixtures/property_catalog_vectors.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/clearlist_source_owner_vectors.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/bip32_public_vectors.tsv text eol=lf whitespace=-blank-at-eol

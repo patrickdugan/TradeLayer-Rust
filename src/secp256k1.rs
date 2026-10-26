@@ -388,6 +388,38 @@ pub fn canonical_compressed_public_key(public_key: &[u8]) -> Result<[u8; 33], Se
     output[1..].copy_from_slice(&point.x.raw().to_be());
     Ok(output)
 }
+/// Add `tweak * G` to a public SEC1 point, returning compressed SEC1 output.
+/// The tweak is a public BIP32 derivation value, not secret key material. This
+/// reuses the variable-time public-input group arithmetic used by verification.
+/// Zero is valid (the point is unchanged); a tweak >= the group order is an
+/// arithmetic error. `None` denotes the point at infinity.
+pub fn public_key_tweak_add(
+    public_key: &[u8],
+    tweak: &[u8; 32],
+) -> Result<Option<[u8; 33]>, SecpError> {
+    let parent = parse_key(public_key)?;
+    let scalar = Uint::from_be(tweak);
+    if scalar.compare(N) != Ordering::Less {
+        return Err(SecpError::Arithmetic);
+    }
+    let generator = Point::generator();
+    let mut offset = Point::INFINITY;
+    for bit in (0..256).rev() {
+        offset = offset.double();
+        if scalar.bit(bit) {
+            offset = offset.add(generator);
+        }
+    }
+    let result = parent.add(offset);
+    if result.is_infinity() {
+        return Ok(None);
+    }
+    let inverse = result.z.inverse().ok_or(SecpError::Arithmetic)?;
+    let mut output = [0; 33];
+    output[0] = 2 | (result.y.mul(inverse.square().mul(inverse)).raw().0[0] as u8 & 1);
+    output[1..].copy_from_slice(&result.x.mul(inverse.square()).raw().to_be());
+    Ok(Some(output))
+}
 /// ECDSA over an already-computed 32-byte digest. Like tiny-secp256k1's
 /// default verify, mathematically valid high-S signatures are accepted.
 /// Noncanonical or zero signature scalars are explicit parse errors.

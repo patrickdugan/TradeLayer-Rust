@@ -18,6 +18,7 @@ pub mod bitvm_bundle; // Bounded source artifact integrity, no execution-proof v
 pub mod bitvm_cache; // Source cache challenge lifecycle metadata, no funded custody.
 pub mod bitvm_risk; // Atomic source counter/window metadata, no spend authorization.
                     // Bitcoin SHA256d header and tx Merkle checks; no full consensus.
+pub mod bip32_public; // Public BIP32 derivation with strict and pinned-source modes.
 pub mod bootstrap; // Owned startup readiness with explicit source characterization.
 pub mod bootstrap_storage; // Concrete restoration of complete durable state owners.
 pub mod chain; // Trust-boundary and reversible block progression, prototype only.
@@ -36,6 +37,7 @@ pub mod clearing_chain; // Stage 25D unverified combined spot-clearing rollback 
 pub mod clearing_math; // Stage 24A diagnostic loss, funding and PnL equations; no ledger writes.
 pub mod clearing_pnl; // Stage 25C read-only per-address PnL and residual projection.
 pub mod clearing_sandbox; // Stage 25A isolated single-ledger derivative margin and funding research.
+pub mod clearlist_source_owner; // Actual pinned-source rows and singleton/cache state.
 pub mod client; // Bounded Core HTTP JSON-RPC; readiness is bound to network and genesis.
 mod codec; // Bounded, checksummed snapshot codec.
 pub mod consensus_source; // Replayed sequential source dispatch in the sole economic owner.
@@ -85,6 +87,7 @@ pub mod oracle;
 pub mod parallel_txindex; // Bounded parallel read-only runtime TXID/OP_RETURN scan and ordered fetch; never consensus.
 pub mod persistence; // Atomic persisted joint replay and rollback, no chain authentication.
 pub mod procedural; // Source procedural metadata and context gates, no proof authority.
+pub mod property_catalog; // Owned source-compatible property metadata and effect replay.
 pub mod protocol; // Audited legacy transaction catalog, not consensus execution.
 pub mod raw_block_ingest; // Stage8C borrowed raw Bitcoin block preindex, not consensus.
 pub mod read_only; // Offline transaction scanning; cannot authorize ledger state.
@@ -100,6 +103,7 @@ pub mod service_client;
 pub mod service_routes;
 pub mod service_runtime;
 pub mod service_view;
+pub mod source_catalogs; // Coupled actual property/clearlist metadata owners.
 pub mod spot; // Stage 19 isolated type-5/6 rational matching experiment; unverified.
 pub mod spot_chain; // Stage 20 typed unverified spot block replay and complete TLSP/TLSC checkpoints.
 pub mod state_commitment; // Experimental domain-separated state and transition metadata; no proof verifier.

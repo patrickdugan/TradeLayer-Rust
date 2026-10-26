@@ -32,6 +32,8 @@ pub enum SourceConsensusPolicy {
 pub struct SourceConsensusConfig {
     pub bootstrap_commitment: [u8; 32],
     pub policy: SourceConsensusPolicy,
+    /// Independent pin for complete actual property/clearlist bootstrap state.
+    pub catalog_bootstrap_commitment: Option<[u8; 32]>,
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SourceBlockMode {
@@ -143,6 +145,8 @@ pub struct SourceBlockFrame {
 pub struct SourceConsensusState {
     pub bootstrap: Vec<u8>,
     pub frames: Vec<SourceBlockFrame>,
+    pub catalog_bootstrap: Vec<u8>,
+    pub catalogs: Option<crate::source_catalogs::SourceCatalogOwners>,
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UnverifiedSourceBlock {
@@ -318,6 +322,10 @@ pub(crate) fn execute_block_unverified(
             let mut backend = EconomicSourceBackend::for_staged_input(stage.state(), context)
                 .map_err(|_| ConsensusSourceError::InvalidInput)?;
             let evaluation = decode_payload_unverified(&arguments, &mut backend);
+            // Genuine source queries can load caches or record caught DB
+            // failures even when validation rejects. Retain those owner reads.
+            let catalogs = backend.into_catalogs();
+            stage.retain_source_catalog_reads(catalogs)?;
             match evaluation {
                 Err(error) => {
                     receipt.disposition = SourceDisposition::DependencyUnavailable;
@@ -331,6 +339,36 @@ pub(crate) fn execute_block_unverified(
                         TypesOutcome::Returned(params)
                             if params.get("valid") == SourceValue::Bool(true) =>
                         {
+                            if let Some(result) =
+                                stage.try_apply_source_catalog_unverified(&arguments, &evaluation)
+                            {
+                                use crate::economic::SourceCatalogExecutionError;
+                                match result {
+                                    Ok(()) => receipt.disposition = SourceDisposition::Applied,
+                                    Err(SourceCatalogExecutionError::Mapping(reason)) => {
+                                        receipt.disposition = SourceDisposition::UnsupportedMapping;
+                                        receipt.reason = bounded_reason(&reason);
+                                    }
+                                    Err(SourceCatalogExecutionError::Rule(error)) => {
+                                        receipt.disposition =
+                                            SourceDisposition::DependencyUnavailable;
+                                        receipt.reason = bounded_reason(&format!("{error:?}"));
+                                    }
+                                    Err(SourceCatalogExecutionError::Thrown(error)) => {
+                                        receipt.disposition = SourceDisposition::Thrown;
+                                        receipt.reason = bounded_reason(&format!(
+                                            "{}: {}",
+                                            error.name, error.message
+                                        ));
+                                    }
+                                    Err(SourceCatalogExecutionError::Economic(error)) => {
+                                        receipt.disposition = SourceDisposition::EconomicRejected;
+                                        receipt.reason = bounded_reason(&format!("{error:?}"));
+                                    }
+                                }
+                                receipts.push(receipt);
+                                continue;
+                            }
                             match map_economic_input_unverified(
                                 &arguments,
                                 &evaluation,

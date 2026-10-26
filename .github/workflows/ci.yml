@@ -45,7 +45,7 @@ jobs:
       - name: Check included spot snapshot file formatting
         run: rustfmt --check --edition 2021 src/spot_snapshot_impl.rs src/ledger_native_impl.rs src/spot_native_impl.rs src/joint_native_impl.rs src/joint_chain_native_impl.rs src/economic_native_impl.rs src/economic_insurance_impl.rs src/economic_insurance_snapshot_impl.rs
       - name: Check included joint snapshot file formatting
-        run: rustfmt --check --edition 2021 src/joint_snapshot_impl.rs src/joint_economic_impl.rs src/economic_snapshot_impl.rs src/economic_funding_impl.rs src/economic_mark_impl.rs src/economic_liquidation_impl.rs src/economic_liquidation_replay_impl.rs src/contract_orderbook_liquidation_impl.rs src/economic_amm_impl.rs src/economic_amm_replay_impl.rs src/economic_contract_impl.rs src/economic_block_stage_impl.rs src/economic_consensus_impl.rs
+        run: rustfmt --check --edition 2021 src/joint_snapshot_impl.rs src/joint_economic_impl.rs src/economic_snapshot_impl.rs src/economic_funding_impl.rs src/economic_mark_impl.rs src/economic_liquidation_impl.rs src/economic_liquidation_replay_impl.rs src/contract_orderbook_liquidation_impl.rs src/economic_amm_impl.rs src/economic_amm_replay_impl.rs src/economic_contract_impl.rs src/economic_block_stage_impl.rs src/economic_consensus_impl.rs src/economic_source_catalog_impl.rs src/economic_source_catalog_snapshot_impl.rs
       - name: Check included combined clearing snapshot formatting
         run: rustfmt --check --edition 2021 src/clearing_snapshot_impl.rs
       - name: Check included IOU checkpoint formatting
@@ -61,7 +61,12 @@ jobs:
       - name: Pinned Base94 and Base256 source compatibility vectors
         run: node scripts/legacy_base_vectors.cjs
       - name: Install pinned test-only ECDSA reference
-        run: npm install --prefix "$RUNNER_TEMP/tl-secp-reference" --ignore-scripts --no-audit --no-fund --save-exact tiny-secp256k1@2.2.4
+        run: npm install --prefix "$RUNNER_TEMP/tl-secp-reference" --ignore-scripts --no-audit --no-fund --save-exact tiny-secp256k1@2.2.4 bitcore-lib-ltc@10.10.5 bitcore-lib@8.25.47
+      - name: Genuine BIP32 and complete source catalog owner vectors
+        run: |
+          node scripts/bip32_public_vectors.cjs --check --lib-root "$RUNNER_TEMP/tl-secp-reference"
+          node scripts/clearlist_source_owner_vectors.cjs --check --module-root "$RUNNER_TEMP/tl-secp-reference"
+          node scripts/property_catalog_vectors.cjs --check
       - name: Native public ECDSA independent and genuine reference vectors
         run: node scripts/secp256k1_vectors.cjs --check --tiny-root "$RUNNER_TEMP/tl-secp-reference"
       - name: Co-signed allocation transcripts and actual-owner signed fixtures

@@ -1,11 +1,13 @@
 //! Genuine owner custody and source-rule reads, with no balance-map mock.
 use std::collections::BTreeSet;
 use std::path::PathBuf;
-use tradelayer_core::chain::{BlockHeader, BlockId};
+use tradelayer_core::chain::{BlockHeader, BlockId, Tip};
+use tradelayer_core::clearlist_source_owner::ClearlistSourceOwner;
+use tradelayer_core::consensus_source::{SourceConsensusConfig, SourceConsensusPolicy};
 use tradelayer_core::contract_orderbook::{Order, Side};
 use tradelayer_core::contract_registry::ContractId;
 use tradelayer_core::decimal::Decimal;
-use tradelayer_core::economic::{EconomicConfig, EconomicInput, SettlementPolicy};
+use tradelayer_core::economic::{EconomicConfig, EconomicInput, EconomicState, SettlementPolicy};
 use tradelayer_core::economic_chain::{
     DurableEconomicChain, EconomicChain, EconomicChainConfig, UnverifiedEconomicBlock,
 };
@@ -13,7 +15,9 @@ use tradelayer_core::economic_validity::*;
 use tradelayer_core::joint::{JointOperation, UnverifiedJointTx};
 use tradelayer_core::ledger::{AccountId, Ledger, Operation, PropertyId, PropertyKind, TxId};
 use tradelayer_core::network_profile::TradeLayerMainnet;
+use tradelayer_core::property_catalog::PropertyCatalog;
 use tradelayer_core::registry::RegistryAction;
+use tradelayer_core::source_catalogs::{bootstrap_commitment, SourceCatalogOwners};
 use tradelayer_core::tally::FeeRoute;
 use tradelayer_core::validity_source::{
     self, DependencyCall, DependencyReturn, SourceBackend, SourceCall, SourceOutcome,
@@ -173,6 +177,217 @@ fn oracle_chain() -> EconomicChain {
     chain
 }
 
+struct NoExternalReads;
+impl SourceBackend for NoExternalReads {
+    fn invoke(&mut self, _: &DependencyCall) -> Result<DependencyReturn, SourceRuleError> {
+        Err(SourceRuleError::UnknownDependency)
+    }
+}
+fn actual_catalog_state() -> EconomicState {
+    let base = chain(TradeLayerMainnet::Bitcoin, 100 * ATOMS);
+    let joint = base.state().joint().clone();
+    let mut properties = PropertyCatalog::new();
+    let created = properties
+        .execute(
+            "createToken",
+            &[
+                s("OWNED"),
+                n(125.25),
+                s("Managed"),
+                V::Array(vec![n(1.0)]),
+                s("issuer"),
+                s("backup"),
+                obj(&[]),
+            ],
+            &mut NoExternalReads,
+        )
+        .unwrap();
+    assert_eq!(created.outcome, SourceOutcome::Returned(n(1.0)));
+    let mut clearlists = ClearlistSourceOwner::new();
+    for (method,arguments) in [
+        ("createClearlist",vec![s("list-admin"),s("Actual list"),s("ignored"),s("description"),s("backup"),n(1.0)]),
+        ("addAttestation",vec![n(0.0),s("country-user"),obj(&[("country",s(" ca "))]),n(10.0)]),
+        ("addAttestation",vec![n(1.0),s("attested"),s("metadata"),n(11.0)]),
+        ("addAttestationWithXpub",vec![n(2.0),s("xpub-issuer"),s("metadata"),s("xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8"),n(12.0)]),
+    ] {assert!(matches!(clearlists.evaluate(&SourceCall{method:method.into(),arguments}).unwrap(),SourceOutcome::Returned(_)));}
+    let owners = SourceCatalogOwners::new(properties, clearlists);
+    let mut economics = base.config().economics.clone();
+    economics.source_consensus = Some(SourceConsensusConfig {
+        bootstrap_commitment: EconomicState::source_bootstrap_commitment(&joint).unwrap(),
+        policy: SourceConsensusPolicy::ConservingSequentialV1,
+        catalog_bootstrap_commitment: Some(bootstrap_commitment(
+            &owners.checkpoint_bytes().unwrap(),
+        )),
+    });
+    EconomicState::from_joint_with_source_catalogs_unverified(economics, joint, owners).unwrap()
+}
+fn owner_backend(state: &EconomicState) -> EconomicSourceBackend<'_> {
+    EconomicSourceBackend::from_state_unverified(
+        state,
+        Tip {
+            height: 0,
+            id: state.config().network.genesis(),
+        },
+    )
+    .unwrap()
+}
+
+#[test]
+fn actual_property_clearlist_country_and_native_derived_reads_use_owned_catalogs() {
+    let state = actual_catalog_state();
+    let before = state.snapshot_bytes().unwrap();
+    let mut backend = owner_backend(&state);
+    let mut pending =
+        |target: &str, args: Vec<V>| match backend.invoke(&call(target, args)).unwrap() {
+            DependencyReturn::Pending(value) => value,
+            other => panic!("expected genuine pending read: {other:?}"),
+        };
+    let property = pending("Property.getPropertyData", vec![n(1.0)]);
+    assert_eq!(property.get("ticker"), s("OWNED"));
+    assert_eq!(property.get("issuer"), s("issuer"));
+    assert_eq!(property.get("totalInCirculation"), n(125.25));
+    assert_eq!(property.get("whitelistId"), V::Array(vec![n(1.0)]));
+    assert_eq!(
+        pending("Property.isManagedAndAdmin", vec![n(1.0), s("issuer")]),
+        V::Bool(true)
+    );
+    assert_eq!(
+        pending("Property.isManagedAndAdmin", vec![s("1"), s("issuer")]),
+        V::Bool(false),
+        "source managed-admin query keeps typed ID distinctions"
+    );
+    assert_eq!(
+        pending("Property.doesTickerExist", vec![s("OWNED")]),
+        V::Bool(true)
+    );
+    assert_eq!(pending("Property.getPropertyData", vec![n(999.0)]), V::Null);
+    assert_eq!(
+        pending("ClearList.getList", vec![n(1.0)]),
+        V::Null,
+        "actual source wrong-collection admin helper"
+    );
+    let list = pending("ClearList.getClearlistById", vec![n(1.0)]);
+    assert_eq!(list.get("admin"), s("list-admin"));
+    assert_eq!(list.get("adminAddress"), V::Undefined);
+    assert_eq!(
+        pending(
+            "ClearList.isAddressInClearlist",
+            vec![n(1.0), s("attested")]
+        ),
+        V::Bool(true)
+    );
+    assert_eq!(
+        pending(
+            "ClearList.isAddressInClearlist",
+            vec![n(2.0), s("attested")]
+        ),
+        V::Bool(false)
+    );
+    assert_eq!(
+        pending("ClearList.getCountryCodeByAddress", vec![s("country-user")]),
+        obj(&[
+            ("address", s("country-user")),
+            ("countryCode", s("CA")),
+            ("blockHeight", n(10.0))
+        ])
+    );
+    assert_eq!(pending("ClearList.getBanlist", vec![]), V::Undefined);
+    assert_eq!(
+        pending(
+            "ClearList.isAddressInClearlistOrDerived",
+            vec![n(2.0), s("LLRHKXLUaVyAxD9t8FcePDZ3QyBf7E4gu5")]
+        ),
+        V::Bool(true)
+    );
+    assert_eq!(
+        pending(
+            "ClearList.isAddressInClearlistOrDerived",
+            vec![n(2.0), s("LfGbj43McivNU79HPE2tPbfDUrw1qeCeww")]
+        ),
+        V::Bool(true)
+    );
+    assert_eq!(
+        pending(
+            "ClearList.isAddressInClearlistOrDerived",
+            vec![n(1.0), s("LLRHKXLUaVyAxD9t8FcePDZ3QyBf7E4gu5")]
+        ),
+        V::Bool(false)
+    );
+    assert_eq!(
+        backend.invoke(&call("Property.createToken", vec![s("fabricated")])),
+        Err(SourceRuleError::UnknownDependency)
+    );
+    assert_eq!(
+        backend.invoke(&call(
+            "ClearList.addAttestation",
+            vec![n(1.0), s("forbidden"), s("x"), n(1.0)]
+        )),
+        Err(SourceRuleError::UnknownDependency)
+    );
+    assert!(
+        state.ledger().property(1.try_into().unwrap()).is_none(),
+        "declared catalog circulation never creates Ledger funds"
+    );
+    assert_eq!(
+        state.snapshot_bytes().unwrap(),
+        before,
+        "read clone leaves the economic owner immutable"
+    );
+}
+
+#[test]
+fn rejected_actual_source_validation_keeps_real_loaded_cache_in_pending_backend() {
+    let state = actual_catalog_state();
+    let before = state.snapshot_bytes().unwrap();
+    let mut backend = owner_backend(&state);
+    assert!(matches!(
+        backend
+            .invoke(&call(
+                "ClearList.verifyAdmin",
+                vec![n(1.0), s("list-admin")]
+            ))
+            .unwrap(),
+        DependencyReturn::PendingThrow(_)
+    ));
+    let evaluation = validity_source::evaluate_unverified(
+        &SourceCall {
+            method: "validateIssueOrRevokeAttestation".into(),
+            arguments: vec![
+                s("outsider"),
+                obj(&[
+                    ("id", n(1.0)),
+                    ("targetAddress", s("attested")),
+                    ("metaData", s("x")),
+                    ("revoke", V::Bool(false)),
+                    ("ref", V::Bool(false)),
+                    ("block", n(1.0)),
+                ]),
+                s("txid"),
+            ],
+        },
+        &mut backend,
+    )
+    .unwrap();
+    let SourceOutcome::Returned(result) = evaluation.outcome else {
+        panic!("genuine source validation unexpectedly threw");
+    };
+    assert_eq!(result.get("valid"), V::Bool(false));
+    let V::String(reason) = result.get("reason") else {
+        panic!()
+    };
+    assert!(reason.contains("not authorized"));
+    assert_eq!(
+        backend
+            .invoke(&call(
+                "ClearList.verifyAdmin",
+                vec![n(1.0), s("list-admin")]
+            ))
+            .unwrap(),
+        DependencyReturn::Pending(V::Bool(true))
+    );
+    assert_eq!(state.snapshot_bytes().unwrap(), before);
+}
+
 #[test]
 fn actual_contract_reserve_margin_and_free_balance_remain_distinct_on_three_mainnets() {
     for network in [
@@ -284,6 +499,76 @@ fn source_sufficiency_preserves_missing_channel_shape_and_half_up_shortfall() {
             Err(SourceRuleError::UnsupportedNumericDomain)
         );
     }
+}
+
+#[test]
+fn tally_singleton_array_property_keys_read_the_same_sole_ledger_and_missing_keys_return_zero() {
+    let chain = chain(TradeLayerMainnet::Bitcoin, 10 * ATOMS);
+    let before = chain.checkpoint_bytes().unwrap();
+    let expected = read(&chain, "Tally.getTally", vec![s("alice"), n(7.0)]).unwrap();
+    for property in [
+        V::Array(vec![n(7.0)]),
+        V::Array(vec![s("7")]),
+        V::Array(vec![V::Array(vec![n(7.0)])]),
+    ] {
+        assert_eq!(
+            read(&chain, "Tally.getTally", vec![s("alice"), property.clone()]).unwrap(),
+            expected
+        );
+        assert_eq!(
+            read(
+                &chain,
+                "Tally.hasSufficientBalance",
+                vec![s("alice"), property, n(3.0)]
+            )
+            .unwrap()
+            .get("hasSufficient"),
+            V::Bool(true)
+        );
+    }
+    for property in [
+        V::Array(vec![]),
+        V::Array(vec![n(7.0), n(8.0)]),
+        V::Array(vec![s("07")]),
+        V::Array(vec![V::Null]),
+        V::Array(vec![n(f64::NAN)]),
+        V::Array(vec![V::Bool(true)]),
+        V::Array(vec![obj(&[])]),
+    ] {
+        assert_eq!(
+            read(&chain, "Tally.getTally", vec![s("alice"), property.clone()]).unwrap(),
+            n(0.0)
+        );
+        let sufficient = read(
+            &chain,
+            "Tally.hasSufficientBalance",
+            vec![s("alice"), property, n(3.0)],
+        )
+        .unwrap();
+        assert_eq!(
+            sufficient,
+            obj(&[
+                ("hasSufficient", V::Bool(false)),
+                ("reason", s("undefined")),
+                ("shortfall", n(3.0))
+            ])
+        );
+    }
+    assert_eq!(
+        read(&chain, "Tally.getTally", vec![s("alice"), s("07")]),
+        Err(SourceRuleError::InvalidInput)
+    );
+    for name in ["constructor", "__proto__", "toString", "hasOwnProperty"] {
+        assert_eq!(
+            read(
+                &chain,
+                "Tally.getTally",
+                vec![s("alice"), V::Array(vec![s(name)])]
+            ),
+            Err(SourceRuleError::InvalidInput)
+        );
+    }
+    assert_eq!(chain.checkpoint_bytes().unwrap(), before);
 }
 
 #[test]
@@ -407,6 +692,141 @@ fn missing_metadata_evidence_and_noncanonical_query_domains_are_explicit_errors(
         read(&chain, "Contract.getContractInfo", vec![n(1.0)]).unwrap(),
         V::Null
     );
+}
+
+#[test]
+fn address_format_projection_is_bound_to_mainnet_and_checks_real_checksums() {
+    // Base58 fixtures use genuine installed bitcore Base58Check over a zero
+    // hash160. Witness fixtures include the published BIP350 valid vectors.
+    let base58 = [
+        ("1111111111111111111114oLvT2", [true, false, false]),
+        ("31h1vYVSYuKP6AhS86fbRdMw9XHieotbST", [true, true, false]),
+        ("LKDxGDJq5fF4FohAB8zJH24mDDNHDNtqsE", [false, true, false]),
+        ("M7uAERuQW2AotfyLDyewFGcLUDtAYu9v5V", [false, true, false]),
+        ("D596YFweJQuHY1BbjazZYmAbt8jJPbKehC", [false, false, true]),
+        ("9rSGfPZLcyCGzY4uYEL1fkzJr6fkicS2rs", [false, false, true]),
+        ("mfWxJ45yp2SFn7UciZyNpvDKrzbhyfKrY8", [false, false, false]),
+        ("1111111111111111111114oLvT3", [false, false, false]),
+    ];
+    let witness = [
+        (
+            "BC1QW508D6QEJXTDG4Y5R3ZARVARY0C5XW7KV8F3T4",
+            [true, false, false],
+        ),
+        (
+            "bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0",
+            [true, false, false],
+        ),
+        ("BC1SW50QGDZ25J", [true, false, false]),
+        (
+            "ltc1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp9ysmq",
+            [false, true, false],
+        ),
+        (
+            "ltc1qa0kd2d39nmeph3hvcx8ytv65ztcywg5sazhtw8",
+            [false, false, false],
+        ),
+        (
+            "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kemeawh",
+            [false, false, false],
+        ),
+        (
+            "bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqh2y7hd",
+            [false, false, false],
+        ),
+        ("bc1pw5dgrnzv", [false, false, false]),
+        (
+            "BC1QR508D6QEJXTDG4Y5R3ZARVARYV98GJ9P",
+            [false, false, false],
+        ),
+        (
+            "bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7v07qwwzcrf",
+            [false, false, false],
+        ),
+        (
+            "bc1QW508D6QEJXTDG4Y5R3ZARVARY0C5XW7KV8F3T4",
+            [false, false, false],
+        ),
+    ];
+    for (index, network) in [
+        TradeLayerMainnet::Bitcoin,
+        TradeLayerMainnet::Litecoin,
+        TradeLayerMainnet::Dogecoin,
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let chain = chain(network, ATOMS);
+        for (address, expected) in base58.into_iter().chain(witness) {
+            let result = read(&chain, "TxUtils.validateAddressWrapper", vec![s(address)]).unwrap();
+            assert_eq!(
+                result,
+                obj(&[("isvalid", V::Bool(expected[index]))]),
+                "{network:?} {address}"
+            );
+        }
+        assert_eq!(
+            read(
+                &chain,
+                "TxUtils.validateAddressWrapper",
+                vec![s("not-an-address")]
+            )
+            .unwrap()
+            .get("isvalid"),
+            V::Bool(false)
+        );
+    }
+    let chain = chain(TradeLayerMainnet::Litecoin, ATOMS);
+    assert_eq!(
+        read(
+            &chain,
+            "TxUtils.validateAddressWrapper",
+            vec![s("ltcmweb1unsupported")]
+        ),
+        Err(SourceRuleError::UnknownDependency)
+    );
+    assert_eq!(
+        read(&chain, "TxUtils.validateAddressWrapper", vec![V::Null]),
+        Err(SourceRuleError::InvalidInput)
+    );
+    assert_eq!(
+        read(&chain, "TxUtils.getTransactionOutputs", vec![s("txid")]),
+        Err(SourceRuleError::UnknownDependency)
+    );
+}
+
+#[test]
+fn actual_bech32_dependency_keeps_sync_checksum_semantics() {
+    let chain = chain(TradeLayerMainnet::Bitcoin, ATOMS);
+    let mut backend = EconomicSourceBackend::from_chain_unverified(&chain, chain.tip()).unwrap();
+    let decoded = backend
+        .invoke(&call(
+            "Bech32.decode",
+            vec![s("BC1QW508D6QEJXTDG4Y5R3ZARVARY0C5XW7KV8F3T4")],
+        ))
+        .unwrap();
+    let DependencyReturn::Immediate(decoded) = decoded else {
+        panic!("Bech32 decoding must stay synchronous");
+    };
+    assert_eq!(decoded.get("prefix"), s("bc"));
+    let V::Array(words) = decoded.get("words") else {
+        panic!()
+    };
+    assert_eq!(words[0], n(0.0));
+    assert_eq!(words.len(), 33);
+    // Source imports legacy bech32.decode, so Bech32m reaches the genuine
+    // format wrapper after the source validator's caught decoder error.
+    assert!(matches!(
+        backend
+            .invoke(&call(
+                "Bech32.decode",
+                vec![s(
+                    "bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0"
+                )]
+            ))
+            .unwrap(),
+        DependencyReturn::Throw(_)
+    ));
 }
 
 struct Directory(PathBuf);
