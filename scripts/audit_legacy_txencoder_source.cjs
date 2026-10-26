@@ -4,8 +4,8 @@
 /*
  * File 7/49: run ACTUAL pinned txEncoder.js and Types.encodePayload,
  * checked byte-for-byte against archived Git blobs. Only mock imports are
- * provided, with exact safe numeric inputs: no wallet, network, chain,
- * native BigNumber package, validator, signing key or live DB.
+ * provided, with exact safe numeric inputs and the genuine archived
+ * BigNumber9.3.1 dependency: no wallet, network, chain, validator, key or DB.
  *
  * The output strings are source expressions, NOT send-ready transactions.
  */
@@ -14,9 +14,11 @@ const fs=require("node:fs");
 const crypto=require("node:crypto");
 const path=require("node:path");
 const vm=require("node:vm");
+const {loadBigNumber}=require("./legacy_numeric_oracle.cjs");
+const BigNumber=loadBigNumber();
 const ROOT=path.resolve(__dirname,"..");
 function source(relative,sha) {
- const raw=fs.readFileSync(path.join(ROOT,relative));
+ const raw=Buffer.from(fs.readFileSync(path.join(ROOT,relative),"utf8").replace(/\r\n/g,"\n"));
  const header=Buffer.from("blob "+raw.length+"\0");
  const computed=crypto.createHash("sha1").update(Buffer.concat([header,raw])).digest("hex");
  assert.equal(computed,sha);
@@ -29,17 +31,6 @@ const decoderSrc=source("fixtures/legacy_types_source_txDecoder.txt",
 const typesSrc=source("fixtures/legacy_types_source_types.txt",
  "fb894e8a25d560cc9481f9913aedf003fdde382f");
 
-class NumberStub {
- constructor(v,radix) {this.num=radix===36?parseInt(v,36):Number(v)}
- times(v) {return new NumberStub(this.num*Number(v))}
- div(v) {return new NumberStub(this.num/Number(v))}
- dividedBy(v) {return this.div(v)}
- integerValue() {return new NumberStub(Math.trunc(this.num))}
- decimalPlaces() {return this}
- toString(radix) {return this.num.toString(radix||10)}
- toNumber() {return this.num}
-}
-NumberStub.ROUND_DOWN=1;
 const silence={log(){},warn(){},error(){}};
 function load(content, imports) {
  const fakeModule={exports:{}};
@@ -55,14 +46,14 @@ function load(content, imports) {
  return fakeModule.exports;
 }
 const encoder=load(encoderSrc,{
- "bignumber.js":NumberStub,"./base94.js":{},"./base256.js":{}
+ "bignumber.js":BigNumber,"./base94.js":{},"./base256.js":{}
 });
 const decoder=load(decoderSrc,{
- "bignumber.js":NumberStub,"./base94.js":{},"./base256.js":{}
+ "bignumber.js":BigNumber,"./base94.js":{},"./base256.js":{}
 });
 const types=load(typesSrc,{
  "./txEncoder":encoder,"./txDecoder":decoder,"./validity":{},
- "./txUtils":{},"./txIndex.js":{},"bignumber.js":NumberStub
+ "./txUtils":{},"./txIndex.js":{},"bignumber.js":BigNumber
 });
 const long="C".repeat(43);
 const zeroHash="0".repeat(62)+"ff";
@@ -146,6 +137,7 @@ const cases=[
 ];
 const golden=fs.readFileSync(
  path.join(ROOT,"fixtures/legacy_txencoder_source_vectors.tsv"),"utf8")
+ .replace(/\r\n/g,"\n")
  .split("\n").filter(s=>s&&!s.startsWith("#")&&!s.startsWith("tag\t"))
  .map(s=>s.split("\t"));
 assert.equal(cases.length,22);assert.equal(golden.length,22);

@@ -1,63 +1,74 @@
-# File 6/49 — txDecoder.js bounded typed source parity
+# txDecoder.js: complete bounded historical observations
 
-Pinned upstream: patrickdugan/tradelayer.js@dca0888b827c5bc28fa9189bc9e1d507f5c5670c, src/txDecoder.js (659 lines). Its byte-identical Git-blob-verified archive already exists as fixtures/legacy_types_source_txDecoder.txt after File5/49. Baseline Rust main 761f4678.
+Pinned source: `patrickdugan/tradelayer.js@dca0888b827c5bc28fa9189bc9e1d507f5c5670c`, `src/txDecoder.js`. The full unchanged archive is `fixtures/legacy_types_source_txDecoder.txt`, LF SHA256 `8a395367be182141129be6f5a96ec2cf334bc4376edfccd0b7dcacafd8f5a885`, Git blob `4728f1bdce1190428f91ae5b02f380584073c431`. CRLF checkout bytes are normalized to the archived LF source before verification and execution.
 
-This is a read-only, bounded implementation of selected **post-type-selector BODY decoders**, not a consensus parser. An independently authenticated historical transaction requires chain source, actual first-input sender and UTXO evidence, historical activation/list state, the *correct* versioned wire carrier, and economic and channel authorization. None is supplied here. The current crate-wide strict wire parser, Registry, Ledger, clearing, channels and market adapters are unchanged, with zero third-party Rust crates.
+`source_decode_historical_method_unverified` implements all **36 active exported methods** for caller-supplied string arguments. `source_decode_historical_type_unverified` follows the existing source Types route inventory: 32 exported body decoders, four absent route names, and no invented aliases. These are observations of a historical decoder, not accepted transactions or new wire rules. They supply no chain, UTXO, sender, activation, clearlist, oracle, custody, channel, proof, or economic authorization. The existing strict parser and accepted runtime are separate.
 
-## Implemented source decoder subset
+The original ten-layout `source_decode_body_unverified` API remains compatible with its existing callers and 17 shared fixtures. That older API deliberately rejects noncanonical numbers, malformed bracket lists, framed text, Unicode/control characters, and unsafe atomic integers. It is a restricted research projection. The new historical API represents the source results instead of imposing those restrictions silently.
 
-New src/legacy_txdecoder_audit.rs consumes explicitly selected source type number and caller-provided body text (NOT a serialized transaction or OP_RETURN). It returns an UnverifiedDecodedBody and **never an accepted transaction**.
+## Complete active inventory
 
-| Source type | Source-pinned fields | Compatibility boundaries |
+| Type / helper | Active method | Source behavior retained |
 |---|---|---|
-| 4 — Commit Token | Numeric or s-1-a synthetic property ID, 1e-8 token-atomic amount, literal direct channel or raw text after ref:, pay flag, singleton or bracketed clearLists, colored flag, optional commitClearlistId | The JS decoder FIRST splits every comma. For [7,b], the index holding the list becomes [7 and numeric parseInt yields NaN; following fields shift. Rust refuses explicit BracketedListSplitBeforeParsing. Missing parts[2] makes JS startsWith throw. The normal direct and singleton-list paths are characterized, not authorized. |
-| 7 — Create Whitelist | Backup, name, URL, description with JS missing-field empty-string fallbacks | No independent address, list allocation or sender verification |
-| 8 — Update Admin | New address, three literal ==1 flags, base36 target ID, updateBackup flag | No historic getList admin/list authority, in-memory DB continuity or address checks |
-| 9 — Issue/Revoke Attestation | Only literal first field 1 is revoke, base36 list ID, target string, uppercase metadata | Calling parts[3].toUpperCase throws when fourth field absent. If caller passes raw post-marker type-selector 91 as the revoke field instead of 1, revoke becomes false. No claimed attestation may authorize clearlist execution |
-| 15 — Close Oracle | Standalone primitive parseInt(base36) number | Source Types.js also calls the WRONG publish-oracle validator on this primitive. No oracle-close authority |
-| 21 — Withdrawal | withdrawAll, property, 1e-8 atoms, source column flag, direct channel or ref with **decimal parseInt** and NaN -> false | Withdrawal numeric ref has different semantics from Type4/22 text refs. No queue mutation or payout |
-| 22 — Channel Transfer | property, atoms, isColumnA flag, direct destination or raw text ref, pay and payRef | Missing parts[3].startsWith throws. No channel balance movement or whitelist approval |
-| 30 — Oracle Stake/Fraud/Relay | 13 ordered source action, oracle, amount, actor, hash, DLC, relay and auto-roll fields | No actual proof verification, oracle state or validator permissions |
-| 32 — ZK Batch Move | Original opaque ordinalRevealJSON | Types.js does not invoke the Type32 validator; no proof verification |
-| 33 — Colored Coin | Decimal action, base36 property/ratio, home address | Types.js does not invoke the Type33 validator; no colored-UTXO/procedural authority |
+| Helper | `decodeAmount` | Trailing `~` selects `parseInt(base36)` → Number → BigNumber /1e8; otherwise the integer Number is returned. It differs from exact base36 BigNumber amount parsing. |
+| 0 | `decodeActivateTradeLayer` | Decimal integer prefixes; semicolon branch filters invalid elements, single invalid value remains NaN; missing codeHash remains an own undefined field. |
+| 1 | `decodeTokenIssue` | Integer initial amount, semicolon whitelist values, literal `1` flags, nullable proceduralType. |
+| 2 | `decodeSend` | Send-all, four/five-field scalar branch shadowing comma multi-send, multi-send array with missing amounts undefined, dropped address, unmatched shape returning undefined. |
+| Helper | `decodePropertyId` | Regular integer prefixes and both `s1-a` / `s-1-a` forms; malformed synthetic forms return literal `s-NaN-NaN`; parsed Number text is preserved. |
+| 3 | `decodeTradeTokenForUTXO` | Exact base36 BigNumber amount /1e8, eight-place truncation toward zero, mixed decimal/base36 fields, nullable withdrawal tag. |
+| 4 | `decodeCommitToken` | Source comma splitting before bracket-list parsing, missing channel TypeError, raw text after `ref:`, nullable final list ID. |
+| 5 | `decodeOnChainTokenForToken` | Two synthetic-capable IDs and two exact base36 amount fields. |
+| 6 | `decodeCancelOrder` | Loose Number comparison to one, UTF16 txid-length branch, raw contract price, undefined desired ID for contract orders, source spot-price bug reading cancelAll and dividing by8. |
+| 7 | `decodeCreateWhitelist` | Four string fallbacks, including missing fields. |
+| 8 | `decodeUpdateAdmin` | Literal string flags and base36 target ID. |
+| 9 | `decodeIssueOrRevokeAttestation` | Literal revoke flag, Unicode uppercase metadata, missing fourth-field TypeError. |
+| 10 | `decodeAMMPool` | Integer quantities without atom scaling, ignored index6, decimal auto-radix option selectors at indexes7/8, opaque strategy. |
+| 11 | `decodeGrantManagedToken` | Exact amount, trailing DLC hash overrides the legacy hash slot. |
+| 12 | `decodeRedeemManagedToken` | Exact amount and DLC metadata fields. |
+| 13 | `decodeCreateOracle` | Semicolon whitelist and base36 lag. |
+| 14 | `decodePublishOracleData` | Integer Number → BigNumber /1e4 price; optional high/low/close remain unscaled integers. |
+| 15 | `decodeCloseOracle` | Primitive integer result, not an object. |
+| 16 | `decodeCreateFutureContractSeries` | Source parses on-chain pairs only when native is false; nullable pair entries; integer notional; parseFloat-prefix leverage; nullable expiry and series. |
+| 17 | `decodeExerciseDerivative` | Two integer quantities without atom scaling. |
+| 18 | `decodeTradeContractOnchain` | Integer Number price with `||0`, BigNumber /1e8 without the token-amount truncation; all source flags. |
+| 19 | `decodeTradeContractChannel` | Same price pipeline, channel expiry and maker/seller flags. |
+| 20 | `decodeTradeTokensChannel` | Exact amounts, synthetic IDs, expiry, offerer/maker and two colored-output flags. |
+| 21 | `decodeWithdrawal` | Optional reference uses decimal prefix parsing and finite-or-false, preserving signed zero and negative references. |
+| 22 | `decodeTransfer` | Missing destination TypeError and raw text reference, distinct from withdrawal. |
+| 23 | `decodeSettleChannelPNL` | Later duplicate wins; raw txid strings, genuine Base94 numeric conversion and optional own undefined king fields. |
+| 24 | `decodeMintSynthetic` | Synthetic-aware property helper plus exact amount. |
+| 25 | `decodeRedeemSynthetic` | Plain base36 property parsing: `s-1-a` becomes integer28, unlike mint. |
+| 26 | `decodePayToTokens` | Two plain integer IDs and exact amount. |
+| 27 | `decodeOptionTrade` | Ticker alias, flagged amount helper, any seventh field creates combo keys even if empty. |
+| 30 | `decodeStakeFraudProof` | All 13 stake/fraud/relay/DLC fields, exact amount, literal autoRoll. |
+| 31 | `decodeKingSettle` | Genuine Base94 conversion, integer versus float projections, channel root. |
+| 32 | `decodeBatchMoveZkRollup` | Entire input retained as opaque text, including Unicode, control bytes and apparent framing. |
+| 33 | `decodeColoredCoin` | Decimal action and plain base36 ID/ratio without missing-field fallback. |
+| Helper | `decodePublishNewTx` | Entire opaque string; no implicit proof/JSON validation. |
+| Helper | `decodeAbstractionBridge` | Two plain base36 fields; no destination field and no Type34 route alias. |
 
-Additional non-authorizing helper source_decode_property_id_unverified models both the source synthetic identifiers s-1-a and s1-a as collateral ID 1, contract ID 10. The standalone decodeAbstractionBridge helper is characterized separately, but the source Types.js Type34 dispatcher calls a DIFFERENT absent decoder named decodeCrossLayerBridge. No implicit alias is installed. The file also freezes the fact that a second, later base94-based decodeSettleChannelPNL declaration shadows the first base256-based declaration in the source JavaScript object literal. Actual Type23 economic settlement bytes are **not decoded or admitted** by this module.
+There are 37 method declarations but 36 active exports because `decodeSettleChannelPNL` occurs twice. The earlier Base256 txid decoder is unreachable through the exported object. The reference runner loads the genuine Base256 module and instruments calls; every observed active path makes zero Base256 calls. Base256 is independently functional in `legacy_base`; the decoder does not revive this shadowed branch. Types28/29/34/35 route to absent exports, including Type34's `decodeCrossLayerBridge` rather than the existing standalone abstraction helper.
 
-## Independent pinned-source test evidence
+## Values, numbers, and source failures
 
-fixtures/legacy_txdecoder_body_vectors.tsv freezes 17 shared direct body cases, including normal and erroneous inputs. scripts/audit_legacy_txdecoder_source.cjs independently checks the Git blob ID for the archived *exact historical source*, runs that source in an isolated Node VM with mock-only BigNumber/Base94/Base256 dependencies, and checks:
-- Normal type4 direct, synthetic property/ref and one-member list, and the comma-bracket NaN misparse
-- Actual Type4/22 indexed-field TypeError and Type9 missing metadata TypeError
-- Type7/8/9 field booleans, id base36, metadata uppercase, and selector/body confusion
-- Distinct Type4/22 **raw text** references versus Type21 **decimal number/false** reference
-- Numeric oracle-close return and Type30 13-field mapping
-- Type32/33 decoder values with no valid flag or invoked validator
-- The later duplicate Type23 base94 decoder being called and the shadowed base256 method never invoked
-- A separate source decodeSend multi-send shape which is intercepted by the scalar four-field branch, dropping multi-property values
-- Source Type34 exported helper name vs missing dispatch method
+`HistoricalValue` retains ordered own object fields, arrays, strings, booleans, null, undefined, NaN, infinities, and signed zero. Its deterministic tagged diagnostic JSON encodes finite numbers as their exact binary64 bits. Consequently the fixtures can distinguish omitted fields from own undefined fields, NaN from null, and negative zero from positive zero. It is not a transaction serializer. `HistoricalDecodedBody` keeps the method and value privately; authorization methods always fail.
 
-tests/legacy_txdecoder_audit.rs exercises exactly the same 17 cases plus synthetic property forms, unsupported types, malformed numeric IDs, blocked oversized/Unicode/control text, ambiguous framed or nested payloads, missing source exports, the Type23 shadow and all permanent authorization denials. No historical source JS library is imported in Rust production, and no crypto credentials, RPC or live chain calls are used.
+Numbers follow the actual pinned source call boundary. `parseInt` accepts signed prefixes and the ECMAScript whitespace set; decimal/auto-hex parsing and parseFloat-prefix leverage are distinct. The reference V8 radix36 path skips leading zeros and accumulates five-digit chunks; the Rust diagnostic policy freezes that observed behavior even beyond safe integers. ECMAScript permits implementation-dependent approximation for some radix36 values, so this is a characterized host numeric policy, not a claim of universal cross-engine consensus portability. Missing unguarded fields are coerced to the string `undefined` by parseInt; in base36 this can be a finite number.
 
-### Explicit defensive divergence from legacy permissive JS
+BigNumber9.3.1 explicit-base36 inputs use the real constructor's case/normalization rules, 20-place half-up conversion/division and source eight-place truncation where called. Number inputs first use the shared exact JS Number formatter. Positive/negative zero and nonfinite values remain observations. Base94 uses the existing exact source port and genuine archived converter reference: the literal default `0` represents Base94 digit15, `|` collides with the fractional separator, and fractional leading zeros are lost. These defects are preserved rather than repaired.
 
-The original decode methods often use parseInt with partial-string acceptance, JavaScript Number rounding/NaN, permissive Unicode or missing-field defaults. Rust currently supports only canonical whole-field base36 and decimal numbers, printable ASCII body text bounded by 4096 bytes, and safely representable 1e-8 atomic amounts at most 2^53-1. Malformed source values are **errors** and never auto-coerced into economic amounts. These are source-research safety restrictions, NOT equivalent historical consensus validation. The read-only result records caller-claimed fields and no source permission.
+Missing indexed `.startsWith`, `.includes` and `.toUpperCase` reads produce typed `SourceThrow` observations. Base alphabet failures retain their source Error message. Strings are accepted as UTF8 within the bounded domain; arbitrary non-string JS argument coercion and lone UTF16 surrogates are not part of this Rust API. Source error messages are compared after the Node reference runner’s UTF8 projection; a lone surrogate in a non-BMP invalid-digit error becomes U+FFFD. Source logging and the sloppy global assignment inside `decodeSend` are not reproduced as process effects.
 
-Authorization methods require_historically_accepted_transaction(), require_accepted_registry_transition(), require_canonical_signed_channel_revision(), require_trusted_execution(), and the standalone bridge helper's authorization method ALWAYS return an error, including for syntactically valid bodies.
+## Bounds and evidence
 
-## Remaining txDecoder.js port
+Body inputs are limited to 4096 UTF8 bytes and method names to 128 bytes before splitting or cloning. Public diagnostic rendering preflights 32 levels, 32768 value nodes and 512KiB raw text, then caps the escaped output at 512KiB. BigNumber normalization retries are capped at 32, including repeated matching radix prefixes. Over-budget work returns Capacity. These explicit resource boundaries do not strengthen historical acceptance rules; the source itself has no comparable body limit. Unicode uppercasing follows the pinned Rust Unicode tables, with the checked source corpus covering case expansion and non-ASCII metadata; exhaustive cross-version Unicode parity is not asserted.
 
-The existing Rust wire parser covers limited earlier Type0/1/2/11/12 layouts. This stage adds the ten methods above for diagnostic parity. Remaining complete typed decoders include Type3 UTXO trade, Types5/6 spot and cancellation, Types10/13/14 AMM/oracle, Types16-20 derivative/channel trading, Types23/24-29 economics, Type31 King Settle and other source helper variants; many require base94/base256, full state, BigNumber corner cases and versioned syntactic structures. Type28/29/34/35 are ABSENT source method exports rather than functional decoding code to port. Strict standalone base36 amount, type2 multi-send, Type23 duplicated method and missing source validity flags need their own compatibility/audit decisions before any production handler is enabled.
+`scripts/audit_legacy_txdecoder_source.cjs --check` executes the full unchanged source with genuine, SHA-pinned BigNumber9.3.1, Base94, Base256 and bigint-base-converter sources. It preserves the original 17 fixture assertions and regenerates/checks `fixtures/legacy_txdecoder_historical_vectors.tsv`: **1447 observations across all 36 exports**, including 512 seeded long radix36 cases, missing and empty fields, signed/partial numeric values, exact amount fractions, mixed-case failures, synthetic IDs, branch shadows, UTF16 length checks, duplicate settlement behavior and dispatch-name absence. The Rust corpus test compares the complete tagged output or exact source error name/message for every row; additional tests check caller bounds, authorization denial, unchanged strict API behavior and concrete malformed-branch outcomes.
 
-The one-file-per-turn sequence next addresses **7/49 txEncoder.js**. It must independently verify source inner-prefix variants and malformed numerical encodings before choosing a new canonical wire format. Never let a read-only decoder report or apparent source JavaScript decoded object enter a trusted ledger, margin engine, chain reorg or off-chain channel settlement without independent proofs and ratified protocol versioning. Issue #80 remains open.
+Offline source check:
 
-## Offline acceptance
+```text
+node scripts/audit_legacy_txdecoder_source.cjs --check
+```
 
-    node scripts/audit_legacy_txdecoder_source.cjs
-    python3 scripts/check_rust_supply_chain.py
-    cargo fmt --all -- --check
-    cargo clippy --all-targets --frozen -- -D warnings
-    cargo test --frozen --test legacy_txdecoder_audit
-    cargo test --frozen
-    cargo build --all-targets --release --frozen
-
-No new Rust crates, wallet keys, nodes, signet transactions, mainnet funds or production execution.
+The parent validation batch runs pinned formatting, Clippy, the targeted Rust tests and full suite. Full historical transaction acceptance still requires independently authenticated carrier/chain/UTXO/sender evidence, versioned source runtime rules, state and activation, proof verification and funded economic integration. Complete function observation coverage does not supply those capabilities.

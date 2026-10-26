@@ -20,18 +20,22 @@ do not complete native/dated/multicontract orchestration, full validity rules,
 insurance/ADL or chain authentication; no source module is promoted to complete.
 
 [PARITY_ROADMAP.csv](PARITY_ROADMAP.csv) contains all 49 JavaScript source
-modules, excluding the experimental README. It records twenty-three assessed
-modules below; the other 26 retain their prior implementation assessment.
+modules, excluding the experimental README. It records twenty-seven assessed
+modules below; the other 22 retain their prior implementation assessment.
 The insurance and property rows additionally record external-worker assignments.
 It supplements the historical [full-tree inventory](JS_RUST_PORT_AUDIT.md),
 whose earlier mappings and assessment commit are preserved.
 
-[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 462
+[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 590
 source entries with their tested domains, Rust tests and remaining criteria.
 None of these rows or modules is marked as a complete production port.
 
 | Module | Implemented and verified scope | Remaining completion criteria |
 | --- | --- | --- |
+| `client.js` | All source members mapped and 21 RPC wrapper routes; 68 source observations; concrete bounded Core HTTP/JSON transport, cookie rotation, wallet routing and explicit three-mainnet/genesis readiness | Real Core interoperability, daemon integration, TLS/pooling/testnet/DNS deployment and authenticated chain admission |
+| `scaling.js` | All 18 source methods, 167 observations; keepalive/close/net/king metadata, explicit expiry repairs, complete replay checkpoint and real immutable-Ledger custody plans | Signed revisions/root/UTXO rotation, actual sole-Ledger settlement/margin integration, durable migration and historical acceptance |
+| `txEncoder.js` | All 39 exported methods, genuine source numeric/string/framing/coercion vectors and separate dispatch defects | Broader Number radix36/Unicode domains, historical acceptance and authenticated wire-to-execution integration |
+| `txDecoder.js` | All 36 active exports, genuine complete-source numeric/malformed/base vectors and later Type23 shadow behavior | Target-engine promotion and historical chain corpus, raw-transaction/signature/admission integration |
 | `adjuster.js` | Constructor and all three methods; 641 finite source rows and 19 source-only observations; exact tick/minimum and event order with atomic complete replayed metadata | Applying policy to orders, production persistence, wider JS domains and historical acceptance |
 | `issuanceIntent.js` | All three methods; 321 source observations; arbitrary bounded ordered JSON, upsert/query, source ID quirks, nested address arrays and strict full replay | Functional metadata repair differs from the source missing DB category; token issuance authority, production persistence and broader NeDB/historical behavior |
 | `stateOracle.js` | All six functions; 2319 complete-source numeric/payload/encoding/hash observations; immutable available-only Ledger queries, source locale/JSON bytes and separate strict decode | Signed state provenance/relay integration, other locale/Unicode/nonfinite domains and historical payload corpus |
@@ -539,3 +543,23 @@ with AMM disabled. The actual price, margin and fee caller contexts still need
 accepted contract-catalog binding; this funded policy does not establish source
 historical acceptance or authenticated execution. No branch was pushed and no
 GitHub CI, Lean or Kani result is claimed.
+
+## Core RPC, complete wire source coverage and L2 lifecycle
+
+The local node client now provides actual bounded HTTP requests rather than
+only offline RPC evidence tooling. Source routing/defaults remain separately
+characterized; node readiness binds independently expected mainnet/genesis and
+never silently changes the configured chain. Loopback tests use mock nodes and
+do not execute real wallet operations or prove a deployed Core integration.
+
+The encoder and decoder cover every active source export inside their named
+bounded domains. Source framing disagreements, missing dispatch exports,
+undefined/nonfinite values and engine-specific rounding remain observable.
+These helpers still require the real authenticated raw-transaction admission
+pipeline; complete function inventory does not establish historical acceptance.
+
+The scaling owner adds source settlement metadata and explicit safe lifecycle
+repairs with complete checkpoint replay. Its King settlement consumes immutable
+Ledger custody observations and returns a checked transfer plan. It does not
+claim a co-signature, rotate UTXOs or mutate a separate spendable balance store.
+All four module completion gates remain open in the 49-file ledger.

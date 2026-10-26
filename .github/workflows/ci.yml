@@ -36,6 +36,8 @@ jobs:
         run: cargo fmt --all -- --check
       - name: Check included snapshot file formatting
         run: rustfmt --check --edition 2021 src/registry_snapshot_impl.rs src/execution_snapshot_impl.rs src/ledger_channels_impl.rs src/ledger_settlement_impl.rs
+      - name: Check included bounded RPC parser formatting
+        run: rustfmt --check --edition 2021 src/rpc_json_impl.rs src/rpc_http_impl.rs
       - name: Check included spot snapshot file formatting
         run: rustfmt --check --edition 2021 src/spot_snapshot_impl.rs
       - name: Check included joint snapshot file formatting
@@ -68,6 +70,9 @@ jobs:
           node scripts/adjuster_vectors.cjs --check
           node scripts/issuance_intent_vectors.cjs --check
           node scripts/state_oracle_vectors.cjs --check
+          node scripts/client_vectors.cjs
+          node scripts/scaling_vectors.cjs
+          node scripts/txencoder_vectors.cjs
           node scripts/oracle_vectors.cjs
           node scripts/amm_vectors.cjs
           node scripts/margin_map_vectors.cjs

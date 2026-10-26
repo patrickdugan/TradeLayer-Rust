@@ -1,0 +1,69 @@
+# pinned client.js source observations; SHA256 dc8cf76301825e865a92d7b0e6028ccbe06c600a79e1e5cdcf59ac366cc6212e
+B	{"defaultChain":"LTC","env":{}}	{"chain":"LTC","host":"127.0.0.1","port":9332,"timeout":60000,"locked":false,"wallet":null}
+B	{"defaultChain":"LTCTEST","env":{}}	{"chain":"LTCTEST","host":"127.0.0.1","port":19332,"timeout":60000,"locked":false,"wallet":null}
+B	{"defaultChain":"BTC","env":{}}	{"chain":"BTC","host":"127.0.0.1","port":8332,"timeout":60000,"locked":false,"wallet":null}
+B	{"defaultChain":"DOGE","env":{}}	{"chain":"DOGE","host":"127.0.0.1","port":22555,"timeout":60000,"locked":false,"wallet":null}
+B	{"defaultChain":"BTCTEST","env":{}}	{"chain":"BTCTEST","host":"127.0.0.1","port":18332,"timeout":60000,"locked":false,"wallet":null}
+B	{"defaultChain":"DOGETEST","env":{}}	{"chain":"DOGETEST","host":"127.0.0.1","port":44555,"timeout":60000,"locked":false,"wallet":null}
+B	{"defaultChain":"LTC","env":{"CHAIN":"btc"}}	{"chain":"BTC","host":"127.0.0.1","port":8332,"timeout":60000,"locked":true,"wallet":null}
+B	{"defaultChain":"LTC","env":{"CHAIN":"doge","RPC_HOST":"::1","TIMEOUT_MS":"2500"}}	{"chain":"DOGE","host":"::1","port":22555,"timeout":2500,"locked":true,"wallet":null}
+B	{"defaultChain":"LTC","env":{"CHAIN":"BTCTEST"}}	{"chain":"LTC","host":"127.0.0.1","port":9332,"timeout":60000,"locked":true,"wallet":null}
+B	{"defaultChain":"BTC","env":{"AUTODETECT":"0"}}	{"chain":"BTC","host":"127.0.0.1","port":8332,"timeout":60000,"locked":true,"wallet":null}
+B	{"defaultChain":"LTC","env":{"RPC_PORT":"19443"}}	{"chain":"LTC","host":"127.0.0.1","port":19443,"timeout":60000,"locked":true,"wallet":null}
+B	{"defaultChain":"LTC","env":{"RPC_PORT":"0x208d"}}	{"chain":"LTC","host":"127.0.0.1","port":8333,"timeout":60000,"locked":true,"wallet":null}
+B	{"defaultChain":"LTC","env":{"RPC_PORT":"1e4","TIMEOUT_MS":"3e3"}}	{"chain":"LTC","host":"127.0.0.1","port":10000,"timeout":3000,"locked":true,"wallet":null}
+B	{"defaultChain":"LTC","env":{"RPC_WALLET":"first","LTC_WALLET":"second","WALLET_NAME":"third"}}	{"chain":"LTC","host":"127.0.0.1","port":9332,"timeout":60000,"locked":false,"wallet":"/wallet/first"}
+B	{"defaultChain":"LTC","env":{"LTC_WALLET":"second","WALLET_NAME":"third"}}	{"chain":"LTC","host":"127.0.0.1","port":9332,"timeout":60000,"locked":false,"wallet":"/wallet/second"}
+B	{"defaultChain":"LTC","env":{"WALLET_NAME":"third"}}	{"chain":"LTC","host":"127.0.0.1","port":9332,"timeout":60000,"locked":false,"wallet":"/wallet/third"}
+R	{"wrapper":"getBlockchainInfo","args":[],"wallet":null}	{"method":"getblockchaininfo","params":[],"path":null}
+R	{"wrapper":"getRawTransaction","args":["tx"],"wallet":null}	{"method":"getrawtransaction","params":["tx",true],"path":null}
+R	{"wrapper":"getRawTransaction","args":["tx",false,"ignored"],"wallet":null}	{"method":"getrawtransaction","params":["tx",false],"path":null}
+R	{"wrapper":"getnewaddress","args":[],"wallet":null}	{"method":"getnewaddress","params":[],"path":null}
+R	{"wrapper":"sendtoaddress","args":["destination",1.25],"wallet":null}	{"method":"sendtoaddress","params":["destination",1.25],"path":null}
+R	{"wrapper":"getNetworkInfo","args":[],"wallet":null}	{"method":"getnetworkinfo","params":[],"path":null}
+R	{"wrapper":"getTransaction","args":["tx"],"wallet":null}	{"method":"gettransaction","params":["tx"],"path":null}
+R	{"wrapper":"getBlock","args":["hash"],"wallet":null}	{"method":"getblock","params":["hash"],"path":null}
+R	{"wrapper":"getBlockHash","args":[123],"wallet":null}	{"method":"getblockhash","params":[123],"path":null}
+R	{"wrapper":"createRawTransaction","args":[[{"txid":"prev","vout":0}],{"dest":1}],"wallet":null}	{"method":"createrawtransaction","params":[[{"txid":"prev","vout":0}],{"dest":1}],"path":null}
+R	{"wrapper":"listUnspent","args":[6,100,["address"]],"wallet":null}	{"method":"listunspent","params":[6,100,["address"]],"path":null}
+R	{"wrapper":"decoderawtransaction","args":["00"],"wallet":null}	{"method":"decoderawtransaction","params":["00"],"path":null}
+R	{"wrapper":"signrawtransactionwithwallet","args":["00"],"wallet":null}	{"method":"signrawtransactionwithwallet","params":["00"],"path":null}
+R	{"wrapper":"dumpprivkey","args":["address"],"wallet":null}	{"method":"dumpprivkey","params":["address"],"path":null}
+R	{"wrapper":"sendrawtransaction","args":["00"],"wallet":null}	{"method":"sendrawtransaction","params":["00"],"path":null}
+R	{"wrapper":"validateAddress","args":["address"],"wallet":null}	{"method":"validateaddress","params":["address"],"path":null}
+R	{"wrapper":"getBlockCount","args":[],"wallet":null}	{"method":"getblockcount","params":[],"path":null}
+R	{"wrapper":"loadWallet","args":["wallet"],"wallet":null}	{"method":"loadwallet","params":["wallet"],"path":null}
+R	{"wrapper":"listlabels","args":["receive"],"wallet":null}	{"method":"listlabels","params":["receive"],"path":null}
+R	{"wrapper":"getaddressesbylabel","args":["label"],"wallet":null}	{"method":"getaddressesbylabel","params":["label"],"path":null}
+R	{"wrapper":"getwalletinfo","args":[],"wallet":null}	{"method":"getwalletinfo","params":[],"path":null}
+R	{"wrapper":"listunspent","args":[99],"wallet":null}	{"method":"listunspent","params":[],"path":null}
+R	{"wrapper":"getBlockchainInfo","args":[],"wallet":"wallet/a b?#雪"}	{"method":"getblockchaininfo","params":[],"path":null}
+R	{"wrapper":"getRawTransaction","args":["tx"],"wallet":"wallet/a b?#雪"}	{"method":"getrawtransaction","params":["tx",true],"path":null}
+R	{"wrapper":"getRawTransaction","args":["tx",false,"ignored"],"wallet":"wallet/a b?#雪"}	{"method":"getrawtransaction","params":["tx",false],"path":null}
+R	{"wrapper":"getnewaddress","args":[],"wallet":"wallet/a b?#雪"}	{"method":"getnewaddress","params":[],"path":null}
+R	{"wrapper":"sendtoaddress","args":["destination",1.25],"wallet":"wallet/a b?#雪"}	{"method":"sendtoaddress","params":["destination",1.25],"path":null}
+R	{"wrapper":"getNetworkInfo","args":[],"wallet":"wallet/a b?#雪"}	{"method":"getnetworkinfo","params":[],"path":null}
+R	{"wrapper":"getTransaction","args":["tx"],"wallet":"wallet/a b?#雪"}	{"method":"gettransaction","params":["tx"],"path":null}
+R	{"wrapper":"getBlock","args":["hash"],"wallet":"wallet/a b?#雪"}	{"method":"getblock","params":["hash"],"path":null}
+R	{"wrapper":"getBlockHash","args":[123],"wallet":"wallet/a b?#雪"}	{"method":"getblockhash","params":[123],"path":null}
+R	{"wrapper":"createRawTransaction","args":[[{"txid":"prev","vout":0}],{"dest":1}],"wallet":"wallet/a b?#雪"}	{"method":"createrawtransaction","params":[[{"txid":"prev","vout":0}],{"dest":1}],"path":null}
+R	{"wrapper":"listUnspent","args":[6,100,["address"]],"wallet":"wallet/a b?#雪"}	{"method":"listunspent","params":[6,100,["address"]],"path":"/wallet/wallet/a b?#雪"}
+R	{"wrapper":"decoderawtransaction","args":["00"],"wallet":"wallet/a b?#雪"}	{"method":"decoderawtransaction","params":["00"],"path":null}
+R	{"wrapper":"signrawtransactionwithwallet","args":["00"],"wallet":"wallet/a b?#雪"}	{"method":"signrawtransactionwithwallet","params":["00"],"path":"/wallet/wallet/a b?#雪"}
+R	{"wrapper":"dumpprivkey","args":["address"],"wallet":"wallet/a b?#雪"}	{"method":"dumpprivkey","params":["address"],"path":"/wallet/wallet/a b?#雪"}
+R	{"wrapper":"sendrawtransaction","args":["00"],"wallet":"wallet/a b?#雪"}	{"method":"sendrawtransaction","params":["00"],"path":null}
+R	{"wrapper":"validateAddress","args":["address"],"wallet":"wallet/a b?#雪"}	{"method":"validateaddress","params":["address"],"path":null}
+R	{"wrapper":"getBlockCount","args":[],"wallet":"wallet/a b?#雪"}	{"method":"getblockcount","params":[],"path":null}
+R	{"wrapper":"loadWallet","args":["wallet"],"wallet":"wallet/a b?#雪"}	{"method":"loadwallet","params":["wallet"],"path":null}
+R	{"wrapper":"listlabels","args":["receive"],"wallet":"wallet/a b?#雪"}	{"method":"listlabels","params":["receive"],"path":"/wallet/wallet/a b?#雪"}
+R	{"wrapper":"getaddressesbylabel","args":["label"],"wallet":"wallet/a b?#雪"}	{"method":"getaddressesbylabel","params":["label"],"path":"/wallet/wallet/a b?#雪"}
+R	{"wrapper":"getwalletinfo","args":[],"wallet":"wallet/a b?#雪"}	{"method":"getwalletinfo","params":[],"path":"/wallet/wallet/a b?#雪"}
+R	{"wrapper":"listunspent","args":[99],"wallet":"wallet/a b?#雪"}	{"method":"listunspent","params":[],"path":"/wallet/wallet/a b?#雪"}
+C	"/LitecoinCore:1/"	"LTC"
+C	"/BitcoinCore:1/"	"BTC"
+C	"/Dogecoin:1/"	"DOGE"
+C	"/Satoshi:1/"	null
+C	"/Shibetoshi:1/"	null
+C	"bitcoin+litecoin"	"LTC"
+C	"unknown"	null
+OBS	"locked-init"	{"chain":"LTC","isInitializing":true}

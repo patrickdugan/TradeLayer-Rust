@@ -1,4 +1,5 @@
 //! File 7/49: source txEncoder.js strings, no spend-ready output or authority.
+use tradelayer_core::issuance_intent::JsonValue;
 use tradelayer_core::legacy_txdecoder_audit::{
     source_decode_body_unverified, LegacyDecoderError, UnverifiedSourceBody,
 };
@@ -15,7 +16,215 @@ use tradelayer_core::legacy_txencoder_audit::{
     LegacyEncoderError, SourceEncoderCaveat, SourceInnerEnvelope, SourceRevokeArgument,
     UnverifiedSourceEncoding, ATOMS_PER_TOKEN, JS_SAFE_INTEGER, MAX_SOURCE_LIST_IDS,
 };
+use tradelayer_core::legacy_txencoder_audit::{
+    source_encode_method_unverified, SourceEncoderReturn, SOURCE_ENCODER_METHODS,
+};
 use tradelayer_core::legacy_types_audit::{GenericEnvelopeKind, LegacyTypesError};
+
+fn encoder_unhex(value: &str) -> String {
+    if value == "-" {
+        return String::new();
+    }
+    assert!(value.len().is_multiple_of(2));
+    String::from_utf8(
+        value
+            .as_bytes()
+            .chunks_exact(2)
+            .map(|pair| u8::from_str_radix(core::str::from_utf8(pair).unwrap(), 16).unwrap())
+            .collect(),
+    )
+    .unwrap()
+}
+
+#[test]
+fn all_39_complete_source_methods_match_genuine_bignumber_differential_vectors() {
+    let mut methods = std::collections::BTreeSet::new();
+    let mut count = 0;
+    for line in include_str!("../fixtures/txencoder_vectors.tsv")
+        .lines()
+        .filter(|line| !line.starts_with('#') && !line.is_empty())
+    {
+        let cells: Vec<_> = line.split('\t').collect();
+        assert_eq!(cells.len(), 6, "{line}");
+        assert_eq!(cells[0], "V");
+        let input = JsonValue::parse(&encoder_unhex(cells[3])).unwrap();
+        let result = source_encode_method_unverified(cells[2], &input)
+            .unwrap_or_else(|error| panic!("{} {}: {error:?}", cells[1], cells[2]));
+        if cells[4] == "undefined" {
+            assert_eq!(result, SourceEncoderReturn::Undefined, "{}", cells[1]);
+        } else {
+            assert_eq!(cells[4], "string");
+            assert_eq!(
+                result.source_string().unwrap(),
+                encoder_unhex(cells[5]),
+                "{} {}",
+                cells[1],
+                cells[2]
+            );
+        }
+        if let SourceEncoderReturn::Encoding(encoding) = result {
+            assert_eq!(
+                encoding.require_trusted_execution(),
+                Err(LegacyEncoderError::TrustedEconomicExecutionForbidden)
+            );
+            assert_eq!(
+                encoding.require_historically_accepted_transaction(),
+                Err(LegacyEncoderError::HistoricalTransactionNotAuthenticated)
+            );
+        }
+        methods.insert(cells[2]);
+        count += 1;
+    }
+    assert_eq!(count, 434);
+    assert_eq!(methods, SOURCE_ENCODER_METHODS.iter().copied().collect());
+    assert_eq!(methods.len(), 39);
+}
+
+fn source_json(method: &str, text: &str) -> Result<SourceEncoderReturn, LegacyEncoderError> {
+    source_encode_method_unverified(method, &JsonValue::parse(text).unwrap())
+}
+
+#[test]
+fn source_json_distinguishes_string_number_null_missing_and_undefined() {
+    let text = |method: &str, json: &str| {
+        source_json(method, json)
+            .unwrap()
+            .source_string()
+            .unwrap()
+            .to_owned()
+    };
+    assert_eq!(text("encodePropertyId", "36"), "10");
+    assert_eq!(text("encodePropertyId", "\"36\""), "36");
+    assert_eq!(text("encodePropertyId", "null"), "0");
+    assert_eq!(text("encodeAmount", "90071992.54740991"), "2gosa7pa2gu");
+    assert_eq!(text("encodeAmount", "\"90071992.54740991\""), "2gosa7pa2gv");
+    assert_eq!(text("encodePropertyId", "\"s-bad-36\""), "s-NaN-10");
+    assert_eq!(text("encodeSend", r#"{"sendAll":true}"#), "1;undefined");
+    assert_eq!(
+        text("encodeSend", r#"{"sendAll":true,"address":null}"#),
+        "1;null"
+    );
+    assert_eq!(
+        text("encodeIssueOrRevokeAttestation", r#"{"revoke":true}"#),
+        "tl9true,0,,"
+    );
+    assert_eq!(
+        source_json("encodeBatchSettlement", "null").unwrap(),
+        SourceEncoderReturn::Undefined
+    );
+    assert_eq!(text("encodeCloseOracle", "{}"), "tlf");
+}
+
+#[test]
+fn source_half_up_contract_price_and_truncated_stake_are_distinct() {
+    let contract = source_json(
+        "encodeTradeContractOnchain",
+        r#"{"price":"-0.000000005","amount":1}"#,
+    )
+    .unwrap();
+    let stake = source_json("encodeStakeFraudProof", r#"{"amount":"-0.000000005"}"#).unwrap();
+    assert_eq!(contract.source_string(), Some("tli0,-1,1,0,0,0,0,0"));
+    assert_eq!(stake.source_string(), Some("tlu0,0,0,0,,,0,,,,,0,"));
+    let fractional = source_json(
+        "encodeCommit",
+        r#"{"amount":"0.000000001","channelAddress":"c"}"#,
+    )
+    .unwrap();
+    // Genuine BigNumber base36 uses twenty fractional places, unlike Number.
+    assert_eq!(
+        fractional.source_string(),
+        Some("tl40,0.3llllllllllllllllllm,c,0,,0")
+    );
+}
+
+#[test]
+fn source_base94_and_batch_json_keep_ambiguous_delimiters_and_order() {
+    let result = source_json(
+        "encodeSettleChannelPNL",
+        r#"{"markPrice":"1.001","netAmount":91}"#,
+    )
+    .unwrap();
+    assert_eq!(result.source_string(), Some("tln,,\"|\",0,0,0,|,!"));
+    let batch = source_json(
+        "encodeBatchMoveZkRollup",
+        r#"{"payments":[],"miscLogic":{"z":1,"2":"two","1":"one"},"miscData":null}"#,
+    )
+    .unwrap();
+    assert_eq!(
+        batch.source_string(),
+        Some("||{\"1\":\"one\",\"2\":\"two\",\"z\":1}|null")
+    );
+    if let SourceEncoderReturn::Encoding(encoding) = batch {
+        assert_eq!(encoding.type_id(), 32);
+        assert_eq!(
+            encoding.source_inner_prefix_shape(),
+            SourceInnerEnvelope::BodyOnly
+        );
+    } else {
+        panic!("batch move must have an encoding result");
+    }
+}
+
+#[test]
+fn generic_encoder_bounds_are_explicit_and_failed_calls_do_not_rewrite_input() {
+    let input = JsonValue::parse(r#"{"propertyId":0.5,"amount":1,"address":"alice"}"#).unwrap();
+    let before = input.clone();
+    assert_eq!(
+        source_encode_method_unverified("encodeSend", &input),
+        Err(LegacyEncoderError::UnsupportedNumberRadix36)
+    );
+    assert_eq!(input, before);
+    assert_eq!(
+        source_json("encodePropertyId", "9007199254740992"),
+        Err(LegacyEncoderError::UnsupportedNumberRadix36)
+    );
+    assert_eq!(
+        source_json("encodeAmount", "\"Infinity\""),
+        Err(LegacyEncoderError::UnsupportedNumericCoercion)
+    );
+    assert_eq!(
+        source_json("encodePropertyId", r#"{"toString":"non-callable"}"#),
+        Err(LegacyEncoderError::UnsupportedNumericCoercion)
+    );
+    assert_eq!(
+        source_json("encodeCommit", r#"{"amount":1}"#),
+        Err(LegacyEncoderError::MissingOrMalformedField)
+    );
+    assert_eq!(
+        source_json("encodeCommitToken", "{}"),
+        Err(LegacyEncoderError::UnknownSourceMethod)
+    );
+    assert_eq!(
+        source_json(
+            "encodeCreateFutureContractSeries",
+            r#"{"onChainData":{"length":1}}"#
+        ),
+        Err(LegacyEncoderError::MissingOrMalformedField)
+    );
+    assert_eq!(
+        source_json("encodeBindSmartContract", r#"{"hostChain":"\n"}"#),
+        Err(LegacyEncoderError::NonPrintableAscii)
+    );
+    let input = JsonValue::parse(&format!(
+        r#"{{"whitelists":[{}]}}"#,
+        vec!["0"; 65].join(",")
+    ))
+    .unwrap();
+    assert_eq!(
+        source_encode_method_unverified("encodeTokenIssue", &input),
+        Err(LegacyEncoderError::TooManyListIds)
+    );
+    let input = JsonValue::String("a".repeat(4097));
+    assert_eq!(
+        source_encode_method_unverified("encodePropertyId", &input),
+        Err(LegacyEncoderError::SourceReturnTooLong)
+    );
+    let input = JsonValue::String("a".repeat(32768));
+    assert_eq!(
+        source_encode_method_unverified("encodePropertyId", &input),
+        Err(LegacyEncoderError::JsonInputLimit)
+    );
+}
 
 fn source_case(tag: &str, long: &str, code_hash: &str) -> UnverifiedSourceEncoding {
     match tag {

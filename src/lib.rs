@@ -29,6 +29,7 @@ pub mod clearing_chain; // Stage 25D unverified combined spot-clearing rollback 
 pub mod clearing_math; // Stage 24A diagnostic loss, funding and PnL equations; no ledger writes.
 pub mod clearing_pnl; // Stage 25C read-only per-address PnL and residual projection.
 pub mod clearing_sandbox; // Stage 25A isolated single-ledger derivative margin and funding research.
+pub mod client; // Bounded Core HTTP JSON-RPC; readiness is bound to network and genesis.
 mod codec; // Bounded, checksummed snapshot codec.
 pub mod contract_orderbook; // Source matching metadata; custody stays in the economic owner.
 pub mod contract_registry;
@@ -75,6 +76,7 @@ pub mod registry; // Standalone tx0/7-9/13-15 registry state; authentication ext
 pub mod reorg; // Source RPC tip observations; never authorization to roll back.
 pub mod reporting; // Atomic network-scoped offline spot history and volume observations.
 pub mod root_reconciliation; // Read-only TLPT and zkTL metadata consistency.
+pub mod scaling; // Bounded L2 settlement lifecycle and checked channel custody plans.
 pub mod spot; // Stage 19 isolated type-5/6 rational matching experiment; unverified.
 pub mod spot_chain; // Stage 20 typed unverified spot block replay and complete TLSP/TLSC checkpoints.
 pub mod state_commitment; // Experimental domain-separated state and transition metadata; no proof verifier.

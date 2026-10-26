@@ -408,3 +408,255 @@ fn no_record_can_authorize_ledger_clearlist_channel_or_economics() {
         );
     }
 }
+
+use tradelayer_core::legacy_txdecoder_audit::{
+    source_decode_historical_method_unverified, source_decode_historical_type_unverified,
+    HistoricalDecoderError, HistoricalValue, HISTORICAL_DECODER_METHODS,
+    MAX_HISTORICAL_OUTPUT_BYTES,
+};
+
+fn historical_hex(raw: &str) -> String {
+    if raw == "-" {
+        return String::new();
+    }
+    assert_eq!(raw.len() % 2, 0);
+    String::from_utf8(
+        raw.as_bytes()
+            .chunks_exact(2)
+            .map(|pair| u8::from_str_radix(core::str::from_utf8(pair).unwrap(), 16).unwrap())
+            .collect(),
+    )
+    .unwrap()
+}
+
+#[test]
+fn complete_historical_source_corpus_matches_every_active_method() {
+    let mut covered = std::collections::BTreeSet::new();
+    let mut failures = Vec::new();
+    let mut count = 0;
+    for line in include_str!("../fixtures/legacy_txdecoder_historical_vectors.tsv")
+        .lines()
+        .filter(|line| !line.is_empty() && !line.starts_with('#'))
+    {
+        let fields: Vec<_> = line.split('\t').collect();
+        let method = fields[0];
+        let body = historical_hex(fields[2]);
+        covered.insert(method);
+        count += 1;
+        let actual = source_decode_historical_method_unverified(method, &body);
+        let mismatch = match fields[3] {
+            "ok" => {
+                let expected = historical_hex(fields[4]);
+                match actual {
+                    Ok(observation) => match observation.diagnostic_json() {
+                        Ok(json) if json == expected => None,
+                        other => Some(format!("expected {expected}; actual {other:?}")),
+                    },
+                    Err(error) => Some(format!("expected {expected}; error {error:?}")),
+                }
+            }
+            "throw" => {
+                let message = historical_hex(fields[5]);
+                match actual {
+                    Err(HistoricalDecoderError::SourceThrow {
+                        name,
+                        message: actual_message,
+                    }) if name == fields[4] && message == actual_message => None,
+                    other => Some(format!(
+                        "expected {} {message}; actual {other:?}",
+                        fields[4]
+                    )),
+                }
+            }
+            other => panic!("unknown source result {other}"),
+        };
+        if let Some(mismatch) = mismatch {
+            failures.push(format!("{method}/{} body={body:?}: {mismatch}", fields[1]));
+        }
+    }
+    assert_eq!(count, 1447);
+    assert_eq!(
+        covered,
+        HISTORICAL_DECODER_METHODS.iter().copied().collect()
+    );
+    assert!(
+        failures.is_empty(),
+        "{} mismatches:\n{}",
+        failures.len(),
+        failures
+            .iter()
+            .take(30)
+            .cloned()
+            .collect::<Vec<_>>()
+            .join("\n")
+    );
+}
+
+#[test]
+fn historical_values_preserve_missing_nonfinite_and_signed_zero() {
+    let missing =
+        source_decode_historical_method_unverified("decodeActivateTradeLayer", "").unwrap();
+    assert_eq!(
+        missing.value().get("codeHash"),
+        Some(&HistoricalValue::Undefined)
+    );
+    assert!(missing.diagnostic_json().unwrap().contains("NaN"));
+    let zero = source_decode_historical_method_unverified("decodeAmount", "-0~").unwrap();
+    let HistoricalValue::Number(zero) = zero.value() else {
+        panic!("number expected")
+    };
+    assert_eq!(zero.as_f64().to_bits(), (-0.0_f64).to_bits());
+    let malformed =
+        source_decode_historical_method_unverified("decodeCommitToken", "7,a,chan,1,[7,b],1,2")
+            .unwrap();
+    assert!(malformed.diagnostic_json().unwrap().contains("NaN"));
+    assert_eq!(
+        decode(4, "7,a,chan,1,[7,b],1,2"),
+        Err(LegacyDecoderError::BracketedListSplitBeforeParsing)
+    );
+    for text in ["Infinity", "-Infinity"] {
+        assert!(source_decode_historical_method_unverified(
+            "decodeTradeTokenForUTXO",
+            &format!("7,{text},0,0")
+        )
+        .unwrap()
+        .diagnostic_json()
+        .unwrap()
+        .contains(text));
+    }
+}
+
+#[test]
+fn historical_dispatch_is_complete_without_aliases_or_implicit_frame_stripping() {
+    for ty in (0..=27).chain(30..=33) {
+        let result = source_decode_historical_type_unverified(ty, "");
+        assert!(
+            !matches!(result, Err(HistoricalDecoderError::MissingMethod(_))),
+            "{ty}"
+        );
+    }
+    for ty in [28, 29, 34, 35, 36, 255] {
+        assert!(matches!(
+            source_decode_historical_type_unverified(ty, ""),
+            Err(HistoricalDecoderError::MissingMethod(_))
+        ));
+    }
+    assert!(source_decode_historical_method_unverified("decodeAbstractionBridge", "a,b").is_ok());
+    assert!(matches!(
+        source_decode_historical_method_unverified("decodeCrossLayerBridge", "a,b"),
+        Err(HistoricalDecoderError::MissingMethod(_))
+    ));
+    let opaque =
+        source_decode_historical_method_unverified("decodePublishNewTx", "tl32☃\u{0000}\n")
+            .unwrap();
+    assert_eq!(
+        opaque.value().get("ordinalRevealJSON"),
+        Some(&HistoricalValue::String("tl32☃\u{0000}\n".into()))
+    );
+    let framed = source_decode_historical_method_unverified(
+        "decodeIssueOrRevokeAttestation",
+        "tl91,7,alice,ok",
+    )
+    .unwrap();
+    assert_eq!(
+        framed.value().get("revoke"),
+        Some(&HistoricalValue::Bool(false))
+    );
+}
+
+#[test]
+fn historical_malformed_and_shadowed_paths_are_observations_not_repairs() {
+    let decode = |method, body| source_decode_historical_method_unverified(method, body).unwrap();
+    assert_eq!(
+        decode("decodeSend", "0;alice;7").value(),
+        &HistoricalValue::Undefined
+    );
+    let send = decode("decodeSend", "0;alice;5,7;a,b;1;1");
+    assert_eq!(send.value().get("address"), None);
+    let cancel = decode("decodeCancelOrder", "0,7,b,8,99,1");
+    assert_eq!(
+        cancel.value().get("isContract"),
+        Some(&HistoricalValue::Bool(false))
+    );
+    let HistoricalValue::Number(price) = cancel
+        .value()
+        .get("cancelParams")
+        .unwrap()
+        .get("price")
+        .unwrap()
+    else {
+        panic!("price expected")
+    };
+    assert_eq!(price.as_f64(), 1.0); // Source reads cancelAll (8), then divides by8.
+    let mint = decode("decodeMintSynthetic", "s-1-a,1,a");
+    let redeem = decode("decodeRedeemSynthetic", "s-1-a,1,a");
+    assert_eq!(
+        mint.value().get("propertyId"),
+        Some(&HistoricalValue::String("s-1-10".into()))
+    );
+    let HistoricalValue::Number(property) = redeem.value().get("propertyId").unwrap() else {
+        panic!("number expected")
+    };
+    assert_eq!(property.as_f64(), 28.0);
+    let settle = decode("decodeSettleChannelPNL", "");
+    let HistoricalValue::Number(mark) = settle.value().get("markPrice").unwrap() else {
+        panic!("number expected")
+    };
+    assert_eq!(mark.as_f64(), 15.0); // Base94 '0' is digit15.
+    assert_eq!(settle.value().get("close"), None);
+    assert_eq!(
+        settle.value().get("blockStart"),
+        Some(&HistoricalValue::Undefined)
+    );
+}
+
+#[test]
+fn historical_resource_errors_precede_output_clones_and_authority_stays_absent() {
+    assert_eq!(
+        source_decode_historical_method_unverified(&"x".repeat(129), ""),
+        Err(HistoricalDecoderError::Capacity)
+    );
+    let nested_radix = format!("0,7,b,{}1,99,1", "0x".repeat(34));
+    assert_eq!(
+        source_decode_historical_method_unverified("decodeCancelOrder", &nested_radix),
+        Err(HistoricalDecoderError::Capacity)
+    );
+    for body in ["x".repeat(4097), "☃".repeat(1366)] {
+        assert_eq!(
+            source_decode_historical_method_unverified("decodePublishNewTx", &body),
+            Err(HistoricalDecoderError::Capacity)
+        );
+    }
+    assert!(
+        source_decode_historical_method_unverified("decodePublishNewTx", &"x".repeat(4096)).is_ok()
+    );
+    let mut value = HistoricalValue::Null;
+    for _ in 0..34 {
+        value = HistoricalValue::Array(vec![value]);
+    }
+    assert_eq!(
+        value.diagnostic_json(),
+        Err(HistoricalDecoderError::Capacity)
+    );
+    assert_eq!(
+        HistoricalValue::String("x".repeat(MAX_HISTORICAL_OUTPUT_BYTES + 1)).diagnostic_json(),
+        Err(HistoricalDecoderError::Capacity)
+    );
+    let many = HistoricalValue::Array(vec![HistoricalValue::Null; 32769]);
+    assert_eq!(
+        many.diagnostic_json(),
+        Err(HistoricalDecoderError::Capacity)
+    );
+    for method in HISTORICAL_DECODER_METHODS {
+        if let Ok(observation) = source_decode_historical_method_unverified(method, "") {
+            assert_eq!(
+                observation.require_trusted_execution(),
+                Err(LegacyDecoderError::TrustedEconomicExecutionForbidden)
+            );
+            assert_eq!(
+                observation.require_historically_accepted_transaction(),
+                Err(LegacyDecoderError::HistoricalTransactionNotAuthenticated)
+            );
+        }
+    }
+}

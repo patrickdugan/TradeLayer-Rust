@@ -24,11 +24,18 @@ fixtures/legacy_init_source.txt -text -whitespace
 fixtures/legacy_persistence_source.txt -text -whitespace
 fixtures/legacy_reorg_source.txt -text -whitespace
 fixtures/legacy_clearing_source.txt -text -whitespace
+fixtures/legacy_client_source.txt -text -whitespace
+fixtures/legacy_scaling_source.txt -text -whitespace
 
 # Node fixture generators compare exact bytes across Windows and Linux.
 fixtures/adjuster_vectors.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/issuance_intent_vectors.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/state_oracle_vectors.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/client_vectors.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/scaling_vectors.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/txencoder_vectors.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/txencoder_quirks.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/legacy_txdecoder_historical_vectors.tsv text eol=lf whitespace=-blank-at-eol
 # Empty final TSV fields are meaningful, including the terminal separator.
 fixtures/legacy_base_vectors.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/trade_history_vectors.tsv text eol=lf
