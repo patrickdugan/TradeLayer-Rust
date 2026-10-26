@@ -31,6 +31,12 @@ pub enum MarkEventKind {
         maker_txid: TxId,
         distressed_owner: AccountId,
     },
+    AmmForced {
+        epoch_id: TxId,
+        fill_index: u32,
+        pool_id: u32,
+        distressed_owner: AccountId,
+    },
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MarkEventEntry {
@@ -318,6 +324,19 @@ impl EconomicState {
                 }
             }))
             .chain(self.liquidation.events.iter().map(|e| e.id))
+            .chain(
+                self.amm
+                    .frames
+                    .iter()
+                    .filter_map(|frame| frame.quote_epoch.as_ref().map(|e| e.id)),
+            )
+            .chain(
+                self.amm
+                    .frames
+                    .iter()
+                    .filter(|frame| !frame.released_quotes.is_empty())
+                    .map(|frame| self.amm_invalidation_id(frame.height)),
+            )
         {
             if !expected.insert(id) {
                 return Err(EconomicError::Invariant);
@@ -372,6 +391,7 @@ impl EconomicState {
         let mut receipts = self.receipts.iter();
         let mut ious = IouStore::new();
         let mut unpaid_losses = BTreeMap::new();
+        let mut capital_frames = self.amm.frames.iter().peekable();
         let mut funding_epochs = self.funding.epochs.iter().peekable();
         let mut publications = BTreeSet::new();
         let mut pool = 0;
@@ -386,10 +406,24 @@ impl EconomicState {
             .ok_or(EconomicError::Invariant)?
             .total_supply_atoms;
         for event in &self.marking.events {
+            while capital_frames
+                .peek()
+                .is_some_and(|frame| frame.height <= event.height)
+            {
+                self.verify_amm_capital_boundary(
+                    capital_frames.next().ok_or(EconomicError::Invariant)?,
+                    &bases,
+                    &ious,
+                    &unpaid_losses,
+                )?;
+            }
             while funding_epochs.peek().is_some_and(|e| {
                 e.height < event.height
                     || (e.height == event.height
-                        && matches!(event.kind, MarkEventKind::Forced { .. }))
+                        && matches!(
+                            event.kind,
+                            MarkEventKind::Forced { .. } | MarkEventKind::AmmForced { .. }
+                        ))
             }) {
                 mark_verify_funding_positions(
                     funding_epochs.next().ok_or(EconomicError::Invariant)?,
@@ -400,7 +434,10 @@ impl EconomicState {
                 || event.height < last_height
                 || event.height > finalized
                 || (event.height == mark_height
-                    && !matches!(event.kind, MarkEventKind::Forced { .. }))
+                    && !matches!(
+                        event.kind,
+                        MarkEventKind::Forced { .. } | MarkEventKind::AmmForced { .. }
+                    ))
             {
                 return Err(EconomicError::Invariant);
             }
@@ -449,6 +486,12 @@ impl EconomicState {
                         return Err(EconomicError::Invariant);
                     }
                     self.verify_forced_mark_entry(event, &bases)?;
+                }
+                MarkEventKind::AmmForced { .. } => {
+                    if mark_height != event.height {
+                        return Err(EconomicError::Invariant);
+                    }
+                    self.verify_amm_forced_mark_entry(event, &bases)?;
                 }
                 MarkEventKind::Mark { id, observation } => {
                     mark_count += 1;
@@ -514,7 +557,7 @@ impl EconomicState {
                 obligations.push(obligation);
             }
             for (entry, (debt, _)) in event.entries.iter().zip(&obligations) {
-                normal_owner(&entry.owner)?;
+                self.participant_owner(&entry.owner)?;
                 if !owners.insert(&entry.owner)
                     || add(entry.available_atoms, entry.margin_atoms)? > supply
                 {
@@ -577,7 +620,29 @@ impl EconomicState {
             if paid != event.paid_claim_atoms {
                 return Err(EconomicError::Invariant);
             }
+            if self.config.amm.is_some() && matches!(event.kind, MarkEventKind::Mark { .. }) {
+                let epoch = self
+                    .amm
+                    .frames
+                    .iter()
+                    .find(|frame| frame.height == event.height)
+                    .and_then(|frame| frame.quote_epoch.as_ref())
+                    .ok_or(EconomicError::Invariant)?;
+                let owner = self.amm_owner()?;
+                if epoch.position_before
+                    != bases
+                        .get(&owner)
+                        .map_or_else(Decimal::zero, |b| b.quantity.clone())
+                    || epoch.unpaid_loss_before_atoms
+                        != unpaid_losses.get(&owner).copied().unwrap_or(0)
+                {
+                    return Err(EconomicError::Invariant);
+                }
+            }
             last_height = event.height;
+        }
+        for frame in capital_frames {
+            self.verify_amm_capital_boundary(frame, &bases, &ious, &unpaid_losses)?;
         }
         for epoch in funding_epochs {
             mark_verify_funding_positions(epoch, &bases)?;

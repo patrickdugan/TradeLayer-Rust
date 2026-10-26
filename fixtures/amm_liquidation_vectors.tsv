@@ -1,0 +1,24 @@
+# complete unchanged amm.js bfb4f5d94c1d4754ae9a17b646c42c4ffe62e077590d0a184ac8ddc0b38255b1; clearing.js 612d1ec49c1d5cc412d0072a194da4975c5232ba5294b81cd3097df11bff1528; BigNumber9.3.1; JS dca0888b827c5bc28fa9189bc9e1d507f5c5670c
+# kind	case	inverse	liquidation_sell	boundary	cap	input_levels	filled	matches	remaining_levels
+S	linear-buy-prefers-amm-over-better-real	0	0	101	1	real-better|carol|99|1|1;amm-ask|amm|100.4|0.5|1	0.5	0.5|100.4|distressed|amm|amm-ask	real-better|carol|99|1|1
+S	linear-sell-prefers-amm-over-better-real	0	1	99	1	real-better|carol|101|1|1;amm-bid|amm|99.6|0.5|1	0.5	0.5|99.6|amm|distressed|amm-bid	real-better|carol|101|1|1
+S	inverse-buy-reversal	1	0	101	1	below|amm|100|0.5|1;equal|amm|101|0.5|1;above|amm|102|0.5|1	1	0.5|101|distressed|amm|equal;0.5|102|distressed|amm|above	below|amm|100|0.5|1
+S	inverse-sell-reversal	1	1	99	1	above|amm|100|0.5|1;equal|amm|99|0.5|1;below|amm|98|0.5|1	1	0.5|99|amm|distressed|equal;0.5|98|amm|distressed|below	above|amm|100|0.5|1
+S	linear-buy-equal-inclusive	0	0	101	1	equal|amm|101|1|1;outside|amm|101.00000001|1|1	1	1|101|distressed|amm|equal	outside|amm|101.00000001|1|1
+S	linear-sell-equal-inclusive	0	1	99	1	equal|amm|99|1|1;outside|amm|98.99999999|1|1	1	1|99|amm|distressed|equal	outside|amm|98.99999999|1|1
+S	price-before-time	0	0	103	1	old-worse|amm|102|1|1;new-better|amm|100|1|2	1	1|100|distressed|amm|new-better	old-worse|amm|102|1|1
+S	time-tiebreak	0	0	101	1	new|amm|100|1|5;old|amm|100|1|3	1	1|100|distressed|amm|old	new|amm|100|1|5
+S	stable-equal-price-time	0	0	101	1	first|amm|100|1|1;second|amm|100|1|1	1	1|100|distressed|amm|first	second|amm|100|1|1
+S	partial-remainder	0	0	101	0.3	partial|amm|100|0.7|1	0.3	0.3|100|distressed|amm|partial	partial|amm|100|0.4|1
+S	zero-cap-no-mutation	0	0	101	0	zero|amm|100|0|1;positive|amm|100|1|1	0	-	zero|amm|100|0|1;positive|amm|100|1|1
+S	negative-cap-no-mutation	0	1	99	-1	positive|amm|100|1|1	0	-	positive|amm|100|1|1
+S	invalid-levels-skip	0	0	101	1	nan-price|amm|NaN|1|1;inf-amount|amm|100|Infinity|1;negative|amm|100|-1|1;valid|amm|100|1|1	1	1|0|distressed|amm|nan-price	inf-amount|amm|100|Infinity|1;valid|amm|100|1|1
+S	negative-price-source-acceptance	0	0	101	1	negative-price|amm|-1|1|1	1	1|-1|distressed|amm|negative-price	-
+S	zero-price-source-acceptance	0	0	101	1	zero-price|amm|0|1|1	1	1|0|distressed|amm|zero-price	-
+S	exact-take-number-bridge	0	0	101	0.33333333333333333333	fraction|amm|100|0.11111111111111111111|1;remainder|amm|100|1|1	0.3333333333333333	0.1111111111111111|100|distressed|amm|fraction;0.2222222222222222|100|distressed|amm|remainder	remainder|amm|100|0.7777777777777778|1
+S	large-number-price-bridge	0	0	9007199254740994	1	rounded-price|amm|9007199254740993|1|1	1	1|9007199254740992|distressed|amm|rounded-price	-
+S	amm-colon-not-selected	0	0	101	1	named-pool|amm:7|100|1|1;global-pool|amm|100|0.5|1	0.5	0.5|100|distressed|amm|global-pool	named-pool|amm:7|100|1|1
+Q	quote-to-sweep-0-0	0	0	121.2	1	amm-ask-7-24|amm|120.48|0.5|24	0.5	0.5|120.48|distressed|amm|amm-ask-7-24	-
+Q	quote-to-sweep-0-1	0	1	118.8	1	amm-bid-7-24|amm|119.52|0.5|24	0.5	0.5|119.52|amm|distressed|amm-bid-7-24	-
+Q	quote-to-sweep-1-0	1	0	121.2	1	amm-ask-7-24|amm|120.48|0.5|24	0	-	amm-ask-7-24|amm|120.48|0.5|24
+Q	quote-to-sweep-1-1	1	1	118.8	1	amm-bid-7-24|amm|119.52|0.5|24	0	-	amm-bid-7-24|amm|119.52|0.5|24

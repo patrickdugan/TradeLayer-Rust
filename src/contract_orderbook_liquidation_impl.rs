@@ -65,7 +65,27 @@ impl ContractOrderbook {
         request: &ReduceOnlyRequest,
         current_distressed_position: &Decimal,
     ) -> Result<Option<ReduceOnlyCandidate>> {
-        self.validate_reduce_only_request(request, current_distressed_position)?;
+        self.next_reduce_only_candidate_mode(request, current_distressed_position, None)
+    }
+    pub(crate) fn next_reduce_only_pool_candidate(
+        &self,
+        request: &ReduceOnlyRequest,
+        current_distressed_position: &Decimal,
+        registered_pool: &AccountId,
+    ) -> Result<Option<ReduceOnlyCandidate>> {
+        self.next_reduce_only_candidate_mode(
+            request,
+            current_distressed_position,
+            Some(registered_pool),
+        )
+    }
+    fn next_reduce_only_candidate_mode(
+        &self,
+        request: &ReduceOnlyRequest,
+        current_distressed_position: &Decimal,
+        registered_pool: Option<&AccountId>,
+    ) -> Result<Option<ReduceOnlyCandidate>> {
+        self.validate_reduce_only_request(request, current_distressed_position, registered_pool)?;
         let maker_side = match request.side {
             Side::Buy => Side::Sell,
             Side::Sell => Side::Buy,
@@ -115,12 +135,43 @@ impl ContractOrderbook {
         current_distressed_position: &Decimal,
         funded_quantity: &Decimal,
     ) -> Result<ReduceOnlyFill> {
+        self.consume_reduce_only_candidate_mode(
+            candidate,
+            current_distressed_position,
+            funded_quantity,
+            None,
+        )
+    }
+    pub(crate) fn consume_reduce_only_pool_candidate(
+        &mut self,
+        candidate: &ReduceOnlyCandidate,
+        current_distressed_position: &Decimal,
+        funded_quantity: &Decimal,
+        registered_pool: &AccountId,
+    ) -> Result<ReduceOnlyFill> {
+        self.consume_reduce_only_candidate_mode(
+            candidate,
+            current_distressed_position,
+            funded_quantity,
+            Some(registered_pool),
+        )
+    }
+    fn consume_reduce_only_candidate_mode(
+        &mut self,
+        candidate: &ReduceOnlyCandidate,
+        current_distressed_position: &Decimal,
+        funded_quantity: &Decimal,
+        registered_pool: Option<&AccountId>,
+    ) -> Result<ReduceOnlyFill> {
         if &candidate.position_before != current_distressed_position {
             return Err(BookError::StaleLiquidationCandidate);
         }
         positive(funded_quantity)?;
-        let fresh =
-            self.next_reduce_only_candidate(&candidate.request, current_distressed_position)?;
+        let fresh = self.next_reduce_only_candidate_mode(
+            &candidate.request,
+            current_distressed_position,
+            registered_pool,
+        )?;
         if fresh.as_ref() != Some(candidate) {
             return Err(BookError::StaleLiquidationCandidate);
         }
@@ -174,8 +225,15 @@ impl ContractOrderbook {
         &self,
         request: &ReduceOnlyRequest,
         current_position: &Decimal,
+        registered_pool: Option<&AccountId>,
     ) -> Result<()> {
-        validate_owner(&request.owner)?;
+        if let Some(pool) = registered_pool {
+            if &request.owner != pool || !pool.as_str().starts_with("~econ:") {
+                return Err(BookError::InvalidOwner);
+            }
+        } else {
+            validate_owner(&request.owner)?;
+        }
         validate_height(request.height)?;
         if request.height == 0
             || self.processed_through != Some(request.height)
@@ -520,5 +578,40 @@ mod liquidation_book_tests {
             pending.next_reduce_only_candidate(&valid, &d("1")),
             Err(BookError::InvalidHeight)
         );
+    }
+
+    #[test]
+    fn registered_pool_target_is_private_exact_and_does_not_enable_public_orders() {
+        let mut book = book(&[order(1, "maker", Side::Buy, "1", "100", 1, false)]);
+        let pool = account("~econ:pool123");
+        let mut req = request(Side::Sell, "0.5", "100");
+        req.owner = pool.clone();
+        let saved = book.clone();
+        assert_eq!(
+            book.next_reduce_only_candidate(&req, &d("1")),
+            Err(BookError::InvalidOwner)
+        );
+        assert_eq!(
+            book.next_reduce_only_pool_candidate(&req, &d("1"), &account("~econ:other")),
+            Err(BookError::InvalidOwner)
+        );
+        let projected = book
+            .next_reduce_only_pool_candidate(&req, &d("1"), &pool)
+            .unwrap()
+            .unwrap();
+        assert_eq!(
+            book.consume_reduce_only_candidate(&projected, &d("1"), &d("0.5")),
+            Err(BookError::InvalidOwner)
+        );
+        assert_eq!(book, saved);
+        let fill = book
+            .consume_reduce_only_pool_candidate(&projected, &d("1"), &d("0.5"), &pool)
+            .unwrap();
+        assert_eq!(fill.distressed_owner, pool);
+        assert_eq!(book.resting[0].remaining, d("0.5"));
+        let mut fake = order(2, "fake", Side::Buy, "1", "100", 11, false);
+        fake.owner = pool;
+        assert_eq!(book.queue(fake), Err(BookError::InvalidOwner));
+        assert!(!book.has_seen(id(999)));
     }
 }

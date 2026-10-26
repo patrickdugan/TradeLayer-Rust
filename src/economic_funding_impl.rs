@@ -440,7 +440,7 @@ impl EconomicState {
             let mut owners = BTreeSet::new();
             let mut open_interest = Decimal::zero();
             for position in &epoch.positions {
-                normal_owner(&position.owner)?;
+                self.participant_owner(&position.owner)?;
                 bounded(&position.contracts)?;
                 if position.contracts.is_zero()
                     || !owners.insert(&position.owner)

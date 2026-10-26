@@ -47,3 +47,12 @@ Typed state limits are 4096 LPs, 4096 orders and 4096 AMM definitions; metadata 
 Run `node scripts/amm_vectors.cjs` for the default offline SHA-checked source oracle. `--source PATH` executes a matching external source instead; `--write` regenerates the fixture. No source extraction, rewritten formula or copied replacement AMM is executed. Controlled dependencies record actual tally, orderbook and database calls. The supplied-global token experiment is labeled separately from the ordinary broken entry point. `cargo test --test amm --frozen` checks the numeric vectors and typed lifecycle, integration and rollback properties.
 
 This closes concrete local accounting and calculation gaps. Full AMM execution still requires the authenticated contract/mark boundary, real available/reserve/margin balances and LP property issuance, funded secondary reserves, safe-price checks in the execution path, source-approved repairs to broken methods, production persistence, historical acceptance/reorg vectors, and AMM-first orderbook/clearing integration. No file-level production-parity claim is made.
+
+The optional combined-owner [funded contract AMM policy](ECONOMIC_AMM.md) now
+supplies actual sole-Ledger LP collateral, private funded quotes and AMM-first
+guarded closeouts with v5 complete rollback/recovery. That owner deliberately
+keeps signed contract inventory separate from LP units and cash. It reuses the
+source price helper here, not this module's mutable f64 capital as custody.
+Transferable LP properties, live-risk capital operations, ordinary AMM market
+making, token pairs, source-versus-repair promotion and authenticated historical
+acceptance remain outstanding.

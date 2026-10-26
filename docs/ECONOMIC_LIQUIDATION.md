@@ -87,3 +87,9 @@ fingerprints, explicit version gates on forced tags, nested-book allocation
 bounds, complete forced-close restart and durable rollback/replay on Bitcoin,
 Litecoin and Dogecoin profiles, and repaired-CRC mutations of identity, guard,
 book, frame inputs and placement positions, fill, fee and outcome metadata.
+
+An additional optional [funded AMM policy](ECONOMIC_AMM.md) extends this owner
+with separately reserved private pool quotes before the firm-book phase.
+AMM and book fills share the configured limit; the pool's actual position,
+margin, claims and cash participate in the same accounting and replay.
+Liquidation configuration alone continues to use the version-4 book policy.

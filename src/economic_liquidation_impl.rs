@@ -11,6 +11,61 @@ pub const MAX_LIQUIDATION_RECORDS: usize = 65_536;
 pub enum LiquidationPolicy {
     ConservingLiquidationV1,
 }
+
+fn liquidation_cancel_book(
+    book: &mut ContractOrderbook,
+    owner: &AccountId,
+    registered_pool: Option<&AccountId>,
+) -> Result<crate::contract_orderbook::Cancellation> {
+    if registered_pool == Some(owner) {
+        if book.orders_for_owner(owner).next().is_some()
+            || book
+                .queued()
+                .iter()
+                .chain(book.drained())
+                .any(|o| &o.owner == owner)
+        {
+            return Err(EconomicError::Invariant);
+        }
+        Ok(crate::contract_orderbook::Cancellation::default())
+    } else {
+        Ok(book.cancel(owner, CancelCriteria::All)?)
+    }
+}
+fn liquidation_book_candidate(
+    book: &ContractOrderbook,
+    request: &ReduceOnlyRequest,
+    quantity: &Decimal,
+    registered_pool: Option<&AccountId>,
+) -> Result<Option<ReduceOnlyCandidate>> {
+    if registered_pool == Some(&request.owner) {
+        Ok(book.next_reduce_only_pool_candidate(
+            request,
+            quantity,
+            registered_pool.ok_or(EconomicError::Invariant)?,
+        )?)
+    } else {
+        Ok(book.next_reduce_only_candidate(request, quantity)?)
+    }
+}
+fn liquidation_consume_book_candidate(
+    book: &mut ContractOrderbook,
+    candidate: &ReduceOnlyCandidate,
+    quantity: &Decimal,
+    amount: &Decimal,
+    registered_pool: Option<&AccountId>,
+) -> Result<crate::contract_orderbook::ReduceOnlyFill> {
+    if registered_pool == Some(&candidate.request.owner) {
+        Ok(book.consume_reduce_only_pool_candidate(
+            candidate,
+            quantity,
+            amount,
+            registered_pool.ok_or(EconomicError::Invariant)?,
+        )?)
+    } else {
+        Ok(book.consume_reduce_only_candidate(candidate, quantity, amount)?)
+    }
+}
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LiquidationConfig {
     pub max_price_deviation_bps: u32,
@@ -69,7 +124,9 @@ pub struct LiquidationEvent {
     pub guard_price: Decimal,
     pub book_before: BookSnapshot,
     pub cancelled: Vec<LiquidationCancellation>,
+    pub pool_cancelled_quotes: Vec<FundedAmmQuote>,
     pub top_up_atoms: u128,
+    pub amm_fills: Vec<AmmForcedCloseReceipt>,
     pub fills: Vec<ForcedCloseReceipt>,
     pub blocked_maker: Option<BlockedLiquidationMaker>,
     pub status: LiquidationStatus,
@@ -175,14 +232,21 @@ impl EconomicState {
                 guard_price: self.liquidation_guard(&quantity, &observation.price)?,
                 book_before: self.book.snapshot(),
                 cancelled: Vec::new(),
+                pool_cancelled_quotes: Vec::new(),
                 top_up_atoms: 0,
+                amm_fills: Vec::new(),
                 fills: Vec::new(),
                 blocked_maker: None,
                 status: LiquidationStatus::NoLiquidityWithinGuard,
             };
             self.joint
                 .note_economic_epoch_unverified(event.id, height)?;
-            let cancelled = self.book.cancel(&event.owner, CancelCriteria::All)?;
+            let registered_pool = self.liquidation_registered_pool()?;
+            if self.is_amm_owner(&event.owner) {
+                event.pool_cancelled_quotes = self.cancel_amm_quotes()?;
+            }
+            let cancelled =
+                liquidation_cancel_book(&mut self.book, &event.owner, registered_pool.as_ref())?;
             if !cancelled.queued.is_empty() {
                 return Err(EconomicError::Invariant);
             }
@@ -220,7 +284,7 @@ impl EconomicState {
                     event.status = LiquidationStatus::Cured;
                     break;
                 }
-                if event.fills.len()
+                if event.fills.len() + event.amm_fills.len()
                     >= self
                         .config
                         .liquidation
@@ -231,8 +295,22 @@ impl EconomicState {
                     event.status = LiquidationStatus::FillLimit;
                     break;
                 }
+                if event.fills.is_empty() {
+                    if let Some((quote, amount)) =
+                        self.next_funded_amm_candidate(&event, &quantity)?
+                    {
+                        let receipt = self.settle_forced_amm_candidate(&event, &quote, &amount)?;
+                        event.amm_fills.push(receipt);
+                        continue;
+                    }
+                }
                 let request = self.liquidation_request(&event, &quantity);
-                let Some(candidate) = self.book.next_reduce_only_candidate(&request, &quantity)?
+                let Some(candidate) = liquidation_book_candidate(
+                    &self.book,
+                    &request,
+                    &quantity,
+                    registered_pool.as_ref(),
+                )?
                 else {
                     event.status = LiquidationStatus::NoLiquidityWithinGuard;
                     break;
@@ -323,10 +401,13 @@ impl EconomicState {
             .ledger()
             .available_atoms(self.config.collateral, maker_owner);
         let maker_margin_before_atoms = self.margin_atoms(maker_owner);
-        let fill = self.book.consume_reduce_only_candidate(
+        let registered_pool = self.liquidation_registered_pool()?;
+        let fill = liquidation_consume_book_candidate(
+            &mut self.book,
             candidate,
             &old.contracts,
             &candidate.maximum_quantity,
+            registered_pool.as_ref(),
         )?;
         if fill.id.txid() != event.id {
             return Err(EconomicError::Invariant);
@@ -463,7 +544,12 @@ impl EconomicState {
             }
         }
         for event in &self.liquidation.events {
-            if event.fills.len() > MAX_LIQUIDATION_FILLS as usize {
+            if event
+                .fills
+                .len()
+                .checked_add(event.amm_fills.len())
+                .is_none_or(|n| n > MAX_LIQUIDATION_FILLS as usize)
+            {
                 return Err(EconomicError::Capacity);
             }
             for n in [
@@ -472,6 +558,8 @@ impl EconomicState {
                 event.book_before.resting.len(),
                 event.book_before.seen.len(),
                 event.cancelled.len(),
+                event.pool_cancelled_quotes.len(),
+                event.amm_fills.len(),
                 event.fills.len(),
                 usize::from(event.blocked_maker.is_some()),
             ] {
@@ -490,6 +578,21 @@ impl EconomicState {
             .find(|e| e.id == id)
             .and_then(|e| e.fills.get(index as usize))
             .ok_or(EconomicError::Invariant)
+    }
+    fn forced_amm_receipt(&self, id: TxId, index: u32) -> Result<&AmmForcedCloseReceipt> {
+        self.liquidation
+            .events
+            .iter()
+            .find(|event| event.id == id)
+            .and_then(|event| event.amm_fills.get(index as usize))
+            .ok_or(EconomicError::Invariant)
+    }
+    fn liquidation_registered_pool(&self) -> Result<Option<AccountId>> {
+        if self.config.amm.is_some() {
+            Ok(Some(self.amm_owner()?))
+        } else {
+            Ok(None)
+        }
     }
     fn forced_mark_event(&self, id: TxId, index: u32) -> Result<&MarkEvent> {
         let mut matches = self.marking.events.iter().filter(|e| matches!(&e.kind,
@@ -518,6 +621,14 @@ impl EconomicState {
                         ..
                     } => Some(
                         self.forced_receipt(epoch_id, fill_index)?
+                            .retained_fee_atoms,
+                    ),
+                    MarkEventKind::AmmForced {
+                        epoch_id,
+                        fill_index,
+                        ..
+                    } => Some(
+                        self.forced_amm_receipt(epoch_id, fill_index)?
                             .retained_fee_atoms,
                     ),
                     MarkEventKind::Mark { .. } => None,
@@ -627,7 +738,9 @@ impl EconomicState {
                 break;
             }
             if action.height == event.height {
-                if let MarkEventKind::Forced { epoch_id, .. } = action.kind {
+                if let MarkEventKind::Forced { epoch_id, .. }
+                | MarkEventKind::AmmForced { epoch_id, .. } = action.kind
+                {
                     if *indices.get(&epoch_id).ok_or(EconomicError::Invariant)? >= ordinal {
                         continue;
                     }
@@ -657,7 +770,7 @@ impl EconomicState {
         let mut previous_book = None;
         let mut total_fills = 0usize;
         for (ordinal, event) in self.liquidation.events.iter().enumerate() {
-            normal_owner(&event.owner)?;
+            self.participant_owner(&event.owner)?;
             if event.height == 0
                 || self.finalized_height().is_none_or(|h| event.height > h)
                 || event.id != self.liquidation_id(event.height, &event.owner)
@@ -669,7 +782,7 @@ impl EconomicState {
                 || event.quantity_before.is_zero()
                 || event.required_before_atoms != self.maintenance_atoms(&event.quantity_before)?
                 || event.margin_before_atoms >= event.required_before_atoms
-                || event.fills.len() > config.max_fills_per_owner as usize
+                || event.fills.len() + event.amm_fills.len() > config.max_fills_per_owner as usize
             {
                 return Err(EconomicError::Invariant);
             }
@@ -710,11 +823,19 @@ impl EconomicState {
             {
                 return Err(EconomicError::Invariant);
             }
-            let cancelled = book.cancel(&event.owner, CancelCriteria::All)?;
+            let registered_pool = self.liquidation_registered_pool()?;
+            let cancelled =
+                liquidation_cancel_book(&mut book, &event.owner, registered_pool.as_ref())?;
             if cancelled.resting.len() != event.cancelled.len() || !cancelled.queued.is_empty() {
                 return Err(EconomicError::Invariant);
             }
             let mut refunded = 0;
+            if !self.is_amm_owner(&event.owner) && !event.pool_cancelled_quotes.is_empty() {
+                return Err(EconomicError::Invariant);
+            }
+            for quote in &event.pool_cancelled_quotes {
+                refunded = add(refunded, quote.reserve_atoms)?;
+            }
             for (order, recorded) in cancelled.resting.iter().zip(&event.cancelled) {
                 let atoms = self.required_margin(&order.reserve_quantity)?;
                 if *order != recorded.order || atoms != recorded.reserve_atoms {
@@ -733,14 +854,116 @@ impl EconomicState {
             let mut margin = add(event.margin_before_atoms, topup)?;
             let mut quantity = event.quantity_before.clone();
             let mut first_available = Some(available - topup);
+            for (index, receipt) in event.amm_fills.iter().enumerate() {
+                if quantity.is_zero()
+                    || margin >= self.maintenance_atoms(&quantity)?
+                    || self.is_amm_owner(&event.owner)
+                {
+                    return Err(EconomicError::Invariant);
+                }
+                let pool = registered_pool.as_ref().ok_or(EconomicError::Invariant)?;
+                let pool_quantity = positions.get(pool).cloned().unwrap_or_default();
+                if receipt.quantity <= Decimal::zero()
+                    || self.amm_quote_fill_quantity(
+                        &receipt.quote_before,
+                        &quantity,
+                        &pool_quantity,
+                        &event.guard_price,
+                    )? != receipt.quantity
+                    || receipt.price != receipt.quote_before.price
+                {
+                    return Err(EconomicError::Invariant);
+                }
+                let delta = if quantity.is_negative() {
+                    receipt.quantity.clone()
+                } else {
+                    receipt.quantity.negated()
+                };
+                quantity = quantity.checked_add(&delta)?;
+                let pool_after = pool_quantity.checked_sub(&delta)?;
+                positions.insert(event.owner.clone(), quantity.clone());
+                positions.insert(pool.clone(), pool_after.clone());
+                let forced = self.amm_forced_mark_event(event.id, index as u32)?;
+                let target = self.required_margin(&quantity.abs())?;
+                let before_fee_margin = margin.min(target);
+                let released = margin - before_fee_margin;
+                if let Some(a) = first_available.take() {
+                    if receipt.distressed_available_before_fee_atoms != add(a, released)? {
+                        return Err(EconomicError::Invariant);
+                    }
+                } else if receipt.distressed_available_before_fee_atoms < released {
+                    return Err(EconomicError::Invariant);
+                }
+                let side = if delta.is_negative() {
+                    Side::Sell
+                } else {
+                    Side::Buy
+                };
+                let nominal = self.forced_nominal_fee(&receipt.quantity, &receipt.price, side)?;
+                let available_fee = nominal.min(receipt.distressed_available_before_fee_atoms);
+                let margin_fee = (nominal - available_fee).min(before_fee_margin);
+                let charged = add(available_fee, margin_fee)?;
+                let quote_left = receipt
+                    .quote_before
+                    .remaining
+                    .checked_sub(&receipt.quantity)?;
+                let reserve_used = receipt
+                    .quote_before
+                    .reserve_atoms
+                    .checked_sub(self.required_margin(&quote_left)?)
+                    .ok_or(EconomicError::Invariant)?;
+                let pool_custody = add(receipt.maker_margin_before_atoms, reserve_used)?;
+                let pool_target = self.required_margin(&pool_after.abs())?;
+                let pool_available = if pool_custody >= pool_target {
+                    add(
+                        receipt.maker_available_before_atoms,
+                        pool_custody - pool_target,
+                    )?
+                } else {
+                    receipt
+                        .maker_available_before_atoms
+                        .checked_sub(pool_target - pool_custody)
+                        .ok_or(EconomicError::Invariant)?
+                };
+                if receipt.distressed_margin_before_fee_atoms != before_fee_margin
+                    || receipt.nominal_fee_atoms != nominal
+                    || receipt.charged_fee_atoms != charged
+                    || receipt.maker_rebate_atoms != charged / 2
+                    || receipt.retained_fee_atoms != charged - charged / 2
+                    || forced.entries.len() != 2
+                    || forced.entries[0].available_atoms
+                        != receipt.distressed_available_before_fee_atoms - available_fee
+                    || forced.entries[0].margin_atoms != before_fee_margin - margin_fee
+                    || forced.entries[1].margin_atoms != pool_target
+                    || forced.entries[1].available_atoms
+                        != add(pool_available, receipt.maker_rebate_atoms)?
+                {
+                    return Err(EconomicError::Invariant);
+                }
+                let owner_entry = &forced.entries[0];
+                let margin_loss = owner_entry.collected_atoms
+                    - owner_entry.collected_atoms.min(owner_entry.available_atoms);
+                margin = owner_entry
+                    .margin_atoms
+                    .checked_sub(margin_loss)
+                    .ok_or(EconomicError::Invariant)?;
+                if receipt.distressed_margin_after_atoms != margin {
+                    return Err(EconomicError::Invariant);
+                }
+                total_fills = total_fills.checked_add(1).ok_or(EconomicError::Capacity)?;
+            }
             for (index, receipt) in event.fills.iter().enumerate() {
                 if quantity.is_zero() || margin >= self.maintenance_atoms(&quantity)? {
                     return Err(EconomicError::Invariant);
                 }
                 let request = self.liquidation_request(event, &quantity);
-                let candidate = book
-                    .next_reduce_only_candidate(&request, &quantity)?
-                    .ok_or(EconomicError::Invariant)?;
+                let candidate = liquidation_book_candidate(
+                    &book,
+                    &request,
+                    &quantity,
+                    registered_pool.as_ref(),
+                )?
+                .ok_or(EconomicError::Invariant)?;
                 if candidate.maker_before != receipt.maker_before
                     || candidate.maximum_quantity != receipt.quantity
                     || receipt.price != candidate.maker_before.order.price
@@ -758,8 +981,13 @@ impl EconomicState {
                 {
                     return Err(EconomicError::Invariant);
                 }
-                let fill =
-                    book.consume_reduce_only_candidate(&candidate, &quantity, &receipt.quantity)?;
+                let fill = liquidation_consume_book_candidate(
+                    &mut book,
+                    &candidate,
+                    &quantity,
+                    &receipt.quantity,
+                    registered_pool.as_ref(),
+                )?;
                 let delta = if quantity.is_negative() {
                     receipt.quantity.clone()
                 } else {
@@ -838,11 +1066,18 @@ impl EconomicState {
                 LiquidationStatus::Closed
             } else if margin >= self.maintenance_atoms(&quantity)? {
                 LiquidationStatus::Cured
-            } else if event.fills.len() == config.max_fills_per_owner as usize {
+            } else if event.fills.len() + event.amm_fills.len()
+                == config.max_fills_per_owner as usize
+            {
                 LiquidationStatus::FillLimit
             } else {
                 let request = self.liquidation_request(event, &quantity);
-                if let Some(candidate) = book.next_reduce_only_candidate(&request, &quantity)? {
+                if let Some(candidate) = liquidation_book_candidate(
+                    &book,
+                    &request,
+                    &quantity,
+                    registered_pool.as_ref(),
+                )? {
                     let blocked = event
                         .blocked_maker
                         .as_ref()
@@ -880,7 +1115,12 @@ impl EconomicState {
                 .marking
                 .events
                 .iter()
-                .filter(|e| matches!(e.kind, MarkEventKind::Forced { .. }))
+                .filter(|e| {
+                    matches!(
+                        e.kind,
+                        MarkEventKind::Forced { .. } | MarkEventKind::AmmForced { .. }
+                    )
+                })
                 .count()
         {
             return Err(EconomicError::Invariant);
@@ -889,23 +1129,28 @@ impl EconomicState {
             .liquidation
             .events
             .iter()
-            .flat_map(|e| (0..e.fills.len()).map(move |i| (e.id, i as u32)))
+            .flat_map(|e| {
+                (0..e.amm_fills.len())
+                    .map(move |i| (e.id, true, i as u32))
+                    .chain((0..e.fills.len()).map(move |i| (e.id, false, i as u32)))
+            })
             .collect();
         let actual_order: Vec<_> = self
             .marking
             .events
             .iter()
-            .filter_map(|e| {
-                if let MarkEventKind::Forced {
+            .filter_map(|e| match e.kind {
+                MarkEventKind::Forced {
                     epoch_id,
                     fill_index,
                     ..
-                } = e.kind
-                {
-                    Some((epoch_id, fill_index))
-                } else {
-                    None
-                }
+                } => Some((epoch_id, false, fill_index)),
+                MarkEventKind::AmmForced {
+                    epoch_id,
+                    fill_index,
+                    ..
+                } => Some((epoch_id, true, fill_index)),
+                _ => None,
             })
             .collect();
         if actual_order != expected_order {

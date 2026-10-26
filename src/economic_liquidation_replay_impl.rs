@@ -63,10 +63,22 @@ impl EconomicState {
         let mut marks = self.marking.events.iter().peekable();
         let mut ordinary_receipts = self.receipts.iter();
         let mut liquidations = self.liquidation.events.iter().peekable();
+        let registered_pool = self.liquidation_registered_pool()?;
+        let mut amm_quotes = Vec::<FundedAmmQuote>::new();
         for (index, frame) in self.liquidation.book_frames.iter().enumerate() {
             if frame.height != index as u64 + 1 {
                 return Err(EconomicError::Invariant);
             }
+            let amm_frame = if registered_pool.is_some() {
+                let captured = self.amm.frames.get(index).ok_or(EconomicError::Invariant)?;
+                if captured.height != frame.height || captured.released_quotes != amm_quotes {
+                    return Err(EconomicError::Invariant);
+                }
+                amm_quotes.clear();
+                Some(captured)
+            } else {
+                None
+            };
             for input in &frame.inputs {
                 match input {
                     LiquidationBookInput::Order(order) => {
@@ -166,6 +178,25 @@ impl EconomicState {
             }
             // Funding is deliberately between Mark and Forced. It moves only
             // available balances, so it does not alter either replayed map.
+            if let Some(captured) = amm_frame {
+                match (&captured.quote_epoch, mark_id) {
+                    (Some(epoch), Some(id)) => {
+                        let pool = registered_pool.as_ref().ok_or(EconomicError::Invariant)?;
+                        if epoch.mark_id != id
+                            || epoch.height != frame.height
+                            || epoch.position_before
+                                != positions.get(pool).cloned().unwrap_or_default()
+                            || epoch.margin_before_atoms
+                                != liquidation_replay_margin(&margins, pool)
+                        {
+                            return Err(EconomicError::Invariant);
+                        }
+                        amm_quotes = epoch.quotes.clone();
+                    }
+                    (None, None) => {}
+                    _ => return Err(EconomicError::Invariant),
+                }
+            }
             // Runtime snapshots the initial maintenance set once, in sorted
             // owner order. Earlier forced fills can then cure/flatten a later
             // target; newly distressed makers are left for the next sweep.
@@ -199,7 +230,16 @@ impl EconomicState {
                 {
                     return Err(EconomicError::Invariant);
                 }
-                let cancelled = book.cancel(&event.owner, CancelCriteria::All)?;
+                if registered_pool.as_ref() == Some(&event.owner) {
+                    if event.pool_cancelled_quotes != amm_quotes {
+                        return Err(EconomicError::Invariant);
+                    }
+                    amm_quotes.clear();
+                } else if !event.pool_cancelled_quotes.is_empty() {
+                    return Err(EconomicError::Invariant);
+                }
+                let cancelled =
+                    liquidation_cancel_book(&mut book, &event.owner, registered_pool.as_ref())?;
                 if !cancelled.queued.is_empty() || cancelled.resting.len() != event.cancelled.len()
                 {
                     return Err(EconomicError::Invariant);
@@ -213,15 +253,127 @@ impl EconomicState {
                 }
                 let margin = add(event.margin_before_atoms, event.top_up_atoms)?;
                 liquidation_replay_set_margin(&mut margins, &event.owner, margin);
+                for (fill_index, receipt) in event.amm_fills.iter().enumerate() {
+                    let old_quantity = positions
+                        .get(&event.owner)
+                        .cloned()
+                        .ok_or(EconomicError::Invariant)?;
+                    if old_quantity.is_zero()
+                        || liquidation_replay_margin(&margins, &event.owner)
+                            >= self.maintenance_atoms(&old_quantity)?
+                    {
+                        return Err(EconomicError::Invariant);
+                    }
+                    let pool = registered_pool.as_ref().ok_or(EconomicError::Invariant)?;
+                    let pool_quantity = positions.get(pool).cloned().unwrap_or_default();
+                    let (quote_index, amount) = self
+                        .liquidation_replay_amm_candidate(
+                            &amm_quotes,
+                            event,
+                            &old_quantity,
+                            &pool_quantity,
+                        )?
+                        .ok_or(EconomicError::Invariant)?;
+                    let quote = amm_quotes
+                        .get(quote_index)
+                        .ok_or(EconomicError::Invariant)?
+                        .clone();
+                    if quote != receipt.quote_before
+                        || receipt.quantity != amount
+                        || receipt.price != quote.price
+                        || receipt.maker_margin_before_atoms
+                            != liquidation_replay_margin(&margins, pool)
+                    {
+                        return Err(EconomicError::Invariant);
+                    }
+                    let delta = if old_quantity.is_negative() {
+                        amount.clone()
+                    } else {
+                        amount.negated()
+                    };
+                    let after = old_quantity.checked_add(&delta)?;
+                    let pool_after = pool_quantity.checked_sub(&delta)?;
+                    liquidation_replay_set_margin(
+                        &mut margins,
+                        pool,
+                        self.required_margin(&pool_after.abs())?,
+                    );
+                    let before_fee = liquidation_replay_margin(&margins, &event.owner)
+                        .min(self.required_margin(&after.abs())?);
+                    let available_fee = receipt
+                        .nominal_fee_atoms
+                        .min(receipt.distressed_available_before_fee_atoms);
+                    let margin_fee = (receipt.nominal_fee_atoms - available_fee).min(before_fee);
+                    if receipt.distressed_margin_before_fee_atoms != before_fee
+                        || receipt.charged_fee_atoms != add(available_fee, margin_fee)?
+                    {
+                        return Err(EconomicError::Invariant);
+                    }
+                    liquidation_replay_set_margin(
+                        &mut margins,
+                        &event.owner,
+                        before_fee - margin_fee,
+                    );
+                    positions.insert(event.owner.clone(), after);
+                    positions.insert(pool.clone(), pool_after);
+                    let forced = marks.next().ok_or(EconomicError::Invariant)?;
+                    if forced.height != frame.height
+                        || forced.kind
+                            != (MarkEventKind::AmmForced {
+                                epoch_id: event.id,
+                                fill_index: fill_index as u32,
+                                pool_id: quote.pool_id,
+                                distressed_owner: event.owner.clone(),
+                            })
+                        || forced.entries.len() != 2
+                        || forced.entries[0].owner != event.owner
+                        || forced.entries[1].owner != *pool
+                    {
+                        return Err(EconomicError::Invariant);
+                    }
+                    liquidation_replay_margin_loss(&mut margins, forced)?;
+                    if receipt.distressed_margin_after_atoms
+                        != liquidation_replay_margin(&margins, &event.owner)
+                    {
+                        return Err(EconomicError::Invariant);
+                    }
+                    let remaining = quote.remaining.checked_sub(&amount)?;
+                    if remaining.is_zero() {
+                        amm_quotes.remove(quote_index);
+                    } else {
+                        amm_quotes[quote_index].reserve_atoms = self.required_margin(&remaining)?;
+                        amm_quotes[quote_index].remaining = remaining;
+                    }
+                }
                 for (fill_index, receipt) in event.fills.iter().enumerate() {
                     let old_quantity = positions
                         .get(&event.owner)
                         .cloned()
                         .ok_or(EconomicError::Invariant)?;
                     let request = self.liquidation_request(event, &old_quantity);
-                    let candidate = book
-                        .next_reduce_only_candidate(&request, &old_quantity)?
-                        .ok_or(EconomicError::Invariant)?;
+                    let pool_quantity = registered_pool
+                        .as_ref()
+                        .and_then(|pool| positions.get(pool))
+                        .cloned()
+                        .unwrap_or_default();
+                    if self
+                        .liquidation_replay_amm_candidate(
+                            &amm_quotes,
+                            event,
+                            &old_quantity,
+                            &pool_quantity,
+                        )?
+                        .is_some()
+                    {
+                        return Err(EconomicError::Invariant);
+                    }
+                    let candidate = liquidation_book_candidate(
+                        &book,
+                        &request,
+                        &old_quantity,
+                        registered_pool.as_ref(),
+                    )?
+                    .ok_or(EconomicError::Invariant)?;
                     if candidate.maker_before != receipt.maker_before
                         || candidate.maximum_quantity != receipt.quantity
                         || receipt.maker_margin_before_atoms
@@ -232,10 +384,12 @@ impl EconomicState {
                     {
                         return Err(EconomicError::Invariant);
                     }
-                    let fill = book.consume_reduce_only_candidate(
+                    let fill = liquidation_consume_book_candidate(
+                        &mut book,
                         &candidate,
                         &old_quantity,
                         &receipt.quantity,
+                        registered_pool.as_ref(),
                     )?;
                     let delta = if fill.distressed_side == Side::Buy {
                         fill.quantity.clone()
@@ -290,6 +444,35 @@ impl EconomicState {
                         return Err(EconomicError::Invariant);
                     }
                 }
+                let quantity = positions
+                    .get(&event.owner)
+                    .ok_or(EconomicError::Invariant)?;
+                let pool_quantity = registered_pool
+                    .as_ref()
+                    .and_then(|pool| positions.get(pool))
+                    .cloned()
+                    .unwrap_or_default();
+                if !quantity.is_zero()
+                    && liquidation_replay_margin(&margins, &event.owner)
+                        < self.maintenance_atoms(quantity)?
+                    && event.amm_fills.len() + event.fills.len()
+                        < self
+                            .config
+                            .liquidation
+                            .as_ref()
+                            .ok_or(EconomicError::Invariant)?
+                            .max_fills_per_owner as usize
+                    && self
+                        .liquidation_replay_amm_candidate(
+                            &amm_quotes,
+                            event,
+                            quantity,
+                            &pool_quantity,
+                        )?
+                        .is_some()
+                {
+                    return Err(EconomicError::Invariant);
+                }
                 if event.blocked_maker.as_ref().is_some_and(|blocked| {
                     blocked.margin_atoms
                         != liquidation_replay_margin(&margins, &blocked.order.order.owner)
@@ -319,10 +502,32 @@ impl EconomicState {
             || positions != actual_positions
             || margins != self.margins
             || cancellations != self.cancel_ids
+            || amm_quotes != self.amm.quotes
+            || (registered_pool.is_some()
+                && self.amm.frames.len() != self.liquidation.book_frames.len())
         {
             return Err(EconomicError::Invariant);
         }
         Ok(())
+    }
+    fn liquidation_replay_amm_candidate(
+        &self,
+        quotes: &[FundedAmmQuote],
+        event: &LiquidationEvent,
+        quantity: &Decimal,
+        pool_quantity: &Decimal,
+    ) -> Result<Option<(usize, Decimal)>> {
+        if self.config.amm.is_none() || self.is_amm_owner(&event.owner) {
+            return Ok(None);
+        }
+        for (index, quote) in quotes.iter().enumerate() {
+            let amount =
+                self.amm_quote_fill_quantity(quote, quantity, pool_quantity, &event.guard_price)?;
+            if !amount.is_zero() {
+                return Ok(Some((index, amount)));
+            }
+        }
+        Ok(None)
     }
 }
 

@@ -61,6 +61,7 @@ fn config(inverse: bool, funding_oracle: Option<u32>) -> EconomicConfig {
             max_fills_per_owner: 64,
             policy: LiquidationPolicy::ConservingLiquidationV1,
         }),
+        amm: None,
     }
 }
 fn ledger() -> Ledger {

@@ -80,6 +80,7 @@ fn config(network: TradeLayerMainnet, staleness: u64) -> EconomicConfig {
         policy: SettlementPolicy::ConservingV1,
         marking: None,
         liquidation: None,
+        amm: None,
         funding: Some(FundingConfig {
             oracle_id: 1,
             max_staleness_blocks: staleness,

@@ -40,6 +40,7 @@ pub struct EconomicConfig {
     pub funding: Option<FundingConfig>,
     pub marking: Option<MarkConfig>,
     pub liquidation: Option<LiquidationConfig>,
+    pub amm: Option<FundedAmmConfig>,
 }
 impl EconomicConfig {
     pub fn validate(&self) -> Result<(), EconomicError> {
@@ -72,6 +73,12 @@ impl EconomicConfig {
                 return Err(EconomicError::InvalidConfig);
             }
         }
+        if let Some(amm) = &self.amm {
+            amm.validate()?;
+            if self.marking.is_none() || self.liquidation.is_none() {
+                return Err(EconomicError::InvalidConfig);
+            }
+        }
         Ok(())
     }
 }
@@ -79,6 +86,7 @@ impl EconomicConfig {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum EconomicInput {
     Joint(UnverifiedJointTx),
+    Amm(AmmCapitalInput),
     Order(Order),
     Cancel {
         txid: TxId,
@@ -197,6 +205,7 @@ pub struct EconomicState {
     funding: FundingState,
     marking: MarkState,
     liquidation: LiquidationState,
+    amm: FundedAmmState,
 }
 impl EconomicState {
     pub fn from_joint_unverified(
@@ -229,6 +238,7 @@ impl EconomicState {
             funding: FundingState::default(),
             marking: MarkState::default(),
             liquidation: LiquidationState::default(),
+            amm: FundedAmmState::default(),
         };
         state.verify()?;
         Ok(state)
@@ -296,6 +306,7 @@ impl EconomicState {
         self.verify()?;
         let mut next = self.clone();
         let before = next.receipts.len();
+        next.begin_amm_frame(height)?;
         let mut book_frame = LiquidationBookFrame {
             height,
             inputs: Vec::new(),
@@ -304,7 +315,9 @@ impl EconomicState {
         let mut mark_publication = None;
         for input in inputs {
             match input {
+                EconomicInput::Amm(input) => next.apply_amm_capital(input, height)?,
                 EconomicInput::Joint(tx) => {
+                    Self::external_joint_owner_boundary(&tx)?;
                     let observed = next.funding_publication(&tx);
                     let mark_id = next.mark_publication(&tx);
                     next.joint.apply_one_for_economic_unverified(height, tx)?;
@@ -376,6 +389,7 @@ impl EconomicState {
         next.run_funding_epoch(height)?;
         next.prune_funding_observations(height);
         next.refresh_positions()?;
+        next.refresh_amm_quotes(height)?;
         next.refresh_maintenance()?;
         next.run_liquidations(height)?;
         next.refresh_positions()?;
@@ -780,10 +794,11 @@ impl EconomicState {
         self.joint.apply_economic_transfer_unverified(
             self.leg_id(self.internal_sequence),
             self.config.collateral,
-            from,
-            to,
+            from.clone(),
+            to.clone(),
             atoms,
         )?;
+        self.record_amm_cash_leg(self.internal_sequence, &from, &to, atoms)?;
         self.internal_sequence += 1;
         Ok(())
     }
@@ -794,6 +809,7 @@ impl EconomicState {
         self.verify_funding()?;
         self.verify_marks()?;
         self.verify_liquidations()?;
+        self.verify_amm()?;
         self.verify_system_epochs()?;
         if self.joint.network() != self.config.network
             || self.ledger().property(self.config.collateral).is_none()
@@ -815,6 +831,16 @@ impl EconomicState {
         let mut inputs: BTreeSet<_> = self.book.snapshot().seen.into_iter().collect();
         for id in &self.cancel_ids {
             if !inputs.insert(*id) {
+                return Err(EconomicError::Invariant);
+            }
+        }
+        for receipt in self
+            .amm
+            .frames
+            .iter()
+            .flat_map(|frame| &frame.capital_receipts)
+        {
+            if !inputs.insert(receipt.txid) {
                 return Err(EconomicError::Invariant);
             }
         }
@@ -858,7 +884,7 @@ impl EconomicState {
         }
         let mut net_contracts = Decimal::zero();
         for p in self.positions.positions() {
-            normal_owner(&p.address)?;
+            self.participant_owner(&p.address)?;
             bounded(&p.contracts)?;
             let claims = self
                 .ious
@@ -908,6 +934,12 @@ impl EconomicState {
             self.insurance_custody_atoms,
         )?;
         track(self.escrow(b"loss-pool", &[])?, self.loss_pool_atoms)?;
+        if self.config.amm.is_some() {
+            track(self.amm_owner()?, self.amm.cash_atoms)?;
+            for quote in &self.amm.quotes {
+                track(self.amm_quote_escrow(quote.side)?, quote.reserve_atoms)?;
+            }
+        }
         let actual: BTreeMap<_, _> = self
             .ledger()
             .balances_with_account_prefix("~econ:")
@@ -1042,3 +1074,5 @@ include!("economic_funding_impl.rs");
 include!("economic_mark_impl.rs");
 include!("economic_liquidation_impl.rs");
 include!("economic_liquidation_replay_impl.rs");
+include!("economic_amm_impl.rs");
+include!("economic_amm_replay_impl.rs");

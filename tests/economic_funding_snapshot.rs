@@ -38,6 +38,7 @@ fn config(network: TradeLayerMainnet) -> EconomicConfig {
         policy: SettlementPolicy::ConservingV1,
         marking: None,
         liquidation: None,
+        amm: None,
         funding: Some(FundingConfig {
             oracle_id: 1,
             max_staleness_blocks: 96,

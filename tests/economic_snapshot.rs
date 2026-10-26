@@ -43,6 +43,7 @@ fn config(network: TradeLayerMainnet) -> EconomicConfig {
         funding: None,
         marking: None,
         liquidation: None,
+        amm: None,
     }
 }
 fn pristine(network: TradeLayerMainnet) -> EconomicState {

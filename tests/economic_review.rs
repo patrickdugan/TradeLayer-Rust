@@ -105,6 +105,7 @@ mod combined_execution_review {
             funding: None,
             marking: None,
             liquidation: None,
+            amm: None,
         };
         let mut ledger = Ledger::new();
         ledger

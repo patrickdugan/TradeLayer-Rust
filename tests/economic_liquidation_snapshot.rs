@@ -57,6 +57,7 @@ fn config(network: TradeLayerMainnet) -> EconomicChainConfig {
                 max_fills_per_owner: 8,
                 policy: LiquidationPolicy::ConservingLiquidationV1,
             }),
+            amm: None,
         },
         admin: a("admin"),
         permitted_spot_properties: BTreeSet::from([p()]),

@@ -475,3 +475,56 @@ The explicit policy and bounded-history limit are documented in
 funded consistency, not authenticated inputs, historical liquidation acceptance,
 AMM/insurance/ADL integration or indefinite operation. No branch was pushed and
 no GitHub CI, Lean or Kani result is claimed.
+
+## Funded contract AMM and LP receipt execution
+
+The combined economic owner now supports an optional private funded AMM for its
+configured contract and collateral. LP deposits move actual collateral into the
+sole Ledger; nontransferable receipt units use exact quiescent pool NAV for
+mint/redemption. Pool signed inventory, settled basis/carry, funding, claims,
+defaults and margin stay in the existing structures. Two separately funded
+quotes precede real firm-book closeouts under the same guard and fill cap.
+
+Complete per-height frames retain capital inputs/receipts, quote invalidations,
+funded quote epochs and every pool cash leg. Independent replay derives the
+exact cash stream from capital, quotes, funding, actual margin reconciliation,
+fees and IOU/default settlement; an offsetting fictional transfer pair cannot
+hide behind unchanged final custody. Public actors and transfer/administration
+address endpoints cannot impersonate the private pool. LP activation must
+precede the capital frame, including after a rechecksummed restore.
+
+TLEC v5 persists the complete pool and typed private AMM fill origins. Earlier
+versions retain their existing bytes, including a genuine active v4 checkpoint
+with owned-order cancellation and five complete book frames. The bounded
+conserving policy repairs source virtual funds/fees, mixed capital and inventory,
+and inverse safe-price direction; it does not establish historical acceptance.
+Ordinary AMM market making, live-risk LP operations, transferable LP properties,
+token-pair reserves, insurance/ADL, authenticated admission, native/multicontract
+execution and indefinite-history compaction remain open.
+
+## Local validation for funded contract AMM execution
+
+Pinned Rust 1.90.0 on Windows/MSVC passed all 896 tests across 114 executables,
+formatting including every included implementation, all-target Clippy with
+warnings denied, and the frozen all-target release build. The zero-dependency
+gate and its 11 adversarial tests passed. Doc tests passed with none defined.
+The new complete-source liquidation sweep oracle passed 22 cases; the existing
+AMM oracle passed all 275 observations. Mark, funding, orderbook and tally
+oracles retained their 130/117/287/248 vectors and behavior characterizations.
+
+Coverage includes actual LP custody, exact NAV shares after funded trading
+profit, zero-share rejection, partial/last redemption dust, two independently
+reserved quotes, AMM-before-better-book priority, linear/inverse execution,
+guard fallback, shared fill/inventory caps, pool insolvency and actual book
+closeout, real rebates and funding, later ordinary matches and reorg recovery.
+The quote planner rejects maintenance-only funding that cannot cover existing
+initial-margin risk. Private-pool balanced external transfers reject atomically;
+repaired-checksum history probes reject balanced fictional cash legs, altered
+share/quote/cash metadata and LP activation moved into its deposit block.
+
+Full v5 snapshot and durable restart/rollback/replay pass on all three network
+profiles. Genuine v1/v2/v3 and active v4 checkpoint fingerprints remain stable
+with AMM disabled. The actual price, margin and fee caller contexts still need
+accepted contract-catalog binding; this funded policy does not establish source
+historical acceptance or authenticated execution. No branch was pushed and no
+GitHub CI, Lean or Kani result is claimed.

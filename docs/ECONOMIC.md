@@ -82,3 +82,28 @@ book input/placement frames plus forced fills and known margin replay. The
 future compaction design for indefinite operation. This is an unverified
 conserving closeout policy; funded AMM/insurance/ADL, complete wallet provenance,
 contract authority and historical acceptance remain open.
+
+Optional [funded contract AMM execution](ECONOMIC_AMM.md) adds a private pool
+counterparty, actual LP collateral deposits and nontransferable receipt units,
+exact quiescent NAV mint/redemption, separately funded bid/ask reserves and
+AMM-first guarded closeouts. Pool inventory, basis, funding, IOUs and margin
+stay in these same economic structures. The v5 checkpoint includes every
+capital input, quote epoch, pool cash leg and private fill; replay derives
+cash movements from the typed operations and rejects balanced fictional legs.
+External Joint actors and address endpoints retain the reserved-account fence,
+including transactions whose net balance change would be zero.
+
+This named policy preserves source Number quote prices while repairing the
+source capital/inventory conflation, virtual fee exemptions and reversed inverse
+safe-price predicate. Ordinary AMM market making, live-risk LP operations,
+transferable LP property issuance, token pairs, options, insurance/ADL and
+authenticated historical acceptance remain open. Versions 1–4 retain their
+existing disabled-AMM bytes, including an active v4 closeout fingerprint.
+
+The legacy economic configuration still asserts a fixed per-contract initial
+margin and the notional supplied to fee calculation. It is not an accepted
+contract-catalog binding. Active source callers distinguish order-price reserve
+margin, execution-price checks, average-price maintenance, mark-price forced
+sizing and collateral-valued fee notional; marks/PnL use raw contract notional.
+Integrating those contexts with actual accepted definitions remains a separate
+correctness gate, alongside the authentication and historical replay gates.

@@ -52,6 +52,7 @@ fn config(inverse: bool, funding_oracle: Option<u32>) -> EconomicConfig {
             policy: FundingPolicy::ConservingFundingV1,
         }),
         liquidation: None,
+        amm: None,
         marking: Some(MarkConfig {
             oracle_id: 1,
             policy: MarkPolicy::ConservingMarkBasisV1,

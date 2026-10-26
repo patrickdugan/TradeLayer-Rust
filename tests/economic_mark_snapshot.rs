@@ -53,6 +53,7 @@ fn config(network: TradeLayerMainnet, inverse: bool, funding: bool) -> EconomicC
                 policy: FundingPolicy::ConservingFundingV1,
             }),
             liquidation: None,
+            amm: None,
             marking: Some(MarkConfig {
                 oracle_id: 1,
                 policy: MarkPolicy::ConservingMarkBasisV1,
@@ -263,7 +264,7 @@ fn mark_bytes(marks: &MarkState) -> Vec<u8> {
                 out.extend_from_slice(&id.as_bytes());
                 observation(&mut out, value);
             }
-            MarkEventKind::Forced { .. } => {
+            MarkEventKind::Forced { .. } | MarkEventKind::AmmForced { .. } => {
                 panic!("legacy mark-only fixture contains forced event")
             }
         }

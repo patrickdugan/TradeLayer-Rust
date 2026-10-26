@@ -41,6 +41,7 @@ fn config() -> EconomicConfig {
         funding: None,
         marking: None,
         liquidation: None,
+        amm: None,
     }
 }
 fn bootstrap() -> JointProtocolState {
