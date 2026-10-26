@@ -1,0 +1,16 @@
+
+running 12 tests
+test generated_pnl_rounding_imbalance_remains_default_deny_even_with_insurance ... ok
+test insufficient_insurance_does_not_credit_any_winner_or_seize_margin ... ok
+test full_book_closeout_requires_actual_maintenance_breach_and_policy ... ok
+test replay_and_stale_mark_guard_closeout_from_spoofed_retries ... ok
+test synthetic_block_rejects_late_claim_without_committing_previous_deposits ... ok
+test solvent_but_below_maintenance_full_closeout_needs_no_insurer_atoms ... ok
+test shared_insurer_cannot_pay_two_shortfalls_from_one_reserve ... ok
+test multi_party_settlement_uses_insurer_last_and_never_pays_twice ... ok
+test failed_insured_settlement_recovers_from_tlcl_v2_without_new_credits ... ok
+test two_escrows_and_insurer_pay_actual_losing_margin_and_full_winner_pnl ... ok
+test synthetic_block_final_closeout_and_reorg_restore_full_insurer_balance ... ok
+test fault_injection_aborts_before_every_leg_and_after_the_last ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s

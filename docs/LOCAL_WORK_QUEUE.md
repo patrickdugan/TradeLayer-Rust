@@ -13,6 +13,7 @@ remaining gates stay in [PARITY_ROADMAP.csv](PARITY_ROADMAP.csv).
 | `channels.js` source | Local team | Integrated bounded source conformance | All43 static methods and constructor; explicit prototype/reference domains remain rejected; diagnostic metadata has no custody authority |
 | Canonical signed allocations | Local team | Integrated opt-in funded owner | Independently pinned SupersedingCoSignedAllocationV1; both signatures, actual escrow, full recovery and retained transition checks; L1 funding/scripts/revocation remain external |
 | Native genesis | Local source audit and owner design | 22 source scenes verified; owner implementation in progress | Resolve declared supply versus source credits and BTC residual before selecting a conserving actual-owner policy |
+| Main-owner insurance backstop | Local insurance agent; independent source support | Owner implementation in progress; [existing-owner review](INSURANCE_OWNER_REVIEW.md) recorded | Preserve actual AMM/book liquidation, cover recorded unpaid liabilities with real reserve atoms and replay complete receipts; source-compatible lifecycle and authentication remain open |
 
 The user reassigned activation to the local queue because the web worker
 stalled. Its earlier external reservation is lifted. The local standalone source
@@ -73,5 +74,9 @@ The native source audit is preserved in[NATIVE_GENESIS_SOURCE.md](NATIVE_GENESIS
 and offline Node fixtures. The next implementation requires an independently
 configured pre-funded owner and no default economic policy. The web insurance
 worker reports49 executed adversarial observations; the actual patch bytes are
-not present locally. Those remain external evidence. A local review is checking
-real clearing/Economic custody and durable replay against the reported mechanisms.
+not present locally. Those remain external evidence. The completed local review
+checks real clearing/Economic custody and durable replay against the reported
+mechanisms: 32 existing focused checks passed, with no new custody defect
+reproduced and no increase to the full-suite test count. The main Economic owner
+still has pending-fee custody only at this reviewed baseline; its backstop is
+being implemented separately from the sandbox's synthetic full-book closeout.

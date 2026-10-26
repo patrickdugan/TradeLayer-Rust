@@ -1,0 +1,13 @@
+
+running 9 tests
+test economic_lock_probe_child ... ok
+test repaired_crc_cannot_relabel_positive_height_floor_as_genesis ... ok
+test wrong_header_tip_network_and_deployment_configuration_are_atomic ... ok
+test durable_incomplete_tail_requires_explicit_recovery_and_preserves_expected_head ... ok
+test durable_os_lock_excludes_second_process_and_release_allows_reopen ... ok
+test retained_history_evicts_to_real_claim_floor_then_empty_floor_reopens_and_branches ... ok
+test durable_oldest_floor_restart_branch_and_failed_deeper_rollback_are_atomic ... ok
+test durable_restart_multirollback_and_same_tip_new_sequence_preserve_full_economics ... ok
+test full_matched_state_claim_checkpoint_reopens_and_rolls_back_on_each_network ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.21s

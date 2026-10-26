@@ -105,3 +105,8 @@ fixtures/mark_basis_quirks.tsv text eol=lf whitespace=-blank-at-eol
 
 # Unified patches contain significant blank context lines with a space prefix.
 fixtures/barrier_startup_cancellation.patch text eol=lf -whitespace
+
+# Insurance review preserves exact pinned source and portable evidence bytes.
+fixtures/insurance_owner_review/insurance.js -text -whitespace
+fixtures/insurance_owner_review/*.json text eol=lf
+fixtures/insurance_owner_review/*.log text eol=lf

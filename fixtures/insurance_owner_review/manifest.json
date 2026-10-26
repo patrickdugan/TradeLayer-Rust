@@ -1,0 +1,142 @@
+{
+  "reviewedCommit": "386a8ea06080c1c425334317ad7b28e150750adc",
+  "rustVerifiedCommit": "70dd91190892d4523ab283abdd6da0b78c0b42b2",
+  "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "sourceGitBlob": "c7f5434baf3160b81a86c0643f7eb8bc6dca0d9f",
+  "external49CasesImported": false,
+  "newProductionDefectReproduced": false,
+  "newRustTestsAdded": 0,
+  "focusedExistingTestExecutionsPassed": 32,
+  "cargoCompilationPerformedForDocumentationChange": false,
+  "executions": [
+    {
+      "target": "insurance_ledger_v2",
+      "passed": 9,
+      "executable": "insurance_ledger_v2-c0d92ce27af6ff5d.exe",
+      "executableSha256": "71a4fb5d96961d138b2239b560c291742c7ca72808409113011a1c863cfbe2ef",
+      "arguments": []
+    },
+    {
+      "target": "insured_distressed_closeout",
+      "passed": 12,
+      "executable": "insured_distressed_closeout-49804bcc5709f41f.exe",
+      "executableSha256": "09687d2fd0c9fc5bdddb4b9122d0b56d08cc88ff269dd50241127f2d993a0134",
+      "arguments": []
+    },
+    {
+      "target": "economic_chain",
+      "passed": 9,
+      "executable": "economic_chain-35ea5e1ccba74850.exe",
+      "executableSha256": "ef3c23726e9e5a645d5d75a07abfcb6657bd365bf6c1f337eeac5102143d2cbc",
+      "arguments": []
+    },
+    {
+      "target": "poisoned_owner",
+      "passed": 1,
+      "executable": "tradelayer_core-07e4828b1f948609.exe",
+      "executableSha256": "625b1df843116eae5decfd63350bf99924cca7605a97eab19f45e92603e5f08f",
+      "arguments": [
+        "--exact",
+        "economic_state_oracle::tests::poisoned_original_owner_cannot_export_cached_state_after_uncertain_commit"
+      ]
+    },
+    {
+      "target": "journal_poison",
+      "passed": 1,
+      "executable": "tradelayer_core-07e4828b1f948609.exe",
+      "executableSha256": "625b1df843116eae5decfd63350bf99924cca7605a97eab19f45e92603e5f08f",
+      "arguments": [
+        "--exact",
+        "storage::tests::actual_write_error_poison_blocks_read_and_write_until_reopen"
+      ]
+    }
+  ],
+  "reviewedRust": {
+    "src/clearing_sandbox.rs": {
+      "bytes": 44255,
+      "sha256": "9bbfa729854181c592c4756c0142d287b17ad095bc31da77f88ce33450b16de9"
+    },
+    "src/clearing_distress_impl.rs": {
+      "bytes": 12207,
+      "sha256": "83b69210b0a65105569d0eb5792425c8258a33dcdbab7b95721f05f11a743f33"
+    },
+    "src/clearing_snapshot_impl.rs": {
+      "bytes": 14255,
+      "sha256": "b47f169559ad64020083f6397786635ba2e39a764a67539987725e45d6521764"
+    },
+    "src/clearing_chain.rs": {
+      "bytes": 26107,
+      "sha256": "af8d0f24fb4a32203443695381daff4a79d43a8ec76842c1c3959f13db551ef1"
+    },
+    "src/spot.rs": {
+      "bytes": 34856,
+      "sha256": "a3e73ce8dd36f27321e2a2762ad06762dad4fda47699440e2be086efba86c0ed"
+    },
+    "src/ledger.rs": {
+      "bytes": 37669,
+      "sha256": "0ffbd4e73d6fbf4732d6dfa437e41230e3f73f3672ebe292a25eee472095cef4"
+    },
+    "src/economic.rs": {
+      "bytes": 40321,
+      "sha256": "88fc29f44be40640cf9d064a666c558d6425b23b52b18a3bfef9f6ed2c9e6896"
+    },
+    "src/economic_liquidation_impl.rs": {
+      "bytes": 52196,
+      "sha256": "3378de8d8831ef5453fdca81bff11d56d81bf00c3c41e8e6251b9e8d33ffe3d4"
+    },
+    "src/economic_snapshot_impl.rs": {
+      "bytes": 120566,
+      "sha256": "d9a9127ee35a42d757b5825e2e57457f901d6802cfc2a2212d66b2100c04cd12"
+    },
+    "src/economic_chain.rs": {
+      "bytes": 21746,
+      "sha256": "47775ffdc51a0f51f4cd617751c72e45965e8f3d71f50da64619dc38b593f386"
+    },
+    "src/storage.rs": {
+      "bytes": 24688,
+      "sha256": "4032c8633196b5b5f0f457a41da04ff203cdfeb6f523c86ca82e58ba91d894c2"
+    },
+    "src/service_view.rs": {
+      "bytes": 61695,
+      "sha256": "c0058c31c1f0277b59c382669f2bb507186505b88b7447536eb90e74035f385d"
+    },
+    "tests/insurance_ledger_v2.rs": {
+      "bytes": 18538,
+      "sha256": "adedb8cc3ae29942337f1609b5ce6b9dec6886fd5e896ff46824757cbdac549b"
+    },
+    "tests/insured_distressed_closeout.rs": {
+      "bytes": 22008,
+      "sha256": "375d2e540cf8d09bed43c1ce071f218b9f53a4abfbf30e25970278cff43e68c4"
+    },
+    "tests/economic_chain.rs": {
+      "bytes": 22645,
+      "sha256": "72fc1b7c7b53c442955e7c198183b9cecc5a121f06389158d9f69c41ab361201"
+    }
+  },
+  "files": {
+    "economic_chain.log": {
+      "bytes": 828,
+      "sha256": "09f983ae5749526e35949010fdfba75c9a92e647c6dcd973c142f5b43c8f4ffc"
+    },
+    "insurance.js": {
+      "bytes": 13585,
+      "sha256": "5abbe7934ca4c2f4180ed910989ae8f90d752bf9e17cb8944b8b49e33d03c39c"
+    },
+    "insurance_ledger_v2.log": {
+      "bytes": 744,
+      "sha256": "e0c88dbf14f4ff6a2235b0b1f06b907a02165ff3e190dffb8308592e7072e722"
+    },
+    "insured_distressed_closeout.log": {
+      "bytes": 1046,
+      "sha256": "8c96c2bdff585ea712bc2da3ea6533a2f0b521c826d4e86bbb40426c8dd7753a"
+    },
+    "journal_poison.log": {
+      "bytes": 201,
+      "sha256": "080677375ace1da01806a359c98dc9c9181e2f4a9572fa314431e709e82c38ef"
+    },
+    "poisoned_owner.log": {
+      "bytes": 228,
+      "sha256": "f25324f7b27689acaed2864c8b1bccd2abbfb3c9a798a36153372a60af8bfb04"
+    }
+  }
+}

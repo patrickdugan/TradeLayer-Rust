@@ -11,11 +11,17 @@ assertions*. This model does not accept Litecoin/Bitcoin/Dogecoin transactions,
 validate signatures, reconstruct historical contract state, or authorize
 type 3, 23 or 31 settlements.
 
+This Stage 25A description is historical. Later sandbox stages add
+[policy-aware snapshots and insurer deposits](INSURANCE_LEDGER_V2.md) and
+[funded synthetic full-book closeout](INSURED_DISTRESSED_CLOSEOUT.md).
+The separate [Economic owner](ECONOMIC.md) integrates market fills and
+guarded AMM/book closeouts. The sandbox is not that market owner.
+
 ## Architecture and custody of token atoms
 
-\`ClearingSandbox\` exclusively owns **one** existing \`Ledger\`:
+`ClearingSandbox` exclusively owns **one** existing `Ledger`:
 
-\`\`\`
+```
 ClearingSandbox
   network: Bitcoin | Litecoin | Dogecoin (separate instances)
   collateral_property: PropertyId
@@ -26,23 +32,23 @@ ClearingSandbox
   positions: BTreeMap<AccountId,i64> ← signed sizes, never another balance
   margin_escrows: owner -> escrow ID  ← references into that same Ledger
   seen: BTreeSet<TxId>               ← outer research-event replay markers
-\`\`\`
+```
 
-Posting margin is a real atomic \`Ledger::Transfer\` from the owner's
+Posting margin is a real atomic `Ledger::Transfer` from the owner's
 available balance to a reserved escrow. Funding transfers move existing
 collateral **directly between escrow accounts**. Position-size changes
 neither mint nor burn assets. The system never stores a second sum of
 margin balances that could drift from the ledger.
 
-Escrow names are \`~clrm:\` plus 32-byte double-SHA256 in hex over a
+Escrow names are `~clrm:` plus 32-byte double-SHA256 in hex over a
 domain-separated namespace, pinned network genesis, contract ID, property
 ID and owner bytes. Internal operation IDs also include an external event
 ID and a leg nonce. This deterministic hashing is a research namespace,
 not a signature or independently audited cryptographic authorization.
 
-External actors beginning with \`~\` are rejected. A ledger containing
+External actors beginning with `~` are rejected. A ledger containing
 existing spot escrows, channels, withdrawal/settlement liabilities or
-unrecognized \`~\` balances cannot be imported into this separate sandbox.
+unrecognized `~` balances cannot be imported into this separate sandbox.
 This prevents silently combining it with the Stage 22 SpotExchange and
 its already-owned ledger. **This module is not yet a new JointChainState
 opcode or approved migration path.**
@@ -51,11 +57,11 @@ opcode or approved migration path.**
 
 | Transition | Validations | Economic mutation |
 | --- | --- | --- |
-| \`deposit_margin_unverified\` | Nonzero amount, ordinary account, known collateral, replay check, bounded owners | One checked ledger transfer into owner's reserved margin escrow |
-| \`apply_matched_trades_unverified\` | Nonempty, bounded, distinct parties, posted margin, checked signed amount | Updates equal/opposite long and short sizes, no balance change |
-| \`settle_funding_unverified\` | Rate and notional bounded; FundingMode::ConservingProposal preview with payer sufficiency and zero net | Deterministic funding legs transfer existing locked collateral, atomically |
-| \`withdraw_margin_unverified\` | Must be flat; posted amount sufficient | Transfers locked collateral from escrow back to owner |
-| \`settle_funding_fault_injected_unverified\` | Same checks, explicit failure at selected transfer boundary | **Never commits** on injected failure; available for offline robustness testing |
+| `deposit_margin_unverified` | Nonzero amount, ordinary account, known collateral, replay check, bounded owners | One checked ledger transfer into owner's reserved margin escrow |
+| `apply_matched_trades_unverified` | Nonempty, bounded, distinct parties, posted margin, checked signed amount | Updates equal/opposite long and short sizes, no balance change |
+| `settle_funding_unverified` | Rate and notional bounded; FundingMode::ConservingProposal preview with payer sufficiency and zero net | Deterministic funding legs transfer existing locked collateral, atomically |
+| `withdraw_margin_unverified` | Must be flat; posted amount sufficient | Transfers locked collateral from escrow back to owner |
+| `settle_funding_fault_injected_unverified` | Same checks, explicit failure at selected transfer boundary | **Never commits** on injected failure; available for offline robustness testing |
 
 The funding projection reuses Stage 24B's **proposed** debit directions
 and deterministic Hamilton apportionment. It does not claim parity with
@@ -73,14 +79,16 @@ before producing any transfer. Injected faults at each transfer leg,
 including the boundary after the final leg but before commit, leave
 the original balances, positions and markers unchanged.
 
-This clone-and-swap design is intentionally conservative and not a
-production throughput scheme. It has no durable checkpoint, undo journal,
-crash recovery, external block authorization or funding scheduler.
-No proof is made that \`TradeLayerMainnet\`'s label matches the actual
-chain input. Existing \`JointChainState\` adapters and Type 3/23/31
+This clone-and-swap design has no production throughput claim. The original
+Stage 25A has no persistence; later TLCL/TLCC formats preserve whole sandbox
+states and rollback witnesses through immutable checkpoint files. They do
+not provide a locked Journal with an independently expected current head.
+External block authorization and a protocol funding scheduler remain open.
+No proof is made that `TradeLayerMainnet`'s label matches the actual
+chain input. Existing `JointChainState` adapters and Type 3/23/31
 execution remain unchanged and default-deny.
 
-**Not yet implemented:** fee routing, initial and maintenance margin
+**Outside the original Stage 25A slice:** fee routing, initial and maintenance margin
 requirements, orderbook matching proofs, contract registration, inverse
 funding units and per-contract notional validation, PnL/mark-to-market
 posting, liquidation waterfalls, insurance, bankruptcy/ADL, channel
@@ -91,7 +99,7 @@ engine. Insufficient funds reject; they do not trigger liquidation.
 ## Source provenance
 
 The old JavaScript reference at
-\`tradelayer.js@dca0888b827c5bc28fa9189bc9e1d507f5c5670c\`
+`tradelayer.js@dca0888b827c5bc28fa9189bc9e1d507f5c5670c`
 was repeatedly rewritten, and surviving end-of-block state changes
 must be tested as observations, not blindly adopted as consensus.
 Stage 24B demonstrated attempted negative funding reversal and
@@ -101,14 +109,14 @@ not inherit either implicit scheduling path.
 
 ## Test commands
 
-\`\`\`sh
+```sh
 python3 scripts/check_rust_supply_chain.py
 cargo fmt --all -- --check
 cargo clippy --all-targets --frozen -- -D warnings
 cargo test --frozen --test clearing_sandbox
 cargo test --frozen
 cargo build --all-targets --release --frozen
-\`\`\`
+```
 
 Tests include: three-party funding in both directions; exact supply
 conservation; one-owned-ledger escrows; replay including inherited
@@ -128,7 +136,7 @@ Before replay activation, provide a signed-chain source adapter and
 a checkpoint/reorg journal with independent state-root and historical
 JavaScript differential vectors.
 
-Do not permit client-supplied \`MatchedContractTrade\` to become an
+Do not permit client-supplied `MatchedContractTrade` to become an
 authenticated transaction type. A future verified adapter must provide
 actual chain-based authority, economic trade validity and versioned
 activation rules.

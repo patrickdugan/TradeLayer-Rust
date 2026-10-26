@@ -1,0 +1,13 @@
+
+running 9 tests
+test insurer_identity_is_separated_by_network_and_contract ... ok
+test sponsor_donates_existing_atoms_into_unique_insurance_reserve ... ok
+test explicit_insurance_policy_is_frozen_before_first_deposit ... ok
+test no_spot_order_or_ordinary_transfer_can_spend_insurance ... ok
+test unrelated_actor_replay_and_overdraft_are_atomic ... ok
+test recomputed_crc_cannot_change_insurance_sponsor_or_downgrade_v2 ... ok
+test tlcl_v2_is_canonical_and_legacy_v1_remains_byte_stable ... ok
+test tlcc_v2_recovers_donations_and_rolls_back_alternate_forks ... ok
+test immutable_v2_checkpoint_failure_preserves_all_reserve_and_replay_history ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
