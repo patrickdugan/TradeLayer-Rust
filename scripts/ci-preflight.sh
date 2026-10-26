@@ -19,6 +19,7 @@ rustfmt --check --edition 2021 \
   src/ledger_channels_impl.rs src/ledger_settlement_impl.rs \
   src/spot_snapshot_impl.rs src/joint_snapshot_impl.rs \
   src/trade_history_position_impl.rs src/volume_index_source_impl.rs \
+  src/economic_block_stage_impl.rs src/economic_consensus_impl.rs \
   src/joint_economic_impl.rs src/economic_snapshot_impl.rs src/economic_funding_impl.rs src/economic_mark_impl.rs src/economic_contract_impl.rs \
   src/economic_liquidation_impl.rs src/economic_liquidation_replay_impl.rs src/contract_orderbook_liquidation_impl.rs src/economic_amm_impl.rs src/economic_amm_replay_impl.rs \
   src/iou_snapshot_impl.rs src/iou_ledger_snapshot_impl.rs

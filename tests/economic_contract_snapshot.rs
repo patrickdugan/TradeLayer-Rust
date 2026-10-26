@@ -37,6 +37,7 @@ fn p() -> PropertyId {
 fn config(network: TradeLayerMainnet) -> EconomicChainConfig {
     EconomicChainConfig {
         economics: EconomicConfig {
+            source_consensus: None,
             network,
             contract: 1.try_into().unwrap(),
             collateral: p(),

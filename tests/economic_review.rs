@@ -94,6 +94,7 @@ mod combined_execution_review {
         let property = PropertyId::try_from(7).unwrap();
         let contract = ContractId::try_from(1).unwrap();
         let config = EconomicConfig {
+            source_consensus: None,
             contract_binding: None,
             network: TradeLayerMainnet::Litecoin,
             contract,

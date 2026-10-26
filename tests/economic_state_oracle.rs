@@ -76,6 +76,7 @@ fn id(number: u64) -> TxId {
 fn config(network: TradeLayerMainnet) -> EconomicChainConfig {
     EconomicChainConfig {
         economics: EconomicConfig {
+            source_consensus: None,
             network,
             contract: c(),
             collateral: p(),

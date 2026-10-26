@@ -91,6 +91,7 @@ fn order(
 }
 fn config(network: TradeLayerMainnet, amm: bool) -> EconomicConfig {
     EconomicConfig {
+        source_consensus: None,
         network,
         contract: 1.try_into().unwrap(),
         collateral: p(),

@@ -408,7 +408,7 @@ fn preflight_file_header(
     let tip = read_tip(&mut reader)?;
     let _floor = read_tip(&mut reader)?;
     let version = reader.u8().map_err(|_| bad("state version"))?;
-    if !(1..=6).contains(&version) {
+    if !(1..=7).contains(&version) {
         return Err(bad("state codec/version"));
     }
     let state_length = reader.u32().map_err(|_| bad("state length"))? as usize;
@@ -484,7 +484,7 @@ fn state_range(
     let state = reader
         .take(length)
         .map_err(|_| bad("embedded state framing"))?;
-    if state.len() < 5 || &state[..4] != b"TLEC" || !(1..=6).contains(&state[4]) {
+    if state.len() < 5 || &state[..4] != b"TLEC" || !(1..=7).contains(&state[4]) {
         return Err(bad("state codec/version"));
     }
     let end = TLEH_STATE_OFFSET
@@ -562,6 +562,7 @@ mod tests {
         let property = PropertyId::try_from(7).unwrap();
         let config = EconomicChainConfig {
             economics: crate::economic::EconomicConfig {
+                source_consensus: None,
                 network: TradeLayerMainnet::Litecoin,
                 contract: ContractId::try_from(1).unwrap(),
                 collateral: property,

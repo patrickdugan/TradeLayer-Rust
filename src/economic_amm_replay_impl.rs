@@ -427,6 +427,7 @@ mod amm_cash_history_tests {
             )
             .unwrap();
         let config = EconomicConfig {
+            source_consensus: None,
             network: TradeLayerMainnet::Bitcoin,
             contract: ContractId::try_from(1).unwrap(),
             collateral,

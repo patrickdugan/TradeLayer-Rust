@@ -293,6 +293,7 @@ fn econ_read_config(
         return Err(econ_snapshot_bad());
     }
     let mut config = EconomicConfig {
+        source_consensus: None,
         network,
         contract: econ_read_contract(reader)?,
         collateral: econ_read_property(reader)?,
@@ -2607,6 +2608,9 @@ fn econ_read_contract_state(reader: &mut Cursor<'_>) -> Result<ContractBindingSt
 
 impl EconomicState {
     pub fn snapshot_bytes(&self) -> Result<Vec<u8>> {
+        if self.config.source_consensus.is_some() {
+            return self.source_snapshot_bytes();
+        }
         self.verify()?;
         let has_binding = self.config.contract_binding.is_some();
         let mut out = EconomicWriter(if has_binding {
@@ -2729,6 +2733,12 @@ impl EconomicState {
         permitted: &BTreeSet<PropertyId>,
     ) -> Result<Self> {
         expected_config.validate()?;
+        if bytes.starts_with(ECONOMIC_SOURCE_MAGIC) {
+            return Self::from_source_snapshot_bytes(bytes, expected_config, admin, permitted);
+        }
+        if expected_config.source_consensus.is_some() {
+            return Err(EconomicError::InvalidConfig);
+        }
         let raw = verify_crc(bytes).map_err(|_| econ_snapshot_bad())?;
         let mut reader = Cursor::new(raw);
         let version = reader.fixed::<5>().map_err(|_| econ_snapshot_bad())?;
@@ -2889,6 +2899,8 @@ impl EconomicState {
             amm,
             contract_binding,
             replaying_contract_history: false,
+            source_consensus: SourceConsensusState::default(),
+            replaying_source_history: false,
         };
         result.verify()?;
         if result.snapshot_bytes()?.as_slice() != bytes {
@@ -3205,6 +3217,7 @@ mod funding_codec_compat_tests {
         )
         .unwrap();
         let config = EconomicConfig {
+            source_consensus: None,
             network: TradeLayerMainnet::Bitcoin,
             contract: 1.try_into().unwrap(),
             collateral: 7.try_into().unwrap(),

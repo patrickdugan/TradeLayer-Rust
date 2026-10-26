@@ -16,8 +16,20 @@ dependency-ordered complete input replay, and source-derived order/fill/average/
 mark margin and fee contexts in the sole economic Ledger. See
 [ECONOMIC_CONTRACTS.md](ECONOMIC_CONTRACTS.md). The existing AMM-first closeout
 and funded LP receipt implementation now shares those contexts. These advances
-do not complete native/dated/multicontract orchestration, full validity rules,
+do not complete native/dated/multicontract orchestration, all validity dependencies,
 insurance/ADL or chain authentication; no source module is promoted to complete.
+
+The next integration adds all 43 [source validity exports](VALIDITY_SOURCE.md),
+complete [Types dispatch](TYPES_SOURCE.md), actual pending-owner dependency reads,
+and [sequential source execution](CONSENSUS_SOURCE.md) through the same Ledger.
+TLECv7 retains accepted and rejected raw candidates, reexecutes their real rules
+on restore, finalizes economic phases once per block and checks exact rollback
+history prefixes. The standalone [activation source lane](ACTIVATION.md) covers
+18 methods plus constructor/static singleton; its final corpus counts await the
+last source-boundary review and central checks. These are source-conformance and
+supported owner subsets; native genesis, complete dependency ownership and
+authenticated historical admission remain open. Current full-batch checks are
+passed locally; the final combined results and earlier producer/wire baseline are recorded below.
 
 The integrated [TLSEv1 state-oracle producer](ECONOMIC_STATE_ORACLE.md) now exports
 the actual locked owner's canonical full economic state with independently
@@ -30,19 +42,23 @@ external consumer integration remain open. The codecs additionally have
 integrated tests, while their standalone classification remains unchanged.
 
 [PARITY_ROADMAP.csv](PARITY_ROADMAP.csv) contains all 49 JavaScript source
-modules, excluding the experimental README. It records thirty-seven assessed
-TL modules below; 11 retain their prior assessment and one is an external
+modules, excluding the experimental README. It records forty-one assessed
+TL modules below; seven retain their prior assessment and one is an external
 UTXORef reference, excluded from the 48-module TL implementation scope.
 The insurance and property rows additionally record external-worker assignments.
 It supplements the historical [full-tree inventory](JS_RUST_PORT_AUDIT.md),
 whose earlier mappings and assessment commit are preserved.
 
-[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 817
+[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 914
 source entries with their tested domains, Rust tests and remaining criteria.
 None of these rows or modules is marked as a complete production port.
 
 | Module | Implemented and verified scope | Remaining completion criteria |
 | --- | --- | --- |
+| `validity.js` | All43 source exports;564 observations comprising562 exact and2 explicit domains; actual pending-owner backend reads for represented facts | Missing property/list/country/xpub/proof owners, broader source domains, complete economic handlers and authenticated historical admission |
+| `types.js` | Three callable functions covered across bounded encoding/dispatch/reference helpers;1228 observations including75 genuine Types-to-validity compositions and2 explicit UTF-16 domains; supported owner mapper | Full represented-handler coverage and underlying metadata owners, broader JS domains, authenticated raw inputs and historical acceptance |
+| `consensus.js` | All30 active methods plus constructor characterized in56 combined consensus/main observations; bounded source JSON hash helpers and real sequential sole-owner v7 orchestration with raw/rejected replay and exact rollback-prefix checks | Legacy DB/peer methods are not all implemented; full phase owners, high-anchor bootstrap, authenticated admission, historical replay and resource evidence |
+| `activation.js` | Standalone source lane:18 methods plus constructor/static singleton,36 registry names,6 admins; 670 exact observations plus5 explicit domains; canonical accepted activation origins derived from actual v7 owner replay | Actual sole-owner activation/native-genesis lifecycle, authoritative administrator/bootstrap, durable integration and historical acceptance |
 | `dlcOracleBridge.js` | All7 functions;294 genuine-source observations; real native ECDSA and separate independently trusted payload-bound checks | Authenticated oracle/chain/state configuration, actual DLC economic integration and historical acceptance |
 | `experimental/binohash/binohashAdapter.js` | External UTXORef optional feature; user excludes it from TL implementation | No TL Binohash parity gate; TL exports checkable state-oracle data to the separate consumer |
 | `interface.js` | All26 active methods plus constructor;90 source scenes and5 stream cases; concrete immutable economic queries, exact custody and actual execution/funding/mark reporting | Historical/index/wallet/proof capabilities, complete external stores, deployment and authenticated inputs |
@@ -50,7 +66,7 @@ None of these rows or modules is marked as a complete production port.
 | `walletInterface.js` | All19 active exports;213 combined client observations and named repaired routing; actual exact-balance HTTP integration | Actual wallet/key control, full database capabilities, deployment and authenticated state |
 | `listener.js` | All19 active routes; bounded local HTTP dispatch into the original locked economic owner | Separate node subscriptions, unavailable backend capabilities, launcher/deployment and authentication |
 | `walletListener.js` | All43 routes and5 helpers;134 combined source observations and genuine Express routing; explicit unknown sync state and no automatic broadcast | Full wallet/index/issuance/BitVM/external registry stores and authenticated mutation |
-| `main.js` | All30 active methods plus constructor characterized in21 observations; durable bounded raw spool, cursor, retries, retained forks, cooperative cancellation and concrete Core polling CLI | Authenticated parent UTXO/scripts and economic sequencing, Dogecoin AuxPoW, subscriptions, indefinite archival and deployed Core interoperability |
+| `main.js` | All30 active methods plus constructor characterized in21 observations; durable bounded raw spool, cursor, retries, retained forks, cancellation and concrete Core polling CLI; source phase-order characterization and supported sequential economic owner integration | Authenticated observer-to-economic ingestion and parent UTXO/scripts, unrepresented reward/channel/native phases, Dogecoin AuxPoW, subscriptions, archival and deployed Core interoperability |
 | `bitvmBundle.js` | All6 functions,23 full-source observations; source JSON/hash semantics and bounded actual artifact file reads | Independently trusted expected hash, production integration and real proof/signature authority |
 | `bitvmCache.js` | All8 methods,52 full-source observations; source lifecycle quirks and atomic finite complete replayed metadata | Actual bond/escrow custody, authenticated actors, adjudication and durable cross-store integration |
 | `bitvmRisk.js` | All11 functions,48 full-source observations; cap/window/clamp and repeated-call semantics with atomic metadata replay repair | Accepted event deduplication, actual custody reconciliation, authenticated sweep/escrow and policy promotion |
@@ -60,7 +76,7 @@ None of these rows or modules is marked as a complete production port.
 | `txDecoder.js` | Standalone: all 36 active exports, genuine complete-source numeric/malformed/base vectors and later Type23 shadow behavior; 169 composition rows and 4 passing integrated tests | Target-engine promotion and historical chain corpus, raw-transaction/signature/admission integration; source Types identity adapter observes dispatch only |
 | `adjuster.js` | Constructor and all three methods; 641 finite source rows and 19 source-only observations; exact tick/minimum and event order with atomic complete replayed metadata | Applying policy to orders, production persistence, wider JS domains and historical acceptance |
 | `issuanceIntent.js` | All three methods; 321 source observations; arbitrary bounded ordered JSON, upsert/query, source ID quirks, nested address arrays and strict full replay | Functional metadata repair differs from the source missing DB category; token issuance authority, production persistence and broader NeDB/historical behavior |
-| `stateOracle.js` | Integrated subset: all 6 functions and 2319 source observations; actual locked full-owner TLSEv1 export with canonical TLECv1-v6/full-TLEH bytes, independent config/head/state checks, exact network/genesis/tip and new-file-only synced transport; 7 passing integration tests plus poisoned-owner unit regression | Authenticated admission and producer/oracle provenance, explicit transition witness, external UTXORef consumer integration and historical acceptance; broader legacy locale/Unicode/nonfinite domains remain bounded |
+| `stateOracle.js` | Integrated subset: all6 functions and2319 source observations; actual locked full-owner TLSEv1 export supports canonical TLECv1-v7/full-TLEH bytes, independent config/head/state checks, exact network/genesis/tip and new-file-only synced transport;7 baseline integration tests plus poisoned-owner regression | Authenticated admission and producer/oracle provenance, explicit external transition witness, UTXORef consumer integration and historical acceptance; broader legacy locale/Unicode/nonfinite domains remain bounded |
 | `clearing.js` | Constructor and all 79 active methods assessed; source funding and mark arithmetic/quirks; funded fractional oracle-perpetual epochs, exact settled-basis marks and nominal default offsets in the existing Ledger with complete restart and rollback | Actual liquidation/AMM/ADL and insurance, native VWAP, full contract orchestration, complete admitted-publication history, authenticated marks/actors and historical acceptance |
 | `orderbook.js` | All 69 methods, constructor and two comparators assessed; 287 actual-source vectors and nine source defects; contract book, funded type18/6 matching, owner cancellation and complete recovery in the existing joint Ledger | Authenticated orders and contract configuration, funded AMM-first execution, liquidation/ADL, multicontract orchestration, channels, source reporting/rewards and historical acceptance |
 | `tally.js` | All 45 methods plus constructor assessed; 248 actual-source vectors and 32 source assertions; actual custody projections, funded match fee/rebate collection and complete FeeBook persistence | Legacy arbitrary-value/NeDB migration, authenticated channel/vesting rules, registered insurance lifecycle, buybacks, remaining shared economic stores and historical acceptance |
@@ -689,9 +705,10 @@ feature in UTXORef. The inventory therefore contains 48 TL modules and one
 external reference. Both encoder and decoder implementations are standalone
 ports with complete active-export coverage in documented domains; remaining
 legacy-domain, historical corpus and accepted-runtime checks stay explicit.
-A second external worker assignment reserves six new activation port files;
-execution is not inferred from that assignment. The hung external wire-corpus
-lane has been reassigned locally.
+The earlier external activation assignment was subsequently reassigned to the
+local queue after that worker stalled. Its standalone source lane is now
+integrated as recorded below; actual owner activation/native issuance remains
+separate. The hung external wire-corpus lane was also reassigned locally.
 
 Frozen local Rust 1.90/MSVC validation passed 1,101 tests across 134 executables,
 all-target Clippy with warnings denied, formatting of all modules/includes and
@@ -730,10 +747,85 @@ observations. The Types identity validity adapter records dispatch/arguments;
 it neither executes the source validity module nor establishes acceptance.
 Encoder and decoder remain standalone ports in their documented domains.
 
-Current local Rust 1.90/MSVC validation passed **1,113 tests across 136 executable
+The last fully verified producer/wire baseline passed **1,113 tests across 136 executable
 targets**, plus empty doctest targets; Cargo formatting, explicit included-file
 rustfmt, all-target frozen Clippy with warnings denied, the zero-third-party
 Rust gate and all 11 mutation tests passed. The Node wire check passed all 169
 composition rows. The all-target release build passed in 7m 00s for this
-batch. No GitHub CI, push, proof-system validation or authenticated historical
+baseline. No GitHub CI, push, proof-system validation or authenticated historical
 acceptance is claimed.
+
+## Source validity, Types and sequential owner replay
+
+The complete unchanged-source validity corpus covers all 43 exports in 564
+observations: 562 exact comparisons and two explicit unsupported domains.
+The Types corpus has 1228 observations: 1151 dispatch/helper cases, 75 genuine
+Types-to-full-validity compositions and two explicit unsupported UTF-16 cases.
+Source quirks, returned Error objects, deferred rejections, argument mutations
+and global-write diagnostics remain observable; successful source evaluation
+alone does not grant economic authority.
+
+The actual `EconomicSourceBackend` derives represented facts from the pending
+sole owner with independent network/parent/height context. The opt-in
+`ConservingSequentialV1` runner recomputes dispatch, rules and the strict mapper
+for every raw candidate. Each handler stages atomically; failed, unavailable,
+unsupported and duplicate candidates retain evidence without partial custody
+changes. The existing book, mark, funding, AMM, liquidation and Joint end phases
+run once, and one durable commit publishes their state with the audit. A late
+phase failure discards the entire proposed block.
+
+TLECv7 stores the independent bootstrap commitment, canonical bootstrap, full
+headers/raw inputs and accepted/rejected receipts. Restore reexecutes them
+against real owner state rather than trusting persisted validity decisions or
+dependency replies. Before-state checkpoints must be exact prefixes of the
+live raw history, closing the rollback-splice case where two valid histories
+share asserted header IDs. Source mode denies the old typed bypass; disabled
+mode preserves v1-v6 bytes. TLSEv1 can carry v7 without claiming an external
+transition witness or authenticated L1 provenance.
+
+The consensus oracle has 56 complete-source observations and characterizes all
+30 consensus methods plus constructor. Most legacy database/peer/hash methods
+remain characterized behavior, not complete Rust implementations. The real
+block driver is the explicitly conserving owner integration: indexed and live
+funding partitions retain their distinct source order, while empty blocks and
+late failures use the once-per-block durable owner policy. Source-valid oracle
+lag zero remains an explicit actual-Registry rejection; positive owner fixtures
+use the existing minimum-lag policy rather than weakening it.
+
+Activation has 670 exact source observations and five explicit domain cases.
+The [derived activation-history view](ACTIVATION_HISTORY.md) binds accepted
+origins to actual v7 replay, exact source positions/txids and Registry records;
+restart, rollback, rejected candidates and durable freshness are covered. All 18 methods, constructor/static singleton,
+36 names, six administrators, strict 33-of-36 threshold, persistence/failure
+order, repeated activation and source placeholders are covered. Its standalone
+metadata and named repaired intent do not issue native supply or replace the
+actual owner administrator/prior-height/replay gates.
+
+The final combined run passes **1,162 Rust test executions: 1,161 top-level
+tests plus one subprocess lock check**, across **144 executable targets** and
+one empty doctest target. Every top-level test runs without filtering or
+ignores; the lock-test child intentionally selects one helper. Cargo formatting,
+explicit rustfmt for all included implementation files, all-target frozen Clippy
+with warnings denied, the zero-third-party policy and all 11 mutation tests pass.
+The all-target frozen release build passes in **5m 44s**. The four changed Node
+oracles pass validity564, Types1228, consensus56 and activation670 exact plus5
+explicit domain observations. All535 implementation/check inputs stayed unchanged
+through the final checks. These counts include real source-vector and durable
+owner tests; a vector row is not counted as an independent Rust test. Full property/list/country/
+xpub/proof dependencies, all source economic phases, native genesis and high
+anchors, historical acceptance and authenticated parent-UTXO/script admission
+remain separate completion gates. The inventory stays 48 TL modules plus one
+external UTXORef optional-feature reference; Binohash remains outside TL.
+
+## Ordinary Joint restore boundary
+
+A valid standalone channel-bearing Ledger/Spot checkpoint could previously be
+embedded in a CRC-repaired ordinary TLJP snapshot, bypassing the Joint
+constructor capability fence. Four genuine regressions failed before the fix:
+free channel escrow, reserved withdrawal, pending NET claim and swept KING
+history were accepted. Restore now repeats the existing channel/settlement
+liability fence during ordinary component verification. All five new tests pass
+across the three networks, including unchanged normal checkpoint bytes. Economic
+combined-mode policy and standalone channel-capable Ledger/Spot behavior remain
+unchanged. This closes an import inconsistency; it does not implement signed
+channel revisions or authorize channel admission.

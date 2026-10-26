@@ -21,7 +21,7 @@ serialization semantics. Their source-compatible balance projections alone
 do not provide complete economic state or chain context. The implemented
 [`EconomicStateOracleExport`](ECONOMIC_STATE_ORACLE.md) now produces **TLSEv1**
 from the actual healthy, locked `DurableEconomicChain`, with independently
-expected configuration and freshness head. It binds canonical full TLECv1–v6
+expected configuration and freshness head. It binds canonical full TLECv1–v7
 owner bytes, network, pinned genesis, exact tip, rollback floor and separate
 state/checkpoint/export commitments. One full TLEH checkpoint carries the
 borrowed TLEC payload and the witness needed to check its relationship to the
@@ -38,8 +38,21 @@ The inventory remains 48 TL modules plus one external UTXORef reference.
 Authenticated admission, trusted producer/oracle configuration, an explicit
 before/after transition-witness export, the external consumer's schema/transport
 integration and historical acceptance remain open gates. TLECv6 contains actual
-ordered input frames, but TLSEv1 does not fabricate or advertise a transition
-proof. UTXORef's proof engine remains external to the TL completion scope.
+ordered typed input frames. Optional TLECv7 also contains real source candidates
+and rejected/accepted receipts, reexecuted against the pending actual owner.
+Rollback snapshots must retain an exact source-history prefix, preventing a
+different valid history from being spliced at the same asserted tip.
+
+This embedded source audit does not authenticate actors, parent UTXOs, reference
+amounts or chain inclusion. TLSEv1 does not fabricate missing legacy history or
+advertise a separate transition proof. The manifest's `transitionWitness` field
+still describes the absent external proof-witness bundle. UTXORef's proof engine
+remains external to the TL completion scope.
+
+The last fully verified producer/wire baseline is 1,113 tests across 136
+executables with formatting, Clippy, supply-chain and release gates passed.
+The new source/Types/consensus/activation batch is integrated locally; full
+current-batch validation remains pending.
 
 Legacy BitVM artifact/cache/risk adapters characterize the JavaScript helpers
 and their optional interoperability metadata. The source's historical default

@@ -408,6 +408,32 @@ impl EconomicState {
         }
         Ok(())
     }
+    pub(crate) fn preflight_contract_candidate(
+        &self,
+        height: u64,
+        preceding: &[EconomicInput],
+        candidate: &EconomicInput,
+    ) -> Result<()> {
+        if preceding.len() >= MAX_ECONOMIC_INPUTS {
+            return Err(EconomicError::Capacity);
+        }
+        let mut out = EconomicWriter(Vec::new());
+        let mut budget = ContractRecordBudget::default();
+        if self.config.contract_binding.is_some() {
+            if self.contract_binding.frames.len() >= MAX_CONTRACT_FRAMES {
+                return Err(EconomicError::Capacity);
+            }
+            econ_write_contract_state_budget(&mut out, &self.contract_binding, &mut budget)?;
+        }
+        budget.take(1)?;
+        budget.take(preceding.len() + 1)?;
+        out.u64(height)?;
+        out.count(preceding.len() + 1, MAX_ECONOMIC_INPUTS)?;
+        for input in preceding.iter().chain(core::iter::once(candidate)) {
+            econ_write_input(&mut out, input, &mut budget)?;
+        }
+        Ok(())
+    }
     fn verify_contract_binding(&self) -> Result<()> {
         let Some(config) = &self.config.contract_binding else {
             return if self.contract_binding == ContractBindingState::default()
@@ -442,7 +468,9 @@ impl EconomicState {
                 return Err(EconomicError::Invariant);
             }
         }
-        if self.replaying_contract_history {
+        // v7 reexecutes every original candidate through Types, actual owner reads
+        // and the same money stage below. It includes all accepted catalog inputs.
+        if self.replaying_contract_history || self.config.source_consensus.is_some() {
             return Ok(());
         }
         let bootstrap = JointProtocolState::from_economic_snapshot_bytes(

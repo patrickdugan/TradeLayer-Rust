@@ -497,6 +497,14 @@ impl JointProtocolState {
             self.verify_economic_custody_fence_unverified()?;
         } else {
             self.spot.reject_foreign_reserves_for_joint_unverified()?;
+            // Restore must enforce the same capability boundary as constructors:
+            // ordinary Joint cannot advance channel escrow or withdrawal journals.
+            if !self
+                .ledger()
+                .has_no_channel_or_settlement_liabilities_unverified()
+            {
+                return Err(JointError::UnsupportedLegacyLiabilities);
+            }
         }
         if self.spot.processed_through() != self.finalized_height {
             return Err(JointError::InconsistentComponents);

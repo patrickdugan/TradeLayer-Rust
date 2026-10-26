@@ -232,6 +232,7 @@ impl Drop for Directory {
 fn config(network: TradeLayerMainnet) -> EconomicChainConfig {
     EconomicChainConfig {
         economics: EconomicConfig {
+            source_consensus: None,
             network,
             contract: ContractId::try_from(1).unwrap(),
             collateral: PropertyId::try_from(7).unwrap(),

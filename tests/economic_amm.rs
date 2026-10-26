@@ -39,6 +39,7 @@ fn id(number: u64) -> TxId {
 }
 fn config(inverse: bool, funding_oracle: Option<u32>) -> EconomicConfig {
     EconomicConfig {
+        source_consensus: None,
         contract_binding: None,
         network: TradeLayerMainnet::Litecoin,
         contract: c(),

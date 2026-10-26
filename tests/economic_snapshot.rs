@@ -32,6 +32,7 @@ fn c() -> ContractId {
 }
 fn config(network: TradeLayerMainnet) -> EconomicConfig {
     EconomicConfig {
+        source_consensus: None,
         contract_binding: None,
         network,
         contract: c(),

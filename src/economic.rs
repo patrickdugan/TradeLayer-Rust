@@ -42,6 +42,7 @@ pub struct EconomicConfig {
     pub liquidation: Option<LiquidationConfig>,
     pub amm: Option<FundedAmmConfig>,
     pub contract_binding: Option<ContractBindingConfig>,
+    pub source_consensus: Option<SourceConsensusConfig>,
 }
 impl EconomicConfig {
     pub fn validate(&self) -> Result<(), EconomicError> {
@@ -214,6 +215,8 @@ pub struct EconomicState {
     amm: FundedAmmState,
     contract_binding: ContractBindingState,
     replaying_contract_history: bool,
+    source_consensus: SourceConsensusState,
+    replaying_source_history: bool,
 }
 impl EconomicState {
     pub fn from_joint_unverified(
@@ -242,6 +245,20 @@ impl EconomicState {
         } else {
             ContractBindingState::default()
         };
+        let source_consensus = if let Some(source) = &config.source_consensus {
+            let bootstrap = joint
+                .snapshot_for_economic_bytes()
+                .map_err(|_| EconomicError::InvalidSnapshot)?;
+            if consensus_source::bootstrap_commitment(&bootstrap) != source.bootstrap_commitment {
+                return Err(EconomicError::InvalidConfig);
+            }
+            SourceConsensusState {
+                bootstrap,
+                frames: Vec::new(),
+            }
+        } else {
+            SourceConsensusState::default()
+        };
         let state = Self {
             book: ContractOrderbook::new(config.contract),
             positions: MarginMap::new(config.contract),
@@ -263,6 +280,8 @@ impl EconomicState {
             amm: FundedAmmState::default(),
             contract_binding,
             replaying_contract_history: false,
+            source_consensus,
+            replaying_source_history: false,
         };
         state.verify()?;
         Ok(state)
@@ -318,127 +337,16 @@ impl EconomicState {
         height: u64,
         inputs: Vec<EconomicInput>,
     ) -> Result<usize> {
-        if height == 0
-            || height > crate::contract_orderbook::MAX_ORDER_HEIGHT
-            || height != self.finalized_height().unwrap_or(0) + 1
-        {
-            return Err(EconomicError::InvalidHeight);
+        if self.config.source_consensus.is_some() {
+            return Err(EconomicError::InvalidInput);
         }
         if inputs.len() > MAX_ECONOMIC_INPUTS {
             return Err(EconomicError::Capacity);
         }
         self.preflight_contract_inputs(height, &inputs)?;
-        self.verify()?;
-        let mut next = self.clone();
-        if next.config.contract_binding.is_some() {
-            if next.contract_binding.frames.len() >= MAX_CONTRACT_FRAMES {
-                return Err(EconomicError::Capacity);
-            }
-            next.contract_binding.frames.push(ContractInputFrame {
-                height,
-                inputs: inputs.clone(),
-            });
-            next.contract_record_budget()?;
-        }
-        let before = next.receipts.len();
-        next.begin_amm_frame(height)?;
-        let mut book_frame = LiquidationBookFrame {
-            height,
-            inputs: Vec::new(),
-            placements: Vec::new(),
-        };
-        let mut mark_publication = None;
-        for input in inputs {
-            match input {
-                EconomicInput::CreateContract(input) => {
-                    next.apply_contract_creation(input, height)?
-                }
-                EconomicInput::Amm(input) => next.apply_amm_capital(input, height)?,
-                EconomicInput::Joint(tx) => {
-                    Self::external_joint_owner_boundary(&tx)?;
-                    let observed = next.funding_publication(&tx);
-                    let mark_id = next.mark_publication(&tx);
-                    next.joint.apply_one_for_economic_unverified(height, tx)?;
-                    if let Some((txid, closed)) = observed {
-                        next.capture_funding_publication(height, txid, closed)?;
-                    }
-                    if let Some(id) = mark_id {
-                        mark_publication = Some(id);
-                    }
-                }
-                EconomicInput::Order(order) => {
-                    next.require_contract_order_admission(&order)?;
-                    if order.height != height {
-                        return Err(EconomicError::InvalidHeight);
-                    }
-                    next.joint
-                        .note_economic_input_unverified(order.txid, height, 18)?;
-                    if next.config.liquidation.is_some() {
-                        book_frame
-                            .inputs
-                            .push(LiquidationBookInput::Order(order.clone()));
-                    }
-                    next.book.queue(order)?;
-                }
-                EconomicInput::Cancel {
-                    txid,
-                    owner,
-                    criteria,
-                } => {
-                    normal_owner(&owner)?;
-                    next.joint.note_economic_input_unverified(txid, height, 6)?;
-                    if !next.cancel_ids.insert(txid) {
-                        return Err(EconomicError::InvalidInput);
-                    }
-                    if next.config.liquidation.is_some() {
-                        book_frame.inputs.push(LiquidationBookInput::Cancel {
-                            txid,
-                            owner: owner.clone(),
-                            criteria: criteria.clone(),
-                        });
-                    }
-                    let removed = next.book.cancel(&owner, criteria)?;
-                    for order in removed.resting {
-                        next.release_reserve(order.order.txid)?;
-                    }
-                }
-            }
-        }
-        let orders = next.book.drain_queued_through(height)?;
-        for order in orders {
-            let position = next
-                .positions
-                .get(&order.owner)
-                .map_or_else(Decimal::zero, |p| p.contracts.clone());
-            if next.config.liquidation.is_some() {
-                book_frame.placements.push(LiquidationBookPlacement {
-                    order: order.clone(),
-                    position: position.clone(),
-                });
-            }
-            let admission_price = order.price.clone();
-            let transition = next.book.place(order, &position)?;
-            next.apply_transition(transition, height, &admission_price)?;
-        }
-        next.book.finish_height(height)?;
-        if next.config.liquidation.is_some() {
-            next.liquidation.book_frames.push(book_frame);
-            next.liquidation_record_count()?;
-        }
-        next.run_mark_epoch(height, mark_publication)?;
-        next.run_funding_epoch(height)?;
-        next.prune_funding_observations(height);
-        next.refresh_positions()?;
-        next.refresh_amm_quotes(height)?;
-        next.refresh_maintenance()?;
-        next.run_liquidations(height)?;
-        next.refresh_positions()?;
-        next.refresh_maintenance()?;
-        next.joint.finalize_block_for_economic_unverified(height)?;
-        next.verify()?;
-        // Refuse a successful mutation that cannot be checkpointed in full.
-        next.snapshot_bytes()?;
-        let count = next.receipts.len() - before;
+        let mut stage = self.begin_block_stage_unverified(height)?;
+        stage.apply_all_preflighted_unverified(inputs)?;
+        let (next, count) = stage.finish_unverified()?;
         *self = next;
         Ok(count)
     }
@@ -870,6 +778,7 @@ impl EconomicState {
     pub fn verify(&self) -> Result<()> {
         self.config.validate()?;
         self.verify_contract_binding()?;
+        self.verify_source_consensus()?;
         self.joint.verify_for_economic_owner_unverified()?;
         self.verify_funding()?;
         self.verify_marks()?;
@@ -1153,3 +1062,6 @@ include!("economic_liquidation_replay_impl.rs");
 include!("economic_amm_impl.rs");
 include!("economic_amm_replay_impl.rs");
 include!("economic_contract_impl.rs");
+
+include!("economic_block_stage_impl.rs");
+include!("economic_consensus_impl.rs");

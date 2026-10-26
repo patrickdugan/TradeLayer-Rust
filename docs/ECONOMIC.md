@@ -18,15 +18,17 @@ Orders require a prior accepted reference and the source's strict leverage-price
 band at their input position. Native/dated contracts, full country/whitelist admission, and
 authenticated actors remain unfinished requirements.
 
-`EconomicConfig` explicitly supplies network, one contract, one collateral property, inverse/linear flag, notional value, initial margin per contract, native/oracle fee route, and the repair policy. Notional and configured initial margin must be positive. The contract ID must match the fee route; Spot is not a contract runtime route. Configured decimals are bounded to 40 coefficient digits and 20 decimal places. Contract classification, margin policy, price inputs, actors, transaction IDs, and blocks remain caller assertions. This API does not obtain registry authority or authenticated prices from these fields.
+`EconomicConfig` explicitly supplies network, one contract, one collateral property, inverse/linear flag, notional value, initial margin per contract, native/oracle fee route, and the repair policy. Notional must be positive; configured initial margin must be positive in legacy mode and zero in accepted-contract mode. The contract ID must match the fee route; Spot is not a contract runtime route. Configured decimals are bounded to 40 coefficient digits and 20 decimal places. Accepted-contract mode checks the actual accepted definition and Registry dependencies against the independent configuration; legacy mode retains its asserted classification and fixed margin. Actors, transaction IDs, input provenance and blocks remain unverified in both modes. Neither supplied configuration nor a locally accepted oracle publication authenticates its issuer or price.
 
 `from_joint_unverified` accepts an unfinalized Joint bootstrap state whose collateral exists and whose components pass their existing checks. It starts with no economic history. The first block is height 1, and subsequent heights must be contiguous. Registry activation uses the existing Joint checks: activating an opcode in a block does not authorize using it in that same block.
 
-The additional economic inputs are type-18 contract orders and type-6 owner cancellations. Ordinary implemented Joint inputs still use their original dispatch. Optional configured [mark epochs](ECONOMIC_MARKS.md) settle fresh admitted-oracle observations through the same Ledger. Optional [liquidation epochs](ECONOMIC_LIQUIDATION.md) close deficient positions against actual funded resting makers, with protected system identities rather than fabricated external orders. Options, ADL, channel transfer, insurance withdrawal and unsupported economic opcodes remain separate work. Type-3 UTXO trades and settlement opcodes requiring authentication retain their existing denial gates.
+The economic inputs include type-18 contract orders and type-6 owner cancellations, with type-16 creation in accepted-contract mode and type-10 LP operations in configured AMM mode. Ordinary implemented Joint inputs still use their original dispatch. Optional configured [mark epochs](ECONOMIC_MARKS.md) settle fresh admitted-oracle observations through the same Ledger. Optional [liquidation epochs](ECONOMIC_LIQUIDATION.md) close deficient positions against actual funded resting makers, with protected system identities rather than fabricated external orders. Options, ADL, channel transfer, insurance withdrawal and unsupported economic opcodes remain separate work. Type-3 UTXO trades and settlement opcodes requiring authentication retain their existing denial gates.
 
 ## Block transaction and actual custody
 
 `apply_block_unverified` validates the starting state, then works on a private complete-state clone. It handles ordinary Joint commands and cancellation inputs in the supplied sequence while queuing contract orders. Ready contract orders are subsequently processed in the component's source-derived height/sender/txid order. Each order's admission reads the resulting current position, funds its reserve, and settles all its matches before the next order is admitted. Thus an ordinary send appearing in the input list is handled during the first phase, before the queued matching phase; this is an explicit batch execution boundary.
+
+The optional [sequential source runner](CONSENSUS_SOURCE.md) replaces that typed entry point with `apply_source_unverified_block`. It recomputes [Types dispatch and mapping](TYPES_SOURCE.md) and all called [source validity rules](VALIDITY_SOURCE.md) using [actual pending-owner reads](ECONOMIC_VALIDITY.md). Successful represented candidates publish atomically into the pending block; rejected, unavailable, unsupported and repeated candidates retain their raw input and outcome in the same owner. Orders and the existing economic end phases finalize once per block. The typed entry point is denied while source mode is enabled, so it cannot bypass this audit or its replay set. Missing external dependencies remain explicit failures; source conformance and actual-owner reads do not authenticate caller-supplied inputs.
 
 Every external input has one shared Joint replay identity. Contract order IDs and cancellation IDs cannot overlap ordinary, registry, spot, or bootstrap ledger inputs. Internal transfers use domain-separated fingerprints with a monotonic sequence. Economic history is permanently fenced from the old standalone Spot/Joint formats, even when an event moves zero atoms.
 
@@ -70,6 +72,8 @@ TLEC v1 stores the explicit economic config, the crate-private complete Joint pa
 
 `EconomicChain` adds an independently configured genesis anchor, exact parent/tip checks, and bounded complete before-state frames. A rollback restores the entire economic state, including actual custody, positions, orders, replay identities, IOUs, fees, receipts, and counters. It does not retain a ledger-only undo path. TLEH v1 includes the live TLEC state and every retained before-state; each retained frame is structurally decoded against the same independent policy. Internal history linkage does not prove that the supplied blocks were valid.
 
+Source mode selects TLECv7, retaining the independently committed pristine Joint bootstrap, full raw candidate history, headers, execution order and accepted/rejected audit. Restore reruns Types, actual-owner dependency reads, mapping and handlers rather than trusting stored validity booleans or dependency responses. Retained before-states must match the exact current raw-history prefix, preventing rollback to a different history sharing caller-asserted header IDs. With source mode disabled, all prior v1-v6 encodings remain unchanged. The [TLSEv1 producer](ECONOMIC_STATE_ORACLE.md) can export this complete v7 state; an external authenticated transition witness remains a separate gate.
+
 `DurableEconomicChain` owns this complete chain together with its `Journal` in the network's clearing namespace. Initialization rejects existing content. Restoration uses `open_existing`, the one expected state key, independent policy and exact `EconomicHead { sequence, tip, commitment }`, with explicit recovery policy. The head commitment covers the full retained checkpoint and its sequence distinguishes rollback/reapply at the same height. Apply and rollback stage the complete chain, serialize it, commit the OS-synced journal frame, then publish cached state. An uncertain journal write poisons access to the cached chain through the storage health gate. Independent checksum/commitment equality supplies local integrity/freshness, not chain authentication.
 
 Limits are explicit: 4,096 block inputs, 8,192 trade receipts, 4,096 positions, 65,536 internal transfer legs, component replay/order limits, bounded rollback depth, and the shared 64 MiB checkpoint cap. These bounds can reject an otherwise arithmetically valid research workload. They do not imply production throughput or historical protocol limits.
@@ -82,7 +86,7 @@ Optional [funding epochs](ECONOMIC_FUNDING.md) extend this owner through the sam
 
 The pending-insurance escrow is a real funded balance, but it is not the insurance module's lifecycle or an authenticated insurance deposit. The actual live insurance handoff, fund accounting, withdrawals, and receipt/reorg linkage must be integrated before that counter can be presented as an insurance balance. This owner does not call a substitute insurance allocator or debit a second ledger.
 
-Authenticated actor/transaction/block provenance, parent-UTXO and script verification, historical activation and contract-registry configuration, authoritative marks/oracles, historical bootstrap supply, representative replay evidence, maintenance-margin/liquidation/ADL and default handling, funded buybacks, channel/options/vesting integration, and source-versus-repair promotion remain separate gates. The new APIs keep their `unverified` names and do not manufacture authenticated settlement capabilities. The external insurance and txindex/UTXO/script/performance lanes retain their existing ownership.
+Authenticated actor/transaction/block provenance, parent-UTXO and script verification, historical activation and contract-registry configuration, authoritative marks/oracles, historical bootstrap supply, representative historical replay, full native/multicontract liquidation and ADL, funded buybacks, channel/options/vesting integration, and source-versus-repair promotion remain separate gates. The source rules and supported sequential execution are integrated subsets; they do not complete the missing dependency owners or historical acceptance. The APIs keep their `unverified` names and do not manufacture authenticated settlement capabilities. The external insurance and txindex/UTXO/script/performance lanes retain their existing ownership.
 
 Optional [funded liquidation](ECONOMIC_LIQUIDATION.md) uses separate system epochs,
 actual owner reserve refunds and margin top-ups, guarded firm resting makers,
@@ -92,7 +96,7 @@ maker deficits wait for another fresh mark. Version4 retains complete ordinary
 book input/placement frames plus forced fills and known margin replay. The
 4096-block frame limit and shared record/checkpoint bounds require an explicit
 future compaction design for indefinite operation. This is an unverified
-conserving closeout policy; funded AMM/insurance/ADL, complete wallet provenance,
+conserving closeout policy; full AMM market making, insurance/ADL, complete wallet provenance,
 contract authority and historical acceptance remain open.
 
 Optional [funded contract AMM execution](ECONOMIC_AMM.md) adds a private pool
@@ -112,10 +116,12 @@ transferable LP property issuance, token pairs, options, insurance/ADL and
 authenticated historical acceptance remain open. Versions 1–4 retain their
 existing disabled-AMM bytes, including an active v4 closeout fingerprint.
 
-The legacy economic configuration still asserts a fixed per-contract initial
-margin and the notional supplied to fee calculation. It is not an accepted
-contract-catalog binding. Active source callers distinguish order-price reserve
-margin, execution-price checks, average-price maintenance, mark-price forced
-sizing and collateral-valued fee notional; marks/PnL use raw contract notional.
-Integrating those contexts with actual accepted definitions remains a separate
-correctness gate, alongside the authentication and historical replay gates.
+Legacy mode retains its asserted fixed per-contract initial margin and fee
+notional. Accepted-contract mode already binds actual type-16 definitions and
+Registry dependencies, then uses source order-price reserve, execution-price,
+average-price maintenance, mark-price forced sizing and collateral-valued fee
+contexts; marks/PnL retain raw contract notional. TLECv6 replays the complete
+typed lifecycle from its independently committed bootstrap, and optional v7
+adds raw source validation and rejected-input replay. Native/dated/multicontract
+behavior, full country/whitelist dependencies, authoritative bootstrap and
+publication provenance, and authenticated historical replay remain open.

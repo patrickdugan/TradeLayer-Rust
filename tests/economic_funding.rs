@@ -70,6 +70,7 @@ fn id(n: u64) -> TxId {
 }
 fn config(network: TradeLayerMainnet, staleness: u64) -> EconomicConfig {
     EconomicConfig {
+        source_consensus: None,
         contract_binding: None,
         network,
         contract: c(),

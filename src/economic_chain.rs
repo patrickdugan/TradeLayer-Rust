@@ -178,7 +178,7 @@ impl EconomicChain {
         Ok(self.tip)
     }
 
-    fn verify(&self) -> Result<(), EconomicError> {
+    fn verified_state_bytes(&self) -> Result<Vec<u8>, EconomicError> {
         self.config.validate()?;
         self.state.verify()?;
         if self.state.config() != &self.config.economics
@@ -191,8 +191,18 @@ impl EconomicChain {
         {
             return Err(EconomicError::Invariant);
         }
+        if self.config.economics.source_consensus.is_some()
+            && self
+                .state
+                .source_parent_unverified()
+                .map_err(|_| EconomicError::Invariant)?
+                != self.tip
+        {
+            return Err(EconomicError::Invariant);
+        }
         // Recheck the actual administrator and permitted set in every snapshot.
-        if self.config.decode(&self.state.snapshot_bytes()?)? != self.state {
+        let state_bytes = self.state.snapshot_bytes()?;
+        if self.config.decode(&state_bytes)? != self.state {
             return Err(EconomicError::Invariant);
         }
         let mut cursor = self.floor;
@@ -205,8 +215,23 @@ impl EconomicChain {
                 return Err(EconomicError::Invariant);
             }
             let before = self.config.decode(&frame.before)?;
-            if before.finalized_height().unwrap_or(0) != cursor.height {
+            if (self.config.economics.source_consensus.is_some()
+                && before
+                    .source_parent_unverified()
+                    .map_err(|_| EconomicError::Invariant)?
+                    != cursor)
+                || before.finalized_height().unwrap_or(0) != cursor.height
+            {
                 return Err(EconomicError::Invariant);
+            }
+            if self.config.economics.source_consensus.is_some() {
+                let current = self.state.source_consensus_state();
+                let previous = before.source_consensus_state();
+                if previous.bootstrap != current.bootstrap
+                    || !current.frames.starts_with(&previous.frames)
+                {
+                    return Err(EconomicError::Invariant);
+                }
             }
             cursor = Tip {
                 height: frame.header.height,
@@ -216,18 +241,18 @@ impl EconomicChain {
         if cursor != self.tip {
             return Err(EconomicError::Invariant);
         }
-        Ok(())
+        Ok(state_bytes)
     }
 
     pub fn checkpoint_bytes(&self) -> Result<Vec<u8>, EconomicError> {
-        self.verify()?;
+        let state_bytes = self.verified_state_bytes()?;
         let mut out = MAGIC.to_vec();
         out.push(self.config.economics.network.tag());
         out.extend_from_slice(&self.config.economics.network.genesis().0);
         out.push(self.config.rollback_limit as u8);
         write_tip(&mut out, self.floor);
         write_tip(&mut out, self.tip);
-        embedded(&mut out, &self.state.snapshot_bytes()?)?;
+        embedded(&mut out, &state_bytes)?;
         out.push(self.history.len() as u8);
         for frame in &self.history {
             out.extend_from_slice(&frame.header.height.to_be_bytes());
@@ -284,7 +309,6 @@ impl EconomicChain {
             floor,
             history,
         };
-        chain.verify()?;
         if chain.checkpoint_bytes()? != bytes {
             return Err(EconomicError::InvalidSnapshot);
         }
@@ -477,4 +501,86 @@ fn read_embedded<'a>(r: &mut Cursor<'a>) -> Result<&'a [u8], EconomicError> {
 }
 fn commitment(bytes: &[u8]) -> [u8; 32] {
     crate::hash256::double_sha256_parts(&[b"TradeLayer/DurableEconomicChain/v1/", bytes])
+}
+
+impl EconomicChain {
+    pub fn apply_source_unverified_block(
+        &mut self,
+        block: &crate::consensus_source::UnverifiedSourceBlock,
+    ) -> core::result::Result<
+        crate::consensus_source::SourceBlockReport,
+        crate::consensus_source::ConsensusSourceError,
+    > {
+        use crate::consensus_source::{preflight_transactions, ConsensusSourceError};
+        preflight_transactions(&block.transactions)?;
+        let h = block.header;
+        if block.network != self.config.economics.network
+            || h.height
+                != self
+                    .tip
+                    .height
+                    .checked_add(1)
+                    .ok_or(ConsensusSourceError::WrongParent)?
+            || h.parent != self.tip.id
+            || h.id == self.config.anchor().id
+            || h.id == self.floor.id
+            || h.id == self.tip.id
+            || self.history.iter().any(|f| f.header.id == h.id)
+        {
+            return Err(ConsensusSourceError::WrongParent);
+        }
+        self.state
+            .preflight_source_frame(h, block.mode, &block.transactions)?;
+        let mut next = self.clone();
+        let before = next.state.snapshot_bytes()?;
+        let report =
+            next.state
+                .apply_source_block_unverified(h, block.mode, &block.transactions)?;
+        next.history.push_back(Frame { header: h, before });
+        if next.history.len() > next.config.rollback_limit {
+            let evicted = next.history.pop_front().ok_or(EconomicError::Invariant)?;
+            next.floor = Tip {
+                height: evicted.header.height,
+                id: evicted.header.id,
+            };
+        }
+        next.tip = Tip {
+            height: h.height,
+            id: h.id,
+        };
+        next.checkpoint_bytes()?;
+        *self = next;
+        Ok(report)
+    }
+}
+impl DurableEconomicChain {
+    /// One existing synced Journal transaction publishes economic state and all
+    /// accepted/rejected source evidence together. RPC observations remain a
+    /// separate journal and cannot call this method as an admission capability.
+    pub fn apply_source_unverified_block(
+        &mut self,
+        expected: EconomicHead,
+        block: &crate::consensus_source::UnverifiedSourceBlock,
+    ) -> Result<(EconomicHead, crate::consensus_source::SourceBlockReport), DurableEconomicError>
+    {
+        self.check_head(expected)?;
+        crate::consensus_source::preflight_transactions(&block.transactions)
+            .map_err(|_| EconomicError::Capacity)?;
+        self.chain
+            .state
+            .preflight_source_frame(block.header, block.mode, &block.transactions)?;
+        let mut next = self.chain.clone();
+        let report = next
+            .apply_source_unverified_block(block)
+            .map_err(|error| match error {
+                crate::consensus_source::ConsensusSourceError::Economic(error) => error,
+                crate::consensus_source::ConsensusSourceError::Capacity => EconomicError::Capacity,
+                crate::consensus_source::ConsensusSourceError::WrongParent => {
+                    EconomicError::WrongTip
+                }
+                _ => EconomicError::InvalidInput,
+            })?;
+        let head = self.publish(next)?;
+        Ok((head, report))
+    }
 }

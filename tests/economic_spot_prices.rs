@@ -51,6 +51,7 @@ fn new(network: TradeLayerMainnet) -> EconomicChain {
     let mut chain = EconomicChain::new_unverified(
         EconomicChainConfig {
             economics: EconomicConfig {
+                source_consensus: None,
                 network,
                 contract: 1.try_into().unwrap(),
                 collateral: p(7),

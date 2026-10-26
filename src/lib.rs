@@ -1,10 +1,12 @@
 //! Core protocol types for the incremental TradeLayer Rust migration.
 //!
-//! This crate intentionally implements no consensus transitions yet. In
-//! particular, constructing a transaction type does not validate a transaction.
+//! Economic transitions and source-compatible dispatch are explicitly unverified.
+//! Constructing a transaction type does not validate or authorize a transaction.
 
 #![forbid(unsafe_code)]
 
+pub mod activation; // Complete source activation metadata; funded genesis stays with the owner.
+pub mod activation_history; // Origins derived from the actual complete owner replay.
 pub mod adjuster; // Source tick adjustment metadata; no automatic orderbook policy.
 pub mod amm;
 pub mod bankruptcy_source_audit; // Stage25F pure source-level bankruptcy algebra, no market authority.
@@ -34,6 +36,7 @@ pub mod clearing_pnl; // Stage 25C read-only per-address PnL and residual projec
 pub mod clearing_sandbox; // Stage 25A isolated single-ledger derivative margin and funding research.
 pub mod client; // Bounded Core HTTP JSON-RPC; readiness is bound to network and genesis.
 mod codec; // Bounded, checksummed snapshot codec.
+pub mod consensus_source; // Replayed sequential source dispatch in the sole economic owner.
 pub mod contract_orderbook; // Source matching metadata; custody stays in the economic owner.
 pub mod contract_registry;
 pub mod daemon; // Synced bounded raw-block observations; no economic admission authority.
@@ -45,6 +48,7 @@ pub mod economic_chain; // Complete economic rollback and synced durable ownersh
 pub mod economic_reporting; // Exact immutable execution reports from the verified owner.
 pub mod economic_spot_prices; // Exact directed fill prices and VWAP from the original owner.
 pub mod economic_state_oracle; // Canonical sole-owner export for an external proof-checking consumer.
+pub mod economic_validity; // Actual immutable owner reads for source rules.
 pub mod execution; // Prototype unified registry+ledger replay; input unverified.
 pub mod funding; // Fractional source funding math and conserving payment plans.
 pub mod funding_audit; // Stage 24B read-only signed funding and conservation projections.
@@ -100,7 +104,10 @@ pub mod state_oracle; // Immutable Ledger balance payloads; hashes are not signe
 pub mod storage; // Bounded OS-locked disk journal and explicit restart recovery.
 pub mod tally; // Source tally projections and fee metadata, no independent spendable ledger.
 pub mod trade_history; // Caller-supplied trade reporting and canonical checkpoints; no settlement authority.
+pub mod types_economic; // Unverified exact mapping into supported economic handlers.
+pub mod types_source; // Full source decode-to-validity orchestration.
 pub mod unified_chain; // Offline reversible registry+ledger block projection; adapter external.
+pub mod validity_source; // Complete bounded source predicates over explicit dependencies.
 pub mod vaults; // Standalone vault metadata and collateral lifecycle.
 pub mod vesting; // Source initialization journals and explicit numerical repair.
 pub mod volume_index; // Caller-supplied exact volume and VWAP reporting; no price authority.

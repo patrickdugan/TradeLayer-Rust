@@ -57,8 +57,9 @@ retains one canonical TLEHv1 checkpoint. Its canonical TLEC state is exposed as
 a borrowed slice inside that checkpoint, rather than duplicating the large
 state bytes in the file or retaining another decoded economic owner.
 
-`state_bytes()` returns those exact TLECv1–v6 bytes. `checkpoint_bytes()` returns
-the complete TLEH witness. Existing state/checkpoint formats remain unchanged.
+`state_bytes()` returns those exact TLECv1–v7 bytes. `checkpoint_bytes()` returns
+the complete TLEH witness. TLSEv1 and TLEHv1 framing remain unchanged. Optional
+source consensus selects TLECv7; disabled source consensus preserves v1–v6 bytes.
 Older economic versions can be exported as full current state; the producer
 never invents absent ordered input history or a transition witness.
 
@@ -77,7 +78,7 @@ genesis use the repository's canonical display-order bytes.
 | 54 | 32 | Exact tip block ID |
 | 86 | 8 | Rollback floor height |
 | 94 | 32 | Rollback floor block ID |
-| 126 | 1 | Embedded TLEC version, 1 through 6 |
+| 126 | 1 | Embedded TLEC version, 1 through 7 |
 | 127 | 4 | TLEC state byte length |
 | 131 | 4 | TLEH checkpoint byte length |
 | 135 | 32 | State commitment |
@@ -166,8 +167,17 @@ L1 inclusion, and proof verification are not performed here.
 
 A later transition-data producer can export actual before/after states,
 ordered typed inputs, and linked block context where real history exists.
-TLECv6 retains complete input frames and a committed pristine bootstrap, but
-this first exporter does not manufacture or advertise a transition proof.
+TLECv6 retains complete typed input frames and a committed pristine bootstrap.
+Optional TLECv7 additionally retains actual raw source candidates and accepted,
+rejected and duplicate receipts. Restore reexecutes Types, validity, actual-owner
+reads and mapped commands, and requires each rollback snapshot's source history
+to be an exact prefix of the current history.
+
+That embedded audit is replay material, not authenticated L1 evidence or a
+separate fraud-proof witness bundle. Actor/reference amounts remain caller
+claims, and missing dependency state cannot authorize a command. The manifest's
+`transitionWitness:"not-exported"` retains this narrow meaning. Older snapshots
+do not acquire invented source inputs or missing transition evidence.
 
 ## Verification
 
@@ -182,8 +192,12 @@ An active v6 fixture also restores and reexecutes four complete bound input
 frames with actual contract creation, positions and a funded mark. The internal
 unit regression also passes: it injects a synced-but-unacknowledged journal
 commit and requires
-the poisoned original owner to deny export of its cached state. The integrated
-Rust tests, formatting, all-target Clippy, zero-third-party-crate gate and
-all-target release build passed. This is local
-implementation evidence, not authenticated historical acceptance or external
-UTXORef integration.
+the poisoned original owner to deny export of its cached state. The fully verified
+producer/wire baseline passed 1,113 tests across 136 executables, formatting,
+all-target Clippy, the zero-third-party-crate gate and all-target release.
+
+The current source-consensus extension has targeted coverage for actual v7 TLSE
+export, full source replay, restart, rollback, independently bound expectations
+and alternate-history prefix rejection. Full current-batch checks remain pending.
+These results are local implementation evidence, not authenticated historical
+acceptance or external UTXORef integration.
