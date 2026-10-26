@@ -331,6 +331,11 @@ pub struct DurableEconomicChain {
     chain: EconomicChain,
 }
 impl DurableEconomicChain {
+    #[cfg(test)]
+    pub(crate) fn test_fail_next_commit_after_sync(&mut self) {
+        self.journal.test_fail_after_sync();
+    }
+
     pub fn initialize(
         root: &Path,
         chain: EconomicChain,

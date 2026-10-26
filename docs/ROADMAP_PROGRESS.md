@@ -19,6 +19,16 @@ and funded LP receipt implementation now shares those contexts. These advances
 do not complete native/dated/multicontract orchestration, full validity rules,
 insurance/ADL or chain authentication; no source module is promoted to complete.
 
+The integrated [TLSEv1 state-oracle producer](ECONOMIC_STATE_ORACLE.md) now exports
+the actual locked owner's canonical full economic state with independently
+expected configuration/head, exact network/genesis/tip, and separate
+state/checkpoint/export commitments. Its binary/file export preserves exact
+amounts and complete available replay validation. The state-oracle row is an
+**Integrated subset**; authenticated admission, transition-witness export and
+external consumer integration remain open. The codecs additionally have
+[169 source composition cases](WIRE_ROUNDTRIP_REVIEW.md) and four passing
+integrated tests, while their standalone classification remains unchanged.
+
 [PARITY_ROADMAP.csv](PARITY_ROADMAP.csv) contains all 49 JavaScript source
 modules, excluding the experimental README. It records thirty-seven assessed
 TL modules below; 11 retain their prior assessment and one is an external
@@ -46,11 +56,11 @@ None of these rows or modules is marked as a complete production port.
 | `bitvmRisk.js` | All11 functions,48 full-source observations; cap/window/clamp and repeated-call semantics with atomic metadata replay repair | Accepted event deduplication, actual custody reconciliation, authenticated sweep/escrow and policy promotion |
 | `client.js` | All source members mapped and21 wrapper routes;68 observations; bounded HTTP/JSON, cookie rotation, wallet routing, controlled cancellation/deadlines and three-mainnet/genesis startup and daemon wiring | Real Core interoperability, TLS/pooling/testnet/DNS deployment, subscriptions and authenticated chain admission |
 | `scaling.js` | All 18 source methods, 167 observations; keepalive/close/net/king metadata, explicit expiry repairs, complete replay checkpoint and real immutable-Ledger custody plans | Signed revisions/root/UTXO rotation, actual sole-Ledger settlement/margin integration, durable migration and historical acceptance |
-| `txEncoder.js` | All 39 exported methods, genuine source numeric/string/framing/coercion vectors and separate dispatch defects | Broader Number radix36/Unicode domains, historical acceptance and authenticated wire-to-execution integration |
-| `txDecoder.js` | All 36 active exports, genuine complete-source numeric/malformed/base vectors and later Type23 shadow behavior | Target-engine promotion and historical chain corpus, raw-transaction/signature/admission integration |
+| `txEncoder.js` | Standalone: all 39 exports, genuine source numeric/string/framing/coercion vectors; 169 encoder/Types/decoder composition rows and 4 passing integrated tests | Broader Number radix36/Unicode domains, historical acceptance and authenticated wire-to-execution integration; source Types identity adapter does not validate transactions |
+| `txDecoder.js` | Standalone: all 36 active exports, genuine complete-source numeric/malformed/base vectors and later Type23 shadow behavior; 169 composition rows and 4 passing integrated tests | Target-engine promotion and historical chain corpus, raw-transaction/signature/admission integration; source Types identity adapter observes dispatch only |
 | `adjuster.js` | Constructor and all three methods; 641 finite source rows and 19 source-only observations; exact tick/minimum and event order with atomic complete replayed metadata | Applying policy to orders, production persistence, wider JS domains and historical acceptance |
 | `issuanceIntent.js` | All three methods; 321 source observations; arbitrary bounded ordered JSON, upsert/query, source ID quirks, nested address arrays and strict full replay | Functional metadata repair differs from the source missing DB category; token issuance authority, production persistence and broader NeDB/historical behavior |
-| `stateOracle.js` | All six functions; 2319 complete-source numeric/payload/encoding/hash observations; immutable available-only Ledger queries, source locale/JSON bytes and separate strict decode | Signed state provenance/relay integration, other locale/Unicode/nonfinite domains and historical payload corpus |
+| `stateOracle.js` | Integrated subset: all 6 functions and 2319 source observations; actual locked full-owner TLSEv1 export with canonical TLECv1-v6/full-TLEH bytes, independent config/head/state checks, exact network/genesis/tip and new-file-only synced transport; 7 passing integration tests plus poisoned-owner unit regression | Authenticated admission and producer/oracle provenance, explicit transition witness, external UTXORef consumer integration and historical acceptance; broader legacy locale/Unicode/nonfinite domains remain bounded |
 | `clearing.js` | Constructor and all 79 active methods assessed; source funding and mark arithmetic/quirks; funded fractional oracle-perpetual epochs, exact settled-basis marks and nominal default offsets in the existing Ledger with complete restart and rollback | Actual liquidation/AMM/ADL and insurance, native VWAP, full contract orchestration, complete admitted-publication history, authenticated marks/actors and historical acceptance |
 | `orderbook.js` | All 69 methods, constructor and two comparators assessed; 287 actual-source vectors and nine source defects; contract book, funded type18/6 matching, owner cancellation and complete recovery in the existing joint Ledger | Authenticated orders and contract configuration, funded AMM-first execution, liquidation/ADL, multicontract orchestration, channels, source reporting/rewards and historical acceptance |
 | `tally.js` | All 45 methods plus constructor assessed; 248 actual-source vectors and 32 source assertions; actual custody projections, funded match fee/rebate collection and complete FeeBook persistence | Legacy arbitrary-value/NeDB migration, authenticated channel/vesting rules, registered insurance lifecycle, buybacks, remaining shared economic stores and historical acceptance |
@@ -669,8 +679,9 @@ remain a documented metadata limitation.
 Executed spot-price and inclusive directed VWAP queries now borrow actual fills
 from the original economic owner, retain exact atom sums and owner tip, and
 recompute after complete restoration/rollback. No fallback price or fabricated
-native property metadata enters these queries. Native contract admission and
-the full state-oracle producer export remain separate integration gates.
+native property metadata enters these queries. Native contract admission remains
+a separate integration gate. The full-owner state-oracle producer is now
+implemented as described below; source query hashes remain a distinct format.
 
 The user clarified that UTXORef is external and TL exports checkable state-oracle
 data to it. Binohash is excluded from this crate and tracked as an optional
@@ -688,3 +699,41 @@ the all-target release build (6m21s). The zero-third-party Rust gate and all 11
 mutation tests passed. Genuine pinned source/crypto oracles and original Git
 blob comparisons passed. No new GitHub CI, Lean/Kani, push or publication is
 claimed. Full historical/authenticated production parity remains open.
+
+## Integrated full-owner state-oracle export and wire composition
+
+The producer now implements [TLSEv1](ECONOMIC_STATE_ORACLE.md) over the actual
+healthy locked `DurableEconomicChain`. One canonical full TLEH checkpoint
+carries its borrowed TLECv1–v6 state payload, network/genesis/exact tip,
+rollback floor and distinct domain-separated state/checkpoint/export
+commitments. Independently expected configuration and durable head are checked
+before canonical owner decoding and available full replay. The binary writer
+uses `create_new`, streams and syncs bytes, and the small manifest avoids a
+large Base64 service response. Existing legacy query bytes remain unchanged.
+
+Seven passing `tests/economic_state_oracle.rs` tests exercise actual funded
+margin/fee/IOU state, exact balances above `2^53`, all three mainnets,
+independent expectations, canonical corruption/limits, no-overwrite file I/O,
+restart and rollback/ABA fencing. An internal passing regression injects a
+synced-but-unacknowledged commit and requires the poisoned original owner to
+deny cached-state export. Active TLECv6 input/mark replay is included. Detached
+metadata stores, authenticated chain admission, an explicit transition-witness
+export and the external UTXORef consumer integration remain separate gates.
+The scope remains **48 TL modules plus one external UTXORef feature reference**;
+no Binohash implementation or proof engine is added to TL.
+
+The real `tests/wire_roundtrip.rs` target passes all four tests against 169
+unchanged-source composition rows. Coverage reaches all 39 encoder exports,
+36 decoder exports and 36 numeric Types encoding routes. Missing exports,
+double prefixes, malformed outcomes and returned Error objects remain source
+observations. The Types identity validity adapter records dispatch/arguments;
+it neither executes the source validity module nor establishes acceptance.
+Encoder and decoder remain standalone ports in their documented domains.
+
+Current local Rust 1.90/MSVC validation passed **1,113 tests across 136 executable
+targets**, plus empty doctest targets; Cargo formatting, explicit included-file
+rustfmt, all-target frozen Clippy with warnings denied, the zero-third-party
+Rust gate and all 11 mutation tests passed. The Node wire check passed all 169
+composition rows. The all-target release build passed in 7m 00s for this
+batch. No GitHub CI, push, proof-system validation or authenticated historical
+acceptance is claimed.

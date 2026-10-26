@@ -1,6 +1,6 @@
 # txDecoder.js: complete bounded historical observations
 
-Pinned source: `patrickdugan/tradelayer.js@dca0888b827c5bc28fa9189bc9e1d507f5c5670c`, `src/txDecoder.js`. The full unchanged archive is `fixtures/legacy_types_source_txDecoder.txt`, LF SHA256 `8a395367be182141129be6f5a96ec2cf334bc4376edfccd0b7dcacafd8f5a885`, Git blob `4728f1bdce1190428f91ae5b02f380584073c431`. CRLF checkout bytes are normalized to the archived LF source before verification and execution.
+Pinned source: `patrickdugan/tradelayer.js@dca0888b827c5bc28fa9189bc9e1d507f5c5670c`, `src/txDecoder.js`. The complete archive is `fixtures/legacy_types_source_txDecoder.txt`, pinned LF SHA256 `a573e2ad3e843b2c573cb3f61c8d67b64ff05f1a554d36e3ad6bd5764d86d076`, Git blob `4728f1bdce1190428f91ae5b02f380584073c431`. A Windows CRLF checkout has raw-byte SHA256 `8a395367be182141129be6f5a96ec2cf334bc4376edfccd0b7dcacafd8f5a885`; normalization reproduces the pinned Git blob byte-for-byte before verification and execution.
 
 `source_decode_historical_method_unverified` implements all **36 active exported methods** for caller-supplied string arguments. `source_decode_historical_type_unverified` follows the existing source Types route inventory: 32 exported body decoders, four absent route names, and no invented aliases. These are observations of a historical decoder, not accepted transactions or new wire rules. They supply no chain, UTXO, sender, activation, clearlist, oracle, custody, channel, proof, or economic authorization. The existing strict parser and accepted runtime are separate.
 

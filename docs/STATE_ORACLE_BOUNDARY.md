@@ -18,14 +18,28 @@ reference, excluded from TL module parity counts.
 
 The existing `state_oracle` functions preserve the pinned legacy query and
 serialization semantics. Their source-compatible balance projections alone
-do not provide a complete proof-checkable economic state. `EconomicState`
-already supplies bounded, canonical full snapshots of its sole Ledger and
-economic journals; `EconomicChain` supplies network, genesis and exact tip;
-`DurableEconomicChain` supplies a healthy locked owner and independent freshness
-head. A production producer export must bind those actual owner bytes and
-identities in an explicit versioned contract and preserve exact amounts.
-This export integration remains a separate gate; source query parity does not
-prove it complete.
+do not provide complete economic state or chain context. The implemented
+[`EconomicStateOracleExport`](ECONOMIC_STATE_ORACLE.md) now produces **TLSEv1**
+from the actual healthy, locked `DurableEconomicChain`, with independently
+expected configuration and freshness head. It binds canonical full TLECv1–v6
+owner bytes, network, pinned genesis, exact tip, rollback floor and separate
+state/checkpoint/export commitments. One full TLEH checkpoint carries the
+borrowed TLEC payload and the witness needed to check its relationship to the
+independently expected durable head. Exact binary amounts avoid the legacy
+query's binary64 precision loss.
+
+This is an integrated producer subset with a bounded binary envelope, small
+JSON manifest, new-file-only synced export, full canonical decoding and
+available owner replay validation. It covers the current single economic
+owner; detached intent, procedural, insurance and other standalone stores are
+outside its state scope. The original balance-query format remains unchanged.
+The inventory remains 48 TL modules plus one external UTXORef reference.
+
+Authenticated admission, trusted producer/oracle configuration, an explicit
+before/after transition-witness export, the external consumer's schema/transport
+integration and historical acceptance remain open gates. TLECv6 contains actual
+ordered input frames, but TLSEv1 does not fabricate or advertise a transition
+proof. UTXORef's proof engine remains external to the TL completion scope.
 
 Legacy BitVM artifact/cache/risk adapters characterize the JavaScript helpers
 and their optional interoperability metadata. The source's historical default

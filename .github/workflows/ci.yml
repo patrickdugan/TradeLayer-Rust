@@ -83,6 +83,7 @@ jobs:
           node scripts/client_vectors.cjs
           node scripts/scaling_vectors.cjs
           node scripts/txencoder_vectors.cjs
+          node scripts/wire_roundtrip_vectors.cjs --check
           node scripts/oracle_vectors.cjs
           node scripts/amm_vectors.cjs
           node scripts/margin_map_vectors.cjs

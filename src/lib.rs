@@ -44,6 +44,7 @@ pub mod economic; // Atomic caller-driven contract matching with the sole joint 
 pub mod economic_chain; // Complete economic rollback and synced durable ownership.
 pub mod economic_reporting; // Exact immutable execution reports from the verified owner.
 pub mod economic_spot_prices; // Exact directed fill prices and VWAP from the original owner.
+pub mod economic_state_oracle; // Canonical sole-owner export for an external proof-checking consumer.
 pub mod execution; // Prototype unified registry+ledger replay; input unverified.
 pub mod funding; // Fractional source funding math and conserving payment plans.
 pub mod funding_audit; // Stage 24B read-only signed funding and conservation projections.
