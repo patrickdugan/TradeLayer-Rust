@@ -183,6 +183,15 @@ pub struct Journal {
     previous_crc: u32,
     end: u64,
     poisoned: bool,
+    #[cfg(test)]
+    test_fault: Option<TestCommitFault>,
+}
+
+#[cfg(test)]
+#[derive(Debug, Clone, Copy)]
+enum TestCommitFault {
+    PartialWrite,
+    AfterSync,
 }
 
 impl Journal {
@@ -190,6 +199,24 @@ impl Journal {
         root: &Path,
         namespace: Namespace,
         recovery: Recovery,
+    ) -> Result<(Self, RecoveryReport), StorageError> {
+        Self::open_mode(root, namespace, recovery, true)
+    }
+
+    /// Restore only. Missing roots, namespaces and files are never created.
+    pub fn open_existing(
+        root: &Path,
+        namespace: Namespace,
+        recovery: Recovery,
+    ) -> Result<(Self, RecoveryReport), StorageError> {
+        Self::open_mode(root, namespace, recovery, false)
+    }
+
+    fn open_mode(
+        root: &Path,
+        namespace: Namespace,
+        recovery: Recovery,
+        create: bool,
     ) -> Result<(Self, RecoveryReport), StorageError> {
         let path = namespace.path(root);
         // Caller owns creation/durability of the root and its ancestors.
@@ -201,25 +228,34 @@ impl Journal {
             .into());
         }
         let directory = path.parent().ok_or(StorageError::InvalidNamespace)?;
-        match std::fs::create_dir(directory) {
-            Ok(()) => {}
-            Err(error)
-                if error.kind() == std::io::ErrorKind::AlreadyExists && directory.is_dir() => {}
-            Err(error) => return Err(error.into()),
+        if create {
+            match std::fs::create_dir(directory) {
+                Ok(()) => {}
+                Err(error)
+                    if error.kind() == std::io::ErrorKind::AlreadyExists && directory.is_dir() => {}
+                Err(error) => return Err(error.into()),
+            }
+            sync_directory(root)?;
         }
-        sync_directory(root)?;
-        let (mut file, created) = match OpenOptions::new()
-            .read(true)
-            .write(true)
-            .create_new(true)
-            .open(&path)
-        {
-            Ok(file) => (file, true),
-            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => (
+        let (mut file, created) = if !create {
+            (
                 OpenOptions::new().read(true).write(true).open(&path)?,
                 false,
-            ),
-            Err(error) => return Err(error.into()),
+            )
+        } else {
+            match OpenOptions::new()
+                .read(true)
+                .write(true)
+                .create_new(true)
+                .open(&path)
+            {
+                Ok(file) => (file, true),
+                Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => (
+                    OpenOptions::new().read(true).write(true).open(&path)?,
+                    false,
+                ),
+                Err(error) => return Err(error.into()),
+            }
         };
         if created {
             // A contender can briefly lock the new, still-empty file before
@@ -261,6 +297,8 @@ impl Journal {
             previous_crc: crc32(&header),
             end: header.len() as u64,
             poisoned: false,
+            #[cfg(test)]
+            test_fault: None,
         };
         let report = journal.replay(length, recovery)?;
         // A prior writer may have returned an uncertain sync error after
@@ -410,14 +448,35 @@ impl Journal {
         // Set before any fallible I/O: an error may follow a successful write.
         self.poisoned = true;
         self.file.seek(SeekFrom::Start(self.end))?;
+        #[cfg(test)]
+        if matches!(self.test_fault, Some(TestCommitFault::PartialWrite)) {
+            self.test_fault = None;
+            self.file.write_all(&frame[..frame.len() / 2])?;
+            self.file.sync_all()?;
+            return Err(std::io::Error::other("injected error after real partial write").into());
+        }
         self.file.write_all(&frame)?;
         self.file.sync_all()?;
+        #[cfg(test)]
+        if matches!(self.test_fault, Some(TestCommitFault::AfterSync)) {
+            self.test_fault = None;
+            return Err(std::io::Error::other("injected lost acknowledgement after sync").into());
+        }
         self.values = next;
         self.sequence = sequence;
         self.previous_crc = checksum;
         self.end = end;
         self.poisoned = false;
         Ok(sequence)
+    }
+
+    #[cfg(test)]
+    pub(crate) fn test_fail_after_sync(&mut self) {
+        self.test_fault = Some(TestCommitFault::AfterSync);
+    }
+    #[cfg(test)]
+    pub(crate) fn test_fail_after_partial_write(&mut self) {
+        self.test_fault = Some(TestCommitFault::PartialWrite);
     }
 
     /// Stores a complete ledger+IOU+replay checkpoint as one journal value.

@@ -20,7 +20,8 @@ use std::fs::{self, File, OpenOptions};
 use std::io::{Read, Write};
 use std::path::Path;
 
-const MAGIC: &[u8; 5] = b"TLJC\x01";
+const MAGIC_V1: &[u8; 5] = b"TLJC\x01";
+const MAGIC_HISTORY_FLOOR: &[u8; 5] = b"TLJC\x02";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UnverifiedJointBlock {
@@ -217,6 +218,11 @@ impl JointChainState {
     pub fn rollback_depth(&self) -> usize {
         self.history.len()
     }
+    /// Oldest retained complete state. When no pre-block witness remains,
+    /// the current tip is the rollback floor; the original anchor is unchanged.
+    pub fn rollback_floor(&self) -> Tip {
+        self.history.front().map_or(self.tip, |prior| prior.tip)
+    }
 
     /// Entire mixed block commits atomically, including registry activations,
     /// ordinary balances, spot queues/fills, and all replay input IDs.
@@ -290,10 +296,16 @@ impl JointChainState {
         Ok(())
     }
 
-    /// TLJC v1 stores genesis, network identity, tip and every retained
-    /// TLJP (one-ledger, full registry+spot) checkpoint, including rollback.
+    /// TLJC v1 remains byte-for-byte unchanged for ordinary representable
+    /// states. V2 stores an explicit floor only when rollback has exhausted
+    /// retained history above the original anchor. It invents no prior state.
     pub fn checkpoint_bytes(&self) -> Result<Vec<u8>, JointCheckpointError> {
-        let mut bytes = MAGIC.to_vec();
+        let exhausted_floor = self.history.is_empty() && self.tip.height > self.anchor.height;
+        let mut bytes = if exhausted_floor {
+            MAGIC_HISTORY_FLOOR.to_vec()
+        } else {
+            MAGIC_V1.to_vec()
+        };
         bytes.push(self.network.tag());
         bytes.extend_from_slice(&self.network.genesis().0);
         bytes.extend_from_slice(&self.network.chain_id().0);
@@ -301,6 +313,9 @@ impl JointChainState {
         write_tip(&mut bytes, self.tip);
         bytes.push(u8::try_from(self.history_limit).map_err(|_| bad("history policy"))?);
         bytes.push(u8::try_from(self.history.len()).map_err(|_| bad("history count"))?);
+        if exhausted_floor {
+            write_tip(&mut bytes, self.tip);
+        }
         for prior in &self.history {
             write_tip(&mut bytes, prior.tip);
             write_state(&mut bytes, &prior.state)?;
@@ -325,9 +340,11 @@ impl JointChainState {
             .map_err(JointCheckpointError::Profile)?;
         let raw = verify_crc(bytes).map_err(|_| bad("joint checkpoint CRC/size"))?;
         let mut reader = Cursor::new(raw);
-        if reader.fixed::<5>().map_err(|_| bad("joint magic"))? != *MAGIC {
-            return Err(bad("joint checkpoint version"));
-        }
+        let exhausted_floor = match reader.fixed::<5>().map_err(|_| bad("joint magic"))? {
+            magic if magic == *MAGIC_V1 => false,
+            magic if magic == *MAGIC_HISTORY_FLOOR => true,
+            _ => return Err(bad("joint checkpoint version")),
+        };
         let network =
             TradeLayerMainnet::from_tag(reader.u8().map_err(|_| bad("network tag missing"))?)
                 .map_err(JointCheckpointError::Profile)?;
@@ -350,6 +367,12 @@ impl JointChainState {
         let count = reader.u8().map_err(|_| bad("history count"))? as usize;
         if history_limit != expected_history_limit || count > history_limit {
             return Err(bad("invalid rollback policy/count"));
+        }
+        if exhausted_floor {
+            let floor = read_tip(&mut reader)?;
+            if count != 0 || tip.height <= anchor.height || floor != tip {
+                return Err(bad("invalid exhausted joint history floor"));
+            }
         }
         let mut history: VecDeque<PriorJoint> = VecDeque::new();
         for _ in 0..count {
@@ -386,7 +409,9 @@ impl JointChainState {
             .map_err(|_| bad("trailing joint checkpoint bytes"))?;
         if tip.height < anchor.height
             || (tip.height == anchor.height && (tip != anchor || count != 0))
-            || (tip.height > anchor.height && count == 0)
+            // V1's original empty-history rejection remains intact. Only the
+            // explicit, separately checked V2 floor represents this case.
+            || (!exhausted_floor && tip.height > anchor.height && count == 0)
             || history.back().is_some_and(|prior| {
                 prior.tip.height.checked_add(1) != Some(tip.height) || prior.tip.id == tip.id
             })

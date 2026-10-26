@@ -1,0 +1,13 @@
+# Unmodified pinned init.js; virtual time and caller-owned dependency adapters.
+initialize	present-BTC	true	BTC	false	false	false	5000	150	40	500	client;timer/500;db/BTC	ready
+initialize	present-LTC	true	LTC	false	false	false	5000	150	40	500	client;timer/500;db/LTC	ready
+initialize	present-DOGE	true	DOGE	false	false	false	5000	150	40	500	client;timer/500;db/DOGE	ready
+initialize	present-undefined	true	undefined	false	false	false	5000	150	40	500	client;timer/500;db/undefined	ready
+initialize	present-null	true	null	false	false	false	5000	150	40	500	client;timer/500;db/null	ready
+initialize	present-unknown	true	unknown	false	false	false	5000	150	40	500	client;timer/500;db/unknown	ready
+initialize	client-failure	true	LTC	true	false	false	5000	150	40	0	client	error/client failure
+initialize	database-failure	true	LTC	false	true	false	5000	150	40	500	client;timer/500;db/LTC	error/database failure
+initialize	timer-failure	true	LTC	false	false	true	5000	150	40	0	client;timer/500	error/timer failure
+initialize	missing-client	false	undefined	false	false	false	5000	150	40	5850	client;timer/150*40	pending
+helper	helper-present-no-chain	true	undefined	false	false	false	5000	150	40	0	-	ready
+helper	helper-ignored-timeout	false	undefined	false	false	false	20	7	6	35	timer/7*6	pending

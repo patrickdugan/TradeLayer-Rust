@@ -12,13 +12,13 @@ that worker's branches, publish a branch, or authorize economic transitions.
 ## Tracking the 49 source modules
 
 [PARITY_ROADMAP.csv](PARITY_ROADMAP.csv) contains all 49 JavaScript source
-modules, excluding the experimental README. It records the fourteen assessed
-modules below; the other 35 retain their prior implementation assessment.
+modules, excluding the experimental README. It records the seventeen assessed
+modules below; the other 32 retain their prior implementation assessment.
 The insurance row additionally records its external-worker assignment.
 It supplements the historical [full-tree inventory](JS_RUST_PORT_AUDIT.md),
 whose earlier mappings and assessment commit are preserved.
 
-[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 228
+[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 251
 source entries with their tested domains, Rust tests and remaining criteria.
 None of these rows or modules is marked as a complete production port.
 
@@ -38,6 +38,9 @@ None of these rows or modules is marked as a complete production port.
 | `vesting.js` | All 22 source members assessed; initialization/failure journals, chain retries, rebates and numerical helpers; 151 actual-source cases | Authorized genesis, supply discrepancy decisions, funded backend and durable partial-initialization recovery; historical acceptance |
 | `procedural.js` | All nine methods assessed; local template/contract metadata, source state quirks and context rejection order; 154 actual-source operations | Authenticated proof/relay and settlement verification, funded issuance/redemption, durable metadata migration and historical acceptance |
 | `db.js` | Source 32 categories and seven folder/bootstrap cases; bounded exclusively locked disk journal with atomic synced batches, explicit torn-tail recovery and complete funded IOU restart | NeDB query/shape migration, compaction, trusted rollback detection, broader state adapters and deployment power-loss validation including Windows directory entries |
+| `persistence.js` | All 17 methods plus constructor assessed; 41 source observations; atomic persisted joint apply/rollback, bounded headers, independently expected configuration/tip, lost-acknowledgement and torn-write recovery | NeDB migration, unified state across all economic modules, trusted branch/tip evidence, compaction and deployment power-loss validation |
+| `reOrg.js` | All three source methods, exact tip/RPC/log order and swallowed-failure behavior; 20 actual-source scenarios | Production bounded RPC transport and authenticated active-branch evidence; the source observer performs no economic rollback |
+| `init.js` | Both literal source functions and 12 source cases; repaired owned startup plus concrete complete joint/IOU restoration, identity consistency and failure cleanup | Live client/daemon and shutdown, cooperative I/O timeouts, testnet profiles, source environment migration and authenticated readiness |
 
 The combined [offline spot reporting adapter](OFFLINE_SPOT_REPORTING.md)
 inserts existing spot fills into both indexes atomically, rejects network
@@ -75,6 +78,25 @@ the new-file locking race; it also added explicit Unix directory syncs. Real
 disk restart retains the complete funded ledger, escrow ownership, policy and
 replay fences. These changes do not establish complete economic execution,
 NeDB migration or power-loss certification on the intended host.
+
+The fifth pass adds a [transactional funded IOU owner](DURABLE_IOU.md),
+[persistent joint application and rollback](PERSISTENCE.md),
+[startup coordination and concrete restore adapters](BOOTSTRAP.md), and the
+exact [source reorg observer](REORG.md). Complete candidate state is synced
+before publication. Uncertain writes deny cached reads until reopening and
+reconciling replay IDs or an independently expected tip. Aggregate payout
+receipt bounds prevent repeated dust payments from retaining millions of rows.
+
+The [joint-history floor fix](JOINT_HISTORY_FLOOR.md) preserves all TLJC v1
+checks and ordinary bytes. A narrowly selected v2 represents a valid empty
+rollback history above the original anchor, with explicit floor equal to its
+current tip. This lets the oldest retained state survive restart without
+inventing an older ancestor or silently changing the configured anchor.
+
+The persisted joint owner and funded IOU owner remain separate experiments.
+They must not become two live ledgers for one deployment. A single owner and
+complete shared checkpoint across registry/spot, margin, oracle, AMM, IOU,
+vault, vesting and procedural state remain required for full economic recovery.
 
 ## Transaction throughput review
 
@@ -214,3 +236,22 @@ rejection, real write-error poisoning and funded IOU replay-safe restart. Unix
 directory syncs are implemented but this local run used Windows; deployment
 power-loss testing, Windows directory-entry durability and NeDB migration
 remain open. No GitHub CI or historical-chain acceptance is claimed here.
+
+## Local validation for transactional recovery and startup
+
+Pinned Rust 1.90.0 on Windows/MSVC passed all 733 tests across 98 executables,
+formatting including included implementations, all-target Clippy with warnings
+denied, the frozen all-target release build, and the dependency gate plus its
+11 adversarial tests. Doc tests passed with none defined. The three new source
+oracles passed both archived and external pinned-checkout modes: 12 startup
+cases, 20 reorg scenarios and 41 persistence observations, including 26 integer
+diagnostic vectors checked by Rust. Staged source archives retained exact hashes.
+
+Coverage includes synced and torn-write failures for both applying and rolling
+back blocks, denial of poisoned cached reads, real startup into both durable
+owners, exact expected-state checks, full funded payout/replay restoration,
+aggregate dust-receipt limits, and canonical oldest-history floor recovery.
+All 16 existing joint-chain tests also pass with v1 encoding/validation retained.
+These checks do not establish production daemon operation, authenticated inputs,
+unified recovery across all economic modules, deployment power-loss guarantees
+or historical acceptance. No branch was pushed and no GitHub CI result is claimed.

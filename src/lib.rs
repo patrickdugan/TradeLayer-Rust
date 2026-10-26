@@ -12,6 +12,8 @@ pub mod bitcoin_forks; // Bounded greatest-work selection among observed header 
 pub mod bitcoin_inclusion;
 pub mod bitcoin_witness_commitment; // Stage25M unverified Bitcoin BIP141 full-tx witness evidence.
                                     // Bitcoin SHA256d header and tx Merkle checks; no full consensus.
+pub mod bootstrap; // Owned startup readiness with explicit source characterization.
+pub mod bootstrap_storage; // Concrete restoration of complete durable state owners.
 pub mod chain; // Trust-boundary and reversible block progression, prototype only.
 pub mod channel_admission_audit; // Stage25M claimed as-of type4/type19 direct clearlist evidence, never authorization.
 pub mod channel_bip143_audit; // Stage 25I exact SegWit-v0 SIGHASH_ALL digest; no signature verification.
@@ -29,6 +31,7 @@ pub mod clearing_sandbox; // Stage 25A isolated single-ledger derivative margin 
 mod codec; // Bounded, checksummed snapshot codec.
 pub mod contract_registry;
 pub mod decimal; // Finite decimal arithmetic with explicit precision and rounding.
+pub mod durable_iou; // Synced single-owner funded IOU operation batches and recovery.
 pub mod execution; // Prototype unified registry+ledger replay; input unverified.
 pub mod funding_audit; // Stage 24B read-only signed funding and conservation projections.
 mod hash160; // Dependency-free research RIPEMD160/HASH160, no production authorization.
@@ -56,11 +59,13 @@ pub mod network_profile; // Independent Bitcoin/Litecoin/Dogecoin mainnet identi
 pub mod options; // Source options ticker, PnL, pricing and portfolio calculations.
 pub mod oracle;
 pub mod parallel_txindex; // Bounded parallel read-only runtime TXID/OP_RETURN scan and ordered fetch; never consensus.
+pub mod persistence; // Atomic persisted joint replay and rollback, no chain authentication.
 pub mod procedural; // Source procedural metadata and context gates, no proof authority.
 pub mod protocol; // Audited legacy transaction catalog, not consensus execution.
 pub mod raw_block_ingest; // Stage8C borrowed raw Bitcoin block preindex, not consensus.
 pub mod read_only; // Offline transaction scanning; cannot authorize ledger state.
 pub mod registry; // Standalone tx0/7-9/13-15 registry state; authentication external.
+pub mod reorg; // Source RPC tip observations; never authorization to roll back.
 pub mod reporting; // Atomic network-scoped offline spot history and volume observations.
 pub mod root_reconciliation; // Read-only TLPT and zkTL metadata consistency.
 pub mod spot; // Stage 19 isolated type-5/6 rational matching experiment; unverified.

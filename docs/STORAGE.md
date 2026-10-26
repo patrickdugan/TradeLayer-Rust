@@ -16,6 +16,10 @@ bytes, and rejects unknown categories. It writes `category.tldb`; existing
 must already exist. Environment-variable resolution, RPC bootstrap, singleton
 ownership and NeDB document predicates are caller/migration responsibilities.
 
+`Journal::open_existing` restores an existing file without creating missing
+roots, namespace directories or journals. Durable runtime owners use this API
+to keep a failed restore from silently becoming a fresh empty state.
+
 ```rust,ignore
 let ns = Namespace::for_mainnet(TradeLayerMainnet::Bitcoin, "iou")?;
 let (mut journal, recovery) = Journal::open(root, ns, Recovery::RejectIncompleteTail)?;

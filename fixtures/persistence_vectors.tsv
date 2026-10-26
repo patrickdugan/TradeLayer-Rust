@@ -1,0 +1,44 @@
+# Actual complete pinned persistence.js source; observations are not safe restore policies.
+# Source dca0888b827c5bc28fa9189bc9e1d507f5c5670c SHA256 628c5b3cfd919fd518aedc2b757cdc256f7ccc36c447090f30aebd8a677ce2e1
+# name	operation	arg1	arg2	expected
+cadence-0-0	cadence	0	0	false
+cadence-0-1000	cadence	0	1000	true
+cadence-1-1000	cadence	1	1000	false
+cadence-999-1000	cadence	999	1000	false
+cadence-1000-1000	cadence	1000	1000	true
+cadence-1001-1000	cadence	1001	1000	false
+cadence-2000-1000	cadence	2000	1000	true
+cadence-0-1	cadence	0	1	true
+cadence-1-1	cadence	1	1	true
+cadence-7-2	cadence	7	2	false
+cadence-8-2	cadence	8	2	true
+cadence-3000-1000	cadence	3000	1000	true
+cleanup-0	cleanup	0	-	-1000
+cleanup-999	cleanup	999	-	-1
+cleanup-1000	cleanup	1000	-	0
+cleanup-1001	cleanup	1001	-	1
+cleanup-2000	cleanup	2000	-	1000
+cleanup-5000	cleanup	5000	-	4000
+selection-10-	selection	10		null
+selection-10-3-8	selection	10	3,8	8
+selection-10-11-12	selection	10	11,12	11
+selection-10-10	selection	10	10	10
+selection-10-3-8-10-12	selection	10	3,8,10,12	10
+selection-5-3-8	selection	5	3,8	3
+selection-0-1	selection	0	1	1
+selection-100-1-20-99	selection	100	1,20,99	99
+singleton-published-before-init	observation	-	-	{"dbDir":null,"snapshotsDir":null}
+trimmed-network-layout	observation	-	-	["ltc-test","/virtual/nedb-data/ltc-test","/virtual/nedb-data/ltc-test-snapshots","/virtual/nedb-data/ltc-test-backups"]
+header-upsert-and-height-markers	observation	-	-	{"header":{"_id":"block-2","height":2,"hash":"new","prevHash":"one","createdAt":1700000000000},"known":{"_id":"block-2","height":2,"hash":"new","prevHash":"one","createdAt":1700000000000},"consensus":[{"_id":"MaxProcessedHeight","value":2},{"_id":"TrackHeight","value":1}]}
+rpc-canonical-equals-incoming-local-stale	observation	-	-	{"reorg":true,"depth":1,"expected":"canonical-10","received":"stale"}
+local-link-fast-path	observation	-	-	false
+genesis-parent-early-return	observation	-	-	false
+rpc-failure-undefined-logger-fails-open	observation	-	-	false
+snapshot-above-common-ancestor	observation	-	-	{"restoredFrom":8,"commonAncestor":5,"lastLocal":10}
+snapshot-copy-before-max-marker	observation	-	-	{"meta":{"blockHeight":2000,"consensusHash":"0123456789abcdef","createdAt":"2023-11-14T22:13:20.000Z","files":["consensus.db"],"dir":"2000-0123456789ab"},"copied":"old-max-height","events":[["update","persistence","block-0",{"height":0,"hash":"zero","prevHash":"none","createdAt":1700000000000}],["update","persistence","block-1000",{"height":1000,"hash":"thousand","prevHash":"prior","createdAt":1700000000000}],["copy","/virtual/nedb-data/ltc-main/consensus.db","/virtual/nedb-data/ltc-main-snapshots/2000-0123456789ab/consensus.db"],["update","consensus","MaxProcessedHeight",{"value":2000}],["remove","persistence",{"height":{"$lt":1000}}]],"remaining":[1000]}
+catalog-sort-invalid-meta-and-pruning	observation	-	-	[2,3]
+restore-returns-before-trackheight	observation	-	-	{"trackDone":false,"backups":["backup-1700000000000","backup-2"]}
+restore-failure-after-deleting-live-db	observation	-	-	{"failure":"ENOENT","liveDeleted":true,"backupPreserved":true}
+copy-delete-bounded-retries	observation	-	-	{"delays":3,"copiedThenDeleted":true}
+copy-five-attempt-exhaustion	observation	-	-	{"failure":"safeCopy failed: /copy-source → /copy-target","copyAttempts":8,"delays":8}
+copy-other-error-no-retry	observation	-	-	ENOENT

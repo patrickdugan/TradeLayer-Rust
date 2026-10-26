@@ -161,6 +161,10 @@ impl FundedIouLedger {
     pub fn processed_count(&self) -> usize {
         self.inputs.len()
     }
+    /// Outer replay marker for recovery reconciliation; no admission authority.
+    pub fn is_processed_input(&self, txid: TxId) -> bool {
+        self.inputs.contains(&txid)
+    }
     pub fn last_height(&self) -> Option<u64> {
         self.last_height
     }

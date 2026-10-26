@@ -2,7 +2,7 @@
 
 A staged Rust rebuild of the [TradeLayer protocol](https://github.com/patrickdugan/tradelayer.js).
 
-**Status:** draft wire format and deterministic in-memory ledger prototype. This repository cannot process real funds, accept network transactions, validate chain consensus, or handle wallet keys.
+**Status:** draft wire format and deterministic local ledger prototype with opt-in disk recovery. This repository cannot process real funds, accept network transactions, validate chain consensus, or handle wallet keys.
 
 ## Quick start
 
@@ -46,6 +46,14 @@ lifecycle coverage. The [disk journal](docs/STORAGE.md) syncs bounded atomic
 batches and restores complete funded IOU checkpoints with exclusive writer
 locking and explicit torn-tail recovery. NeDB migration, deployment power-loss
 validation and authenticated economic admission remain open.
+
+The [transactional IOU owner](docs/DURABLE_IOU.md) and
+[persistent joint chain](docs/PERSISTENCE.md) stage their existing complete
+states and publish only after disk sync. [Startup](docs/BOOTSTRAP.md) restores
+owned state with explicit configuration and cleanup on failure. The
+[reorg observer](docs/REORG.md) preserves source RPC behavior separately from
+authorized branch selection. These state owners remain separate experiments;
+one integrated owner for all economic modules is still required.
 
 ### Supply-chain admission gate
 
