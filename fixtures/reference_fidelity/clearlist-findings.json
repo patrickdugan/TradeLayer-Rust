@@ -1,0 +1,326 @@
+{
+  "review_base": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+  "legacy_pin": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "method_count": 25,
+  "methods": [
+    {
+      "method": "createClearlist",
+      "source_path": "src/clearlist.js",
+      "start_line": 10,
+      "end_line": 32,
+      "rust_projection": "source_create_clearlist",
+      "status": "bounded subset",
+      "finding": "Normal numeric allocation and explicit replacement match the audit. JS accepts wider values, uses falsy IDs for allocation and omits URL. Registry allocates u32 IDs, bounds text, persists URL and supplies actor authority."
+    },
+    {
+      "method": "createclearlist",
+      "source_path": "src/clearlist.js",
+      "start_line": 36,
+      "end_line": 49,
+      "rust_projection": "source_create_clearlist",
+      "status": "alias behavior verified in JS",
+      "finding": "JS object/positional aliases are exercised; typed Rust API has no JS object/casing dispatch."
+    },
+    {
+      "method": "loadClearlists",
+      "source_path": "src/clearlist.js",
+      "start_line": 51,
+      "end_line": 63,
+      "rust_projection": "source_load_clearlists",
+      "status": "bounded subset",
+      "finding": "Typed numeric and string-shadow map reload is represented; source does not clear stale cache. No real database persistence is implemented by the audit."
+    },
+    {
+      "method": "getClearlistById",
+      "source_path": "src/clearlist.js",
+      "start_line": 65,
+      "end_line": 83,
+      "rust_projection": "source_get_clearlist_by_id",
+      "status": "bounded subset",
+      "finding": "Numeric stale admin reload represented. JS also supports arbitrary typed Map IDs and swallows load errors."
+    },
+    {
+      "method": "getList",
+      "source_path": "src/clearlist.js",
+      "start_line": 86,
+      "end_line": 100,
+      "rust_projection": "source_get_list_type8_lookup",
+      "status": "numeric Type8 subset",
+      "finding": "Actual JS reads attestations, so ordinary numeric Type7-created list returns null. Rust audit returns no numeric list; Registry repairs lookup directly."
+    },
+    {
+      "method": "verifyAdmin",
+      "source_path": "src/clearlist.js",
+      "start_line": 102,
+      "end_line": 110,
+      "rust_projection": "source_verify_admin",
+      "status": "bounded subset",
+      "finding": "Only primary admin aliases count and cache must be loaded. Backup acceptance for rotation belongs to validation, not this low-level helper."
+    },
+    {
+      "method": "updateAdmin",
+      "source_path": "src/clearlist.js",
+      "start_line": 112,
+      "end_line": 133,
+      "rust_projection": "source_update_admin",
+      "status": "bounded subset",
+      "finding": "Numeric ID writes a separate string DB key. JS low-level method does not authenticate actor. Registry deliberately uses durable direct state update."
+    },
+    {
+      "method": "getNextId",
+      "source_path": "src/clearlist.js",
+      "start_line": 135,
+      "end_line": 145,
+      "rust_projection": "source_next_list_id",
+      "status": "bounded subset",
+      "finding": "Normal numeric IDs/shadows match. JS parseInt accepts prefixes such as 12tail; Rust only exposes u32 creation IDs."
+    },
+    {
+      "method": "addAttestation",
+      "source_path": "src/clearlist.js",
+      "start_line": 147,
+      "end_line": 173,
+      "rust_projection": "source_add_attestation(None)",
+      "status": "bounded subset; accidental empty-inline-xpub drift fixed",
+      "finding": "Address key overwrites same address across all lists. Metadata remains bounded printable ASCII in Rust."
+    },
+    {
+      "method": "addAttestationWithXpub",
+      "source_path": "src/clearlist.js",
+      "start_line": 175,
+      "end_line": 194,
+      "rust_projection": "source_add_attestation(Some)",
+      "status": "accidental empty-explicit-xpub drift fixed",
+      "finding": "Explicit empty xpub produces null and never falls back to metadata prefix; inline empty suffix remains empty string."
+    },
+    {
+      "method": "deriveAddressesFromXpub",
+      "source_path": "src/clearlist.js",
+      "start_line": 200,
+      "end_line": 234,
+      "rust_projection": "not implemented",
+      "status": "unavailable",
+      "finding": "JS tries bitcore-lib-ltc then bitcore-lib, scans chains 0/1 indices 0..19, ignores network parameter and caches by xpub only. Real libraries and BIP32 were not exercised."
+    },
+    {
+      "method": "isAddressInClearlistOrDerived",
+      "source_path": "src/clearlist.js",
+      "start_line": 239,
+      "end_line": 280,
+      "rust_projection": "source_direct_or_derived_unverified",
+      "status": "fail-closed projection",
+      "finding": "Direct rows work. Audit returns DerivationUnavailable for active nonempty xpub/root candidates instead of fabricating a membership result."
+    },
+    {
+      "method": "storeMerkleRoot",
+      "source_path": "src/clearlist.js",
+      "start_line": 289,
+      "end_line": 308,
+      "rust_projection": "source_store_merkle_root",
+      "status": "bounded subset",
+      "finding": "Root-specific DB key, adminAddress as data.address, active status and volatile root registration map match. Root-only rows count as direct membership in JS."
+    },
+    {
+      "method": "registerXpubForRoot",
+      "source_path": "src/clearlist.js",
+      "start_line": 320,
+      "end_line": 338,
+      "rust_projection": "source_register_xpub_for_root",
+      "status": "bounded subset",
+      "finding": "Registration map keyed globally by root and verifies SHA256 proof. No derived address authority follows from a valid proof."
+    },
+    {
+      "method": "verifyMerkleProof",
+      "source_path": "src/clearlist.js",
+      "start_line": 344,
+      "end_line": 354,
+      "rust_projection": "source_verify_xpub_merkle_proof",
+      "status": "bounded ASCII/hash subset",
+      "finding": "Genuine Node crypto confirms SHA256 of lowercase hex text concatenation. Rust rejects malformed input beyond bounded source model."
+    },
+    {
+      "method": "buildMerkleTree",
+      "source_path": "src/clearlist.js",
+      "start_line": 360,
+      "end_line": 383,
+      "rust_projection": "source_build_xpub_merkle_tree",
+      "status": "bounded ASCII/hash subset",
+      "finding": "Singleton duplication and odd-parent duplication preserve source hashing."
+    },
+    {
+      "method": "generateMerkleProof",
+      "source_path": "src/clearlist.js",
+      "start_line": 389,
+      "end_line": 413,
+      "rust_projection": "source_generate_xpub_merkle_proof",
+      "status": "bounded ASCII/hash subset",
+      "finding": "Source odd upper layer skips missing sibling; generated proof may fail verification. Preserved as source behavior."
+    },
+    {
+      "method": "revokeAttestation",
+      "source_path": "src/clearlist.js",
+      "start_line": 415,
+      "end_line": 450,
+      "rust_projection": "source_revoke_attestation",
+      "status": "canonical multirow/root omission fixed",
+      "finding": "All active requested-list/address rows are now revoked before address fallback. Source wrong-list/already-revoked fallback remains modeled. Arbitrary imported prefixed legacy keys remain outside model."
+    },
+    {
+      "method": "getCountryCodeByAddress",
+      "source_path": "src/clearlist.js",
+      "start_line": 452,
+      "end_line": 502,
+      "rust_projection": "source_country_code_by_address + source_add_country_object_attestation",
+      "status": "bounded object/height omission fixed",
+      "finding": "String aliases countryCode/country/code/value use first-truthy-before-trim precedence; blockHeight precedes timestamp, zero is false. Generic imported clearlistId/string-ID/default-status shapes and non-string aliases remain outside typed importer."
+    },
+    {
+      "method": "setBanlist",
+      "source_path": "src/clearlist.js",
+      "start_line": 504,
+      "end_line": 518,
+      "rust_projection": "source_set_banlist",
+      "status": "bounded subset",
+      "finding": "Stored codes/timestamp and cached list update. Low-level source does not validate ISO2 or authority."
+    },
+    {
+      "method": "setBanList",
+      "source_path": "src/clearlist.js",
+      "start_line": 521,
+      "end_line": 523,
+      "rust_projection": "source_set_banlist",
+      "status": "alias verified in JS",
+      "finding": "Alias delegates to same setter; Rust has one typed API."
+    },
+    {
+      "method": "getBanlist",
+      "source_path": "src/clearlist.js",
+      "start_line": 525,
+      "end_line": 539,
+      "rust_projection": "source_get_banlist_bug",
+      "status": "normal-array behavior matches",
+      "finding": "findAsync returns array; source reads array.data, yielding undefined. Validity therefore falls back to five-country list excluding SY, distinct from six-country manager cache."
+    },
+    {
+      "method": "getAttestations",
+      "source_path": "src/clearlist.js",
+      "start_line": 541,
+      "end_line": 546,
+      "rust_projection": "source_get_attestations",
+      "status": "bounded native-row subset",
+      "finding": "Includes inactive records and roots. JS also accepts legacy data.clearlistId. validateSend incorrectly supplies recipient address to this list-ID API and maps clearlistId despite native writes using listId."
+    },
+    {
+      "method": "getAttestationHistory",
+      "source_path": "src/clearlist.js",
+      "start_line": 548,
+      "end_line": 558,
+      "rust_projection": "source_get_attestation_history",
+      "status": "descending-sort omission fixed",
+      "finding": "Sorts current matching rows descending by timestamp. It is not an append-only event history. Equal-timestamp order/imported legacy row ordering remains outside model."
+    },
+    {
+      "method": "isAddressInClearlist",
+      "source_path": "src/clearlist.js",
+      "start_line": 561,
+      "end_line": 570,
+      "rust_projection": "source_is_address_directly_attested",
+      "status": "bounded native-row subset",
+      "finding": "Active rows with matching address/list count, including root rows. JS also queries legacy data.clearlistId."
+    }
+  ],
+  "accidental_audit_defects": [
+    {
+      "id": "CL-01",
+      "priority": 2,
+      "status": "fixed in existing audit",
+      "title": "Canonical revocation omitted Merkle root rows",
+      "baseline_rust": "src/legacy_clearlist_audit.rs:554-582",
+      "source": "src/clearlist.js:415-449",
+      "before": "get_mut(address) threw on a root-only record or left matching root records active beside a direct row.",
+      "after": "Revoke every active matching address/list row first. Preserve the wrong-list address fallback only when there is no canonical match.",
+      "evidence_cases": [
+        "root-only attestation revocation succeeds via canonical query",
+        "direct and root history sorts descending and revoke covers both",
+        "canonical root match prevents wrong-list address fallback"
+      ]
+    },
+    {
+      "id": "CL-02",
+      "priority": 2,
+      "status": "fixed in existing audit",
+      "title": "History omitted descending timestamp sort",
+      "baseline_rust": "src/legacy_clearlist_audit.rs:603-611",
+      "source": "src/clearlist.js:548-558",
+      "before": "BTreeMap key iteration could return old direct row before newer root rows.",
+      "after": "Sort matching rows descending by timestamp.",
+      "evidence_cases": [
+        "direct and root history sorts descending and revoke covers both"
+      ]
+    },
+    {
+      "id": "CL-03",
+      "priority": 2,
+      "status": "fixed for bounded representable subset",
+      "title": "Country query had only string metadata/timestamp support",
+      "baseline_rust": "src/legacy_clearlist_audit.rs:621-642",
+      "source": "src/clearlist.js:452-501",
+      "before": "No way to represent country-object aliases or blockHeight override.",
+      "after": "Add explicitly unverified typed string-valued country-object writes; preserve raw alias truthiness and blockHeight || timestamp || null.",
+      "remaining": "No generic NeDB legacy-row importer, non-string alias values, Unicode text, arbitrary ID coercion, or omitted-status representation.",
+      "evidence_cases": [
+        "country string, metadata object, legacy status and block-height precedence"
+      ]
+    },
+    {
+      "id": "CL-04",
+      "priority": 2,
+      "status": "fixed in existing audit",
+      "title": "Explicit empty xpub incorrectly fell back to metadata prefix",
+      "baseline_rust": "src/legacy_clearlist_audit.rs:520-523",
+      "source": "src/clearlist.js:147-193",
+      "before": "The combined helper conflated addAttestationWithXpub explicit empty value with addAttestation inline-prefix parsing.",
+      "after": "Distinguish Some explicit value from None inline mode; retain empty inline suffix and skip it as a derivation candidate.",
+      "evidence_cases": [
+        "explicit empty xpub does not infer inline metadata prefix"
+      ]
+    }
+  ],
+  "transaction_findings": [
+    {
+      "tx_type": 7,
+      "validator": "validateCreateWhitelist",
+      "source": "src/validity.js:882-919; src/logic.js:851-872",
+      "finding": "Validity checks backup address and string name. Low-level create omits URL and permits explicit upsert; Logic normal path allocates. Registry enforces nonempty bounded ASCII name, persists URL, typed IDs, actor and activation height checks. Declared corrected behavior, not literal parity."
+    },
+    {
+      "tx_type": 8,
+      "validator": "validateUpdateAdmin",
+      "source": "src/validity.js:921-1000; src/logic.js:874-886",
+      "finding": "Actual ClearList.getList reads attestations; ordinary Type7-created whitelist fails lookup. Native create fields admin/backup also differ from validator expected adminAddress/backupAddress. Runtime Registry intentionally repairs lifecycle. Source evaluator preserves dependency name/field behavior, but backend mocks do not prove real storage integration."
+    },
+    {
+      "tx_type": 9,
+      "validator": "validateIssueOrRevokeAttestation",
+      "source": "src/validity.js:1003-1098; src/logic.js:889-932",
+      "finding": "Nonzero list requires primary admin only. List0 permits self-cert and protocol-admin BANLIST command. Revoke validation tests active direct membership; repeat issue has no duplicate check and overwrites address-keyed row. Registry intentionally rejects list0, rejects active duplicates, scopes rows by (list,address), omits revoke reason and has no root payload."
+    },
+    {
+      "tx_types": [
+        2,
+        4,
+        5,
+        10,
+        18,
+        19,
+        20,
+        22
+      ],
+      "validator": "clearlist membership/country consumers",
+      "source": "src/validity.js:278-350,559-648,701-755,1151-1158,1704-1789,1885-1916,2253-2300,2691",
+      "finding": "These validators call ClearList dependencies; 4/19/20 can request derived membership. Source evaluator depends on supplied backend observations. There is no demonstrated wiring from exact JS storage/full BIP32 into accepted Rust economic transactions. Send recipient lookup and banlist fallback quirks are source-preserved boundaries."
+    }
+  ],
+  "external_port": "UNAVAILABLE; not verified",
+  "runtime_registry": "Declared intent/corrected behavior retained; no runtime parity claim"
+}

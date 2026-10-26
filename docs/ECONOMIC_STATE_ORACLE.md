@@ -196,8 +196,19 @@ the poisoned original owner to deny export of its cached state. The fully verifi
 producer/wire baseline passed 1,113 tests across 136 executables, formatting,
 all-target Clippy, the zero-third-party-crate gate and all-target release.
 
-The current source-consensus extension has targeted coverage for actual v7 TLSE
-export, full source replay, restart, rollback, independently bound expectations
-and alternate-history prefix rejection. Full current-batch checks remain pending.
-These results are local implementation evidence, not authenticated historical
-acceptance or external UTXORef integration.
+The source-consensus extension has coverage for actual v7 TLSE export, full
+source replay, restart, rollback, independently bound expectations and alternate
+history prefix rejection. The later owner baseline `8985259` passed 1,231 Rust
+executions (1,230 top-level plus one subprocess), all-target Clippy and release.
+
+The separate UTXORef repository now has an opt-in TLSE input adapter at
+`cef1074cb9d383bcf90b83ea6307260b4a0d0f0d`, under
+`integrations/tradelayer-tlse-input/`. Parent verification passed 16 Node tests
+and seven actual producer fixtures totaling 55,830 bytes. It checks bounded
+framing, commitments and independently supplied head/network policy; economic
+replay, actor authorization, finality, transition proofs and settlement remain
+unverified there. It supports producer state codecs 1 through 7 only.
+
+Native v8 and insurance v9 producer/export support remain an explicit
+integration task. Neither that adapter nor these local tests establish
+authenticated historical acceptance.

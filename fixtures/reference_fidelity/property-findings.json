@@ -1,0 +1,365 @@
+{
+  "review_scope": "Local current Rust HEAD only; static Rust inspection plus unchanged JS module characterization. No Cargo or Rust test execution.",
+  "reference_commit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "reference_property_sha256": "ef0ee7ba5c362227a8bfd44192e351c107871a93a3dc93b04ce6d1a5ebfc70b1",
+  "rust_commit": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+  "verdict": "Current Rust is a partial intentional accounting implementation, not a verified complete/property.js-exact port.",
+  "external_claims": {
+    "commit": "8deba4a",
+    "availability": "not present in either local Git object database",
+    "six_file_patch": "unavailable, not inspected or reconstructed",
+    "claimed_test_results": "unverified"
+  },
+  "method_inventory": {
+    "class_methods": 18,
+    "helpers": 2,
+    "total": 20,
+    "coverage": "All method/helper names reviewed; 38 bounded source characterization tests, not an exhaustive branch/domain equivalence proof."
+  },
+  "methods": [
+    {
+      "name": "getTallyMap",
+      "source": "src/property.js:4",
+      "reference_behavior": "Lazy require of ./tally.js prevents circular partial export; returns the capability used by grant/redeem.",
+      "classification": "intentional-difference",
+      "current_rust": "Ledger owns actual custody and atomic mint/burn rather than loading a second JS singleton; src/ledger.rs:359,486,511.",
+      "source_checks": [
+        "grantTokens has no class/admin check and passes original ID/amount plus provenance to tally"
+      ]
+    },
+    {
+      "name": "quantize8",
+      "source": "src/property.js:9",
+      "reference_behavior": "new BigNumber(value || 0).decimalPlaces(8,ROUND_HALF_UP).toNumber(); binary64 output, signed values allowed.",
+      "classification": "intentional-difference",
+      "current_rust": "Unsigned u128 atoms with checked exact arithmetic, no property-specific binary64 quantizer; src/ledger.rs:95,486. Shared decimal/numeric helpers do not constitute a PropertyManager port.",
+      "source_checks": [
+        "createToken/addProperty seven explicit kind cases",
+        "addProperty accepts negative and nonnumeric supplies; JSON serializes NaN as null"
+      ]
+    },
+    {
+      "name": "constructor",
+      "source": "src/property.js:16",
+      "reference_behavior": "Singleton with distinct propertyIndex and ammIndex Maps; returns existing instance.",
+      "classification": "intentional-difference",
+      "current_rust": "Independently owned Ledger, Registry and JointProtocolState; no global property singleton. src/ledger.rs:279, src/registry.rs:177, src/joint.rs:134.",
+      "source_checks": [
+        "constructor/getInstance: one instance and separate empty property/AMM maps"
+      ]
+    },
+    {
+      "name": "getInstance",
+      "source": "src/property.js:27",
+      "reference_behavior": "Lazily creates singleton and returns same instance.",
+      "classification": "intentional-difference",
+      "current_rust": "Ledger::new and Registry::new create independently owned state.",
+      "source_checks": [
+        "constructor/getInstance: one instance and separate empty property/AMM maps"
+      ]
+    },
+    {
+      "name": "load",
+      "source": "src/property.js:34",
+      "reference_behavior": "Reads propertyList/propertyIndex. Accepts JSON string or pair array; preserves mixed keys/order. Missing/invalid shape clears map; thrown errors are logged and preserve prior cache. Pair values are not schema-validated.",
+      "classification": "missing-implementation",
+      "current_rust": "No NeDB property catalog import. Ledger and Registry use bounded canonical binary checkpoints and reject malformed state. src/ledger.rs:830,874; src/registry_snapshot_impl.rs:204.",
+      "source_checks": [
+        "load: missing row clears stale memory",
+        "load: string pairs preserve insertion order and mixed key types; duplicate replaces value",
+        "load accepts already-decoded pair arrays; invalid pair shape clears memory",
+        "load: parse/read error is swallowed and leaves stale memory intact"
+      ]
+    },
+    {
+      "name": "getNextPropertyId",
+      "source": "src/property.js:61",
+      "reference_behavior": "Reloads catalog, computes max(0,keys)+1 using Math.max coercion. Numeric-string keys affect max; any s-prefixed synthetic key poisons allocator to NaN.",
+      "classification": "missing-implementation",
+      "current_rust": "PropertyId is nonzero u32. CreateProperty and typed Issue require caller-supplied ID; no property allocator. src/ledger.rs:20,100; src/joint.rs:29.",
+      "source_checks": [
+        "getNextPropertyId reloads persisted max with JS numeric coercion",
+        "getNextPropertyId with synthetic string key produces NaN"
+      ]
+    },
+    {
+      "name": "createToken",
+      "source": "src/property.js:70",
+      "reference_behavior": "Checks cache for duplicate ticker before reload. Ticker-as-key invokes invalid constructor and throws TypeError; duplicate ticker value returns Error object; stale/empty cache can accept persisted duplicate. Allocates then calls addProperty; does not credit tally.",
+      "classification": "partial-intent-with-missing-catalog",
+      "current_rust": "Typed Ledger creation issues fixed/managed supply to issuer but has no ticker check, metadata, automatic ID, or seven-kind model. Source-economic mapper excludes type1. src/ledger.rs:432; src/types_economic.rs:168.",
+      "source_checks": [
+        "createToken/addProperty seven explicit kind cases",
+        "createToken duplicate ticker returns Error object instead of throwing",
+        "createToken checks duplicates before reload: persisted duplicate can be accepted with empty cache",
+        "createToken ticker-as-map-key branch throws TypeError"
+      ]
+    },
+    {
+      "name": "addProperty",
+      "source": "src/property.js:88",
+      "reference_behavior": "Seven named classes map to1..7. Existing ID increments quantized supply, replaces class, truthy-falls-back ticker/whitelist/issuer/backup, converts non-null proceduralType with Number. New records preserve raw ID; no auth/class supply restrictions. Prototype-inherited type names can pass map lookup. Mutates memory before save.",
+      "classification": "missing-implementation",
+      "current_rust": "CreateProperty refuses duplicate ID; no arbitrary metadata-only supply upsert or class/issuer mutation. Managed Mint is separately authorized/conserving. src/ledger.rs:432,486.",
+      "source_checks": [
+        "addProperty invalid class rejects before save",
+        "addProperty existing ID increments supply and truthy-falls-back fields; can change class/metadata",
+        "addProperty class map also accepts inherited toString key; saved type function is omitted",
+        "save failure leaves mutation in singleton but does not update DB"
+      ]
+    },
+    {
+      "name": "inspectPropertyIndex",
+      "source": "src/property.js:156",
+      "reference_behavior": "Reloads singleton catalog and logs array and object forms; returns undefined.",
+      "classification": "missing-implementation",
+      "current_rust": "No matching public catalog inspection; crate-private property_rows exposes reduced Ledger records. src/ledger.rs:302.",
+      "source_checks": [
+        "inspectPropertyIndex reloads DB and prints both representations without return value"
+      ]
+    },
+    {
+      "name": "getAMM",
+      "source": "src/property.js:172",
+      "reference_behavior": "Uses undefined PropertyRegistry before undefined initializeAMM; ordinary call throws ReferenceError.",
+      "classification": "reference-defect-not-port-equivalence",
+      "current_rust": "src/amm.rs has standalone mathematical intents and AmmRegistry; no matching PropertyManager pair cache or source spot-pool path. Existing AMM work is not a property helper port.",
+      "source_checks": [
+        "getAMM fails at undefined PropertyRegistry before any AMM initialization"
+      ]
+    },
+    {
+      "name": "isManagedAndAdmin",
+      "source": "src/property.js:186",
+      "reference_behavior": "Reads/parses persisted JSON string, uses strict key match and strict issuer equality; accepts numeric class2 or7, not backup address. Catches errors and returns false.",
+      "classification": "partial-intent-with-explicit-differences",
+      "current_rust": "check_managed_issuer enforces typed Managed plus issuer only; Procedural7 absent; typed IDs eliminate coercions. Owner-backed source backend does not implement this dependency. src/ledger.rs:400; src/economic_validity.rs:346.",
+      "source_checks": [
+        "isManagedAndAdmin accepts exactly numeric class 2/7 and exact key/issuer; errors return false"
+      ]
+    },
+    {
+      "name": "updateTotalInCirculation",
+      "source": "src/property.js:218",
+      "reference_behavior": "Reads supply via getPropertyData and quantizes signed change, then finds exact ID in parsed row. The second getDatabase is not awaited although real db.js declares async getDatabase; matching row reaches TypeError base.updateAsync is not a function and does not persist.",
+      "classification": "reference-defect-and-intentional-accounting-difference",
+      "current_rust": "No metadata-only supply delta API; Ledger requires conserving Mint/Burn, disallowing arbitrary signed supply changes. src/ledger.rs:486,511,642.",
+      "source_checks": [
+        "updateTotalInCirculation fails at unawaited async DB factory; persisted row unchanged"
+      ]
+    },
+    {
+      "name": "save",
+      "source": "src/property.js:245",
+      "reference_behavior": "JSON.stringify Map entry pairs into propertyIndex value and upserts propertyList row. Save failure is logged/rethrown; prior memory mutation remains.",
+      "classification": "intentional-difference",
+      "current_rust": "Ledger/Registry canonical bounded binary snapshots, checksums, replay and conservation replace this persistence model. Checksums alone do not authenticate chain state. src/ledger.rs:742; src/registry_snapshot_impl.rs:150.",
+      "source_checks": [
+        "save failure leaves mutation in singleton but does not update DB",
+        "grant save failure follows successful tally call and leaves DB supply stale"
+      ]
+    },
+    {
+      "name": "getPropertyIndex",
+      "source": "src/property.js:260",
+      "reference_behavior": "Loads only if singleton map empty, then returns insertion-ordered id/ticker/totalInCirculation/type projection; nonempty cache can be stale.",
+      "classification": "missing-implementation",
+      "current_rust": "Ledger::property typed getter and crate-private property_rows have issuer/kind/total_supply_atoms only, no ticker/list projection. src/ledger.rs:91,297,302.",
+      "source_checks": [
+        "getPropertyIndex returns only four fields and retains nonempty stale cache"
+      ]
+    },
+    {
+      "name": "doesTickerExist",
+      "source": "src/property.js:283",
+      "reference_behavior": "Reads persisted catalog each time, JSON.parse string, checks ticker with strict case-sensitive equality. Missing document false; errors propagate.",
+      "classification": "missing-implementation",
+      "current_rust": "No token ticker owner/index/read API. Oracle/contract tickers are different registries. EconomicSourceBackend falls through UnknownDependency. src/economic_validity.rs:346,403.",
+      "source_checks": [
+        "doesTickerExist reads DB with case-sensitive exact match; bad JSON throws"
+      ]
+    },
+    {
+      "name": "isSyntheticToken",
+      "source": "src/property.js:309",
+      "reference_behavior": "Static method checks this.propertyIndex on class, calls static load which changes instance only, then this.propertyIndex.get throws TypeError. Without non-source static field injection it cannot query.",
+      "classification": "reference-defect-not-port-equivalence",
+      "current_rust": "No synthetic PropertyKind or equivalent helper. VaultId/synthetic links in src/vaults.rs:19,380 do not own Ledger synthetic balances.",
+      "source_checks": [
+        "isSyntheticToken fails because static this.propertyIndex is absent after load"
+      ]
+    },
+    {
+      "name": "grantTokens",
+      "source": "src/property.js:316",
+      "reference_behavior": "Reads catalog, quantizes supply+amount, reloads then sets Number(propertyId), calls tally.updateBalance(recipient,originalId,originalAmount,0,0,0,grantToken,block), then saves. No class/actor/positive-amount check in helper. Logic/validity enforce managed/procedural policy separately. Failures can leave memory/custody/catalog split.",
+      "classification": "partial-intent-with-intentional-repair",
+      "current_rust": "Typed Grant/Mint atomically verifies Managed issuer, positive u128 and overflow, credits recipient and conserves supply. No Procedural context handling. src/joint.rs:403; src/ledger.rs:486; src/types_economic.rs:349.",
+      "source_checks": [
+        "grantTokens has no class/admin check and passes original ID/amount plus provenance to tally",
+        "grantTokens string persisted key yields both string and numeric key after Number(propertyId) set",
+        "grant tally failure leaves raised singleton supply while DB retains old declared supply",
+        "grant save failure follows successful tally call and leaves DB supply stale"
+      ]
+    },
+    {
+      "name": "redeemTokens",
+      "source": "src/property.js:337",
+      "reference_behavior": "Checks declared total against amount then quantizes supply-amount, Number(id) set, tally debit from recipient, then save. No helper issuer/class/balance/positive check; actual tally and higher layers may reject. Negative helper amount increases supply and launches positive credit.",
+      "classification": "partial-intent-with-intentional-repair",
+      "current_rust": "Typed Redeem/Burn verifies Managed issuer and own available funds; cannot redeem another holder. Procedural non-admin context redemption absent. Atomic u128 prevents negative/rounding/failure-split behavior. src/joint.rs:420; src/ledger.rs:511; src/types_economic.rs:365.",
+      "source_checks": [
+        "redeemTokens checks total supply but delegates recipient balance; no class/admin check",
+        "redeemTokens excess supply and missing property fail before tally",
+        "negative redemption increases declared supply and launches positive tally credit"
+      ]
+    },
+    {
+      "name": "getPropertyData",
+      "source": "src/property.js:364",
+      "reference_behavior": "DB read each call; exact match for any s-prefixed string then Number(entryKey)===Number(query) fallback. Numeric aliases such as01 and true can match1. Returns raw metadata or null, swallowing any errors.",
+      "classification": "partial-intent-with-missing-catalog",
+      "current_rust": "Ledger::property returns reduced typed row. No token metadata/type3..7/synthetic-key DB projection. EconomicSourceBackend does not supply Property.getPropertyData. src/ledger.rs:91,297; src/economic_validity.rs:346; tests/economic_validity.rs:380.",
+      "source_checks": [
+        "getPropertyData supports Number-equivalent IDs and exact s-prefixed synthetic key"
+      ]
+    },
+    {
+      "name": "updateAdmin",
+      "source": "src/property.js:405",
+      "reference_behavior": "DB JSON numeric-equivalent lookup; truthy backup flag selects backupAddress else issuer. No actor authorization in helper; logs/rethrows failures and leaves singleton cache stale. Higher validity/logic must establish authority.",
+      "classification": "missing-implementation",
+      "current_rust": "RegistryAction::UpdateAdmin Token fails UnsupportedTokenAdmin; economic source mapper rejects token target. No Ledger issuer-rotation API or backup field. src/registry.rs:418; src/types_economic.rs:314; tests/registry_transitions.rs:228.",
+      "source_checks": [
+        "updateAdmin writes primary/backup without caller auth and leaves singleton cache stale"
+      ]
+    }
+  ],
+  "property_kinds": [
+    {
+      "source_name": "Fixed",
+      "source_code": 1,
+      "status": "partial",
+      "rust": "PropertyKind::Fixed with immutable nonzero issued supply and conservation; no ticker/metadata. JS raw addProperty can increase/reclassify existing Fixed; Rust rejects duplicate creation and fixed Mint/Burn."
+    },
+    {
+      "source_name": "Managed",
+      "source_code": 2,
+      "status": "partial",
+      "rust": "PropertyKind::Managed supports authorized exact-atom grant and issuer self-burn. JS helper methods are unguarded and non-atomic; ordinary high-level managed intent broadly aligns. Token backup/admin changes and catalog absent."
+    },
+    {
+      "source_name": "Native",
+      "source_code": 3,
+      "status": "separate-explicit-policy",
+      "rust": "SourceCatalogClass::Native is catalog role metadata on NativeEntitlementPolicy, not a PropertyKind. Policy adopts independently pinned existing funding into sole Ledger, does not mint declarations or authenticate source history/schedule."
+    },
+    {
+      "source_name": "Vesting",
+      "source_code": 4,
+      "status": "separate-explicit-policy",
+      "rust": "SourceCatalogClass::Vesting and coupon/marker bindings exist on native owner; underlying Ledger remains Fixed/Managed. Source-quote-exact-or-reject, prefunding, driver policy and event replay are explicit bounded policies, not general property catalog or exact genesis restoration."
+    },
+    {
+      "source_name": "Synthetic",
+      "source_code": 5,
+      "status": "missing-ledger-property-class",
+      "rust": "VaultRegistry supports typed s-property-contract names, links and accounting calculations only; no synthetic PropertyKind or integrated property metadata/issuance/redemption. types_economic mapper excludes24/25."
+    },
+    {
+      "source_name": "Non-Fungible",
+      "source_code": 6,
+      "status": "missing",
+      "rust": "No NFT PropertyKind, per-unit identity or NFT issuance owner. Source property.js stores only numeric type6 and supply; stronger NFT semantics are not inferred from that label."
+    },
+    {
+      "source_name": "Procedural",
+      "source_code": 7,
+      "status": "missing",
+      "rust": "No type7/proceduralType Ledger/catalog owner. JS Logic and validity gate issuance/redemption through ProceduralRegistry; holder context redemption may bypass managed-admin check. Mapper rejects DLC/procedural context; not equivalent to ordinary Managed."
+    }
+  ],
+  "transactions": [
+    {
+      "type": 0,
+      "name": "activation/native initialization",
+      "reference": "Vesting initialization creates Fixed1,Vesting2,Vesting3,Native4 through PropertyManager; declared figures can diverge from actual tally custody.",
+      "current_rust": "Registry Activate records activation only. vesting::InitializationBackend emits external calls; actual native entitlement owner adopts explicit prefunded bootstrap without creating property or inferring mint authority.",
+      "classification": "separate-intent-policy-incomplete-source-genesis"
+    },
+    {
+      "type": 1,
+      "name": "token issue",
+      "reference": "Types dispatch validates issuance; Logic.tokenIssue selects Fixed/Managed/Non-Fungible or Procedural, calls createToken then tally issuance; duplicate helper Error can be returned instead of rejected.",
+      "current_rust": "JointOperation::Issue/ProtocolOperation::Issue accepts supplied numeric ID and Fixed/Managed only; credits same Ledger. Source-economic map_economic_input_unverified rejects type1 before mapping. No token ticker, backup, whitelist, procedural metadata or automatic ID.",
+      "classification": "partial-typed-intent-missing-source-admission"
+    },
+    {
+      "type": 2,
+      "name": "send",
+      "reference": "Source validity queries Property.getPropertyData for existence, whitelist/procedural restriction and native rules before tally transfer.",
+      "current_rust": "Typed numeric sends and policy-coupled native coupon transfers exist. EconomicSourceBackend has no Property.getPropertyData dependency and source path therefore fails rather than inventing metadata. No general seven-kind metadata-aware send admission.",
+      "classification": "partial-typed-intent-missing-source-metadata"
+    },
+    {
+      "type": 8,
+      "name": "token admin update",
+      "reference": "PropertyManager.updateAdmin works as a raw DB helper; source Logic.updateAdmin token branch references undefined PropertyList although it imports PropertyManager, a separate static routing defect (not executed in this harness). Validity checks primary/backup.",
+      "current_rust": "AdminTarget::Token always returns UnsupportedTokenAdmin. Source-economic mapping rejects token target. Whitelist/oracle admin support does not implement token ownership transfer.",
+      "classification": "missing-implementation"
+    },
+    {
+      "type": 10,
+      "name": "spot AMM capital",
+      "reference": "Logic spot branch calls PropertyManager.getAMM; unchanged helper throws PropertyRegistry ReferenceError in tested ordinary environment.",
+      "current_rust": "Standalone AmmRegistry/calculations and explicit funded contract AMM do not implement this property pair-cache helper or source spot tx10 admission.",
+      "classification": "reference-defect-and-missing-source-property-path"
+    },
+    {
+      "type": 11,
+      "name": "managed/procedural grant",
+      "reference": "Validity/Logic require managed-or-procedural issuer; ProceduralRegistry gates class7. Raw grant helper itself accepts any type, launches tally then saves supply.",
+      "current_rust": "Joint Grant\u2192Ledger Mint enforces Managed issuer and atomic positive atoms. Source-economic mapping has ordinary11 but rejects DLC/procedural context; actual source backend lacks Property.isManagedAndAdmin/getPropertyData.",
+      "classification": "partial-ordinary-managed-intent"
+    },
+    {
+      "type": 12,
+      "name": "managed/procedural redemption",
+      "reference": "Ordinary Managed requires issuer; Procedural allows non-admin redemption with contract-state gate. Validity checks sender available; raw helper only checks declared supply then debits recipient.",
+      "current_rust": "Joint Redeem\u2192Ledger Burn handles Managed issuer own balance only, atomically. No Procedural holder context path; actual property source dependencies unavailable.",
+      "classification": "partial-ordinary-managed-intent"
+    },
+    {
+      "type": 24,
+      "name": "synthetic mint",
+      "reference": "Logic constructs s-property-contract key, derives ticker, calls addProperty Synthetic to grow declared supply, plus separate margin/vault/tally steps.",
+      "current_rust": "VaultRegistry is an explicit local accounting/link model; numeric-only Ledger has no synthetic token class/key. Source-economic mapping excludes24. No integrated property+margin+vault mint claimed.",
+      "classification": "missing-integrated-property-path"
+    },
+    {
+      "type": 25,
+      "name": "synthetic redemption",
+      "reference": "Logic redemption calls updateTotalInCirculation; when reached with matching DB ID, helper has async DB-factory TypeError, with earlier surrounding mutations potentially already made.",
+      "current_rust": "Vault calculations do not implement JS catalog updater or atomic synthetic-token economic redemption. Source-economic mapping excludes25.",
+      "classification": "reference-defect-and-missing-integrated-property-path"
+    }
+  ],
+  "history_restore": {
+    "reference": "Single mutable JSON catalog; no property creation/issuer/admin history or transaction-id journal. Grant/redeem delegate reason/block to tally; tally module not executed by harness. Cache/DB can diverge, malformed load may preserve stale cache.",
+    "current_rust": "Canonical Ledger/Registry checkpoints, processed txids, conservation, joint history and native event replay exist. They preserve reduced typed state, not full JS property catalog. Native restore requires independent expected policy, with no invented source authentication/schedule.",
+    "evidence": [
+      "src/ledger.rs:759",
+      "src/ledger.rs:830",
+      "src/registry_snapshot_impl.rs:204",
+      "src/ledger_native_impl.rs:773",
+      "tests/native_ledger.rs:120",
+      "tests/persistence.rs:148"
+    ]
+  },
+  "independent_boundaries": [
+    "Genuine BigNumber9.3.1 execution; source package-lock pins9.1.2 and package.json allows^9.1.2. No claim of9.1.2 lock-exact execution.",
+    "DB/tally capability mocks are explicit and no actual NeDB, RPC, custody or source tally invariant is exercised.",
+    "Existing Rust tests inspected but not run; their declarations/assertions are static evidence only.",
+    "A passing source-defect characterization is not a passing Rust conformance test."
+  ]
+}

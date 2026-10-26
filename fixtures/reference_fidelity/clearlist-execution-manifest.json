@@ -1,0 +1,3759 @@
+{
+  "import": {
+    "purpose": "minimum reproducible full-source regression package; all paths nonreserved",
+    "new_repository_paths": [
+      "scripts/audit_legacy_clearlist_reference.cjs",
+      "fixtures/legacy_clearlist_audit_reference.txt"
+    ],
+    "existing_repository_dependency": "fixtures/legacy_validity_source.txt (already committed at review base; unchanged)",
+    "command": "node scripts/audit_legacy_clearlist_reference.cjs --evidence PATH_TO_SCRATCH_JSON",
+    "sources": {
+      "legacy_clearlist_audit_reference.txt": {
+        "sha256": "fbdb702e5e89bac113226223f42bf762af13fff40dee4e0c4ab6cd4a50d451e1",
+        "origin_commit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+        "origin_path": "src/clearlist.js"
+      },
+      "legacy_validity_source.txt": {
+        "sha256": "ed9b7fed5b733740c26033030379abe0f4a63d488ff431dfc7b1f10eb4f93b00",
+        "origin_commit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+        "origin_path": "src/validity.js"
+      }
+    },
+    "imports": {
+      "clearlist.js": {
+        "./db.js": "typed-ID clone-document in-memory NeDB query/update model",
+        "crypto": "genuine Node builtin crypto"
+      },
+      "validity.js": {
+        "./clearlist.js": "genuine full-source module under test",
+        "./db": "same modeled DB",
+        "crypto": "genuine Node builtin crypto",
+        "./activation.js": "stub isTxTypeActive=true/getAdmin=protocol-admin",
+        "./txUtils.js": "stub validates address=true; transaction output=[vout1,address alice]",
+        "bignumber.js": "throwing unused placeholder",
+        "bitcoinjs-lib": "networks.bitcoin empty placeholder; no address payment methods",
+        "tiny-secp256k1": "unused empty placeholder",
+        "bip32": "BIP32Factory returns unused empty placeholder",
+        "bech32": "throwing unused decode placeholder",
+        "./property.js": "explicit unused empty placeholder; none of its methods is called by these checks",
+        "./oracle.js": "explicit unused empty placeholder; none of its methods is called by these checks",
+        "./contractRegistry.js": "explicit unused empty placeholder; none of its methods is called by these checks",
+        "./tally.js": "explicit unused empty placeholder; none of its methods is called by these checks",
+        "./orderbook.js": "explicit unused empty placeholder; none of its methods is called by these checks",
+        "./channels.js": "explicit unused empty placeholder; none of its methods is called by these checks",
+        "./marginMap.js": "explicit unused empty placeholder; none of its methods is called by these checks",
+        "./volumeIndex.js": "explicit unused empty placeholder; none of its methods is called by these checks",
+        "./vaults.js": "explicit unused empty placeholder; none of its methods is called by these checks",
+        "./vesting.js": "explicit unused empty placeholder; none of its methods is called by these checks",
+        "./scaling.js": "explicit unused empty placeholder; none of its methods is called by these checks",
+        "./dlcOracleBridge.js": "explicit unused empty placeholder; none of its methods is called by these checks",
+        "./procedural.js": "explicit unused empty placeholder; none of its methods is called by these checks",
+        "./options.js": "explicit unused empty placeholder; none of its methods is called by these checks"
+      },
+      "bitcore-lib-ltc and bitcore-lib": "intentionally absent; source catches missing-import exception and returns [] on attempted derivation"
+    },
+    "boundary": "full JS source execution validates language/control flow and modeled queries; no real NeDB, historical authorization, BIP32, chain acceptance, or Rust linkage",
+    "harness_sha256": "c9e85c5f93fc9facf9d2f31c6b9eba80d800b88df7e5edc38febc5e8535d7554"
+  },
+  "command-evidence": {
+    "captured_utc": "2026-10-26T16:09:46.356260+00:00",
+    "executions": [
+      {
+        "command": [
+          "node",
+          "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\clearlist-reference-review\\source-checks.cjs"
+        ],
+        "cwd": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go",
+        "exit_code": 0,
+        "stdout": "PASS 18 exact-source checks; Node v24.19.0; 118 modeled database calls\nBOUNDARY: exact JS source, modeled database, explicit activation/address stubs, no real NeDB/BIP32/Rust execution\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "node",
+          "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\clearlist-reference-review\\sources\\rust\\scripts\\audit_legacy_clearlist_source.cjs"
+        ],
+        "cwd": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go",
+        "exit_code": 0,
+        "stdout": "PASS: numeric-vs-string admin upsert, stale load, wrong attestations getList\nPASS: address-key overwrite and wrong-list revoke fallback\nPASS: banlist array .data getter, list0 self-cert overwrite\nPASS: source ASCII-hex Merkle and odd-parent skipped-sibling bug\nBOUNDARY: no live source DB, xpub BIP32, historic signer or authority\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "node",
+          "scripts/validity_vectors.cjs"
+        ],
+        "cwd": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\outputs\\TradeLayer-Rust",
+        "exit_code": 0,
+        "stdout": "PASS validity 43 exports 564 observations; Node v24.19.0\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "node",
+          "--check",
+          "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\clearlist-reference-review\\sources\\legacy\\src\\logic.js"
+        ],
+        "cwd": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go",
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "git",
+          "status",
+          "--short"
+        ],
+        "cwd": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\outputs\\TradeLayer-Rust",
+        "exit_code": 0,
+        "stdout": " M .gitattributes\n M .github/workflows/ci.yml\n M src/legacy_clearlist_audit.rs\n M tests/legacy_clearlist_audit.rs\n?? docs/PROPERTY_REFERENCE_FIDELITY.md\n?? docs/REFERENCE_FIDELITY.md\n?? fixtures/reference_fidelity/\n?? scripts/audit_property_reference.cjs\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "git",
+          "cat-file",
+          "-e",
+          "1ad166aab4f612d1021a3a673482a8730362d69c^{commit}"
+        ],
+        "cwd": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\outputs\\TradeLayer-Rust",
+        "exit_code": 128,
+        "stdout": "",
+        "stderr": "fatal: Not a valid object name 1ad166aab4f612d1021a3a673482a8730362d69c^{commit}\n"
+      }
+    ],
+    "reserved_external_file_exists": {
+      "src/clearlist.rs": false,
+      "tests/clearlist.rs": false,
+      "scripts/clearlist_vectors.cjs": false,
+      "fixtures/legacy_clearlist_source.txt": false,
+      "fixtures/clearlist_vectors.tsv": false,
+      "docs/CLEARLIST.md": false
+    },
+    "external_port_status": "UNAVAILABLE: reported Git object and six reserved files absent",
+    "validity_fixture_total_V_observations": 562,
+    "validity_fixture_clearlist_validator_counts": {
+      "validateCreateWhitelist": 15,
+      "validateUpdateAdmin": 8,
+      "validateIssueOrRevokeAttestation": 14
+    },
+    "script_sha256": "4f0ed6c5d3ff97a0225aac59d3f1d1ae67db0866810d14233fc0eb2db5235436",
+    "rust_execution": "Focused audit tests and Clippy are recorded separately in rust-execution-evidence.json",
+    "transient_errors_resolved": [
+      "Initial legacy Git read hit dubious-ownership protection; read-only per-command safe.directory used thereafter, no Git configuration changes",
+      "Initial audit invocation used the wrong cwd-relative path; subsequent absolute-path invocation passed",
+      "Initial text inspection used Windows default encoding on UTF-8 logic.js; corrected explicit UTF-8 reads"
+    ]
+  },
+  "execution-evidence": {
+    "node": "v24.19.0",
+    "check_count": 18,
+    "status": "PASS",
+    "source": "Git blobs, hashes verified before executing",
+    "storage": "in-memory NeDB query/update MODEL",
+    "rust_execution": "separate focused Rust audit tests; this command executes JavaScript only",
+    "observations": [
+      {
+        "case": "create, aliases, URL omission, false ID allocation, explicit replacement",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 8
+      },
+      {
+        "case": "typed ID and parseInt prefix allocation",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 5
+      },
+      {
+        "case": "admin update string shadow, primary only verify, numeric reload",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 7
+      },
+      {
+        "case": "load leaves stale cache after modeled database deletion",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 4
+      },
+      {
+        "case": "type8 real helper rejects type7-created list",
+        "status": "PASS",
+        "detail": {
+          "valid": false,
+          "reason": "Whitelist not found; "
+        },
+        "database_model_calls": 4
+      },
+      {
+        "case": "direct attestation uses one address key across lists and replaces active row",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 7
+      },
+      {
+        "case": "revoke fallback crosses lists and can revoke already revoked row",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 12
+      },
+      {
+        "case": "legacy clearlistId queries and multirow revocation",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 6
+      },
+      {
+        "case": "root-only attestation revocation succeeds via canonical query",
+        "status": "PASS",
+        "detail": "canonical query revokes a root-keyed row without an address-keyed row",
+        "database_model_calls": 5
+      },
+      {
+        "case": "direct and root history sorts descending and revoke covers both",
+        "status": "PASS",
+        "detail": "source history is descending by timestamp and canonical revocation covers both rows",
+        "database_model_calls": 6
+      },
+      {
+        "case": "canonical root match prevents wrong-list address fallback",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 9
+      },
+      {
+        "case": "country string, metadata object, legacy status and block-height precedence",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 15
+      },
+      {
+        "case": "banlist setter persists and cache changes but getter returns undefined",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 3
+      },
+      {
+        "case": "type9 actual clearlist dependency, backup rejection, list0 and banned-country command",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 12
+      },
+      {
+        "case": "type9 repeated issue accepted by validator",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 4
+      },
+      {
+        "case": "xpub markers store metadata but derivation libraries remain unavailable",
+        "status": "PASS",
+        "detail": "false on a non-direct xpub candidate is a missing-library source behavior in this harness; it does not verify BIP32",
+        "database_model_calls": 6
+      },
+      {
+        "case": "explicit empty xpub does not infer inline metadata prefix",
+        "status": "PASS",
+        "detail": "explicit empty xpub is null; an inline empty xpub remains the empty string",
+        "database_model_calls": 2
+      },
+      {
+        "case": "Merkle exact source ASCII-hex hashing, odd parent proof and volatile root registration",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 3
+      }
+    ],
+    "dbCalls": [
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": 1
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 1,
+              "admin": "admin",
+              "name": "one",
+              "description": "description",
+              "backup": "backup"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": 2
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 2,
+              "admin": "other",
+              "name": "two",
+              "backup": "b"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": 1
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 1,
+              "admin": "replacement",
+              "name": "replace",
+              "description": "",
+              "backup": ""
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": 3
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 3,
+              "admin": "third",
+              "name": "three",
+              "description": "",
+              "backup": "b"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": "12tail"
+        },
+        {
+          "$set": {
+            "data": {
+              "id": "12tail",
+              "admin": "a",
+              "name": "name",
+              "description": "",
+              "backup": "b"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": 13
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 13,
+              "admin": "a",
+              "name": "next",
+              "description": "",
+              "backup": "b"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": 1
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 1,
+              "admin": "old",
+              "name": "list",
+              "description": "",
+              "backup": "backup"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": "1"
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 1,
+              "admin": "new",
+              "name": "list",
+              "description": "",
+              "backup": "backup",
+              "adminAddress": "new"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": "1"
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 1,
+              "admin": "old",
+              "name": "list",
+              "description": "",
+              "backup": "new-backup",
+              "backupAddress": "new-backup"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": 9
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 9,
+              "admin": "a",
+              "name": "name",
+              "description": "",
+              "backup": "b"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": 1
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 1,
+              "admin": "old",
+              "name": "list",
+              "description": "",
+              "backup": "backup"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findOneAsync",
+        {
+          "_id": 1
+        }
+      ],
+      [
+        "attestations",
+        "findOneAsync",
+        {
+          "_id": 1
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "active",
+              "data": "first",
+              "xpub": null,
+              "timestamp": 10
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "active",
+              "data": "updated",
+              "xpub": null,
+              "timestamp": 11
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.listId": 1
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 2,
+              "address": "alice",
+              "status": "active",
+              "data": "other",
+              "xpub": null,
+              "timestamp": 12
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 2
+            },
+            {
+              "data.clearlistId": 2
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 2,
+              "address": "alice",
+              "status": "active",
+              "data": "other",
+              "xpub": null,
+              "timestamp": 12
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 99
+            },
+            {
+              "data.clearlistId": 99
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findOneAsync",
+        {
+          "_id": "attestation:alice"
+        }
+      ],
+      [
+        "attestations",
+        "findOneAsync",
+        {
+          "_id": "alice"
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 2,
+              "address": "alice",
+              "status": "revoked",
+              "data": "other",
+              "xpub": null,
+              "timestamp": 13,
+              "revokeReason": "wrong list",
+              "id": 99
+            }
+          }
+        },
+        {}
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findOneAsync",
+        {
+          "_id": "attestation:alice"
+        }
+      ],
+      [
+        "attestations",
+        "findOneAsync",
+        {
+          "_id": "alice"
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 2,
+              "address": "alice",
+              "status": "revoked",
+              "data": "other",
+              "xpub": null,
+              "timestamp": 14,
+              "revokeReason": "again",
+              "id": 1
+            }
+          }
+        },
+        {}
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "nobody",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findOneAsync",
+        {
+          "_id": "attestation:nobody"
+        }
+      ],
+      [
+        "attestations",
+        "findOneAsync",
+        {
+          "_id": "nobody"
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "$or": [
+            {
+              "data.listId": 3
+            },
+            {
+              "data.clearlistId": 3
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 3
+            },
+            {
+              "data.clearlistId": 3
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.listId": 3
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 3
+            },
+            {
+              "data.clearlistId": 3
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "legacy-a"
+        },
+        {
+          "$set": {
+            "data": {
+              "clearlistId": 3,
+              "address": "alice",
+              "status": "revoked",
+              "timestamp": 4,
+              "revokeReason": "all",
+              "id": 3
+            }
+          }
+        },
+        {}
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "legacy-b"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 3,
+              "address": "alice",
+              "status": "revoked",
+              "timestamp": 4,
+              "revokeReason": "all",
+              "id": 3
+            }
+          }
+        },
+        {}
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "merkle:1:8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "active",
+              "merkleRoot": "8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53",
+              "timestamp": 2
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "merkle:1:8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "revoked",
+              "merkleRoot": "8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53",
+              "timestamp": 3,
+              "revokeReason": "revoke-root",
+              "id": 1
+            }
+          }
+        },
+        {}
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "active",
+              "data": "one",
+              "xpub": null,
+              "timestamp": 1
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "merkle:1:8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "active",
+              "merkleRoot": "8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53",
+              "timestamp": 2
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.listId": 1
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "revoked",
+              "data": "one",
+              "xpub": null,
+              "timestamp": 3,
+              "revokeReason": "all",
+              "id": 1
+            }
+          }
+        },
+        {}
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "merkle:1:8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "revoked",
+              "merkleRoot": "8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53",
+              "timestamp": 3,
+              "revokeReason": "all",
+              "id": 1
+            }
+          }
+        },
+        {}
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 2,
+              "address": "alice",
+              "status": "active",
+              "data": "other-list",
+              "xpub": null,
+              "timestamp": 10
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "merkle:1:8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "active",
+              "merkleRoot": "8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53",
+              "timestamp": 11
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "merkle:1:8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "revoked",
+              "merkleRoot": "8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53",
+              "timestamp": 12,
+              "revokeReason": "root",
+              "id": 1
+            }
+          }
+        },
+        {}
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findOneAsync",
+        {
+          "_id": "attestation:alice"
+        }
+      ],
+      [
+        "attestations",
+        "findOneAsync",
+        {
+          "_id": "alice"
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 2,
+              "address": "alice",
+              "status": "revoked",
+              "data": "other-list",
+              "xpub": null,
+              "timestamp": 13,
+              "revokeReason": "fallback",
+              "id": 1
+            }
+          }
+        },
+        {}
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 0,
+              "address": "alice",
+              "status": "active",
+              "data": " us ",
+              "xpub": null,
+              "timestamp": 0
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice"
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 2,
+              "address": "alice",
+              "status": "active",
+              "data": "other",
+              "xpub": null,
+              "timestamp": 12
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice"
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "bob"
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "aliases"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 0,
+              "address": "aliases",
+              "status": "active",
+              "data": {
+                "countryCode": "",
+                "country": " ca ",
+                "code": "NZ",
+                "value": "GB"
+              },
+              "xpub": null,
+              "timestamp": 10
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "aliases"
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "aliases"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 0,
+              "address": "aliases",
+              "status": "active",
+              "data": {
+                "countryCode": " ca "
+              },
+              "xpub": null,
+              "timestamp": 10
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "aliases"
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "aliases"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 0,
+              "address": "aliases",
+              "status": "active",
+              "data": {
+                "code": " ca "
+              },
+              "xpub": null,
+              "timestamp": 10
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "aliases"
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "aliases"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 0,
+              "address": "aliases",
+              "status": "active",
+              "data": {
+                "value": " ca "
+              },
+              "xpub": null,
+              "timestamp": 10
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "aliases"
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "aliases"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 0,
+              "address": "aliases",
+              "status": "active",
+              "data": {
+                "countryCode": " ",
+                "country": "CA"
+              },
+              "xpub": null,
+              "timestamp": 11
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "aliases"
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {
+          "_id": "globalBanlist"
+        }
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": "globalBanlist"
+        },
+        {
+          "$set": {
+            "data": [
+              "GB",
+              "KP"
+            ],
+            "timestamp": 20
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {
+          "_id": "globalBanlist"
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": 1
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 1,
+              "admin": "admin",
+              "name": "list",
+              "description": "",
+              "backup": "backup"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "active",
+              "data": "OK",
+              "xpub": null,
+              "timestamp": 20
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": 1
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 1,
+              "admin": "admin",
+              "name": "list",
+              "description": "",
+              "backup": "backup"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "active",
+              "data": "one",
+              "xpub": null,
+              "timestamp": 1
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "a"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "a",
+              "status": "active",
+              "data": "xpub:synthetic",
+              "xpub": "synthetic",
+              "timestamp": 10
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "b"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 2,
+              "address": "b",
+              "status": "active",
+              "data": "meta",
+              "xpub": "explicit-synthetic",
+              "timestamp": 11
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "a",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "unattested",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.listId": 1,
+          "data.status": "active",
+          "data.xpub": {
+            "$exists": true,
+            "$ne": null
+          }
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.listId": 1,
+          "data.status": "active",
+          "data.merkleRoot": {
+            "$exists": true,
+            "$ne": null
+          }
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "active",
+              "data": "xpub:synthetic",
+              "xpub": null,
+              "timestamp": 1
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "bob"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "bob",
+              "status": "active",
+              "data": "xpub:",
+              "xpub": "",
+              "timestamp": 2
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "merkle:1:82f8fcd70bcdf26565adb613a0dfe04955ee27054ab30f03e23160219aa73de9"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "admin",
+              "status": "active",
+              "merkleRoot": "82f8fcd70bcdf26565adb613a0dfe04955ee27054ab30f03e23160219aa73de9",
+              "timestamp": 5
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "admin",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ]
+    ]
+  },
+  "ready-execution-evidence": {
+    "node": "v24.19.0",
+    "check_count": 18,
+    "status": "PASS",
+    "source": "Git blobs, hashes verified before executing",
+    "storage": "in-memory NeDB query/update MODEL",
+    "rust_execution": "separate focused Rust audit tests; this command executes JavaScript only",
+    "observations": [
+      {
+        "case": "create, aliases, URL omission, false ID allocation, explicit replacement",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 8
+      },
+      {
+        "case": "typed ID and parseInt prefix allocation",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 5
+      },
+      {
+        "case": "admin update string shadow, primary only verify, numeric reload",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 7
+      },
+      {
+        "case": "load leaves stale cache after modeled database deletion",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 4
+      },
+      {
+        "case": "type8 real helper rejects type7-created list",
+        "status": "PASS",
+        "detail": {
+          "valid": false,
+          "reason": "Whitelist not found; "
+        },
+        "database_model_calls": 4
+      },
+      {
+        "case": "direct attestation uses one address key across lists and replaces active row",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 7
+      },
+      {
+        "case": "revoke fallback crosses lists and can revoke already revoked row",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 12
+      },
+      {
+        "case": "legacy clearlistId queries and multirow revocation",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 6
+      },
+      {
+        "case": "root-only attestation revocation succeeds via canonical query",
+        "status": "PASS",
+        "detail": "canonical query revokes a root-keyed row without an address-keyed row",
+        "database_model_calls": 5
+      },
+      {
+        "case": "direct and root history sorts descending and revoke covers both",
+        "status": "PASS",
+        "detail": "source history is descending by timestamp and canonical revocation covers both rows",
+        "database_model_calls": 6
+      },
+      {
+        "case": "canonical root match prevents wrong-list address fallback",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 9
+      },
+      {
+        "case": "country string, metadata object, legacy status and block-height precedence",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 15
+      },
+      {
+        "case": "banlist setter persists and cache changes but getter returns undefined",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 3
+      },
+      {
+        "case": "type9 actual clearlist dependency, backup rejection, list0 and banned-country command",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 12
+      },
+      {
+        "case": "type9 repeated issue accepted by validator",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 4
+      },
+      {
+        "case": "xpub markers store metadata but derivation libraries remain unavailable",
+        "status": "PASS",
+        "detail": "false on a non-direct xpub candidate is a missing-library source behavior in this harness; it does not verify BIP32",
+        "database_model_calls": 6
+      },
+      {
+        "case": "explicit empty xpub does not infer inline metadata prefix",
+        "status": "PASS",
+        "detail": "explicit empty xpub is null; an inline empty xpub remains the empty string",
+        "database_model_calls": 2
+      },
+      {
+        "case": "Merkle exact source ASCII-hex hashing, odd parent proof and volatile root registration",
+        "status": "PASS",
+        "detail": null,
+        "database_model_calls": 3
+      }
+    ],
+    "dbCalls": [
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": 1
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 1,
+              "admin": "admin",
+              "name": "one",
+              "description": "description",
+              "backup": "backup"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": 2
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 2,
+              "admin": "other",
+              "name": "two",
+              "backup": "b"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": 1
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 1,
+              "admin": "replacement",
+              "name": "replace",
+              "description": "",
+              "backup": ""
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": 3
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 3,
+              "admin": "third",
+              "name": "three",
+              "description": "",
+              "backup": "b"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": "12tail"
+        },
+        {
+          "$set": {
+            "data": {
+              "id": "12tail",
+              "admin": "a",
+              "name": "name",
+              "description": "",
+              "backup": "b"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": 13
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 13,
+              "admin": "a",
+              "name": "next",
+              "description": "",
+              "backup": "b"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": 1
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 1,
+              "admin": "old",
+              "name": "list",
+              "description": "",
+              "backup": "backup"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": "1"
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 1,
+              "admin": "new",
+              "name": "list",
+              "description": "",
+              "backup": "backup",
+              "adminAddress": "new"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": "1"
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 1,
+              "admin": "old",
+              "name": "list",
+              "description": "",
+              "backup": "new-backup",
+              "backupAddress": "new-backup"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": 9
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 9,
+              "admin": "a",
+              "name": "name",
+              "description": "",
+              "backup": "b"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": 1
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 1,
+              "admin": "old",
+              "name": "list",
+              "description": "",
+              "backup": "backup"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findOneAsync",
+        {
+          "_id": 1
+        }
+      ],
+      [
+        "attestations",
+        "findOneAsync",
+        {
+          "_id": 1
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "active",
+              "data": "first",
+              "xpub": null,
+              "timestamp": 10
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "active",
+              "data": "updated",
+              "xpub": null,
+              "timestamp": 11
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.listId": 1
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 2,
+              "address": "alice",
+              "status": "active",
+              "data": "other",
+              "xpub": null,
+              "timestamp": 12
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 2
+            },
+            {
+              "data.clearlistId": 2
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 2,
+              "address": "alice",
+              "status": "active",
+              "data": "other",
+              "xpub": null,
+              "timestamp": 12
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 99
+            },
+            {
+              "data.clearlistId": 99
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findOneAsync",
+        {
+          "_id": "attestation:alice"
+        }
+      ],
+      [
+        "attestations",
+        "findOneAsync",
+        {
+          "_id": "alice"
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 2,
+              "address": "alice",
+              "status": "revoked",
+              "data": "other",
+              "xpub": null,
+              "timestamp": 13,
+              "revokeReason": "wrong list",
+              "id": 99
+            }
+          }
+        },
+        {}
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findOneAsync",
+        {
+          "_id": "attestation:alice"
+        }
+      ],
+      [
+        "attestations",
+        "findOneAsync",
+        {
+          "_id": "alice"
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 2,
+              "address": "alice",
+              "status": "revoked",
+              "data": "other",
+              "xpub": null,
+              "timestamp": 14,
+              "revokeReason": "again",
+              "id": 1
+            }
+          }
+        },
+        {}
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "nobody",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findOneAsync",
+        {
+          "_id": "attestation:nobody"
+        }
+      ],
+      [
+        "attestations",
+        "findOneAsync",
+        {
+          "_id": "nobody"
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "$or": [
+            {
+              "data.listId": 3
+            },
+            {
+              "data.clearlistId": 3
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 3
+            },
+            {
+              "data.clearlistId": 3
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.listId": 3
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 3
+            },
+            {
+              "data.clearlistId": 3
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "legacy-a"
+        },
+        {
+          "$set": {
+            "data": {
+              "clearlistId": 3,
+              "address": "alice",
+              "status": "revoked",
+              "timestamp": 4,
+              "revokeReason": "all",
+              "id": 3
+            }
+          }
+        },
+        {}
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "legacy-b"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 3,
+              "address": "alice",
+              "status": "revoked",
+              "timestamp": 4,
+              "revokeReason": "all",
+              "id": 3
+            }
+          }
+        },
+        {}
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "merkle:1:8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "active",
+              "merkleRoot": "8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53",
+              "timestamp": 2
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "merkle:1:8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "revoked",
+              "merkleRoot": "8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53",
+              "timestamp": 3,
+              "revokeReason": "revoke-root",
+              "id": 1
+            }
+          }
+        },
+        {}
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "active",
+              "data": "one",
+              "xpub": null,
+              "timestamp": 1
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "merkle:1:8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "active",
+              "merkleRoot": "8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53",
+              "timestamp": 2
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.listId": 1
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "revoked",
+              "data": "one",
+              "xpub": null,
+              "timestamp": 3,
+              "revokeReason": "all",
+              "id": 1
+            }
+          }
+        },
+        {}
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "merkle:1:8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "revoked",
+              "merkleRoot": "8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53",
+              "timestamp": 3,
+              "revokeReason": "all",
+              "id": 1
+            }
+          }
+        },
+        {}
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 2,
+              "address": "alice",
+              "status": "active",
+              "data": "other-list",
+              "xpub": null,
+              "timestamp": 10
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "merkle:1:8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "active",
+              "merkleRoot": "8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53",
+              "timestamp": 11
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "merkle:1:8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "revoked",
+              "merkleRoot": "8b5390ef339b9d692ea6b947a4ccb1673e2ec7a6bcadfcd85a2a7c89ffb61e53",
+              "timestamp": 12,
+              "revokeReason": "root",
+              "id": 1
+            }
+          }
+        },
+        {}
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findOneAsync",
+        {
+          "_id": "attestation:alice"
+        }
+      ],
+      [
+        "attestations",
+        "findOneAsync",
+        {
+          "_id": "alice"
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 2,
+              "address": "alice",
+              "status": "revoked",
+              "data": "other-list",
+              "xpub": null,
+              "timestamp": 13,
+              "revokeReason": "fallback",
+              "id": 1
+            }
+          }
+        },
+        {}
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 0,
+              "address": "alice",
+              "status": "active",
+              "data": " us ",
+              "xpub": null,
+              "timestamp": 0
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice"
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 2,
+              "address": "alice",
+              "status": "active",
+              "data": "other",
+              "xpub": null,
+              "timestamp": 12
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice"
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "bob"
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "aliases"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 0,
+              "address": "aliases",
+              "status": "active",
+              "data": {
+                "countryCode": "",
+                "country": " ca ",
+                "code": "NZ",
+                "value": "GB"
+              },
+              "xpub": null,
+              "timestamp": 10
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "aliases"
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "aliases"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 0,
+              "address": "aliases",
+              "status": "active",
+              "data": {
+                "countryCode": " ca "
+              },
+              "xpub": null,
+              "timestamp": 10
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "aliases"
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "aliases"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 0,
+              "address": "aliases",
+              "status": "active",
+              "data": {
+                "code": " ca "
+              },
+              "xpub": null,
+              "timestamp": 10
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "aliases"
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "aliases"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 0,
+              "address": "aliases",
+              "status": "active",
+              "data": {
+                "value": " ca "
+              },
+              "xpub": null,
+              "timestamp": 10
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "aliases"
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "aliases"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 0,
+              "address": "aliases",
+              "status": "active",
+              "data": {
+                "countryCode": " ",
+                "country": "CA"
+              },
+              "xpub": null,
+              "timestamp": 11
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "aliases"
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {
+          "_id": "globalBanlist"
+        }
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": "globalBanlist"
+        },
+        {
+          "$set": {
+            "data": [
+              "GB",
+              "KP"
+            ],
+            "timestamp": 20
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {
+          "_id": "globalBanlist"
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": 1
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 1,
+              "admin": "admin",
+              "name": "list",
+              "description": "",
+              "backup": "backup"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "active",
+              "data": "OK",
+              "xpub": null,
+              "timestamp": 20
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "alice",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "clearlists",
+        "updateAsync",
+        {
+          "_id": 1
+        },
+        {
+          "$set": {
+            "data": {
+              "id": 1,
+              "admin": "admin",
+              "name": "list",
+              "description": "",
+              "backup": "backup"
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "active",
+              "data": "one",
+              "xpub": null,
+              "timestamp": 1
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "a"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "a",
+              "status": "active",
+              "data": "xpub:synthetic",
+              "xpub": "synthetic",
+              "timestamp": 10
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "b"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 2,
+              "address": "b",
+              "status": "active",
+              "data": "meta",
+              "xpub": "explicit-synthetic",
+              "timestamp": 11
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "a",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "unattested",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.listId": 1,
+          "data.status": "active",
+          "data.xpub": {
+            "$exists": true,
+            "$ne": null
+          }
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.listId": 1,
+          "data.status": "active",
+          "data.merkleRoot": {
+            "$exists": true,
+            "$ne": null
+          }
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "alice"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "alice",
+              "status": "active",
+              "data": "xpub:synthetic",
+              "xpub": null,
+              "timestamp": 1
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "bob"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "bob",
+              "status": "active",
+              "data": "xpub:",
+              "xpub": "",
+              "timestamp": 2
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "updateAsync",
+        {
+          "_id": "merkle:1:82f8fcd70bcdf26565adb613a0dfe04955ee27054ab30f03e23160219aa73de9"
+        },
+        {
+          "$set": {
+            "data": {
+              "listId": 1,
+              "address": "admin",
+              "status": "active",
+              "merkleRoot": "82f8fcd70bcdf26565adb613a0dfe04955ee27054ab30f03e23160219aa73de9",
+              "timestamp": 5
+            }
+          }
+        },
+        {
+          "upsert": true
+        }
+      ],
+      [
+        "attestations",
+        "findAsync",
+        {
+          "data.address": "admin",
+          "data.status": "active",
+          "$or": [
+            {
+              "data.listId": 1
+            },
+            {
+              "data.clearlistId": 1
+            }
+          ]
+        }
+      ],
+      [
+        "clearlists",
+        "findAsync",
+        {}
+      ]
+    ]
+  },
+  "rust-execution-evidence": {
+    "toolchain": "rustc 1.90.0 (1159e78c4 2025-09-14)",
+    "commands": [
+      {
+        "command": "& work/cargo-check.ps1 test --offline --test legacy_clearlist_audit",
+        "cwd": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\outputs\\TradeLayer-Rust",
+        "exit_code": 0,
+        "result": "18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out",
+        "elapsed_build_seconds": 45.02
+      },
+      {
+        "command": "& work/cargo-check.ps1 -CargoArguments @('clippy','--offline','--test','legacy_clearlist_audit','--','-D','warnings')",
+        "cwd": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\outputs\\TradeLayer-Rust",
+        "exit_code": 0,
+        "result": "Focused Clippy passed with warnings denied",
+        "elapsed_seconds": 13.42
+      },
+      {
+        "command": "rustfmt.exe --edition 2021 --check src/legacy_clearlist_audit.rs tests/legacy_clearlist_audit.rs",
+        "exit_code": 0
+      },
+      {
+        "command": "git diff --check",
+        "exit_code": 0
+      }
+    ],
+    "test_names": [
+      "numeric_create_id_and_string_update_db_shadow_cause_stale_reload",
+      "update_requiring_prior_load_and_backup_mutation_are_source_behaviors",
+      "type8_get_list_collection_lookup_does_not_read_type7_created_list",
+      "address_keyed_attestation_across_lists_replaces_old_membership",
+      "wrong_list_revocation_fallback_mutates_other_lists_address_key",
+      "correct_list_revoke_and_reissue_keep_only_latest_db_row",
+      "canonical_revocation_finds_root_only_and_all_matching_direct_and_root_rows",
+      "canonical_root_match_prevents_wrong_list_address_fallback",
+      "history_sorts_direct_and_root_records_by_descending_timestamp",
+      "source_country_self_cert_is_overwritten_by_same_address_other_list",
+      "country_object_alias_truthiness_and_legacy_height_precedence_match_source",
+      "country_object_bounds_fail_before_replacing_the_existing_row",
+      "explicit_empty_xpub_does_not_fall_back_to_inline_metadata_prefix",
+      "cached_banlist_changes_while_buggy_persisted_getter_remains_undefined",
+      "source_xpub_merkle_uses_ascii_hex_pairs_and_duplicates_single_leaf",
+      "odd_upper_layer_proof_generator_has_a_source_verification_gap",
+      "root_registration_uses_global_root_map_and_does_not_validate_bip32_derived_addresses",
+      "inline_xpub_is_a_derived_candidate_but_never_an_authorization"
+    ],
+    "preexisting_tests": 12,
+    "new_regression_tests": 6,
+    "environmental_messages": "Compiler incremental cache could not hard-link and copied instead. Git warned that LF will be replaced by CRLF on next write to the test file. No Clippy lint findings.",
+    "resolved_invocation_error": "First positional wrapper call dropped -- and Cargo rejected -D. Named -CargoArguments array preserved -- and the final warnings-denied invocation passed.",
+    "files": [
+      {
+        "path": "src/legacy_clearlist_audit.rs",
+        "sha256": "37ffdbadcbf6f0182a69466652ae787c94a07948c5b14bc6fddaa72c5cacb16c",
+        "lf_sha256": "67aef05a5a4708150008a12cdf43fd5feb278bf724b9f83af36907eef47dcb1d"
+      },
+      {
+        "path": "tests/legacy_clearlist_audit.rs",
+        "sha256": "6b7da50cea9a68b63f6f687cb1b23612bae38fa714f0474282fc74127a7a6bfe",
+        "lf_sha256": "6b7da50cea9a68b63f6f687cb1b23612bae38fa714f0474282fc74127a7a6bfe"
+      }
+    ],
+    "limitations": "Focused tests only; no full Cargo suite, live NeDB, real BIP32/bitcore, signed historical replay, or external six-file port verification. Parent reviews and commits."
+  }
+}

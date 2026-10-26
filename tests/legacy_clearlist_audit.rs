@@ -3,8 +3,8 @@
 use tradelayer_core::legacy_clearlist_audit::{
     source_build_xpub_merkle_tree, source_generate_xpub_merkle_proof,
     source_verify_xpub_merkle_proof, ClearlistSourceError, SourceAttestationStatus,
-    SourceAttestationWrite, SourceMerkleSide, SourceRevocation, UnverifiedLegacyClearlistStore,
-    DEFAULT_BANNED_COUNTRIES,
+    SourceAttestationWrite, SourceCountryObject, SourceMerkleSide, SourceRevocation,
+    UnverifiedLegacyClearlistStore, DEFAULT_BANNED_COUNTRIES,
 };
 
 fn created(id: Option<u32>) -> UnverifiedLegacyClearlistStore {
@@ -204,6 +204,88 @@ fn correct_list_revoke_and_reissue_keep_only_latest_db_row() {
 }
 
 #[test]
+fn canonical_revocation_finds_root_only_and_all_matching_direct_and_root_rows() {
+    let root = source_build_xpub_merkle_tree(&["root-xpub"])
+        .unwrap()
+        .root
+        .unwrap();
+    let root_key = format!("merkle:1:{root}");
+    let mut s = created(None);
+    s.source_store_merkle_root(1, &root, "alice", 10).unwrap();
+    assert!(s.source_is_address_directly_attested(1, "alice"));
+    assert_eq!(
+        s.source_revoke_attestation(1, "alice", "root-only", 11),
+        Ok(SourceRevocation::RevokedMatchingList)
+    );
+    let root_row = s.observed_attestation_by_source_key(&root_key).unwrap();
+    assert_eq!(root_row.status(), SourceAttestationStatus::Revoked);
+    assert_eq!(root_row.revoked_by_list_id(), Some(1));
+    assert_eq!(root_row.revoke_reason(), Some("root-only"));
+    assert!(!s.source_is_address_directly_attested(1, "alice"));
+
+    s.source_add_attestation(1, "alice", "direct", None, 12)
+        .unwrap();
+    s.source_store_merkle_root(1, &root, "alice", 13).unwrap();
+    s.source_revoke_attestation(1, "alice", "all", 14).unwrap();
+    let rows = s.source_get_attestations(1);
+    assert_eq!(rows.len(), 2);
+    assert!(rows.iter().all(|row| {
+        row.status() == SourceAttestationStatus::Revoked
+            && row.timestamp() == 14
+            && row.revoke_reason() == Some("all")
+    }));
+}
+
+#[test]
+fn canonical_root_match_prevents_wrong_list_address_fallback() {
+    let mut s = created(None);
+    let root = source_build_xpub_merkle_tree(&["root-xpub"])
+        .unwrap()
+        .root
+        .unwrap();
+    s.source_add_attestation(2, "alice", "other-list", None, 10)
+        .unwrap();
+    s.source_store_merkle_root(1, &root, "alice", 11).unwrap();
+    assert_eq!(
+        s.source_revoke_attestation(1, "alice", "root", 12),
+        Ok(SourceRevocation::RevokedMatchingList)
+    );
+    assert!(s.source_is_address_directly_attested(2, "alice"));
+    assert!(!s.source_is_address_directly_attested(1, "alice"));
+    // Once no canonical active row remains, preserve the source fallback bug.
+    assert_eq!(
+        s.source_revoke_attestation(1, "alice", "fallback", 13),
+        Ok(SourceRevocation::CrossListFallback {
+            requested: 1,
+            overwritten: 2
+        })
+    );
+    assert!(!s.source_is_address_directly_attested(2, "alice"));
+}
+
+#[test]
+fn history_sorts_direct_and_root_records_by_descending_timestamp() {
+    let mut s = created(None);
+    s.source_add_attestation(1, "alice", "direct", None, 10)
+        .unwrap();
+    for (xpub, height) in [("root-newest", 20), ("root-middle", 15)] {
+        let root = source_build_xpub_merkle_tree(&[xpub])
+            .unwrap()
+            .root
+            .unwrap();
+        s.source_store_merkle_root(1, &root, "alice", height)
+            .unwrap();
+    }
+    assert_eq!(
+        s.source_get_attestation_history(1, "alice")
+            .iter()
+            .map(|row| row.timestamp())
+            .collect::<Vec<_>>(),
+        [20, 15, 10]
+    );
+}
+
+#[test]
 fn source_country_self_cert_is_overwritten_by_same_address_other_list() {
     let mut s = created(None);
     s.source_add_attestation(0, "alice", " us ", None, 0)
@@ -225,6 +307,94 @@ fn source_country_self_cert_is_overwritten_by_same_address_other_list() {
     s.source_revoke_attestation(0, "alice", "revoked", 16)
         .unwrap();
     assert_eq!(s.source_country_code_by_address("alice"), None);
+}
+
+#[test]
+fn country_object_alias_truthiness_and_legacy_height_precedence_match_source() {
+    let mut s = created(None);
+    let metadata = SourceCountryObject {
+        country_code: Some(String::new()),
+        country: Some(" nz ".into()),
+        code: Some("CA".into()),
+        value: Some("GB".into()),
+    };
+    s.source_add_country_object_attestation(0, "alice", metadata.clone(), Some(7), 8)
+        .unwrap();
+    let row = s.observed_attestation_by_source_key("alice").unwrap();
+    assert_eq!(row.metadata(), None);
+    assert_eq!(row.country_object_metadata(), Some(&metadata));
+    let country = s.source_country_code_by_address("alice").unwrap();
+    assert_eq!(country.code, "NZ");
+    assert_eq!(country.reported_height, Some(7));
+
+    let shadow = SourceCountryObject {
+        country_code: Some(" ".into()),
+        country: Some("CA".into()),
+        ..SourceCountryObject::default()
+    };
+    s.source_add_country_object_attestation(0, "alice", shadow, None, 9)
+        .unwrap();
+    assert_eq!(s.source_country_code_by_address("alice"), None);
+    for metadata in [
+        SourceCountryObject {
+            country_code: Some(" ca ".into()),
+            ..SourceCountryObject::default()
+        },
+        SourceCountryObject {
+            code: Some(" ca ".into()),
+            ..SourceCountryObject::default()
+        },
+        SourceCountryObject {
+            value: Some(" ca ".into()),
+            ..SourceCountryObject::default()
+        },
+    ] {
+        s.source_add_country_object_attestation(0, "alice", metadata, Some(0), 10)
+            .unwrap();
+        let country = s.source_country_code_by_address("alice").unwrap();
+        assert_eq!(country.code, "CA");
+        assert_eq!(country.reported_height, Some(10));
+    }
+    s.source_revoke_attestation(0, "alice", "revoked", 11)
+        .unwrap();
+    assert_eq!(s.source_country_code_by_address("alice"), None);
+}
+
+#[test]
+fn country_object_bounds_fail_before_replacing_the_existing_row() {
+    let mut s = created(None);
+    s.source_add_attestation(0, "alice", "CA", None, 5).unwrap();
+    let prior = s.clone();
+    let metadata = SourceCountryObject {
+        code: Some("\u{00e9}".into()),
+        ..SourceCountryObject::default()
+    };
+    assert_eq!(
+        s.source_add_country_object_attestation(0, "alice", metadata, None, 6),
+        Err(ClearlistSourceError::NonAsciiOrOversize)
+    );
+    assert_eq!(s, prior);
+}
+
+#[test]
+fn explicit_empty_xpub_does_not_fall_back_to_inline_metadata_prefix() {
+    let mut s = created(None);
+    s.source_add_attestation(1, "alice", "xpub:synthetic", Some(""), 10)
+        .unwrap();
+    assert_eq!(
+        s.observed_attestation_by_source_key("alice")
+            .unwrap()
+            .xpub(),
+        None
+    );
+    assert_eq!(s.source_direct_or_derived_unverified(1, "other"), Ok(false));
+    s.source_add_attestation(1, "bob", "xpub:", None, 11)
+        .unwrap();
+    assert_eq!(
+        s.observed_attestation_by_source_key("bob").unwrap().xpub(),
+        Some("")
+    );
+    assert_eq!(s.source_direct_or_derived_unverified(1, "other"), Ok(false));
 }
 
 #[test]

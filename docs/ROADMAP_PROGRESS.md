@@ -11,6 +11,17 @@ that worker's branches, publish a branch, or authorize economic transitions.
 
 ## Tracking the 49 source modules
 
+The completeness workbook now uses **Runtime subset** for partial owner wiring,
+with reference fidelity assessed separately. The new per-transaction inventory
+in [LOGIC_BY_TX_TYPE.json](LOGIC_BY_TX_TYPE.json) covers the 36 routed source
+types plus an unrouted type36 audit row. Its 13 mapper candidates are not 13
+complete source transitions. See [REFERENCE_FIDELITY.md](REFERENCE_FIDELITY.md)
+for exact source tests, missing owners, deliberate runtime differences and
+fraud-proof witness requirements. Independent property and clearlist reviews
+expose functional gaps and four repaired clearlist-audit reconstruction errors;
+the focused type9 follow-up rejects effects the mapper cannot represent. These
+changes do not promote any module to full reference or historical parity.
+
 The current integration adds accepted type-16 oracle-perpetual definitions,
 dependency-ordered complete input replay, and source-derived order/fill/average/
 mark margin and fee contexts in the sole economic Ledger. See

@@ -26,8 +26,8 @@ Baseline: [TradeLayer-Rust main 89d5d480](https://github.com/patrickdugan/TradeL
 | isAddressInClearlistOrDerived | Direct membership; refuses to infer absence when unverified derived candidates exist | Derived BIP32 membership |
 | storeMerkleRoot, registerXpubForRoot | Root entry, root-global deduplicated xpub registration | Authenticated root/chain/list admin |
 | verifyMerkleProof, buildMerkleTree, generateMerkleProof | Exact ASCII-hex SHA256 tree, odd padding and generator omission | Cryptographic production audit |
-| revokeAttestation | Matching direct revoke, plus wrong-list fallback hazard | Original type9 validator authorization |
-| getCountryCodeByAddress | Active list0 string metadata, trim+uppercase, zero-height as null | Object metadata variant, validated country |
+| revokeAttestation | All matching active direct/root rows revoked before the wrong-list fallback | Original type9 validator authorization; imported legacy row shapes |
+| getCountryCodeByAddress | Active list0 strings and bounded string-valued country-object aliases, truthiness precedence, trim+uppercase, legacy height precedence | General object/JS coercions, imported shapes and validated country |
 | setBanlist, setBanList, getBanlist | Cached/persisted banlist and buggy findAsync array-data read | Accepted banlist policy |
 | getAttestations, getAttestationHistory, isAddressInClearlist | Current rows filtered by list, address and active status | Lossless historical event journal |
 
@@ -40,6 +40,16 @@ Independent, dependency-free Node source-expression parity script at scripts/aud
 Stage25P is still separate and unmerged as a conditional raw type7/8/9 event-history branch. It cannot treat a projected Type8 admin update as source accepted. The already existing stricter Rust Registry deliberately corrects several legacy defects and is unchanged.
 
 ### Remaining to close this file as a production port
+
+The independent [reference-fidelity review](CLEARLIST_REFERENCE_FIDELITY.md)
+executes complete pinned `clearlist.js` and `validity.js` with explicit modeled
+storage/dependency boundaries. It identified accidental reconstruction errors in
+root revocation and timestamp ordering, now covered by six new Rust regressions
+along with bounded country-object and explicit-empty-xpub semantics. The
+unchanged-source harness has 18 checks; the focused Rust audit has 18 tests.
+These are separate counts. BIP32 libraries, real NeDB and historical actor
+authorization are not verified by that harness. The stricter runtime Registry
+remains a separately documented rule set rather than source equivalence.
 
 Authenticated Type7/8/9 raw transactions and historical sender/prevout, full list-id allocation and administration history; versioned resolution of Type8 collection/field/key mismatches; tested lossless NeDB snapshots and reorg rollback; BIP32 xpub derivation with script/network identity; country object metadata and banlist validation; and the separate signed channel-state revision/commitment invalidation protocol. No balance, insurer, oracle or liquidation authority is supplied by this work.
 

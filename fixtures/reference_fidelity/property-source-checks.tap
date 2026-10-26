@@ -1,0 +1,238 @@
+TAP version 13
+# Subtest: constructor/getInstance: one instance and separate empty property/AMM maps
+ok 1 - constructor/getInstance: one instance and separate empty property/AMM maps
+  ---
+  duration_ms: 7.5101
+  type: 'test'
+  ...
+# Subtest: load: missing row clears stale memory
+ok 2 - load: missing row clears stale memory
+  ---
+  duration_ms: 5.0726
+  type: 'test'
+  ...
+# Subtest: load: string pairs preserve insertion order and mixed key types; duplicate replaces value
+ok 3 - load: string pairs preserve insertion order and mixed key types; duplicate replaces value
+  ---
+  duration_ms: 5.1468
+  type: 'test'
+  ...
+# Subtest: load accepts already-decoded pair arrays; invalid pair shape clears memory
+ok 4 - load accepts already-decoded pair arrays; invalid pair shape clears memory
+  ---
+  duration_ms: 2.4269
+  type: 'test'
+  ...
+# Subtest: load: parse/read error is swallowed and leaves stale memory intact
+ok 5 - load: parse/read error is swallowed and leaves stale memory intact
+  ---
+  duration_ms: 3.17
+  type: 'test'
+  ...
+# Subtest: getNextPropertyId reloads persisted max with JS numeric coercion
+ok 6 - getNextPropertyId reloads persisted max with JS numeric coercion
+  ---
+  duration_ms: 3.0561
+  type: 'test'
+  ...
+# Subtest: getNextPropertyId with synthetic string key produces NaN
+ok 7 - getNextPropertyId with synthetic string key produces NaN
+  ---
+  duration_ms: 2.5441
+  type: 'test'
+  ...
+# Subtest: createToken/addProperty: Fixed maps to source class 1, saves quantized metadata only
+ok 8 - createToken/addProperty: Fixed maps to source class 1, saves quantized metadata only
+  ---
+  duration_ms: 6.7971
+  type: 'test'
+  ...
+# Subtest: createToken/addProperty: Managed maps to source class 2, saves quantized metadata only
+ok 9 - createToken/addProperty: Managed maps to source class 2, saves quantized metadata only
+  ---
+  duration_ms: 2.3416
+  type: 'test'
+  ...
+# Subtest: createToken/addProperty: Native maps to source class 3, saves quantized metadata only
+ok 10 - createToken/addProperty: Native maps to source class 3, saves quantized metadata only
+  ---
+  duration_ms: 3.4227
+  type: 'test'
+  ...
+# Subtest: createToken/addProperty: Vesting maps to source class 4, saves quantized metadata only
+ok 11 - createToken/addProperty: Vesting maps to source class 4, saves quantized metadata only
+  ---
+  duration_ms: 3.1255
+  type: 'test'
+  ...
+# Subtest: createToken/addProperty: Synthetic maps to source class 5, saves quantized metadata only
+ok 12 - createToken/addProperty: Synthetic maps to source class 5, saves quantized metadata only
+  ---
+  duration_ms: 3.4017
+  type: 'test'
+  ...
+# Subtest: createToken/addProperty: Non-Fungible maps to source class 6, saves quantized metadata only
+ok 13 - createToken/addProperty: Non-Fungible maps to source class 6, saves quantized metadata only
+  ---
+  duration_ms: 3.1528
+  type: 'test'
+  ...
+# Subtest: createToken/addProperty: Procedural maps to source class 7, saves quantized metadata only
+ok 14 - createToken/addProperty: Procedural maps to source class 7, saves quantized metadata only
+  ---
+  duration_ms: 2.9177
+  type: 'test'
+  ...
+# Subtest: createToken duplicate ticker returns Error object instead of throwing
+ok 15 - createToken duplicate ticker returns Error object instead of throwing
+  ---
+  duration_ms: 3.703
+  type: 'test'
+  ...
+# Subtest: createToken checks duplicates before reload: persisted duplicate can be accepted with empty cache
+ok 16 - createToken checks duplicates before reload: persisted duplicate can be accepted with empty cache
+  ---
+  duration_ms: 2.9787
+  type: 'test'
+  ...
+# Subtest: createToken ticker-as-map-key branch throws TypeError
+ok 17 - createToken ticker-as-map-key branch throws TypeError
+  ---
+  duration_ms: 2.9436
+  type: 'test'
+  ...
+# Subtest: addProperty invalid class rejects before save
+ok 18 - addProperty invalid class rejects before save
+  ---
+  duration_ms: 2.4746
+  type: 'test'
+  ...
+# Subtest: addProperty existing ID increments supply and truthy-falls-back fields; can change class/metadata
+ok 19 - addProperty existing ID increments supply and truthy-falls-back fields; can change class/metadata
+  ---
+  duration_ms: 5.2405
+  type: 'test'
+  ...
+# Subtest: addProperty accepts negative and nonnumeric supplies; JSON serializes NaN as null
+ok 20 - addProperty accepts negative and nonnumeric supplies; JSON serializes NaN as null
+  ---
+  duration_ms: 4.8443
+  type: 'test'
+  ...
+# Subtest: addProperty class map also accepts inherited toString key; saved type function is omitted
+ok 21 - addProperty class map also accepts inherited toString key; saved type function is omitted
+  ---
+  duration_ms: 2.1364
+  type: 'test'
+  ...
+# Subtest: save failure leaves mutation in singleton but does not update DB
+ok 22 - save failure leaves mutation in singleton but does not update DB
+  ---
+  duration_ms: 2.5146
+  type: 'test'
+  ...
+# Subtest: getPropertyIndex returns only four fields and retains nonempty stale cache
+ok 23 - getPropertyIndex returns only four fields and retains nonempty stale cache
+  ---
+  duration_ms: 2.4447
+  type: 'test'
+  ...
+# Subtest: doesTickerExist reads DB with case-sensitive exact match; bad JSON throws
+ok 24 - doesTickerExist reads DB with case-sensitive exact match; bad JSON throws
+  ---
+  duration_ms: 2.5556
+  type: 'test'
+  ...
+# Subtest: isManagedAndAdmin accepts exactly numeric class 2/7 and exact key/issuer; errors return false
+ok 25 - isManagedAndAdmin accepts exactly numeric class 2/7 and exact key/issuer; errors return false
+  ---
+  duration_ms: 3.3896
+  type: 'test'
+  ...
+# Subtest: getPropertyData supports Number-equivalent IDs and exact s-prefixed synthetic key
+ok 26 - getPropertyData supports Number-equivalent IDs and exact s-prefixed synthetic key
+  ---
+  duration_ms: 3.5999
+  type: 'test'
+  ...
+# Subtest: updateAdmin writes primary/backup without caller auth and leaves singleton cache stale
+ok 27 - updateAdmin writes primary/backup without caller auth and leaves singleton cache stale
+  ---
+  duration_ms: 3.0682
+  type: 'test'
+  ...
+# Subtest: updateTotalInCirculation fails at unawaited async DB factory; persisted row unchanged
+ok 28 - updateTotalInCirculation fails at unawaited async DB factory; persisted row unchanged
+  ---
+  duration_ms: 3.087
+  type: 'test'
+  ...
+# Subtest: getAMM fails at undefined PropertyRegistry before any AMM initialization
+ok 29 - getAMM fails at undefined PropertyRegistry before any AMM initialization
+  ---
+  duration_ms: 2.9
+  type: 'test'
+  ...
+# Subtest: isSyntheticToken fails because static this.propertyIndex is absent after load
+ok 30 - isSyntheticToken fails because static this.propertyIndex is absent after load
+  ---
+  duration_ms: 3.9432
+  type: 'test'
+  ...
+# Subtest: grantTokens has no class/admin check and passes original ID/amount plus provenance to tally
+ok 31 - grantTokens has no class/admin check and passes original ID/amount plus provenance to tally
+  ---
+  duration_ms: 3.8621
+  type: 'test'
+  ...
+# Subtest: grantTokens string persisted key yields both string and numeric key after Number(propertyId) set
+ok 32 - grantTokens string persisted key yields both string and numeric key after Number(propertyId) set
+  ---
+  duration_ms: 3.1617
+  type: 'test'
+  ...
+# Subtest: redeemTokens checks total supply but delegates recipient balance; no class/admin check
+ok 33 - redeemTokens checks total supply but delegates recipient balance; no class/admin check
+  ---
+  duration_ms: 3.0892
+  type: 'test'
+  ...
+# Subtest: redeemTokens excess supply and missing property fail before tally
+ok 34 - redeemTokens excess supply and missing property fail before tally
+  ---
+  duration_ms: 7.6388
+  type: 'test'
+  ...
+# Subtest: negative redemption increases declared supply and launches positive tally credit
+ok 35 - negative redemption increases declared supply and launches positive tally credit
+  ---
+  duration_ms: 2.8391
+  type: 'test'
+  ...
+# Subtest: grant tally failure leaves raised singleton supply while DB retains old declared supply
+ok 36 - grant tally failure leaves raised singleton supply while DB retains old declared supply
+  ---
+  duration_ms: 3.1376
+  type: 'test'
+  ...
+# Subtest: grant save failure follows successful tally call and leaves DB supply stale
+ok 37 - grant save failure follows successful tally call and leaves DB supply stale
+  ---
+  duration_ms: 2.2348
+  type: 'test'
+  ...
+# Subtest: inspectPropertyIndex reloads DB and prints both representations without return value
+ok 38 - inspectPropertyIndex reloads DB and prints both representations without return value
+  ---
+  duration_ms: 2.5948
+  type: 'test'
+  ...
+1..38
+# tests 38
+# suites 0
+# pass 38
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 532.1738

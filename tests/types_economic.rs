@@ -2,6 +2,7 @@ use tradelayer_core::contract_orderbook::{CancelCriteria, Side};
 use tradelayer_core::contract_registry::ContractId;
 use tradelayer_core::economic::EconomicInput;
 use tradelayer_core::joint::JointOperation;
+use tradelayer_core::registry::RegistryAction;
 use tradelayer_core::types_economic::*;
 use tradelayer_core::types_source::*;
 use tradelayer_core::validity_source::{
@@ -43,6 +44,30 @@ fn make_args(ty: u8, body: &str) -> Vec<V> {
 fn evaluated(ty: u8, body: &str) -> (Vec<V>, TypesEvaluation) {
     let args = make_args(ty, body);
     let result = decode_with_validity_unverified(&args, &mut DiagnosticShape).unwrap();
+    (args, result)
+}
+// Explicitly enriched diagnostic output exercises mapper scope beyond fields
+// emitted by the pinned decoder; it never claims source acceptance.
+fn evaluated_type9_with_extra(
+    body: &str,
+    field: &'static str,
+    value: V,
+) -> (Vec<V>, TypesEvaluation) {
+    struct EnrichedDiagnosticShape(&'static str, V);
+    impl TypesValidity for EnrichedDiagnosticShape {
+        fn validate(&mut self, call: &SourceCall) -> Result<ValiditySettlement, SourceRuleError> {
+            let mut settlement = DiagnosticShape.validate(call)?;
+            let SourceOutcome::Returned(params) = &mut settlement.evaluation.outcome else {
+                unreachable!()
+            };
+            params.insert(self.0, self.1.clone())?;
+            settlement.evaluation.arguments_after[1] = params.clone();
+            Ok(settlement)
+        }
+    }
+    let args = make_args(9, body);
+    let result =
+        decode_with_validity_unverified(&args, &mut EnrichedDiagnosticShape(field, value)).unwrap();
     (args, result)
 }
 fn c(id: u32) -> ContractId {
@@ -157,4 +182,122 @@ fn absent_or_rejected_validity_and_unrepresentable_handlers_never_become_typed_s
         result.require_authenticated_admission(),
         Err(TypesError::UnauthenticatedInputAndState)
     );
+}
+
+#[test]
+fn type9_mapper_scope_preserves_direct_attestation_and_empty_reason_revoke() {
+    let (args, result) = evaluated(9, "0,1,receiver,ok");
+    let EconomicInput::Joint(tx) =
+        map_economic_input_unverified(&args, &result, 101, c(1)).unwrap()
+    else {
+        panic!("joint expected")
+    };
+    assert_eq!(tx.actor.as_str(), "alice");
+    let JointOperation::Registry(RegistryAction::Attest {
+        list_id,
+        subject,
+        metadata,
+    }) = tx.operation
+    else {
+        panic!("direct attestation expected")
+    };
+    assert_eq!(list_id, 1);
+    assert_eq!(subject.as_str(), "receiver");
+    assert_eq!(metadata, "OK");
+
+    // Logic ignores merkleRoot on revocation, so it adds no omitted effect.
+    let (args, result) = evaluated_type9_with_extra(
+        "1,1,receiver,",
+        "merkleRoot",
+        V::String("ignored-on-revoke".into()),
+    );
+    let EconomicInput::Joint(tx) =
+        map_economic_input_unverified(&args, &result, 101, c(1)).unwrap()
+    else {
+        panic!("joint expected")
+    };
+    let JointOperation::Registry(RegistryAction::RevokeAttestation { list_id, subject }) =
+        tx.operation
+    else {
+        panic!("direct revocation expected")
+    };
+    assert_eq!(list_id, 1);
+    assert_eq!(subject.as_str(), "receiver");
+}
+
+#[test]
+fn type9_mapper_scope_rejects_every_truthy_issuance_root_and_allows_source_falsy_roots() {
+    for value in [
+        V::String("ab".repeat(32)),
+        V::Bool(true),
+        V::number(1.0),
+        V::Array(vec![]),
+        V::object(),
+    ] {
+        let (args, result) = evaluated_type9_with_extra("0,1,receiver,ok", "merkleRoot", value);
+        assert_eq!(
+            map_economic_input_unverified(&args, &result, 101, c(1)),
+            Err(MappingError::Unrepresentable("attestation Merkle root"))
+        );
+    }
+    for value in [
+        V::Undefined,
+        V::Null,
+        V::Bool(false),
+        V::number(0.0),
+        V::number(f64::NAN),
+        V::String(String::new()),
+    ] {
+        let (args, result) = evaluated_type9_with_extra("0,1,receiver,ok", "merkleRoot", value);
+        assert!(map_economic_input_unverified(&args, &result, 101, c(1)).is_ok());
+    }
+}
+
+#[test]
+fn type9_mapper_scope_rejects_exact_inline_xpub_marker_without_inventing_decoder_support() {
+    // The actual decoder uppercases metadata and never emits merkleRoot.
+    let (args, result) = evaluated(9, "0,1,receiver,xpub:synthetic");
+    let TypesOutcome::Returned(params) = &result.outcome else {
+        panic!("decoded params expected")
+    };
+    assert_eq!(params.get("metaData"), V::String("XPUB:SYNTHETIC".into()));
+    assert_eq!(params.get("merkleRoot"), V::Undefined);
+    assert!(map_economic_input_unverified(&args, &result, 101, c(1)).is_ok());
+    for metadata in ["xpub:synthetic", "xpub:"] {
+        let (args, result) =
+            evaluated_type9_with_extra("0,1,receiver,ok", "metaData", V::String(metadata.into()));
+        assert_eq!(
+            map_economic_input_unverified(&args, &result, 101, c(1)),
+            Err(MappingError::Unrepresentable("attestation xpub metadata"))
+        );
+    }
+}
+
+#[test]
+fn type9_mapper_scope_rejects_revoke_reason_and_non_string_metadata() {
+    for body in ["1,1,receiver,because", "1,1,receiver, "] {
+        let (args, result) = evaluated(9, body);
+        assert_eq!(
+            map_economic_input_unverified(&args, &result, 101, c(1)),
+            Err(MappingError::Unrepresentable("attestation revoke reason"))
+        );
+    }
+    let (args, result) = evaluated_type9_with_extra("1,1,receiver,", "metaData", V::Null);
+    assert_eq!(
+        map_economic_input_unverified(&args, &result, 101, c(1)),
+        Err(MappingError::Unrepresentable("attestation revoke reason"))
+    );
+}
+
+#[test]
+fn type9_mapper_scope_rejects_list_zero_country_and_banlist_routes() {
+    for body in ["0,0,alice,CA", "0,0,BANLIST,US", "1,0,alice,"] {
+        let (args, result) = evaluated(9, body);
+        assert_eq!(
+            map_economic_input_unverified(&args, &result, 101, c(1)),
+            Err(MappingError::Unrepresentable(
+                "list0 country/banlist effects"
+            ))
+        );
+    }
 }

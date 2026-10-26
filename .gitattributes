@@ -111,3 +111,9 @@ fixtures/barrier_startup_cancellation.patch text eol=lf -whitespace
 fixtures/insurance_owner_review/insurance.js -text -whitespace
 fixtures/insurance_owner_review/*.json text eol=lf
 fixtures/insurance_owner_review/*.log text eol=lf
+
+# Independent reference reviews preserve the source bytes and portable evidence.
+fixtures/reference_fidelity/*.js -text -whitespace
+fixtures/reference_fidelity/*.json text eol=lf
+fixtures/reference_fidelity/*.tap text eol=lf
+fixtures/legacy_clearlist_audit_reference.txt -text -whitespace

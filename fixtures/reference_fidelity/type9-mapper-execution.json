@@ -1,0 +1,42 @@
+{
+  "files": [
+    {
+      "path": "src/types_economic.rs",
+      "sha256": "107d846b6937a241b9d0af50259d7f08d3c685e52e3af7461ace8f3beca7991c",
+      "lf_sha256": "107d846b6937a241b9d0af50259d7f08d3c685e52e3af7461ace8f3beca7991c"
+    },
+    {
+      "path": "tests/types_economic.rs",
+      "sha256": "f7855ae4aa199f83834424b3d6cfb360904fa95604a798c164b3dcf51262833d",
+      "lf_sha256": "f7855ae4aa199f83834424b3d6cfb360904fa95604a798c164b3dcf51262833d"
+    }
+  ],
+  "test_target": "types_economic",
+  "test_count": 9,
+  "new_mapper_scope_tests": 5,
+  "test_result": "9 passed; 0 failed",
+  "test_build_seconds": 42.45,
+  "clippy_result": "Passed with -D warnings",
+  "clippy_seconds": 17.36,
+  "rustfmt_result": "Pinned Rustfmt 1.90 targeted two-file check passed",
+  "diff_check": "Scoped git diff --check passed",
+  "cargo_wrapper": "C:/Users/patri/Documents/Codex/2026-10-26/go/work/cargo-check.ps1",
+  "cargo_target_directory": "C:/Users/patri/Documents/Codex/2026-10-26/go/work/type9-mapper-target",
+  "incremental_compilation": false,
+  "checks": [
+    {
+      "command": "test --offline --test types_economic --target-dir C:/Users/patri/Documents/Codex/2026-10-26/go/work/type9-mapper-target",
+      "exit_code": 0
+    },
+    {
+      "command": "-CargoArguments @('clippy','--offline','--test','types_economic','--target-dir','C:/Users/patri/Documents/Codex/2026-10-26/go/work/type9-mapper-target','--','-D','warnings')",
+      "exit_code": 0
+    }
+  ],
+  "initial_environment_failure": "Shared target build hit LNK1104 on missing incremental object for unrelated tradelayer-index-bench before tests; isolated nonincremental retry passed without changing shared cache.",
+  "decoder_limitations": "Pinned decoder uppercases metaData and never returns merkleRoot; lowercase xpub: and root guards are tested with explicitly enriched DiagnosticShape output, not claimed accepted source transactions.",
+  "scope": "Reject list0; reject truthy issuance root and exact lowercase inline xpub: prefix; reject nonempty/non-string revoke reason; preserve direct Attest and empty-string reason Revoke; source ignores merkleRoot on Revoke.",
+  "source_acceptance_verified": false,
+  "full_reference_parity": false,
+  "committed": false
+}

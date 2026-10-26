@@ -55,6 +55,17 @@ fn boolean(value: &V) -> Result<bool> {
         Err(MappingError::Unrepresentable("boolean"))
     }
 }
+fn source_truthy(value: &V) -> bool {
+    match value {
+        V::Undefined | V::Null | V::Bool(false) => false,
+        V::Number(bits) => {
+            let number = f64::from_bits(*bits);
+            number != 0.0 && !number.is_nan()
+        }
+        V::String(value) => !value.is_empty(),
+        _ => true,
+    }
+}
 fn text(value: &V) -> Result<&str> {
     if let V::String(v) = value {
         Ok(v)
@@ -335,14 +346,32 @@ pub fn map_economic_input_unverified(
         }
         9 => {
             let list_id = id(&get("id"))?;
+            if list_id == 0 {
+                return Err(MappingError::Unrepresentable(
+                    "list0 country/banlist effects",
+                ));
+            }
             let subject = account(&get("targetAddress"))?;
             registry(if boolean(&get("revoke"))? {
+                if !matches!(get("metaData"), V::String(ref reason) if reason.is_empty()) {
+                    return Err(MappingError::Unrepresentable("attestation revoke reason"));
+                }
                 RegistryAction::RevokeAttestation { list_id, subject }
             } else {
+                // Logic stores a root only for issuance, and addAttestation
+                // recognizes the exact case-sensitive inline xpub: prefix.
+                // RegistryAction represents neither of those extra effects.
+                if source_truthy(&get("merkleRoot")) {
+                    return Err(MappingError::Unrepresentable("attestation Merkle root"));
+                }
+                let metadata = text(&get("metaData"))?.to_owned();
+                if metadata.starts_with("xpub:") {
+                    return Err(MappingError::Unrepresentable("attestation xpub metadata"));
+                }
                 RegistryAction::Attest {
                     list_id,
                     subject,
-                    metadata: text(&get("metaData"))?.into(),
+                    metadata,
                 }
             })
         }

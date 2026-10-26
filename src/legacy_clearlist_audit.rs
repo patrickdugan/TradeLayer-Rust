@@ -89,15 +89,45 @@ pub enum SourceAttestationStatus {
     Revoked,
 }
 
+/// Bounded string-valued aliases accepted by getCountryCodeByAddress().
+/// Non-string JavaScript object fields and imported NeDB row shapes remain
+/// outside this projection; this metadata never authenticates a country.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct SourceCountryObject {
+    pub country_code: Option<String>,
+    pub country: Option<String>,
+    pub code: Option<String>,
+    pub value: Option<String>,
+}
+
+impl SourceCountryObject {
+    fn fields(&self) -> [Option<&str>; 4] {
+        [
+            self.country_code.as_deref(),
+            self.country.as_deref(),
+            self.code.as_deref(),
+            self.value.as_deref(),
+        ]
+    }
+
+    fn selected_text(&self) -> Option<&str> {
+        // JS chooses the first truthy alias *before* trimming it. A string
+        // containing only spaces shadows later aliases, then fails trim().
+        self.fields().into_iter().flatten().find(|s| !s.is_empty())
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UnverifiedSourceAttestation {
     list_id: u32,
     address: String,
     metadata: Option<String>,
+    country_object: Option<SourceCountryObject>,
     xpub: Option<String>,
     root: Option<String>,
     status: SourceAttestationStatus,
     timestamp: u64,
+    block_height: Option<u64>,
     revoke_reason: Option<String>,
     /// Legacy clearlist ID field added during revocation: data.id.
     revoked_by_list_id: Option<u32>,
@@ -112,6 +142,9 @@ impl UnverifiedSourceAttestation {
     }
     pub fn metadata(&self) -> Option<&str> {
         self.metadata.as_deref()
+    }
+    pub fn country_object_metadata(&self) -> Option<&SourceCountryObject> {
+        self.country_object.as_ref()
     }
     pub fn xpub(&self) -> Option<&str> {
         self.xpub.as_deref()
@@ -518,17 +551,22 @@ impl UnverifiedLegacyClearlistStore {
             return Err(ClearlistSourceError::TooManyAttestations);
         }
         // addAttestation detects the exact xpub: prefix (case sensitive).
-        let xpub = explicit_xpub
-            .filter(|s| !s.is_empty())
-            .or_else(|| metadata.strip_prefix("xpub:").filter(|s| !s.is_empty()));
+        let xpub = match explicit_xpub {
+            // addAttestationWithXpub uses xpub || null; it never infers the
+            // metadata prefix when an explicit empty xpub was supplied.
+            Some(xpub) => (!xpub.is_empty()).then_some(xpub),
+            None => metadata.strip_prefix("xpub:"),
+        };
         let row = UnverifiedSourceAttestation {
             list_id,
             address: address.to_owned(),
             metadata: Some(metadata.to_owned()),
+            country_object: None,
             xpub: xpub.map(str::to_owned),
             root: None,
             status: SourceAttestationStatus::Active,
             timestamp: height,
+            block_height: None,
             revoke_reason: None,
             revoked_by_list_id: None,
         };
@@ -548,6 +586,31 @@ impl UnverifiedLegacyClearlistStore {
         Ok(outcome)
     }
 
+    /// Observe addAttestation's string-valued country-object metadata subset.
+    /// Optional blockHeight models the getter's legacy height precedence.
+    /// This is an unverified row write, not Type9 validation or authorization.
+    pub fn source_add_country_object_attestation(
+        &mut self,
+        list_id: u32,
+        address: &str,
+        metadata: SourceCountryObject,
+        block_height: Option<u64>,
+        timestamp: u64,
+    ) -> Result<SourceAttestationWrite, ClearlistSourceError> {
+        for value in metadata.fields().into_iter().flatten() {
+            source_text(value)?;
+        }
+        let outcome = self.source_add_attestation(list_id, address, "", None, timestamp)?;
+        let row = self
+            .attestations_by_ne_db_id
+            .get_mut(address)
+            .ok_or(ClearlistSourceError::NoAttestationToRevoke)?;
+        row.metadata = None;
+        row.country_object = Some(metadata);
+        row.block_height = block_height;
+        Ok(outcome)
+    }
+
     /// First query: matching active list/target. Fallback: address-keyed row
     /// WITHOUT list constraint, which may revoke a DIFFERENT list.
     /// An intentionally explicit hazard result accompanies that mutation.
@@ -560,6 +623,23 @@ impl UnverifiedLegacyClearlistStore {
     ) -> Result<SourceRevocation, ClearlistSourceError> {
         source_nonempty(address)?;
         source_text(reason)?;
+        // The canonical source query may find both direct and Merkle-root
+        // records for this address. It revokes every active matching row.
+        let mut matched = false;
+        for row in self.attestations_by_ne_db_id.values_mut().filter(|row| {
+            row.address == address
+                && row.list_id == requested_list
+                && row.status == SourceAttestationStatus::Active
+        }) {
+            matched = true;
+            row.status = SourceAttestationStatus::Revoked;
+            row.timestamp = height;
+            row.revoked_by_list_id = Some(requested_list);
+            row.revoke_reason = Some(reason.to_owned());
+        }
+        if matched {
+            return Ok(SourceRevocation::RevokedMatchingList);
+        }
         let row = self
             .attestations_by_ne_db_id
             .get_mut(address)
@@ -605,10 +685,13 @@ impl UnverifiedLegacyClearlistStore {
         list_id: u32,
         address: &str,
     ) -> Vec<&UnverifiedSourceAttestation> {
-        self.source_get_attestations(list_id)
+        let mut rows: Vec<_> = self
+            .source_get_attestations(list_id)
             .into_iter()
             .filter(|row| row.address == address)
-            .collect()
+            .collect();
+        rows.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
+        rows
     }
 
     pub fn observed_attestation_by_source_key(
@@ -620,24 +703,32 @@ impl UnverifiedLegacyClearlistStore {
 
     /// Source country selector accepts active list ID 0 with nonempty
     /// metadata and uppercases it, even if the string is not ISO2.
-    /// Returned height uses timestamp || null (zero => None).
+    /// String-valued object aliases use source truthiness/precedence. Returned
+    /// height uses blockHeight || timestamp || null (zero => None).
     pub fn source_country_code_by_address(&self, address: &str) -> Option<SourceCountryCode> {
         self.attestations_by_ne_db_id
             .values()
-            .find(|row| {
+            .filter(|row| {
                 row.address == address
                     && row.list_id == 0
                     && row.status == SourceAttestationStatus::Active
-                    && row.metadata.as_ref().is_some_and(|s| !s.trim().is_empty())
             })
-            .map(|row| SourceCountryCode {
-                code: row
+            .find_map(|row| {
+                let metadata = row
                     .metadata
                     .as_deref()
-                    .unwrap_or_default()
-                    .trim()
-                    .to_ascii_uppercase(),
-                reported_height: (row.timestamp != 0).then_some(row.timestamp),
+                    .or_else(|| row.country_object.as_ref()?.selected_text())?;
+                let code = metadata.trim();
+                if code.is_empty() {
+                    return None;
+                }
+                Some(SourceCountryCode {
+                    code: code.to_ascii_uppercase(),
+                    reported_height: row
+                        .block_height
+                        .filter(|height| *height != 0)
+                        .or_else(|| (row.timestamp != 0).then_some(row.timestamp)),
+                })
             })
     }
 
@@ -696,10 +787,12 @@ impl UnverifiedLegacyClearlistStore {
                 list_id,
                 address: admin.to_owned(),
                 metadata: None,
+                country_object: None,
                 xpub: None,
                 root: Some(root.to_owned()),
                 status: SourceAttestationStatus::Active,
                 timestamp: height,
+                block_height: None,
                 revoke_reason: None,
                 revoked_by_list_id: None,
             },
@@ -754,7 +847,7 @@ impl UnverifiedLegacyClearlistStore {
         let has_derived_candidates = self.attestations_by_ne_db_id.values().any(|row| {
             row.list_id == list_id
                 && row.status == SourceAttestationStatus::Active
-                && (row.xpub.is_some()
+                && (row.xpub.as_ref().is_some_and(|xpub| !xpub.is_empty())
                     || row.root.as_deref().is_some_and(|root| {
                         self.xpubs_by_merkle_root
                             .get(root)

@@ -1,0 +1,122 @@
+{
+  "source": {
+    "path": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\property-reference-review\\repo-ready\\fixtures\\reference_fidelity\\property.js",
+    "sha256": "ef0ee7ba5c362227a8bfd44192e351c107871a93a3dc93b04ce6d1a5ebfc70b1",
+    "executedUnchanged": true
+  },
+  "runtime": {
+    "node": "v24.19.0",
+    "executable": "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.EXE"
+  },
+  "realDependencies": [
+    {
+      "name": "bignumber.js",
+      "version": "9.3.1",
+      "path": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\property-reference-review\\repo-ready\\fixtures\\legacy_bignumber_source.txt",
+      "sha256": "58ba6fb59668342346f17983a61ace455f6f425ac4fbfab84f489df257594d16",
+      "lfNormalizedSha256": "58ba6fb59668342346f17983a61ace455f6f425ac4fbfab84f489df257594d16",
+      "implementation": "Complete genuine repository-archived source; verified by existing legacy_numeric_oracle.cjs"
+    },
+    {
+      "name": "node:path",
+      "version": "v24.19.0"
+    }
+  ],
+  "capabilityBoundaries": [
+    "async getDatabase and async findOneAsync/updateAsync: isolated in-memory deterministic rows; source DB module not executed, no NeDB persistence or RPC",
+    "tally.updateBalance: call recorder with injected rejection; actual tally implementation not executed, no real custody or balance invariant proven",
+    "console: call recorder; no other globals or PropertyManager methods injected"
+  ],
+  "expectedSourceDefectsArePassingCharacterizations": true,
+  "rustExecution": "NONE: static review only; no Cargo invoked; existing Rust tests read, never represented as newly passing",
+  "externalPatch": "8deba4a unavailable; no claim that its six files or purported tests were reviewed",
+  "reviewed_rust_head": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+  "reference_commit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "commands": [
+    {
+      "command": [
+        "node",
+        "--check",
+        "fixtures/reference_fidelity/property.js"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "scripts/audit_property_reference.cjs"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "scripts/audit_property_reference.cjs"
+      ],
+      "exit_code": 0,
+      "counts": {
+        "tests": 38,
+        "suites": 0,
+        "pass": 38,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "stderr": ""
+    }
+  ],
+  "dependency_scope": {
+    "source_package_lock_version": "9.1.2",
+    "source_package_json_range": "^9.1.2",
+    "executed_version": "9.3.1",
+    "lock_exact_execution": false,
+    "initial_installed_run": {
+      "tests": 38,
+      "passed": 38,
+      "failed": 0,
+      "skipped": 0,
+      "package_version": "9.3.1",
+      "raw_sha256": "08ff132ba18de1678e18a9f68bcad39cc970c94f7d219850468b2a7510cff0ce",
+      "lf_normalized_sha256": "58ba6fb59668342346f17983a61ace455f6f425ac4fbfab84f489df257594d16"
+    }
+  },
+  "integrity_checks": {
+    "captured_source_hashes_verified": true,
+    "source_matches_existing_native_genesis_fixture_exactly": true,
+    "source_methods_reviewed": 18,
+    "helpers_reviewed": 2,
+    "named_property_kinds": 7,
+    "transaction_paths": 9
+  },
+  "external_object_checks": [
+    {
+      "repository": "rust",
+      "command": "git cat-file -t 8deba4a",
+      "exit_code": 128,
+      "stderr": "fatal: Not a valid object name 8deba4a",
+      "available": false
+    },
+    {
+      "repository": "reference-js",
+      "command": "git cat-file -t 8deba4a",
+      "exit_code": 128,
+      "stderr": "fatal: Not a valid object name 8deba4a",
+      "available": false
+    }
+  ],
+  "rust_checks": {
+    "executed": false,
+    "reason": "Parent task forbids Cargo in this review; source/tests inspected only",
+    "test_pass_fail_counts": "not run"
+  },
+  "files_modified_in_rust_checkout": [],
+  "import_policy": "Import only the seven new paths listed by the separately supplied import-manifest.json. Staged existing helper/numeric copies are not imports."
+}

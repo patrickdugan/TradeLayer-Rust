@@ -1,0 +1,330 @@
+{
+  "reference_pin": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "rust_head": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+  "extraction": "git cat-file blob <revision>:<path>; exact stdout bytes, no newline normalization in captures",
+  "files": [
+    {
+      "side": "reference",
+      "revision": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+      "path": "src/property.js",
+      "git_blob": "5184c00333a459135db11c81bd6644c21c23883d",
+      "sha256": "ef0ee7ba5c362227a8bfd44192e351c107871a93a3dc93b04ce6d1a5ebfc70b1",
+      "bytes": 17638
+    },
+    {
+      "side": "reference",
+      "revision": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+      "path": "src/logic.js",
+      "git_blob": "8b8081e27d05ec797346b5c4ba74b79af05be2a3",
+      "sha256": "f09d476e581d38cf7278f1424aadba7266f25e0fbc23763ceba4afa79c5b3e1d",
+      "bytes": 118868
+    },
+    {
+      "side": "reference",
+      "revision": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+      "path": "src/types.js",
+      "git_blob": "fb894e8a25d560cc9481f9913aedf003fdde382f",
+      "sha256": "a49c1b1f846fe3eab91f4434c9f016586ffddf1bb3fb4492516a065df396a0e1",
+      "bytes": 23661
+    },
+    {
+      "side": "reference",
+      "revision": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+      "path": "src/validity.js",
+      "git_blob": "42ef725b30b3508cfee6741b76e1fa92dd6d5ac5",
+      "sha256": "ed9b7fed5b733740c26033030379abe0f4a63d488ff431dfc7b1f10eb4f93b00",
+      "bytes": 170303
+    },
+    {
+      "side": "reference",
+      "revision": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+      "path": "src/db.js",
+      "git_blob": "3211ff71f89b659b6fa4e60f7416f63362025382",
+      "sha256": "b92a05fee6652494b72bf6893d9633850c697be773e88b24d62798a8bc8f5e38",
+      "bytes": 4177
+    },
+    {
+      "side": "reference",
+      "revision": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+      "path": "src/tally.js",
+      "git_blob": "eda85abfe40aaebaffb275f476325d2b2dec5a1c",
+      "sha256": "cfde9e5845f810bf62d9f1a07d4db4ea011b11d3d2bb63f041d39bea557cddef",
+      "bytes": 59507
+    },
+    {
+      "side": "reference",
+      "revision": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+      "path": "src/procedural.js",
+      "git_blob": "9d80c958df3d8e9adc438d372a558dd6acce2cee",
+      "sha256": "0a89e5447a07d592a25032d55ced478b01797cda96da055c888a0da6664f062e",
+      "bytes": 4508
+    },
+    {
+      "side": "reference",
+      "revision": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+      "path": "package.json",
+      "git_blob": "f9ddfa4c66707173e078ffba9ec251787f4c33fb",
+      "sha256": "595f405459138e59e1c6b8148abecfc877b390a087a92052505567ad0e50e04f",
+      "bytes": 2779
+    },
+    {
+      "side": "reference",
+      "revision": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+      "path": "package-lock.json",
+      "git_blob": "254407888d490f861ceabf01e94fa334d72f1be4",
+      "sha256": "cb7f2b040efe779e43d4aeddd56f406079c10c6083f21c990ee76c92e7110a8d",
+      "bytes": 395201
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "src/ledger.rs",
+      "git_blob": "ea556338a4663f97335973b69b48ba5a82642307",
+      "sha256": "a5253b9f947d9d67c11b311492c32a4350b29657cf5a2995617f7b28d169d728",
+      "bytes": 39102
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "src/registry.rs",
+      "git_blob": "d4e9ce8d4799dfacf14133848f0c223048034295",
+      "sha256": "f4214229bcbd4e62f6a4e6a54d0db68af48e93653c38766de836d7dd9caf2e29",
+      "bytes": 18448
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "src/registry_snapshot_impl.rs",
+      "git_blob": "cf7a44cd2f502125b1562dcd4d31125de7a885eb",
+      "sha256": "f153e5a65b5c77b7f5d4f6a7f507f7653fdf72f7bfeac8e2275dc5a831e2fd6a",
+      "bytes": 13096
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "src/joint.rs",
+      "git_blob": "d484b3f76b31da27907d096b3051e7f7116ed5c3",
+      "sha256": "67f4fc182e1defe9d8ea4cda2b6780a6aa922932e2921c0a159eb14377f55ab4",
+      "bytes": 21998
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "src/execution.rs",
+      "git_blob": "7e45b36380a791f83d5112094cb0635eb3ee4610",
+      "sha256": "8b3f7622b57cb75ebbae2bdfb5ac5113a14a940d45d85fdbac4ea32298cfb3a1",
+      "bytes": 16105
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "src/types_economic.rs",
+      "git_blob": "b1aa7f59bb9a0c6e393989ad903ddbf070cc2a7f",
+      "sha256": "f246421da06a4f298bc083fa4abe69cc108bb6e431bc13386eca9e2fcf451aab",
+      "bytes": 18068
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "src/economic_validity.rs",
+      "git_blob": "d6ae50e9f90fbd7a528bd444aae8f3649bae736d",
+      "sha256": "49abe8fa421081799d54c3041f807703325c9d4f3aa84c579eb8016d4164670a",
+      "bytes": 19925
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "src/native_entitlement.rs",
+      "git_blob": "fcc4cc9c00703154a73083ec4866b183a60340ac",
+      "sha256": "906bcadbc19892c8e47801aa55a00636fa6a86343e00589dea665f4e126e3def",
+      "bytes": 22966
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "src/ledger_native_impl.rs",
+      "git_blob": "6cddcc4c63f9e1b99c13d197cb8151bbd50854f5",
+      "sha256": "e138f20cc5047b33bef67bebc69f4b619e2d79263978863576b2191be47bbe34",
+      "bytes": 42220
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "src/vesting.rs",
+      "git_blob": "90fea75c43ea067a49ae426aa74d55611b18eedf",
+      "sha256": "80948c761cb19b44e7407196195791540bc213cf9a5187157c6ac9138056f46a",
+      "bytes": 26354
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "src/validity_source.rs",
+      "git_blob": "497396002b39a3327d96af94eba098722e7ac659",
+      "sha256": "ecc4caa23e93aaf433d2bdab981c78e285ede863efeb6d1e129d90718322f593",
+      "bytes": 154104
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "src/consensus_source.rs",
+      "git_blob": "f7602118c8a6a53c5fb6f838532e2d4fea30ee3f",
+      "sha256": "c201271fdf53ccb11e8f14dfe912dc642d76ab953db338acfc9e505335960046",
+      "bytes": 24409
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "src/vaults.rs",
+      "git_blob": "13005107e5b2730473d7e65c1eba1696f03ea351",
+      "sha256": "f7bfe0b2b1e6b4d411ec04834ce643dfd4d70bcb125a50dcf249ee2a4c5996d8",
+      "bytes": 15745
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "src/amm.rs",
+      "git_blob": "ac50dfcb29d38748f0611945d2fb34d5dc8b9066",
+      "sha256": "0b459d6e254f878811d8e050359c660d647fe0a8a1788a2ee43c528ce3801c19",
+      "bytes": 27854
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "src/issuance_intent.rs",
+      "git_blob": "0ad6fc75b5617630e9894b3557da108a99adfbdd",
+      "sha256": "d612505b9ce72c49fbbfa9b8004219cb9a4c66d62a4c29377fc5ab7162d4933b",
+      "bytes": 27988
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "tests/ledger_invariants.rs",
+      "git_blob": "2e4f1794aea9982f1dad77181b39e6c781133651",
+      "sha256": "e0042d62921e3209b14fcde0496d3aefa5fc1692907ea6e0285d12498a9c318a",
+      "bytes": 12600
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "tests/registry_transitions.rs",
+      "git_blob": "362f190392e1f4fd88c5fb4b1cde31ff6857f4c4",
+      "sha256": "5bb838e81ce281e088788c3e5e5dfa047cc32dc49abbac028d3ad94b9b5e0ee3",
+      "bytes": 11713
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "tests/native_ledger.rs",
+      "git_blob": "1e1bb5c46975bbb3f07b97e399a550e2d1119f46",
+      "sha256": "c6771321876f62e12a9d2917f2c692ebefa656fdb966e4d9c89a26310fd5d6a8",
+      "bytes": 15168
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "tests/native_joint.rs",
+      "git_blob": "9b0940ac8902fdf9bac0112d4d943671325230b2",
+      "sha256": "67047b3d4f49e5c1c2f5e9e7b9929d19cd5fc254d6ae654550ca6320dfeb83fb",
+      "bytes": 6223
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "tests/persistence.rs",
+      "git_blob": "ee15522a2a4516c5a245922946d023ab63217ad2",
+      "sha256": "e028f09eb0cd6e37617bda1007ba094658aea69aec6295fb4f008f9d5319737f",
+      "bytes": 17823
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "tests/types_economic.rs",
+      "git_blob": "6dbce950f6f38db666661ceb5d9d4bcd62593f35",
+      "sha256": "61b829389fd99fffcc0c1400129caef232cda9822d85a84dbda72f6319369b67",
+      "bytes": 5824
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "tests/types_source.rs",
+      "git_blob": "fcb50f28cbe2aad27181fa706247c5dabbfdf4f2",
+      "sha256": "4211e825a2ca7f9c40e1eec04ab39ebea5d92701be606b6f66de6e1aa4e28b19",
+      "bytes": 10117
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "tests/economic_validity.rs",
+      "git_blob": "5a8085d05b4c537b74e2916281609661239503d9",
+      "sha256": "1fcab577e47634f67e198f71fd4a73974aedaff95a80146e126a3249c35e6eff",
+      "bytes": 16738
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "tests/vaults.rs",
+      "git_blob": "2617dc2ef2cb218b9cb5218c1038b9554b03fbe0",
+      "sha256": "d0e26b50152ae8c999e918de9d775c404b02af16ef9660bec10b621cfcff0085",
+      "bytes": 17484
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "tests/amm.rs",
+      "git_blob": "3c55fcdff8dc610c1e6a368ec87819579443ad6d",
+      "sha256": "4ca350cbfc387a41d814b2f85d542b24ed2bb0350210f6c48d8bd12db2c70f79",
+      "bytes": 20448
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "fixtures/native_genesis/source/property.js",
+      "git_blob": "5184c00333a459135db11c81bd6644c21c23883d",
+      "sha256": "ef0ee7ba5c362227a8bfd44192e351c107871a93a3dc93b04ce6d1a5ebfc70b1",
+      "bytes": 17638
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "fixtures/native_genesis/source-pins.json",
+      "git_blob": "ac1cd9feaf5455609e66c8dd7f2b86f5104b6393",
+      "sha256": "fdbc142e2ed0c27cfe65d4557911d69b68a5aa6e9347ddc1ffdeb0ac717653cd",
+      "bytes": 1118
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "fixtures/native_genesis/supply-reconciliation.json",
+      "git_blob": "b6c0285dea598d7e03bfd26a2e4b8a21d5a60dbd",
+      "sha256": "9f517f0efef112defef4ee496d81c1aec4f1029e40356ef720c509d27b61d27f",
+      "bytes": 18712
+    },
+    {
+      "side": "rust",
+      "revision": "89852594c4a83ddc9460797da0b01eb1d0f00179",
+      "path": "fixtures/native_entitlement_owner_vectors.json",
+      "git_blob": "41a219d76beddab7e9782193938995010df94870",
+      "sha256": "59d3a145cd71635e617565ffe2c3c3af940ff12b729e98bd592feb31d9fe1bff",
+      "bytes": 10163
+    }
+  ],
+  "harness_source": {
+    "path": "fixtures/reference_fidelity/property.js",
+    "sha256": "ef0ee7ba5c362227a8bfd44192e351c107871a93a3dc93b04ce6d1a5ebfc70b1",
+    "bytes": 17638
+  },
+  "existing_numeric_dependencies": [
+    {
+      "path": "scripts/legacy_numeric_oracle.cjs",
+      "sha256": "e570de41173962d5013c3eb289b86903c3d6bd070be068e6f20c6372d86a7a15",
+      "import_file": false,
+      "reason": "Already exists at reviewed Rust HEAD; unmodified dependency for portable run"
+    },
+    {
+      "path": "fixtures/legacy_bignumber_source.txt",
+      "sha256": "58ba6fb59668342346f17983a61ace455f6f425ac4fbfab84f489df257594d16",
+      "import_file": false,
+      "reason": "Already exists at reviewed Rust HEAD; unmodified dependency for portable run"
+    }
+  ]
+}

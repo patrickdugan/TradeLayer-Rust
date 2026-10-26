@@ -180,6 +180,12 @@ jobs:
         run: cargo test --frozen --test legacy_activation_audit
       - name: Legacy clearlist.js independent Node source collision and xpub Merkle oracle
         run: node scripts/audit_legacy_clearlist_source.cjs
+      - name: Unchanged clearlist.js and validity.js reference regressions with explicit storage model
+        run: node scripts/audit_legacy_clearlist_reference.cjs
+      - name: Unchanged property.js reference characterizations with archived BigNumber
+        run: node --test scripts/audit_property_reference.cjs
+      - name: Per-type logic review matches pinned source routes and actual mapper scope
+        run: python3 scripts/check_logic_inventory.py
       - name: Legacy clearlist.js source storage and root parity with default-deny tests
         run: cargo test --frozen --test legacy_clearlist_audit
       - name: Legacy channels.js independent Node direct A/B, crowded-owner and withdrawal-key source oracle
