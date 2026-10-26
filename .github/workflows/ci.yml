@@ -66,6 +66,10 @@ jobs:
           node scripts/contract_registry_vectors.cjs
           node scripts/oracle_vectors.cjs
           node scripts/amm_vectors.cjs
+          node scripts/margin_map_vectors.cjs
+          node scripts/vesting_vectors.cjs
+          node scripts/procedural_vectors.cjs
+          node scripts/storage_layout_vectors.cjs
       - name: Stage 25C atomic PnL and replay fence tests
         run: cargo test --frozen --test clearing_mark_to_market
       - name: Stage 25D full clearing state checkpoint and fork recovery

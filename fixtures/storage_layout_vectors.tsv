@@ -1,0 +1,42 @@
+# Actual db.js category/folder results only; no NeDB storage/query parity.
+# Source dca0888b827c5bc28fa9189bc9e1d507f5c5670c SHA256 b92a05fee6652494b72bf6893d9633850c697be773e88b24d62798a8bc8f5e38
+# category	index	name	legacy-filename OR layout	name	chain	test(0/1)	folder	bootstrap	root-kind
+category	0	ammRegistry	ammRegistry.db
+category	1	ammState	ammState.db
+category	2	txIndex	txIndex.db
+category	3	propertyList	propertyList.db
+category	4	oracleList	oracleList.db
+category	5	oracleData	oracleData.db
+category	6	contractList	contractList.db
+category	7	tallyMap	tallyMap.db
+category	8	tallyMapDelta	tallyMapDelta.db
+category	9	marginMapDelta	marginMapDelta.db
+category	10	marginMaps	marginMaps.db
+category	11	clearlists	clearlists.db
+category	12	attestations	attestations.db
+category	13	clearing	clearing.db
+category	14	consensus	consensus.db
+category	15	persistence	persistence.db
+category	16	volumeIndex	volumeIndex.db
+category	17	channels	channels.db
+category	18	withdrawQueue	withdrawQueue.db
+category	19	activations	activations.db
+category	20	insurance	insurance.db
+category	21	orderBooks	orderBooks.db
+category	22	feeCache	feeCache.db
+category	23	tradeHistory	tradeHistory.db
+category	24	fundingEvents	fundingEvents.db
+category	25	vaults	vaults.db
+category	26	syntheticTokens	syntheticTokens.db
+category	27	liquidations	liquidations.db
+category	28	scaling	scaling.db
+category	29	channelDelta	channelDelta.db
+category	30	iou	iou.db
+category	31	procedural	procedural.db
+layout	skip-btc-main	bTc	0	btc-main	skip	absolute
+layout	skip-ltc-test	lTc	1	ltc-test	skip	relative
+layout	skip-doge-main	DoGe	0	doge-main	skip	default
+layout	rpc-ltc-main	LTC	0	ltc-main	rpc	relative
+layout	rpc-btc-test	BTC	1	btc-test	rpc	default
+layout	rpc-doge-test	DOGE	1	doge-test	rpc	absolute
+layout	skip-default-chain	LTC	1	ltc-test	skip	default

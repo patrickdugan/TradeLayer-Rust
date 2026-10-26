@@ -40,6 +40,13 @@ local state. A [funded IOU adapter](docs/FUNDED_IOU.md) moves real atoms within
 one local ledger and [checkpoints its complete state](docs/IOU_CHECKPOINTS.md).
 Its atom policy is explicit; historical matching/clearing admission remains open.
 
+[Margin positions](docs/MARGIN_MAP.md), [vesting journals](docs/VESTING.md)
+and [procedural metadata](docs/PROCEDURAL.md) extend the source-tested local
+lifecycle coverage. The [disk journal](docs/STORAGE.md) syncs bounded atomic
+batches and restores complete funded IOU checkpoints with exclusive writer
+locking and explicit torn-tail recovery. NeDB migration, deployment power-loss
+validation and authenticated economic admission remain open.
+
 ### Supply-chain admission gate
 
 The consensus crate's **zero-third-party-crate baseline is now enforced**, not merely descriptive. CI and local Cargo builds refuse network resolution or lockfile updates; every PR runs a standard-library-only dependency gate and adversarial policy tests:

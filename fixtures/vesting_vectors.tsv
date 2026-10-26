@@ -1,0 +1,152 @@
+# Pinned unmodified vesting.js dca0888; binary64 math allows host-libm tolerance in Rust.
+CONFIG	BTC	100	0.00000625	0.0001	100000	TL	5	12960	bc1qhc2cj60auf67e0pa3dfd46cvg0fehchx56vw0f	0.1	0.1	0.5	0
+REBATE	BTC	-1	0.0001
+REBATE	BTC	0	0.0001
+REBATE	BTC	10	0.0001
+REBATE	BTC	100	0.0001
+REBATE	BTC	1000	0.000084375
+REBATE	BTC	100000000	0.000006250000000000003
+REBATE	BTC	10000000000	0.00000625
+REBATE	BTC	Infinity	0.00000625
+REBATE	BTC	NaN	NaN
+CONFIG	DOGE	2000000	0.00000125	0.0005	200000000	TD	10	129600	D8HA73pAhxK7eNXSUVhQrWpUkrszUDGs7Z	0.25	0.25	0.5	0
+REBATE	DOGE	-1	0.0005
+REBATE	DOGE	0	0.0005
+REBATE	DOGE	10	0.0005
+REBATE	DOGE	2000000	0.0005
+REBATE	DOGE	20000000	0.0002064397848536952
+REBATE	DOGE	100000000	0.00000125
+REBATE	DOGE	10000000000	0.00000125
+REBATE	DOGE	Infinity	0.00000125
+REBATE	DOGE	NaN	NaN
+CONFIG	LTC	1000	0.000003125	0.0001	500000	TLITE	5	51840	MWip91xMhaEmDn5oUW5NDNbWSDyG5dSK9Q	0.1	0.3	0.5	0.1
+REBATE	LTC	-1	0.0001
+REBATE	LTC	0	0.0001
+REBATE	LTC	10	0.0001
+REBATE	LTC	1000	0.0001
+REBATE	LTC	10000	0.000080625
+REBATE	LTC	100000000	0.000003125
+REBATE	LTC	10000000000	0.000003125
+REBATE	LTC	Infinity	0.000003125
+REBATE	LTC	NaN	NaN
+CONFIG	unknown	1000	0.000003125	0.0001	500000	TLITE	5	51840	MWip91xMhaEmDn5oUW5NDNbWSDyG5dSK9Q	0.1	0.3	0.5	0.1
+REBATE	unknown	-1	0.0001
+REBATE	unknown	0	0.0001
+REBATE	unknown	10	0.0001
+REBATE	unknown	1000	0.0001
+REBATE	unknown	10000	0.000080625
+REBATE	unknown	100000000	0.000003125
+REBATE	unknown	10000000000	0.000003125
+REBATE	unknown	Infinity	0.000003125
+REBATE	unknown	NaN	NaN
+CONFIG	btc	1000	0.000003125	0.0001	500000	TLITE	5	51840	MWip91xMhaEmDn5oUW5NDNbWSDyG5dSK9Q	0.1	0.3	0.5	0.1
+REBATE	btc	-1	0.0001
+REBATE	btc	0	0.0001
+REBATE	btc	10	0.0001
+REBATE	btc	1000	0.0001
+REBATE	btc	10000	0.000080625
+REBATE	btc	100000000	0.000003125
+REBATE	btc	10000000000	0.000003125
+REBATE	btc	Infinity	0.000003125
+REBATE	btc	NaN	NaN
+VEST	0,0,0,0	0,0
+VEST	999,1,9999999999,1	0,0
+VEST	999,2,9999999999,2	0.00025000025000025,0.0000015151515151515152
+VEST	500000000,0,500000000000,0	124999.874999875,742424.2424242424
+VEST	1000000000,1,1000000000000,1	250000,1500000
+VEST	-1000,-10,-10,-1	0,0
+VEST	Infinity,0,Infinity,0	250000,1500000
+VEST	NaN,0,NaN,0	0,0
+ERROR	missing_properties	null
+FRACTION	0,100,1000,50	0
+FRACTION	100,100,1000,50	0
+FRACTION	101,100,1000,50	0.006725433074447948
+FRACTION	500,100,1000,50	0.746228600043274
+FRACTION	1000,100,1000,50	1
+FRACTION	2000,100,1000,50	1
+FRACTION	500,100,1000,0	0.983192782179899
+FRACTION	500,100,1000,-1	0.983192782179899
+FRACTION	500,100,0,50	NaN
+FRACTION	NaN,1,2,1	NaN
+PROJECT	100,0	1200
+PROJECT	100,-1	1200
+PROJECT	100,1e-18	1200
+PROJECT	100,0.05	1591.71265204426
+PROJECT	0,0.1	0
+PROJECT	100,1	409500
+PROJECT	100,NaN	NaN
+MONTHS	0,1000,100,0	10
+MONTHS	1000,1000,0,0.1	0
+MONTHS	0,1000,0,0.1	Infinity
+MONTHS	0,1000,100,0.05	9
+MONTHS	0,1001,100,-0.1	11
+MONTHS	0,1000,100,NaN	NaN
+MONTHS	Infinity,1000,100,0	0
+ANNUAL	-1	-1
+ANNUAL	-0.1	-0.7175704635189999
+ANNUAL	0	0
+ANNUAL	0.01	0.12682503013196977
+ANNUAL	0.05	0.7958563260221301
+ANNUAL	0.1	2.138428376721003
+ANNUAL	1	4095
+ANNUAL	NaN	NaN
+DISCOUNT	0.08,0	1
+DISCOUNT	0.08,12	0.9231163463866358
+DISCOUNT	0.08,240	0.20189651799465538
+DISCOUNT	0.08,Infinity	0
+DISCOUNT	0,Infinity	NaN
+DISCOUNT	-0.1,12	1.1051709180756477
+DISCOUNT	NaN,1	NaN
+CMGR	-	0
+CMGR	100	0
+CMGR	100,110	0.10000000000000009
+CMGR	100,110,121	0.10000000000000009
+CMGR	100,0,100	0
+CMGR	0,0,0	0
+CMGR	-1,2,-3	0
+CMGR	100,80,200,300	0.4422495703074083
+CMGR	NaN,100	NaN
+BUYBACK	10	-	0
+BUYBACK	10	2,5;1,10	5
+BUYBACK	13	2,5;1,10	8
+BUYBACK	2	0,3;1,7	5
+BUYBACK	-1	2,5	-0.5
+BUYBACK	10	2,-3	-3
+BUYBACK	10	-2,3	3
+BUYBACK	10	NaN,1	NaN
+BUYBACK	10	Infinity,1	0
+BUYBACK	3	1,0;2,3	1.5
+ERROR	fetch_orderbook	undefined
+ERROR	perform_empty	undefined
+ERROR	perform_nonempty	TypeError:orderbook is not iterable
+ERROR	compute_tokens	ReferenceError:projectedYearVolumeBTC is not defined
+REPAIRED_QUOTE	1	false	-	0.10052065603330454,0.0000020000000000000003,0.000019896408150553252,0.2740873083310105,63,0.000019896408150553252,0.00000751045933855508,0.7958563260221301,795856.3260221301,1.9896408150553254e-7,0.000005
+REPAIRED_QUOTE	1	true	-	0.1507809840499568,0.0000030000000000000005,0.000019896408150553252,0.2740873083310105,63,0.000019896408150553252,0.00000751045933855508,0.7958563260221301,795856.3260221301,1.9896408150553254e-7,0.000005
+REPAIRED_QUOTE	0	false	-	0,0,0.000019896408150553252,0.2740873083310105,63,0.000019896408150553252,0.00000751045933855508,0.7958563260221301,795856.3260221301,1.9896408150553254e-7,0
+REPAIRED_QUOTE	-1	true	-	-0.1507809840499568,-0.0000030000000000000005,0.000019896408150553252,0.2740873083310105,63,0.000019896408150553252,0.00000751045933855508,0.7958563260221301,795856.3260221301,1.9896408150553254e-7,-0.000005
+REPAIRED_QUOTE	100	false	cmgr12=0	61.62830091762048,0.0002,0.0000032452622743460534,0.2740873083310105,400,0.0000018750000000000003,0.0000032452622743460534,0,600000,1.5000000000000002e-7,0.0005
+REPAIRED_QUOTE	100	false	cmgr12=-0.1	61.62830091762048,0.0002,0.0000032452622743460534,0.2740873083310105,400,1.8807115717171576e-7,0.0000032452622743460534,-0.7175704635189999,600000,1.5000000000000002e-7,0.0005
+REPAIRED_QUOTE	10	true	monthlyVolumeBTC=0	10.94541742289268,0.000030000000000000008,0.0000027408730833101053,0.2740873083310105,Infinity,0,0.0000027408730833101053,0.7958563260221301,0,0,0.00005
+REPAIRED_QUOTE	10	false	tlvestEffectiveSupply=0	1.0052065603330453e-7,0.00002,198.96408150553253,0.2740873083310105,63,198.96408150553253,0.00000751045933855508,0.7958563260221301,795856.3260221301,1.9896408150553253,0.00005
+REPAIRED_QUOTE	10	false	priceTLIinBTC=0	1.0052065603330453,0.00002,0.000019896408150553252,0.2740873083310105,63,0.000019896408150553252,0,0.7958563260221301,795856.3260221301,1.9896408150553254e-7,0.00005
+REPAIRED_QUOTE	10	false	cumulativeVolumeBTC=21000000	1.0052065603330453,0.00002,0.000019896408150553252,1,0,0.000019896408150553252,0.00001,0.7958563260221301,795856.3260221301,1.9896408150553254e-7,0.00005
+REPAIRED_QUOTE	10	false	discountRateAnnual=-1,cmgr12=0	1.3333333333333333,0.00002,0.000015000000000000002,0.2740873083310105,400,0.000015000000000000002,0.000009975843193988464,0,600000,1.5000000000000002e-7,0.00005
+REPAIRED_QUOTE	10	true	feeRate=0	0,0,0.00000751045933855508,0.2740873083310105,63,0,0.00000751045933855508,0.7958563260221301,795856.3260221301,0,0
+INIT	BTC	false	undefined	1	false	bc1qktknrnx2jcchjht9anz0uy8ae02xryxq2vxeem,	4	check;pm;token/TL/100000/Fixed/0/undefined/undefined;token/TLVEST/50000/Vesting/0/undefined/undefined;token/TLI/300000/Vesting/0/undefined/undefined;token/TLIVEST/300001/Native/0/undefined/undefined;contract/undefined/undefined/5/77/0.2/0.1/perp/1,0/6/true/true/false/0/0.001/1;insurance/1/0/0.5/false;deposit/1/10000/false;balance/bc1qktknrnx2jcchjht9anz0uy8ae02xryxq2vxeem,/1/0/0/0/0;balance/bc1qktknrnx2jcchjht9anz0uy8ae02xryxq2vxeem,/2/50000/0/0/50000;balance/bc1qktknrnx2jcchjht9anz0uy8ae02xryxq2vxeem,/3/1500000/0/0/1500000;balance/bc1qktknrnx2jcchjht9anz0uy8ae02xryxq2vxeem,/4/1/0/0/0;balance/bc1qhc2cj60auf67e0pa3dfd46cvg0fehchx56vw0f/1/10000/0/0/0;balances/bc1qktknrnx2jcchjht9anz0uy8ae02xryxq2vxeem,;clear/undefined/Issuer Clearlist//Oracles and Tokens included in Liquidity Reward/undefined/1;clear/undefined/Market Maker Clearlist//Market Makers and active traders who do not wash trade./undefined/2;clear/undefined/Accredited Clearlist//Exempt from restrictions on native tokens./undefined/3;flag
+INIT	BTC	true	undefined	1	false	tb1q8f84erfegxhaylmvpfll9m5rgwymqy4akjnnvq	4	check;pm;token/TL/100000/Fixed/0/undefined/undefined;token/TLVEST/50000/Vesting/0/undefined/undefined;token/TLI/300000/Vesting/0/undefined/undefined;token/TLIVEST/300001/Native/0/undefined/undefined;contract/undefined/undefined/5/77/0.2/0.1/perp/1,0/6/true/true/false/0/0.001/1;insurance/1/0/0.5/false;deposit/1/10000/false;balance/tb1q8f84erfegxhaylmvpfll9m5rgwymqy4akjnnvq/1/0/0/0/0;balance/tb1q8f84erfegxhaylmvpfll9m5rgwymqy4akjnnvq/2/50000/0/0/50000;balance/tb1q8f84erfegxhaylmvpfll9m5rgwymqy4akjnnvq/3/1500000/0/0/1500000;balance/tb1q8f84erfegxhaylmvpfll9m5rgwymqy4akjnnvq/4/1/0/0/0;balance/bc1qhc2cj60auf67e0pa3dfd46cvg0fehchx56vw0f/1/10000/0/0/0;balances/tb1q8f84erfegxhaylmvpfll9m5rgwymqy4akjnnvq;clear/undefined/Issuer Clearlist//Oracles and Tokens included in Liquidity Reward/undefined/1;clear/undefined/Market Maker Clearlist//Market Makers and active traders who do not wash trade./undefined/2;clear/undefined/Accredited Clearlist//Exempt from restrictions on native tokens./undefined/3;flag
+INIT	DOGE	false	undefined	1	false	DLSfu9qvEggkeXAgCAwBBw5BVLvMCtkewz	4	check;pm;token/TD/200000000/Fixed/0/undefined/undefined;token/TDVEST/100000000/Vesting/0/undefined/undefined;token/TDI/600000000/Vesting/0/undefined/undefined;token/TDIVEST/600000001/Native/0/undefined/undefined;contract/undefined/undefined/5/77/0.2/0.1/perp/1,0/6/true/true/false/0/0.001/1;insurance/1/0/0.5/false;deposit/1/50000000/false;balance/DLSfu9qvEggkeXAgCAwBBw5BVLvMCtkewz/1/0/0/0/0;balance/DLSfu9qvEggkeXAgCAwBBw5BVLvMCtkewz/2/100000000/0/0/100000000;balance/DLSfu9qvEggkeXAgCAwBBw5BVLvMCtkewz/3/1500000/0/0/1500000;balance/DLSfu9qvEggkeXAgCAwBBw5BVLvMCtkewz/4/1/0/0/0;balance/D8HA73pAhxK7eNXSUVhQrWpUkrszUDGs7Z/1/50000000/0/0/0;balances/DLSfu9qvEggkeXAgCAwBBw5BVLvMCtkewz;clear/undefined/Issuer Clearlist//Oracles and Tokens included in Liquidity Reward/undefined/1;clear/undefined/Market Maker Clearlist//Market Makers and active traders who do not wash trade./undefined/2;clear/undefined/Accredited Clearlist//Exempt from restrictions on native tokens./undefined/3;flag
+INIT	DOGE	true	undefined	1	false	nop27JQWbGr95ySHXZMzCg8XXxYzbCBZAW	4	check;pm;token/TD/200000000/Fixed/0/undefined/undefined;token/TDVEST/100000000/Vesting/0/undefined/undefined;token/TDI/600000000/Vesting/0/undefined/undefined;token/TDIVEST/600000001/Native/0/undefined/undefined;contract/undefined/undefined/5/77/0.2/0.1/perp/1,0/6/true/true/false/0/0.001/1;insurance/1/0/0.5/false;deposit/1/50000000/false;balance/nop27JQWbGr95ySHXZMzCg8XXxYzbCBZAW/1/0/0/0/0;balance/nop27JQWbGr95ySHXZMzCg8XXxYzbCBZAW/2/100000000/0/0/100000000;balance/nop27JQWbGr95ySHXZMzCg8XXxYzbCBZAW/3/1500000/0/0/1500000;balance/nop27JQWbGr95ySHXZMzCg8XXxYzbCBZAW/4/1/0/0/0;balance/D8HA73pAhxK7eNXSUVhQrWpUkrszUDGs7Z/1/50000000/0/0/0;balances/nop27JQWbGr95ySHXZMzCg8XXxYzbCBZAW;clear/undefined/Issuer Clearlist//Oracles and Tokens included in Liquidity Reward/undefined/1;clear/undefined/Market Maker Clearlist//Market Makers and active traders who do not wash trade./undefined/2;clear/undefined/Accredited Clearlist//Exempt from restrictions on native tokens./undefined/3;flag
+INIT	LTC	false	undefined	1	false	MTmoypkhRQoJ172ZqxcsVumPZfJ8KCrQCB	4	check;pm;token/TLITE/500000/Fixed/0/undefined/undefined;token/TLITEVEST/250000/Vesting/0/undefined/undefined;token/TLITEI/1500000/Vesting/0/undefined/undefined;token/TLITEIVEST/1500001/Native/0/undefined/undefined;contract/undefined/undefined/5/77/0.2/0.1/perp/1,0/6/true/true/false/0/0.001/1;insurance/1/0/0.5/false;deposit/1/150000/false;balance/MTmoypkhRQoJ172ZqxcsVumPZfJ8KCrQCB/1/50000/0/0/0;balance/MTmoypkhRQoJ172ZqxcsVumPZfJ8KCrQCB/2/250000/0/0/250000;balance/MTmoypkhRQoJ172ZqxcsVumPZfJ8KCrQCB/3/1500000/0/0/1500000;balance/MTmoypkhRQoJ172ZqxcsVumPZfJ8KCrQCB/4/1/0/0/0;balance/MWip91xMhaEmDn5oUW5NDNbWSDyG5dSK9Q/1/50000/0/0/0;balances/MTmoypkhRQoJ172ZqxcsVumPZfJ8KCrQCB;clear/undefined/Issuer Clearlist//Oracles and Tokens included in Liquidity Reward/undefined/1;clear/undefined/Market Maker Clearlist//Market Makers and active traders who do not wash trade./undefined/2;clear/undefined/Accredited Clearlist//Exempt from restrictions on native tokens./undefined/3;flag
+INIT	LTC	true	undefined	1	false	tltc1qa0kd2d39nmeph3hvcx8ytv65ztcywg5sazhtw8	4	check;pm;token/TLITE/500000/Fixed/0/undefined/undefined;token/TLITEVEST/250000/Vesting/0/undefined/undefined;token/TLITEI/1500000/Vesting/0/undefined/undefined;token/TLITEIVEST/1500001/Native/0/undefined/undefined;contract/undefined/undefined/5/77/0.2/0.1/perp/1,0/6/true/true/false/0/0.001/1;insurance/1/0/0.5/false;deposit/1/150000/false;balance/tltc1qa0kd2d39nmeph3hvcx8ytv65ztcywg5sazhtw8/1/50000/0/0/0;balance/tltc1qa0kd2d39nmeph3hvcx8ytv65ztcywg5sazhtw8/2/250000/0/0/250000;balance/tltc1qa0kd2d39nmeph3hvcx8ytv65ztcywg5sazhtw8/3/1500000/0/0/1500000;balance/tltc1qa0kd2d39nmeph3hvcx8ytv65ztcywg5sazhtw8/4/1/0/0/0;balance/MWip91xMhaEmDn5oUW5NDNbWSDyG5dSK9Q/1/50000/0/0/0;balances/tltc1qa0kd2d39nmeph3hvcx8ytv65ztcywg5sazhtw8;clear/undefined/Issuer Clearlist//Oracles and Tokens included in Liquidity Reward/undefined/1;clear/undefined/Market Maker Clearlist//Market Makers and active traders who do not wash trade./undefined/2;clear/undefined/Accredited Clearlist//Exempt from restrictions on native tokens./undefined/3;flag
+INIT	unknown	false	undefined	1	false	undefined	4	check;pm;token/TLITE/500000/Fixed/0/undefined/undefined;token/TLITEVEST/250000/Vesting/0/undefined/undefined;token/TLITEI/1500000/Vesting/0/undefined/undefined;token/TLITEIVEST/1500001/Native/0/undefined/undefined;contract/undefined/undefined/5/77/0.2/0.1/perp/1,0/6/true/true/false/0/0.001/1;insurance/1/0/0.5/false;deposit/1/150000/false;balance/undefined/1/50000/0/0/0;balance/undefined/2/250000/0/0/250000;balance/undefined/3/1500000/0/0/1500000;balance/undefined/4/1/0/0/0;balance/MWip91xMhaEmDn5oUW5NDNbWSDyG5dSK9Q/1/50000/0/0/0;balances/undefined;clear/undefined/Issuer Clearlist//Oracles and Tokens included in Liquidity Reward/undefined/1;clear/undefined/Market Maker Clearlist//Market Makers and active traders who do not wash trade./undefined/2;clear/undefined/Accredited Clearlist//Exempt from restrictions on native tokens./undefined/3;flag
+INIT	LTC	true	specified-admin	17	false	specified-admin	4	check;pm;token/TLITE/500000/Fixed/0/undefined/undefined;token/TLITEVEST/250000/Vesting/0/undefined/undefined;token/TLITEI/1500000/Vesting/0/undefined/undefined;token/TLITEIVEST/1500001/Native/0/undefined/undefined;contract/undefined/undefined/5/77/0.2/0.1/perp/1,0/6/true/true/false/0/0.001/1;insurance/1/0/0.5/false;deposit/17/150000/false;balance/specified-admin/17/50000/0/0/0;balance/specified-admin/18/250000/0/0/250000;balance/specified-admin/19/1500000/0/0/1500000;balance/specified-admin/20/1/0/0/0;balance/MWip91xMhaEmDn5oUW5NDNbWSDyG5dSK9Q/17/50000/0/0/0;balances/specified-admin;clear/undefined/Issuer Clearlist//Oracles and Tokens included in Liquidity Reward/undefined/1;clear/undefined/Market Maker Clearlist//Market Makers and active traders who do not wash trade./undefined/2;clear/undefined/Accredited Clearlist//Exempt from restrictions on native tokens./undefined/3;flag
+INIT	LTC	false	undefined	1	true	MTmoypkhRQoJ172ZqxcsVumPZfJ8KCrQCB	undefined	check
+INIT_FAILURE	check;pm;token/TLITE/500000/Fixed/0/undefined/undefined;token/TLITEVEST/250000/Vesting/0/undefined/undefined;token/TLITEI/1500000/Vesting/0/undefined/undefined;token/TLITEIVEST/1500001/Native/0/undefined/undefined;contract/undefined/undefined/5/77/0.2/0.1/perp/1,0/6/true/true/false/0/0.001/1;insurance/1/0/0.5/false;deposit/1/150000/false;balance/admin/1/50000/0/0/0;balance/admin/2/250000/0/0/250000;balance/admin/3/1500000/0/0/1500000
+CHAIN	0	LTC	false	0	0	TLITE
+CHAIN	1	DOGE	true	1	0	TD
+CHAIN	2	LTC	false	3	2	TLITE
+CHAIN	3	BTC	undefined	10	10	TL
+CHAIN	4	BTC	true	10	10	TL
+CHAIN	5	BTC	false	2	1	TL
+SINGLETON	first-admin	LTC	true	1
+EPS	1e-18

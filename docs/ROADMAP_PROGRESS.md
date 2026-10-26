@@ -12,13 +12,13 @@ that worker's branches, publish a branch, or authorize economic transitions.
 ## Tracking the 49 source modules
 
 [PARITY_ROADMAP.csv](PARITY_ROADMAP.csv) contains all 49 JavaScript source
-modules, excluding the experimental README. It records the ten assessed
-modules below; the other 39 retain their prior implementation assessment.
+modules, excluding the experimental README. It records the fourteen assessed
+modules below; the other 35 retain their prior implementation assessment.
 The insurance row additionally records its external-worker assignment.
 It supplements the historical [full-tree inventory](JS_RUST_PORT_AUDIT.md),
 whose earlier mappings and assessment commit are preserved.
 
-[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 148
+[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 228
 source entries with their tested domains, Rust tests and remaining criteria.
 None of these rows or modules is marked as a complete production port.
 
@@ -34,6 +34,10 @@ None of these rows or modules is marked as a complete production port.
 | `contractRegistry.js` | Typed definitions and expiry/catalog queries, native/oracle notional/margin, AMM construction, funding journal and atomic collateral plans; all 40 distinct methods assessed; 219 source cases | Sole-ledger/channel/margin execution, broken oracle pricing/funding dependencies, AMM hydration, durability and historical acceptance |
 | `oracle.js` | Metadata/admin lifecycle, price history/circuit/TWAP, stake/fraud metadata and relay replay; 246 source vectors plus 17 quirks | Funded staking/slashing and insurance closure, authenticated prices/clearlist/DLC proofs, durable state and historical acceptance |
 | `amm.js` | Capital/share lifecycle and journals, quotes, inventory/curve/token intents, local registry and options adapter; all 25 declarations assessed; 275 source rows | Funded LP issuance/secondary reserves, safe-price execution, AMM-first orderbook/clearing, durability and historical acceptance |
+| `marginMap.js` | Positions, signed margin/PnL, option protection, liquidation/ADL plans and first mint; 246 source vectors plus 10 characterizations; constructor, 2 static and 43 active instance methods assessed | Authenticated funded collateral and clearing integration, broken source dynamic orchestration/redemption, durable position/delta adapters and historical acceptance |
+| `vesting.js` | All 22 source members assessed; initialization/failure journals, chain retries, rebates and numerical helpers; 151 actual-source cases | Authorized genesis, supply discrepancy decisions, funded backend and durable partial-initialization recovery; historical acceptance |
+| `procedural.js` | All nine methods assessed; local template/contract metadata, source state quirks and context rejection order; 154 actual-source operations | Authenticated proof/relay and settlement verification, funded issuance/redemption, durable metadata migration and historical acceptance |
+| `db.js` | Source 32 categories and seven folder/bootstrap cases; bounded exclusively locked disk journal with atomic synced batches, explicit torn-tail recovery and complete funded IOU restart | NeDB query/shape migration, compaction, trusted rollback detection, broader state adapters and deployment power-loss validation including Windows directory entries |
 
 The combined [offline spot reporting adapter](OFFLINE_SPOT_REPORTING.md)
 inserts existing spot fills into both indexes atomically, rejects network
@@ -62,6 +66,15 @@ atom policy is explicit and is not a historical tally rule. A review regression
 also prevents per-claim rounding from expanding the source current loss pool.
 [Combined checkpoints](IOU_CHECKPOINTS.md) preserve the full ledger, IOU
 counters/claim order, escrows and replay state across local restart/fork restore.
+
+The fourth pass adds [margin positions](MARGIN_MAP.md), [vesting journals](VESTING.md),
+[procedural metadata](PROCEDURAL.md) and a [disk journal](STORAGE.md). Independent
+cross-review corrected source Number conversions, malformed option strikes and
+repaired IOU dust allocation. Storage review corrected allocation preflight and
+the new-file locking race; it also added explicit Unix directory syncs. Real
+disk restart retains the complete funded ledger, escrow ownership, policy and
+replay fences. These changes do not establish complete economic execution,
+NeDB migration or power-loss certification on the intended host.
 
 ## Transaction throughput review
 
@@ -115,7 +128,7 @@ now has real transfers and local restart recovery; authenticated source matches,
 historical atom/dust rules and full clearing integration remain open. Source
 payout-pool reuse, contradictory vault persistence and broken contract funding
 cannot silently become corrected economic consensus. Complete funded LP and
-secondary-reserve accounting, insurance/ADL, option exercise/assignment, durable
+secondary-reserve accounting, funded insurance/ADL, option exercise/assignment, durable
 production storage and historical replay against the pinned source.
 Keep the separate worker's UTXO/script work and the Stage 25P/Q/R admission and
 signed-channel gates visible as outstanding dependencies. Subsequent source
@@ -183,3 +196,21 @@ uncheckpointable import or rolling back a transition that crosses a bound.
 The standalone arithmetic store still has a separate serialization limit.
 This closes a local recovery gap; production durability and authenticated
 economic execution remain open.
+
+## Local validation for positions, vesting, procedural state and disk restart
+
+Pinned Rust 1.90.0 on Windows/MSVC passed 677 tests across 91 executables,
+formatting including included implementations, all-target Clippy with warnings
+denied, the frozen all-target release build, and the dependency gate with its
+11 adversarial policy tests. Doc tests
+passed with none defined. Both archived and external pinned-source oracle modes
+passed 246 margin vectors plus 10 characterizations, 151 vesting cases, 154
+procedural operations, and 32 database categories plus seven layout/bootstrap
+scenarios. All four staged JavaScript archives retained their exact SHA256 bytes.
+
+Disk tests cover lock exclusion across processes, every transaction truncation
+point, single-byte corruption, crafted valid-CRC malformed records, bounded
+rejection, real write-error poisoning and funded IOU replay-safe restart. Unix
+directory syncs are implemented but this local run used Windows; deployment
+power-loss testing, Windows directory-entry durability and NeDB migration
+remain open. No GitHub CI or historical-chain acceptance is claimed here.

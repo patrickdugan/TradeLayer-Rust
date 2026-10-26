@@ -1,0 +1,12 @@
+# Executed unmodified marginMap.js dca0888b827c5bc28fa9189bc9e1d507f5c5670c
+# source LF SHA256 ad5af4a639a50623319236cce42e8728027109ac3b8ae4616387798110cfb636
+option-index-extra-this	0
+iou-claim-projection-no-persistence	2
+mint-first	{"contracts":-2,"margin":5,"excess":0}	-2,15,0,10,null,null,0,0	-2,5,null,10,null,null,0,0
+mint-existing	ReferenceError	amount is not defined
+redeem	ReferenceError	notCovered is not defined
+dynamic-undefined-registry	ReferenceError	ContractRegistry is not defined
+market-undefined-registry	ReferenceError	ContractsRegistry is not defined
+needs-liquidation-map-object-mismatch	TypeError	Cannot convert undefined or null to object
+settle-missing-dereference	TypeError	Cannot read properties of undefined (reading 'avgPrice')
+prototype-methods	getAllPositions,writePositionToMap,setInitialMargin,mergePositions,saveMarginMap,updateContractBalancesWithMatch,updateContractBalances,calculateLiquidationPrice,updateAveragePrice,moveMarginAndContractsForMint,moveMarginAndContractsForRedeem,_touchExpiryIndex,getExpiringTickersUpTo,cleanupExpiredTickersUpTo,cleanupFlatPositions,calculateMarginRequirement,computeMaintenanceMarginRequirement,isBelowMaintenanceMargin,reduceMargin,feeMarginReduce,realizePnl,recordMarginMapDelta,applyIouClaimDelta,settlePNL,estimatePNL,applyOptionTrade,calcLiquidationWithOptions,updateMargin,clear,generateLiquidationOrder,saveLiquidationOrders,simpleDeleverage,calcPriceDelta,adjustDeleveraging,dynamicDeleverage,calculateNetExposure,executeDeleveraging,fetchLiquidationVolume,needsLiquidation,getPositionForAddress,getMarketPrice,recordContractTrade,saveTrade

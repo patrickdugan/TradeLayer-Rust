@@ -12,6 +12,10 @@ fixtures/legacy_amm_source.txt -text -whitespace
 fixtures/legacy_contract_registry_source.txt -text -whitespace
 fixtures/legacy_oracle_source.txt -text -whitespace
 fixtures/legacy_oracle_bridge_source.txt -text -whitespace
+fixtures/legacy_margin_map_source.txt -text -whitespace
+fixtures/legacy_vesting_source.txt -text -whitespace
+fixtures/legacy_procedural_source.txt -text -whitespace
+fixtures/legacy_db_source.txt -text -whitespace
 
 # Node fixture generators compare exact bytes across Windows and Linux.
 # Empty final TSV fields are meaningful, including the terminal separator.
@@ -28,6 +32,11 @@ fixtures/amm_vectors.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/contract_registry_vectors.tsv text eol=lf
 fixtures/oracle_vectors.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/oracle_quirks.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/margin_map_vectors.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/margin_map_quirks.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/vesting_vectors.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/procedural_vectors.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/storage_layout_vectors.tsv text eol=lf whitespace=-blank-at-eol
 
 # Unified patches contain significant blank context lines with a space prefix.
 fixtures/barrier_startup_cancellation.patch text eol=lf -whitespace

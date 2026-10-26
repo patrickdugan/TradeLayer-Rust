@@ -50,11 +50,13 @@ pub mod legacy_validity_audit; // Pinned validity.js source Type0/7/8/9 predicat
 pub mod liquidation_audit; // Stage 25E1 read-only maintenance, bankruptcy and insurance-deficit preflight.
 pub mod liquidation_input_gate; // Stage 25G read-only current-block provenance and mandatory authorization gap.
 pub mod liquidation_source_characterization; // Source-pinned read-only AMM priority and avg-vs-mark audit.
+pub mod margin_map; // Local position accounting; authenticated collateral orchestration external.
 pub mod network_bound; // Stage 21 profile-bound replay and versioned checkpoint envelopes; unverified.
 pub mod network_profile; // Independent Bitcoin/Litecoin/Dogecoin mainnet identities and proof capabilities.
 pub mod options; // Source options ticker, PnL, pricing and portfolio calculations.
 pub mod oracle;
 pub mod parallel_txindex; // Bounded parallel read-only runtime TXID/OP_RETURN scan and ordered fetch; never consensus.
+pub mod procedural; // Source procedural metadata and context gates, no proof authority.
 pub mod protocol; // Audited legacy transaction catalog, not consensus execution.
 pub mod raw_block_ingest; // Stage8C borrowed raw Bitcoin block preindex, not consensus.
 pub mod read_only; // Offline transaction scanning; cannot authorize ledger state.
@@ -64,9 +66,11 @@ pub mod root_reconciliation; // Read-only TLPT and zkTL metadata consistency.
 pub mod spot; // Stage 19 isolated type-5/6 rational matching experiment; unverified.
 pub mod spot_chain; // Stage 20 typed unverified spot block replay and complete TLSP/TLSC checkpoints.
 pub mod state_commitment; // Experimental domain-separated state and transition metadata; no proof verifier.
+pub mod storage; // Bounded OS-locked disk journal and explicit restart recovery.
 pub mod trade_history; // Caller-supplied trade reporting and canonical checkpoints; no settlement authority.
 pub mod unified_chain; // Offline reversible registry+ledger block projection; adapter external.
 pub mod vaults; // Standalone vault metadata and collateral lifecycle.
+pub mod vesting; // Source initialization journals and explicit numerical repair.
 pub mod volume_index; // Caller-supplied exact volume and VWAP reporting; no price authority.
 pub mod wire; // Read-only legacy ASCII format analysis; never auto-fallback.
 pub mod wire_v1;
