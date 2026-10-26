@@ -85,6 +85,9 @@ jobs:
           node scripts/vesting_vectors.cjs
           node scripts/procedural_vectors.cjs
           node scripts/daemon_vectors.cjs --check
+          node scripts/service_view_vectors.cjs --check
+          node scripts/service_client_vectors.cjs --check
+          node scripts/service_routes_vectors.cjs --check
           node scripts/bitvm_bundle_vectors.cjs --check
           node scripts/bitvm_cache_vectors.cjs --check
           node scripts/bitvm_risk_vectors.cjs --check

@@ -47,6 +47,7 @@ pub mod funding; // Fractional source funding math and conserving payment plans.
 pub mod funding_audit; // Stage 24B read-only signed funding and conservation projections.
 mod hash160; // Dependency-free research RIPEMD160/HASH160, no production authorization.
 mod hash256; // Offline SHA-256d txid fingerprints; not trusted consensus.
+pub mod http_service;
 pub mod iou; // Source-compatible standalone IOU bucket and claim calculations.
 pub mod iou_ledger; // Funded atomic IOU payouts with an explicit local atom policy.
 pub mod issuance_intent; // Bounded issuance request metadata; no token creation authority.
@@ -83,6 +84,11 @@ pub mod reporting; // Atomic network-scoped offline spot history and volume obse
 pub mod root_reconciliation; // Read-only TLPT and zkTL metadata consistency.
 pub mod runtime; // Concrete RPC/startup adapters with independent durable expectations.
 pub mod scaling; // Bounded L2 settlement lifecycle and checked channel custody plans.
+pub mod service;
+pub mod service_client;
+pub mod service_routes;
+pub mod service_runtime;
+pub mod service_view;
 pub mod spot; // Stage 19 isolated type-5/6 rational matching experiment; unverified.
 pub mod spot_chain; // Stage 20 typed unverified spot block replay and complete TLSP/TLSC checkpoints.
 pub mod state_commitment; // Experimental domain-separated state and transition metadata; no proof verifier.

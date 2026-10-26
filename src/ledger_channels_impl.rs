@@ -101,6 +101,28 @@ struct PendingWithdrawal {
 }
 
 impl Ledger {
+    pub(crate) fn channel_balance_rows(
+        &self,
+    ) -> impl Iterator<Item = (PropertyId, &AccountId, &AccountId, ChannelSide, u128)> {
+        self.channels.iter().flat_map(|(channel, state)| {
+            [ChannelSide::A, ChannelSide::B]
+                .into_iter()
+                .flat_map(move |side| {
+                    state.escrow(side).iter().filter_map(move |(id, atoms)| {
+                        state
+                            .owner(side)
+                            .map(|owner| (*id, owner, channel, side, *atoms))
+                    })
+                })
+        })
+    }
+    pub(crate) fn pending_withdrawal_rows(
+        &self,
+    ) -> impl Iterator<Item = (PropertyId, &AccountId, u128)> {
+        self.pending_withdrawals
+            .values()
+            .map(|row| (row.id, &row.owner, row.atoms))
+    }
     /// Escrow remains property supply, owned by exactly one column participant.
     pub fn channel_atoms(&self, id: PropertyId, channel: &AccountId, side: ChannelSide) -> u128 {
         self.channels.get(channel).map_or(0, |c| c.atoms(side, id))

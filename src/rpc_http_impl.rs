@@ -82,7 +82,7 @@ fn header(line: &str) -> Result<(String, &str)> {
     }
     Ok((name.to_ascii_lowercase(), value.trim_matches([' ', '\t'])))
 }
-fn read_http(
+pub(crate) fn read_http(
     stream: &mut TcpStream,
     start: Instant,
     timeout: Duration,

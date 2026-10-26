@@ -20,18 +20,23 @@ do not complete native/dated/multicontract orchestration, full validity rules,
 insurance/ADL or chain authentication; no source module is promoted to complete.
 
 [PARITY_ROADMAP.csv](PARITY_ROADMAP.csv) contains all 49 JavaScript source
-modules, excluding the experimental README. It records thirty-one assessed
-modules below; the other 18 retain their prior implementation assessment.
+modules, excluding the experimental README. It records thirty-six assessed
+modules below; the other 13 retain their prior implementation assessment.
 The insurance and property rows additionally record external-worker assignments.
 It supplements the historical [full-tree inventory](JS_RUST_PORT_AUDIT.md),
 whose earlier mappings and assessment commit are preserved.
 
-[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 657
+[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 786
 source entries with their tested domains, Rust tests and remaining criteria.
 None of these rows or modules is marked as a complete production port.
 
 | Module | Implemented and verified scope | Remaining completion criteria |
 | --- | --- | --- |
+| `interface.js` | All26 active methods plus constructor;90 source scenes and5 stream cases; concrete immutable economic queries, exact custody and actual execution/funding/mark reporting | Historical/index/wallet/proof capabilities, complete external stores, deployment and authenticated inputs |
+| `interfaceExpress.js` | All16 active exports; genuine Axios behavior, source errors/absent bodies and actual HTTP client binding | Broader rawURL/JS domains, remote TLS/authentication and production backend completeness |
+| `walletInterface.js` | All19 active exports;213 combined client observations and named repaired routing; actual exact-balance HTTP integration | Actual wallet/key control, full database capabilities, deployment and authenticated state |
+| `listener.js` | All19 active routes; bounded local HTTP dispatch into the original locked economic owner | Separate node subscriptions, unavailable backend capabilities, launcher/deployment and authentication |
+| `walletListener.js` | All43 routes and5 helpers;134 combined source observations and genuine Express routing; explicit unknown sync state and no automatic broadcast | Full wallet/index/issuance/BitVM/external registry stores and authenticated mutation |
 | `main.js` | All30 active methods plus constructor characterized in21 observations; durable bounded raw spool, cursor, retries, retained forks, cooperative cancellation and concrete Core polling CLI | Authenticated parent UTXO/scripts and economic sequencing, Dogecoin AuxPoW, subscriptions, indefinite archival and deployed Core interoperability |
 | `bitvmBundle.js` | All6 functions,23 full-source observations; source JSON/hash semantics and bounded actual artifact file reads | Independently trusted expected hash, production integration and real proof/signature authority |
 | `bitvmCache.js` | All8 methods,52 full-source observations; source lifecycle quirks and atomic finite complete replayed metadata | Actual bond/escrow custody, authenticated actors, adjudication and durable cross-store integration |
@@ -602,3 +607,39 @@ against both archived and actual pinned source. Local loopback/process tests
 exercise cancellation, exact restart tokens and real journal ownership; they do
 not establish deployed Core or historical-chain acceptance. No push or GitHub
 CI, Lean or Kani result is claimed for this local batch.
+
+## Source clients and the actual local query service
+
+The five previously unported service modules now have full source inventories,
+unchanged-source oracles and explicit repaired APIs. The concrete local HTTP
+runner in [SERVICE_HTTP.md](SERVICE_HTTP.md) connects both client objects to the
+complete route tables and actual immutable economic data. It retains the
+original durable lock and Ledger; queries never create replacement state or
+grant economic apply/rollback authority.
+
+Known balances preserve available, contract/spot reserves, margin, channels and
+pending withdrawals as separate exact atom quantities. Public zero-available
+owners with real locked custody remain visible; private escrow accounts are
+separately scoped. Catalog queries distinguish unavailable catalog evidence from
+an unknown ID. Funding/mark/trade histories preserve real retained provenance.
+Unknown parser/index heights stay null and cannot manufacture a synced result.
+
+The full-source evidence includes213 Axios client observations,134 listener
+observations and90 facade scenes plus5 exact stream cases. Genuine installed
+Axios1.20.0 and Express4.22.3 checks pass. Raw URL/coercion domains and broken
+source dependencies remain explicit observations rather than invented successes.
+The immutable service reports already-restored readiness without starting the
+daemon, loading a wallet or accepting protocol transactions.
+
+The external clearlist worker now reports commit1ad166a with native BIP32 and
+TLCLv2. Its actual Git object/patch bytes remain inaccessible locally. Rust and
+genuine bitcore checks therefore remain pending; this does not promote local
+clearlist or authentication completion. An independent encoder/decoder worker
+assignment reserves only a new wire-roundtrip generator, fixture and review doc.
+
+Local frozen Rust1.90/MSVC validation passed1,071 tests across131 executables,
+all-target Clippy with warnings denied, formatting of all modules/includes,
+and the all-target release build. The zero-third-party-crate gate and11 mutation
+tests passed. Loopback tests preserve exact large supplies and the durable head,
+reject malformed requests before dispatch and stop a stalled body on control
+cancellation. No GitHub push or CI/Lean/Kani result is claimed for this batch.

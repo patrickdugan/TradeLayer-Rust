@@ -219,6 +219,20 @@ impl Registry {
         self.oracles.get(&id)
     }
 
+    pub(crate) fn oracle_rows(&self) -> impl Iterator<Item = (u32, &Oracle)> {
+        self.oracles.iter().map(|(id, oracle)| (*id, oracle))
+    }
+
+    pub(crate) fn whitelist_rows(&self) -> impl Iterator<Item = (u32, &Whitelist)> {
+        self.whitelists.iter().map(|(id, list)| (*id, list))
+    }
+
+    pub(crate) fn attestation_rows(&self) -> impl Iterator<Item = (u32, &AccountId, &Attestation)> {
+        self.attestations
+            .iter()
+            .map(|((id, owner), value)| (*id, owner, value))
+    }
+
     pub fn attestation(&self, list_id: u32, account: &AccountId) -> Option<&Attestation> {
         self.attestations.get(&(list_id, account.clone()))
     }

@@ -467,6 +467,10 @@ impl SpotExchange {
         self.books.get(&pair).map_or(&[], Vec::as_slice)
     }
 
+    pub(crate) fn open_order_rows(&self) -> impl Iterator<Item = &RestingSpotOrder> {
+        self.books.values().flatten()
+    }
+
     fn check_pair(&self, offered: PropertyId, desired: PropertyId) -> Result<SpotPair, SpotError> {
         let pair = SpotPair::new(offered, desired)?;
         if !self.permitted.contains(&offered) || !self.permitted.contains(&desired) {

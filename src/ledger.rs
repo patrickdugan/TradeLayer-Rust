@@ -290,6 +290,17 @@ impl Ledger {
         self.properties.get(&id)
     }
 
+    /// Immutable service/audit projection; values remain in the sole Ledger.
+    pub(crate) fn property_rows(&self) -> impl Iterator<Item = (PropertyId, &Property)> {
+        self.properties.iter().map(|(id, property)| (*id, property))
+    }
+
+    pub(crate) fn available_rows(&self) -> impl Iterator<Item = (PropertyId, &AccountId, u128)> {
+        self.available
+            .iter()
+            .map(|((id, owner), atoms)| (*id, owner, *atoms))
+    }
+
     pub fn available_atoms(&self, id: PropertyId, account: &AccountId) -> u128 {
         self.available
             .get(&(id, account.clone()))
