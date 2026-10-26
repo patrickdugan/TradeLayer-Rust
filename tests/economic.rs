@@ -30,6 +30,7 @@ fn contract() -> ContractId {
 }
 fn config() -> EconomicConfig {
     EconomicConfig {
+        contract_binding: None,
         network: TradeLayerMainnet::Litecoin,
         contract: contract(),
         collateral: property(),

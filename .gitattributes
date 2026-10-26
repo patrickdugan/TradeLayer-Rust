@@ -10,6 +10,7 @@ fixtures/legacy_vaults_source.txt -text -whitespace
 fixtures/legacy_volume_index_source.txt -text -whitespace
 fixtures/legacy_amm_source.txt -text -whitespace
 fixtures/legacy_contract_registry_source.txt -text -whitespace
+fixtures/legacy_contract_validity_source.txt -text -whitespace
 fixtures/legacy_oracle_source.txt -text -whitespace
 fixtures/legacy_oracle_bridge_source.txt -text -whitespace
 fixtures/legacy_margin_map_source.txt -text -whitespace
@@ -34,6 +35,7 @@ fixtures/options_*.tsv text eol=lf
 fixtures/vault_vectors.tsv text eol=lf
 fixtures/amm_vectors.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/contract_registry_vectors.tsv text eol=lf
+fixtures/contract_binding_vectors.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/oracle_vectors.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/oracle_quirks.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/margin_map_vectors.tsv text eol=lf whitespace=-blank-at-eol

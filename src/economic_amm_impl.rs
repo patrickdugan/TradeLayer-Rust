@@ -66,6 +66,7 @@ pub struct AmmQuoteEpoch {
     pub mark_id: TxId,
     pub generation: u64,
     pub position_before: Decimal,
+    pub average_price_before: Option<Decimal>,
     pub cash_before_atoms: u128,
     pub margin_before_atoms: u128,
     pub unpaid_loss_before_atoms: u128,
@@ -309,6 +310,11 @@ impl EconomicState {
         Ok(())
     }
     fn apply_amm_capital(&mut self, input: AmmCapitalInput, height: u64) -> Result<()> {
+        if matches!(&input, AmmCapitalInput::Deposit { .. }) {
+            self.require_contract_admission()?;
+        } else if self.config.contract_binding.is_some() {
+            self.validate_selected_contract(self.selected_contract()?)?;
+        }
         let config = self
             .config
             .amm
@@ -393,6 +399,13 @@ impl EconomicState {
             mark_id,
             generation,
             position_before: self.position(&pool).contracts,
+            average_price_before: if self.config.contract_binding.is_some()
+                && !self.position(&pool).contracts.is_zero()
+            {
+                self.position(&pool).avg_price
+            } else {
+                None
+            },
             cash_before_atoms: self.amm.cash_atoms,
             margin_before_atoms: self.margin_atoms(&pool),
             unpaid_loss_before_atoms: self.marking.unpaid_losses.get(&pool).copied().unwrap_or(0),
@@ -438,7 +451,15 @@ impl EconomicState {
             .as_ref()
             .ok_or(EconomicError::InvalidConfig)?;
         if epoch.unpaid_loss_before_atoms != 0
-            || epoch.margin_before_atoms < self.required_margin(&epoch.position_before.abs())?
+            || epoch.margin_before_atoms
+                < if epoch.position_before.is_zero() {
+                    0
+                } else {
+                    self.required_margin_at(
+                        &epoch.position_before.abs(),
+                        epoch.average_price_before.as_ref().unwrap_or(mark),
+                    )?
+                }
             || epoch.position_before.abs() > config.max_abs_inventory
         {
             return Ok(Vec::new());
@@ -453,11 +474,6 @@ impl EconomicState {
             .quote_contract_orders(price, epoch.height, config.spread_bps as f64)
             .map_err(|_| EconomicError::Arithmetic)?;
         let budget = epoch.cash_before_atoms / 2;
-        let affordable = tokens(budget)?.checked_div(
-            &self.config.initial_margin_per_contract,
-            20,
-            Rounding::Down,
-        )?;
         let mut quotes = Vec::new();
         for source in prices {
             if source.validate_executable().is_err() {
@@ -468,6 +484,13 @@ impl EconomicState {
             } else {
                 Side::Sell
             };
+            let price: Decimal = source.price.to_string().parse()?;
+            bounded(&price)?;
+            let affordable = tokens(budget)?.checked_div(
+                &self.initial_margin_at(&price)?,
+                20,
+                Rounding::Down,
+            )?;
             let capacity = if side == Side::Buy {
                 config
                     .max_abs_inventory
@@ -485,9 +508,7 @@ impl EconomicState {
             if quantity <= Decimal::zero() {
                 continue;
             }
-            let price: Decimal = source.price.to_string().parse()?;
-            bounded(&price)?;
-            let reserve_atoms = self.required_margin(&quantity)?;
+            let reserve_atoms = self.required_margin_at(&quantity, &price)?;
             if reserve_atoms > budget {
                 return Err(EconomicError::Invariant);
             }
@@ -660,7 +681,7 @@ impl EconomicState {
             Side::Sell
         };
         let remaining = quote.remaining.checked_sub(quantity)?;
-        let reserve_after = self.required_margin(&remaining)?;
+        let reserve_after = self.required_margin_at(&remaining, &quote.price)?;
         let reserve_used = quote
             .reserve_atoms
             .checked_sub(reserve_after)
@@ -685,8 +706,15 @@ impl EconomicState {
             reserve_used,
         )?;
         self.set_margin(pool.clone(), add(maker_margin_before_atoms, reserve_used)?);
-        self.reconcile_margin(&pool)?;
-        let target = self.required_margin(&self.position(owner).contracts.abs())?;
+        let maker_target = self.margin_target_after_trade(
+            &maker_old.contracts,
+            &self.position(&pool).contracts,
+            maker_margin_before_atoms,
+            &quote.price,
+        )?;
+        self.reconcile_margin_to(&pool, maker_target)?;
+        let target =
+            self.required_margin_at(&self.position(owner).contracts.abs(), &quote.price)?;
         let margin = self.margin_atoms(owner);
         if margin > target {
             self.transfer(self.margin_escrow(owner)?, owner.clone(), margin - target)?;

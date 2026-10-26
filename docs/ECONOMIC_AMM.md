@@ -44,7 +44,9 @@ standing AMM orders and transferable LP token issuance remain separate gates.
 
 # Versioned replay and recovery
 
-TLEC version 5 is canonical exactly when AMM configuration is present. Versions
+TLEC version 5 is canonical when AMM configuration is present and accepted-contract
+binding is absent. Bound contracts use [version 6](ECONOMIC_CONTRACTS.md), which
+adds source price contexts and complete dependency replay. Versions
 1–4 retain their bytes for existing configurations. Tests retain genuine
 pre-extension fingerprints, including an active version-4 forced close with
 owned-order cancellation and five complete book frames, captured from the

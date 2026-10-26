@@ -11,6 +11,14 @@ that worker's branches, publish a branch, or authorize economic transitions.
 
 ## Tracking the 49 source modules
 
+The current integration adds accepted type-16 oracle-perpetual definitions,
+dependency-ordered complete input replay, and source-derived order/fill/average/
+mark margin and fee contexts in the sole economic Ledger. See
+[ECONOMIC_CONTRACTS.md](ECONOMIC_CONTRACTS.md). The existing AMM-first closeout
+and funded LP receipt implementation now shares those contexts. These advances
+do not complete native/dated/multicontract orchestration, full validity rules,
+insurance/ADL or chain authentication; no source module is promoted to complete.
+
 [PARITY_ROADMAP.csv](PARITY_ROADMAP.csv) contains all 49 JavaScript source
 modules, excluding the experimental README. It records the twenty assessed
 modules below; the other 29 retain their prior implementation assessment.

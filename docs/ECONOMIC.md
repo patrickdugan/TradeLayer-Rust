@@ -6,6 +6,18 @@ The execution policy is explicitly `SettlementPolicy::ConservingV1`. It is a fun
 
 ## Configuration and admission
 
+The optional [accepted-contract mode](ECONOMIC_CONTRACTS.md) binds the selected
+oracle perpetual to a prior type-16 creation and its actual Registry dependencies.
+It requires zero in the legacy fixed-margin field and derives initial margin
+from that definition at each order, fill, position-average or mark context.
+Fees use the source catalog's valued notional at the fill; PnL retains raw
+notional. Its complete input history reexecutes from an independently committed
+Joint bootstrap, and TLEC version 6 persists the combined state. The descriptions
+of configured fixed margin below apply to the original mode with binding absent.
+Orders require a prior accepted reference and the source's strict leverage-price
+band at their input position. Native/dated contracts, full country/whitelist admission, and
+authenticated actors remain unfinished requirements.
+
 `EconomicConfig` explicitly supplies network, one contract, one collateral property, inverse/linear flag, notional value, initial margin per contract, native/oracle fee route, and the repair policy. Notional and configured initial margin must be positive. The contract ID must match the fee route; Spot is not a contract runtime route. Configured decimals are bounded to 40 coefficient digits and 20 decimal places. Contract classification, margin policy, price inputs, actors, transaction IDs, and blocks remain caller assertions. This API does not obtain registry authority or authenticated prices from these fields.
 
 `from_joint_unverified` accepts an unfinalized Joint bootstrap state whose collateral exists and whose components pass their existing checks. It starts with no economic history. The first block is height 1, and subsequent heights must be contiguous. Registry activation uses the existing Joint checks: activating an opcode in a block does not authorize using it in that same block.

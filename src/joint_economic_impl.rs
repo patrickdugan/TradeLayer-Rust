@@ -75,7 +75,7 @@ impl JointProtocolState {
     }
 
     /// Exactly the admitted economic event categories in the initial owner:
-    /// type18 contract order/trade, type6 owner cancellation and type10 funded
+    /// type16 contract creation, type18 contract order/trade, type6 owner cancellation and type10 funded
     /// LP receipt capital operations. This does not
     /// authorize settlement types23/31, channel transfers, options or insurance.
     pub(crate) fn note_economic_input_unverified(
@@ -84,7 +84,7 @@ impl JointProtocolState {
         height: u64,
         legacy_type: u8,
     ) -> Result<(), JointError> {
-        if !matches!(legacy_type, 18 | 6 | 10) {
+        if !matches!(legacy_type, 18 | 6 | 10 | 16) {
             return Err(JointError::UnsupportedOperation(legacy_type));
         }
         self.check_economic_pending_height(height)?;

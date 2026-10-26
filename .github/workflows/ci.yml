@@ -39,7 +39,7 @@ jobs:
       - name: Check included spot snapshot file formatting
         run: rustfmt --check --edition 2021 src/spot_snapshot_impl.rs
       - name: Check included joint snapshot file formatting
-        run: rustfmt --check --edition 2021 src/joint_snapshot_impl.rs src/joint_economic_impl.rs src/economic_snapshot_impl.rs src/economic_funding_impl.rs src/economic_mark_impl.rs src/economic_liquidation_impl.rs src/economic_liquidation_replay_impl.rs src/contract_orderbook_liquidation_impl.rs src/economic_amm_impl.rs src/economic_amm_replay_impl.rs
+        run: rustfmt --check --edition 2021 src/joint_snapshot_impl.rs src/joint_economic_impl.rs src/economic_snapshot_impl.rs src/economic_funding_impl.rs src/economic_mark_impl.rs src/economic_liquidation_impl.rs src/economic_liquidation_replay_impl.rs src/contract_orderbook_liquidation_impl.rs src/economic_amm_impl.rs src/economic_amm_replay_impl.rs src/economic_contract_impl.rs
       - name: Check included combined clearing snapshot formatting
         run: rustfmt --check --edition 2021 src/clearing_snapshot_impl.rs
       - name: Check included IOU checkpoint formatting
@@ -64,6 +64,7 @@ jobs:
           node scripts/vault_vectors.cjs --check
           node scripts/volume_index_vectors.cjs
           node scripts/contract_registry_vectors.cjs
+          node scripts/contract_binding_vectors.cjs --check
           node scripts/oracle_vectors.cjs
           node scripts/amm_vectors.cjs
           node scripts/margin_map_vectors.cjs

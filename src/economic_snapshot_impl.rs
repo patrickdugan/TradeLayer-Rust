@@ -4,7 +4,10 @@ use crate::codec::{verify_crc, with_crc, Cursor, MAX_CHECKPOINT_BYTES};
 use crate::contract_orderbook::{
     BookSnapshot, RestingOrder, MAX_CONTRACT_ORDERS, MAX_CONTRACT_ORDER_IDS,
 };
+use crate::joint::JointOperation;
 use crate::mark_basis::{ExactRatio, MAX_BASIS_RATIO_DIGITS};
+use crate::registry::{AdminTarget, RegistryAction};
+use crate::spot::{CancelSelector, SpotIntent};
 use crate::tally::{
     FeeAccrualPlan, FeeBookSnapshot, FeeDrawPlan, FeeJournalEntry, FeeKey, FeeQueuePlan, FeeRow,
     QueuedFee, MAX_FEE_JOURNAL, MAX_FEE_ROWS, MAX_QUEUED_FEES,
@@ -15,6 +18,7 @@ const ECONOMIC_FUNDING_MAGIC: &[u8; 5] = b"TLEC\x02";
 const ECONOMIC_MARK_MAGIC: &[u8; 5] = b"TLEC\x03";
 const ECONOMIC_LIQUIDATION_MAGIC: &[u8; 5] = b"TLEC\x04";
 const ECONOMIC_AMM_MAGIC: &[u8; 5] = b"TLEC\x05";
+const ECONOMIC_CONTRACT_MAGIC: &[u8; 5] = b"TLEC\x06";
 const MAX_FUNDED_AMM_QUOTES: usize = 2;
 const MAX_ECONOMIC_DECIMAL_TEXT: usize = 128;
 
@@ -225,6 +229,13 @@ fn econ_write_config(out: &mut EconomicWriter, config: &EconomicConfig) -> Resul
     match config.policy {
         SettlementPolicy::ConservingV1 => out.byte(1)?,
     }
+    if config.contract_binding.is_some() {
+        out.byte(
+            u8::from(config.funding.is_some())
+                | (u8::from(config.liquidation.is_some()) << 1)
+                | (u8::from(config.amm.is_some()) << 2),
+        )?;
+    }
     if config.marking.is_some() {
         out.byte(u8::from(config.funding.is_some()))?;
     }
@@ -258,6 +269,14 @@ fn econ_write_config(out: &mut EconomicWriter, config: &EconomicConfig) -> Resul
             FundedAmmPolicy::ConservingFundedContractAmmV1 => out.byte(1)?,
         }
     }
+    if let Some(binding) = &config.contract_binding {
+        out.txid(binding.creation_txid)?;
+        out.put(&binding.definition_hash)?;
+        out.put(&binding.bootstrap_commitment)?;
+        match binding.policy {
+            ContractRiskPolicy::SourceContextsConservingV1 => out.byte(1)?,
+        }
+    }
     Ok(())
 }
 fn econ_read_config(
@@ -266,6 +285,7 @@ fn econ_read_config(
     has_marking: bool,
     has_liquidation: bool,
     has_amm: bool,
+    has_binding: bool,
 ) -> Result<EconomicConfig> {
     let network = TradeLayerMainnet::from_tag(reader.u8().map_err(|_| econ_snapshot_bad())?)
         .map_err(|_| econ_snapshot_bad())?;
@@ -288,12 +308,27 @@ fn econ_read_config(
         marking: None,
         liquidation: None,
         amm: None,
+        contract_binding: None,
     };
+    let features = if has_binding {
+        let flags = reader.u8().map_err(|_| econ_snapshot_bad())?;
+        if flags & !7 != 0 {
+            return Err(econ_snapshot_bad());
+        }
+        Some(flags)
+    } else {
+        None
+    };
+    let has_liquidation = features.map_or(has_liquidation, |f| f & 2 != 0);
+    let has_amm = features.map_or(has_amm, |f| f & 4 != 0);
     let has_funding = if has_marking {
         econ_read_bool(reader)?
     } else {
         has_funding
     };
+    if features.is_some_and(|f| (f & 1 != 0) != has_funding) {
+        return Err(econ_snapshot_bad());
+    }
     config.funding = if has_funding {
         Some(FundingConfig {
             oracle_id: reader.u32().map_err(|_| econ_snapshot_bad())?,
@@ -338,6 +373,19 @@ fn econ_read_config(
             max_collateral_atoms: econ_read_atoms(reader)?,
             policy: match reader.u8().map_err(|_| econ_snapshot_bad())? {
                 1 => FundedAmmPolicy::ConservingFundedContractAmmV1,
+                _ => return Err(econ_snapshot_bad()),
+            },
+        })
+    } else {
+        None
+    };
+    config.contract_binding = if has_binding {
+        Some(ContractBindingConfig {
+            creation_txid: econ_read_txid(reader)?,
+            definition_hash: reader.fixed().map_err(|_| econ_snapshot_bad())?,
+            bootstrap_commitment: reader.fixed().map_err(|_| econ_snapshot_bad())?,
+            policy: match reader.u8().map_err(|_| econ_snapshot_bad())? {
+                1 => ContractRiskPolicy::SourceContextsConservingV1,
                 _ => return Err(econ_snapshot_bad()),
             },
         })
@@ -1252,6 +1300,7 @@ fn econ_write_liquidation(
     out: &mut EconomicWriter,
     state: &LiquidationState,
     allow_amm: bool,
+    allow_contexts: bool,
 ) -> Result<()> {
     let mut budget = LiquidationRecordBudget::default();
     out.count(state.events.len(), MAX_LIQUIDATION_EVENTS)?;
@@ -1285,6 +1334,11 @@ fn econ_write_liquidation(
         out.txid(event.mark_id)?;
         out.account(&event.owner)?;
         out.decimal(&event.quantity_before)?;
+        if allow_contexts {
+            out.optional_decimal(&event.average_price_before)?;
+        } else if event.average_price_before.is_some() {
+            return Err(econ_snapshot_bad());
+        }
         for value in [
             event.margin_before_atoms,
             event.available_before_atoms,
@@ -1366,7 +1420,11 @@ fn econ_write_liquidation(
     }
     Ok(())
 }
-fn econ_read_liquidation(reader: &mut Cursor<'_>, allow_amm: bool) -> Result<LiquidationState> {
+fn econ_read_liquidation(
+    reader: &mut Cursor<'_>,
+    allow_amm: bool,
+    allow_contexts: bool,
+) -> Result<LiquidationState> {
     let mut budget = LiquidationRecordBudget::default();
     let count = econ_read_count(reader, MAX_LIQUIDATION_EVENTS)?;
     let mut events = Vec::new();
@@ -1376,6 +1434,11 @@ fn econ_read_liquidation(reader: &mut Cursor<'_>, allow_amm: bool) -> Result<Liq
         let mark_id = econ_read_txid(reader)?;
         let owner = econ_read_account(reader)?;
         let quantity_before = econ_read_decimal(reader)?;
+        let average_price_before = if allow_contexts {
+            econ_read_optional_decimal(reader)?
+        } else {
+            None
+        };
         let margin_before_atoms = econ_read_atoms(reader)?;
         let available_before_atoms = econ_read_atoms(reader)?;
         let required_before_atoms = econ_read_atoms(reader)?;
@@ -1438,6 +1501,7 @@ fn econ_read_liquidation(reader: &mut Cursor<'_>, allow_amm: bool) -> Result<Liq
             mark_id,
             owner,
             quantity_before,
+            average_price_before,
             margin_before_atoms,
             available_before_atoms,
             required_before_atoms,
@@ -1643,6 +1707,7 @@ fn econ_write_amm_epoch(
     out: &mut EconomicWriter,
     e: &AmmQuoteEpoch,
     budget: &mut AmmRecordBudget,
+    allow_contexts: bool,
 ) -> Result<()> {
     budget.take(1)?;
     out.txid(e.id)?;
@@ -1650,6 +1715,11 @@ fn econ_write_amm_epoch(
     out.txid(e.mark_id)?;
     out.u64(e.generation)?;
     out.decimal(&e.position_before)?;
+    if allow_contexts {
+        out.optional_decimal(&e.average_price_before)?;
+    } else if e.average_price_before.is_some() {
+        return Err(econ_snapshot_bad());
+    }
     for value in [
         e.cash_before_atoms,
         e.margin_before_atoms,
@@ -1663,6 +1733,7 @@ fn econ_write_amm_epoch(
 fn econ_read_amm_epoch(
     reader: &mut Cursor<'_>,
     budget: &mut AmmRecordBudget,
+    allow_contexts: bool,
 ) -> Result<AmmQuoteEpoch> {
     budget.take(1)?;
     Ok(AmmQuoteEpoch {
@@ -1671,6 +1742,11 @@ fn econ_read_amm_epoch(
         mark_id: econ_read_txid(reader)?,
         generation: econ_read_u64(reader)?,
         position_before: econ_read_decimal(reader)?,
+        average_price_before: if allow_contexts {
+            econ_read_optional_decimal(reader)?
+        } else {
+            None
+        },
         cash_before_atoms: econ_read_atoms(reader)?,
         margin_before_atoms: econ_read_atoms(reader)?,
         unpaid_loss_before_atoms: econ_read_atoms(reader)?,
@@ -1678,7 +1754,11 @@ fn econ_read_amm_epoch(
         quotes: econ_read_amm_quotes(reader, budget)?,
     })
 }
-fn econ_write_amm(out: &mut EconomicWriter, amm: &FundedAmmState) -> Result<()> {
+fn econ_write_amm(
+    out: &mut EconomicWriter,
+    amm: &FundedAmmState,
+    allow_contexts: bool,
+) -> Result<()> {
     let mut budget = AmmRecordBudget::default();
     out.atoms(amm.total_units)?;
     budget.take(amm.shares.len())?;
@@ -1711,7 +1791,7 @@ fn econ_write_amm(out: &mut EconomicWriter, amm: &FundedAmmState) -> Result<()> 
             None => out.byte(0)?,
             Some(epoch) => {
                 out.byte(1)?;
-                econ_write_amm_epoch(out, epoch, &mut budget)?;
+                econ_write_amm_epoch(out, epoch, &mut budget, allow_contexts)?;
             }
         }
         budget.take(frame.cash_legs.len())?;
@@ -1725,7 +1805,7 @@ fn econ_write_amm(out: &mut EconomicWriter, amm: &FundedAmmState) -> Result<()> 
     }
     Ok(())
 }
-fn econ_read_amm(reader: &mut Cursor<'_>) -> Result<FundedAmmState> {
+fn econ_read_amm(reader: &mut Cursor<'_>, allow_contexts: bool) -> Result<FundedAmmState> {
     let mut budget = AmmRecordBudget::default();
     let total_units = econ_read_atoms(reader)?;
     let count = econ_read_count(reader, MAX_AMM_LPS)?;
@@ -1765,7 +1845,7 @@ fn econ_read_amm(reader: &mut Cursor<'_>) -> Result<FundedAmmState> {
             capital_receipts.push(econ_read_amm_receipt(reader)?);
         }
         let quote_epoch = if econ_read_bool(reader)? {
-            Some(econ_read_amm_epoch(reader, &mut budget)?)
+            Some(econ_read_amm_epoch(reader, &mut budget, allow_contexts)?)
         } else {
             None
         };
@@ -1843,10 +1923,695 @@ fn econ_read_amm_forced(reader: &mut Cursor<'_>) -> Result<AmmForcedCloseReceipt
     })
 }
 
+#[derive(Default)]
+struct ContractRecordBudget {
+    used: usize,
+}
+impl ContractRecordBudget {
+    fn take(&mut self, count: usize) -> Result<()> {
+        self.used = self
+            .used
+            .checked_add(count)
+            .ok_or(EconomicError::Capacity)?;
+        if self.used > MAX_CONTRACT_RECORDS {
+            return Err(EconomicError::Capacity);
+        }
+        Ok(())
+    }
+}
+fn econ_write_text(out: &mut EconomicWriter, text: &str, max: usize) -> Result<()> {
+    if text.len() > max {
+        return Err(EconomicError::Capacity);
+    }
+    let len = u16::try_from(text.len()).map_err(|_| EconomicError::Capacity)?;
+    out.put(&len.to_be_bytes())?;
+    out.put(text.as_bytes())
+}
+fn econ_read_text(reader: &mut Cursor<'_>, max: usize) -> Result<String> {
+    let count = u16::from_be_bytes(reader.fixed().map_err(|_| econ_snapshot_bad())?) as usize;
+    if count > max {
+        return Err(EconomicError::Capacity);
+    }
+    let text = core::str::from_utf8(reader.take(count).map_err(|_| econ_snapshot_bad())?)
+        .map_err(|_| econ_snapshot_bad())?;
+    Ok(text.to_owned())
+}
+fn econ_write_optional_u32(out: &mut EconomicWriter, value: Option<u32>) -> Result<()> {
+    match value {
+        None => out.byte(0),
+        Some(value) => {
+            out.byte(1)?;
+            out.u32(value)
+        }
+    }
+}
+fn econ_read_optional_u32(reader: &mut Cursor<'_>) -> Result<Option<u32>> {
+    if econ_read_bool(reader)? {
+        Ok(Some(reader.u32().map_err(|_| econ_snapshot_bad())?))
+    } else {
+        Ok(None)
+    }
+}
+fn econ_write_optional_atoms(out: &mut EconomicWriter, value: Option<u128>) -> Result<()> {
+    match value {
+        None => out.byte(0),
+        Some(value) => {
+            out.byte(1)?;
+            out.atoms(value)
+        }
+    }
+}
+fn econ_read_optional_atoms(reader: &mut Cursor<'_>) -> Result<Option<u128>> {
+    if econ_read_bool(reader)? {
+        Ok(Some(econ_read_atoms(reader)?))
+    } else {
+        Ok(None)
+    }
+}
+fn econ_write_contract_parameters(
+    out: &mut EconomicWriter,
+    p: &ContractParameters,
+    budget: &mut ContractRecordBudget,
+) -> Result<()> {
+    out.byte(u8::from(p.native))?;
+    econ_write_optional_u32(out, p.underlying_oracle_id)?;
+    budget.take(p.on_chain_data.len())?;
+    out.count(
+        p.on_chain_data.len(),
+        crate::contract_registry::MAX_CONTRACT_PAIRS,
+    )?;
+    for (first, second) in &p.on_chain_data {
+        out.u32(first.get())?;
+        out.u32(second.get())?;
+    }
+    out.u32(p.notional_property_id.get())?;
+    out.decimal(&p.notional_value)?;
+    out.u32(p.collateral_property_id.get())?;
+    out.decimal(&p.leverage)?;
+    out.u64(p.expiry_period)?;
+    out.u32(p.series)?;
+    out.byte(u8::from(p.inverse))?;
+    out.decimal(&p.fee)?;
+    econ_write_optional_u32(out, p.whitelist)?;
+    match &p.ticker {
+        None => out.byte(0),
+        Some(ticker) => {
+            out.byte(1)?;
+            econ_write_text(
+                out,
+                ticker,
+                crate::contract_registry::MAX_CONTRACT_TICKER_BYTES,
+            )
+        }
+    }
+}
+fn econ_read_contract_parameters(
+    reader: &mut Cursor<'_>,
+    budget: &mut ContractRecordBudget,
+) -> Result<ContractParameters> {
+    let native = econ_read_bool(reader)?;
+    let underlying_oracle_id = econ_read_optional_u32(reader)?;
+    let count = econ_read_count(reader, crate::contract_registry::MAX_CONTRACT_PAIRS)?;
+    budget.take(count)?;
+    let mut on_chain_data = Vec::new();
+    for _ in 0..count {
+        on_chain_data.push((
+            ContractAsset::from(reader.u32().map_err(|_| econ_snapshot_bad())?),
+            ContractAsset::from(reader.u32().map_err(|_| econ_snapshot_bad())?),
+        ));
+    }
+    Ok(ContractParameters {
+        native,
+        underlying_oracle_id,
+        on_chain_data,
+        notional_property_id: ContractAsset::from(reader.u32().map_err(|_| econ_snapshot_bad())?),
+        notional_value: econ_read_decimal(reader)?,
+        collateral_property_id: ContractAsset::from(reader.u32().map_err(|_| econ_snapshot_bad())?),
+        leverage: econ_read_decimal(reader)?,
+        expiry_period: econ_read_u64(reader)?,
+        series: reader.u32().map_err(|_| econ_snapshot_bad())?,
+        inverse: econ_read_bool(reader)?,
+        fee: econ_read_decimal(reader)?,
+        whitelist: econ_read_optional_u32(reader)?,
+        ticker: if econ_read_bool(reader)? {
+            Some(econ_read_text(
+                reader,
+                crate::contract_registry::MAX_CONTRACT_TICKER_BYTES,
+            )?)
+        } else {
+            None
+        },
+    })
+}
+fn econ_write_contract_creation(
+    out: &mut EconomicWriter,
+    input: &CreateContractInput,
+    budget: &mut ContractRecordBudget,
+) -> Result<()> {
+    out.txid(input.txid)?;
+    out.account(&input.issuer)?;
+    econ_write_contract_parameters(out, &input.parameters, budget)
+}
+fn econ_read_contract_creation(
+    reader: &mut Cursor<'_>,
+    budget: &mut ContractRecordBudget,
+) -> Result<CreateContractInput> {
+    Ok(CreateContractInput {
+        txid: econ_read_txid(reader)?,
+        issuer: econ_read_account(reader)?,
+        parameters: econ_read_contract_parameters(reader, budget)?,
+    })
+}
+/// Canonical input identity for the independently expected contract definition.
+/// Domain separation and the hash are applied by the binding owner.
+fn econ_contract_creation_bytes(input: &CreateContractInput) -> Result<Vec<u8>> {
+    let mut out = EconomicWriter(Vec::new());
+    econ_write_contract_creation(&mut out, input, &mut ContractRecordBudget::default())?;
+    Ok(out.0)
+}
+fn econ_write_contract_series(
+    out: &mut EconomicWriter,
+    series: &ContractSeries,
+    budget: &mut ContractRecordBudget,
+) -> Result<()> {
+    out.u32(series.id.get())?;
+    out.account(&series.issuer)?;
+    econ_write_text(
+        out,
+        &series.ticker,
+        crate::contract_registry::MAX_CONTRACT_TICKER_BYTES,
+    )?;
+    econ_write_contract_parameters(out, &series.parameters, budget)?;
+    if series
+        .expired
+        .len()
+        .checked_add(series.unexpired.len())
+        .is_none_or(|n| n > crate::contract_registry::MAX_EXPIRIES_PER_SERIES)
+    {
+        return Err(EconomicError::Capacity);
+    }
+    for contracts in [&series.expired, &series.unexpired] {
+        budget.take(contracts.len())?;
+        out.count(
+            contracts.len(),
+            crate::contract_registry::MAX_EXPIRIES_PER_SERIES,
+        )?;
+        for contract in contracts {
+            econ_write_text(
+                out,
+                &contract.id,
+                crate::contract_registry::MAX_CONTRACT_TICKER_BYTES,
+            )?;
+            out.u64(contract.expiration_block)?;
+        }
+    }
+    out.decimal(&series.amm.position)?;
+    out.decimal(&series.amm.max_position)?;
+    out.decimal(&series.amm.max_quote_size)?;
+    out.u32(series.amm.contract_type.get())
+}
+fn econ_read_contract_series(
+    reader: &mut Cursor<'_>,
+    budget: &mut ContractRecordBudget,
+) -> Result<ContractSeries> {
+    let id = econ_read_contract(reader)?;
+    let issuer = econ_read_account(reader)?;
+    let ticker = econ_read_text(reader, crate::contract_registry::MAX_CONTRACT_TICKER_BYTES)?;
+    let parameters = econ_read_contract_parameters(reader, budget)?;
+    let mut generated = [Vec::new(), Vec::new()];
+    let mut total = 0usize;
+    for contracts in &mut generated {
+        let count = econ_read_count(reader, crate::contract_registry::MAX_EXPIRIES_PER_SERIES)?;
+        total = total.checked_add(count).ok_or(EconomicError::Capacity)?;
+        if total > crate::contract_registry::MAX_EXPIRIES_PER_SERIES {
+            return Err(EconomicError::Capacity);
+        }
+        budget.take(count)?;
+        for _ in 0..count {
+            contracts.push(crate::contract_registry::GeneratedContract {
+                id: econ_read_text(reader, crate::contract_registry::MAX_CONTRACT_TICKER_BYTES)?,
+                expiration_block: econ_read_u64(reader)?,
+            });
+        }
+    }
+    let [expired, unexpired] = generated;
+    Ok(ContractSeries {
+        id,
+        issuer,
+        ticker,
+        parameters,
+        expired,
+        unexpired,
+        amm: crate::contract_registry::AmmConfiguration {
+            position: econ_read_decimal(reader)?,
+            max_position: econ_read_decimal(reader)?,
+            max_quote_size: econ_read_decimal(reader)?,
+            contract_type: econ_read_contract(reader)?,
+        },
+    })
+}
+fn econ_write_registry_action(
+    out: &mut EconomicWriter,
+    action: &RegistryAction,
+    budget: &mut ContractRecordBudget,
+) -> Result<()> {
+    use crate::registry::{MAX_METADATA_BYTES, MAX_NAME_BYTES, MAX_URL_BYTES};
+    match action {
+        RegistryAction::Activate { types, code_hash } => {
+            out.byte(0)?;
+            budget.take(types.len())?;
+            out.count(types.len(), 36)?;
+            for ty in types {
+                out.byte(*ty)?;
+            }
+            out.put(code_hash)
+        }
+        RegistryAction::CreateWhitelist {
+            name,
+            url,
+            description,
+            backup,
+        } => {
+            out.byte(1)?;
+            econ_write_text(out, name, MAX_NAME_BYTES)?;
+            econ_write_text(out, url, MAX_URL_BYTES)?;
+            econ_write_text(out, description, MAX_METADATA_BYTES)?;
+            out.account(backup)
+        }
+        RegistryAction::UpdateAdmin {
+            target,
+            new_address,
+            update_backup,
+        } => {
+            out.byte(2)?;
+            let (tag, id) = match target {
+                AdminTarget::Whitelist(id) => (0, *id),
+                AdminTarget::Oracle(id) => (1, *id),
+                AdminTarget::Token(id) => (2, *id),
+            };
+            out.byte(tag)?;
+            out.u32(id)?;
+            out.account(new_address)?;
+            out.byte(u8::from(*update_backup))
+        }
+        RegistryAction::Attest {
+            list_id,
+            subject,
+            metadata,
+        } => {
+            out.byte(3)?;
+            out.u32(*list_id)?;
+            out.account(subject)?;
+            econ_write_text(out, metadata, MAX_METADATA_BYTES)
+        }
+        RegistryAction::RevokeAttestation { list_id, subject } => {
+            out.byte(4)?;
+            out.u32(*list_id)?;
+            out.account(subject)
+        }
+        RegistryAction::CreateOracle {
+            ticker,
+            url,
+            backup,
+            lag,
+        } => {
+            out.byte(5)?;
+            econ_write_text(out, ticker, MAX_NAME_BYTES)?;
+            econ_write_text(out, url, MAX_URL_BYTES)?;
+            out.account(backup)?;
+            out.u32(*lag)
+        }
+        RegistryAction::PublishOracle {
+            oracle_id,
+            price_1e4,
+            high_1e4,
+            low_1e4,
+            close_1e4,
+        } => {
+            out.byte(6)?;
+            out.u32(*oracle_id)?;
+            out.atoms(*price_1e4)?;
+            for value in [high_1e4, low_1e4, close_1e4] {
+                econ_write_optional_atoms(out, *value)?;
+            }
+            Ok(())
+        }
+        RegistryAction::CloseOracle { oracle_id } => {
+            out.byte(7)?;
+            out.u32(*oracle_id)
+        }
+    }
+}
+fn econ_read_registry_action(
+    reader: &mut Cursor<'_>,
+    budget: &mut ContractRecordBudget,
+) -> Result<RegistryAction> {
+    use crate::registry::{MAX_METADATA_BYTES, MAX_NAME_BYTES, MAX_URL_BYTES};
+    Ok(match reader.u8().map_err(|_| econ_snapshot_bad())? {
+        0 => {
+            let count = econ_read_count(reader, 36)?;
+            budget.take(count)?;
+            let mut types = Vec::new();
+            for _ in 0..count {
+                types.push(reader.u8().map_err(|_| econ_snapshot_bad())?);
+            }
+            RegistryAction::Activate {
+                types,
+                code_hash: reader.fixed().map_err(|_| econ_snapshot_bad())?,
+            }
+        }
+        1 => RegistryAction::CreateWhitelist {
+            name: econ_read_text(reader, MAX_NAME_BYTES)?,
+            url: econ_read_text(reader, MAX_URL_BYTES)?,
+            description: econ_read_text(reader, MAX_METADATA_BYTES)?,
+            backup: econ_read_account(reader)?,
+        },
+        2 => {
+            let tag = reader.u8().map_err(|_| econ_snapshot_bad())?;
+            let id = reader.u32().map_err(|_| econ_snapshot_bad())?;
+            let target = match tag {
+                0 => AdminTarget::Whitelist(id),
+                1 => AdminTarget::Oracle(id),
+                2 => AdminTarget::Token(id),
+                _ => return Err(econ_snapshot_bad()),
+            };
+            RegistryAction::UpdateAdmin {
+                target,
+                new_address: econ_read_account(reader)?,
+                update_backup: econ_read_bool(reader)?,
+            }
+        }
+        3 => RegistryAction::Attest {
+            list_id: reader.u32().map_err(|_| econ_snapshot_bad())?,
+            subject: econ_read_account(reader)?,
+            metadata: econ_read_text(reader, MAX_METADATA_BYTES)?,
+        },
+        4 => RegistryAction::RevokeAttestation {
+            list_id: reader.u32().map_err(|_| econ_snapshot_bad())?,
+            subject: econ_read_account(reader)?,
+        },
+        5 => RegistryAction::CreateOracle {
+            ticker: econ_read_text(reader, MAX_NAME_BYTES)?,
+            url: econ_read_text(reader, MAX_URL_BYTES)?,
+            backup: econ_read_account(reader)?,
+            lag: reader.u32().map_err(|_| econ_snapshot_bad())?,
+        },
+        6 => RegistryAction::PublishOracle {
+            oracle_id: reader.u32().map_err(|_| econ_snapshot_bad())?,
+            price_1e4: econ_read_atoms(reader)?,
+            high_1e4: econ_read_optional_atoms(reader)?,
+            low_1e4: econ_read_optional_atoms(reader)?,
+            close_1e4: econ_read_optional_atoms(reader)?,
+        },
+        7 => RegistryAction::CloseOracle {
+            oracle_id: reader.u32().map_err(|_| econ_snapshot_bad())?,
+        },
+        _ => return Err(econ_snapshot_bad()),
+    })
+}
+fn econ_write_joint_input(
+    out: &mut EconomicWriter,
+    tx: &UnverifiedJointTx,
+    budget: &mut ContractRecordBudget,
+) -> Result<()> {
+    out.txid(tx.txid)?;
+    out.account(&tx.actor)?;
+    match &tx.operation {
+        JointOperation::Registry(action) => {
+            out.byte(0)?;
+            econ_write_registry_action(out, action, budget)
+        }
+        JointOperation::Issue {
+            id,
+            kind,
+            initial_atoms,
+        } => {
+            out.byte(1)?;
+            out.u32(id.get())?;
+            out.byte(match kind {
+                crate::ledger::PropertyKind::Fixed => 0,
+                crate::ledger::PropertyKind::Managed => 1,
+            })?;
+            out.atoms(*initial_atoms)
+        }
+        JointOperation::Send {
+            id,
+            recipient,
+            amount_atoms,
+        }
+        | JointOperation::Grant {
+            id,
+            recipient,
+            amount_atoms,
+        } => {
+            out.byte(if matches!(tx.operation, JointOperation::Send { .. }) {
+                2
+            } else {
+                3
+            })?;
+            out.u32(id.get())?;
+            out.account(recipient)?;
+            out.atoms(*amount_atoms)
+        }
+        JointOperation::Redeem { id, amount_atoms } => {
+            out.byte(4)?;
+            out.u32(id.get())?;
+            out.atoms(*amount_atoms)
+        }
+        JointOperation::SpotPlace(intent) => {
+            out.byte(5)?;
+            out.u32(intent.offered.get())?;
+            out.u32(intent.desired.get())?;
+            out.u64(intent.offered_atoms)?;
+            out.u64(intent.expected_atoms)?;
+            out.byte(u8::from(intent.post))?;
+            out.byte(u8::from(intent.stop))
+        }
+        JointOperation::SpotCancel {
+            offered,
+            desired,
+            is_contract,
+            selector,
+        } => {
+            out.byte(6)?;
+            out.u32(offered.get())?;
+            out.u32(desired.get())?;
+            out.byte(u8::from(*is_contract))?;
+            match selector {
+                CancelSelector::All => out.byte(0),
+                CancelSelector::ByOrderTxId(id) => {
+                    out.byte(1)?;
+                    out.txid(*id)
+                }
+            }
+        }
+        JointOperation::UtxoTradeType3 => out.byte(7),
+        JointOperation::EconomicSettlement { ty } => {
+            out.byte(8)?;
+            out.byte(*ty)
+        }
+        JointOperation::Unsupported { ty } => {
+            out.byte(9)?;
+            out.byte(*ty)
+        }
+    }
+}
+fn econ_read_joint_input(
+    reader: &mut Cursor<'_>,
+    budget: &mut ContractRecordBudget,
+) -> Result<UnverifiedJointTx> {
+    let txid = econ_read_txid(reader)?;
+    let actor = econ_read_account(reader)?;
+    let operation = match reader.u8().map_err(|_| econ_snapshot_bad())? {
+        0 => JointOperation::Registry(econ_read_registry_action(reader, budget)?),
+        1 => JointOperation::Issue {
+            id: econ_read_property(reader)?,
+            kind: match reader.u8().map_err(|_| econ_snapshot_bad())? {
+                0 => crate::ledger::PropertyKind::Fixed,
+                1 => crate::ledger::PropertyKind::Managed,
+                _ => return Err(econ_snapshot_bad()),
+            },
+            initial_atoms: econ_read_atoms(reader)?,
+        },
+        tag @ (2 | 3) => {
+            let id = econ_read_property(reader)?;
+            let recipient = econ_read_account(reader)?;
+            let amount_atoms = econ_read_atoms(reader)?;
+            if tag == 2 {
+                JointOperation::Send {
+                    id,
+                    recipient,
+                    amount_atoms,
+                }
+            } else {
+                JointOperation::Grant {
+                    id,
+                    recipient,
+                    amount_atoms,
+                }
+            }
+        }
+        4 => JointOperation::Redeem {
+            id: econ_read_property(reader)?,
+            amount_atoms: econ_read_atoms(reader)?,
+        },
+        5 => JointOperation::SpotPlace(SpotIntent {
+            offered: econ_read_property(reader)?,
+            desired: econ_read_property(reader)?,
+            offered_atoms: econ_read_u64(reader)?,
+            expected_atoms: econ_read_u64(reader)?,
+            post: econ_read_bool(reader)?,
+            stop: econ_read_bool(reader)?,
+        }),
+        6 => JointOperation::SpotCancel {
+            offered: econ_read_property(reader)?,
+            desired: econ_read_property(reader)?,
+            is_contract: econ_read_bool(reader)?,
+            selector: match reader.u8().map_err(|_| econ_snapshot_bad())? {
+                0 => CancelSelector::All,
+                1 => CancelSelector::ByOrderTxId(econ_read_txid(reader)?),
+                _ => return Err(econ_snapshot_bad()),
+            },
+        },
+        7 => JointOperation::UtxoTradeType3,
+        8 => JointOperation::EconomicSettlement {
+            ty: reader.u8().map_err(|_| econ_snapshot_bad())?,
+        },
+        9 => JointOperation::Unsupported {
+            ty: reader.u8().map_err(|_| econ_snapshot_bad())?,
+        },
+        _ => return Err(econ_snapshot_bad()),
+    };
+    Ok(UnverifiedJointTx {
+        txid,
+        actor,
+        operation,
+    })
+}
+fn econ_write_input(
+    out: &mut EconomicWriter,
+    input: &EconomicInput,
+    budget: &mut ContractRecordBudget,
+) -> Result<()> {
+    match input {
+        EconomicInput::Joint(tx) => {
+            out.byte(0)?;
+            econ_write_joint_input(out, tx, budget)
+        }
+        EconomicInput::Order(order) => {
+            out.byte(1)?;
+            econ_write_order(out, order)
+        }
+        EconomicInput::Cancel {
+            txid,
+            owner,
+            criteria,
+        } => {
+            out.byte(2)?;
+            out.txid(*txid)?;
+            out.account(owner)?;
+            econ_write_cancel_criteria(out, criteria)
+        }
+        EconomicInput::Amm(input) => {
+            out.byte(3)?;
+            econ_write_amm_input(out, input)
+        }
+        EconomicInput::CreateContract(input) => {
+            out.byte(4)?;
+            econ_write_contract_creation(out, input, budget)
+        }
+    }
+}
+fn econ_read_input(
+    reader: &mut Cursor<'_>,
+    budget: &mut ContractRecordBudget,
+) -> Result<EconomicInput> {
+    Ok(match reader.u8().map_err(|_| econ_snapshot_bad())? {
+        0 => EconomicInput::Joint(econ_read_joint_input(reader, budget)?),
+        1 => EconomicInput::Order(econ_read_order(reader)?),
+        2 => EconomicInput::Cancel {
+            txid: econ_read_txid(reader)?,
+            owner: econ_read_account(reader)?,
+            criteria: econ_read_cancel_criteria(reader)?,
+        },
+        3 => EconomicInput::Amm(econ_read_amm_input(reader)?),
+        4 => EconomicInput::CreateContract(econ_read_contract_creation(reader, budget)?),
+        _ => return Err(econ_snapshot_bad()),
+    })
+}
+fn econ_write_contract_state(out: &mut EconomicWriter, state: &ContractBindingState) -> Result<()> {
+    econ_write_contract_state_budget(out, state, &mut ContractRecordBudget::default())
+}
+fn econ_write_contract_state_budget(
+    out: &mut EconomicWriter,
+    state: &ContractBindingState,
+    budget: &mut ContractRecordBudget,
+) -> Result<()> {
+    if state.bootstrap.is_empty() {
+        return Err(econ_snapshot_bad());
+    }
+    out.embedded(&state.bootstrap)?;
+    budget.take(state.contracts.len())?;
+    out.count(state.contracts.len(), MAX_BOUND_CONTRACTS)?;
+    for contract in &state.contracts {
+        out.txid(contract.creation_txid)?;
+        out.u64(contract.height)?;
+        out.put(&contract.definition_hash)?;
+        econ_write_contract_series(out, &contract.definition, budget)?;
+    }
+    budget.take(state.frames.len())?;
+    out.count(state.frames.len(), MAX_CONTRACT_FRAMES)?;
+    for frame in &state.frames {
+        out.u64(frame.height)?;
+        budget.take(frame.inputs.len())?;
+        out.count(frame.inputs.len(), MAX_ECONOMIC_INPUTS)?;
+        for input in &frame.inputs {
+            econ_write_input(out, input, budget)?;
+        }
+    }
+    Ok(())
+}
+fn econ_read_contract_state(reader: &mut Cursor<'_>) -> Result<ContractBindingState> {
+    let mut budget = ContractRecordBudget::default();
+    let bootstrap = econ_read_embedded(reader)?.to_vec();
+    let count = econ_read_count(reader, MAX_BOUND_CONTRACTS)?;
+    budget.take(count)?;
+    let mut contracts = Vec::new();
+    for _ in 0..count {
+        contracts.push(AcceptedContract {
+            creation_txid: econ_read_txid(reader)?,
+            height: econ_read_u64(reader)?,
+            definition_hash: reader.fixed().map_err(|_| econ_snapshot_bad())?,
+            definition: econ_read_contract_series(reader, &mut budget)?,
+        });
+    }
+    let count = econ_read_count(reader, MAX_CONTRACT_FRAMES)?;
+    budget.take(count)?;
+    let mut frames = Vec::new();
+    for _ in 0..count {
+        let height = econ_read_u64(reader)?;
+        let count = econ_read_count(reader, MAX_ECONOMIC_INPUTS)?;
+        budget.take(count)?;
+        let mut inputs = Vec::new();
+        for _ in 0..count {
+            inputs.push(econ_read_input(reader, &mut budget)?);
+        }
+        frames.push(ContractInputFrame { height, inputs });
+    }
+    Ok(ContractBindingState {
+        bootstrap,
+        contracts,
+        frames,
+    })
+}
+
 impl EconomicState {
     pub fn snapshot_bytes(&self) -> Result<Vec<u8>> {
         self.verify()?;
-        let mut out = EconomicWriter(if self.config.amm.is_some() {
+        let has_binding = self.config.contract_binding.is_some();
+        let mut out = EconomicWriter(if has_binding {
+            ECONOMIC_CONTRACT_MAGIC.to_vec()
+        } else if self.config.amm.is_some() {
             ECONOMIC_AMM_MAGIC.to_vec()
         } else if self.config.liquidation.is_some() {
             ECONOMIC_LIQUIDATION_MAGIC.to_vec()
@@ -1879,6 +2644,11 @@ impl EconomicState {
             out.account(&reserve.owner)?;
             out.decimal(&reserve.quantity)?;
             out.atoms(reserve.atoms)?;
+            if has_binding {
+                out.optional_decimal(&reserve.margin_per_contract)?;
+            } else if reserve.margin_per_contract.is_some() {
+                return Err(econ_snapshot_bad());
+            }
         }
         out.count(self.margins.len(), MAX_ECONOMIC_POSITIONS)?;
         for (owner, atoms) in &self.margins {
@@ -1934,10 +2704,18 @@ impl EconomicState {
             )?;
         }
         if self.config.liquidation.is_some() {
-            econ_write_liquidation(&mut out, &self.liquidation, self.config.amm.is_some())?;
+            econ_write_liquidation(
+                &mut out,
+                &self.liquidation,
+                self.config.amm.is_some(),
+                has_binding,
+            )?;
         }
         if self.config.amm.is_some() {
-            econ_write_amm(&mut out, &self.amm)?;
+            econ_write_amm(&mut out, &self.amm, has_binding)?;
+        }
+        if has_binding {
+            econ_write_contract_state(&mut out, &self.contract_binding)?;
         }
         with_crc(out.0).map_err(|_| EconomicError::Capacity)
     }
@@ -1954,6 +2732,7 @@ impl EconomicState {
         let raw = verify_crc(bytes).map_err(|_| econ_snapshot_bad())?;
         let mut reader = Cursor::new(raw);
         let version = reader.fixed::<5>().map_err(|_| econ_snapshot_bad())?;
+        let has_binding = version == *ECONOMIC_CONTRACT_MAGIC;
         let (has_funding, has_marking, has_liquidation, has_amm) =
             if version == *ECONOMIC_STATE_MAGIC {
                 (false, false, false, false)
@@ -1965,6 +2744,8 @@ impl EconomicState {
                 (false, true, true, false)
             } else if version == *ECONOMIC_AMM_MAGIC {
                 (false, true, true, true)
+            } else if has_binding {
+                (false, true, false, false)
             } else {
                 return Err(econ_snapshot_bad());
             };
@@ -1974,6 +2755,7 @@ impl EconomicState {
             has_marking,
             has_liquidation,
             has_amm,
+            has_binding,
         )?;
         if &config != expected_config {
             return Err(EconomicError::InvalidConfig);
@@ -2005,6 +2787,11 @@ impl EconomicState {
                     owner: econ_read_account(&mut reader)?,
                     quantity: econ_read_decimal(&mut reader)?,
                     atoms: econ_read_atoms(&mut reader)?,
+                    margin_per_contract: if has_binding {
+                        econ_read_optional_decimal(&mut reader)?
+                    } else {
+                        None
+                    },
                 },
             );
         }
@@ -2057,19 +2844,28 @@ impl EconomicState {
             FundingState::default()
         };
         let marking = if has_marking {
-            econ_read_marks(&mut reader, has_liquidation, has_amm)?
+            econ_read_marks(
+                &mut reader,
+                config.liquidation.is_some(),
+                config.amm.is_some(),
+            )?
         } else {
             MarkState::default()
         };
-        let liquidation = if has_liquidation {
-            econ_read_liquidation(&mut reader, has_amm)?
+        let liquidation = if config.liquidation.is_some() {
+            econ_read_liquidation(&mut reader, config.amm.is_some(), has_binding)?
         } else {
             LiquidationState::default()
         };
-        let amm = if has_amm {
-            econ_read_amm(&mut reader)?
+        let amm = if config.amm.is_some() {
+            econ_read_amm(&mut reader, has_binding)?
         } else {
             FundedAmmState::default()
+        };
+        let contract_binding = if has_binding {
+            econ_read_contract_state(&mut reader)?
+        } else {
+            ContractBindingState::default()
         };
         reader.end().map_err(|_| econ_snapshot_bad())?;
         let result = Self {
@@ -2091,12 +2887,255 @@ impl EconomicState {
             marking,
             liquidation,
             amm,
+            contract_binding,
+            replaying_contract_history: false,
         };
         result.verify()?;
         if result.snapshot_bytes()?.as_slice() != bytes {
             return Err(econ_snapshot_bad());
         }
         Ok(result)
+    }
+}
+
+#[cfg(test)]
+mod contract_codec_tests {
+    use super::*;
+
+    fn owner() -> AccountId {
+        "alice".try_into().unwrap()
+    }
+    fn id() -> TxId {
+        TxId::from_bytes([8; 32])
+    }
+    fn property() -> PropertyId {
+        7.try_into().unwrap()
+    }
+    fn joint(operation: JointOperation) -> EconomicInput {
+        EconomicInput::Joint(UnverifiedJointTx {
+            txid: id(),
+            actor: owner(),
+            operation,
+        })
+    }
+    #[test]
+    fn every_typed_frame_variant_roundtrips_without_implying_admission() {
+        let mut inputs = vec![
+            joint(JointOperation::Issue {
+                id: property(),
+                kind: crate::ledger::PropertyKind::Fixed,
+                initial_atoms: 7,
+            }),
+            joint(JointOperation::Issue {
+                id: property(),
+                kind: crate::ledger::PropertyKind::Managed,
+                initial_atoms: 0,
+            }),
+            joint(JointOperation::Send {
+                id: property(),
+                recipient: owner(),
+                amount_atoms: 3,
+            }),
+            joint(JointOperation::Grant {
+                id: property(),
+                recipient: owner(),
+                amount_atoms: 4,
+            }),
+            joint(JointOperation::Redeem {
+                id: property(),
+                amount_atoms: 2,
+            }),
+            joint(JointOperation::SpotPlace(SpotIntent {
+                offered: property(),
+                desired: 8.try_into().unwrap(),
+                offered_atoms: 3,
+                expected_atoms: 5,
+                post: true,
+                stop: false,
+            })),
+            joint(JointOperation::UtxoTradeType3),
+            joint(JointOperation::EconomicSettlement { ty: 23 }),
+            joint(JointOperation::Unsupported { ty: 35 }),
+            EconomicInput::Amm(AmmCapitalInput::Deposit {
+                txid: id(),
+                owner: owner(),
+                collateral_atoms: 4,
+                min_share_units: 3,
+            }),
+            EconomicInput::Amm(AmmCapitalInput::Redeem {
+                txid: id(),
+                owner: owner(),
+                share_units: 2,
+                min_collateral_atoms: 1,
+            }),
+            EconomicInput::Order(Order {
+                txid: id(),
+                owner: owner(),
+                contract: 1.try_into().unwrap(),
+                height: 2,
+                side: Side::Sell,
+                quantity: Decimal::from(2),
+                price: Decimal::from(3),
+                post: false,
+                is_market: true,
+            }),
+            EconomicInput::CreateContract(CreateContractInput {
+                txid: id(),
+                issuer: owner(),
+                parameters: ContractParameters {
+                    native: false,
+                    underlying_oracle_id: Some(1),
+                    on_chain_data: vec![(
+                        ContractAsset::BaseChain,
+                        ContractAsset::Property(property()),
+                    )],
+                    notional_property_id: ContractAsset::BaseChain,
+                    notional_value: Decimal::from(1),
+                    collateral_property_id: ContractAsset::Property(property()),
+                    leverage: Decimal::from(10),
+                    expiry_period: 0,
+                    series: 1,
+                    inverse: true,
+                    fee: Decimal::from(1),
+                    whitelist: None,
+                    ticker: Some("INPUT".into()),
+                },
+            }),
+        ];
+        for selector in [CancelSelector::All, CancelSelector::ByOrderTxId(id())] {
+            inputs.push(joint(JointOperation::SpotCancel {
+                offered: property(),
+                desired: 8.try_into().unwrap(),
+                is_contract: false,
+                selector,
+            }));
+        }
+        for criteria in [
+            CancelCriteria::All,
+            CancelCriteria::Txid(id()),
+            CancelCriteria::Price {
+                side: Side::Buy,
+                price: Decimal::from(3),
+            },
+        ] {
+            inputs.push(EconomicInput::Cancel {
+                txid: id(),
+                owner: owner(),
+                criteria,
+            });
+        }
+        let mut actions = vec![
+            RegistryAction::Activate {
+                types: vec![1, 2, 16, 18],
+                code_hash: [9; 32],
+            },
+            RegistryAction::CreateWhitelist {
+                name: "LIST".into(),
+                url: "url".into(),
+                description: "desc".into(),
+                backup: owner(),
+            },
+            RegistryAction::Attest {
+                list_id: 1,
+                subject: owner(),
+                metadata: "metadata".into(),
+            },
+            RegistryAction::RevokeAttestation {
+                list_id: 1,
+                subject: owner(),
+            },
+            RegistryAction::CreateOracle {
+                ticker: "ORACLE".into(),
+                url: "url".into(),
+                backup: owner(),
+                lag: 2,
+            },
+            RegistryAction::PublishOracle {
+                oracle_id: 1,
+                price_1e4: 7,
+                high_1e4: Some(9),
+                low_1e4: None,
+                close_1e4: Some(8),
+            },
+            RegistryAction::CloseOracle { oracle_id: 1 },
+        ];
+        for target in [
+            AdminTarget::Whitelist(1),
+            AdminTarget::Oracle(2),
+            AdminTarget::Token(3),
+        ] {
+            actions.push(RegistryAction::UpdateAdmin {
+                target,
+                new_address: owner(),
+                update_backup: true,
+            });
+        }
+        inputs.extend(
+            actions
+                .into_iter()
+                .map(|action| joint(JointOperation::Registry(action))),
+        );
+        for input in inputs {
+            let mut out = EconomicWriter(vec![]);
+            econ_write_input(&mut out, &input, &mut ContractRecordBudget::default()).unwrap();
+            let mut reader = Cursor::new(&out.0);
+            assert_eq!(
+                econ_read_input(&mut reader, &mut ContractRecordBudget::default()).unwrap(),
+                input
+            );
+            reader.end().unwrap();
+        }
+    }
+    #[test]
+    fn nested_contract_counts_are_rejected_before_their_elements_are_read() {
+        let mut raw = vec![0, 0];
+        raw.extend_from_slice(&1u32.to_be_bytes());
+        let mut budget = ContractRecordBudget {
+            used: MAX_CONTRACT_RECORDS,
+        };
+        assert_eq!(
+            econ_read_contract_parameters(&mut Cursor::new(&raw), &mut budget),
+            Err(EconomicError::Capacity)
+        );
+        let mut raw = 1u32.to_be_bytes().to_vec();
+        raw.push(0);
+        raw.extend_from_slice(&0u32.to_be_bytes());
+        raw.extend_from_slice(&u32::MAX.to_be_bytes());
+        assert_eq!(
+            econ_read_contract_state(&mut Cursor::new(&raw)),
+            Err(EconomicError::Capacity)
+        );
+    }
+    #[test]
+    fn pool_average_context_is_v6_only_and_canonical() {
+        let epoch = AmmQuoteEpoch {
+            id: id(),
+            height: 2,
+            mark_id: id(),
+            generation: 1,
+            position_before: Decimal::from(1),
+            average_price_before: Some(Decimal::from(100)),
+            cash_before_atoms: 7,
+            margin_before_atoms: 8,
+            unpaid_loss_before_atoms: 0,
+            cash_leg_count_before: 0,
+            quotes: vec![],
+        };
+        assert!(econ_write_amm_epoch(
+            &mut EconomicWriter(vec![]),
+            &epoch,
+            &mut AmmRecordBudget::default(),
+            false
+        )
+        .is_err());
+        let mut out = EconomicWriter(vec![]);
+        econ_write_amm_epoch(&mut out, &epoch, &mut AmmRecordBudget::default(), true).unwrap();
+        let mut reader = Cursor::new(&out.0);
+        assert_eq!(
+            econ_read_amm_epoch(&mut reader, &mut AmmRecordBudget::default(), true).unwrap(),
+            epoch
+        );
+        reader.end().unwrap();
     }
 }
 
@@ -2178,6 +3217,7 @@ mod funding_codec_compat_tests {
             marking: None,
             liquidation: None,
             amm: None,
+            contract_binding: None,
         };
         let mut state = EconomicState::from_joint_unverified(config, joint).unwrap();
         state

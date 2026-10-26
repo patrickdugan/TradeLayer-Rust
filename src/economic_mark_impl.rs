@@ -142,6 +142,9 @@ impl EconomicState {
         Ok(())
     }
     fn run_mark_epoch(&mut self, height: u64, publication: Option<TxId>) -> Result<()> {
+        if !self.selected_contract_exists() {
+            return Ok(());
+        }
         let (Some(config), Some(txid)) = (self.config.marking.clone(), publication) else {
             return Ok(());
         };
@@ -252,19 +255,13 @@ impl EconomicState {
         if self.config.marking.is_none() {
             return Ok(Vec::new());
         }
-        let half: Decimal = "0.5".parse().map_err(|_| EconomicError::Arithmetic)?;
         let mut calls = Vec::new();
         for (owner, basis) in &self.marking.bases {
             if basis.quantity.is_zero() {
                 continue;
             }
-            let required_atoms = atoms_up(
-                &basis
-                    .quantity
-                    .abs()
-                    .checked_mul(&self.config.initial_margin_per_contract)?
-                    .checked_mul(&half)?,
-            )?;
+            let required_atoms =
+                self.maintenance_at(&basis.quantity, self.position(owner).avg_price.as_ref())?;
             let margin_atoms = self.margin_atoms(owner);
             if margin_atoms < required_atoms {
                 calls.push(MaintenanceCall {

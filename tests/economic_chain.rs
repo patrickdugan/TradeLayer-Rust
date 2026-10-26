@@ -72,6 +72,7 @@ fn id(n: u8) -> TxId {
 fn config(network: TradeLayerMainnet, rollback_limit: usize) -> EconomicChainConfig {
     EconomicChainConfig {
         economics: EconomicConfig {
+            contract_binding: None,
             network,
             contract: c(),
             collateral: p(),

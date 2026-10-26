@@ -41,13 +41,17 @@ pub struct EconomicConfig {
     pub marking: Option<MarkConfig>,
     pub liquidation: Option<LiquidationConfig>,
     pub amm: Option<FundedAmmConfig>,
+    pub contract_binding: Option<ContractBindingConfig>,
 }
 impl EconomicConfig {
     pub fn validate(&self) -> Result<(), EconomicError> {
         bounded(&self.notional)?;
         bounded(&self.initial_margin_per_contract)?;
         if self.notional <= Decimal::zero()
-            || self.initial_margin_per_contract <= Decimal::zero()
+            || (self.contract_binding.is_none()
+                && self.initial_margin_per_contract <= Decimal::zero())
+            || (self.contract_binding.is_some()
+                && (!self.initial_margin_per_contract.is_zero() || self.marking.is_none()))
             || self.fee_route == FeeRoute::Spot
             || self.fee_route.contract() != self.contract.get()
         {
@@ -86,6 +90,7 @@ impl EconomicConfig {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum EconomicInput {
     Joint(UnverifiedJointTx),
+    CreateContract(CreateContractInput),
     Amm(AmmCapitalInput),
     Order(Order),
     Cancel {
@@ -100,6 +105,7 @@ pub struct OrderReserve {
     pub owner: AccountId,
     pub quantity: Decimal,
     pub atoms: u128,
+    pub margin_per_contract: Option<Decimal>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -206,6 +212,8 @@ pub struct EconomicState {
     marking: MarkState,
     liquidation: LiquidationState,
     amm: FundedAmmState,
+    contract_binding: ContractBindingState,
+    replaying_contract_history: bool,
 }
 impl EconomicState {
     pub fn from_joint_unverified(
@@ -220,6 +228,20 @@ impl EconomicState {
         {
             return Err(EconomicError::InvalidConfig);
         }
+        let contract_binding = if let Some(binding) = &config.contract_binding {
+            let bootstrap = joint
+                .snapshot_for_economic_bytes()
+                .map_err(|_| EconomicError::InvalidSnapshot)?;
+            if Self::contract_bootstrap_commitment(&joint)? != binding.bootstrap_commitment {
+                return Err(EconomicError::InvalidConfig);
+            }
+            ContractBindingState {
+                bootstrap,
+                ..ContractBindingState::default()
+            }
+        } else {
+            ContractBindingState::default()
+        };
         let state = Self {
             book: ContractOrderbook::new(config.contract),
             positions: MarginMap::new(config.contract),
@@ -239,6 +261,8 @@ impl EconomicState {
             marking: MarkState::default(),
             liquidation: LiquidationState::default(),
             amm: FundedAmmState::default(),
+            contract_binding,
+            replaying_contract_history: false,
         };
         state.verify()?;
         Ok(state)
@@ -303,8 +327,19 @@ impl EconomicState {
         if inputs.len() > MAX_ECONOMIC_INPUTS {
             return Err(EconomicError::Capacity);
         }
+        self.preflight_contract_inputs(height, &inputs)?;
         self.verify()?;
         let mut next = self.clone();
+        if next.config.contract_binding.is_some() {
+            if next.contract_binding.frames.len() >= MAX_CONTRACT_FRAMES {
+                return Err(EconomicError::Capacity);
+            }
+            next.contract_binding.frames.push(ContractInputFrame {
+                height,
+                inputs: inputs.clone(),
+            });
+            next.contract_record_budget()?;
+        }
         let before = next.receipts.len();
         next.begin_amm_frame(height)?;
         let mut book_frame = LiquidationBookFrame {
@@ -315,6 +350,9 @@ impl EconomicState {
         let mut mark_publication = None;
         for input in inputs {
             match input {
+                EconomicInput::CreateContract(input) => {
+                    next.apply_contract_creation(input, height)?
+                }
                 EconomicInput::Amm(input) => next.apply_amm_capital(input, height)?,
                 EconomicInput::Joint(tx) => {
                     Self::external_joint_owner_boundary(&tx)?;
@@ -329,6 +367,7 @@ impl EconomicState {
                     }
                 }
                 EconomicInput::Order(order) => {
+                    next.require_contract_order_admission(&order)?;
                     if order.height != height {
                         return Err(EconomicError::InvalidHeight);
                     }
@@ -377,8 +416,9 @@ impl EconomicState {
                     position: position.clone(),
                 });
             }
+            let admission_price = order.price.clone();
             let transition = next.book.place(order, &position)?;
-            next.apply_transition(transition, height)?;
+            next.apply_transition(transition, height, &admission_price)?;
         }
         next.book.finish_height(height)?;
         if next.config.liquidation.is_some() {
@@ -403,9 +443,19 @@ impl EconomicState {
         Ok(count)
     }
 
-    fn apply_transition(&mut self, transition: BookTransition, height: u64) -> Result<()> {
+    fn apply_transition(
+        &mut self,
+        transition: BookTransition,
+        height: u64,
+        price: &Decimal,
+    ) -> Result<()> {
         for intent in transition.admitted {
-            let atoms = self.required_margin(&intent.quantity)?;
+            let basis = if self.config.contract_binding.is_some() {
+                Some(self.initial_margin_at(price)?)
+            } else {
+                None
+            };
+            let atoms = self.reserve_basis_atoms(&intent.quantity, &basis)?;
             let escrow = self.escrow(b"order", &intent.txid.as_bytes())?;
             self.transfer(intent.owner.clone(), escrow, atoms)?;
             if self
@@ -416,6 +466,7 @@ impl EconomicState {
                         owner: intent.owner,
                         quantity: intent.quantity,
                         atoms,
+                        margin_per_contract: basis,
                     },
                 )
                 .is_some()
@@ -449,12 +500,26 @@ impl EconomicState {
         }
         let buyer_before = self.position(&m.buyer);
         let seller_before = self.position(&m.seller);
+        let buyer_margin = self.margin_atoms(&m.buyer);
+        let seller_margin = self.margin_atoms(&m.seller);
         let buyer_pnl = self.trade_position(&buyer_before, &m.quantity, &m.price, Side::Buy)?;
         let seller_pnl = self.trade_position(&seller_before, &m.quantity, &m.price, Side::Sell)?;
         self.consume_reserve(m.buy_txid, &m.buy_reserve_used)?;
         self.consume_reserve(m.sell_txid, &m.sell_reserve_used)?;
-        self.reconcile_margin(&m.buyer)?;
-        self.reconcile_margin(&m.seller)?;
+        let buyer_target = self.margin_target_after_trade(
+            &buyer_before.contracts,
+            &self.position(&m.buyer).contracts,
+            buyer_margin,
+            &m.price,
+        )?;
+        let seller_target = self.margin_target_after_trade(
+            &seller_before.contracts,
+            &self.position(&m.seller).contracts,
+            seller_margin,
+            &m.price,
+        )?;
+        self.reconcile_margin_to(&m.buyer, buyer_target)?;
+        self.reconcile_margin_to(&m.seller, seller_target)?;
         let fee = calculate_match_fees(&MatchFeeInput {
             amount_buy: m.quantity.clone(),
             amount_sell: m.quantity.clone(),
@@ -462,7 +527,7 @@ impl EconomicState {
             sell_maker: maker(m.sell_maker),
             inverse: self.config.inverse,
             last_mark: m.price.clone(),
-            notional_value: self.config.notional.clone(),
+            notional_value: self.fee_input_notional(&m.price)?,
             channel: false,
         })?;
         let fee_escrow = self.escrow(b"fees", &[])?;
@@ -637,7 +702,7 @@ impl EconomicState {
             return Err(EconomicError::Invariant);
         }
         r.quantity = r.quantity.checked_sub(used)?;
-        let left = self.required_margin(&r.quantity)?;
+        let left = self.reserve_basis_atoms(&r.quantity, &r.margin_per_contract)?;
         let taken = r.atoms.checked_sub(left).ok_or(EconomicError::Invariant)?;
         self.transfer(
             self.escrow(b"order", &id.as_bytes())?,
@@ -653,8 +718,7 @@ impl EconomicState {
         let r = self.reserves.remove(&id).ok_or(EconomicError::Invariant)?;
         self.transfer(self.escrow(b"order", &id.as_bytes())?, r.owner, r.atoms)
     }
-    fn reconcile_margin(&mut self, owner: &AccountId) -> Result<()> {
-        let target = self.required_margin(&self.position(owner).contracts.abs())?;
+    fn reconcile_margin_to(&mut self, owner: &AccountId, target: u128) -> Result<()> {
         let current = self.margin_atoms(owner);
         let escrow = self.margin_escrow(owner)?;
         if current < target {
@@ -805,6 +869,7 @@ impl EconomicState {
 
     pub fn verify(&self) -> Result<()> {
         self.config.validate()?;
+        self.verify_contract_binding()?;
         self.joint.verify_for_economic_owner_unverified()?;
         self.verify_funding()?;
         self.verify_marks()?;
@@ -829,6 +894,11 @@ impl EconomicState {
             return Err(EconomicError::Invariant);
         }
         let mut inputs: BTreeSet<_> = self.book.snapshot().seen.into_iter().collect();
+        for contract in &self.contract_binding.contracts {
+            if !inputs.insert(contract.creation_txid) {
+                return Err(EconomicError::Invariant);
+            }
+        }
         for id in &self.cancel_ids {
             if !inputs.insert(*id) {
                 return Err(EconomicError::Invariant);
@@ -873,7 +943,13 @@ impl EconomicState {
                 .ok_or(EconomicError::Invariant)?;
             if r.owner != order.order.owner
                 || r.quantity != order.reserve_quantity
-                || r.atoms != self.required_margin(&r.quantity)?
+                || r.atoms != self.reserve_basis_atoms(&r.quantity, &r.margin_per_contract)?
+                || r.margin_per_contract
+                    != if self.config.contract_binding.is_some() {
+                        Some(self.initial_margin_at(&order.order.price)?)
+                    } else {
+                        None
+                    }
             {
                 return Err(EconomicError::Invariant);
             }
@@ -1076,3 +1152,4 @@ include!("economic_liquidation_impl.rs");
 include!("economic_liquidation_replay_impl.rs");
 include!("economic_amm_impl.rs");
 include!("economic_amm_replay_impl.rs");
+include!("economic_contract_impl.rs");

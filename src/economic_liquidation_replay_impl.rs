@@ -58,6 +58,7 @@ impl EconomicState {
         }
         let mut book = ContractOrderbook::new(self.config.contract);
         let mut positions = BTreeMap::<AccountId, Decimal>::new();
+        let mut averages = BTreeMap::<AccountId, Decimal>::new();
         let mut margins = BTreeMap::<AccountId, u128>::new();
         let mut cancellations = BTreeSet::new();
         let mut marks = self.marking.events.iter().peekable();
@@ -119,7 +120,7 @@ impl EconomicState {
                         sell_maker: maker(matched.sell_maker),
                         inverse: self.config.inverse,
                         last_mark: matched.price.clone(),
-                        notional_value: self.config.notional.clone(),
+                        notional_value: self.fee_input_notional(&matched.price)?,
                         channel: false,
                     })?;
                     if receipt.height != frame.height
@@ -158,8 +159,19 @@ impl EconomicState {
                         }
                         let before = positions.get(&entry.owner).cloned().unwrap_or_default();
                         let after = before.checked_add(&delta)?;
-                        let target = self.required_margin(&after.abs())?;
-                        positions.insert(entry.owner.clone(), after);
+                        let target = self.margin_target_after_trade(
+                            &before,
+                            &after,
+                            liquidation_replay_margin(&margins, &entry.owner),
+                            &matched.price,
+                        )?;
+                        liquidation_replay_trade(
+                            &mut positions,
+                            &mut averages,
+                            &entry.owner,
+                            &delta,
+                            &matched.price,
+                        )?;
                         liquidation_replay_set_margin(&mut margins, &entry.owner, target);
                     }
                     liquidation_replay_margin_loss(&mut margins, event)?;
@@ -188,6 +200,12 @@ impl EconomicState {
                                 != positions.get(pool).cloned().unwrap_or_default()
                             || epoch.margin_before_atoms
                                 != liquidation_replay_margin(&margins, pool)
+                            || epoch.average_price_before
+                                != if self.config.contract_binding.is_some() {
+                                    averages.get(pool).cloned()
+                                } else {
+                                    None
+                                }
                         {
                             return Err(EconomicError::Invariant);
                         }
@@ -205,7 +223,7 @@ impl EconomicState {
                 for (owner, quantity) in &positions {
                     if !quantity.is_zero()
                         && liquidation_replay_margin(&margins, owner)
-                            < self.maintenance_atoms(quantity)?
+                            < self.maintenance_at(quantity, averages.get(owner))?
                     {
                         targets.push(owner.clone());
                     }
@@ -215,7 +233,7 @@ impl EconomicState {
                 let quantity = positions.get(&target).ok_or(EconomicError::Invariant)?;
                 if quantity.is_zero()
                     || liquidation_replay_margin(&margins, &target)
-                        >= self.maintenance_atoms(quantity)?
+                        >= self.maintenance_at(quantity, averages.get(&target))?
                 {
                     continue;
                 }
@@ -227,6 +245,12 @@ impl EconomicState {
                     || positions.get(&event.owner) != Some(&event.quantity_before)
                     || liquidation_replay_margin(&margins, &event.owner)
                         != event.margin_before_atoms
+                    || event.average_price_before
+                        != if self.config.contract_binding.is_some() {
+                            averages.get(&event.owner).cloned()
+                        } else {
+                            None
+                        }
                 {
                     return Err(EconomicError::Invariant);
                 }
@@ -246,7 +270,8 @@ impl EconomicState {
                 }
                 for (order, capture) in cancelled.resting.iter().zip(&event.cancelled) {
                     if order != &capture.order
-                        || self.required_margin(&order.reserve_quantity)? != capture.reserve_atoms
+                        || self.required_margin_at(&order.reserve_quantity, &order.order.price)?
+                            != capture.reserve_atoms
                     {
                         return Err(EconomicError::Invariant);
                     }
@@ -260,7 +285,7 @@ impl EconomicState {
                         .ok_or(EconomicError::Invariant)?;
                     if old_quantity.is_zero()
                         || liquidation_replay_margin(&margins, &event.owner)
-                            >= self.maintenance_atoms(&old_quantity)?
+                            >= self.maintenance_at(&old_quantity, averages.get(&event.owner))?
                     {
                         return Err(EconomicError::Invariant);
                     }
@@ -293,13 +318,20 @@ impl EconomicState {
                     };
                     let after = old_quantity.checked_add(&delta)?;
                     let pool_after = pool_quantity.checked_sub(&delta)?;
-                    liquidation_replay_set_margin(
-                        &mut margins,
-                        pool,
-                        self.required_margin(&pool_after.abs())?,
-                    );
-                    let before_fee = liquidation_replay_margin(&margins, &event.owner)
-                        .min(self.required_margin(&after.abs())?);
+                    let pool_target = self.margin_target_after_trade(
+                        &pool_quantity,
+                        &pool_after,
+                        liquidation_replay_margin(&margins, pool),
+                        &receipt.price,
+                    )?;
+                    liquidation_replay_set_margin(&mut margins, pool, pool_target);
+                    let distressed_before = liquidation_replay_margin(&margins, &event.owner);
+                    let before_fee = distressed_before.min(self.margin_target_after_trade(
+                        &old_quantity,
+                        &after,
+                        distressed_before,
+                        &receipt.price,
+                    )?);
                     let available_fee = receipt
                         .nominal_fee_atoms
                         .min(receipt.distressed_available_before_fee_atoms);
@@ -314,8 +346,20 @@ impl EconomicState {
                         &event.owner,
                         before_fee - margin_fee,
                     );
-                    positions.insert(event.owner.clone(), after);
-                    positions.insert(pool.clone(), pool_after);
+                    liquidation_replay_trade(
+                        &mut positions,
+                        &mut averages,
+                        &event.owner,
+                        &delta,
+                        &receipt.price,
+                    )?;
+                    liquidation_replay_trade(
+                        &mut positions,
+                        &mut averages,
+                        pool,
+                        &delta.negated(),
+                        &receipt.price,
+                    )?;
                     let forced = marks.next().ok_or(EconomicError::Invariant)?;
                     if forced.height != frame.height
                         || forced.kind
@@ -341,7 +385,8 @@ impl EconomicState {
                     if remaining.is_zero() {
                         amm_quotes.remove(quote_index);
                     } else {
-                        amm_quotes[quote_index].reserve_atoms = self.required_margin(&remaining)?;
+                        amm_quotes[quote_index].reserve_atoms =
+                            self.required_margin_at(&remaining, &quote.price)?;
                         amm_quotes[quote_index].remaining = remaining;
                     }
                 }
@@ -402,10 +447,20 @@ impl EconomicState {
                         .cloned()
                         .unwrap_or_default();
                     let maker_after = maker_old.checked_sub(&delta)?;
-                    let maker_target = self.required_margin(&maker_after.abs())?;
+                    let maker_target = self.margin_target_after_trade(
+                        &maker_old,
+                        &maker_after,
+                        liquidation_replay_margin(&margins, &fill.maker_owner),
+                        &receipt.price,
+                    )?;
                     liquidation_replay_set_margin(&mut margins, &fill.maker_owner, maker_target);
-                    let before_fee = liquidation_replay_margin(&margins, &event.owner)
-                        .min(self.required_margin(&after.abs())?);
+                    let distressed_before = liquidation_replay_margin(&margins, &event.owner);
+                    let before_fee = distressed_before.min(self.margin_target_after_trade(
+                        &old_quantity,
+                        &after,
+                        distressed_before,
+                        &receipt.price,
+                    )?);
                     let available_fee = receipt
                         .nominal_fee_atoms
                         .min(receipt.distressed_available_before_fee_atoms);
@@ -420,8 +475,20 @@ impl EconomicState {
                         &event.owner,
                         before_fee - margin_fee,
                     );
-                    positions.insert(event.owner.clone(), after);
-                    positions.insert(fill.maker_owner.clone(), maker_after);
+                    liquidation_replay_trade(
+                        &mut positions,
+                        &mut averages,
+                        &event.owner,
+                        &delta,
+                        &receipt.price,
+                    )?;
+                    liquidation_replay_trade(
+                        &mut positions,
+                        &mut averages,
+                        &fill.maker_owner,
+                        &delta.negated(),
+                        &receipt.price,
+                    )?;
                     let forced = marks.next().ok_or(EconomicError::Invariant)?;
                     if forced.height != frame.height
                         || forced.kind
@@ -454,7 +521,7 @@ impl EconomicState {
                     .unwrap_or_default();
                 if !quantity.is_zero()
                     && liquidation_replay_margin(&margins, &event.owner)
-                        < self.maintenance_atoms(quantity)?
+                        < self.maintenance_at(quantity, averages.get(&event.owner))?
                     && event.amm_fills.len() + event.fills.len()
                         < self
                             .config
@@ -495,11 +562,23 @@ impl EconomicState {
             .positions()
             .map(|position| (position.address.clone(), position.contracts.clone()))
             .collect();
+        let actual_averages: BTreeMap<_, _> = self
+            .positions
+            .positions()
+            .filter(|position| !position.contracts.is_zero())
+            .map(|position| {
+                Ok((
+                    position.address.clone(),
+                    position.avg_price.clone().ok_or(EconomicError::Invariant)?,
+                ))
+            })
+            .collect::<Result<_>>()?;
         if marks.next().is_some()
             || ordinary_receipts.next().is_some()
             || liquidations.next().is_some()
             || book != self.book
             || positions != actual_positions
+            || averages != actual_averages
             || margins != self.margins
             || cancellations != self.cancel_ids
             || amm_quotes != self.amm.quotes
@@ -529,6 +608,24 @@ impl EconomicState {
         }
         Ok(None)
     }
+}
+
+fn liquidation_replay_trade(
+    positions: &mut BTreeMap<AccountId, Decimal>,
+    averages: &mut BTreeMap<AccountId, Decimal>,
+    owner: &AccountId,
+    delta: &Decimal,
+    price: &Decimal,
+) -> Result<()> {
+    let before = positions.get(owner).cloned().unwrap_or_default();
+    let average = mark_trade_average(&before, averages.get(owner), delta, price)?;
+    positions.insert(owner.clone(), before.checked_add(delta)?);
+    if let Some(average) = average {
+        averages.insert(owner.clone(), average);
+    } else {
+        averages.remove(owner);
+    }
+    Ok(())
 }
 
 fn liquidation_replay_margin(margins: &BTreeMap<AccountId, u128>, owner: &AccountId) -> u128 {
@@ -564,4 +661,35 @@ fn liquidation_replay_margin_loss(
         liquidation_replay_set_margin(margins, &entry.owner, after);
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod liquidation_average_replay_tests {
+    use super::*;
+
+    #[test]
+    fn fractional_history_preserves_reduction_average_and_resets_on_flip_and_close() {
+        let owner = AccountId::try_from("alice").unwrap();
+        let decimal = |text: &str| text.parse::<Decimal>().unwrap();
+        let mut quantities = BTreeMap::new();
+        let mut averages = BTreeMap::new();
+        for (delta, price, quantity, average) in [
+            ("0.5", "100", "0.5", Some("100")),
+            ("0.5", "120", "1", Some("110")),
+            ("-0.25", "80", "0.75", Some("110")),
+            ("-1", "90", "-0.25", Some("90")),
+            ("0.25", "200", "0", None),
+        ] {
+            liquidation_replay_trade(
+                &mut quantities,
+                &mut averages,
+                &owner,
+                &decimal(delta),
+                &decimal(price),
+            )
+            .unwrap();
+            assert_eq!(quantities.get(&owner), Some(&decimal(quantity)));
+            assert_eq!(averages.get(&owner).cloned(), average.map(decimal));
+        }
+    }
 }

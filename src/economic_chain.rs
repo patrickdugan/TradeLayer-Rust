@@ -108,10 +108,7 @@ impl EconomicChain {
         self.history.len()
     }
 
-    pub fn apply_unverified_block(
-        &mut self,
-        block: &UnverifiedEconomicBlock,
-    ) -> Result<Tip, EconomicError> {
+    fn preflight_block(&self, block: &UnverifiedEconomicBlock) -> Result<(), EconomicError> {
         if block.inputs.len() > crate::economic::MAX_ECONOMIC_INPUTS {
             return Err(EconomicError::Capacity);
         }
@@ -131,6 +128,16 @@ impl EconomicChain {
         {
             return Err(EconomicError::WrongTip);
         }
+        self.state
+            .preflight_contract_inputs(h.height, &block.inputs)
+    }
+
+    pub fn apply_unverified_block(
+        &mut self,
+        block: &UnverifiedEconomicBlock,
+    ) -> Result<Tip, EconomicError> {
+        self.preflight_block(block)?;
+        let h = block.header;
         let mut next = self.clone();
         let before = next.state.snapshot_bytes()?;
         next.state
@@ -390,6 +397,7 @@ impl DurableEconomicChain {
         block: &UnverifiedEconomicBlock,
     ) -> Result<EconomicHead, DurableEconomicError> {
         self.check_head(expected)?;
+        self.chain.preflight_block(block)?;
         let mut next = self.chain.clone();
         next.apply_unverified_block(block)?;
         self.publish(next)

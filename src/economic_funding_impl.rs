@@ -163,6 +163,9 @@ impl EconomicState {
         TxId::from_bytes(double_sha256(&bytes))
     }
     fn run_funding_epoch(&mut self, height: u64) -> Result<()> {
+        if !self.selected_contract_exists() {
+            return Ok(());
+        }
         let Some(config) = self.config.funding.clone() else {
             return Ok(());
         };
@@ -304,11 +307,16 @@ impl EconomicState {
             return Err(EconomicError::Capacity);
         }
         let finalized = self.finalized_height().unwrap_or(0);
-        let start = self
+        let mut start = self
             .joint
             .registry()
             .activation(18)
             .map(|a| a.height / FUNDING_INTERVAL);
+        if self.config.contract_binding.is_some() {
+            start = self.contract(self.config.contract).and_then(|contract| {
+                start.map(|a| a.max(contract.height.saturating_sub(1) / FUNDING_INTERVAL))
+            });
+        }
         let count = start.map_or(0, |a| (finalized / FUNDING_INTERVAL).saturating_sub(a));
         if count != self.funding.epochs.len() as u64 {
             return Err(EconomicError::Invariant);

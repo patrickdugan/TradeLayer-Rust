@@ -32,6 +32,7 @@ fn c() -> ContractId {
 }
 fn config(network: TradeLayerMainnet) -> EconomicConfig {
     EconomicConfig {
+        contract_binding: None,
         network,
         contract: c(),
         collateral: p(),

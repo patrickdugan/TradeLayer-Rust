@@ -118,6 +118,8 @@ pub struct LiquidationEvent {
     pub mark_id: TxId,
     pub owner: AccountId,
     pub quantity_before: Decimal,
+    /// Source trade average for catalog-bound maintenance; absent in v1-v5.
+    pub average_price_before: Option<Decimal>,
     pub margin_before_atoms: u128,
     pub available_before_atoms: u128,
     pub required_before_atoms: u128,
@@ -146,14 +148,6 @@ impl EconomicState {
         bytes.extend_from_slice(&height.to_be_bytes());
         bytes.extend_from_slice(owner.as_str().as_bytes());
         TxId::from_bytes(double_sha256(&bytes))
-    }
-    fn maintenance_atoms(&self, quantity: &Decimal) -> Result<u128> {
-        atoms_up(
-            &quantity
-                .abs()
-                .checked_mul(&self.config.initial_margin_per_contract)?
-                .checked_mul(&"0.5".parse::<Decimal>()?)?,
-        )
     }
     fn liquidation_guard(&self, quantity: &Decimal, mark: &Decimal) -> Result<Decimal> {
         let config = self
@@ -209,9 +203,11 @@ impl EconomicState {
             return Ok(());
         };
         for call in self.expected_maintenance()? {
-            let quantity = self.position(&call.owner).contracts;
+            let position = self.position(&call.owner);
+            let quantity = position.contracts;
             if quantity.is_zero()
-                || self.margin_atoms(&call.owner) >= self.maintenance_atoms(&quantity)?
+                || self.margin_atoms(&call.owner)
+                    >= self.maintenance_at(&quantity, position.avg_price.as_ref())?
             {
                 continue;
             }
@@ -224,11 +220,17 @@ impl EconomicState {
                 mark_id,
                 owner: call.owner.clone(),
                 quantity_before: quantity.clone(),
+                average_price_before: if self.config.contract_binding.is_some() {
+                    position.avg_price.clone()
+                } else {
+                    None
+                },
                 margin_before_atoms: self.margin_atoms(&call.owner),
                 available_before_atoms: self
                     .ledger()
                     .available_atoms(self.config.collateral, &call.owner),
-                required_before_atoms: self.maintenance_atoms(&quantity)?,
+                required_before_atoms: self
+                    .maintenance_at(&quantity, position.avg_price.as_ref())?,
                 guard_price: self.liquidation_guard(&quantity, &observation.price)?,
                 book_before: self.book.snapshot(),
                 cancelled: Vec::new(),
@@ -259,7 +261,7 @@ impl EconomicState {
                 });
             }
             let missing = self
-                .required_margin(&quantity.abs())?
+                .required_margin_at(&quantity.abs(), &observation.price)?
                 .saturating_sub(self.margin_atoms(&event.owner));
             event.top_up_atoms = missing.min(
                 self.ledger()
@@ -275,12 +277,15 @@ impl EconomicState {
                 add(self.margin_atoms(&event.owner), event.top_up_atoms)?,
             );
             loop {
-                let quantity = self.position(&event.owner).contracts;
+                let position = self.position(&event.owner);
+                let quantity = position.contracts;
                 if quantity.is_zero() {
                     event.status = LiquidationStatus::Closed;
                     break;
                 }
-                if self.margin_atoms(&event.owner) >= self.maintenance_atoms(&quantity)? {
+                if self.margin_atoms(&event.owner)
+                    >= self.maintenance_at(&quantity, position.avg_price.as_ref())?
+                {
                     event.status = LiquidationStatus::Cured;
                     break;
                 }
@@ -354,15 +359,25 @@ impl EconomicState {
             .clone()
             .min(remaining);
         let used = self
-            .required_margin(&candidate.maker_before.reserve_quantity)?
-            .checked_sub(self.required_margin(&after_reserve)?)
+            .required_margin_at(
+                &candidate.maker_before.reserve_quantity,
+                &candidate.maker_before.order.price,
+            )?
+            .checked_sub(
+                self.required_margin_at(&after_reserve, &candidate.maker_before.order.price)?,
+            )
             .ok_or(EconomicError::Invariant)?;
         let delta = if candidate.maker_before.order.side == Side::Buy {
             candidate.maximum_quantity.clone()
         } else {
             candidate.maximum_quantity.negated()
         };
-        let target = self.required_margin(&old.checked_add(&delta)?.abs())?;
+        let target = self.margin_target_after_trade(
+            old,
+            &old.checked_add(&delta)?,
+            margin,
+            &candidate.maker_before.order.price,
+        )?;
         Ok(target.saturating_sub(add(margin, used)?))
     }
     fn forced_nominal_fee(
@@ -379,7 +394,7 @@ impl EconomicState {
             sell_maker: maker(!buy_maker),
             inverse: self.config.inverse,
             last_mark: price.clone(),
-            notional_value: self.config.notional.clone(),
+            notional_value: self.fee_input_notional(price)?,
             channel: false,
         })?;
         Ok(if distressed_side == Side::Buy {
@@ -387,6 +402,17 @@ impl EconomicState {
         } else {
             fee.seller.debit_atoms()
         })
+    }
+    fn reconcile_liquidation_margin(&mut self, owner: &AccountId, target: u128) -> Result<()> {
+        let current = self.margin_atoms(owner);
+        let escrow = self.margin_escrow(owner)?;
+        if current < target {
+            self.transfer(owner.clone(), escrow, target - current)?;
+        } else {
+            self.transfer(escrow, owner.clone(), current - target)?;
+        }
+        self.set_margin(owner.clone(), target);
+        Ok(())
     }
     fn settle_forced_candidate(
         &mut self,
@@ -401,6 +427,7 @@ impl EconomicState {
             .ledger()
             .available_atoms(self.config.collateral, maker_owner);
         let maker_margin_before_atoms = self.margin_atoms(maker_owner);
+        let distressed_margin_before_atoms = self.margin_atoms(owner);
         let registered_pool = self.liquidation_registered_pool()?;
         let fill = liquidation_consume_book_candidate(
             &mut self.book,
@@ -420,10 +447,21 @@ impl EconomicState {
             candidate.maker_before.order.side,
         )?;
         self.consume_reserve(fill.maker_txid, &fill.maker_reserve_used)?;
-        self.reconcile_margin(maker_owner)?;
+        let maker_target = self.margin_target_after_trade(
+            &maker_old.contracts,
+            &self.position(maker_owner).contracts,
+            maker_margin_before_atoms,
+            &fill.price,
+        )?;
+        self.reconcile_liquidation_margin(maker_owner, maker_target)?;
         // A forced reduction releases surplus custody, and never demands that
         // an already distressed owner first fund its old initial target.
-        let target = self.required_margin(&self.position(owner).contracts.abs())?;
+        let target = self.margin_target_after_trade(
+            &old.contracts,
+            &self.position(owner).contracts,
+            distressed_margin_before_atoms,
+            &fill.price,
+        )?;
         let margin = self.margin_atoms(owner);
         if margin > target {
             self.transfer(self.margin_escrow(owner)?, owner.clone(), margin - target)?;
@@ -719,13 +757,17 @@ impl EconomicState {
         }
         Ok(())
     }
-    fn liquidation_positions_before(&self, ordinal: usize) -> Result<BTreeMap<AccountId, Decimal>> {
+    fn liquidation_positions_before(
+        &self,
+        ordinal: usize,
+    ) -> Result<(BTreeMap<AccountId, Decimal>, BTreeMap<AccountId, Decimal>)> {
         let event = self
             .liquidation
             .events
             .get(ordinal)
             .ok_or(EconomicError::Invariant)?;
         let mut positions = BTreeMap::<AccountId, Decimal>::new();
+        let mut averages = BTreeMap::<AccountId, Decimal>::new();
         let indices: BTreeMap<_, _> = self
             .liquidation
             .events
@@ -747,13 +789,18 @@ impl EconomicState {
                 }
             }
             for entry in &action.entries {
-                if let BasisAction::Trade { delta, .. } = &entry.action {
-                    let old = positions.get(&entry.owner).cloned().unwrap_or_default();
-                    positions.insert(entry.owner.clone(), old.checked_add(delta)?);
+                if let BasisAction::Trade { delta, price } = &entry.action {
+                    liquidation_replay_trade(
+                        &mut positions,
+                        &mut averages,
+                        &entry.owner,
+                        delta,
+                        price,
+                    )?;
                 }
             }
         }
-        Ok(positions)
+        Ok((positions, averages))
     }
     fn verify_liquidations(&self) -> Result<()> {
         let Some(config) = &self.config.liquidation else {
@@ -780,7 +827,12 @@ impl EconomicState {
                 })
                 || !self.joint.system_epoch_ids_unverified().contains(&event.id)
                 || event.quantity_before.is_zero()
-                || event.required_before_atoms != self.maintenance_atoms(&event.quantity_before)?
+                || (self.config.contract_binding.is_none() && event.average_price_before.is_some())
+                || event.required_before_atoms
+                    != self.maintenance_at(
+                        &event.quantity_before,
+                        event.average_price_before.as_ref(),
+                    )?
                 || event.margin_before_atoms >= event.required_before_atoms
                 || event.fills.len() + event.amm_fills.len() > config.max_fills_per_owner as usize
             {
@@ -804,8 +856,15 @@ impl EconomicState {
             if event.guard_price != self.liquidation_guard(&event.quantity_before, &mark.price)? {
                 return Err(EconomicError::Invariant);
             }
-            let mut positions = self.liquidation_positions_before(ordinal)?;
-            if positions.get(&event.owner) != Some(&event.quantity_before) {
+            let (mut positions, mut averages) = self.liquidation_positions_before(ordinal)?;
+            let expected_average = if self.config.contract_binding.is_some() {
+                averages.get(&event.owner).cloned()
+            } else {
+                None
+            };
+            if positions.get(&event.owner) != Some(&event.quantity_before)
+                || event.average_price_before != expected_average
+            {
                 return Err(EconomicError::Invariant);
             }
             let mut book = ContractOrderbook::from_snapshot(event.book_before.clone())?;
@@ -837,7 +896,7 @@ impl EconomicState {
                 refunded = add(refunded, quote.reserve_atoms)?;
             }
             for (order, recorded) in cancelled.resting.iter().zip(&event.cancelled) {
-                let atoms = self.required_margin(&order.reserve_quantity)?;
+                let atoms = self.required_margin_at(&order.reserve_quantity, &order.order.price)?;
                 if *order != recorded.order || atoms != recorded.reserve_atoms {
                     return Err(EconomicError::Invariant);
                 }
@@ -845,7 +904,7 @@ impl EconomicState {
             }
             let available = add(event.available_before_atoms, refunded)?;
             let topup = available.min(
-                self.required_margin(&event.quantity_before.abs())?
+                self.required_margin_at(&event.quantity_before.abs(), &mark.price)?
                     .saturating_sub(event.margin_before_atoms),
             );
             if event.top_up_atoms != topup {
@@ -856,7 +915,7 @@ impl EconomicState {
             let mut first_available = Some(available - topup);
             for (index, receipt) in event.amm_fills.iter().enumerate() {
                 if quantity.is_zero()
-                    || margin >= self.maintenance_atoms(&quantity)?
+                    || margin >= self.maintenance_at(&quantity, averages.get(&event.owner))?
                     || self.is_amm_owner(&event.owner)
                 {
                     return Err(EconomicError::Invariant);
@@ -879,12 +938,30 @@ impl EconomicState {
                 } else {
                     receipt.quantity.negated()
                 };
+                let distressed_before = quantity.clone();
                 quantity = quantity.checked_add(&delta)?;
                 let pool_after = pool_quantity.checked_sub(&delta)?;
-                positions.insert(event.owner.clone(), quantity.clone());
-                positions.insert(pool.clone(), pool_after.clone());
+                liquidation_replay_trade(
+                    &mut positions,
+                    &mut averages,
+                    &event.owner,
+                    &delta,
+                    &receipt.price,
+                )?;
+                liquidation_replay_trade(
+                    &mut positions,
+                    &mut averages,
+                    pool,
+                    &delta.negated(),
+                    &receipt.price,
+                )?;
                 let forced = self.amm_forced_mark_event(event.id, index as u32)?;
-                let target = self.required_margin(&quantity.abs())?;
+                let target = self.margin_target_after_trade(
+                    &distressed_before,
+                    &quantity,
+                    margin,
+                    &receipt.price,
+                )?;
                 let before_fee_margin = margin.min(target);
                 let released = margin - before_fee_margin;
                 if let Some(a) = first_available.take() {
@@ -910,10 +987,15 @@ impl EconomicState {
                 let reserve_used = receipt
                     .quote_before
                     .reserve_atoms
-                    .checked_sub(self.required_margin(&quote_left)?)
+                    .checked_sub(self.required_margin_at(&quote_left, &receipt.quote_before.price)?)
                     .ok_or(EconomicError::Invariant)?;
                 let pool_custody = add(receipt.maker_margin_before_atoms, reserve_used)?;
-                let pool_target = self.required_margin(&pool_after.abs())?;
+                let pool_target = self.margin_target_after_trade(
+                    &pool_quantity,
+                    &pool_after,
+                    receipt.maker_margin_before_atoms,
+                    &receipt.price,
+                )?;
                 let pool_available = if pool_custody >= pool_target {
                     add(
                         receipt.maker_available_before_atoms,
@@ -953,7 +1035,9 @@ impl EconomicState {
                 total_fills = total_fills.checked_add(1).ok_or(EconomicError::Capacity)?;
             }
             for (index, receipt) in event.fills.iter().enumerate() {
-                if quantity.is_zero() || margin >= self.maintenance_atoms(&quantity)? {
+                if quantity.is_zero()
+                    || margin >= self.maintenance_at(&quantity, averages.get(&event.owner))?
+                {
                     return Err(EconomicError::Invariant);
                 }
                 let request = self.liquidation_request(event, &quantity);
@@ -993,12 +1077,30 @@ impl EconomicState {
                 } else {
                     receipt.quantity.negated()
                 };
+                let distressed_before = quantity.clone();
                 quantity = quantity.checked_add(&delta)?;
                 let maker_after = maker_old.checked_sub(&delta)?;
-                positions.insert(event.owner.clone(), quantity.clone());
-                positions.insert(maker_owner.clone(), maker_after.clone());
+                liquidation_replay_trade(
+                    &mut positions,
+                    &mut averages,
+                    &event.owner,
+                    &delta,
+                    &receipt.price,
+                )?;
+                liquidation_replay_trade(
+                    &mut positions,
+                    &mut averages,
+                    maker_owner,
+                    &delta.negated(),
+                    &receipt.price,
+                )?;
                 let forced = self.forced_mark_event(event.id, index as u32)?;
-                let target = self.required_margin(&quantity.abs())?;
+                let target = self.margin_target_after_trade(
+                    &distressed_before,
+                    &quantity,
+                    margin,
+                    &receipt.price,
+                )?;
                 let before_fee_margin = margin.min(target);
                 let released = margin - before_fee_margin;
                 if let Some(a) = first_available.take() {
@@ -1028,11 +1130,22 @@ impl EconomicState {
                     return Err(EconomicError::Invariant);
                 }
                 let reserve_used = self
-                    .required_margin(&fill.maker_reserve_before)?
-                    .checked_sub(self.required_margin(&fill.maker_reserve_after)?)
+                    .required_margin_at(
+                        &fill.maker_reserve_before,
+                        &receipt.maker_before.order.price,
+                    )?
+                    .checked_sub(self.required_margin_at(
+                        &fill.maker_reserve_after,
+                        &receipt.maker_before.order.price,
+                    )?)
                     .ok_or(EconomicError::Invariant)?;
                 let maker_custody = add(receipt.maker_margin_before_atoms, reserve_used)?;
-                let maker_target = self.required_margin(&maker_after.abs())?;
+                let maker_target = self.margin_target_after_trade(
+                    &maker_old,
+                    &maker_after,
+                    receipt.maker_margin_before_atoms,
+                    &receipt.price,
+                )?;
                 let maker_available = if maker_custody >= maker_target {
                     add(
                         receipt.maker_available_before_atoms,
@@ -1064,7 +1177,7 @@ impl EconomicState {
             }
             let expected = if quantity.is_zero() {
                 LiquidationStatus::Closed
-            } else if margin >= self.maintenance_atoms(&quantity)? {
+            } else if margin >= self.maintenance_at(&quantity, averages.get(&event.owner))? {
                 LiquidationStatus::Cured
             } else if event.fills.len() + event.amm_fills.len()
                 == config.max_fills_per_owner as usize

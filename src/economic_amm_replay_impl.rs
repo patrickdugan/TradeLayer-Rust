@@ -196,7 +196,9 @@ impl EconomicState {
                     let used = receipt
                         .quote_before
                         .reserve_atoms
-                        .checked_sub(self.required_margin(&remaining)?)
+                        .checked_sub(
+                            self.required_margin_at(&remaining, &receipt.quote_before.price)?,
+                        )
                         .ok_or(EconomicError::Invariant)?;
                     let before = add(receipt.maker_margin_before_atoms, used)?;
                     let target = forced.entries[1].margin_atoms;
@@ -451,6 +453,7 @@ mod amm_cash_history_tests {
                 max_collateral_atoms: 100 * ATOMS_PER_TOKEN,
                 policy: FundedAmmPolicy::ConservingFundedContractAmmV1,
             }),
+            contract_binding: None,
         };
         let joint = JointProtocolState::from_bootstrap_unverified(
             config.network,
@@ -468,6 +471,7 @@ mod amm_cash_history_tests {
             mark_id: TxId::from_bytes([0xa3; 32]),
             generation: 1,
             position_before: decimal("1"),
+            average_price_before: None,
             cash_before_atoms: 20 * ATOMS_PER_TOKEN,
             margin_before_atoms: 5 * ATOMS_PER_TOKEN,
             unpaid_loss_before_atoms: 0,
@@ -475,7 +479,7 @@ mod amm_cash_history_tests {
             quotes: Vec::new(),
         };
         assert_eq!(
-            owner.maintenance_atoms(&epoch.position_before).unwrap(),
+            owner.maintenance_at(&epoch.position_before, None).unwrap(),
             epoch.margin_before_atoms
         );
         assert_eq!(

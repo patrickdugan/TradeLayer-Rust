@@ -207,6 +207,10 @@ impl Registry {
         self.activations.get(usize::from(ty)).copied().flatten()
     }
 
+    pub(crate) fn protocol_admin_unverified(&self) -> &AccountId {
+        &self.protocol_admin
+    }
+
     pub fn whitelist(&self, id: u32) -> Option<&Whitelist> {
         self.whitelists.get(&id)
     }
