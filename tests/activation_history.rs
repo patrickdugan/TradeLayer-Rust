@@ -58,6 +58,8 @@ fn fixture(network: Network, source: bool) -> EconomicChain {
     )
     .unwrap();
     let config = EconomicConfig {
+        native_entitlements: None,
+        insurance: None,
         network,
         contract: 1.try_into().unwrap(),
         collateral: property(),

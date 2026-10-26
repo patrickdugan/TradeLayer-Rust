@@ -43,7 +43,7 @@ jobs:
       - name: Check included VolumeIndex source metadata formatting
         run: rustfmt --check --edition 2021 src/volume_index_source_impl.rs
       - name: Check included spot snapshot file formatting
-        run: rustfmt --check --edition 2021 src/spot_snapshot_impl.rs
+        run: rustfmt --check --edition 2021 src/spot_snapshot_impl.rs src/ledger_native_impl.rs src/spot_native_impl.rs src/joint_native_impl.rs src/joint_chain_native_impl.rs src/economic_native_impl.rs src/economic_insurance_impl.rs src/economic_insurance_snapshot_impl.rs
       - name: Check included joint snapshot file formatting
         run: rustfmt --check --edition 2021 src/joint_snapshot_impl.rs src/joint_economic_impl.rs src/economic_snapshot_impl.rs src/economic_funding_impl.rs src/economic_mark_impl.rs src/economic_liquidation_impl.rs src/economic_liquidation_replay_impl.rs src/contract_orderbook_liquidation_impl.rs src/economic_amm_impl.rs src/economic_amm_replay_impl.rs src/economic_contract_impl.rs src/economic_block_stage_impl.rs src/economic_consensus_impl.rs
       - name: Check included combined clearing snapshot formatting
@@ -94,6 +94,7 @@ jobs:
           node scripts/activation_vectors.cjs --check
           node scripts/native_genesis_vectors.cjs --check
           node scripts/native_entitlement_vectors.cjs --check
+          node scripts/native_entitlement_owner_vectors.cjs --check
           node scripts/channels_vectors.cjs --check
           node scripts/oracle_vectors.cjs
           node scripts/amm_vectors.cjs

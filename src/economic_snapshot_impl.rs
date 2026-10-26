@@ -293,7 +293,9 @@ fn econ_read_config(
         return Err(econ_snapshot_bad());
     }
     let mut config = EconomicConfig {
+        insurance: None,
         source_consensus: None,
+        native_entitlements: None,
         network,
         contract: econ_read_contract(reader)?,
         collateral: econ_read_property(reader)?,
@@ -2495,6 +2497,17 @@ fn econ_write_input(
     budget: &mut ContractRecordBudget,
 ) -> Result<()> {
     match input {
+        EconomicInput::NativeTarget(request) => {
+            out.byte(5)?;
+            out.txid(request.txid)?;
+            out.account(&request.claimed_actor)?;
+            out.u32(request.coupon.get())?;
+            out.atoms(request.requested_target_atoms)
+        }
+        EconomicInput::Insurance(input) => {
+            out.byte(6)?;
+            insurance_write_input(out, input)
+        }
         EconomicInput::Joint(tx) => {
             out.byte(0)?;
             econ_write_joint_input(out, tx, budget)
@@ -2537,6 +2550,13 @@ fn econ_read_input(
         },
         3 => EconomicInput::Amm(econ_read_amm_input(reader)?),
         4 => EconomicInput::CreateContract(econ_read_contract_creation(reader, budget)?),
+        5 => EconomicInput::NativeTarget(crate::native_entitlement::UnverifiedNativeTarget {
+            txid: econ_read_txid(reader)?,
+            claimed_actor: econ_read_account(reader)?,
+            coupon: econ_read_property(reader)?,
+            requested_target_atoms: econ_read_atoms(reader)?,
+        }),
+        6 => EconomicInput::Insurance(insurance_read_input(reader)?),
         _ => return Err(econ_snapshot_bad()),
     })
 }
@@ -2608,6 +2628,12 @@ fn econ_read_contract_state(reader: &mut Cursor<'_>) -> Result<ContractBindingSt
 
 impl EconomicState {
     pub fn snapshot_bytes(&self) -> Result<Vec<u8>> {
+        if self.config.insurance.is_some() {
+            return self.insurance_snapshot_bytes();
+        }
+        if self.config.native_entitlements.is_some() {
+            return self.native_snapshot_bytes();
+        }
         if self.config.source_consensus.is_some() {
             return self.source_snapshot_bytes();
         }
@@ -2733,6 +2759,18 @@ impl EconomicState {
         permitted: &BTreeSet<PropertyId>,
     ) -> Result<Self> {
         expected_config.validate()?;
+        if bytes.starts_with(ECONOMIC_INSURANCE_MAGIC) {
+            return Self::from_insurance_snapshot_bytes(bytes, expected_config, admin, permitted);
+        }
+        if expected_config.insurance.is_some() {
+            return Err(EconomicError::InvalidConfig);
+        }
+        if bytes.starts_with(b"TLEC\x08") {
+            return Self::from_native_snapshot_bytes(bytes, expected_config, admin, permitted);
+        }
+        if expected_config.native_entitlements.is_some() {
+            return Err(EconomicError::InvalidSnapshot);
+        }
         if bytes.starts_with(ECONOMIC_SOURCE_MAGIC) {
             return Self::from_source_snapshot_bytes(bytes, expected_config, admin, permitted);
         }
@@ -2890,6 +2928,7 @@ impl EconomicState {
             cancel_ids,
             loss_pool_atoms,
             insurance_custody_atoms,
+            insurance: InsuranceState::default(),
             unfunded_loss_atoms,
             receipts,
             internal_sequence,
@@ -2901,6 +2940,8 @@ impl EconomicState {
             replaying_contract_history: false,
             source_consensus: SourceConsensusState::default(),
             replaying_source_history: false,
+            native_entitlements: NativeEconomicState::default(),
+            replaying_native_history: false,
         };
         result.verify()?;
         if result.snapshot_bytes()?.as_slice() != bytes {
@@ -3217,6 +3258,8 @@ mod funding_codec_compat_tests {
         )
         .unwrap();
         let config = EconomicConfig {
+            native_entitlements: None,
+            insurance: None,
             source_consensus: None,
             network: TradeLayerMainnet::Bitcoin,
             contract: 1.try_into().unwrap(),

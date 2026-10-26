@@ -30,6 +30,8 @@ fn contract() -> ContractId {
 }
 fn config() -> EconomicConfig {
     EconomicConfig {
+        native_entitlements: None,
+        insurance: None,
         contract_binding: None,
         source_consensus: None,
         network: TradeLayerMainnet::Litecoin,

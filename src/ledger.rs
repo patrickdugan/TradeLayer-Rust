@@ -209,6 +209,7 @@ pub enum LedgerError {
     MalformedSettlementJournal,
     ChannelRevision(crate::channel_revision::RevisionError),
     SignedChannelFenced(AccountId),
+    NativeEntitlement(crate::native_entitlement::NativeError),
 }
 
 impl fmt::Display for LedgerError {
@@ -266,6 +267,7 @@ impl fmt::Display for LedgerError {
             Self::MalformedSettlementJournal => write!(f, "invalid settlement journal state"),
             Self::ChannelRevision(e) => write!(f, "signed channel revision: {e}"),
             Self::SignedChannelFenced(c) => write!(f, "signed-only channel {}", c.as_str()),
+            Self::NativeEntitlement(e) => write!(f, "native entitlement: {e}"),
         }
     }
 }
@@ -284,6 +286,7 @@ pub struct Ledger {
     king_settlements: BTreeMap<TxId, KingReceipt>,
     processed: BTreeSet<TxId>,
     channel_revisions: BTreeMap<AccountId, EnrolledChannelRevision>,
+    native: Option<NativeState>,
 }
 
 impl Ledger {
@@ -371,6 +374,11 @@ impl Ledger {
             pending.execute(txid, op)?;
         }
         pending.verify_conservation()?;
+        if pending.native.is_some() {
+            pending
+                .snapshot_bytes_verified()
+                .map_err(native_application_snapshot)?;
+        }
         *self = pending;
         Ok(())
     }
@@ -405,6 +413,20 @@ impl Ledger {
     }
 
     fn execute(&mut self, txid: TxId, operation: Operation) -> Result<(), LedgerError> {
+        self.fence_native_operation(&operation)?;
+        let native_transfer = self.native_transfer_record(txid, &operation)?;
+        self.execute_ordinary(txid, operation)?;
+        if let Some(event) = native_transfer {
+            self.native
+                .as_mut()
+                .expect("native policy selected")
+                .events
+                .push(event);
+        }
+        Ok(())
+    }
+
+    fn execute_ordinary(&mut self, txid: TxId, operation: Operation) -> Result<(), LedgerError> {
         self.fence_legacy_channel_operation(&operation)?;
         match operation {
             Operation::CreateProperty {
@@ -619,6 +641,7 @@ impl Ledger {
     /// available balances. This first slice has no reserved or other columns.
     pub fn verify_conservation(&self) -> Result<(), LedgerError> {
         self.verify_base_conservation()?;
+        self.verify_native_state()?;
         self.verify_channel_revision_state()
     }
     fn verify_base_conservation(&self) -> Result<(), LedgerError> {
@@ -727,6 +750,13 @@ impl Ledger {
     }
     // Only called after the complete validation boundary, including all witnesses.
     fn snapshot_bytes_verified(&self) -> Result<Vec<u8>, SnapshotError> {
+        if self.native.is_some() {
+            return self.native_snapshot_bytes_verified();
+        }
+        self.ordinary_snapshot_bytes_verified()
+    }
+
+    fn ordinary_snapshot_bytes_verified(&self) -> Result<Vec<u8>, SnapshotError> {
         use crate::codec::{with_crc, MAX_CHECKPOINT_BYTES};
         if [
             self.properties.len(),
@@ -798,13 +828,21 @@ impl Ledger {
     /// Decode only canonical ascending records. Unknown format versions,
     /// duplicates, trailing bytes, and broken conservation fail closed.
     pub fn from_snapshot_bytes(input: &[u8]) -> Result<Self, SnapshotError> {
-        Self::decode_snapshot_with_channel_policies(input, None)
+        let state = Self::decode_snapshot_with_channel_policies(input, None)?;
+        state
+            .verify_native_state()
+            .map_err(SnapshotError::InvalidLedger)?;
+        Ok(state)
     }
     pub fn from_snapshot_bytes_with_channel_policies(
         input: &[u8],
         expected: &ExpectedChannelRevisionPolicies,
     ) -> Result<Self, SnapshotError> {
-        Self::decode_snapshot_with_channel_policies(input, Some(expected))
+        let state = Self::decode_snapshot_with_channel_policies(input, Some(expected))?;
+        state
+            .verify_native_state()
+            .map_err(SnapshotError::InvalidLedger)?;
+        Ok(state)
     }
     fn decode_snapshot_with_channel_policies(
         input: &[u8],
@@ -1029,3 +1067,5 @@ mod snapshot_tests {
 include!("ledger_channels_impl.rs");
 include!("ledger_settlement_impl.rs");
 include!("ledger_channel_revisions_impl.rs");
+
+include!("ledger_native_impl.rs");

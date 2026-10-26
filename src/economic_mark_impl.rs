@@ -390,6 +390,7 @@ impl EconomicState {
         let mut unpaid_losses = BTreeMap::new();
         let mut capital_frames = self.amm.frames.iter().peekable();
         let mut funding_epochs = self.funding.epochs.iter().peekable();
+        let mut insurance_receipts = self.insurance.receipts.iter().peekable();
         let mut publications = BTreeSet::new();
         let mut pool = 0;
         let mut bad_debt = 0;
@@ -407,6 +408,17 @@ impl EconomicState {
                 .peek()
                 .is_some_and(|frame| frame.height <= event.height)
             {
+                insurance_replay_before_height(
+                    &mut insurance_receipts,
+                    capital_frames
+                        .peek()
+                        .ok_or(EconomicError::Invariant)?
+                        .height,
+                    self.iou_key(),
+                    &mut ious,
+                    &mut unpaid_losses,
+                    &mut pool,
+                )?;
                 self.verify_amm_capital_boundary(
                     capital_frames.next().ok_or(EconomicError::Invariant)?,
                     &bases,
@@ -414,6 +426,14 @@ impl EconomicState {
                     &unpaid_losses,
                 )?;
             }
+            insurance_replay_before_height(
+                &mut insurance_receipts,
+                event.height,
+                self.iou_key(),
+                &mut ious,
+                &mut unpaid_losses,
+                &mut pool,
+            )?;
             while funding_epochs.peek().is_some_and(|e| {
                 e.height < event.height
                     || (e.height == event.height
@@ -639,8 +659,24 @@ impl EconomicState {
             last_height = event.height;
         }
         for frame in capital_frames {
+            insurance_replay_before_height(
+                &mut insurance_receipts,
+                frame.height,
+                self.iou_key(),
+                &mut ious,
+                &mut unpaid_losses,
+                &mut pool,
+            )?;
             self.verify_amm_capital_boundary(frame, &bases, &ious, &unpaid_losses)?;
         }
+        insurance_replay_before_height(
+            &mut insurance_receipts,
+            u64::MAX,
+            self.iou_key(),
+            &mut ious,
+            &mut unpaid_losses,
+            &mut pool,
+        )?;
         for epoch in funding_epochs {
             mark_verify_funding_positions(epoch, &bases)?;
         }

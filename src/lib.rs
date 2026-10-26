@@ -184,3 +184,5 @@ mod tests {
         );
     }
 }
+
+pub mod native_entitlement;

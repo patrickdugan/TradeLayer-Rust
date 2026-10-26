@@ -123,6 +123,11 @@ impl SpotChainState {
         if !(1..=MAX_REORG_HISTORY).contains(&history_limit) {
             return Err(SpotChainError::InvalidHistoryLimit);
         }
+        if state.native_policy().is_some() {
+            return Err(SpotChainError::Checkpoint(bad(
+                "native policy needs native-aware owner",
+            )));
+        }
         if !state.is_pristine_unverified() {
             return Err(SpotChainError::Checkpoint(bad(
                 "initial spot state must be pristine",

@@ -108,6 +108,8 @@ fn bootstrap() -> JointProtocolState {
 }
 fn config(input: &CreateContractInput) -> EconomicConfig {
     EconomicConfig {
+        native_entitlements: None,
+        insurance: None,
         source_consensus: None,
         network: TradeLayerMainnet::Litecoin,
         contract: c(),

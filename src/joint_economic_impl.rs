@@ -40,7 +40,9 @@ impl JointProtocolState {
             .balances_with_account_prefix("~")
             .iter()
             .any(|(_, account, _)| {
-                !account.as_str().starts_with("~spot:") && !account.as_str().starts_with("~econ:")
+                !(account.as_str().starts_with("~spot:")
+                    || account.as_str().starts_with("~econ:")
+                    || (self.native_policy().is_some() && account.as_str().starts_with("~native:")))
             })
         {
             return Err(JointError::UnsupportedLegacyLiabilities);
@@ -121,6 +123,25 @@ impl JointProtocolState {
         &self.system_epoch_ids
     }
 
+    /// Local owner policy input, deliberately separate from legacy wire types.
+    /// The outer owner binds its identity and complete insurance receipts.
+    pub(crate) fn note_insurance_input_unverified(
+        &mut self,
+        txid: TxId,
+        height: u64,
+    ) -> Result<(), JointError> {
+        self.check_economic_pending_height(height)?;
+        self.check_new_input_unverified(height, txid)?;
+        // Explicit market eligibility policy; this is not a type18 transaction.
+        self.check_activated(18, height)?;
+        self.economic_input_ids.insert(txid);
+        self.global_input_ids.insert(txid);
+        self.economic_pending_height = Some(height);
+        self.economic_pending_input = Some(txid);
+        self.spot.note_clearing_event_unverified();
+        Ok(())
+    }
+
     /// The outer owner derives all addresses and fingerprints and commits its
     /// exact metadata with these movements. External event IDs cannot be reused
     /// as internal ledger-transfer IDs, including registry/spot/economic IDs.
@@ -176,7 +197,9 @@ impl JointProtocolState {
     pub(crate) fn snapshot_for_economic_bytes(&self) -> Result<Vec<u8>, JointSnapshotError> {
         self.verify_for_economic_owner_unverified()
             .map_err(JointSnapshotError::Joint)?;
-        let mut out = if self.system_epoch_ids.is_empty() {
+        let mut out = if self.native_policy().is_some() {
+            b"TLJE\x03".to_vec()
+        } else if self.system_epoch_ids.is_empty() {
             JOINT_ECONOMIC_MAGIC.to_vec()
         } else {
             JOINT_ECONOMIC_EPOCH_MAGIC.to_vec()
@@ -206,7 +229,7 @@ impl JointProtocolState {
             economic_check_append(&out, 4 + ids.len() * 32)?;
             joint_write_replay_ids(&mut out, ids)?;
         }
-        if !self.system_epoch_ids.is_empty() {
+        if self.native_policy().is_some() || !self.system_epoch_ids.is_empty() {
             economic_check_append(&out, 4 + self.system_epoch_ids.len() * 32)?;
             joint_write_replay_ids(&mut out, &self.system_epoch_ids)?;
         }
@@ -235,12 +258,32 @@ impl JointProtocolState {
         expected_admin: &AccountId,
         expected_permitted: &BTreeSet<PropertyId>,
     ) -> Result<Self, JointSnapshotError> {
+        Self::from_economic_snapshot_bytes_native_mode(
+            bytes,
+            expected_network,
+            expected_admin,
+            expected_permitted,
+            None,
+        )
+    }
+    fn from_economic_snapshot_bytes_native_mode(
+        bytes: &[u8],
+        expected_network: TradeLayerMainnet,
+        expected_admin: &AccountId,
+        expected_permitted: &BTreeSet<PropertyId>,
+        native_policy: Option<&crate::native_entitlement::NativeEntitlementPolicy>,
+    ) -> Result<Self, JointSnapshotError> {
         let raw = verify_crc(bytes).map_err(|_| joint_bad("economic joint CRC/size"))?;
         let mut reader = Cursor::new(raw);
         let version = reader
             .fixed::<5>()
             .map_err(|_| joint_bad("economic joint magic"))?;
-        let has_epochs = if version == *JOINT_ECONOMIC_MAGIC {
+        let has_epochs = if native_policy.is_some() {
+            if version != *b"TLJE\x03" {
+                return Err(joint_bad("native economic joint version"));
+            }
+            true
+        } else if version == *JOINT_ECONOMIC_MAGIC {
             false
         } else if version == *JOINT_ECONOMIC_EPOCH_MAGIC {
             true
@@ -274,7 +317,7 @@ impl JointProtocolState {
         let economic_input_ids = joint_read_replay_ids(&mut reader)?;
         let system_epoch_ids = if has_epochs {
             let ids = joint_read_replay_ids(&mut reader)?;
-            if ids.is_empty() {
+            if ids.is_empty() && native_policy.is_none() {
                 return Err(joint_bad("v2 requires system epochs"));
             }
             ids
@@ -299,11 +342,21 @@ impl JointProtocolState {
         reader
             .end()
             .map_err(|_| joint_bad("trailing economic joint bytes"))?;
-        let spot = SpotExchange::from_combined_spot_snapshot_bytes_unverified(
-            spot_bytes,
-            expected_permitted,
-            activity,
-        )
+        let spot = match native_policy {
+            Some(p) => {
+                SpotExchange::from_combined_spot_snapshot_bytes_with_native_policy_unverified(
+                    spot_bytes,
+                    expected_permitted,
+                    activity,
+                    p,
+                )
+            }
+            None => SpotExchange::from_combined_spot_snapshot_bytes_unverified(
+                spot_bytes,
+                expected_permitted,
+                activity,
+            ),
+        }
         .map_err(JointSnapshotError::Spot)?;
         let result = Self {
             network,

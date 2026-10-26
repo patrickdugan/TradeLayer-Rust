@@ -43,9 +43,24 @@ pub struct EconomicConfig {
     pub amm: Option<FundedAmmConfig>,
     pub contract_binding: Option<ContractBindingConfig>,
     pub source_consensus: Option<SourceConsensusConfig>,
+    pub native_entitlements: Option<crate::native_entitlement::NativeEntitlementPolicy>,
+    pub insurance: Option<InsuranceConfig>,
 }
 impl EconomicConfig {
     pub fn validate(&self) -> Result<(), EconomicError> {
+        if let Some(p) = &self.native_entitlements {
+            p.validate().map_err(|_| EconomicError::InvalidConfig)?;
+            if p.network != self.network
+                || p.bootstrap
+                    != (crate::chain::Tip {
+                        height: 0,
+                        id: self.network.genesis(),
+                    })
+                || p.is_coupon(self.collateral)
+            {
+                return Err(EconomicError::InvalidConfig);
+            }
+        }
         bounded(&self.notional)?;
         bounded(&self.initial_margin_per_contract)?;
         if self.notional <= Decimal::zero()
@@ -84,13 +99,16 @@ impl EconomicConfig {
                 return Err(EconomicError::InvalidConfig);
             }
         }
+        self.validate_insurance()?;
         Ok(())
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum EconomicInput {
+    Insurance(UnverifiedInsuranceInput),
     Joint(UnverifiedJointTx),
+    NativeTarget(crate::native_entitlement::UnverifiedNativeTarget),
     CreateContract(CreateContractInput),
     Amm(AmmCapitalInput),
     Order(Order),
@@ -217,14 +235,41 @@ pub struct EconomicState {
     replaying_contract_history: bool,
     source_consensus: SourceConsensusState,
     replaying_source_history: bool,
+    native_entitlements: NativeEconomicState,
+    replaying_native_history: bool,
+    insurance: InsuranceState,
 }
 impl EconomicState {
     pub fn from_joint_unverified(
         config: EconomicConfig,
         joint: JointProtocolState,
     ) -> Result<Self> {
+        Self::from_joint_native_mode_unverified(config, joint, false)
+    }
+    fn from_joint_native_mode_unverified(
+        config: EconomicConfig,
+        joint: JointProtocolState,
+        replaying_native: bool,
+    ) -> Result<Self> {
         config.validate()?;
         joint.verify_components_unverified()?;
+        if joint.native_policy() != config.native_entitlements.as_ref() {
+            return Err(EconomicError::InvalidConfig);
+        }
+        let native_entitlements = if config.native_entitlements.is_some() {
+            joint
+                .ledger()
+                .require_pristine_native_adoption_unverified()
+                .map_err(|_| EconomicError::InvalidConfig)?;
+            NativeEconomicState {
+                bootstrap: joint
+                    .snapshot_for_economic_bytes()
+                    .map_err(|_| EconomicError::InvalidSnapshot)?,
+                frames: Vec::new(),
+            }
+        } else {
+            NativeEconomicState::default()
+        };
         if config.network != joint.network()
             || joint.ledger().property(config.collateral).is_none()
             || joint.finalized_height().is_some()
@@ -282,6 +327,9 @@ impl EconomicState {
             replaying_contract_history: false,
             source_consensus,
             replaying_source_history: false,
+            native_entitlements,
+            replaying_native_history: replaying_native,
+            insurance: InsuranceState::default(),
         };
         state.verify()?;
         Ok(state)
@@ -777,8 +825,10 @@ impl EconomicState {
 
     pub fn verify(&self) -> Result<()> {
         self.config.validate()?;
+        self.verify_native_entitlements()?;
         self.verify_contract_binding()?;
         self.verify_source_consensus()?;
+        self.verify_insurance()?;
         self.joint.verify_for_economic_owner_unverified()?;
         self.verify_funding()?;
         self.verify_marks()?;
@@ -820,6 +870,11 @@ impl EconomicState {
             .flat_map(|frame| &frame.capital_receipts)
         {
             if !inputs.insert(receipt.txid) {
+                return Err(EconomicError::Invariant);
+            }
+        }
+        for receipt in &self.insurance.receipts {
+            if !inputs.insert(receipt.input.txid) {
                 return Err(EconomicError::Invariant);
             }
         }
@@ -919,6 +974,12 @@ impl EconomicState {
             self.insurance_custody_atoms,
         )?;
         track(self.escrow(b"loss-pool", &[])?, self.loss_pool_atoms)?;
+        if self.config.insurance.is_some() {
+            track(
+                self.insurance_reserve_account()?,
+                self.insurance.reserve_atoms,
+            )?;
+        }
         if self.config.amm.is_some() {
             track(self.amm_owner()?, self.amm.cash_atoms)?;
             for quote in &self.amm.quotes {
@@ -988,10 +1049,21 @@ impl EconomicState {
             bad_debt = add(bad_debt, receipt.unfunded_loss_atoms)?;
             last = receipt.height;
         }
+        for receipt in &self.insurance.receipts {
+            if let Some(plan) = &receipt.plan {
+                collected = add(collected, plan.cover_atoms)?;
+                paid = add(paid, insurance_total(&plan.existing_funded_payouts)?)?;
+                paid = add(paid, insurance_total(&plan.insurer_funded_payouts)?)?;
+            }
+        }
         if collected.checked_sub(paid) != Some(self.loss_pool_atoms)
             || bad_debt != self.unfunded_loss_atoms
             || expected_fees != self.fees
-            || expected_insurance != self.insurance_custody_atoms
+            || expected_insurance
+                != add(
+                    self.insurance_custody_atoms,
+                    self.insurance.adopted_fee_atoms,
+                )?
         {
             return Err(EconomicError::Invariant);
         }
@@ -1065,3 +1137,10 @@ include!("economic_contract_impl.rs");
 
 include!("economic_block_stage_impl.rs");
 include!("economic_consensus_impl.rs");
+
+include!("economic_native_impl.rs");
+include!("economic_insurance_impl.rs");
+include!("economic_insurance_snapshot_impl.rs");
+#[cfg(test)]
+#[path = "economic_insurance_poison_tests.rs"]
+mod economic_insurance_poison_tests;

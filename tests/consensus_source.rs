@@ -56,6 +56,8 @@ fn fixture(network: TradeLayerMainnet) -> EconomicChain {
     .unwrap();
     let bootstrap_commitment = EconomicState::source_bootstrap_commitment(&joint).unwrap();
     let economics = EconomicConfig {
+        native_entitlements: None,
+        insurance: None,
         network,
         contract: 1.try_into().unwrap(),
         collateral: p(),

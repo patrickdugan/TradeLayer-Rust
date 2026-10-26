@@ -66,6 +66,7 @@ pub enum FundedIouError {
     ReservedAccount,
     EscrowCollision,
     SignedChannelUnsupported,
+    NativePolicyUnsupported,
     ZeroAmount,
     NonpositiveMatchProfit,
     FractionalAtom,
@@ -400,6 +401,9 @@ impl FundedIouLedger {
     }
 
     pub fn verify(&self) -> Result<(), FundedIouError> {
+        if self.ledger.native_policy().is_some() {
+            return Err(FundedIouError::NativePolicyUnsupported);
+        }
         if self.ledger.has_signed_channel_revisions() {
             return Err(FundedIouError::SignedChannelUnsupported);
         }

@@ -67,6 +67,7 @@ impl EconomicState {
         let mut marks = self.marking.events.iter().peekable();
         let mut funding = self.funding.epochs.iter().peekable();
         let mut liquidations = self.liquidation.events.iter().peekable();
+        let mut insurance_receipts = self.insurance.receipts.iter().peekable();
         for (ordinal, frame) in self.amm.frames.iter().enumerate() {
             if frame.height != ordinal as u64 + 1 {
                 return Err(EconomicError::Invariant);
@@ -257,11 +258,36 @@ impl EconomicState {
             {
                 return Err(EconomicError::Invariant);
             }
+            while insurance_receipts
+                .peek()
+                .is_some_and(|receipt| receipt.height == frame.height)
+            {
+                let receipt = insurance_receipts.next().ok_or(EconomicError::Invariant)?;
+                insurance_replay_pnl(
+                    receipt,
+                    self.iou_key(),
+                    &mut pnl.ious,
+                    &mut pnl.unpaid,
+                    &mut pnl.loss_pool,
+                )?;
+                if let Some(plan) = &receipt.plan {
+                    for payout in plan
+                        .existing_funded_payouts
+                        .iter()
+                        .chain(&plan.insurer_funded_payouts)
+                    {
+                        if payout.owner == pool {
+                            cash.push(false, self.escrow(b"loss-pool", &[])?, payout.atoms)?;
+                        }
+                    }
+                }
+            }
             cash.verify_legs(&frame.cash_legs)?;
         }
         if marks.next().is_some()
             || funding.next().is_some()
             || liquidations.next().is_some()
+            || insurance_receipts.next().is_some()
             || cash.cash != self.amm.cash_atoms
             || pnl.ious != self.ious
             || pnl.unpaid != self.marking.unpaid_losses
@@ -427,6 +453,8 @@ mod amm_cash_history_tests {
             )
             .unwrap();
         let config = EconomicConfig {
+            native_entitlements: None,
+            insurance: None,
             source_consensus: None,
             network: TradeLayerMainnet::Bitcoin,
             contract: ContractId::try_from(1).unwrap(),

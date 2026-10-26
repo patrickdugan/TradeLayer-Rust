@@ -232,6 +232,8 @@ impl Drop for Directory {
 fn config(network: TradeLayerMainnet) -> EconomicChainConfig {
     EconomicChainConfig {
         economics: EconomicConfig {
+            native_entitlements: None,
+            insurance: None,
             source_consensus: None,
             network,
             contract: ContractId::try_from(1).unwrap(),

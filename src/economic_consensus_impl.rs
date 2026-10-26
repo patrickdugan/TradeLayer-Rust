@@ -124,16 +124,12 @@ impl EconomicState {
                 id: frame.header.id,
             };
         }
-        if self.replaying_source_history {
+        if self.replaying_source_history || self.replaying_native_history {
             return Ok(());
         }
-        let bootstrap = JointProtocolState::from_economic_snapshot_bytes(
-            &self.source_consensus.bootstrap,
-            self.config.network,
-            self.joint.registry().protocol_admin_unverified(),
-            self.joint.spot().permitted_properties(),
-        )
-        .map_err(|_| EconomicError::InvalidSnapshot)?;
+        let bootstrap = self
+            .decode_joint_bootstrap(&self.source_consensus.bootstrap)
+            .map_err(|_| EconomicError::InvalidSnapshot)?;
         if Self::source_bootstrap_commitment(&bootstrap)? != config.bootstrap_commitment {
             return Err(EconomicError::Invariant);
         }
@@ -578,6 +574,8 @@ mod source_consensus_poison_tests {
         };
         let config = EconomicChainConfig {
             economics: EconomicConfig {
+                native_entitlements: None,
+                insurance: None,
                 network: TradeLayerMainnet::Bitcoin,
                 contract: 1.try_into().unwrap(),
                 collateral: property,

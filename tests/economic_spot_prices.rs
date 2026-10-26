@@ -51,6 +51,8 @@ fn new(network: TradeLayerMainnet) -> EconomicChain {
     let mut chain = EconomicChain::new_unverified(
         EconomicChainConfig {
             economics: EconomicConfig {
+                native_entitlements: None,
+                insurance: None,
                 source_consensus: None,
                 network,
                 contract: 1.try_into().unwrap(),

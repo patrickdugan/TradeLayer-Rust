@@ -94,6 +94,7 @@ pub enum SpotError {
     ReservedAccount,
     EscrowCollision,
     SignedChannelUnsupported,
+    NativePolicyRequired,
     UnsupportedFlag,
     UnsupportedContractCancel,
     UnsupportedPriceCancel,
@@ -186,6 +187,7 @@ pub struct SpotExchange {
     processed_through: Option<u64>,
     /// Irreversible in this version: TLSP cannot encode clearing history.
     clearing_activity: bool,
+    native_policy: Option<crate::native_entitlement::NativeEntitlementPolicy>,
 }
 
 impl SpotExchange {
@@ -195,17 +197,41 @@ impl SpotExchange {
         ledger: Ledger,
         permitted: BTreeSet<PropertyId>,
     ) -> Result<Self, SpotError> {
+        Self::from_ledger_mode_unverified(ledger, permitted, None)
+    }
+    pub fn from_native_ledger_unverified(
+        ledger: Ledger,
+        permitted: BTreeSet<PropertyId>,
+        expected: &crate::native_entitlement::NativeEntitlementPolicy,
+    ) -> Result<Self, SpotError> {
+        Self::from_ledger_mode_unverified(ledger, permitted, Some(expected))
+    }
+    fn from_ledger_mode_unverified(
+        ledger: Ledger,
+        permitted: BTreeSet<PropertyId>,
+        native_policy: Option<&crate::native_entitlement::NativeEntitlementPolicy>,
+    ) -> Result<Self, SpotError> {
+        if ledger.native_policy() != native_policy {
+            return Err(SpotError::NativePolicyRequired);
+        }
         if ledger.has_signed_channel_revisions() {
             return Err(SpotError::SignedChannelUnsupported);
         }
-        if permitted.iter().any(|id| id.get() <= 4) {
+        if permitted.iter().any(|id| {
+            native_policy.is_some_and(|p| p.is_coupon(*id))
+                || (id.get() <= 4 && native_policy.is_none_or(|p| p.asset(*id).is_none()))
+        }) {
             return Err(SpotError::RestrictedProperty);
         }
         if permitted.iter().any(|id| ledger.property(*id).is_none()) {
             return Err(SpotError::UnknownProperty);
         }
         ledger.verify_conservation()?;
-        if !ledger.balances_with_account_prefix("~").is_empty() {
+        if ledger
+            .balances_with_account_prefix("~")
+            .iter()
+            .any(|(_, a, _)| !a.as_str().starts_with("~native:") || native_policy.is_none())
+        {
             return Err(SpotError::EscrowCollision);
         }
         Ok(Self {
@@ -218,6 +244,7 @@ impl SpotExchange {
             next_sequence: 0,
             processed_through: None,
             clearing_activity: false,
+            native_policy: native_policy.cloned(),
         })
     }
 
@@ -817,7 +844,10 @@ impl SpotExchange {
             .ledger
             .balances_with_account_prefix("~")
             .iter()
-            .any(|(_, account, _)| !account.as_str().starts_with(ESCROW_PREFIX))
+            .any(|(_, account, _)| {
+                !(account.as_str().starts_with(ESCROW_PREFIX)
+                    || (self.native_policy.is_some() && account.as_str().starts_with("~native:")))
+            })
         {
             return Err(SpotError::ReservedAccount);
         }
@@ -826,6 +856,9 @@ impl SpotExchange {
 
     /// Canonical accounting invariant across all outstanding orders.
     pub fn verify_reserves(&self) -> Result<(), SpotError> {
+        if self.ledger.native_policy() != self.native_policy.as_ref() {
+            return Err(SpotError::NativePolicyRequired);
+        }
         if self.ledger.has_signed_channel_revisions() {
             return Err(SpotError::SignedChannelUnsupported);
         }
@@ -946,3 +979,5 @@ mod tests {
 
 // Snapshot code is included in-module to retain private ledger/book invariants.
 include!("spot_snapshot_impl.rs");
+
+include!("spot_native_impl.rs");

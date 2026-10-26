@@ -76,6 +76,8 @@ fn id(number: u64) -> TxId {
 fn config(network: TradeLayerMainnet) -> EconomicChainConfig {
     EconomicChainConfig {
         economics: EconomicConfig {
+            native_entitlements: None,
+            insurance: None,
             source_consensus: None,
             network,
             contract: c(),

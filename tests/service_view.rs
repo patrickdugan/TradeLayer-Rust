@@ -91,6 +91,8 @@ fn order(
 }
 fn config(network: TradeLayerMainnet, amm: bool) -> EconomicConfig {
     EconomicConfig {
+        native_entitlements: None,
+        insurance: None,
         source_consensus: None,
         network,
         contract: 1.try_into().unwrap(),

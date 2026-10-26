@@ -84,7 +84,11 @@ impl JointProtocolState {
     pub fn snapshot_bytes(&self) -> Result<Vec<u8>, JointSnapshotError> {
         self.verify_components_unverified()
             .map_err(JointSnapshotError::Joint)?;
-        let mut out = JOINT_STATE_MAGIC.to_vec();
+        let mut out = if self.native_policy().is_some() {
+            b"TLJP\x02".to_vec()
+        } else {
+            JOINT_STATE_MAGIC.to_vec()
+        };
         out.push(self.network.tag());
         out.extend_from_slice(&self.network.genesis().0);
         joint_write_embedded(
@@ -124,12 +128,31 @@ impl JointProtocolState {
         expected_admin: &AccountId,
         expected_permitted: &BTreeSet<PropertyId>,
     ) -> Result<Self, JointSnapshotError> {
+        Self::from_snapshot_bytes_native_mode(
+            bytes,
+            expected_network,
+            expected_admin,
+            expected_permitted,
+            None,
+        )
+    }
+    fn from_snapshot_bytes_native_mode(
+        bytes: &[u8],
+        expected_network: TradeLayerMainnet,
+        expected_admin: &AccountId,
+        expected_permitted: &BTreeSet<PropertyId>,
+        native_policy: Option<&crate::native_entitlement::NativeEntitlementPolicy>,
+    ) -> Result<Self, JointSnapshotError> {
         let raw = verify_crc(bytes).map_err(|_| joint_bad("joint state CRC or length"))?;
         let mut reader = Cursor::new(raw);
         if reader
             .fixed::<5>()
             .map_err(|_| joint_bad("joint state magic"))?
-            != *JOINT_STATE_MAGIC
+            != if native_policy.is_some() {
+                *b"TLJP\x02"
+            } else {
+                *JOINT_STATE_MAGIC
+            }
         {
             return Err(joint_bad("joint state version"));
         }
@@ -145,10 +168,15 @@ impl JointProtocolState {
         let registry =
             Registry::from_snapshot_bytes(joint_read_embedded(&mut reader)?, expected_admin)
                 .map_err(JointSnapshotError::Registry)?;
-        let spot = SpotExchange::from_snapshot_bytes(
-            joint_read_embedded(&mut reader)?,
-            expected_permitted,
-        )
+        let spotbytes = joint_read_embedded(&mut reader)?;
+        let spot = match native_policy {
+            Some(p) => SpotExchange::from_snapshot_bytes_with_native_policy(
+                spotbytes,
+                expected_permitted,
+                p,
+            ),
+            None => SpotExchange::from_snapshot_bytes(spotbytes, expected_permitted),
+        }
         .map_err(JointSnapshotError::Spot)?;
         let global_input_ids = joint_read_replay_ids(&mut reader)?;
         let ledger_input_ids = joint_read_replay_ids(&mut reader)?;

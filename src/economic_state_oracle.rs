@@ -562,6 +562,8 @@ mod tests {
         let property = PropertyId::try_from(7).unwrap();
         let config = EconomicChainConfig {
             economics: crate::economic::EconomicConfig {
+                native_entitlements: None,
+                insurance: None,
                 source_consensus: None,
                 network: TradeLayerMainnet::Litecoin,
                 contract: ContractId::try_from(1).unwrap(),

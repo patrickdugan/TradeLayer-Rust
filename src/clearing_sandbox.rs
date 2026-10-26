@@ -263,6 +263,9 @@ impl ClearingSandbox {
         collateral: PropertyId,
         spot: SpotExchange,
     ) -> Result<Self, ClearingError> {
+        if spot.native_policy().is_some() {
+            return Err(ClearingError::UnsupportedExistingLiabilities);
+        }
         if contract == 0 {
             return Err(ClearingError::InvalidContract);
         }

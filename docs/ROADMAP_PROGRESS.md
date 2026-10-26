@@ -49,7 +49,7 @@ The insurance and property rows additionally record external-worker assignments.
 It supplements the historical [full-tree inventory](JS_RUST_PORT_AUDIT.md),
 whose earlier mappings and assessment commit are preserved.
 
-[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 914
+[SUPPORTING_FUNCTION_PARITY.csv](SUPPORTING_FUNCTION_PARITY.csv) records 958
 source entries with their tested domains, Rust tests and remaining criteria.
 None of these rows or modules is marked as a complete production port.
 
@@ -906,3 +906,44 @@ select no genesis amount, residual beneficiary, cap, mint or default payout
 policy. Existing Rust code is unchanged by this audit; its1,200-execution checked
 baseline remains70dd911. The two new Node oracles and exact regeneration checks
 are the relevant new checks, not additional Rust test counts.
+
+## Funded native and insurance owner integration
+
+The opt-in [native entitlement owner](NATIVE_ENTITLEMENTS.md) now keeps actual
+pre-funded target custody, coupled coupon sends, remaining markers and complete
+receipt replay in the same Ledger. Independently supplied policy separates
+declarations, current supply, optional ceilings, curve scales and actual funding.
+It selects an explicit per-call or monotonic-delta driver, exact source quotes
+or atomic rejection, coverage and payout order. It supplies no default genesis
+amount, residual beneficiary, source volume authority or mint. TLL5, native-aware
+Joint formats and TLECv8 retain complete owner state and input history. Two new
+unchanged-source Number-boundary scenes bring this audit to24 unique scenes.
+
+The [oracle-perpetual insurance backstop](ECONOMIC_INSURANCE.md) uses real
+sponsor deposits and actual insurance-fee custody. Ordered partial coverage
+follows the actual AMM/book liquidation phase, pays only outstanding claims and
+reduces the matching net unpaid liabilities. Existing funded payouts and new
+insured payouts remain distinct; historical gross defaults remain historical.
+TLECv9 replays the independently pinned full bootstrap, native policy when
+enabled, complete typed inputs, actual custody and insurance receipts.
+
+Every contract-bound retained transition now requires an exact typed-history
+prefix and exactly one new frame at its header height, alongside the native
+Ledger journal guard. The valid-branch regression rejects a rollback witness
+from an independently valid but different earlier funded history. This applies
+to existing v6 histories as well as v9 insurance histories.
+
+All29 new integration tests and two private insurance tests pass in the
+full repository-wide run. The batch passes **1,231 Rust test executions:
+1,230 top-level tests plus one subprocess lock check**, across **153
+executable targets** and one empty doctest target. Formatting, every included
+implementation file, all-target frozen Clippy with warnings denied, the
+zero-third-party policy and all11 mutation tests pass. The all-target frozen
+release build passes in **10m40s**. All592 implementation/check
+inputs remained frozen through the final gates. The genuine Node checks
+verify24 unique native source scenes; fixture rows are not Rust tests. Source sends still need accepted property
+and clearlist capabilities; source-mode explicit targets and source+insurance
+composition reject. Authenticated genesis, historical admission, positive-height
+native migration, native/signed-channel coexistence, the full source insurance
+lifecycle and ADL remain open. External wire175-case and insurance49-case reports
+are not imported artifacts and do not increase local fixture or test counts.

@@ -51,6 +51,9 @@ impl ProtocolState {
     // Private size/invariant preflight; never exported or restored as a checkpoint.
     // The actual prior finalized height remains encoded until once-block finalization.
     fn encode_channel_stage(&self, allow_pending: bool) -> Result<Vec<u8>, ProtocolSnapshotError> {
+        if self.ledger.native_policy().is_some() {
+            return Err(protocol_bad("native policy unsupported"));
+        }
         validate_protocol_policy_table(self.chain, &self.channel_revision_policies)
             .map_err(|_| protocol_bad("invalid channel policy table"))?;
         if let Some(policy) = self.channel_revision_policies.values().next() {

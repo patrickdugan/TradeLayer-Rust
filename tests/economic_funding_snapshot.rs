@@ -28,6 +28,8 @@ fn p() -> PropertyId {
 }
 fn config(network: TradeLayerMainnet) -> EconomicConfig {
     EconomicConfig {
+        native_entitlements: None,
+        insurance: None,
         source_consensus: None,
         contract_binding: None,
         network,

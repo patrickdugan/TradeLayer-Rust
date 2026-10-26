@@ -185,6 +185,9 @@ impl JointProtocolState {
         spot: SpotExchange,
         tip_height: u64,
     ) -> Result<Self, JointError> {
+        if spot.native_policy().is_some() {
+            return Err(JointError::UnsupportedLegacyLiabilities);
+        }
         if tip_height == 0
             || spot.processed_through() != Some(tip_height)
             || registry.last_height().is_some_and(|h| h > tip_height)
@@ -368,15 +371,33 @@ impl JointProtocolState {
                 amount_atoms,
             } => {
                 self.check_activated(2, height)?;
-                self.spot.apply_joint_ledger_operation_unverified(
-                    txid,
-                    Operation::Transfer {
+                if self
+                    .ledger()
+                    .native_policy()
+                    .is_some_and(|p| p.is_coupon(id))
+                {
+                    self.spot.send_native_coupon_unverified(
+                        txid,
+                        crate::native_entitlement::NativeEventContext {
+                            network: self.network,
+                            height,
+                        },
                         id,
-                        from: actor,
-                        to: recipient,
+                        actor,
+                        recipient,
                         amount_atoms,
-                    },
-                )?;
+                    )?;
+                } else {
+                    self.spot.apply_joint_ledger_operation_unverified(
+                        txid,
+                        Operation::Transfer {
+                            id,
+                            from: actor,
+                            to: recipient,
+                            amount_atoms,
+                        },
+                    )?;
+                }
                 self.ledger_input_ids.insert(txid);
             }
             JointOperation::Grant {
@@ -488,6 +509,38 @@ impl JointProtocolState {
     }
 
     fn verify_components_mode_unverified(&self, economic: bool) -> Result<(), JointError> {
+        if let Some(policy) = self.native_policy() {
+            if policy.network != self.network
+                || policy.bootstrap
+                    != (crate::chain::Tip {
+                        height: 0,
+                        id: self.network.genesis(),
+                    })
+            {
+                return Err(JointError::WrongNetwork);
+            }
+            for event in self
+                .ledger()
+                .native_state()
+                .expect("policy present")
+                .events()
+            {
+                let (id, height) = match event {
+                    crate::ledger::NativeEvent::CoupledSend { txid, context, .. } => {
+                        (*txid, context.height)
+                    }
+                    crate::ledger::NativeEvent::Target {
+                        request, context, ..
+                    } => (request.txid, context.height),
+                    crate::ledger::NativeEvent::OrdinaryTargetTransfer { .. } => continue,
+                };
+                if !self.ledger_input_ids.contains(&id)
+                    || self.finalized_height.is_none_or(|h| height > h)
+                {
+                    return Err(JointError::ReplayConflict);
+                }
+            }
+        }
         self.spot
             .ledger()
             .verify_conservation()
@@ -559,4 +612,5 @@ include!("joint_snapshot_impl.rs");
 
 // Private custody/replay bridge for the sole-ledger economic owner. TLJP and
 // TLJC continue to reject these states; the outer owner audits exact metadata.
+include!("joint_native_impl.rs");
 include!("joint_economic_impl.rs");

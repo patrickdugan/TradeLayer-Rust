@@ -47,6 +47,8 @@ fn obj(fields: &[(&str, V)]) -> V {
 fn config(network: TradeLayerMainnet) -> EconomicChainConfig {
     EconomicChainConfig {
         economics: EconomicConfig {
+            native_entitlements: None,
+            insurance: None,
             network,
             contract: ContractId::try_from(1).unwrap(),
             collateral: p(),

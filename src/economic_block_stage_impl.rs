@@ -7,6 +7,7 @@ pub(crate) struct EconomicBlockStage {
     inputs: Vec<EconomicInput>,
     book_frame: LiquidationBookFrame,
     mark_publication: Option<TxId>,
+    insurance_requests: Vec<UnverifiedInsuranceInput>,
 }
 
 impl EconomicState {
@@ -31,6 +32,7 @@ impl EconomicState {
                 placements: Vec::new(),
             },
             mark_publication: None,
+            insurance_requests: Vec::new(),
         })
     }
 }
@@ -53,16 +55,19 @@ impl EconomicBlockStage {
         let mut pending = self.state.clone();
         let mut book_frame = self.book_frame.clone();
         let mut mark_publication = self.mark_publication;
+        let mut insurance_requests = self.insurance_requests.clone();
         Self::apply_to_pending(
             &mut pending,
             &mut book_frame,
             &mut mark_publication,
+            &mut insurance_requests,
             self.height,
             input.clone(),
         )?;
         self.state = pending;
         self.book_frame = book_frame;
         self.mark_publication = mark_publication;
+        self.insurance_requests = insurance_requests;
         self.inputs.push(input.clone());
         Ok(())
     }
@@ -75,13 +80,16 @@ impl EconomicBlockStage {
         inputs: Vec<EconomicInput>,
     ) -> Result<()> {
         for input in inputs {
-            if self.state.config.contract_binding.is_some() {
+            if self.state.config.contract_binding.is_some()
+                || self.state.config.native_entitlements.is_some()
+            {
                 self.inputs.push(input.clone());
             }
             Self::apply_to_pending(
                 &mut self.state,
                 &mut self.book_frame,
                 &mut self.mark_publication,
+                &mut self.insurance_requests,
                 self.height,
                 input,
             )?;
@@ -92,10 +100,41 @@ impl EconomicBlockStage {
         pending: &mut EconomicState,
         book_frame: &mut LiquidationBookFrame,
         mark_publication: &mut Option<TxId>,
+        insurance_requests: &mut Vec<UnverifiedInsuranceInput>,
         height: u64,
         input: EconomicInput,
     ) -> Result<()> {
         match input {
+            EconomicInput::NativeTarget(request) => {
+                if pending.config.native_entitlements.is_none()
+                    || pending.config.source_consensus.is_some()
+                {
+                    return Err(EconomicError::InvalidInput);
+                }
+                pending
+                    .joint
+                    .apply_native_target_for_economic_unverified(height, &request)?;
+            }
+            EconomicInput::Insurance(input) => {
+                pending.require_insurance_input(&input, height)?;
+                if pending
+                    .insurance
+                    .receipts
+                    .len()
+                    .checked_add(insurance_requests.len())
+                    .is_none_or(|n| n >= MAX_INSURANCE_RECEIPTS)
+                {
+                    return Err(EconomicError::Capacity);
+                }
+                pending
+                    .joint
+                    .note_insurance_input_unverified(input.txid, height)?;
+                if matches!(input.action, InsuranceAction::Backstop { .. }) {
+                    insurance_requests.push(input);
+                } else {
+                    pending.apply_insurance_capital(input, height)?;
+                }
+            }
             EconomicInput::CreateContract(input) => {
                 pending.apply_contract_creation(input, height)?;
             }
@@ -175,6 +214,15 @@ impl EconomicBlockStage {
         mut self,
         source_frame: Option<crate::consensus_source::SourceBlockFrame>,
     ) -> Result<(EconomicState, usize)> {
+        if self.state.config.native_entitlements.is_some() {
+            self.state
+                .native_entitlements
+                .frames
+                .push(ContractInputFrame {
+                    height: self.height,
+                    inputs: self.inputs.clone(),
+                });
+        }
         if self.state.config.contract_binding.is_some() {
             self.state.contract_binding.frames.push(ContractInputFrame {
                 height: self.height,
@@ -213,6 +261,9 @@ impl EconomicBlockStage {
         self.state.refresh_amm_quotes(self.height)?;
         self.state.refresh_maintenance()?;
         self.state.run_liquidations(self.height)?;
+        for request in self.insurance_requests {
+            self.state.run_insurance_backstop(request, self.height)?;
+        }
         self.state.refresh_positions()?;
         self.state.refresh_maintenance()?;
         self.state

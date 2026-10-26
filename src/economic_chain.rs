@@ -74,12 +74,26 @@ impl EconomicChain {
         ledger: Ledger,
     ) -> Result<Self, EconomicError> {
         config.validate()?;
-        let joint = JointProtocolState::from_bootstrap_unverified(
-            config.economics.network,
-            config.admin.clone(),
-            ledger,
-            config.permitted_spot_properties.clone(),
-        )?;
+        let joint = if let Some(policy) = &config.economics.native_entitlements {
+            let mut native_ledger = ledger;
+            native_ledger
+                .adopt_native_entitlements_unverified(policy)
+                .map_err(|_| EconomicError::InvalidConfig)?;
+            JointProtocolState::from_native_bootstrap_unverified(
+                config.economics.network,
+                config.admin.clone(),
+                native_ledger,
+                config.permitted_spot_properties.clone(),
+                policy,
+            )?
+        } else {
+            JointProtocolState::from_bootstrap_unverified(
+                config.economics.network,
+                config.admin.clone(),
+                ledger,
+                config.permitted_spot_properties.clone(),
+            )?
+        };
         let state = EconomicState::from_joint_unverified(config.economics.clone(), joint)?;
         let anchor = config.anchor();
         let chain = Self {
@@ -206,6 +220,7 @@ impl EconomicChain {
             return Err(EconomicError::Invariant);
         }
         let mut cursor = self.floor;
+        let mut native_previous: Option<(EconomicState, u64)> = None;
         let mut ids = BTreeSet::from([self.config.anchor().id, self.floor.id]);
         for frame in &self.history {
             if frame.header.height != cursor.height + 1
@@ -233,10 +248,23 @@ impl EconomicChain {
                     return Err(EconomicError::Invariant);
                 }
             }
+            if self.config.economics.native_entitlements.is_some()
+                || self.config.economics.contract_binding.is_some()
+            {
+                if let Some((prior, height)) = native_previous.take() {
+                    prior.native_history_transition(&before, height)?;
+                    prior.contract_history_transition(&before, height)?;
+                }
+                native_previous = Some((before, frame.header.height));
+            }
             cursor = Tip {
                 height: frame.header.height,
                 id: frame.header.id,
             };
+        }
+        if let Some((prior, height)) = native_previous {
+            prior.native_history_transition(&self.state, height)?;
+            prior.contract_history_transition(&self.state, height)?;
         }
         if cursor != self.tip {
             return Err(EconomicError::Invariant);

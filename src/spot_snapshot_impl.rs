@@ -101,7 +101,11 @@ impl SpotExchange {
                 .ledger
                 .balances_with_account_prefix("~")
                 .iter()
-                .any(|(_, account, _)| !account.as_str().starts_with(ESCROW_PREFIX))
+                .any(|(_, account, _)| {
+                    !(account.as_str().starts_with(ESCROW_PREFIX)
+                        || (self.native_policy.is_some()
+                            && account.as_str().starts_with("~native:")))
+                })
         {
             return Err(spot_invalid("non-spot escrow needs combined checkpoint"));
         }
@@ -109,11 +113,15 @@ impl SpotExchange {
         // format, but a public TLSP writer/reader NEVER accepts it directly.
         // Only the outer clearing decoder can validate and own the associated
         // margin and replay metadata.
-        if self
-            .permitted
-            .iter()
-            .any(|p| p.get() <= 4 || self.ledger.property(*p).is_none())
-        {
+        if self.permitted.iter().any(|p| {
+            self.ledger.property(*p).is_none()
+                || self.native_policy.as_ref().is_some_and(|n| n.is_coupon(*p))
+                || (p.get() <= 4
+                    && self
+                        .native_policy
+                        .as_ref()
+                        .is_none_or(|n| n.asset(*p).is_none()))
+        }) {
             return Err(spot_invalid("invalid permitted token policy"));
         }
         if self.seen.len() > MAX_SPOT_INPUT_EVENTS
@@ -240,7 +248,11 @@ impl SpotExchange {
         allow_combined_clearing: bool,
     ) -> Result<Vec<u8>, SpotSnapshotError> {
         self.validate_spot_snapshot_mode(allow_combined_clearing)?;
-        let mut out = SPOT_MAGIC.to_vec();
+        let mut out = if self.native_policy.is_some() {
+            b"TLSP\x02".to_vec()
+        } else {
+            SPOT_MAGIC.to_vec()
+        };
         spot_u32(&mut out, self.permitted.len())?;
         for p in &self.permitted {
             out.extend_from_slice(&p.get().to_be_bytes());
@@ -312,7 +324,7 @@ impl SpotExchange {
         bytes: &[u8],
         expected_permitted: &BTreeSet<PropertyId>,
     ) -> Result<Self, SpotSnapshotError> {
-        Self::from_snapshot_bytes_mode(bytes, expected_permitted, false, false)
+        Self::from_snapshot_bytes_mode(bytes, expected_permitted, false, false, None)
     }
 
     /// Deliberately inaccessible outside this crate: restoring an inner TLSP
@@ -322,7 +334,7 @@ impl SpotExchange {
         expected_permitted: &BTreeSet<PropertyId>,
         clearing_activity: bool,
     ) -> Result<Self, SpotSnapshotError> {
-        Self::from_snapshot_bytes_mode(bytes, expected_permitted, true, clearing_activity)
+        Self::from_snapshot_bytes_mode(bytes, expected_permitted, true, clearing_activity, None)
     }
 
     fn from_snapshot_bytes_mode(
@@ -330,13 +342,18 @@ impl SpotExchange {
         expected_permitted: &BTreeSet<PropertyId>,
         allow_combined_clearing: bool,
         clearing_activity: bool,
+        native_policy: Option<&crate::native_entitlement::NativeEntitlementPolicy>,
     ) -> Result<Self, SpotSnapshotError> {
         let payload = verify_crc(bytes).map_err(|_| spot_invalid("spot CRC or size"))?;
         let mut reader = Cursor::new(payload);
         if reader
             .fixed::<5>()
             .map_err(|_| spot_invalid("spot magic"))?
-            != *SPOT_MAGIC
+            != if native_policy.is_some() {
+                *b"TLSP\x02"
+            } else {
+                *SPOT_MAGIC
+            }
         {
             return Err(spot_invalid("spot magic/version"));
         }
@@ -355,11 +372,13 @@ impl SpotExchange {
             return Err(spot_invalid("permitted token policy mismatch"));
         }
         let ledger_size = spot_length(&mut reader, MAX_CHECKPOINT_BYTES)?;
-        let ledger = Ledger::from_snapshot_bytes(
-            reader
-                .take(ledger_size)
-                .map_err(|_| spot_invalid("ledger truncated"))?,
-        )
+        let ledger_bytes = reader
+            .take(ledger_size)
+            .map_err(|_| spot_invalid("ledger truncated"))?;
+        let ledger = match native_policy {
+            Some(p) => Ledger::from_snapshot_bytes_with_native_policy(ledger_bytes, p),
+            None => Ledger::from_snapshot_bytes(ledger_bytes),
+        }
         .map_err(SpotSnapshotError::Ledger)?;
         let queued_count = spot_length(&mut reader, MAX_SPOT_OPEN_AND_QUEUED)?;
         let mut queued = Vec::with_capacity(queued_count);
@@ -460,6 +479,7 @@ impl SpotExchange {
             next_sequence,
             processed_through,
             clearing_activity,
+            native_policy: native_policy.cloned(),
         };
         result.validate_spot_snapshot_mode(allow_combined_clearing)?;
         if result

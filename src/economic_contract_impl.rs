@@ -65,6 +65,28 @@ fn contract_bootstrap_hash(bootstrap: &[u8]) -> [u8; 32] {
 }
 
 impl EconomicState {
+    pub(crate) fn contract_history_transition(&self, after: &Self, height: u64) -> Result<()> {
+        if self.config.contract_binding != after.config.contract_binding {
+            return Err(EconomicError::Invariant);
+        }
+        if self.config.contract_binding.is_none() {
+            return Ok(());
+        }
+        let a = &self.contract_binding;
+        let b = &after.contract_binding;
+        if a.bootstrap != b.bootstrap
+            || !b.frames.starts_with(&a.frames)
+            || b.frames.len() != a.frames.len() + 1
+            || b.frames.last().is_none_or(|f| f.height != height)
+            || !b.contracts.starts_with(&a.contracts)
+            || b.contracts[a.contracts.len()..]
+                .iter()
+                .any(|c| c.height != height)
+        {
+            return Err(EconomicError::Invariant);
+        }
+        Ok(())
+    }
     pub fn contract_binding_state(&self) -> &ContractBindingState {
         &self.contract_binding
     }
@@ -383,13 +405,19 @@ impl EconomicState {
         // Reuse the encoder's exact nested count and byte bounds. Never accept
         // a runtime journal which cannot be represented by its strict decoder.
         let mut out = EconomicWriter(Vec::new());
-        econ_write_contract_state(&mut out, &self.contract_binding)
+        let mut budget = ContractRecordBudget::default();
+        econ_write_contract_state_budget(&mut out, &self.contract_binding, &mut budget)?;
+        if self.config.insurance.is_some() {
+            insurance_write_state(&mut out, &self.insurance, &mut budget)?;
+        }
+        Ok(())
     }
     pub(crate) fn preflight_contract_inputs(
         &self,
         height: u64,
         inputs: &[EconomicInput],
     ) -> Result<()> {
+        self.preflight_native_inputs(height, inputs)?;
         if self.config.contract_binding.is_none() {
             return Ok(());
         }
@@ -399,6 +427,9 @@ impl EconomicState {
         let mut out = EconomicWriter(Vec::new());
         let mut budget = ContractRecordBudget::default();
         econ_write_contract_state_budget(&mut out, &self.contract_binding, &mut budget)?;
+        if self.config.insurance.is_some() {
+            insurance_write_state(&mut out, &self.insurance, &mut budget)?;
+        }
         budget.take(1)?;
         budget.take(inputs.len())?;
         out.u64(height)?;
@@ -414,6 +445,9 @@ impl EconomicState {
         preceding: &[EconomicInput],
         candidate: &EconomicInput,
     ) -> Result<()> {
+        if self.config.native_entitlements.is_some() {
+            self.preflight_native_candidate(height, preceding, candidate)?;
+        }
         if preceding.len() >= MAX_ECONOMIC_INPUTS {
             return Err(EconomicError::Capacity);
         }
@@ -424,6 +458,9 @@ impl EconomicState {
                 return Err(EconomicError::Capacity);
             }
             econ_write_contract_state_budget(&mut out, &self.contract_binding, &mut budget)?;
+            if self.config.insurance.is_some() {
+                insurance_write_state(&mut out, &self.insurance, &mut budget)?;
+            }
         }
         budget.take(1)?;
         budget.take(preceding.len() + 1)?;
@@ -470,16 +507,15 @@ impl EconomicState {
         }
         // v7 reexecutes every original candidate through Types, actual owner reads
         // and the same money stage below. It includes all accepted catalog inputs.
-        if self.replaying_contract_history || self.config.source_consensus.is_some() {
+        if self.replaying_contract_history
+            || self.replaying_native_history
+            || self.config.source_consensus.is_some()
+        {
             return Ok(());
         }
-        let bootstrap = JointProtocolState::from_economic_snapshot_bytes(
-            &self.contract_binding.bootstrap,
-            self.config.network,
-            self.joint.registry().protocol_admin_unverified(),
-            self.joint.spot().permitted_properties(),
-        )
-        .map_err(|_| EconomicError::InvalidSnapshot)?;
+        let bootstrap = self
+            .decode_joint_bootstrap(&self.contract_binding.bootstrap)
+            .map_err(|_| EconomicError::InvalidSnapshot)?;
         if Self::contract_bootstrap_commitment(&bootstrap)? != config.bootstrap_commitment {
             return Err(EconomicError::Invariant);
         }

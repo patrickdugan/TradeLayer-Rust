@@ -12,8 +12,8 @@ remaining gates stay in [PARITY_ROADMAP.csv](PARITY_ROADMAP.csv).
 | `activation.js` | Local team | Integrated source and canonical owner-history subset | 18 methods plus constructor/static singleton; 670 exact observations plus5 explicit domains; derived accepted origins, prior-height queries, restart/rollback and exact durable head; native genesis and authenticated historical provenance remain open |
 | `channels.js` source | Local team | Integrated bounded source conformance | All43 static methods and constructor; explicit prototype/reference domains remain rejected; diagnostic metadata has no custody authority |
 | Canonical signed allocations | Local team | Integrated opt-in funded owner | Independently pinned SupersedingCoSignedAllocationV1; both signatures, actual escrow, full recovery and retained transition checks; L1 funding/scripts/revocation remain external |
-| Native genesis | Local source audit and owner design | 22 source scenes verified; owner implementation in progress | Resolve declared supply versus source credits and BTC residual before selecting a conserving actual-owner policy |
-| Main-owner insurance backstop | Local insurance agent; independent source support | Owner implementation in progress; [existing-owner review](INSURANCE_OWNER_REVIEW.md) recorded | Preserve actual AMM/book liquidation, cover recorded unpaid liabilities with real reserve atoms and replay complete receipts; source-compatible lifecycle and authentication remain open |
+| Native genesis/entitlements | Local team |24 source scenes and opt-in funded owner integrated | Authenticated type0/genesis, accepted property/clearlist admission, automatic schedule and positive-height migration remain open; no default economics |
+| Main-owner insurance backstop | Local team; independent source support | Opt-in actual oracle-perpetual backstop integrated | Full source lifecycle, source+insurance raw replay, ADL and authenticated admission remain open; external source artifacts are unimported |
 
 The user reassigned activation to the local queue because the web worker
 stalled. Its earlier external reservation is lifted. The local standalone source
@@ -43,8 +43,8 @@ authenticated historical administration remain open. Importing the standalone re
 backend does not grant that authority. The current sequential runner maps Type0
 to the existing Registry activation subset and retains its conserving gates.
 
-The current integrated batch passes 1,199 top-level Rust tests plus one
-subprocess lock check across 148 executable targets. Formatting, explicit
+The current integrated batch passes 1,230 top-level Rust tests plus one
+subprocess lock check across 153 executable targets. Formatting, explicit
 included-file rustfmt, all-target frozen Clippy with warnings denied, the
 zero-third-party policy and 11 mutation tests, and all-target release pass.
 
@@ -77,6 +77,6 @@ worker reports49 executed adversarial observations; the actual patch bytes are
 not present locally. Those remain external evidence. The completed local review
 checks real clearing/Economic custody and durable replay against the reported
 mechanisms: 32 existing focused checks passed, with no new custody defect
-reproduced and no increase to the full-suite test count. The main Economic owner
-still has pending-fee custody only at this reviewed baseline; its backstop is
-being implemented separately from the sandbox's synthetic full-book closeout.
+reproduced and no increase to the full-suite test count. The review baseline had pending-fee custody only. The new main-owner backstop
+now uses actual reserve custody, ordered market-first coverage and full
+receipt replay, separately from the sandbox's synthetic full-book closeout.

@@ -167,6 +167,9 @@ impl Ledger {
         expected: &ExpectedChannelRevisionPolicies,
         context: RevisionContext,
     ) -> Result<RevisionHead, LedgerError> {
+        if self.native.is_some() {
+            return Err(crate::native_entitlement::NativeError::WrongPolicy.into());
+        }
         let policy = expected
             .get(channel)
             .filter(|p| &p.channel == channel)
@@ -227,6 +230,9 @@ impl Ledger {
         signed: &SignedRevision,
         context: RevisionContext,
     ) -> Result<RevisionHead, LedgerError> {
+        if self.native.is_some() {
+            return Err(crate::native_entitlement::NativeError::WrongPolicy.into());
+        }
         let id = channel_revision::revision_id(&signed.revision)?;
         let txid = TxId::from_bytes(id);
         if self.processed.contains(&txid) {

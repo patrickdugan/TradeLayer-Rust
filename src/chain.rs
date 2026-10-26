@@ -458,6 +458,9 @@ fn read_tip(cursor: &mut Cursor<'_>) -> Result<Tip, CheckpointError> {
 }
 
 fn write_ledger(dst: &mut Vec<u8>, ledger: &Ledger) -> Result<(), CheckpointError> {
+    if ledger.native_policy().is_some() {
+        return Err(CheckpointError::Invalid("native policy unsupported"));
+    }
     if ledger.has_signed_channel_revisions() {
         return Err(CheckpointError::Invalid("signed channel unsupported"));
     }

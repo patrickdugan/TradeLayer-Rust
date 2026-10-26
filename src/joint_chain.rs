@@ -300,8 +300,15 @@ impl JointChainState {
     /// states. V2 stores an explicit floor only when rollback has exhausted
     /// retained history above the original anchor. It invents no prior state.
     pub fn checkpoint_bytes(&self) -> Result<Vec<u8>, JointCheckpointError> {
+        self.verify_native_history()?;
         let exhausted_floor = self.history.is_empty() && self.tip.height > self.anchor.height;
-        let mut bytes = if exhausted_floor {
+        let mut bytes = if self.state.native_policy().is_some() {
+            if exhausted_floor {
+                b"TLJC\x04".to_vec()
+            } else {
+                b"TLJC\x03".to_vec()
+            }
+        } else if exhausted_floor {
             MAGIC_HISTORY_FLOOR.to_vec()
         } else {
             MAGIC_V1.to_vec()
@@ -332,6 +339,30 @@ impl JointChainState {
         expected_permitted: &BTreeSet<PropertyId>,
         expected_history_limit: usize,
     ) -> Result<Self, JointCheckpointError> {
+        Self::from_checkpoint_bytes_native_mode(
+            bytes,
+            expected_network,
+            expected_anchor,
+            expected_admin,
+            expected_permitted,
+            expected_history_limit,
+            None,
+        )
+    }
+    fn from_checkpoint_bytes_native_mode(
+        bytes: &[u8],
+        expected_network: TradeLayerMainnet,
+        expected_anchor: Tip,
+        expected_admin: &AccountId,
+        expected_permitted: &BTreeSet<PropertyId>,
+        expected_history_limit: usize,
+        native_policy: Option<&crate::native_entitlement::NativeEntitlementPolicy>,
+    ) -> Result<Self, JointCheckpointError> {
+        if let Some(p) = native_policy {
+            if p.network != expected_network || p.bootstrap != expected_anchor {
+                return Err(bad("native anchor policy"));
+            }
+        }
         if !(1..=MAX_REORG_HISTORY).contains(&expected_history_limit) {
             return Err(bad("invalid history policy"));
         }
@@ -341,8 +372,10 @@ impl JointChainState {
         let raw = verify_crc(bytes).map_err(|_| bad("joint checkpoint CRC/size"))?;
         let mut reader = Cursor::new(raw);
         let exhausted_floor = match reader.fixed::<5>().map_err(|_| bad("joint magic"))? {
-            magic if magic == *MAGIC_V1 => false,
-            magic if magic == *MAGIC_HISTORY_FLOOR => true,
+            magic if native_policy.is_none() && magic == *MAGIC_V1 => false,
+            magic if native_policy.is_none() && magic == *MAGIC_HISTORY_FLOOR => true,
+            magic if native_policy.is_some() && magic == *b"TLJC\x03" => false,
+            magic if native_policy.is_some() && magic == *b"TLJC\x04" => true,
             _ => return Err(bad("joint checkpoint version")),
         };
         let network =
@@ -389,6 +422,7 @@ impl JointChainState {
                 expected_network,
                 expected_admin,
                 expected_permitted,
+                native_policy,
             )?;
             if !state_height_compatible(&state, prev_tip, anchor) {
                 return Err(bad("prior joint state height mismatch"));
@@ -403,6 +437,7 @@ impl JointChainState {
             expected_network,
             expected_admin,
             expected_permitted,
+            native_policy,
         )?;
         reader
             .end()
@@ -499,18 +534,22 @@ fn read_state(
     network: TradeLayerMainnet,
     admin: &AccountId,
     permitted: &BTreeSet<PropertyId>,
+    native_policy: Option<&crate::native_entitlement::NativeEntitlementPolicy>,
 ) -> Result<JointProtocolState, JointCheckpointError> {
     let size = reader.u32().map_err(|_| bad("embedded TLJP length"))? as usize;
     if size == 0 || size > MAX_CHECKPOINT_BYTES {
         return Err(bad("invalid embedded TLJP length"));
     }
-    JointProtocolState::from_snapshot_bytes(
-        reader
-            .take(size)
-            .map_err(|_| bad("embedded TLJP truncated"))?,
-        network,
-        admin,
-        permitted,
-    )
+    let bytes = reader
+        .take(size)
+        .map_err(|_| bad("embedded TLJP truncated"))?;
+    match native_policy {
+        Some(p) => JointProtocolState::from_snapshot_bytes_with_native_policy(
+            bytes, network, admin, permitted, p,
+        ),
+        None => JointProtocolState::from_snapshot_bytes(bytes, network, admin, permitted),
+    }
     .map_err(JointCheckpointError::State)
 }
+
+include!("joint_chain_native_impl.rs");

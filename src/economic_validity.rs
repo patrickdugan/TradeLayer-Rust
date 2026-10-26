@@ -158,12 +158,14 @@ impl<'a> EconomicSourceBackend<'a> {
             return Err(SourceRuleError::Backend);
         }
         let total = sum([available, margin, reserve, channel])?;
-        Ok((total != 0).then_some(Custody {
+        let vesting = s.ledger().native_remaining_atoms(property, owner);
+        Ok((total != 0 || vesting != 0).then_some(Custody {
             available,
             margin,
             reserve,
             channel,
             total,
+            vesting,
         }))
     }
 
@@ -179,7 +181,7 @@ impl<'a> EconomicSourceBackend<'a> {
             ("available", token_number(c.available)?),
             ("reserved", token_number(c.reserve)?),
             ("margin", token_number(c.margin)?),
-            ("vesting", n(0.0)),
+            ("vesting", token_number(c.vesting)?),
             ("channel", token_number(c.channel)?),
         ]))
     }
@@ -412,6 +414,7 @@ struct Custody {
     margin: u128,
     channel: u128,
     total: u128,
+    vesting: u128,
 }
 fn n(value: f64) -> SourceValue {
     SourceValue::number(value)
