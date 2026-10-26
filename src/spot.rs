@@ -93,6 +93,7 @@ pub enum SpotError {
     UnknownProperty,
     ReservedAccount,
     EscrowCollision,
+    SignedChannelUnsupported,
     UnsupportedFlag,
     UnsupportedContractCancel,
     UnsupportedPriceCancel,
@@ -194,6 +195,9 @@ impl SpotExchange {
         ledger: Ledger,
         permitted: BTreeSet<PropertyId>,
     ) -> Result<Self, SpotError> {
+        if ledger.has_signed_channel_revisions() {
+            return Err(SpotError::SignedChannelUnsupported);
+        }
         if permitted.iter().any(|id| id.get() <= 4) {
             return Err(SpotError::RestrictedProperty);
         }
@@ -822,6 +826,9 @@ impl SpotExchange {
 
     /// Canonical accounting invariant across all outstanding orders.
     pub fn verify_reserves(&self) -> Result<(), SpotError> {
+        if self.ledger.has_signed_channel_revisions() {
+            return Err(SpotError::SignedChannelUnsupported);
+        }
         let mut expected = BTreeMap::new();
         for orders in self.books.values() {
             for order in orders {

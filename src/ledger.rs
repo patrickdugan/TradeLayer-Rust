@@ -207,6 +207,8 @@ pub enum LedgerError {
     ZeroNetSettlement,
     SettlementCommitmentMismatch,
     MalformedSettlementJournal,
+    ChannelRevision(crate::channel_revision::RevisionError),
+    SignedChannelFenced(AccountId),
 }
 
 impl fmt::Display for LedgerError {
@@ -262,6 +264,8 @@ impl fmt::Display for LedgerError {
                 write!(f, "settlement root, amount or count mismatch")
             }
             Self::MalformedSettlementJournal => write!(f, "invalid settlement journal state"),
+            Self::ChannelRevision(e) => write!(f, "signed channel revision: {e}"),
+            Self::SignedChannelFenced(c) => write!(f, "signed-only channel {}", c.as_str()),
         }
     }
 }
@@ -279,6 +283,7 @@ pub struct Ledger {
     swept_net_settlements: BTreeMap<TxId, NetClaim>,
     king_settlements: BTreeMap<TxId, KingReceipt>,
     processed: BTreeSet<TxId>,
+    channel_revisions: BTreeMap<AccountId, EnrolledChannelRevision>,
 }
 
 impl Ledger {
@@ -344,6 +349,7 @@ impl Ledger {
             && self.pending_net_settlements.is_empty()
             && self.swept_net_settlements.is_empty()
             && self.king_settlements.is_empty()
+            && self.channel_revisions.is_empty()
     }
 
     /// Atomically apply one operation. On error, all state is preserved.
@@ -399,6 +405,7 @@ impl Ledger {
     }
 
     fn execute(&mut self, txid: TxId, operation: Operation) -> Result<(), LedgerError> {
+        self.fence_legacy_channel_operation(&operation)?;
         match operation {
             Operation::CreateProperty {
                 id,
@@ -611,6 +618,10 @@ impl Ledger {
     /// Verify that each property's issued supply equals the sum of all
     /// available balances. This first slice has no reserved or other columns.
     pub fn verify_conservation(&self) -> Result<(), LedgerError> {
+        self.verify_base_conservation()?;
+        self.verify_channel_revision_state()
+    }
+    fn verify_base_conservation(&self) -> Result<(), LedgerError> {
         let mut sums: BTreeMap<PropertyId, u128> = BTreeMap::new();
         for ((id, _account), atoms) in &self.available {
             if *atoms == 0 {
@@ -710,9 +721,13 @@ mod tests {
 /// These bytes are NOT an independently verified consensus state commitment.
 impl Ledger {
     pub fn snapshot_bytes(&self) -> Result<Vec<u8>, SnapshotError> {
-        use crate::codec::{with_crc, MAX_CHECKPOINT_BYTES};
         self.verify_conservation()
             .map_err(SnapshotError::InvalidLedger)?;
+        self.snapshot_bytes_verified()
+    }
+    // Only called after the complete validation boundary, including all witnesses.
+    fn snapshot_bytes_verified(&self) -> Result<Vec<u8>, SnapshotError> {
+        use crate::codec::{with_crc, MAX_CHECKPOINT_BYTES};
         if [
             self.properties.len(),
             self.available.len(),
@@ -729,12 +744,16 @@ impl Ledger {
             return Err(SnapshotError::InvalidFormat("too many ledger records"));
         }
         let mut bytes = Vec::new();
-        let settlement_version = !self.pending_net_settlements.is_empty()
+        let revision_version = !self.channel_revisions.is_empty();
+        let settlement_version = revision_version
+            || !self.pending_net_settlements.is_empty()
             || !self.swept_net_settlements.is_empty()
             || !self.king_settlements.is_empty();
         let channel_version =
             settlement_version || !self.channels.is_empty() || !self.pending_withdrawals.is_empty();
-        bytes.extend_from_slice(if settlement_version {
+        bytes.extend_from_slice(if revision_version {
+            b"TLL\x04"
+        } else if settlement_version {
             b"TLL\x03"
         } else if channel_version {
             b"TLL\x02"
@@ -767,6 +786,9 @@ impl Ledger {
         if settlement_version {
             self.append_settlement_snapshot(&mut bytes)?;
         }
+        if revision_version {
+            self.append_channel_revision_snapshot(&mut bytes)?;
+        }
         if bytes.len() > MAX_CHECKPOINT_BYTES - 4 {
             return Err(SnapshotError::InvalidFormat("ledger checkpoint too large"));
         }
@@ -776,17 +798,42 @@ impl Ledger {
     /// Decode only canonical ascending records. Unknown format versions,
     /// duplicates, trailing bytes, and broken conservation fail closed.
     pub fn from_snapshot_bytes(input: &[u8]) -> Result<Self, SnapshotError> {
+        Self::decode_snapshot_with_channel_policies(input, None)
+    }
+    pub fn from_snapshot_bytes_with_channel_policies(
+        input: &[u8],
+        expected: &ExpectedChannelRevisionPolicies,
+    ) -> Result<Self, SnapshotError> {
+        Self::decode_snapshot_with_channel_policies(input, Some(expected))
+    }
+    fn decode_snapshot_with_channel_policies(
+        input: &[u8],
+        expected: Option<&ExpectedChannelRevisionPolicies>,
+    ) -> Result<Self, SnapshotError> {
+        let mut budget = RevisionVerifyBudget::default();
+        Self::decode_snapshot_channel_scoped(input, expected, 0, &mut budget)
+    }
+    fn decode_snapshot_channel_scoped(
+        input: &[u8],
+        expected: Option<&ExpectedChannelRevisionPolicies>,
+        depth: usize,
+        budget: &mut RevisionVerifyBudget,
+    ) -> Result<Self, SnapshotError> {
         use crate::codec::{verify_crc, Cursor};
+        if depth > channel_revision::MAX_CHANNELS {
+            return Err(revision_snapshot_error(RevisionError::Capacity));
+        }
         let payload = verify_crc(input).map_err(snapshot_codec_error)?;
         let mut reader = Cursor::new(payload);
         let version = match reader.fixed::<4>().map_err(snapshot_codec_error)? {
             [b'T', b'L', b'L', 1] => 1,
             [b'T', b'L', b'L', 2] => 2,
             [b'T', b'L', b'L', 3] => 3,
+            [b'T', b'L', b'L', 4] if expected.is_some() => 4,
             _ => return Err(SnapshotError::InvalidFormat("ledger checkpoint version")),
         };
         let mut state = Self::new();
-        let count = snapshot_count(&mut reader)?;
+        let count = revision_snapshot_count(&mut reader, expected.map(|_| &mut *budget))?;
         let mut last = None;
         for _ in 0..count {
             let id = PropertyId::try_from(reader.u32().map_err(snapshot_codec_error)?)
@@ -811,7 +858,7 @@ impl Ledger {
                 },
             );
         }
-        let count = snapshot_count(&mut reader)?;
+        let count = revision_snapshot_count(&mut reader, expected.map(|_| &mut *budget))?;
         let mut last: Option<(PropertyId, AccountId)> = None;
         for _ in 0..count {
             let id = PropertyId::try_from(reader.u32().map_err(snapshot_codec_error)?)
@@ -828,7 +875,7 @@ impl Ledger {
             last = Some(key.clone());
             state.available.insert(key, amount);
         }
-        let count = snapshot_count(&mut reader)?;
+        let count = revision_snapshot_count(&mut reader, expected.map(|_| &mut *budget))?;
         let mut last: Option<TxId> = None;
         for _ in 0..count {
             let id = TxId::from_bytes(reader.fixed::<32>().map_err(snapshot_codec_error)?);
@@ -839,16 +886,28 @@ impl Ledger {
             state.processed.insert(id);
         }
         if version >= 2 {
-            state.read_channel_snapshot(&mut reader)?;
+            state.read_channel_snapshot(&mut reader, expected.map(|_| &mut *budget))?;
         }
         if version >= 3 {
-            state.read_settlement_snapshot(&mut reader)?;
+            state.read_settlement_snapshot(&mut reader, expected.map(|_| &mut *budget))?;
+        }
+        if version == 4 {
+            state.read_channel_revision_snapshot(
+                &mut reader,
+                expected.expect("independent policies required"),
+                depth,
+                budget,
+            )?;
         }
         reader.end().map_err(snapshot_codec_error)?;
         state
-            .verify_conservation()
+            .verify_base_conservation()
             .map_err(SnapshotError::InvalidLedger)?;
-        if state.snapshot_bytes()?.as_slice() != input {
+        // Reader checked each witness with the same scoped work budget before copying it.
+        state
+            .verify_channel_revision_state_without_witness()
+            .map_err(SnapshotError::InvalidLedger)?;
+        if state.snapshot_bytes_verified()?.as_slice() != input {
             return Err(SnapshotError::InvalidFormat("noncanonical ledger snapshot"));
         }
         Ok(state)
@@ -969,3 +1028,4 @@ mod snapshot_tests {
 // Escrow book and pending withdrawal checkpoint extension.
 include!("ledger_channels_impl.rs");
 include!("ledger_settlement_impl.rs");
+include!("ledger_channel_revisions_impl.rs");

@@ -156,6 +156,7 @@ impl Ledger {
     }
 
     fn record_net_settlement(&mut self, txid: TxId, claim: NetClaim) -> Result<(), LedgerError> {
+        self.require_unsigned_channel(&claim.channel)?;
         self.existing_property(claim.property)?;
         if claim.height == 0
             || claim.expiry_height < claim.height
@@ -229,6 +230,7 @@ impl Ledger {
         txid: TxId,
         receipt: KingReceipt,
     ) -> Result<(), LedgerError> {
+        self.require_unsigned_channel(&receipt.channel)?;
         if self.king_settlements.len() >= MAX_SETTLEMENT_RECORDS {
             return Err(LedgerError::SettlementJournalFull);
         }
@@ -399,9 +401,10 @@ impl Ledger {
     fn read_settlement_snapshot(
         &mut self,
         reader: &mut crate::codec::Cursor<'_>,
+        mut budget: Option<&mut RevisionVerifyBudget>,
     ) -> Result<(), SnapshotError> {
         for settled in [false, true] {
-            let count = snapshot_count(reader)?;
+            let count = revision_snapshot_count(reader, budget.as_deref_mut())?;
             let mut previous = None;
             for _ in 0..count {
                 let txid = TxId::from_bytes(reader.fixed::<32>().map_err(snapshot_codec_error)?);
@@ -434,7 +437,7 @@ impl Ledger {
                 }
             }
         }
-        let count = snapshot_count(reader)?;
+        let count = revision_snapshot_count(reader, budget.as_deref_mut())?;
         let mut previous = None;
         for _ in 0..count {
             let txid = TxId::from_bytes(reader.fixed::<32>().map_err(snapshot_codec_error)?);
@@ -452,7 +455,7 @@ impl Ledger {
             let count = reader.u32().map_err(snapshot_codec_error)?;
             let payer_side = ChannelSide::from_tag(reader.u8().map_err(snapshot_codec_error)?)?;
             let net_atoms = reader.u128().map_err(snapshot_codec_error)?;
-            let ids_count = snapshot_count(reader)?;
+            let ids_count = revision_snapshot_count(reader, budget.as_deref_mut())?;
             let mut prior = None;
             let mut ids = Vec::with_capacity(ids_count);
             for _ in 0..ids_count {

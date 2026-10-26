@@ -148,6 +148,7 @@ impl Ledger {
         side: ChannelSide,
         amount_atoms: u128,
     ) -> Result<(), LedgerError> {
+        self.require_unsigned_channel(&channel)?;
         self.existing_property(id)?;
         if amount_atoms == 0 {
             return Err(LedgerError::ZeroAmount);
@@ -176,6 +177,7 @@ impl Ledger {
         txid: TxId,
         request: PendingWithdrawal,
     ) -> Result<(), LedgerError> {
+        self.require_unsigned_channel(&request.channel)?;
         let id = request.id;
         self.existing_property(id)?;
         if request.atoms == 0 {
@@ -213,6 +215,8 @@ impl Ledger {
         to_side: ChannelSide,
         amount_atoms: u128,
     ) -> Result<(), LedgerError> {
+        self.require_unsigned_channel(&from_channel)?;
+        self.require_unsigned_channel(&to_channel)?;
         self.existing_property(id)?;
         if amount_atoms == 0 {
             return Err(LedgerError::ZeroAmount);
@@ -256,6 +260,9 @@ impl Ledger {
     pub fn settle_due_withdrawals_unverified(&mut self, height: u64) -> Result<usize, LedgerError> {
         if height == 0 {
             return Err(LedgerError::InvalidWithdrawalHeight);
+        }
+        for pending in self.pending_withdrawals.values() {
+            self.require_unsigned_channel(&pending.channel)?;
         }
         let mut staged = self.clone();
         let due: Vec<TxId> = staged
@@ -376,8 +383,9 @@ impl Ledger {
     fn read_channel_snapshot(
         &mut self,
         reader: &mut crate::codec::Cursor<'_>,
+        mut budget: Option<&mut RevisionVerifyBudget>,
     ) -> Result<(), SnapshotError> {
-        let count = snapshot_count(reader)?;
+        let count = revision_snapshot_count(reader, budget.as_deref_mut())?;
         let mut prev = None;
         for _ in 0..count {
             let channel = read_account(reader)?;
@@ -396,7 +404,7 @@ impl Ledger {
                     ChannelSide::A => state.owner_a = owner,
                     ChannelSide::B => state.owner_b = owner,
                 }
-                let count = snapshot_count(reader)?;
+                let count = revision_snapshot_count(reader, budget.as_deref_mut())?;
                 let mut prior = None;
                 for _ in 0..count {
                     let id = PropertyId::try_from(reader.u32().map_err(snapshot_codec_error)?)
@@ -414,7 +422,7 @@ impl Ledger {
             }
             self.channels.insert(channel, state);
         }
-        let count = snapshot_count(reader)?;
+        let count = revision_snapshot_count(reader, budget)?;
         let mut previous: Option<TxId> = None;
         for _ in 0..count {
             let txid = TxId::from_bytes(reader.fixed::<32>().map_err(snapshot_codec_error)?);

@@ -26,9 +26,11 @@ pub mod channel_bip143_audit; // Stage 25I exact SegWit-v0 SIGHASH_ALL digest; n
 pub mod channel_inclusion_audit; // Stage25L relative Bitcoin Merkle/witness non-authority.
 pub mod channel_p2sh_audit; // Stage 25K legacy P2SH HASH160 outpoint and redeem script, not ECDSA.
 pub mod channel_p2sh_sighash_audit; // Stage 25L read-only legacy P2SH SIGHASH_ALL digest, no ECDSA authority.
+pub mod channel_revision; // Explicit co-signed allocation policy; L1 funding/revocation external.
 pub mod channel_type9_inclusion_audit; // Stage25N raw type9 event/Bitcoin relative Merkle evidence, no admission.
 pub mod channel_type9_sender_audit; // Stage25O claimed Bitcoin P2WPKH first-input digest and sender-bound candidate, never permission.
 pub mod channel_witness_audit; // Stage 25H raw native P2WSH script/outpoint only; not ECDSA authorization.
+pub mod channels_source; // Complete bounded source metadata; no funded custody authority.
 pub mod clearing_cadence; // Stage 24C read-only JS clearing callback and funding schedule observations.
 pub mod clearing_chain; // Stage 25D unverified combined spot-clearing rollback and TLCC checkpoints.
 pub mod clearing_math; // Stage 24A diagnostic loss, funding and PnL equations; no ledger writes.
@@ -43,6 +45,7 @@ pub mod daemon; // Synced bounded raw-block observations; no economic admission 
 pub mod decimal; // Finite decimal arithmetic with explicit precision and rounding.
 pub mod dlc_oracle_bridge; // Source relay verification and separate trusted payload-bound evidence.
 pub mod durable_iou; // Synced single-owner funded IOU operation batches and recovery.
+pub mod durable_signed_channels; // Synced opt-in signed allocation owner and exact-head recovery.
 pub mod economic; // Atomic caller-driven contract matching with the sole joint Ledger.
 pub mod economic_chain; // Complete economic rollback and synced durable ownership.
 pub mod economic_reporting; // Exact immutable execution reports from the verified owner.

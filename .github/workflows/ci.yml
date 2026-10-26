@@ -35,7 +35,7 @@ jobs:
       - name: Check formatting
         run: cargo fmt --all -- --check
       - name: Check included snapshot file formatting
-        run: rustfmt --check --edition 2021 src/registry_snapshot_impl.rs src/execution_snapshot_impl.rs src/ledger_channels_impl.rs src/ledger_settlement_impl.rs
+        run: rustfmt --check --edition 2021 src/registry_snapshot_impl.rs src/execution_snapshot_impl.rs src/execution_channel_revisions_impl.rs src/ledger_channels_impl.rs src/ledger_settlement_impl.rs src/ledger_channel_revisions_impl.rs
       - name: Check included bounded RPC parser formatting
         run: rustfmt --check --edition 2021 src/rpc_json_impl.rs src/rpc_http_impl.rs
       - name: Check included exact trade-history formatting
@@ -64,6 +64,10 @@ jobs:
         run: npm install --prefix "$RUNNER_TEMP/tl-secp-reference" --ignore-scripts --no-audit --no-fund --save-exact tiny-secp256k1@2.2.4
       - name: Native public ECDSA independent and genuine reference vectors
         run: node scripts/secp256k1_vectors.cjs --check --tiny-root "$RUNNER_TEMP/tl-secp-reference"
+      - name: Co-signed allocation transcripts and actual-owner signed fixtures
+        run: |
+          node scripts/channel_revision_vectors.cjs --check --tiny-root "$RUNNER_TEMP/tl-secp-reference"
+          node scripts/channel_owner_vectors.cjs --check --tiny-root "$RUNNER_TEMP/tl-secp-reference"
       - name: Complete pinned DLC bridge with genuine ECDSA
         run: node scripts/dlc_oracle_bridge_vectors.cjs --check --secp "$RUNNER_TEMP/tl-secp-reference/node_modules/tiny-secp256k1"
       - name: Pinned trade-history query source vectors
@@ -88,6 +92,7 @@ jobs:
           node scripts/types_vectors.cjs --check
           node scripts/consensus_vectors.cjs --check
           node scripts/activation_vectors.cjs --check
+          node scripts/channels_vectors.cjs --check
           node scripts/oracle_vectors.cjs
           node scripts/amm_vectors.cjs
           node scripts/margin_map_vectors.cjs

@@ -65,6 +65,7 @@ pub enum FundedIouError {
     InvalidContract,
     ReservedAccount,
     EscrowCollision,
+    SignedChannelUnsupported,
     ZeroAmount,
     NonpositiveMatchProfit,
     FractionalAtom,
@@ -399,6 +400,9 @@ impl FundedIouLedger {
     }
 
     pub fn verify(&self) -> Result<(), FundedIouError> {
+        if self.ledger.has_signed_channel_revisions() {
+            return Err(FundedIouError::SignedChannelUnsupported);
+        }
         self.ledger.verify_conservation()?;
         let mut owned = BTreeSet::new();
         for (&key, escrow) in &self.escrows {

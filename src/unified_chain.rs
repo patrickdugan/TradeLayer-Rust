@@ -18,6 +18,7 @@ use std::io::{Read, Write};
 use std::path::Path;
 
 const MAGIC: &[u8; 5] = b"TLUC\x01";
+const SIGNED_MAGIC: &[u8; 5] = b"TLUC\x02";
 
 /// Output of an independently verifying chain adapter. The adapter is the
 /// trusted computing base and MUST derive every field from authenticated
@@ -177,8 +178,65 @@ impl UnifiedChainState {
     pub fn chain_id(&self) -> ChainId {
         self.chain
     }
+    pub fn rollback_floor(&self) -> Tip {
+        self.history.front().map_or(self.tip, |p| p.tip)
+    }
     pub fn rollback_depth(&self) -> usize {
         self.history.len()
+    }
+    pub fn anchor(&self) -> Tip {
+        self.anchor
+    }
+    pub fn history_limit(&self) -> usize {
+        self.history_limit
+    }
+    pub fn channel_revision_policies(&self) -> &crate::ledger::ExpectedChannelRevisionPolicies {
+        self.state.channel_revision_policies()
+    }
+    /// Move one actual pre-funded owner under independently pinned policies.
+    /// Previous blocks become the explicitly configured anchor; no prior
+    /// branch/authentication or fabricated bootstrap balances are inferred.
+    pub fn from_protocol_with_channel_revision_policies_unverified(
+        state: ProtocolState,
+        anchor: Tip,
+        admin: AccountId,
+        history_limit: usize,
+        expected: crate::ledger::ExpectedChannelRevisionPolicies,
+    ) -> Result<Self, UnifiedChainError> {
+        if !(1..=MAX_REORG_HISTORY).contains(&history_limit) {
+            return Err(UnifiedChainError::InvalidHistoryLimit);
+        }
+        if expected.is_empty()
+            || state.finalized_height().unwrap_or(0) != anchor.height
+            || state.registry().protocol_admin() != &admin
+            || state.ledger().has_signed_channel_revisions()
+        {
+            return Err(invalid("invalid signed channel bootstrap owner").into());
+        }
+        let chain = state.chain();
+        let state = state.with_channel_revision_policies_unverified(expected)?;
+        let owner = Self {
+            chain,
+            admin,
+            anchor,
+            tip: anchor,
+            state,
+            history: VecDeque::new(),
+            history_limit,
+        };
+        owner.checkpoint_bytes()?;
+        Ok(owner)
+    }
+    pub fn apply_signed_channel_block_unverified<A: TrustedProtocolAdapter>(
+        &mut self,
+        block: &CandidateBlock,
+        adapter: &A,
+        inputs: &[crate::execution::SignedChannelInput],
+    ) -> Result<(), UnifiedChainError> {
+        if self.channel_revision_policies().is_empty() {
+            return Err(invalid("signed channel policies unavailable").into());
+        }
+        self.apply_block_with_channel_inputs(block, adapter, inputs)
     }
 
     /// The adapter supplies authenticated operations. It is a trusted external
@@ -187,6 +245,14 @@ impl UnifiedChainState {
         &mut self,
         block: &CandidateBlock,
         adapter: &A,
+    ) -> Result<(), UnifiedChainError> {
+        self.apply_block_with_channel_inputs(block, adapter, &[])
+    }
+    fn apply_block_with_channel_inputs<A: TrustedProtocolAdapter>(
+        &mut self,
+        block: &CandidateBlock,
+        adapter: &A,
+        signed_inputs: &[crate::execution::SignedChannelInput],
     ) -> Result<(), UnifiedChainError> {
         if block.chain != self.chain {
             return Err(UnifiedChainError::WrongChain);
@@ -200,7 +266,12 @@ impl UnifiedChainState {
         if block.header.id == self.tip.id {
             return Err(UnifiedChainError::DuplicateBlockId);
         }
-        if block.raw_transactions.len() > MAX_TRANSACTIONS_PER_BLOCK {
+        if block
+            .raw_transactions
+            .len()
+            .checked_add(signed_inputs.len())
+            .is_none_or(|n| n > MAX_TRANSACTIONS_PER_BLOCK)
+        {
             return Err(UnifiedChainError::TransactionLimit);
         }
         adapter
@@ -242,21 +313,33 @@ impl UnifiedChainState {
         if !transactions.is_empty() {
             staged.apply_batch_unverified(transactions)?;
         }
+        if !signed_inputs.is_empty() {
+            staged.apply_signed_channel_inputs_unverified(
+                self.tip,
+                block.header.height,
+                signed_inputs,
+            )?;
+        }
         // Mature queued withdrawals at the end of every authenticated block,
         // including blocks with no TradeLayer protocol transactions.
         staged.finalize_block_unverified(block.header.height)?;
-        self.history.push_back(Prior {
+        let mut next = self.clone();
+        next.history.push_back(Prior {
             tip: self.tip,
             state: self.state.clone(),
         });
-        while self.history.len() > self.history_limit {
-            self.history.pop_front();
+        while next.history.len() > next.history_limit {
+            next.history.pop_front();
         }
-        self.state = staged;
-        self.tip = Tip {
+        next.state = staged;
+        next.tip = Tip {
             height: block.header.height,
             id: block.header.id,
         };
+        if !next.channel_revision_policies().is_empty() {
+            next.checkpoint_bytes()?;
+        }
+        *self = next;
         Ok(())
     }
 
@@ -289,13 +372,48 @@ impl UnifiedChainState {
     /// Immutable checkpoint, including complete registry state and all replay
     /// markers across each retained pre-block snapshot.
     pub fn checkpoint_bytes(&self) -> Result<Vec<u8>, UnifiedCheckpointError> {
-        let mut out = MAGIC.to_vec();
+        if self
+            .history
+            .iter()
+            .any(|p| p.state.channel_revision_policies() != self.channel_revision_policies())
+        {
+            return Err(invalid("signed policy history mismatch"));
+        }
+        if !self.channel_revision_policies().is_empty() {
+            for (index, prior) in self.history.iter().enumerate() {
+                let later = self
+                    .history
+                    .get(index + 1)
+                    .map_or(&self.state, |p| &p.state);
+                prior
+                    .state
+                    .ledger()
+                    .require_channel_revision_transition(
+                        later.ledger(),
+                        prior.tip,
+                        prior
+                            .tip
+                            .height
+                            .checked_add(1)
+                            .ok_or_else(|| invalid("height overflow"))?,
+                    )
+                    .map_err(|_| invalid("signed history transition mismatch"))?;
+            }
+        }
+        let mut out = if self.channel_revision_policies().is_empty() {
+            MAGIC.to_vec()
+        } else {
+            SIGNED_MAGIC.to_vec()
+        };
         out.extend_from_slice(&self.chain.0);
         let admin = self.admin.as_str().as_bytes();
         out.push(u8::try_from(admin.len()).map_err(|_| invalid("admin too long"))?);
         out.extend_from_slice(admin);
         push_tip(&mut out, self.anchor);
         push_tip(&mut out, self.tip);
+        if !self.channel_revision_policies().is_empty() {
+            push_tip(&mut out, self.rollback_floor());
+        }
         out.push(
             u8::try_from(self.history_limit).map_err(|_| invalid("history policy too large"))?,
         );
@@ -315,12 +433,57 @@ impl UnifiedChainState {
         expected_admin: &AccountId,
         expected_history_limit: usize,
     ) -> Result<Self, UnifiedCheckpointError> {
+        Self::decode_checkpoint_with_channel_policies(
+            bytes,
+            expected_chain,
+            expected_anchor,
+            expected_admin,
+            expected_history_limit,
+            None,
+        )
+    }
+    pub fn from_checkpoint_bytes_with_channel_policies(
+        bytes: &[u8],
+        expected_chain: ChainId,
+        expected_anchor: Tip,
+        expected_admin: &AccountId,
+        expected_history_limit: usize,
+        expected: &crate::ledger::ExpectedChannelRevisionPolicies,
+    ) -> Result<Self, UnifiedCheckpointError> {
+        if expected.is_empty() {
+            return Self::from_checkpoint_bytes(
+                bytes,
+                expected_chain,
+                expected_anchor,
+                expected_admin,
+                expected_history_limit,
+            );
+        }
+        Self::decode_checkpoint_with_channel_policies(
+            bytes,
+            expected_chain,
+            expected_anchor,
+            expected_admin,
+            expected_history_limit,
+            Some(expected),
+        )
+    }
+    fn decode_checkpoint_with_channel_policies(
+        bytes: &[u8],
+        expected_chain: ChainId,
+        expected_anchor: Tip,
+        expected_admin: &AccountId,
+        expected_history_limit: usize,
+        expected: Option<&crate::ledger::ExpectedChannelRevisionPolicies>,
+    ) -> Result<Self, UnifiedCheckpointError> {
         if !(1..=MAX_REORG_HISTORY).contains(&expected_history_limit) {
             return Err(invalid("invalid rollback policy"));
         }
         let body = verify_crc(bytes).map_err(|_| invalid("checkpoint CRC or size"))?;
         let mut r = Cursor::new(body);
-        if r.fixed::<5>().map_err(|_| invalid("truncated magic"))? != *MAGIC {
+        let magic = r.fixed::<5>().map_err(|_| invalid("truncated magic"))?;
+        if (expected.is_none() && magic != *MAGIC) || (expected.is_some() && magic != *SIGNED_MAGIC)
+        {
             return Err(invalid("checkpoint magic/version"));
         }
         let chain = ChainId(r.fixed::<32>().map_err(|_| invalid("truncated chain id"))?);
@@ -339,6 +502,11 @@ impl UnifiedChainState {
         }
         let anchor = read_tip(&mut r)?;
         let tip = read_tip(&mut r)?;
+        let floor = if expected.is_some() {
+            Some(read_tip(&mut r)?)
+        } else {
+            None
+        };
         if anchor != expected_anchor {
             return Err(invalid("wrong checkpoint anchor"));
         }
@@ -357,7 +525,8 @@ impl UnifiedChainState {
             {
                 return Err(invalid("discontinuous history"));
             }
-            let prior_state = read_protocol(&mut r, expected_chain, expected_admin)?;
+            let prior_state =
+                read_protocol_channel_policies(&mut r, expected_chain, expected_admin, expected)?;
             if prior_state
                 .last_height()
                 .is_some_and(|height| height > previous_tip.height)
@@ -372,11 +541,12 @@ impl UnifiedChainState {
                 state: prior_state,
             });
         }
-        let state = read_protocol(&mut r, expected_chain, expected_admin)?;
+        let state =
+            read_protocol_channel_policies(&mut r, expected_chain, expected_admin, expected)?;
         r.end().map_err(|_| invalid("trailing checkpoint data"))?;
         if tip.height < anchor.height
             || (tip.height == anchor.height && (tip.id != anchor.id || count != 0))
-            || (tip.height > anchor.height && count == 0)
+            || (tip.height > anchor.height && count == 0 && expected.is_none())
             || history.back().is_some_and(|old: &Prior| {
                 old.tip.height.checked_add(1) != Some(tip.height) || old.tip.id == tip.id
             })
@@ -398,6 +568,11 @@ impl UnifiedChainState {
             history,
             history_limit,
         };
+        if floor.is_some_and(|f| {
+            f != decoded.rollback_floor() || f.height < anchor.height || f.height > tip.height
+        }) {
+            return Err(invalid("invalid explicit rollback floor"));
+        }
         if decoded.checkpoint_bytes()?.as_slice() != bytes {
             return Err(invalid("noncanonical checkpoint"));
         }
@@ -472,4 +647,25 @@ fn read_protocol(
     let bytes = r.take(length).map_err(|_| invalid("protocol truncated"))?;
     ProtocolState::from_snapshot_bytes(bytes, chain, admin)
         .map_err(UnifiedCheckpointError::Protocol)
+}
+fn read_protocol_channel_policies(
+    r: &mut Cursor<'_>,
+    chain: ChainId,
+    admin: &AccountId,
+    expected: Option<&crate::ledger::ExpectedChannelRevisionPolicies>,
+) -> Result<ProtocolState, UnifiedCheckpointError> {
+    let Some(expected) = expected else {
+        return read_protocol(r, chain, admin);
+    };
+    let length = r.u32().map_err(|_| invalid("protocol length truncated"))? as usize;
+    if length > MAX_CHECKPOINT_BYTES {
+        return Err(invalid("protocol too large"));
+    }
+    ProtocolState::from_snapshot_bytes_with_channel_policies(
+        r.take(length).map_err(|_| invalid("protocol truncated"))?,
+        chain,
+        admin,
+        expected,
+    )
+    .map_err(UnifiedCheckpointError::Protocol)
 }

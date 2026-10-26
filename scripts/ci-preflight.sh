@@ -17,6 +17,7 @@ cargo fmt --all -- --check
 rustfmt --check --edition 2021 \
   src/registry_snapshot_impl.rs src/execution_snapshot_impl.rs \
   src/ledger_channels_impl.rs src/ledger_settlement_impl.rs \
+  src/ledger_channel_revisions_impl.rs src/execution_channel_revisions_impl.rs \
   src/spot_snapshot_impl.rs src/joint_snapshot_impl.rs \
   src/trade_history_position_impl.rs src/volume_index_source_impl.rs \
   src/economic_block_stage_impl.rs src/economic_consensus_impl.rs \

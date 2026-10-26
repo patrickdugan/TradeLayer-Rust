@@ -157,6 +157,7 @@ pub struct ProtocolState {
     /// Block height whose end-of-block withdrawal processing has completed.
     /// None identifies pre-Stage-11 snapshots and direct replay not yet fenced.
     finalized_height: Option<u64>,
+    channel_revision_policies: crate::ledger::ExpectedChannelRevisionPolicies,
 }
 
 impl ProtocolState {
@@ -170,6 +171,7 @@ impl ProtocolState {
             processed: BTreeSet::new(),
             last_height: None,
             finalized_height: None,
+            channel_revision_policies: crate::ledger::ExpectedChannelRevisionPolicies::new(),
         }
     }
 
@@ -237,6 +239,16 @@ impl ProtocolState {
         }
         if count == 0 {
             return Err(ExecutionError::EmptyBatch);
+        }
+        if !pending.channel_revision_policies.is_empty() {
+            pending.encode_channel_stage(true).map_err(|e| match e {
+                ProtocolSnapshotError::Ledger(crate::ledger::SnapshotError::InvalidLedger(e)) => {
+                    ExecutionError::Ledger(e)
+                }
+                _ => ExecutionError::Ledger(LedgerError::from(
+                    crate::channel_revision::RevisionError::Capacity,
+                )),
+            })?;
         }
         *self = pending;
         Ok(())
@@ -470,3 +482,4 @@ impl ProtocolState {
 
 // Canonical full-registry+ledger snapshots with shared replay-set checks.
 include!("execution_snapshot_impl.rs");
+include!("execution_channel_revisions_impl.rs");

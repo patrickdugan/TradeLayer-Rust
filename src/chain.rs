@@ -458,6 +458,9 @@ fn read_tip(cursor: &mut Cursor<'_>) -> Result<Tip, CheckpointError> {
 }
 
 fn write_ledger(dst: &mut Vec<u8>, ledger: &Ledger) -> Result<(), CheckpointError> {
+    if ledger.has_signed_channel_revisions() {
+        return Err(CheckpointError::Invalid("signed channel unsupported"));
+    }
     let bytes = ledger.snapshot_bytes()?;
     let len =
         u32::try_from(bytes.len()).map_err(|_| CheckpointError::Invalid("ledger too large"))?;

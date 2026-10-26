@@ -19,14 +19,14 @@ and funded LP receipt implementation now shares those contexts. These advances
 do not complete native/dated/multicontract orchestration, all validity dependencies,
 insurance/ADL or chain authentication; no source module is promoted to complete.
 
-The next integration adds all 43 [source validity exports](VALIDITY_SOURCE.md),
+The previous integration added all 43 [source validity exports](VALIDITY_SOURCE.md),
 complete [Types dispatch](TYPES_SOURCE.md), actual pending-owner dependency reads,
 and [sequential source execution](CONSENSUS_SOURCE.md) through the same Ledger.
 TLECv7 retains accepted and rejected raw candidates, reexecutes their real rules
 on restore, finalizes economic phases once per block and checks exact rollback
 history prefixes. The standalone [activation source lane](ACTIVATION.md) covers
-18 methods plus constructor/static singleton; its final corpus counts await the
-last source-boundary review and central checks. These are source-conformance and
+18 methods plus constructor/static singleton; its checked corpus has 670 exact
+observations and five explicit domain cases. These are source-conformance and
 supported owner subsets; native genesis, complete dependency ownership and
 authenticated historical admission remain open. Current full-batch checks are
 passed locally; the final combined results and earlier producer/wire baseline are recorded below.
@@ -801,7 +801,7 @@ order, repeated activation and source placeholders are covered. Its standalone
 metadata and named repaired intent do not issue native supply or replace the
 actual owner administrator/prior-height/replay gates.
 
-The final combined run passes **1,162 Rust test executions: 1,161 top-level
+The source batch at `6403716` passed **1,162 Rust test executions: 1,161 top-level
 tests plus one subprocess lock check**, across **144 executable targets** and
 one empty doctest target. Every top-level test runs without filtering or
 ignores; the lock-test child intentionally selects one helper. Cargo formatting,
@@ -829,3 +829,62 @@ across the three networks, including unchanged normal checkpoint bytes. Economic
 combined-mode policy and standalone channel-capable Ledger/Spot behavior remain
 unchanged. This closes an import inconsistency; it does not implement signed
 channel revisions or authorize channel admission.
+
+## Canonical co-signed channel allocations and source lifecycle
+
+[CHANNEL_REVISIONS.md](CHANNEL_REVISIONS.md) specifies the explicitly new
+SupersedingCoSignedAllocationV1 binary policy, canonical allocation/body domains,
+strict two-slot low-S signatures and exact successor/custody/context checks. The
+independently configured descriptor binds both participants/keys, the funding
+epoch/outpoints/script digest and actual bootstrap commitments. Eight transcript
+tests consume81 independent reference vectors; twelve additional genuine signed
+owner envelopes use actual Ledger bootstrap bytes across all three networks.
+These are new-policy vectors, not historical JavaScript transactions.
+
+The [funded owner](SIGNED_CHANNEL_OWNER.md) stores accepted journals beside actual
+Ledger escrow, with no second balance owner. Enrollment identity is deterministic
+local metadata, not an authenticated L1 txid. The old commit, withdrawal, transfer
+(both endpoints), NET and KING entry points are fenced after enrollment. Complete
+TLLv4/TLPSv3/TLUCv2 checkpoints require independent policies; disabled legacy
+formats keep their existing bytes. New journal/enrollment tails must first appear
+at the exact retained transition height and parent. A reproduced valid-state
+retroactive splice failed before the fix and now rejects. Whole-tree record,
+witness, crypto-count and depth bounds agree between live writes and restore.
+
+The [durable channel wrapper](DURABLE_SIGNED_CHANNELS.md) binds an independent
+sequence/tip/checkpoint head, stages the whole actual owner and commits one synced
+Journal value. Rollback/reapply changes sequence even when all checkpoint bytes
+return to the same value. Real disk tests cover three-network revision/restart,
+stale-head rejection before adapter work, atomic failures, independent policy
+substitution, OS lock/existing-store fences and a real synced-write lost
+acknowledgement. Poisoned cached state/head/Debug access remains fenced.
+
+The complete [channels.js source lane](CHANNELS_SOURCE.md) covers all43 static
+methods plus the implicit constructor with the actual unmodified source and
+genuine BigNumber. Explicit unsupported JS prototype/reference domains are local
+rejections, not source-conformance successes. Source partial effects and errors
+remain metadata observations, separate from the funded allocation repair. L1
+funding authentication, actual participant identities, script/UTXO validation,
+commitment revocation and full historical channel acceptance remain open.
+
+## Verified channel-batch gates
+
+The integrated channel batch passes **1,200 Rust test executions: 1,199
+top-level tests plus one subprocess lock check**, across **148 executable
+targets** and one empty doctest target. All top-level tests run without filtering
+or ignores; the lock-test child intentionally selects its helper. Pinned Rust
+1.90 formatting, explicit formatting of every included implementation file,
+all-target frozen Clippy with warnings denied, the zero-third-party policy and
+all11 dependency mutation tests pass. The all-target frozen release build passes
+in **8m11s**. All553 implementation/check inputs remained frozen throughout the
+final run.
+
+The unchanged-source channel corpus has445 exact action observations and46
+explicit unsupported-domain observations over480 scenes. Independent/genuine
+reference checks pass81 transcript vectors and12 actual-funded-bootstrap signed
+envelopes. Thirty-eight new Rust tests cover these source/signature cases,
+actual sole-owner state, retained-transition/resource regressions and durable
+recovery; fixture rows are not counted as separate Rust tests. The ledger keeps
+49 module rows (48 TL plus one external feature) and958 unique function entries,
+preserving all914 previous entries and adding43 channel methods plus constructor.
+No module is promoted to complete historical or authenticated parity.
