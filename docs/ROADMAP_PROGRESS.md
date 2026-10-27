@@ -11,6 +11,29 @@ that worker's branches, publish a branch, or authorize economic transitions.
 
 ## Tracking the 49 source modules
 
+The opt-in ProofLifecycleV6 batch passes **1,449 Rust test executions**
+(1,448 top-level plus one subprocess) across 208 targets, including
+28 new tests. Formatting, all-target Clippy, doctests,
+release, zero-third-party-crate policy, eleven policy mutations and ten Core
+bridge Python tests pass against 750 frozen inputs. All 84
+focused tests across 31 targets pass with genuine locked
+BigNumber9.1.2. See `fixtures/reference_fidelity/source-proof-candidate.json`.
+
+Actual type30 settlement, procedural/cache/risk and reward production/settlement
+share the source Core Tally, Property cache and collections. Literal write
+prefixes, retries, source economics and actual tail32-35 errors/gates remain.
+TLSW2 checks238 independently command-pinned source-backed slices; it is
+conditional execution evidence, not a complete block or authorization proof.
+CandidateEvidenceReader rescans every supplied raw block and rejects omitted,
+reordered or relabeled carriers even with rebound transcript hashes. Draft
+SQLite/native stores remain external adapters. Default remains V2; independently
+compiled populated V5 bytes and all previous policies remain unchanged.
+
+Lower0-15 composition in the same literal Core, real Main/Consensus processed
+rows/phase selection, activation/native bootstrap, production storage/RPC and
+authenticated inputs/history remain next gates. UTXORef remains a separate
+consumer; no new Binohash feature is introduced into TL.
+
 The source-index/distribution batch passes **1,421 Rust test executions**
 (1,420 top-level plus one subprocess) across 201 targets, including 14 new
 tests. Formatting, all-target Clippy, doctests, release, zero-external-crate

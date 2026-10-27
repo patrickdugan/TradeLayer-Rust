@@ -21,6 +21,7 @@ pub enum SourceContractRuntimePolicy {
     SourceLifecycleV3,
     OptionLifecycleV4,
     DistributionLifecycleV5,
+    ProofLifecycleV6,
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StorageFailure {
@@ -61,6 +62,9 @@ pub(crate) struct ContractCore {
     tally_static_initialized: bool,
     channels: crate::channels_source::SourceChannels,
     property_cache: Vec<(V, V)>,
+    source_proof_environment: V,
+    source_proof_artifacts: V,
+    source_proof_property_initialized: bool,
     vault_initialized: bool,
     vault_cache: Vec<(V, V)>,
     synthetic_token_cache: Vec<(V, V)>,
@@ -347,7 +351,9 @@ impl SourceContractRuntime {
             set(
                 &mut value,
                 "runtimePolicy",
-                s(if self.core.distribution_lifecycle_enabled() {
+                s(if self.core.proof_lifecycle_enabled() {
+                    "ProofLifecycleV6"
+                } else if self.core.distribution_lifecycle_enabled() {
                     "DistributionLifecycleV5"
                 } else if self.core.option_lifecycle_enabled() {
                     "OptionLifecycleV4"
@@ -387,6 +393,29 @@ impl SourceContractRuntime {
                 &mut value,
                 "syntheticLifecycle",
                 self.core.source_synthetic_state(),
+            )
+            .map_err(|_| SourceRuleError::InvalidInput)?;
+        }
+        if self.core.proof_lifecycle_enabled() {
+            set(
+                &mut value,
+                "proofLifecycle",
+                obj(&[
+                    ("environment", self.core.source_proof_environment.clone()),
+                    ("artifacts", self.core.source_proof_artifacts.clone()),
+                    (
+                        "propertyInitialized",
+                        V::Bool(self.core.source_proof_property_initialized),
+                    ),
+                ]),
+            )
+            .map_err(|_| SourceRuleError::InvalidInput)?;
+        }
+        if self.core.proof_lifecycle_enabled() {
+            set(
+                &mut value,
+                "liquidityRewards",
+                self.core.source_liquidity_rewards_state(),
             )
             .map_err(|_| SourceRuleError::InvalidInput)?;
         }
@@ -532,6 +561,10 @@ impl SourceContractRuntime {
     ) -> Result<SourceOutcome, SourceRuleError> {
         self.last_parameters = None;
         if arguments.get(1) != Some(&n(18.0))
+            && !(self.core.proof_lifecycle_enabled()
+                && [30., 32., 33., 34., 35.]
+                    .iter()
+                    .any(|kind| arguments.get(1) == Some(&n(*kind))))
             && !(self.core.distribution_lifecycle_enabled()
                 && [26., 28., 29.]
                     .iter()
@@ -574,6 +607,11 @@ impl SourceContractRuntime {
             crate::types_source::TypesOutcome::Returned(params) => {
                 self.last_parameters = Some(params.clone());
                 let logic = if params.get("valid") == V::Bool(true)
+                    && self.core.proof_lifecycle_enabled()
+                    && arguments.get(1) == Some(&n(30.0))
+                {
+                    self.source_proof_raw_logic(&params)?
+                } else if params.get("valid") == V::Bool(true)
                     && self.core.distribution_lifecycle_enabled()
                     && [26., 28., 29.]
                         .iter()
@@ -662,6 +700,9 @@ impl ContractCore {
             tally_static_initialized: false,
             channels: crate::channels_source::SourceChannels::new(),
             property_cache: vec![],
+            source_proof_environment: obj(&[]),
+            source_proof_artifacts: obj(&[]),
+            source_proof_property_initialized: false,
             vault_initialized: false,
             vault_cache: vec![],
             synthetic_token_cache: vec![],
@@ -704,6 +745,7 @@ impl ContractCore {
                 | SourceContractRuntimePolicy::SourceLifecycleV3
                 | SourceContractRuntimePolicy::OptionLifecycleV4
                 | SourceContractRuntimePolicy::DistributionLifecycleV5
+                | SourceContractRuntimePolicy::ProofLifecycleV6
         )
     }
     fn lifecycle_enabled(&self) -> bool {
@@ -712,6 +754,7 @@ impl ContractCore {
             SourceContractRuntimePolicy::SourceLifecycleV3
                 | SourceContractRuntimePolicy::OptionLifecycleV4
                 | SourceContractRuntimePolicy::DistributionLifecycleV5
+                | SourceContractRuntimePolicy::ProofLifecycleV6
         )
     }
     fn option_lifecycle_enabled(&self) -> bool {
@@ -719,10 +762,18 @@ impl ContractCore {
             self.policy,
             SourceContractRuntimePolicy::OptionLifecycleV4
                 | SourceContractRuntimePolicy::DistributionLifecycleV5
+                | SourceContractRuntimePolicy::ProofLifecycleV6
         )
     }
     fn distribution_lifecycle_enabled(&self) -> bool {
-        self.policy == SourceContractRuntimePolicy::DistributionLifecycleV5
+        matches!(
+            self.policy,
+            SourceContractRuntimePolicy::DistributionLifecycleV5
+                | SourceContractRuntimePolicy::ProofLifecycleV6
+        )
+    }
+    fn proof_lifecycle_enabled(&self) -> bool {
+        self.policy == SourceContractRuntimePolicy::ProofLifecycleV6
     }
     fn rows(&self, name: &str) -> &[V] {
         self.tables
@@ -847,6 +898,20 @@ impl ContractCore {
                         "$ne" => !same(&actual, v),
                         "$exists" => matches!(actual, V::Undefined) != truth(v),
                         "$in" => array(v)?.iter().any(|v| same(&actual, v)),
+                        "$lt" | "$lte" | "$gt" | "$gte" if self.proof_lifecycle_enabled() => {
+                            let compared =
+                                crate::oracle_source_owner::source_comparison_unverified(
+                                    &actual, v,
+                                )
+                                .map_err(Fault::Local)?;
+                            use core::cmp::Ordering::{Equal, Greater, Less};
+                            match op.as_str() {
+                                "$lt" => compared == Some(Less),
+                                "$lte" => matches!(compared, Some(Less | Equal)),
+                                "$gt" => compared == Some(Greater),
+                                _ => matches!(compared, Some(Greater | Equal)),
+                            }
+                        }
                         "$gte" => number(&actual)? >= number(v)?,
                         "$lte" => number(&actual)? <= number(v)?,
                         "$gt" => number(&actual)? > number(v)?,
@@ -1214,6 +1279,79 @@ impl ContractCore {
     fn dispatch(&mut self, call: &DependencyCall) -> R<V> {
         let a = &call.arguments;
         let target = call.target.as_str();
+        if self.proof_lifecycle_enabled() {
+            if target == "Logic.batchMoveZkRollup" {
+                return self.source_tail_batch(a);
+            }
+            if target == "VolumeIndex.calculateLiquidityReward" {
+                return self.source_liquidity_calculate_reward(a);
+            }
+            if target == "VolumeIndex.getCumulativeVolumes" {
+                return self.source_liquidity_cumulative_volumes(arg(a, 0));
+            }
+            if let Some(method) = target.strip_prefix("Logic.") {
+                if [
+                    "queueLiquidityReward",
+                    "settleLiquidityRewards",
+                    "tradeTokenForUTXO",
+                ]
+                .contains(&method)
+                {
+                    return self.source_liquidity_rewards_logic(method, a);
+                }
+            }
+            if target == "SourceEnvironment.configure" {
+                return self.source_proof_environment_configure(a);
+            }
+            if let Some(method) = target.strip_prefix("Procedural.") {
+                return self.source_procedural(method, a);
+            }
+            if let Some(method) = target.strip_prefix("BitvmCache.") {
+                return self.source_bitvm_cache(method, a);
+            }
+            if let Some(method) = target.strip_prefix("BitvmRisk.") {
+                return self.source_bitvm_risk(method, a);
+            }
+            if target == "SourceArtifacts.configure" {
+                return self.source_proof_artifacts_configure(a);
+            }
+            if let Some(method) = target.strip_prefix("Property.") {
+                if [
+                    "getInstance",
+                    "getPropertyIndex",
+                    "load",
+                    "save",
+                    "grantTokens",
+                    "redeemTokens",
+                ]
+                .contains(&method)
+                {
+                    return self.source_proof_property(method, a);
+                }
+            }
+            if let Some(method) = target.strip_prefix("Logic.") {
+                if ["processStakeFraudProof", "applyProceduralOracleSettlement"].contains(&method) {
+                    return self.source_proof_logic(method, a);
+                }
+            }
+            if let Some(method) = target.strip_prefix("Oracle.") {
+                if [
+                    "recordStake",
+                    "getStake",
+                    "applyFraudProof",
+                    "relayTradeLayerState",
+                ]
+                .contains(&method)
+                {
+                    return self.source_proof_oracle(method, a);
+                }
+            }
+            if let Some(method) = target.strip_prefix("Dlc.") {
+                if ["parseRelayBlob", "validateRelayBundle"].contains(&method) {
+                    return self.source_proof_dlc(method, a);
+                }
+            }
+        }
         if self.distribution_lifecycle_enabled() {
             if let Some(method) = target.strip_prefix("Logic.") {
                 if ["payToTokens", "tradeBaiUrbun", "tradeMurabaha"].contains(&method) {
@@ -1523,7 +1661,19 @@ impl SourceBackend for ContractCore {
                 | "Activation.areActivationsAboveThreshold"
                 | "Clock.nowISOString"
                 | "Clock.now"
-        ) || (self.distribution_lifecycle_enabled() && call.target == "Logic.tradeMurabaha")
+        ) || (self.proof_lifecycle_enabled() && call.target == "Logic.batchMoveZkRollup")
+            || (self.proof_lifecycle_enabled() && call.target == "Logic.queueLiquidityReward")
+            || (self.proof_lifecycle_enabled()
+                && (call.target.starts_with("Dlc.")
+                    || matches!(
+                        call.target.as_str(),
+                        "SourceEnvironment.configure"
+                            | "Procedural._normalizeHash"
+                            | "BitvmCache._challengeBlocks"
+                            | "BitvmCache.buildCacheId"
+                    )))
+            || (self.proof_lifecycle_enabled() && call.target == "SourceArtifacts.configure")
+            || (self.distribution_lifecycle_enabled() && call.target == "Logic.tradeMurabaha")
             || (self.lifecycle_enabled()
                 && matches!(
                     call.target.as_str(),
@@ -1704,3 +1854,12 @@ include!("source_synthetic_lifecycle_impl.rs");
 include!("source_derivative_exercise_impl.rs");
 
 include!("source_distribution_lifecycle_impl.rs");
+
+include!("source_proof_lifecycle_impl.rs");
+include!("source_proof_settlement_impl.rs");
+
+include!("source_procedural_bitvm_impl.rs");
+
+include!("source_liquidity_rewards_impl.rs");
+
+include!("source_tail_lifecycle_impl.rs");

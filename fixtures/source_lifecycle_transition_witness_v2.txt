@@ -1,0 +1,33 @@
+TLSW2 framing fixture and unchanged TLSW1 compatibility fixture
+
+Capture: isolated Rust1.99 GNU replay/helper compilation over actual V5 runtime
+Runtime library SHA256: 0e4a9a8dc139f46234d2bdf9fcbe4d7bf054489a074a65e23ade3de94500113a
+Original TLSW1 helper SHA256: f5d0dcd4a60d66f974bace90c0113b881278b86f1b263b9dbb428e6acb813be5
+Policy: DistributionLifecycleV5 (5)
+Scope: RawTransactionSlice (1)
+Commands: SetHeight(Number -0), SetHeight(Number10)
+Before commands:0
+Before head:d47df8fa8ae9298bc8c11c40c34a187e4f07ad21539e828eccb525857b3cb6f1
+After commands:2
+After head:a9676e50c5177affc566773a5f0c6750b0663ddcf92b7c8d31ae25742024e4f3
+After state:4d207158218500f15a72e8fb6e0723582998f0f0a0173276ac70486dd3bc62a1
+
+source_lifecycle_transition_witness_v2.bin bytes550
+SHA256:a7a829edb561d46462bfafd98677286b7c38aa0f74a0c73ac68df31d6b80e2f3
+source_transition_witness_v1_compat.bin bytes549
+SHA256:55fb2bab30af832996cd20f0d37a6119654a4d619abf29a2c0dd726ef5da86cc
+
+Independent Node command digest construction:
+frames = ['8000000000000000','4024000000000000'].map(bits =>
+ Buffer.from(JSON.stringify(['object', [
+  ['kind',['string','SetHeight']], ['height',['number',bits]]
+ ]])));
+u32 is four-byte BE, domain is ASCII without terminator.
+SHA256(domain || policy5 || scope1 || u32(2) || u32(frame0.length) || frame0 || u32(frame1.length) || frame1)
+domain:TradeLayer/SourceLifecycleTransitionCommands/v2/
+scope1 digest:87249c4213685bf833f447e03445af2208c2186fd3644e16324ceb5f042bd0aa
+scope2 digest:27059781bedb9877f61d6eed45aca6be6eaf446ad99a7b186c414103b1210bea
+
+The fixtures pin serialization, not actors, chain history or authenticated state.
+TLSW2 was captured by the new helper; it is not an old-engine compatibility artifact.
+The existing TLCR1-4 binaries tested separately were captured by earlier compiled engines.

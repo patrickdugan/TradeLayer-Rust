@@ -1,0 +1,204 @@
+{
+  "schema": "source-proof-candidate-validation-v1",
+  "verifiedAtUtc": "2026-10-27T06:30:38Z",
+  "parentCommit": "fcb8d0f5708788794b412148bfa2c9f0dd26faf5",
+  "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "rustVersion": "1.90.0",
+  "passedTestExecutions": 1449,
+  "topLevelTests": 1448,
+  "subprocessTestPasses": 1,
+  "executableTargets": 208,
+  "newRustTests": 28,
+  "runtimePolicy": "ProofLifecycleV6",
+  "defaultRuntimePolicy": "GlobalClearingV2",
+  "literalSettlement": true,
+  "proofObservations": 234,
+  "proofMatchedObservations": 233,
+  "proofResets": 29,
+  "proofExplicitConfigurations": 7,
+  "proofSourceCalls": 197,
+  "proofLocalBoundaryProbes": 1,
+  "proceduralBitvmObservations": 127,
+  "proceduralBitvmResets": 13,
+  "proceduralBitvmConfigurations": 1,
+  "proceduralBitvmSourceCalls": 113,
+  "rewardObservations": 142,
+  "rewardResets": 33,
+  "rewardSeedInputs": 1,
+  "rewardSourceCalls": 108,
+  "rewardMatchedSourceCalls": 107,
+  "rewardLocalBoundaryProbes": 1,
+  "tailAuditObservations": 131,
+  "tailAdmittedSourceOperations": 49,
+  "observationCountsIncludeDeclaredResetAndConfigurationFrames": true,
+  "proofRecordSha256": "a3c05d730a6d7e6ba786a410e8d96df12b70b0038eb1c891b26e0ca665469893",
+  "proceduralBitvmRecordSha256": "f407bb8e111b3ca185760bc8fc779d543fc7b2f16d51e49a7f65a99443b475c1",
+  "rewardRecordSha256": "b32462dad4cd463211ab0e695bb47a225145a1561e6dc3bbcc33ddb8f97b22d1",
+  "tailRecordSha256": "c3d707a4254e0861a357430db9acbdfecd858daf76250f97a3f7d842549ab70c",
+  "inheritedSourceObservations": 496,
+  "inheritedSourcePolicies": [
+    "SourceLifecycleV3",
+    "OptionLifecycleV4",
+    "ProofLifecycleV6"
+  ],
+  "permanentDualPolicyRegressions": 6,
+  "newV6OnchainCompositionRegression": true,
+  "lifecycleWitness": {
+    "schema": "TLSW2",
+    "profile": 2,
+    "sourceBackedSlices": 238,
+    "previousSlices": 138,
+    "newProofSlices": 76,
+    "newRewardSlices": 24,
+    "rawTypeMatrixV6": [
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35
+    ],
+    "raw3Admitted": false,
+    "scopes": [
+      "RawTransactionSlice",
+      "SourceMethodSlice"
+    ],
+    "mandatoryIndependentCommandPin": true,
+    "fullBeforeHistoryReplay": true,
+    "authenticationEstablished": false,
+    "completeBlockProof": false
+  },
+  "candidateEvidence": {
+    "tests": 7,
+    "fullSuppliedBlockRescan": true,
+    "zeroCarrierHeightsIncluded": true,
+    "exactOrderedCandidateAndFooterComparison": true,
+    "independentDescriptorRequired": true,
+    "storageWriterIncluded": false,
+    "sqliteNativeAdaptersMerged": false,
+    "authenticationEstablished": false
+  },
+  "numericReference": {
+    "archived": "genuine9.3.1",
+    "locked": "genuine9.1.2 source-SHA-verified constructor",
+    "lockedRustTests": 84,
+    "lockedTargets": 31
+  },
+  "replay": {
+    "version": 6,
+    "legacyVersions": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "v5CompiledCommit": "fcb8d0f5708788794b412148bfa2c9f0dd26faf5",
+    "v5Fixture": "fixtures/source_contract_replay_v5.bin",
+    "v5FixtureSha256": "f7858f2994a79378de58c210faf9de5a843daf3be1bccc47e2b81e0991d72e7a",
+    "v5Commands": 19,
+    "v5ExpectedHead": "3ca16cb2adb98a43b79500982923415e50137cf86b6ec7d9168c4998b9c607ce",
+    "independentExpectedHeadRequired": true,
+    "repairedCrcVersionPromotionRejected": true,
+    "authenticationEstablished": false
+  },
+  "sourcePreservedDefects": [
+    "fraud rewards do not debit accused Tally margin",
+    "negative direct slash can raise metadata",
+    "sequential metadata/cache/risk/Tally/property failure prefixes and retries",
+    "reward retry can repeat earlier completed credits",
+    "caught Tally save failure can lose persisted credit while deleting queue",
+    "producer source fee behavior and default empty allowlist Set{0}",
+    "NaN/signed-zero reward semantics",
+    "raw32/33 no valid flag;34/35 absent decoders",
+    "rollup unqualified structure helper fails before verifier"
+  ],
+  "newRangeQueryPolicy": "V6 declared shared DB boundary uses JavaScript ToPrimitive and UTF16/Number comparison, including canonical BigNumber valueOf/toString and unordered NaN; V1-V5 keep their earlier comparison policy.",
+  "localBoundaries": [
+    "missing declared artifact is not authenticated host absence",
+    "Infinity financial-domain reward remains local refusal",
+    "optional source Bino verifier is excluded after literal pre-verifier guards",
+    "broader JS objects/receivers/prototypes and existing resource limits"
+  ],
+  "fullReferenceParityEstablished": false,
+  "completeBlockFraudProof": false,
+  "thirdPartyRustCrates": 0,
+  "supplyMutationTests": 11,
+  "bitcoinCoreBridgePythonTests": 10,
+  "remainingGates": [
+    "lower0-15 literal Core composition",
+    "actual Main/Consensus processed journal and phase selection",
+    "actual activation/native bootstrap and authenticated history",
+    "production SQLite/native storage read/publication adapters and retained exact raw block availability",
+    "external verifier and actor/chain/UTXO/script admission",
+    "complete per-type/block fraud proofs",
+    "representative real-block CPU/RSS for externally owned PR141 promotion"
+  ],
+  "validationEnvironment": "Final full suite ran with local loopback sockets enabled after sandbox denied existing RPC fixture connections; no network test was removed.",
+  "implementationInputs": 750,
+  "frozenInputHash": "80e37d2bef14348fe57c085eaf7d4688629e5a5db6c5b11d614743fb142ff5d0",
+  "logs": {
+    "format": {
+      "passed": true,
+      "emptyOutput": true
+    },
+    "includes-format": {
+      "passed": true,
+      "emptyOutput": true
+    },
+    "clippy": {
+      "name": "source-proof-candidate-clippy.log",
+      "sha256": "bd627a06b03356aede7d69e0bf7b907aea297bd50069ffc36a67c9829261e8fa"
+    },
+    "full-tests": {
+      "name": "source-proof-candidate-full-tests.log",
+      "sha256": "9f3ed1cdc60b1a6956e793c20c62cea1cacd10be35039cc0e8c1da05a8e934ec"
+    },
+    "doctest": {
+      "name": "source-proof-candidate-doctest.log",
+      "sha256": "f244d6e53de706eba5cc5d0e4f7dcaf50c80b3775000a9b4f987ef2a9c8e072e"
+    },
+    "supply-policy": {
+      "name": "source-proof-candidate-supply-policy.log",
+      "sha256": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01"
+    },
+    "supply-mutations": {
+      "name": "source-proof-candidate-supply-mutations.log",
+      "sha256": "742b08cb0aeb4254c75ab8a4e86b350a18d4553e2503ea0979b72e31821d6630"
+    },
+    "inventory": {
+      "name": "source-proof-candidate-inventory.log",
+      "sha256": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393"
+    },
+    "locked-reference": {
+      "name": "source-proof-candidate-locked-reference.log",
+      "sha256": "1ec1d551b2855bed06c3f762cfab783220ee5e5acabd9e018f8667c757e4dca1"
+    },
+    "locked-preloader": {
+      "name": "source-proof-candidate-locked-preloader.log",
+      "sha256": "45dcbbe6dce81aa39447f73ca189ff78101e648a464e75319f31fd91293e6aad"
+    },
+    "bitcoin-core-bridge": {
+      "name": "source-proof-candidate-bitcoin-core-bridge.log",
+      "sha256": "6d7b9fbf07b1bcf9efd6b5e18994450ad1ea00d66a5f264dd310f31bc84cf285"
+    },
+    "release": {
+      "name": "source-proof-candidate-release.log",
+      "sha256": "363189b35a5a4b35413dc6f4b8ca3d56343126dfe12d1e3fe72f71b05bb032a7"
+    }
+  }
+}

@@ -277,15 +277,16 @@ fn apply(runtime: &mut SourceContractRuntime, case: &V) {
         &format!("{name} literal outcome and transport"),
     );
 }
-#[test]
-fn genuine_synthetic_graph_matches_full_state_aliases_and_ordered_effects() {
-    let mut runtime = SourceContractRuntime::with_policy(P::OptionLifecycleV4);
+fn compare_policy_genuine_synthetic_graph_matches_full_state_aliases_and_ordered_effects(
+    policy: tradelayer_core::source_contract_runtime::SourceContractRuntimePolicy,
+) {
+    let mut runtime = SourceContractRuntime::with_policy(policy);
     let mut resets = 0;
     let mut calls = 0;
     for case in source_cases() {
         if matches!(case.get("command").get("reset"), V::Object(_)) {
             resets += 1;
-            runtime = SourceContractRuntime::with_policy(P::OptionLifecycleV4);
+            runtime = SourceContractRuntime::with_policy(policy);
             for table in array(case.get("state").get("tables")) {
                 runtime
                     .import_collection(&text(table.get("name")), array(table.get("rows")))
@@ -305,8 +306,19 @@ fn genuine_synthetic_graph_matches_full_state_aliases_and_ordered_effects() {
     }
     assert_eq!((resets, calls), (19, 59));
 }
+
 #[test]
-fn synthetic_failed_prefix_and_live_aliases_restore_before_retry() {
+fn genuine_synthetic_graph_matches_full_state_aliases_and_ordered_effects() {
+    compare_policy_genuine_synthetic_graph_matches_full_state_aliases_and_ordered_effects(
+        P::OptionLifecycleV4,
+    );
+    compare_policy_genuine_synthetic_graph_matches_full_state_aliases_and_ordered_effects(
+        tradelayer_core::source_contract_runtime::SourceContractRuntimePolicy::ProofLifecycleV6,
+    );
+}
+fn compare_policy_synthetic_failed_prefix_and_live_aliases_restore_before_retry(
+    policy: tradelayer_core::source_contract_runtime::SourceContractRuntimePolicy,
+) {
     let cases = source_cases();
     for selected in [
         "warm-mint",
@@ -324,7 +336,7 @@ fn synthetic_failed_prefix_and_live_aliases_restore_before_retry() {
             .iter()
             .position(|c| c.get("name") == s(selected))
             .unwrap();
-        let mut replay = SourceContractReplay::with_policy(P::OptionLifecycleV4).unwrap();
+        let mut replay = SourceContractReplay::with_policy(policy).unwrap();
         for table in array(cases[start].get("state").get("tables")) {
             replay
                 .apply(C::Import {
@@ -376,7 +388,7 @@ fn synthetic_failed_prefix_and_live_aliases_restore_before_retry() {
         );
         assert!(old == before, "earlier policy admitted new synthetic graph");
     }
-    let mut bounded = SourceContractRuntime::with_policy(P::OptionLifecycleV4);
+    let mut bounded = SourceContractRuntime::with_policy(policy);
     for table in array(cases[0].get("state").get("tables")) {
         bounded
             .import_collection(&text(table.get("name")), array(table.get("rows")))
@@ -403,5 +415,15 @@ fn synthetic_failed_prefix_and_live_aliases_restore_before_retry() {
     assert!(
         bounded == before,
         "bounded local refusal retained speculative metadata prefix"
+    );
+}
+
+#[test]
+fn synthetic_failed_prefix_and_live_aliases_restore_before_retry() {
+    compare_policy_synthetic_failed_prefix_and_live_aliases_restore_before_retry(
+        P::OptionLifecycleV4,
+    );
+    compare_policy_synthetic_failed_prefix_and_live_aliases_restore_before_retry(
+        tradelayer_core::source_contract_runtime::SourceContractRuntimePolicy::ProofLifecycleV6,
     );
 }

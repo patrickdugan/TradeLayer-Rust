@@ -182,8 +182,9 @@ fn install_failure(runtime: &mut SourceContractRuntime, command: &V) {
         })
         .unwrap();
 }
-#[test]
-fn unchanged_registry_lifecycle_complete_graph_both_genuine_bignumber_versions() {
+fn compare_policy_unchanged_registry_lifecycle_complete_graph_both_genuine_bignumber_versions(
+    policy: tradelayer_core::source_contract_runtime::SourceContractRuntimePolicy,
+) {
     let archived = cases("9.3.1");
     let locked = cases("9.1.2");
     compare(
@@ -191,15 +192,13 @@ fn unchanged_registry_lifecycle_complete_graph_both_genuine_bignumber_versions()
         &V::Array(locked),
         "independent tested9.1.2 equality",
     );
-    let mut runtime =
-        SourceContractRuntime::with_policy(SourceContractRuntimePolicy::SourceLifecycleV3);
+    let mut runtime = SourceContractRuntime::with_policy(policy);
     let mut calls = 0;
     for case in &archived {
         let name = text(case.get("name"));
         let command = case.get("command");
         if !matches!(command.get("reset"), V::Undefined) {
-            runtime =
-                SourceContractRuntime::with_policy(SourceContractRuntimePolicy::SourceLifecycleV3);
+            runtime = SourceContractRuntime::with_policy(policy);
             let entry = command.get("reset").get("entry");
             runtime
                 .set_entry(if let V::String(ref v) = entry {
@@ -321,7 +320,17 @@ fn unchanged_registry_lifecycle_complete_graph_both_genuine_bignumber_versions()
 }
 
 #[test]
-fn actual_definition_partial_writes_replay_then_retry() {
+fn unchanged_registry_lifecycle_complete_graph_both_genuine_bignumber_versions() {
+    compare_policy_unchanged_registry_lifecycle_complete_graph_both_genuine_bignumber_versions(
+        SourceContractRuntimePolicy::SourceLifecycleV3,
+    );
+    compare_policy_unchanged_registry_lifecycle_complete_graph_both_genuine_bignumber_versions(
+        tradelayer_core::source_contract_runtime::SourceContractRuntimePolicy::ProofLifecycleV6,
+    );
+}
+fn compare_policy_actual_definition_partial_writes_replay_then_retry(
+    policy: tradelayer_core::source_contract_runtime::SourceContractRuntimePolicy,
+) {
     use tradelayer_core::source_contract_replay::{
         SourceContractCommand as C, SourceContractCommandOutcome as O, SourceContractReplay,
     };
@@ -334,9 +343,7 @@ fn actual_definition_partial_writes_replay_then_retry() {
             .iter()
             .position(|v| v.get("name") == s(start_name))
             .unwrap();
-        let mut replay =
-            SourceContractReplay::with_policy(SourceContractRuntimePolicy::SourceLifecycleV3)
-                .unwrap();
+        let mut replay = SourceContractReplay::with_policy(policy).unwrap();
         for table in array(cases[start].get("state").get("tables")) {
             replay
                 .apply(C::Import {
@@ -413,4 +420,14 @@ fn actual_definition_partial_writes_replay_then_retry() {
         }
         assert_eq!(thrown, 1);
     }
+}
+
+#[test]
+fn actual_definition_partial_writes_replay_then_retry() {
+    compare_policy_actual_definition_partial_writes_replay_then_retry(
+        SourceContractRuntimePolicy::SourceLifecycleV3,
+    );
+    compare_policy_actual_definition_partial_writes_replay_then_retry(
+        tradelayer_core::source_contract_runtime::SourceContractRuntimePolicy::ProofLifecycleV6,
+    );
 }

@@ -81,6 +81,58 @@ pub(crate) fn source_greater_unverified(left: &V, right: &V) -> Result<bool, Sou
             Fault::Thrown(_) => SourceRuleError::UnsupportedNumericDomain,
         })
 }
+/// Bounded JavaScript relational conversion for the literal shared DB boundary.
+/// Convert supported objects to primitives before choosing string or Number
+/// ordering; retain the earlier owners' separate comparison policy unchanged.
+pub(crate) fn source_comparison_unverified(
+    left: &V,
+    right: &V,
+) -> Result<Option<core::cmp::Ordering>, SourceRuleError> {
+    fn comparison_text(value: &V) -> Eval<String> {
+        match value {
+            V::BigNumber(_) => {
+                crate::channels_source::source_big_number_text(value).map_err(Fault::Local)
+            }
+            V::Array(values) => values
+                .iter()
+                .map(|value| {
+                    if matches!(value, V::Null | V::Undefined) {
+                        Ok(String::new())
+                    } else {
+                        comparison_text(value)
+                    }
+                })
+                .collect::<Eval<Vec<_>>>()
+                .map(|values| values.join(",")),
+            _ => text(value),
+        }
+    }
+    let compare = || -> Eval<Option<core::cmp::Ordering>> {
+        let primitive = |value: &V| -> Eval<V> {
+            match value {
+                V::BigNumber(_) => {
+                    let canonical = comparison_text(value)?;
+                    Ok(V::String(
+                        if canonical == "0" && matches!(Bn::new(value)?, Bn::NegativeZero) {
+                            "-0".into()
+                        } else {
+                            canonical
+                        },
+                    ))
+                }
+                V::Array(_) | V::Object(_) | V::Promise => Ok(V::String(comparison_text(value)?)),
+                _ => Ok(value.clone()),
+            }
+        };
+        let left = primitive(left)?;
+        let right = primitive(right)?;
+        relational(&left, &right)
+    };
+    compare().map_err(|fault| match fault {
+        Fault::Local(error) => error,
+        Fault::Thrown(_) => SourceRuleError::UnsupportedNumericDomain,
+    })
+}
 /// Literal publishData circuit calculation shared by the composed source DB
 /// owner. This helper owns no rows, singleton cache, or watermark.
 pub(crate) fn source_circuit_price_unverified(

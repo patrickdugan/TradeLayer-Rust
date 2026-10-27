@@ -441,3 +441,8 @@ fn genuine_source_composition_drives_real_mutable_contract_owners() {
 fn v4_retains_all_original_genuine_onchain_settlement_comparisons() {
     run_source_composition(P::OptionLifecycleV4);
 }
+
+#[test]
+fn v6_retains_all_original_genuine_onchain_settlement_comparisons() {
+    run_source_composition(P::ProofLifecycleV6);
+}

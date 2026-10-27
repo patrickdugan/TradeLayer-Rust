@@ -145,21 +145,22 @@ fn failure(command: &V) -> Option<StorageFailure> {
         message: text(f.get("message")),
     })
 }
-#[test]
-fn complete_unchanged_option_graph_both_genuine_numeric_versions() {
+fn compare_policy_complete_unchanged_option_graph_both_genuine_numeric_versions(
+    policy: tradelayer_core::source_contract_runtime::SourceContractRuntimePolicy,
+) {
     let cases = cases("9.3.1");
     compare(
         &V::Array(cases.clone()),
         &V::Array(self::cases("9.1.2")),
         "genuine9.1.2 independently tested equality",
     );
-    let mut runtime = SourceContractRuntime::with_policy(P::OptionLifecycleV4);
+    let mut runtime = SourceContractRuntime::with_policy(policy);
     let mut calls = 0;
     for case in &cases {
         let name = text(case.get("name"));
         let c = case.get("command");
         if !matches!(c.get("reset"), V::Undefined) {
-            runtime = SourceContractRuntime::with_policy(P::OptionLifecycleV4);
+            runtime = SourceContractRuntime::with_policy(policy);
             let entry = c.get("reset").get("entry");
             runtime
                 .set_entry(if let V::String(ref v) = entry {
@@ -306,8 +307,19 @@ fn complete_unchanged_option_graph_both_genuine_numeric_versions() {
     assert_eq!(cases.len(), 117);
     assert_eq!(calls, 81);
 }
+
 #[test]
-fn option_premium_margin_and_position_prefix_restore_then_actual_retry() {
+fn complete_unchanged_option_graph_both_genuine_numeric_versions() {
+    compare_policy_complete_unchanged_option_graph_both_genuine_numeric_versions(
+        P::OptionLifecycleV4,
+    );
+    compare_policy_complete_unchanged_option_graph_both_genuine_numeric_versions(
+        tradelayer_core::source_contract_runtime::SourceContractRuntimePolicy::ProofLifecycleV6,
+    );
+}
+fn compare_policy_option_premium_margin_and_position_prefix_restore_then_actual_retry(
+    policy: tradelayer_core::source_contract_runtime::SourceContractRuntimePolicy,
+) {
     use tradelayer_core::source_contract_replay::{
         SourceContractCommand as C, SourceContractCommandOutcome as O, SourceContractReplay,
     };
@@ -321,7 +333,7 @@ fn option_premium_margin_and_position_prefix_restore_then_actual_retry() {
             .iter()
             .position(|v| v.get("name") == s(label))
             .unwrap();
-        let mut replay = SourceContractReplay::with_policy(P::OptionLifecycleV4).unwrap();
+        let mut replay = SourceContractReplay::with_policy(policy).unwrap();
         for table in array(cases[start].get("state").get("tables")) {
             replay
                 .apply(C::Import {
@@ -376,4 +388,14 @@ fn option_premium_margin_and_position_prefix_restore_then_actual_retry() {
         }
         assert_eq!(thrown, 1);
     }
+}
+
+#[test]
+fn option_premium_margin_and_position_prefix_restore_then_actual_retry() {
+    compare_policy_option_premium_margin_and_position_prefix_restore_then_actual_retry(
+        P::OptionLifecycleV4,
+    );
+    compare_policy_option_premium_margin_and_position_prefix_restore_then_actual_retry(
+        tradelayer_core::source_contract_runtime::SourceContractRuntimePolicy::ProofLifecycleV6,
+    );
 }

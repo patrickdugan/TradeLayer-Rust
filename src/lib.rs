@@ -21,6 +21,7 @@ pub mod bitvm_risk; // Atomic source counter/window metadata, no spend authoriza
 pub mod bip32_public; // Public BIP32 derivation with strict and pinned-source modes.
 pub mod bootstrap; // Owned startup readiness with explicit source characterization.
 pub mod bootstrap_storage; // Concrete restoration of complete durable state owners.
+pub mod candidate_evidence;
 pub mod chain; // Trust-boundary and reversible block progression, prototype only.
 pub mod channel_admission_audit; // Stage25M claimed as-of type4/type19 direct clearlist evidence, never authorization.
 pub mod channel_bip143_audit; // Stage 25I exact SegWit-v0 SIGHASH_ALL digest; no signature verification.

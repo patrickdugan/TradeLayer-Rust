@@ -1,0 +1,16 @@
+{
+  "policy": "DistributionLifecycleV5",
+  "commands": 19,
+  "head": "3ca16cb2adb98a43b79500982923415e50137cf86b6ec7d9168c4998b9c607ce",
+  "fixtureSha256": "f7858f2994a79378de58c210faf9de5a843daf3be1bccc47e2b81e0991d72e7a",
+  "bytes": 18336,
+  "releaseLibrarySha256": "9ba9a815e8b7e31985d8dd0e996a5e9b27d78bd71532e765354757795b94977c",
+  "implementationInputs": 730,
+  "frozenInputHash": "6e7c8a6da21d08db3975e09dddc1eac48e7aa7aa25f94d6febae9876f7d7b963",
+  "generatorSha256": "a51aff88621c442c9b26caa834fbf664ced2bf4e99fc531861aef2acec6071ef",
+  "compiler": "Rust1.90.0 MSVC",
+  "commitPending": false,
+  "compiledCommit": "fcb8d0f5708788794b412148bfa2c9f0dd26faf5",
+  "upstreamMergeParent": "41007c5dd423d6fffca32a849404ac52c0caf72c",
+  "scope": "Populated Vault/synthetic Maps, option position/indexes, actual V5 direct/raw source failures, and future direct30/32 plus raw30/32/33 refusals."
+}
