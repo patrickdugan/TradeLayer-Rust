@@ -254,3 +254,11 @@ liquidation document but treats it as an array; ordinary stored documents theref
 produce zero liquidation counts and NaN VWAPs. Trade matching ignores contract ID,
 sums trade prices without amount weighting, and preserves caught liquidation-read
 versus uncaught trade-history failure behavior.
+
+V4 adds actual same-instance ordered `expiryIndex` Maps of Sets, `tickerExpiry`
+and `optionOI`, including direct touch/get/cleanup. Empty canonical owner state
+omits the added storage fields so original compiled checkpoints remain exact;
+populated state is replayed with original insertion order. The source option
+trade's extra leading `this` argument remains a no-op. See
+`SOURCE_OPTION_INDEXES.md` and the V4 option/synthetic reviews for actual
+position integration, supported domains and failure-prefix comparisons.

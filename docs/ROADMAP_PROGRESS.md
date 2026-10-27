@@ -11,6 +11,28 @@ that worker's branches, publish a branch, or authorize economic transitions.
 
 ## Tracking the 49 source modules
 
+The explicit OptionLifecycleV4 batch passes **1,407 Rust test executions**
+(1,406 top-level plus one subprocess) across 197 executable targets, including 16
+new tests. Formatting, all-target Clippy, doc tests, release, zero-external-crate
+policy and 11 policy mutation tests pass against 714 frozen inputs.
+All 54 focused tests across 23 targets also pass using genuine locked
+BigNumber 9.1.2. Five new corpora execute 461 observations: 459 Rust-comparable
+observations and 2 Node-only bare-call probes, including reset states. All 135
+original on-chain comparisons additionally run under V4. The committed evidence
+is `fixtures/reference_fidelity/source-option-lifecycle.json`.
+
+Actual option trades, synthetic mint/redeem, the final derivative exercise
+handlers and populated expiry-index Maps/Sets now compose over the same source
+owners. Literal missing helpers/variables, wrong argument placement, un-awaited
+reads and retained financial prefixes remain observable. V4 option-adjustment
+loss coverage preserves actual TypeErrors and earlier loss/IOU writes before
+a later actor fails. Original compiled V1/V2/V3 fixtures retain exact bytes and
+old capabilities. TLCRv4 is opt-in; default construction remains V2. TLSW1
+coverage stays raw18/queue/fees/clearing; broader source methods, historical
+authentication, production storage and complete per-type/block fraud proofs
+remain open. The txIndex source DB lifecycle is separately queued; its scanner
+is implemented and HashMap performance promotion remains externally owned.
+
 The explicit SourceLifecycleV3 batch passes **1,391 Rust test executions**
 (1,390 top-level plus one subprocess) across 191 executable targets, including 16
 new tests. All-target Clippy, formatting, doc tests, release, zero-external-crate

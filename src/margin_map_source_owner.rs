@@ -13,7 +13,7 @@ pub const SOURCE_SHA256: &str = "ad5af4a639a50623319236cce42e8728027109ac3b8ae46
 pub const MAX_INSTANCES: usize = 1024;
 pub const MAX_OBJECTS: usize = 1024;
 pub const MAX_STATE_BYTES: usize = 2 * 1024 * 1024;
-pub const METHODS: [&str; 39] = [
+pub const METHODS: [&str; 40] = [
     "getInstance",
     "loadMarginMap",
     "getPositionForAddress",
@@ -53,6 +53,7 @@ pub const METHODS: [&str; 39] = [
     "saveTrade",
     "getExpiringTickersUpTo",
     "cleanupExpiredTickersUpTo",
+    "_touchExpiryIndex",
 ];
 type Eval<T> = Result<T, Fault>;
 #[derive(Debug)]
@@ -1444,27 +1445,9 @@ impl MarginMapSourceOwner {
                     Err(ty("Cannot convert undefined or null to object"))
                 }
             }
-            "getExpiringTickersUpTo" => {
-                // These indexes are genuinely empty constructor-owned Maps.
-                // loadMarginMap hydrates positions only; no implemented method
-                // populates an option index. Do not infer it from pos.options.
-                let V::Array(entries) = self.instance_value(id)?.get("expiryIndex") else {
-                    return Err(SourceRuleError::InvalidInput.into());
-                };
-                let mut out = vec![];
-                for entry in entries {
-                    if number(&prop(&entry, "0")?)? <= number(&arg(&f.args, 0))? {
-                        out.extend(source_array(&prop(&entry, "1")?, "set is not iterable")?);
-                    }
-                }
-                Ok(V::Array(out))
-            }
-            "cleanupExpiredTickersUpTo" => {
-                // Constructor-empty indexes have no expiry/ticker/OI entries
-                // to delete. Index mutators remain explicit UnknownMethod.
-                self.instance_value(id)?;
-                Ok(V::Undefined)
-            }
+            "_touchExpiryIndex" => self.option_index_touch(id, &f.args),
+            "getExpiringTickersUpTo" => self.option_index_get(id, &arg(&f.args, 0)),
+            "cleanupExpiredTickersUpTo" => self.option_index_cleanup(id, &arg(&f.args, 0)),
             _ => Err(SourceRuleError::UnknownMethod.into()),
         }
     }
@@ -1810,7 +1793,8 @@ impl MarginMapSourceOwner {
     ) -> Result<DependencyReturn, SourceRuleError> {
         let synchronous = matches!(
             method,
-            "calculateLiquidationPrice"
+            "_touchExpiryIndex"
+                | "calculateLiquidationPrice"
                 | "calculateMarginRequirement"
                 | "estimatePNL"
                 | "generateLiquidationOrder"
@@ -1852,7 +1836,7 @@ impl MarginMapSourceOwner {
                     self.instances
                         .iter()
                         .map(|i| {
-                            obj(&[
+                            let mut value = obj(&[
                                 ("seriesId", i.series.clone()),
                                 (
                                     "margins",
@@ -1863,9 +1847,11 @@ impl MarginMapSourceOwner {
                                             .collect(),
                                     ),
                                 ),
-                            ])
+                            ]);
+                            option_index_state_append(&mut value, i)?;
+                            Ok(value)
                         })
-                        .collect(),
+                        .collect::<Result<Vec<_>, SourceRuleError>>()?,
                 ),
             ),
             ("objects", V::Array(self.objects.clone())),
@@ -1894,6 +1880,7 @@ impl MarginMapSourceOwner {
                 return Err(SourceRuleError::InvalidInput);
             };
             let id = owner.create_instance(series)?;
+            owner.option_index_state_load(id, &item)?;
             for pair in pairs {
                 let V::Array(pair) = pair else {
                     return Err(SourceRuleError::InvalidInput);
@@ -2643,6 +2630,9 @@ fn parse_json(v: &V) -> Eval<V> {
 struct Instance {
     series: V,
     margins: Vec<(V, usize)>,
+    expiry_index: Vec<(V, Vec<V>)>,
+    ticker_expiry: Vec<(V, V)>,
+    option_oi: Vec<(V, V)>,
 }
 /// Explicit adapter knowledge that an argument is an established cached alias.
 /// Equal values alone never establish reference identity.
@@ -2707,6 +2697,9 @@ impl MarginMapSourceOwner {
         self.instances.push(Instance {
             series,
             margins: vec![],
+            expiry_index: vec![],
+            ticker_expiry: vec![],
+            option_oi: vec![],
         });
         Ok(self.instances.len() as u64)
     }
@@ -2827,9 +2820,9 @@ impl MarginMapSourceOwner {
                         .collect(),
                 ),
             ),
-            ("expiryIndex", V::Array(vec![])),
-            ("tickerExpiry", V::Array(vec![])),
-            ("optionOI", V::Array(vec![])),
+            ("expiryIndex", option_index_expiry_value(&i.expiry_index)),
+            ("tickerExpiry", option_index_map_value(&i.ticker_expiry)),
+            ("optionOI", option_index_map_value(&i.option_oi)),
         ]))
     }
     fn root(&mut self, f: &mut Frame, index: usize, field: Option<&str>) -> Eval<usize> {
@@ -3155,3 +3148,5 @@ impl MarginMapSourceOwner {
         Ok(V::Undefined)
     }
 }
+
+include!("margin_option_index_source_impl.rs");

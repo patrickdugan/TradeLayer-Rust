@@ -89,3 +89,28 @@ Component suites independently compare109 placement/queue actions, nine reclaim 
 This bounded on-chain execution path does not complete the entire orderbook, MarginMap, ContractRegistry or Clearing module. V3 adds the explicitly tested definition/channel paths above. Remaining inactive/unreached methods, options and synthetic lifecycle, production storage/query equivalence and authenticated input/history remain separate gates. Active global block funding/ADL/liquidation and option-expiry paths now have independent composed source coverage described above. Arithmetic remains resource bounded. The new funding, liquidation, insurance and expiry helpers retain the source nonfinite/signed-zero cases exercised by their corpora; older finite-only adapters and unsupported option-pricing domains still reject explicitly. Diagnostic Number nonfinites and negative zero are retained where the source produces them. Large malformed/nontransitive V8 sort inputs have an explicit unsupported boundary in the placement owner. Object-identity graphs outside the explicit queue and margin alias capabilities are unsupported.
 
 Replay snapshots re-execute original commands and compare outcomes, effects and actual continuation state; see `SOURCE_CONTRACT_REPLAY.md`. An independently expected replay head is required. Integrity hashes/checksums do not establish signer authority, chain provenance, fraud-proof completeness or historical acceptance. A portable conditional literal-source command-slice witness is exported for raw18 and its real queue/fee/global-clearing phases; see `SOURCE_TRANSITION_WITNESS.md`. It verifies actual execution against an independent expected pre-head and explicit source/boundary/policy descriptor. It is not a complete authenticated per-transaction or whole-block fraud proof.
+
+## OptionLifecycleV4
+
+Explicit V4 composes raw24/25/27, direct derivative exercise, actual option
+positions and populated expiry-index Maps/Sets over the existing authorities.
+It also retains genuine option-adjustment errors in loss settlement where
+earlier policies used a local rollback or silently treated a null leg as zero.
+Those earlier outcomes remain frozen compatibility behavior. Actual V4 loss
+comparisons include earlier Tally debits and IOU writes before a later actor
+fails. V4 initial margin preserves the source's nonfinite/Promise behavior;
+all original 135 on-chain comparisons also execute under V4.
+
+The five new corpora execute 461 source observations: 459 Rust-comparable
+observations and 2 Node-only bare-receiver probes. Reset states are included.
+No source function body or financial result is supplied. Constructors are
+observed through a transparent own-property-equivalent seriesId setter where
+failed JSON loading otherwise hides the newly allocated object. NeDB, RPC,
+clock and numeric boundaries remain explicitly declared test boundaries.
+
+TLCRv4 has its own bootstrap domain; independently captured compiled V1/V2/V3
+fixtures retain exact bytes and old admissions. The default remains V2.
+TLSW1 still covers its original raw18/queue/fees/clearing slices; this batch
+does not export new authenticated option/synthetic fraud proofs. See the five
+V4 method reviews and `fixtures/reference_fidelity/source-option-lifecycle.json`
+for checked scope and remaining gates.

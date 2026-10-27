@@ -1,6 +1,8 @@
 //! Full-source fixtures provide expected states, never dependency responses.
 use std::collections::BTreeMap;
-use tradelayer_core::source_contract_runtime::{SourceContractRuntime, StorageFailure};
+use tradelayer_core::source_contract_runtime::{
+    SourceContractRuntime, SourceContractRuntimePolicy as P, StorageFailure,
+};
 use tradelayer_core::validity_source::{
     DependencyCall, DependencyReturn, SourceCall, SourceOutcome, SourceValue as V,
 };
@@ -142,7 +144,7 @@ struct Case {
 fn apply_case(runtime: &mut SourceContractRuntime, c: &Case) {
     let command = c.command.as_ref().unwrap();
     if command.get("op") == s("reset") {
-        *runtime = SourceContractRuntime::new();
+        *runtime = SourceContractRuntime::with_policy(runtime.policy());
         let scene = command.get("scene");
         runtime.set_activation_answer(scene.get("inactive") != V::Bool(true));
         let entry = if scene.get("preload") == s("tally") {
@@ -386,8 +388,7 @@ fn apply_case(runtime: &mut SourceContractRuntime, c: &Case) {
         )
     }
 }
-#[test]
-fn genuine_source_composition_drives_real_mutable_contract_owners() {
+fn run_source_composition(policy: P) {
     let result = std::process::Command::new("node")
         .args(["-e", PROJECT])
         .current_dir(env!("CARGO_MANIFEST_DIR"))
@@ -398,7 +399,7 @@ fn genuine_source_composition_drives_real_mutable_contract_owners() {
         "{}",
         String::from_utf8_lossy(&result.stderr)
     );
-    let mut runtime = SourceContractRuntime::new();
+    let mut runtime = SourceContractRuntime::with_policy(policy);
     let mut current = Case::default();
     let mut count = 0;
     for line in std::str::from_utf8(&result.stdout).unwrap().lines() {
@@ -429,4 +430,14 @@ fn genuine_source_composition_drives_real_mutable_contract_owners() {
     apply_case(&mut runtime, &current);
     count += 1;
     assert_eq!(count, 135);
+}
+
+#[test]
+fn genuine_source_composition_drives_real_mutable_contract_owners() {
+    run_source_composition(P::GlobalClearingV2);
+}
+
+#[test]
+fn v4_retains_all_original_genuine_onchain_settlement_comparisons() {
+    run_source_composition(P::OptionLifecycleV4);
 }

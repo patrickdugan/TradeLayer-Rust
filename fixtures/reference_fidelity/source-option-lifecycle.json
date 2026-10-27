@@ -1,0 +1,148 @@
+{
+  "schema": "source-option-lifecycle-validation-v1",
+  "verifiedAtUtc": "2026-10-27T04:11:30Z",
+  "parentCommit": "cfbf633814379921a6bb1e737270519b408bcf4d",
+  "testedV3SourceParent": "dd79498ca935d6f0e85d935f923987aba3697791",
+  "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "rustVersion": "1.90.0",
+  "passedTestExecutions": 1407,
+  "topLevelTests": 1406,
+  "subprocessTestPasses": 1,
+  "executableTargets": 197,
+  "newRustTests": 16,
+  "runtimePolicy": "OptionLifecycleV4",
+  "defaultRuntimePolicy": "GlobalClearingV2",
+  "literalSettlement": true,
+  "optionLifecycleSourceObservations": 461,
+  "rustComparableSourceObservations": 459,
+  "nodeOnlyBareReceiverProbes": 2,
+  "observationsIncludeResetStates": true,
+  "optionTradeObservations": 117,
+  "optionTradeCalls": 81,
+  "syntheticObservations": 78,
+  "syntheticResets": 19,
+  "syntheticCalls": 59,
+  "derivativeObservations": 128,
+  "derivativeRustComparisons": 126,
+  "derivativeCalls": 112,
+  "optionIndexObservations": 65,
+  "optionIndexResets": 5,
+  "optionIndexCalls": 60,
+  "optionAdjustmentObservations": 73,
+  "optionAdjustmentResets": 22,
+  "optionAdjustmentCalls": 51,
+  "inheritedOnchainComparisonsRepeatedUnderV4": 135,
+  "numericReference": {
+    "archived": "genuine9.3.1",
+    "locked": "genuine source-lock9.1.2 with raw SHA-verified preloader",
+    "lockedRustTests": 54,
+    "lockedTargets": 23
+  },
+  "replay": {
+    "version": 4,
+    "legacyVersions": [
+      1,
+      2,
+      3
+    ],
+    "v3CompiledCommit": "dd79498ca935d6f0e85d935f923987aba3697791",
+    "v3Fixture": "fixtures/source_contract_replay_v3.bin",
+    "v3FixtureSha256": "3cf903cdfea2e3bc03e68558e6a2c13026479d2dd133cbcab2ac55f8be4a582b",
+    "v3Commands": 10,
+    "v3ExpectedHead": "65e94c85b2a693163ad9638cae62f49c1175b8a6596f43df32cc7bd4e856e3fa",
+    "independentExpectedHeadRequired": true,
+    "repairedCrcVersionPromotionRejected": true,
+    "actualFailurePrefixesAndContinuation": true,
+    "authenticationEstablished": false
+  },
+  "sourceDomain": "bounded actual options, synthetic, derivative and option-adjustment settlement over sole source Tally, existing live Margin identity arena and shared Property/Vault/Channels/queue/Core collections; imports and external boundary inputs remain unverified",
+  "ownerState": "ordered expiryIndex Map/Set, tickerExpiry and optionOI on existing Margin instances; Vault and synthetic Maps on existing Core; empty older-policy state shapes retained",
+  "sourcePreservedDefects": [
+    "extra-leading-this option index no-op",
+    "derivative wrong arguments and missing-method synchronous errors with independent Margin suffix",
+    "synthetic cold property-index replacement",
+    "omitted Vault arguments and un-awaited exists",
+    "unbound amount/notCovered after live position progress",
+    "un-awaited Oracle Promise/nonfinite initial margin",
+    "source option premium/margin/delta argument placement and retained partial writes"
+  ],
+  "correctedInV4": [
+    "undefined primary/alternate Margin receiver is source TypeError after caught load failure",
+    "null option position throws instead of silently producing zero coverage",
+    "literal falsey leg defaults, represented object merges and strike fallback",
+    "complete Oracle read filtering/height comparison and unhandled rejection projection"
+  ],
+  "legacyKnownOutcomes": "V1-V3 retain their original option-adjustment local rollback/null handling as compatibility graphs; V4 source behavior is tested separately",
+  "exportedTransitionWitness": "TLSW1 existing raw18/queue/fees/clearing scope unchanged; no new option/synthetic witness export",
+  "fullReferenceParityEstablished": false,
+  "completeBlockFraudProof": false,
+  "thirdPartyRustCrates": 0,
+  "supplyMutationTests": 11,
+  "remainingGates": [
+    "other routed/inactive/unreached methods",
+    "broader numeric/alias/receiver/accessor domains",
+    "production NeDB/RPC and real disk",
+    "authenticated actors/inputs/chain/history",
+    "additional conditional per-type witnesses and complete block fraud-proof context"
+  ],
+  "implementationInputs": 714,
+  "frozenInputHash": "694ce3fd104f97e207d6b18d56e5683466c09039b7870bef32ced40e0f616e5b",
+  "logs": {
+    "format": {
+      "passed": true,
+      "emptyOutput": true
+    },
+    "includes-format": {
+      "passed": true,
+      "emptyOutput": true
+    },
+    "clippy": {
+      "name": "source-option-lifecycle-clippy.log",
+      "sha256": "89a2eebd2243cc8c6962a9bbb8b0670ccf5ca543a5497fef2b8b17a8b5125aea"
+    },
+    "full-tests": {
+      "name": "source-option-lifecycle-full-tests.log",
+      "sha256": "036f6977840a8d2cc7ad8d15929eeb8026a734d67f48617fe5bd10bf11133c05"
+    },
+    "doctest": {
+      "name": "source-option-lifecycle-doctest.log",
+      "sha256": "4a49cc1451a90d552f1037f93bbe2a8cf2203422a8c2db2e675e5132917faf2e"
+    },
+    "supply-policy": {
+      "name": "source-option-lifecycle-supply-policy.log",
+      "sha256": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01"
+    },
+    "supply-mutations": {
+      "name": "source-option-lifecycle-supply-mutations.log",
+      "sha256": "841833ad8e6c2603d836992bc6e1ad58860a0f5273584f1ebb08332cd5443d18"
+    },
+    "inventory": {
+      "name": "source-option-lifecycle-inventory.log",
+      "sha256": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393"
+    },
+    "locked-reference": {
+      "name": "source-option-lifecycle-locked-reference.log",
+      "sha256": "094f1b6b520b29603e755474c1b0138ad1462f47f60de452c8e13d274e793425"
+    },
+    "locked-preloader": {
+      "name": "source-option-lifecycle-locked-preloader.log",
+      "sha256": "45dcbbe6dce81aa39447f73ca189ff78101e648a464e75319f31fd91293e6aad"
+    },
+    "release": {
+      "name": "source-option-lifecycle-release.log",
+      "sha256": "329e0235d4e7009afc202e572d45a048297d6eaad92ae08c2578957d7ccabe1d"
+    }
+  },
+  "commands": [
+    "cargo fmt --all -- --check",
+    "rustfmt --check --edition 2021 <all CI include files>",
+    "cargo clippy --frozen --all-targets -- -D warnings",
+    "cargo test --frozen --all-targets",
+    "cargo test --frozen --doc",
+    "cargo build --frozen --release --all-targets",
+    "python scripts/check_rust_supply_chain.py",
+    "python -m unittest discover -s tests -p test_rust_supply_chain.py -v",
+    "python scripts/check_logic_inventory.py",
+    "NODE_OPTIONS=--require scripts/bignumber_lock_reference.cjs cargo test --frozen <23 source/replay targets>"
+  ]
+}

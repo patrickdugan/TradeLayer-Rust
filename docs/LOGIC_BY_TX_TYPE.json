@@ -1,9 +1,9 @@
 {
   "schema": "tl-logic-reference-review-v1",
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
-  "rustCommit": "8a442528b5d4396c9a47b5fbcf37567b441a4fc5",
-  "rustCommitScope": "Immutable parent baseline; runtimePins bind opt-in SourceLifecycleV3 contract/channel execution and conditional TLSW1 command slices. V1/V2 replay graphs remain frozen; executed validation is recorded separately.",
-  "reviewedAtUtc": "2026-10-27T02:54:30Z",
+  "rustCommit": "dd79498ca935d6f0e85d935f923987aba3697791",
+  "rustCommitScope": "Immutable V3 parent baseline; runtimePins bind opt-in OptionLifecycleV4 options, synthetics, derivative exercise, populated option indexes and settlement errors over the same owners. Old V1-V3 graphs remain frozen; executed validation is recorded separately.",
+  "reviewedAtUtc": "2026-10-27T03:54:44Z",
   "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
     {
@@ -136,7 +136,7 @@
     {
       "path": "src/margin_map_source_owner.rs",
       "lfNormalized": true,
-      "sha256": "f77af2a8a9aa8b826db4630b1cbfbb3693a3d6775e64f217a071b1766ef2d072"
+      "sha256": "6a977edf8b3fb3abbd049a276dd2401f6954321975a83fb0129db81a93e8fbf8"
     },
     {
       "path": "src/source_contract_accounting_impl.rs",
@@ -161,12 +161,12 @@
     {
       "path": "src/source_contract_replay.rs",
       "lfNormalized": true,
-      "sha256": "a7835fd07d53bf0b0324b47b93721d557172856c124583ce6a899fda1cc93d37"
+      "sha256": "e2719c7368ebeab935376e58475eee6f9be92e8b0475d647fb58b46f6d457124"
     },
     {
       "path": "src/source_contract_runtime.rs",
       "lfNormalized": true,
-      "sha256": "d014ffd0c1ff999c3ced87600f94881828fe352a85546fba43a51576b7f2fcc4"
+      "sha256": "a58b75f1f364b1383a9d0b8042edf841f5af704eb08bb527c408468b36f50811"
     },
     {
       "path": "src/source_contract_values.rs",
@@ -210,7 +210,7 @@
     },
     {
       "path": "src/source_clearing_mark_settlement_impl.rs",
-      "sha256": "541f5fae00c0533c28c36bb3a43615ec922f258bcbee1c0e57a746dda3937922",
+      "sha256": "85674ba9b612dfa7b998b491b979e9b94e4cf4c49a4d96adbb80f1ef5638064f",
       "lfNormalized": true
     },
     {
@@ -266,6 +266,26 @@
     {
       "path": "src/channels_source.rs",
       "sha256": "a77ced61d9834d226b9c5a7c072c8210ce01c178b9de8aed5425a04e793ab920",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_option_trade_impl.rs",
+      "sha256": "f860e377879ec7841b8cfc9bfcc9c56eb59b485e3fa19beaf97b643732c8f486",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_synthetic_lifecycle_impl.rs",
+      "sha256": "4f8d095a01f26e57c7252f6c78c232896e4972777ad7f0f994d346d9576c1871",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_derivative_exercise_impl.rs",
+      "sha256": "b87e429eb2f4b0ef663192aebb42d999916222ea63034a66ce869a3ceb5313f6",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/margin_option_index_source_impl.rs",
+      "sha256": "e59e97a10a66f441513905a6b583bb9f848750d8bf5b7d3e9e3692e8f90202c3",
       "lfNormalized": true
     }
   ],
@@ -784,10 +804,10 @@
       "sourceRoute": "17 / base36 h / Logic.exerciseDerivative [last duplicate definition]",
       "sourceEffects": "Active final method expects (sender,txParams,block), chooses derivative delivery versus option exercise and attempts balance/position removal helpers.",
       "sourceDefects": "An earlier same-named async definition is overwritten. typeSwitch passes (contractId,amount,contractsRegistry,sender,block); active txParams becomes amount, so ordinary numeric amount cannot provide contractId.match. Delivery/option helpers also reference missing fields/functions. Runtime differences: Broken source exercise is retained as a diagnostic failure, not replaced by a fabricated delivery success.",
-      "runtimeScope": "SourceLifecycleV3 is an explicit literal source owner over the same Tally/Margin/queue/Channels collections; new() remains GlobalClearingV2. Actor claims, bootstrap collections and external boundary inputs are unverified. V3 admits the original raw17 Types/Validity path, retaining its actual derivativeRegistry ReferenceError. No successful exercise is fabricated.",
-      "missingLogic": "Successful derivative exercise, actual option accounting and authenticated context remain unverified.",
-      "nextTask": "Execute actual option lifecycle and retain the first source failure.",
-      "evidence": "JS dca0888b src/types.js decodePayload case17; src/logic.js typeSwitch case17; src/validity_source.rs; src/options.rs; src/margin_map.rs; tests/validity_source.rs; tests/options.rs V3: docs/SOURCE_CONTRACT_REGISTRY_LIFECYCLE.md; docs/SOURCE_CHANNEL_FINANCIAL.md; docs/SOURCE_CHANNEL_LOGIC_REVIEW.md; tests/source_contract_registry_lifecycle.rs; tests/source_channel_financial.rs; tests/source_channel_logic.rs; tests/source_contract_lifecycle_versions.rs. Executed outcomes and complete actual state/effects are recorded separately.",
+      "runtimeScope": "Opt-in OptionLifecycleV4 uses the same source Tally, Margin identity arena, Channels, queue and collections. Inputs/actors/bootstrap are unverified; earlier V1-V3 graphs and default V2 remain separate. The active final synchronous exerciseDerivative and its two member helpers preserve exact wrong argument placement, genuine missing-method TypeErrors, and the real un-awaited Margin load/rejection suffix. Original raw17 still reaches the actual derivativeRegistry ReferenceError before Logic.",
+      "missingLogic": "No successful delivery/exercise exists in these ordinary pinned-source branches; replacing missing helpers requires a separately specified repair. Broader receiver/accessor domains and authenticated context remain open.",
+      "nextTask": "Finish remaining source methods and historical/context integration while keeping literal source errors separate from explicit economic repairs.",
+      "evidence": "JS dca0888b src/types.js decodePayload case17; src/logic.js typeSwitch case17; src/validity_source.rs; src/options.rs; src/margin_map.rs; tests/validity_source.rs; tests/options.rs V3: docs/SOURCE_CONTRACT_REGISTRY_LIFECYCLE.md; docs/SOURCE_CHANNEL_FINANCIAL.md; docs/SOURCE_CHANNEL_LOGIC_REVIEW.md; tests/source_contract_registry_lifecycle.rs; tests/source_channel_financial.rs; tests/source_channel_logic.rs; tests/source_contract_lifecycle_versions.rs. Executed outcomes and complete actual state/effects are recorded separately. V4: docs/SOURCE_OPTION_TRADE.md;docs/SOURCE_SYNTHETIC_LIFECYCLE.md;docs/SOURCE_DERIVATIVE_EXERCISE.md;docs/SOURCE_OPTION_INDEXES.md;docs/SOURCE_OPTION_ADJUSTMENT_FAILURES.md;tests/source_option_lifecycle_versions.rs. Actual pinned-source comparisons and complete replay are recorded separately; no full-reference or authentication claim.",
       "preStateWitness": "Both option/future positions, contract/strike/expiry, actual deliverable collateral, writer/holder balances and execution rights.",
       "postStateWitness": "Conserved delivery/payment and exact closed/exercised positions, with no phantom balance helper or invented authority.",
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
@@ -805,7 +825,7 @@
       "sourceHandler": "exerciseDerivative",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Literal source execution in documented V3 domain",
+      "fidelity": "Literal source execution in documented V4 domain",
       "catalogExecutionCandidate": false
     },
     {
@@ -813,9 +833,9 @@
       "sourceRoute": "decodeTradeContractOnchain â†’ validateTradeContractOnchain â†’ Logic.tradeContractOnchain.",
       "sourceEffects": "Queues an on-chain contract order in Orderbook; immediate matching is deferred.",
       "sourceDefects": "The positional switch shifts params.reduceâ†’isLiq, params.postâ†’reduce, params.stopâ†’post, and params.blockâ†’stop in the actual handler signature. Logic.typeSwitch shifts the order flags: isLiq receives params.reduce, reduce receives params.post, post receives params.stop, and stop receives params.block. Existing typed flag mapping is an explicit conserving difference.",
-      "runtimeScope": "Literal SourceContractRuntime composes original raw18 decode/validity/Logic queue, placement, matches, sole source Tally, actual Margin arena, marks/IOUs/fees/rewards/history. GlobalClearingV2 adds actual block funding, three-pass mark settlement, book/AMM liquidation and ADL, Insurance payouts/withdrawals, source IOU allocation, option expiry and supply checks. Conserving EconomicState remains a distinct policy.",
-      "missingLogic": "Remaining inactive/unreached source methods, options/synthetic paths, production NeDB/RPC behavior and authenticated historical input. SourceLifecycleV3 adds native/dated/multiple-contract definition creation and channel settlement over the same owners. Complete per-type parity and an authenticated full-block fraud proof remain unestablished.",
-      "nextTask": "Complete options/synthetic paths and remaining source methods; extend conditional witness coverage while preserving policy/resource domains and authenticated-input gates.",
+      "runtimeScope": "Literal SourceContractRuntime composes original raw18 decode/validity/Logic queue, placement, matches, sole source Tally, actual Margin arena, marks/IOUs/fees/rewards/history. GlobalClearingV2 adds actual block funding, three-pass mark settlement, book/AMM liquidation and ADL, Insurance payouts/withdrawals, source IOU allocation, option expiry and supply checks. Conserving EconomicState remains a distinct policy. V4 re-runs all original 135 source comparisons and repairs source-error retention in reached option-adjustment loss coverage, including actual earlier loss/IOU writes before a later actor fails.",
+      "missingLogic": "Remaining inactive/unreached methods and wider numeric/alias/receiver domains, production storage/RPC, authenticated inputs/history and complete per-type/block fraud-proof context.",
+      "nextTask": "Extend remaining source method coverage and conditional witness types; bind independently verified historical/context inputs separately.",
       "evidence": "docs/SOURCE_CLEARING_GLOBAL.md; docs/SOURCE_CLEARING_FUNDING.md; docs/SOURCE_CLEARING_LIQUIDATION.md; docs/SOURCE_CLEARING_EXPIRY.md; docs/SOURCE_CLEARING_SUPPLY.md; docs/SOURCE_INSURANCE_LIFECYCLE.md; docs/SOURCE_IOU_SETTLEMENT.md; actual independent full-module tests plus source_contract_replay_versions original-compiled-v1 fixture. Prior raw18 32 scenes/135 observations remain unchanged. docs/SOURCE_TRANSITION_WITNESS.md; src/source_transition_witness_impl.rs; tests/source_transition_witness.rs.",
       "preStateWitness": "Literal replay binds imported source documents, actual caches, alias identities and module policy through an independently expected command-history head. Source provenance/authentication remains external.",
       "postStateWitness": "Local replay recomputes actual full source post-state and effects. A complete exported cross-repository per-type transition proof is still absent.",
@@ -951,10 +971,10 @@
       "sourceRoute": "decodeMintSynthetic â†’ validateMintSynthetic â†’ Logic.mintSynthetic.",
       "sourceEffects": "Creates/increments an s-property-contract Synthetic catalog row, moves margin/contracts, credits synth, debits backing and creates/updates a vault.",
       "sourceDefects": "Catalog save precedes margin/tally/vault mutations, so failures can split owners; amount/margin use absolute-value ROUND_DOWN while required backing debits round up.",
-      "runtimeScope": "VaultRegistry and margin arithmetic exist as bounded independent models; Ledger has no Synthetic class and types_economic excludes24.",
-      "missingLogic": "No integrated atomic property+margin+vault+custody mint path or economic source admission map.",
-      "nextTask": "Capture the exact source dependency sequence and define funded synthetic issuance with explicit rounding and rollback policy.",
-      "evidence": "Static: fixtures/native_genesis/source/logic.js:265,1430; src/legacy_types_audit.rs:260; src/types_economic.rs:168; src/vaults.rs; src/ledger.rs:85. Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
+      "runtimeScope": "Opt-in OptionLifecycleV4 uses the same source Tally, Margin identity arena, Channels, queue and collections. Inputs/actors/bootstrap are unverified; earlier V1-V3 graphs and default V2 remain separate. Actual raw24 Types/Validity reaches mintSynthetic, same-owner Margin and Property/Vault lifecycle. It retains source short-position signs, cold property-index replacement, omitted Vault save values and the later undeclared amount failure after live position changes.",
+      "missingLogic": "Remaining inactive/unreached methods, broader domains, production storage and authenticated collateral/actors/history. Literal source behavior does not establish conserving synthetic issuance.",
+      "nextTask": "Finish remaining source methods and historical/context integration while keeping literal source errors separate from explicit economic repairs.",
+      "evidence": "Static: fixtures/native_genesis/source/logic.js:265,1430; src/legacy_types_audit.rs:260; src/types_economic.rs:168; src/vaults.rs; src/ledger.rs:85. Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established. V4: docs/SOURCE_OPTION_TRADE.md;docs/SOURCE_SYNTHETIC_LIFECYCLE.md;docs/SOURCE_DERIVATIVE_EXERCISE.md;docs/SOURCE_OPTION_INDEXES.md;docs/SOURCE_OPTION_ADJUSTMENT_FAILURES.md;tests/source_option_lifecycle_versions.rs. Actual pinned-source comparisons and complete replay are recorded separately; no full-reference or authentication claim.",
       "preStateWitness": "No full pre-state witness binds collateral, short positions, vault links and catalog supply in one owner.",
       "postStateWitness": "Vault/margin records do not export a complete post-state witness for actual funded synthetic issuance.",
       "inputWitness": "Decoded grossRequired/contracts/margin are source-derived claims; no exported verifier binds them to a funded mint input.",
@@ -966,7 +986,7 @@
       "sourceHandler": "mintSynthetic",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path",
+      "fidelity": "Literal source execution in documented V4 domain",
       "catalogExecutionCandidate": false
     },
     {
@@ -974,10 +994,10 @@
       "sourceRoute": "decodeRedeemSynthetic â†’ validateRedeemSynthetic â†’ Logic.redeemSynthetic.",
       "sourceEffects": "Splits the synth key, reads vault/contract/mark, moves margin/contracts, reduces catalog supply, debits synth, returns collateral/PnL and updates vault.",
       "sourceDefects": "It dereferences vault.outstanding before the null check and does not await the oracle mark; reached catalog supply update has the known unawaited async DB-factory TypeError.",
-      "runtimeScope": "Vault redemption calculations are independent accounting metadata; no synthetic Ledger class or type25 economic map exists.",
-      "missingLogic": "No atomic source-equivalent redemption integrating catalog, vault, margin, actual funds and return/PnL legs.",
-      "nextTask": "Characterize null-vault/oracle/catalog failure paths before implementing a funded redemption repair.",
-      "evidence": "Static: fixtures/native_genesis/source/logic.js:268,1503; fixtures/native_genesis/source/property.js:218; src/legacy_types_audit.rs:269; src/types_economic.rs:168; src/vaults.rs. Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
+      "runtimeScope": "Opt-in OptionLifecycleV4 uses the same source Tally, Margin identity arena, Channels, queue and collections. Inputs/actors/bootstrap are unverified; earlier V1-V3 graphs and default V2 remain separate. Actual raw25 Types/Validity reaches redeemSynthetic. It retains un-awaited existence/Oracle reads, genuine nonfinite initial margin and the notCovered ReferenceError after live position mutation, including independent Oracle and Property persistence failures.",
+      "missingLogic": "Successful repaired redemption requires a separately specified policy. Remaining methods/domains, production storage and authenticated backing/actors/history remain open.",
+      "nextTask": "Finish remaining source methods and historical/context integration while keeping literal source errors separate from explicit economic repairs.",
+      "evidence": "Static: fixtures/native_genesis/source/logic.js:268,1503; fixtures/native_genesis/source/property.js:218; src/legacy_types_audit.rs:269; src/types_economic.rs:168; src/vaults.rs. Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established. V4: docs/SOURCE_OPTION_TRADE.md;docs/SOURCE_SYNTHETIC_LIFECYCLE.md;docs/SOURCE_DERIVATIVE_EXERCISE.md;docs/SOURCE_OPTION_INDEXES.md;docs/SOURCE_OPTION_ADJUSTMENT_FAILURES.md;tests/source_option_lifecycle_versions.rs. Actual pinned-source comparisons and complete replay are recorded separately; no full-reference or authentication claim.",
       "preStateWitness": "No unified witness binds synth ownership, outstanding debt, pledged collateral and live margin before redemption.",
       "postStateWitness": "No complete source post-state witness proves burn, collateral release, PnL and vault reduction agree.",
       "inputWitness": "A string synth ID is required by split; decoder/validity diagnostics do not establish actual redeemable ownership.",
@@ -989,7 +1009,7 @@
       "sourceHandler": "redeemSynthetic",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path",
+      "fidelity": "Literal source execution in documented V4 domain",
       "catalogExecutionCandidate": false
     },
     {
@@ -1020,10 +1040,10 @@
       "sourceRoute": "decodeOptionTrade â†’ validateOptionTrade â†’ Logic.processOptionTrade, which validates again.",
       "sourceEffects": "Transfers premium, applies seller margin/PnL and buyer-reduce deltas, writes option/combo positions, saves margin and optionally records trade history.",
       "sourceDefects": "A future/perpetual combo calls bare tradeContractChannel with an object-style signature instead of Logic.tradeContractChannel positional arguments; earlier premium/position effects can already exist.",
-      "runtimeScope": "Options pricing/portfolio and MarginMap option operations exist, but types_economic excludes27 and no complete funded options trade executor is integrated.",
-      "missingLogic": "No atomic premium+margin+positions+combo+history transition tied to actual source admission and custody.",
-      "nextTask": "Characterize each option/combo route and implement a conserving owner transition with explicit premium and margin funding.",
-      "evidence": "Static: fixtures/native_genesis/source/logic.js:274,1608,1713; src/legacy_types_audit.rs:287; src/types_economic.rs:168; src/options.rs; src/margin_map.rs.",
+      "runtimeScope": "Opt-in OptionLifecycleV4 uses the same source Tally, Margin identity arena, Channels, queue and collections. Inputs/actors/bootstrap are unverified; earlier V1-V3 graphs and default V2 remain separate. Actual raw27 uses a captured fresh Margin validity receiver and the genuine second Logic validation. Premium, seller margin/PNL, buyer PNL and option open/reduce/flip/combo legs mutate actual owners with retained failure prefixes. The source extra-leading-this index call stays a no-op; correctly shaped direct index updates operate real ordered Maps/Sets and replay populated state.",
+      "missingLogic": "Accessor-driven combo fallback remains outside SourceValue; ordinary inputs preserve the source validator behavior. Remaining broader options protocol/domains, production storage and authenticated source inputs/history remain open.",
+      "nextTask": "Finish remaining source methods and historical/context integration while keeping literal source errors separate from explicit economic repairs.",
+      "evidence": "Static: fixtures/native_genesis/source/logic.js:274,1608,1713; src/legacy_types_audit.rs:287; src/types_economic.rs:168; src/options.rs; src/margin_map.rs. V4: docs/SOURCE_OPTION_TRADE.md;docs/SOURCE_SYNTHETIC_LIFECYCLE.md;docs/SOURCE_DERIVATIVE_EXERCISE.md;docs/SOURCE_OPTION_INDEXES.md;docs/SOURCE_OPTION_ADJUSTMENT_FAILURES.md;tests/source_option_lifecycle_versions.rs. Actual pinned-source comparisons and complete replay are recorded separately; no full-reference or authentication claim.",
       "preStateWitness": "Separate portfolio/margin snapshots do not bind both parties, premium funds, series metadata and channel ownership as one source pre-state.",
       "postStateWitness": "No full post-state witness binds premium, realized PnL, margin credits and all combo legs atomically.",
       "inputWitness": "The helper mutates params and revalidates; no complete exported input witness binds both validation passes to actual execution.",
@@ -1035,7 +1055,7 @@
       "sourceHandler": "processOptionTrade",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path",
+      "fidelity": "Literal source execution in documented V4 domain",
       "catalogExecutionCandidate": false
     },
     {

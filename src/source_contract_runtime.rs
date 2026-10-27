@@ -19,6 +19,7 @@ pub enum SourceContractRuntimePolicy {
     OnchainV1,
     GlobalClearingV2,
     SourceLifecycleV3,
+    OptionLifecycleV4,
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StorageFailure {
@@ -60,6 +61,8 @@ pub(crate) struct ContractCore {
     channels: crate::channels_source::SourceChannels,
     property_cache: Vec<(V, V)>,
     vault_initialized: bool,
+    vault_cache: Vec<(V, V)>,
+    synthetic_token_cache: Vec<(V, V)>,
     source_unhandled_rejections: Vec<V>,
     source_supply_delta: Option<SourceSupplyDelta>,
     source_history_jobs: Vec<SourceHistoryJob>,
@@ -343,7 +346,9 @@ impl SourceContractRuntime {
             set(
                 &mut value,
                 "runtimePolicy",
-                s(if self.core.lifecycle_enabled() {
+                s(if self.core.option_lifecycle_enabled() {
+                    "OptionLifecycleV4"
+                } else if self.core.lifecycle_enabled() {
                     "SourceLifecycleV3"
                 } else {
                     "GlobalClearingV2"
@@ -371,6 +376,14 @@ impl SourceContractRuntime {
                         V::Bool(self.core.contract_series_initialized),
                     ),
                 ]),
+            )
+            .map_err(|_| SourceRuleError::InvalidInput)?;
+        }
+        if self.core.option_lifecycle_enabled() {
+            set(
+                &mut value,
+                "syntheticLifecycle",
+                self.core.source_synthetic_state(),
             )
             .map_err(|_| SourceRuleError::InvalidInput)?;
         }
@@ -516,6 +529,10 @@ impl SourceContractRuntime {
     ) -> Result<SourceOutcome, SourceRuleError> {
         self.last_parameters = None;
         if arguments.get(1) != Some(&n(18.0))
+            && !(self.core.option_lifecycle_enabled()
+                && [24., 25., 27.]
+                    .iter()
+                    .any(|kind| arguments.get(1) == Some(&n(*kind))))
             && !(self.core.lifecycle_enabled()
                 && [16., 17., 19., 20., 21., 22., 23., 31.]
                     .iter()
@@ -525,7 +542,12 @@ impl SourceContractRuntime {
         };
         self.core.channel_token_validation =
             self.core.lifecycle_enabled() && arguments.get(1) == Some(&n(20.));
-        let result = crate::types_source::decode_payload_unverified(arguments, &mut self.core);
+        let result = if self.core.option_lifecycle_enabled() && arguments.get(1) == Some(&n(27.0)) {
+            let mut backend = SourceOptionValidityBackend::new(&mut self.core);
+            crate::types_source::decode_payload_unverified(arguments, &mut backend)
+        } else {
+            crate::types_source::decode_payload_unverified(arguments, &mut self.core)
+        };
         self.core.channel_token_validation = false;
         if self.core.lifecycle_enabled() {
             self.core
@@ -544,36 +566,48 @@ impl SourceContractRuntime {
         match result.outcome {
             crate::types_source::TypesOutcome::Returned(params) => {
                 self.last_parameters = Some(params.clone());
-                let logic =
-                    if params.get("valid") == V::Bool(true) && arguments.get(1) != Some(&n(18.0)) {
-                        self.source_lifecycle_raw_logic(&arguments[1], &params)?
-                    } else if params.get("valid") == V::Bool(true) {
-                        let queued = obj(&[
-                            ("contractId", params.get("contractId")),
-                            ("price", params.get("price")),
-                            ("amount", params.get("amount")),
-                            ("sell", params.get("sell")),
-                            ("insurance", params.get("insurance")),
-                            ("blockTime", params.get("block")),
-                            ("isLiq", params.get("reduce")),
-                            ("reduce", params.get("post")),
-                            ("post", params.get("stop")),
-                            ("stop", params.get("block")),
-                        ]);
-                        self.evaluate_queue(&SourceCall {
-                            method: "queueOnChainContractOrder".into(),
-                            arguments: vec![
-                                s(text(&params.get("contractId"))
-                                    .map_err(|_| SourceRuleError::InvalidInput)?),
-                                params.get("senderAddress"),
-                                queued,
-                                params.get("block"),
-                                params.get("txid"),
-                            ],
-                        })?
-                    } else {
-                        SourceOutcome::Returned(V::Undefined)
-                    };
+                let logic = if params.get("valid") == V::Bool(true)
+                    && self.core.option_lifecycle_enabled()
+                    && arguments.get(1) == Some(&n(27.0))
+                {
+                    self.source_option_raw_logic(&params)?
+                } else if params.get("valid") == V::Bool(true)
+                    && self.core.option_lifecycle_enabled()
+                    && [24., 25.]
+                        .iter()
+                        .any(|kind| arguments.get(1) == Some(&n(*kind)))
+                {
+                    self.source_synthetic_raw_logic(&arguments[1], &params)?
+                } else if params.get("valid") == V::Bool(true) && arguments.get(1) != Some(&n(18.0))
+                {
+                    self.source_lifecycle_raw_logic(&arguments[1], &params)?
+                } else if params.get("valid") == V::Bool(true) {
+                    let queued = obj(&[
+                        ("contractId", params.get("contractId")),
+                        ("price", params.get("price")),
+                        ("amount", params.get("amount")),
+                        ("sell", params.get("sell")),
+                        ("insurance", params.get("insurance")),
+                        ("blockTime", params.get("block")),
+                        ("isLiq", params.get("reduce")),
+                        ("reduce", params.get("post")),
+                        ("post", params.get("stop")),
+                        ("stop", params.get("block")),
+                    ]);
+                    self.evaluate_queue(&SourceCall {
+                        method: "queueOnChainContractOrder".into(),
+                        arguments: vec![
+                            s(text(&params.get("contractId"))
+                                .map_err(|_| SourceRuleError::InvalidInput)?),
+                            params.get("senderAddress"),
+                            queued,
+                            params.get("block"),
+                            params.get("txid"),
+                        ],
+                    })?
+                } else {
+                    SourceOutcome::Returned(V::Undefined)
+                };
                 match logic {
                     SourceOutcome::Returned(value) => Ok(SourceOutcome::Returned(obj(&[
                         ("params", params),
@@ -615,6 +649,8 @@ impl ContractCore {
             channels: crate::channels_source::SourceChannels::new(),
             property_cache: vec![],
             vault_initialized: false,
+            vault_cache: vec![],
+            synthetic_token_cache: vec![],
             source_unhandled_rejections: vec![],
             source_supply_delta: None,
             source_history_jobs: vec![],
@@ -652,10 +688,18 @@ impl ContractCore {
             self.policy,
             SourceContractRuntimePolicy::GlobalClearingV2
                 | SourceContractRuntimePolicy::SourceLifecycleV3
+                | SourceContractRuntimePolicy::OptionLifecycleV4
         )
     }
     fn lifecycle_enabled(&self) -> bool {
-        self.policy == SourceContractRuntimePolicy::SourceLifecycleV3
+        matches!(
+            self.policy,
+            SourceContractRuntimePolicy::SourceLifecycleV3
+                | SourceContractRuntimePolicy::OptionLifecycleV4
+        )
+    }
+    fn option_lifecycle_enabled(&self) -> bool {
+        self.policy == SourceContractRuntimePolicy::OptionLifecycleV4
     }
     fn rows(&self, name: &str) -> &[V] {
         self.tables
@@ -1031,6 +1075,15 @@ impl ContractCore {
         id
     }
     fn margin_call(&mut self, method: &str, args: &[V]) -> R<V> {
+        if !self.option_lifecycle_enabled() && method == "_touchExpiryIndex" {
+            return Err(SourceRuleError::UnknownMethod.into());
+        }
+        if self.option_lifecycle_enabled() && method == "applyOptionTrade" {
+            return self.source_option_margin_apply(args);
+        }
+        if self.option_lifecycle_enabled() && method == "_touchExpiryIndex" {
+            return self.source_option_touch(args);
+        }
         let handle = arg(args, 0);
         let handle_id = handle.get("sourceMarginInstance");
         let (instance, original) = if matches!(handle_id, V::Number(_)) {
@@ -1138,6 +1191,51 @@ impl ContractCore {
     fn dispatch(&mut self, call: &DependencyCall) -> R<V> {
         let a = &call.arguments;
         let target = call.target.as_str();
+        if self.option_lifecycle_enabled() {
+            if let Some(method) = target.strip_prefix("Logic.") {
+                if [
+                    "exerciseDerivative",
+                    "deliverContract",
+                    "handleOptionExercise",
+                ]
+                .contains(&method)
+                {
+                    return self.source_derivative_logic(method, a);
+                }
+            }
+            match target {
+                "Logic.processOptionTrade" => return self.source_option_logic(a),
+                "Validity.validateOptionTrade" => return self.source_option_validate(a),
+                "Contract.getInitialMargin" => {
+                    return self.source_synthetic_initial_margin(arg(a, 0), arg(a, 1))
+                }
+                "Synthetic.exists" => return self.source_synthetic_vault("exists", a),
+                _ => {}
+            }
+            if let Some(method) = target.strip_prefix("Logic.") {
+                if ["mintSynthetic", "redeemSynthetic"].contains(&method) {
+                    return self.source_synthetic_logic(method, a);
+                }
+            }
+            if let Some(method) = target.strip_prefix("Vaults.") {
+                return self.source_synthetic_vault(method, a);
+            }
+            if let Some(method) = target.strip_prefix("Property.") {
+                if ["getInstance", "addProperty", "updateTotalInCirculation"].contains(&method) {
+                    return self.source_synthetic_property(method, a);
+                }
+            }
+            if let Some(method) = target.strip_prefix("Margin.") {
+                if [
+                    "moveMarginAndContractsForMint",
+                    "moveMarginAndContractsForRedeem",
+                ]
+                .contains(&method)
+                {
+                    return self.source_synthetic_margin(method, a);
+                }
+            }
+        }
         if self.channel_token_validation && target == "Tally.hasSufficientChannel" {
             return self.source_channel_sufficiency_begin();
         }
@@ -1403,6 +1501,15 @@ impl SourceBackend for ContractCore {
                     | "Logic.withdrawal"
                     | "TxUtils.getAddressTypeUniversal"
             ))
+            || (self.option_lifecycle_enabled()
+                && matches!(
+                    call.target.as_str(),
+                    "Margin._touchExpiryIndex"
+                        | "Property.getInstance"
+                        | "Logic.exerciseDerivative"
+                        | "Logic.deliverContract"
+                        | "Logic.handleOptionExercise"
+                ))
             || (self.global_clearing_enabled()
                 && matches!(
                     call.target.as_str(),
@@ -1560,3 +1667,7 @@ include!("source_channel_financial_impl.rs");
 include!("source_channel_volume_impl.rs");
 include!("source_channel_logic_impl.rs");
 include!("source_contract_position_identity_impl.rs");
+
+include!("source_option_trade_impl.rs");
+include!("source_synthetic_lifecycle_impl.rs");
+include!("source_derivative_exercise_impl.rs");

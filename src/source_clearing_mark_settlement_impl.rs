@@ -28,16 +28,31 @@ impl ContractCore {
         Ok(positions)
     }
     fn source_clearing_options(&mut self, a: &[V]) -> R<V> {
+        let literal = self.option_lifecycle_enabled();
+        let property = |value: &V, key: &str| -> R<V> {
+            if literal {
+                funding_prop(value, key)
+            } else {
+                Ok(value.get(key))
+            }
+        };
         let series = arg(a, 0);
         let address = arg(a, 1);
         let receiver = self.call("Margin.getInstance", vec![series.clone()])?;
+        if literal && matches!(receiver, V::Undefined | V::Null) {
+            funding_prop(&receiver, "margins")?;
+        }
         let pos = self.margins.inspect_position(
             number(&receiver.get("sourceMarginInstance"))? as u64,
             &address,
         )?;
-        let mut bag = match pos.get("options") {
-            V::Object(f) => V::Object(f),
-            _ => obj(&[]),
+        let mut bag = if literal {
+            V::Object(expiry_fields(&funding_or(pos.get("options")))?)
+        } else {
+            match pos.get("options") {
+                V::Object(f) => V::Object(f),
+                _ => obj(&[]),
+            }
         };
         let numeric = number(&series)?;
         let alt = if numeric.is_finite() {
@@ -47,33 +62,49 @@ impl ContractCore {
         };
         if !same(&alt, &series) {
             let receiver = self.call("Margin.getInstance", vec![alt])?;
+            if literal && matches!(receiver, V::Undefined | V::Null) {
+                funding_prop(&receiver, "margins")?;
+            }
             let alt = self.margins.inspect_position(
                 number(&receiver.get("sourceMarginInstance"))? as u64,
                 &address,
             )?;
-            if let V::Object(entries) = alt.get("options") {
+            let entries = if literal {
+                expiry_fields(&funding_or(alt.get("options")))?
+            } else {
+                match alt.get("options") {
+                    V::Object(entries) => entries,
+                    _ => vec![],
+                }
+            };
+            {
                 for (ticker, o) in entries {
                     let cur = bag.get(&ticker);
+                    let cur = if literal && !truth(&cur) {
+                        obj(&[("contracts", n(0.)), ("avgPrice", n(0.)), ("margin", n(0.))])
+                    } else {
+                        cur
+                    };
                     set(
                         &mut bag,
                         &ticker,
                         obj(&[
                             (
                                 "contracts",
-                                n(number(&funding_or(cur.get("contracts")))?
-                                    + number(&funding_or(o.get("contracts")))?),
+                                n(number(&funding_or(property(&cur, "contracts")?))?
+                                    + number(&funding_or(property(&o, "contracts")?))?),
                             ),
                             (
                                 "avgPrice",
                                 n(number(&nullish(
-                                    o.get("avgPrice"),
-                                    nullish(cur.get("avgPrice"), n(0.0)),
+                                    property(&o, "avgPrice")?,
+                                    nullish(property(&cur, "avgPrice")?, n(0.0)),
                                 ))?),
                             ),
                             (
                                 "margin",
-                                n(number(&funding_or(cur.get("margin")))?
-                                    + number(&funding_or(o.get("margin")))?),
+                                n(number(&funding_or(property(&cur, "margin")?))?
+                                    + number(&funding_or(property(&o, "margin")?))?),
                             ),
                         ]),
                     )?;
@@ -98,7 +129,7 @@ impl ContractCore {
                 let Some(meta) = crate::options::parse_ticker(&ticker) else {
                     continue;
                 };
-                let qty = FundingBn::new(&funding_or(o.get("contracts")))?;
+                let qty = FundingBn::new(&funding_or(property(&o, "contracts")?))?;
                 if qty.zero() {
                     continue;
                 }
@@ -107,7 +138,8 @@ impl ContractCore {
                 } else {
                     meta.expiry_block
                 };
-                let strike = dec(&n(meta.strike.unwrap_or(0.0)))?;
+                let strike = n(meta.strike.unwrap_or(0.0));
+                let strike = dec(&if literal { funding_or(strike) } else { strike })?;
                 let days = (expiry - current).max(0.0) / bpd;
                 let typ = meta.option_type.as_source_name();
                 let px = crate::options::price_eu_approx(typ, &spot, &strike, vol, days)

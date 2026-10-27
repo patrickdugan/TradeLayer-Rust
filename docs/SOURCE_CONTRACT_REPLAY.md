@@ -138,3 +138,12 @@ original admitted commands. It accepts neither supplied poststate nor dependency
 answers. An independently retained expected pre-head and explicit execution
 boundary are required. It leaves TLSEv1 unchanged and supplies no actor, UTXO,
 chain or custody authentication to an external consumer.
+
+V4 is an explicit `OptionLifecycleV4` graph with TLCR version 4 and bootstrap
+`TradeLayer/SourceContractBootstrap/v4/`. Populated option indexes, Vault and
+synthetic Maps, actual aliases, partial source errors and retries reconstruct
+from original commands. The independent compiled V3 fixture at
+`fixtures/source_contract_replay_v3.bin` comes from tested commit `dd79498`,
+before V4 code existed. Its original 10-command head is an external test pin;
+correcting CRC and replacing a bootstrap field cannot promote its history.
+V1-V3 retain their earlier capability graphs; default construction remains V2.
