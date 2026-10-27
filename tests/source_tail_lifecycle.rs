@@ -242,17 +242,16 @@ fn setup(runtime: &mut SourceContractRuntime, case: &J) {
             .unwrap();
     }
 }
-#[test]
-fn literal_raw_tail_and_sync_rollup_failures_match_genuine_source() {
+fn literal_raw_tail_and_sync_rollup_failures_match_genuine_source_for_policy(policy: P) {
     let baseline = cases(false);
     assert_eq!(baseline, cases(true));
     assert_eq!(baseline.len(), 131);
-    let mut runtime = SourceContractRuntime::with_policy(P::ProofLifecycleV6);
+    let mut runtime = SourceContractRuntime::with_policy(policy);
     let mut count = 0;
     for case in &baseline {
         let c = diagnostic(field(case, "command"));
         if c.get("reset") != V::Undefined {
-            runtime = SourceContractRuntime::with_policy(P::ProofLifecycleV6);
+            runtime = SourceContractRuntime::with_policy(policy);
             setup(&mut runtime, case);
             continue;
         }
@@ -281,6 +280,16 @@ fn literal_raw_tail_and_sync_rollup_failures_match_genuine_source() {
     }
     assert_eq!(count, 49);
 }
+#[test]
+fn literal_raw_tail_and_sync_rollup_failures_match_genuine_source() {
+    literal_raw_tail_and_sync_rollup_failures_match_genuine_source_for_policy(P::ProofLifecycleV6);
+}
+
+#[test]
+fn v7_inherits_literal_raw_tail_and_sync_rollup_failures_match_genuine_source() {
+    literal_raw_tail_and_sync_rollup_failures_match_genuine_source_for_policy(P::LowerLifecycleV7);
+}
+
 #[test]
 fn tail_source_errors_replay_and_old_policies_keep_prior_refusals() {
     let cases = cases(false);

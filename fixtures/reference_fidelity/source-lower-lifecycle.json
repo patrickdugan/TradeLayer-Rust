@@ -1,0 +1,186 @@
+{
+  "schema": "source-lower-lifecycle-validation-v1",
+  "verifiedAtUtc": "2026-10-27T07:21:23Z",
+  "parentCommit": "6ed0bff1969a8d8952d26653765ce7ad02bd5033",
+  "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "rustVersion": "1.90.0",
+  "passedTestExecutions": 1461,
+  "topLevelTests": 1460,
+  "subprocessTestPasses": 1,
+  "executableTargets": 211,
+  "newRustTests": 12,
+  "runtimePolicy": "LowerLifecycleV7",
+  "defaultRuntimePolicy": "GlobalClearingV2",
+  "literalSettlement": true,
+  "lowerRawTypes": [
+    1,
+    8,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "propertyObservations": 137,
+  "propertyResets": 26,
+  "propertySeedInputs": 1,
+  "propertySourceCalls": 110,
+  "propertyMatchedSourceCalls": 109,
+  "propertyLocalBoundaryProbes": 1,
+  "oracleObservations": 212,
+  "oracleMatchedObservations": 211,
+  "oracleLocalBoundaryProbes": 1,
+  "observationCountsIncludeDeclaredResetAndImportFrames": true,
+  "inheritedV6RegressionObservations": {
+    "proof": 234,
+    "proceduralBitvm": 127,
+    "liquidityRewards": 142,
+    "admittedTailOperations": 49,
+    "localBoundaryProbesAlreadyIncluded": 2
+  },
+  "mainEvidence": {
+    "nodeObservations": 39,
+    "proof10Subset": 10,
+    "bothGenuineBigNumberVersions": true,
+    "actualFinancialPhaseExecution": true,
+    "rustMainIntegration": false,
+    "daemonStartupOrRpcSuccessClaimed": false,
+    "fullFixtureSha256": "0efbb184f59f39f1a387bea0d4870797b5223f5694922759d837009e622abced"
+  },
+  "numericReference": {
+    "archived": "genuine9.3.1",
+    "locked": "genuine9.1.2 source-SHA-verified constructor",
+    "lockedRustTests": 96,
+    "lockedTargets": 34
+  },
+  "replay": {
+    "version": 7,
+    "legacyVersions": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "v6CompiledCommit": "6ed0bff1969a8d8952d26653765ce7ad02bd5033",
+    "v6FixtureSha256": "a98e40b3ca747b852b7979fa8b15bec9188a00169861b16ef066782f646a07ad",
+    "v6Bytes": 34379,
+    "v6Commands": 27,
+    "v6ExpectedHead": "e8b616851f86a69ba178b363ef2d2d3d81b98b96303769ecc88a2a890a928b0c",
+    "independentExpectedHeadRequired": true,
+    "repairedCrcVersionSubstitutionRejected": true,
+    "authenticationEstablished": false
+  },
+  "independentReview": {
+    "confirmedAndFixed": "Property type-map lookup must preserve JavaScript ToPrimitive exception and array conversion",
+    "withdrawnClaim": "BigNumber admin false-success prediction was disproved by existing shared storage_clone",
+    "observerCorrections": [
+      "embedded hashbang excluded from node-e wrapper",
+      "full Insurance object-to-Map diagnostic projection",
+      "call-time singleton-result snapshot",
+      "ordinary console.log returns undefined while recording logs",
+      "exact activation-effect projection",
+      "capacity setup uses actual nonstring array load without increasing JSON bounds"
+    ]
+  },
+  "sourcePreservedDefects": [
+    "tokenIssue catches and returns message after retained metadata prefix",
+    "duplicate Property ticker returns native Error and can flow into ignored Tally error",
+    "Property next ID can become NaN",
+    "raw1 multi-whitelist delimiter disagreement",
+    "Property supply and Tally use distinct source rounding/coercion/order",
+    "Procedural managed grant/redemption follow original context and actor branches",
+    "raw13 drops whitelist field",
+    "raw8 token administration retains unbound PropertyList ReferenceError",
+    "raw15 uses wrong publish validator and throws before close",
+    "Oracle close supplies actual wrong Insurance.liquidate arguments"
+  ],
+  "localBoundaries": [
+    "uncaught engine-specific malformed JSON in doesTickerExist",
+    "composite actor identity",
+    "ClearList methods not yet mounted in literal Core",
+    "invalid native address fallback needs real TxUtils/RPC capability",
+    "existing bounded JS values/resources and missing external proof artifacts/verifiers"
+  ],
+  "lifecycleWitness": {
+    "existingProfile": "TLSW2 V3-V6 conditional command slices",
+    "sourceBackedSlices": 238,
+    "newV7Export": false,
+    "completeBlockProof": false,
+    "authenticationEstablished": false
+  },
+  "fullReferenceParityEstablished": false,
+  "completeBlockFraudProof": false,
+  "thirdPartyRustCrates": 0,
+  "supplyMutationTests": 11,
+  "bitcoinCoreBridgePythonTests": 10,
+  "remainingGates": [
+    "remaining lower0/2-7/9/10 raw lifecycle composition",
+    "actual Main/Consensus transaction journals and live/indexed phases",
+    "ClearList raw7/8/9 and send/commit source integration",
+    "V7 conditional witness export",
+    "activation/native bootstrap and authenticated source history",
+    "production compact-index read/publication adapters",
+    "external proof/actor/chain/UTXO/script admission",
+    "complete per-type/block fraud proofs",
+    "representative real-block CPU/RSS for external PR141 promotion"
+  ],
+  "validationEnvironment": "Full suite includes existing local loopback RPC servers; no test or assertion was removed.",
+  "implementationInputs": 762,
+  "frozenInputHash": "8047d7ecfd399a7941aa6a6136adbcf098f12b462a396c5ff75619a9d177fa39",
+  "logs": {
+    "format": {
+      "passed": true,
+      "emptyOutput": true
+    },
+    "includes-format": {
+      "passed": true,
+      "emptyOutput": true
+    },
+    "clippy": {
+      "name": "source-lower-lifecycle-clippy.log",
+      "sha256": "efc8f6d356da87f8dc0676818c2a2c94810f879a6b7547d13e913fcca455417e"
+    },
+    "full-tests": {
+      "name": "source-lower-lifecycle-full-tests.log",
+      "sha256": "d4a08521b05af3255412bda394a8fb4214135553bf7b59912e50157ac2c56698"
+    },
+    "doctest": {
+      "name": "source-lower-lifecycle-doctest.log",
+      "sha256": "f244d6e53de706eba5cc5d0e4f7dcaf50c80b3775000a9b4f987ef2a9c8e072e"
+    },
+    "supply-policy": {
+      "name": "source-lower-lifecycle-supply-policy.log",
+      "sha256": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01"
+    },
+    "supply-mutations": {
+      "name": "source-lower-lifecycle-supply-mutations.log",
+      "sha256": "b73fb59d7ae629b7d20922a6da724264286448c4269c2b71b4c6b8bcbc7d212f"
+    },
+    "inventory": {
+      "name": "source-lower-lifecycle-inventory.log",
+      "sha256": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393"
+    },
+    "locked-reference": {
+      "name": "source-lower-lifecycle-locked-reference.log",
+      "sha256": "0ce551783b9e946e8ce55995948713ed69efb92426102de6baa97737eab3ed97"
+    },
+    "locked-preloader": {
+      "name": "source-lower-lifecycle-locked-preloader.log",
+      "sha256": "45dcbbe6dce81aa39447f73ca189ff78101e648a464e75319f31fd91293e6aad"
+    },
+    "bitcoin-core-bridge": {
+      "name": "source-lower-lifecycle-bitcoin-core-bridge.log",
+      "sha256": "3464f818d2c59c98f4d0fe764b280db0ca440010f4e8dcaaf35e1b2272b74b51"
+    },
+    "main-evidence": {
+      "name": "source-lower-lifecycle-main-evidence.log",
+      "sha256": "c71d1651274b1496cc874693e7dc0b77517041085e5197d00c920967ffb9837f"
+    },
+    "release": {
+      "name": "source-lower-lifecycle-release.log",
+      "sha256": "9869c98797e46736e677f6705480d238d659f020afb10487887e4dafba9c4460"
+    }
+  }
+}

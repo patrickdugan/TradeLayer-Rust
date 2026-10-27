@@ -11,6 +11,27 @@ that worker's branches, publish a branch, or authorize economic transitions.
 
 ## Tracking the 49 source modules
 
+The opt-in LowerLifecycleV7 batch passes **1,461 Rust test executions**
+(1,460 top-level plus one subprocess) across 211 targets, including
+12 new tests. Formatting, all-target Clippy, doctests, all-target release,
+zero-external-crate policy, eleven policy mutation tests and ten Core bridge
+Python tests pass. All 96 focused source tests across 34
+targets pass with genuine locked BigNumber9.1.2. See
+`fixtures/reference_fidelity/source-lower-lifecycle.json` for 762 frozen inputs.
+
+Actual raw1/8/11-15 and direct issuance/grant/redemption/Oracle lifecycle use
+the same source Property/Oracle/Procedural/Tally owners. The 137 Property and
+212 Oracle observations preserve original errors and partial write/retry behavior;
+two local domain refusals are counted separately. Four permanent inherited V6
+corpus regressions and the independently captured populated V6 release fixture
+preserve old policy behavior. Default remains V2; new replay profile is TLCR7.
+
+The original Main callable driver independently records39 Node observations,
+including real phase execution, journal writes and failure/retry prefixes.
+It is reference evidence for the next Rust composition, not a Rust Main parity
+or daemon/RPC claim. Remaining lower handlers, Main processing, ClearList,
+production storage/RPC, authenticated history and V7 witness export remain open.
+
 The opt-in ProofLifecycleV6 batch passes **1,449 Rust test executions**
 (1,448 top-level plus one subprocess) across 208 targets, including
 28 new tests. Formatting, all-target Clippy, doctests,

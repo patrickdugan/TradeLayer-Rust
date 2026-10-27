@@ -1,5 +1,19 @@
 # Literal source contract settlement
 
+The explicit `LowerLifecycleV7` profile additionally composes original raw
+types 1, 8 and 11-15 and their direct issuance, grant/redemption and Oracle
+lifecycle methods over the same Core collections/caches and source Tally.
+See `SOURCE_LOWER_PROPERTY_LIFECYCLE.md` and `SOURCE_LOWER_ORACLE_LIFECYCLE.md`
+for actual method scope, genuine source comparisons, retained source defects
+and explicit local domains. V1-V6 capabilities remain versioned; the default
+constructor still selects `GlobalClearingV2`.
+
+Original Main callable evidence in `MAIN_PHASE_DRIVER_EVIDENCE.md` observes
+39 Node cases, including actual financial phase execution and failure/retry
+prefixes. It does not implement the Rust Main transaction journal/phase driver.
+Existing TLSW2 export remains scoped to its admitted V3-V6 command slices;
+the new V7 routes are not silently added to that witness profile.
+
 `SourceContractRuntime` implements the pinned type18 queue-to-settlement path from JavaScript commit `dca0888b827c5bc28fa9189bc9e1d507f5c5670c`. Call `execute_contract_unverified` with the original nine Types arguments, then `evaluate_queue` with `processQueuedOnChainOrdersForBlock`. Actual Rust Types/Validity, literal Logic flag positions, queue, placement, matching, collateral, margin maps, PnL/IOUs, fee/reward/volume/history writes, oracle publication and reached Insurance deposits operate on the same mutable owner. No validator, match, financial result or post-state is supplied by the test oracle.
 
 This is an explicit alternative to the conserving `EconomicState`, with source Tally documents/cache as its single balance authority. It does not embed another spendable Ledger, copy balances into an economic owner, or silently change `ConservingSequentialV2`. The literal reference permits Number precision loss, stranded reserves, partial writes and retry re-execution; the conserving policies deliberately enforce different invariants. A caller must choose and bind its execution policy rather than combine their balances. This API accepts unverified imported source documents and actor claims. It establishes neither historical chain acceptance nor signature authentication.

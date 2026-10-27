@@ -22,6 +22,7 @@ pub enum SourceContractRuntimePolicy {
     OptionLifecycleV4,
     DistributionLifecycleV5,
     ProofLifecycleV6,
+    LowerLifecycleV7,
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StorageFailure {
@@ -351,7 +352,9 @@ impl SourceContractRuntime {
             set(
                 &mut value,
                 "runtimePolicy",
-                s(if self.core.proof_lifecycle_enabled() {
+                s(if self.core.lower_lifecycle_enabled() {
+                    "LowerLifecycleV7"
+                } else if self.core.proof_lifecycle_enabled() {
                     "ProofLifecycleV6"
                 } else if self.core.distribution_lifecycle_enabled() {
                     "DistributionLifecycleV5"
@@ -561,6 +564,14 @@ impl SourceContractRuntime {
     ) -> Result<SourceOutcome, SourceRuleError> {
         self.last_parameters = None;
         if arguments.get(1) != Some(&n(18.0))
+            && !(self.core.lower_lifecycle_enabled()
+                && [1., 11., 12.]
+                    .iter()
+                    .any(|kind| arguments.get(1) == Some(&n(*kind))))
+            && !(self.core.lower_lifecycle_enabled()
+                && [8., 13., 14., 15.]
+                    .iter()
+                    .any(|k| arguments.get(1) == Some(&n(*k))))
             && !(self.core.proof_lifecycle_enabled()
                 && [30., 32., 33., 34., 35.]
                     .iter()
@@ -607,6 +618,20 @@ impl SourceContractRuntime {
             crate::types_source::TypesOutcome::Returned(params) => {
                 self.last_parameters = Some(params.clone());
                 let logic = if params.get("valid") == V::Bool(true)
+                    && self.core.lower_lifecycle_enabled()
+                    && [1., 11., 12.]
+                        .iter()
+                        .any(|kind| arguments.get(1) == Some(&n(*kind)))
+                {
+                    self.source_lower_property_raw_logic(&arguments[1], &params)?
+                } else if params.get("valid") == V::Bool(true)
+                    && self.core.lower_lifecycle_enabled()
+                    && [8., 13., 14., 15.]
+                        .iter()
+                        .any(|k| arguments.get(1) == Some(&n(*k)))
+                {
+                    self.source_lower_oracle_raw_logic(&arguments[1], &params)?
+                } else if params.get("valid") == V::Bool(true)
                     && self.core.proof_lifecycle_enabled()
                     && arguments.get(1) == Some(&n(30.0))
                 {
@@ -746,6 +771,7 @@ impl ContractCore {
                 | SourceContractRuntimePolicy::OptionLifecycleV4
                 | SourceContractRuntimePolicy::DistributionLifecycleV5
                 | SourceContractRuntimePolicy::ProofLifecycleV6
+                | SourceContractRuntimePolicy::LowerLifecycleV7
         )
     }
     fn lifecycle_enabled(&self) -> bool {
@@ -755,6 +781,7 @@ impl ContractCore {
                 | SourceContractRuntimePolicy::OptionLifecycleV4
                 | SourceContractRuntimePolicy::DistributionLifecycleV5
                 | SourceContractRuntimePolicy::ProofLifecycleV6
+                | SourceContractRuntimePolicy::LowerLifecycleV7
         )
     }
     fn option_lifecycle_enabled(&self) -> bool {
@@ -763,6 +790,7 @@ impl ContractCore {
             SourceContractRuntimePolicy::OptionLifecycleV4
                 | SourceContractRuntimePolicy::DistributionLifecycleV5
                 | SourceContractRuntimePolicy::ProofLifecycleV6
+                | SourceContractRuntimePolicy::LowerLifecycleV7
         )
     }
     fn distribution_lifecycle_enabled(&self) -> bool {
@@ -770,10 +798,18 @@ impl ContractCore {
             self.policy,
             SourceContractRuntimePolicy::DistributionLifecycleV5
                 | SourceContractRuntimePolicy::ProofLifecycleV6
+                | SourceContractRuntimePolicy::LowerLifecycleV7
         )
     }
     fn proof_lifecycle_enabled(&self) -> bool {
-        self.policy == SourceContractRuntimePolicy::ProofLifecycleV6
+        matches!(
+            self.policy,
+            SourceContractRuntimePolicy::ProofLifecycleV6
+                | SourceContractRuntimePolicy::LowerLifecycleV7
+        )
+    }
+    fn lower_lifecycle_enabled(&self) -> bool {
+        self.policy == SourceContractRuntimePolicy::LowerLifecycleV7
     }
     fn rows(&self, name: &str) -> &[V] {
         self.tables
@@ -1279,6 +1315,54 @@ impl ContractCore {
     fn dispatch(&mut self, call: &DependencyCall) -> R<V> {
         let a = &call.arguments;
         let target = call.target.as_str();
+        if self.lower_lifecycle_enabled() {
+            if let Some(method) = target.strip_prefix("Oracle.") {
+                if [
+                    "getInstance",
+                    "getNextId",
+                    "createOracle",
+                    "isAdmin",
+                    "updateAdmin",
+                    "closeOracle",
+                ]
+                .contains(&method)
+                {
+                    return self.source_lower_oracle(method, a);
+                }
+            }
+            if let Some(method) = target.strip_prefix("Logic.") {
+                if [
+                    "createOracle",
+                    "publishOracleData",
+                    "closeOracle",
+                    "updateAdmin",
+                ]
+                .contains(&method)
+                {
+                    return self.source_lower_oracle_logic(method, a);
+                }
+            }
+        }
+        if self.lower_lifecycle_enabled() {
+            if let Some(method) = target.strip_prefix("Property.") {
+                if [
+                    "createToken",
+                    "getNextPropertyId",
+                    "addProperty",
+                    "isManagedAndAdmin",
+                    "doesTickerExist",
+                ]
+                .contains(&method)
+                {
+                    return self.source_lower_property(method, a);
+                }
+            }
+            if let Some(method) = target.strip_prefix("Logic.") {
+                if ["tokenIssue", "grantManagedToken", "redeemManagedToken"].contains(&method) {
+                    return self.source_lower_property_logic(method, a);
+                }
+            }
+        }
         if self.proof_lifecycle_enabled() {
             if target == "Logic.batchMoveZkRollup" {
                 return self.source_tail_batch(a);
@@ -1661,7 +1745,8 @@ impl SourceBackend for ContractCore {
                 | "Activation.areActivationsAboveThreshold"
                 | "Clock.nowISOString"
                 | "Clock.now"
-        ) || (self.proof_lifecycle_enabled() && call.target == "Logic.batchMoveZkRollup")
+        ) || (self.lower_lifecycle_enabled() && call.target == "Oracle.getInstance")
+            || (self.proof_lifecycle_enabled() && call.target == "Logic.batchMoveZkRollup")
             || (self.proof_lifecycle_enabled() && call.target == "Logic.queueLiquidityReward")
             || (self.proof_lifecycle_enabled()
                 && (call.target.starts_with("Dlc.")
@@ -1863,3 +1948,7 @@ include!("source_procedural_bitvm_impl.rs");
 include!("source_liquidity_rewards_impl.rs");
 
 include!("source_tail_lifecycle_impl.rs");
+
+include!("source_lower_oracle_lifecycle_impl.rs");
+
+include!("source_lower_property_lifecycle_impl.rs");

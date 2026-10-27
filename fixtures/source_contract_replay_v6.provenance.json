@@ -1,0 +1,16 @@
+{
+  "policy": "ProofLifecycleV6",
+  "commands": 27,
+  "head": "e8b616851f86a69ba178b363ef2d2d3d81b98b96303769ecc88a2a890a928b0c",
+  "fixtureSha256": "a98e40b3ca747b852b7979fa8b15bec9188a00169861b16ef066782f646a07ad",
+  "bytes": 34379,
+  "releaseLibrarySha256": "3d3360090fc76b9f8d838003351f36a4c53609baf066e0a4a1b6241e897ffc26",
+  "implementationInputs": 750,
+  "frozenInputHash": "80e37d2bef14348fe57c085eaf7d4688629e5a5db6c5b11d614743fb142ff5d0",
+  "generatorSha256": "e27bef1dda2ce78b773b5888397ccef6b4fbc5cd7587650460d91b2963519d30",
+  "compiler": "Rust1.90.0 MSVC",
+  "commitPending": false,
+  "compiledCommit": "6ed0bff1969a8d8952d26653765ce7ad02bd5033",
+  "capturedAtUtc": "2026-10-27T06:45:57Z",
+  "scope": "Actual V6 environment, Property singleton, Procedural template/contract, BitVM cache/risk, Oracle stake, sole Tally, pending reward queue, Vault/synthetic Maps; canonical artifact rejection and empty artifact configuration; future direct and raw lower-handler refusals. Independently round-tripped by the committed V6 release before any V7 edits. No platform-specific artifact path was admitted."
+}

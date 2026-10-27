@@ -289,18 +289,17 @@ fn setup(runtime: &mut SourceContractRuntime, case: &V) {
         .unwrap();
     runtime.take_effects();
 }
-#[test]
-fn actual_full_procedural_and_bitvm_classes_match_both_numeric_versions() {
+fn actual_full_procedural_and_bitvm_classes_match_both_numeric_versions_for_policy(policy: P) {
     let reference = cases(false);
     assert_eq!(reference, cases(true));
-    let mut runtime = SourceContractRuntime::with_policy(P::ProofLifecycleV6);
+    let mut runtime = SourceContractRuntime::with_policy(policy);
     let (mut resets, mut configured, mut calls) = (0, 0, 0);
     for case in &reference {
         let command = case.get("command");
         let name = text(case.get("name"));
         if command.get("reset") != V::Undefined {
             resets += 1;
-            runtime = SourceContractRuntime::with_policy(P::ProofLifecycleV6);
+            runtime = SourceContractRuntime::with_policy(policy);
             setup(&mut runtime, case);
         } else {
             if let Some(f) = failure(&command) {
@@ -333,6 +332,20 @@ fn actual_full_procedural_and_bitvm_classes_match_both_numeric_versions() {
         (127, 13, 1, 113)
     );
 }
+#[test]
+fn actual_full_procedural_and_bitvm_classes_match_both_numeric_versions() {
+    actual_full_procedural_and_bitvm_classes_match_both_numeric_versions_for_policy(
+        P::ProofLifecycleV6,
+    );
+}
+
+#[test]
+fn v7_inherits_actual_full_procedural_and_bitvm_classes_match_both_numeric_versions() {
+    actual_full_procedural_and_bitvm_classes_match_both_numeric_versions_for_policy(
+        P::LowerLifecycleV7,
+    );
+}
+
 #[test]
 fn source_partial_writes_and_environment_replay_without_atomic_repair() {
     let cases = cases(false);

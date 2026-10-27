@@ -158,3 +158,20 @@ external expected head, restore exact bytes/outcomes/effects, continue V4 and
 reject V4/V5 version or bootstrap substitution even with a repaired CRC.
 Default replay construction remains V2. These integrity checks do not
 establish actor authority or historical chain provenance.
+
+## Explicit V6 and V7 replay domains
+
+`ProofLifecycleV6` uses TLCRv6 and its own bootstrap domain. It retains the
+actual proof/settlement/reward state and source error prefixes. V7 adds only
+its explicitly admitted lower handlers, emits TLCRv7 and binds
+`TradeLayer/SourceContractBootstrap/v7/` rather than reinterpreting V6 journals.
+
+`fixtures/source_contract_replay_v6.bin` is an actual 27-command, 34,379-byte
+capture from Rust1.90 MSVC release commit `6ed0bff`, made before V7 source
+edits. Its provenance binds that release library and 750 frozen inputs.
+The capture contains real Procedural/cache/risk/Oracle/Tally/Vault state,
+the Property singleton, a pending liquidity reward and future lower-route
+refusals. Tests restore exact bytes against an independent expected head,
+compare all recorded future refusals and continuation, and reject repaired-CRC
+V6/V7 version substitutions. This verifies selected-policy replay integrity;
+Main block completeness and actor/history authentication remain separate gates.

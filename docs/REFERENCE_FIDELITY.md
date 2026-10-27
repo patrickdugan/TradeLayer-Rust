@@ -1,5 +1,19 @@
 # Reference fidelity and runtime coverage
 
+The explicit lower lifecycle profile is now `LowerLifecycleV7`. It runs actual
+raw1/8/11-15 and named issuance/grant/redemption/Oracle methods over the same
+literal Core, with 137 genuine Property and 212 genuine Oracle observations.
+The uncaught engine-specific JSON and composite-actor identity domains are
+counted separately as two local refusals. Existing conserving transaction
+policies retain their own behavior. Wider raw-type/JavaScript coverage, Main
+processing and V7 witness export remain incomplete.
+
+`MAIN_PHASE_DRIVER_EVIDENCE.md` adds 39 reproducible original-class Node
+observations. The source has different live/indexed phase order, non-atomic
+processed/validity/height journals, and retained failure/retry effects. These
+observations guide the next Rust integration; they are not counted as Rust
+Main parity, startup success, or completed block proofs.
+
 The compatibility reference is `tradelayer.js` commit
 `dca0888b827c5bc28fa9189bc9e1d507f5c5670c`. Runtime integration is a different
 measurement from reproducing that reference. The former spreadsheet label

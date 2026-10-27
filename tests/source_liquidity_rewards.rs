@@ -135,17 +135,16 @@ fn result(o: &O) -> V {
     };
     obj(&[("transport", s(transport)), ("outcome", outcome)])
 }
-#[test]
-fn genuine_reward_producer_queue_settlement_and_retained_prefixes_replay() {
+fn genuine_reward_producer_queue_settlement_and_retained_prefixes_replay_for_policy(policy: P) {
     let cases = source();
-    let mut replay = Replay::with_policy(P::ProofLifecycleV6).unwrap();
+    let mut replay = Replay::with_policy(policy).unwrap();
     let (mut resets, mut comparable, mut refusals) = (0, 0, 0);
     for case in cases {
         let name = txt(case.get("name"));
         let command = case.get("command");
         if matches!(command.get("reset"), V::Object(_)) {
             resets += 1;
-            replay = Replay::with_policy(P::ProofLifecycleV6).unwrap();
+            replay = Replay::with_policy(policy).unwrap();
             let options = command.get("reset");
             if let V::String(entry) = options.get("entry") {
                 replay.apply(C::SetEntry(entry)).unwrap();
@@ -298,6 +297,20 @@ fn genuine_reward_producer_queue_settlement_and_retained_prefixes_replay() {
     }
     assert_eq!((resets, comparable, refusals), (33, 107, 1));
 }
+#[test]
+fn genuine_reward_producer_queue_settlement_and_retained_prefixes_replay() {
+    genuine_reward_producer_queue_settlement_and_retained_prefixes_replay_for_policy(
+        P::ProofLifecycleV6,
+    );
+}
+
+#[test]
+fn v7_inherits_genuine_reward_producer_queue_settlement_and_retained_prefixes_replay() {
+    genuine_reward_producer_queue_settlement_and_retained_prefixes_replay_for_policy(
+        P::LowerLifecycleV7,
+    );
+}
+
 #[test]
 fn older_policies_keep_reward_routes_unavailable() {
     for policy in [

@@ -385,18 +385,17 @@ fn setup(runtime: &mut SourceContractRuntime, case: &V) {
             .unwrap();
     }
 }
-#[test]
-fn unchanged_type30_graph_both_genuine_numeric_versions() {
+fn unchanged_type30_graph_both_genuine_numeric_versions_for_policy(policy: P) {
     let baseline = cases(false);
     assert_eq!(baseline, cases(true));
-    let mut runtime = SourceContractRuntime::with_policy(P::ProofLifecycleV6);
+    let mut runtime = SourceContractRuntime::with_policy(policy);
     let (mut resets, mut supported, mut unsupported) = (0, 0, 0);
     for case in &baseline {
         let c = case.get("command");
         let name = text(case.get("name"));
         if let V::Object(_) = c.get("reset") {
             resets += 1;
-            runtime = SourceContractRuntime::with_policy(P::ProofLifecycleV6);
+            runtime = SourceContractRuntime::with_policy(policy);
             setup(&mut runtime, case);
         } else if c.get("unsupported") == V::Bool(true) {
             unsupported += 1;
@@ -430,6 +429,16 @@ fn unchanged_type30_graph_both_genuine_numeric_versions() {
         (234, 29, 204, 1)
     );
 }
+#[test]
+fn unchanged_type30_graph_both_genuine_numeric_versions() {
+    unchanged_type30_graph_both_genuine_numeric_versions_for_policy(P::ProofLifecycleV6);
+}
+
+#[test]
+fn v7_inherits_unchanged_type30_graph_both_genuine_numeric_versions() {
+    unchanged_type30_graph_both_genuine_numeric_versions_for_policy(P::LowerLifecycleV7);
+}
+
 #[test]
 fn real_failure_prefixes_restore_then_continue_with_no_conserving_repair() {
     let records = cases(false);
