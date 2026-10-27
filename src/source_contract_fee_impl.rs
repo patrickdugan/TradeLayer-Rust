@@ -218,6 +218,12 @@ impl ContractCore {
         ))
     }
     fn source_insurance_load(&mut self, instance: &mut V) -> R<()> {
+        if !self.global_clearing_enabled() {
+            return self.legacy_source_insurance_load(instance);
+        }
+        // Literal loadFromSnapshot calls .toString(), unlike the template key
+        // used by getInstance. Null and undefined fail before DB access.
+        insurance_series_text(&instance.get("contractSeriesId"))?;
         let key = Self::source_insurance_key(
             &instance.get("contractSeriesId"),
             truth(&instance.get("oracle")),
@@ -246,6 +252,9 @@ impl ContractCore {
         Ok(())
     }
     fn source_insurance_instance(&mut self, contract: V, oracle: bool) -> R<String> {
+        if !self.global_clearing_enabled() {
+            return self.legacy_source_insurance_instance(contract, oracle);
+        }
         let key = Self::source_insurance_key(&contract, oracle)?;
         if matches!(self.insurance.get(&key), V::Undefined) {
             let mut instance = obj(&[
@@ -255,22 +264,26 @@ impl ContractCore {
                 ("oracle", V::Bool(oracle)),
             ]);
             self.source_insurance_load(&mut instance)?;
-            set(&mut self.insurance, &key, instance)?;
+            insurance_cache_set(&mut self.insurance, &key, instance)?;
         }
         Ok(key)
     }
     fn source_insurance_deposit(&mut self, key: &str, property: V, amount: V, block: V) -> R<V> {
+        if !self.global_clearing_enabled() {
+            return self.legacy_source_insurance_deposit(key, property, amount, block);
+        }
         let mut instance = self.insurance.get(key);
         self.source_insurance_load(&mut instance)?;
-        set(&mut self.insurance, key, instance.clone())?;
+        insurance_cache_set(&mut self.insurance, key, instance.clone())?;
         let prop = if matches!(property, V::Null | V::Undefined) {
             "unknown".into()
         } else {
             text(&property)?
         };
-        // Invalid/nonfinite amount forms are outside this runtime's admitted
-        // finite BigNumber domain; they never become a supplied deposit.
-        let amount = fee_bn0(&amount)?;
+        let amount = InsuranceBn::new(&if truth(&amount) { amount } else { n(0.0) })?;
+        let Some(amount) = amount.finite() else {
+            return Ok(V::Undefined);
+        };
         if amount <= FeeDecimal::zero() {
             return Ok(V::Undefined);
         }
@@ -282,9 +295,15 @@ impl ContractCore {
             .iter()
             .position(|balance| text(&balance.get("propertyId")).is_ok_and(|p| p == prop))
         {
-            let before = fee_bn0(&balances[i].get("amountAvailable"))?;
-            let after = fee_down(&add(&before, &amount)?, 8)?;
-            set(&mut balances[i], "amountAvailable", s(after.to_string()))?;
+            let before = InsuranceBn::new(&if truth(&balances[i].get("amountAvailable")) {
+                balances[i].get("amountAvailable")
+            } else {
+                n(0.0)
+            })?;
+            let after = before
+                .plus(&InsuranceBn::Finite(amount.clone()))?
+                .quantize(8, crate::decimal::Rounding::Down)?;
+            set(&mut balances[i], "amountAvailable", s(after.fixed(None)?))?;
         } else {
             balances.push(obj(&[
                 ("propertyId", s(&prop)),
@@ -292,7 +311,7 @@ impl ContractCore {
             ]));
         }
         set(&mut instance, "balances", V::Array(balances.clone()))?;
-        set(&mut self.insurance, key, instance.clone())?;
+        insurance_cache_set(&mut self.insurance, key, instance.clone())?;
         let contract = text(&instance.get("contractSeriesId"))?;
         let event = obj(&[
             ("type", s("deposit")),

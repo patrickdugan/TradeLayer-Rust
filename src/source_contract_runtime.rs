@@ -2,7 +2,7 @@
 //! conserving EconomicState, not a shadow spendable balance store beside it.
 //! Its single Tally collection/cache retains source Number and failure behavior.
 use crate::contract_queue_source_owner::{ContractQueueSourceOwner, QueueDbFailure};
-use crate::margin_map_source_owner::{MarginMapSourceOwner, PositionAlias};
+use crate::margin_map_source_owner::{MarginMapSourceOwner, PositionAlias, PositionObjectAlias};
 use crate::source_contract_values::*;
 use crate::validity_source::{
     DependencyCall, DependencyReturn, SourceBackend, SourceCall, SourceOutcome, SourceRuleError,
@@ -11,6 +11,12 @@ use crate::validity_source::{
 
 pub const MAX_TABLE_ROWS: usize = 1024;
 pub const MAX_TABLES: usize = 32;
+/// Replay binds the admitted method graph as well as the original commands.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SourceContractRuntimePolicy {
+    OnchainV1,
+    GlobalClearingV2,
+}
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StorageFailure {
     pub collection: String,
@@ -31,6 +37,20 @@ pub struct SourceContractRuntime {
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ContractCore {
+    policy: SourceContractRuntimePolicy,
+    queue_context: Option<ContractQueueSourceOwner>,
+    clearing_contexts: Vec<(String, Vec<usize>)>,
+    deleverage_trades: Vec<(String, Vec<V>)>,
+    liquidation_marks: Vec<(String, V)>,
+    contract_series: Vec<(V, V)>,
+    tally_mod: V,
+    tally_static_initialized: bool,
+    channels: crate::channels_source::SourceChannels,
+    property_cache: Vec<(V, V)>,
+    vault_initialized: bool,
+    source_unhandled_rejections: Vec<V>,
+    source_supply_delta: Option<SourceSupplyDelta>,
+    source_history_jobs: Vec<SourceHistoryJob>,
     tables: Vec<Table>,
     margins: MarginMapSourceOwner,
     tally: Vec<(V, V)>,
@@ -48,6 +68,7 @@ pub(crate) struct ContractCore {
     height: V,
     time_millis: u64,
     contract_mod: bool,
+    contract_mod_raw: V,
     entry: String,
     active: bool,
     insurance: V,
@@ -62,11 +83,17 @@ impl Default for SourceContractRuntime {
 }
 impl SourceContractRuntime {
     pub fn new() -> Self {
+        Self::with_policy(SourceContractRuntimePolicy::GlobalClearingV2)
+    }
+    pub fn with_policy(policy: SourceContractRuntimePolicy) -> Self {
         Self {
             queue: ContractQueueSourceOwner::new(),
-            core: ContractCore::new(),
+            core: ContractCore::new(policy),
             last_parameters: None,
         }
+    }
+    pub fn policy(&self) -> SourceContractRuntimePolicy {
+        self.core.policy
     }
     pub fn last_contract_parameters(&self) -> Option<&V> {
         self.last_parameters.as_ref()
@@ -112,11 +139,15 @@ impl SourceContractRuntime {
         {
             return Err(SourceRuleError::Capacity);
         }
+        if failure.operation == "removeAsync" && !self.core.global_clearing_enabled() {
+            return Err(SourceRuleError::InvalidInput);
+        }
         if !matches!(
             failure.operation.as_str(),
             "getDatabase"
                 | "findOneAsync"
                 | "findAsync"
+                | "removeAsync"
                 | "updateAsync"
                 | "insertAsync"
                 | "loadDatabase"
@@ -158,7 +189,7 @@ impl SourceContractRuntime {
         std::mem::take(&mut self.core.effects)
     }
     pub fn state_value(&self) -> Result<V, SourceRuleError> {
-        Ok(obj(&[
+        let mut value = obj(&[
             (
                 "tables",
                 V::Array(
@@ -292,7 +323,18 @@ impl SourceContractRuntime {
                     ),
                 ]),
             ),
-        ]))
+        ]);
+        if self.core.global_clearing_enabled() {
+            set(&mut value, "runtimePolicy", s("GlobalClearingV2"))
+                .map_err(|_| SourceRuleError::InvalidInput)?;
+            set(
+                &mut value,
+                "globalClearing",
+                self.core.source_clearing_state(),
+            )
+            .map_err(|_| SourceRuleError::InvalidInput)?;
+        }
+        Ok(value)
     }
     pub fn invoke_dependency(
         &mut self,
@@ -302,7 +344,27 @@ impl SourceContractRuntime {
             v.validate()?
         }
         let before = self.clone();
+        self.core.queue_context = Some(std::mem::replace(
+            &mut self.queue,
+            ContractQueueSourceOwner::new(),
+        ));
         let result = self.core.invoke(call);
+        let result = if result.is_ok() && self.core.global_clearing_enabled() {
+            self.core
+                .source_history_drain()
+                .map_err(|e| match e {
+                    Fault::Local(e) => e,
+                    Fault::Thrown(_) => SourceRuleError::Backend,
+                })
+                .and(result)
+        } else {
+            result
+        };
+        self.queue = self
+            .core
+            .queue_context
+            .take()
+            .ok_or(SourceRuleError::Backend)?;
         let result = if self.core.effects_exhausted {
             Err(SourceRuleError::Capacity)
         } else {
@@ -335,6 +397,17 @@ impl SourceContractRuntime {
                 }
             });
         self.core.harvest_queue(&mut self.queue);
+        let result = if result.is_ok() && self.core.global_clearing_enabled() {
+            self.core
+                .source_history_drain()
+                .map_err(|e| match e {
+                    Fault::Local(e) => e,
+                    Fault::Thrown(_) => SourceRuleError::Backend,
+                })
+                .and(result)
+        } else {
+            result
+        };
         let result = if self.core.effects_exhausted {
             Err(SourceRuleError::Capacity)
         } else {
@@ -430,8 +503,22 @@ impl SourceContractRuntime {
     }
 }
 impl ContractCore {
-    fn new() -> Self {
+    fn new(policy: SourceContractRuntimePolicy) -> Self {
         Self {
+            policy,
+            queue_context: None,
+            clearing_contexts: vec![],
+            deleverage_trades: vec![],
+            liquidation_marks: vec![],
+            contract_series: vec![],
+            tally_mod: V::Undefined,
+            tally_static_initialized: false,
+            channels: crate::channels_source::SourceChannels::new(),
+            property_cache: vec![],
+            vault_initialized: false,
+            source_unhandled_rejections: vec![],
+            source_supply_delta: None,
+            source_history_jobs: vec![],
             tables: vec![],
             margins: MarginMapSourceOwner::new(),
             tally: vec![],
@@ -449,6 +536,7 @@ impl ContractCore {
             height: n(10.0),
             time_millis: 1_700_000_000_000,
             contract_mod: false,
+            contract_mod_raw: V::Undefined,
             entry: "main-subgraph".into(),
             active: true,
             insurance: obj(&[]),
@@ -456,6 +544,9 @@ impl ContractCore {
             oracle_source_watermarks: vec![],
             oracle_source_initialized: false,
         }
+    }
+    fn global_clearing_enabled(&self) -> bool {
+        self.policy == SourceContractRuntimePolicy::GlobalClearingV2
     }
     fn rows(&self, name: &str) -> &[V] {
         self.tables
@@ -533,9 +624,16 @@ impl ContractCore {
             _ => (),
         };
         self.emit(event);
+        if self.global_clearing_enabled() {
+            self.source_history_after_database(name)?;
+            self.source_supply_after_database(name)?;
+        }
         result
     }
-    fn matches(row: &V, query: &V) -> R<bool> {
+    fn matches(&self, row: &V, query: &V) -> R<bool> {
+        if self.global_clearing_enabled() && matches!(query, V::Undefined) {
+            return Ok(true);
+        }
         let V::Object(fields) = query else {
             return Err(SourceRuleError::InvalidInput.into());
         };
@@ -543,7 +641,7 @@ impl ContractCore {
             if k == "$or" {
                 let mut found = false;
                 for q in array(wanted)? {
-                    if Self::matches(row, &q)? {
+                    if self.matches(row, &q)? {
                         found = true;
                         break;
                     }
@@ -565,6 +663,16 @@ impl ContractCore {
                         "$lte" => number(&actual)? <= number(v)?,
                         "$gt" => number(&actual)? > number(v)?,
                         "$lt" => number(&actual)? < number(v)?,
+                        "$regex" if self.global_clearing_enabled() => {
+                            let pattern = text(v)?;
+                            let Some(prefix) = pattern.strip_prefix('^') else {
+                                return Err(SourceRuleError::UnknownDependency.into());
+                            };
+                            if prefix.chars().any(|c| "\\.[](){}*+?$|^".contains(c)) {
+                                return Err(SourceRuleError::UnknownDependency.into());
+                            }
+                            matches!(&actual,V::String(value) if value.starts_with(prefix))
+                        }
                         _ => return Err(SourceRuleError::UnknownDependency.into()),
                     }
                 }
@@ -578,13 +686,20 @@ impl ContractCore {
         }
         Ok(true)
     }
+    fn storage_clone(&self, v: &V) -> R<V> {
+        if self.global_clearing_enabled() {
+            source_storage_clone(v)
+        } else {
+            Ok(v.clone())
+        }
+    }
     fn db(&mut self, name: &str, op: &str, args: Vec<V>) -> R<V> {
         let result = (|| {
             self.check_failure(name, op)?;
             match op {
                 "findOneAsync" => {
                     for row in self.rows(name) {
-                        if Self::matches(row, &arg(&args, 0))? {
+                        if self.matches(row, &arg(&args, 0))? {
                             return Ok(row.clone());
                         }
                     }
@@ -593,7 +708,7 @@ impl ContractCore {
                 "findAsync" => {
                     let mut found = vec![];
                     for row in self.rows(name) {
-                        if Self::matches(row, &arg(&args, 0))? {
+                        if self.matches(row, &arg(&args, 0))? {
                             found.push(row.clone())
                         }
                     }
@@ -608,7 +723,7 @@ impl ContractCore {
                 "put" => {
                     let key = arg(&args, 0);
                     let mut doc = obj(&[("_id", key.clone())]);
-                    let V::Object(fields) = arg(&args, 1) else {
+                    let V::Object(fields) = self.storage_clone(&arg(&args, 1))? else {
                         return Err(SourceRuleError::InvalidInput.into());
                     };
                     for (k, v) in fields {
@@ -626,8 +741,23 @@ impl ContractCore {
                     Ok(V::Undefined)
                 }
                 "loadDatabase" => Ok(V::Undefined),
+                "removeAsync" if self.global_clearing_enabled() => {
+                    let query = arg(&args, 0);
+                    let multi = truth(&arg(&args, 1).get("multi"));
+                    let mut removed = 0;
+                    let mut keep = Vec::new();
+                    for row in self.rows(name) {
+                        if (multi || removed == 0) && self.matches(row, &query)? {
+                            removed += 1;
+                        } else {
+                            keep.push(row.clone());
+                        }
+                    }
+                    *self.table(name)? = keep;
+                    Ok(n(f64::from(removed)))
+                }
                 "insertAsync" => {
-                    let mut doc = arg(&args, 0);
+                    let mut doc = self.storage_clone(&arg(&args, 0))?;
                     if matches!(doc.get("_id"), V::Undefined) {
                         self.db_id += 1;
                         set(&mut doc, "_id", s(format!("db-{}", self.db_id)))?
@@ -648,7 +778,7 @@ impl ContractCore {
                     let options = arg(&args, 2);
                     let mut indexes = vec![];
                     for (i, row) in self.rows(name).iter().enumerate() {
-                        if Self::matches(row, &query)? {
+                        if self.matches(row, &query)? {
                             indexes.push(i)
                         }
                     }
@@ -656,7 +786,7 @@ impl ContractCore {
                         indexes.truncate(1)
                     };
                     if indexes.is_empty() && truth(&options.get("upsert")) {
-                        let mut doc = query.clone();
+                        let mut doc = self.storage_clone(&query)?;
                         if matches!(doc.get("_id"), V::Undefined) {
                             self.db_id += 1;
                             set(&mut doc, "_id", s(format!("db-{}", self.db_id)))?
@@ -681,7 +811,7 @@ impl ContractCore {
                                 };
                                 for (k, v) in values {
                                     let next = match op.as_str() {
-                                        "$set" => v.clone(),
+                                        "$set" => self.storage_clone(v)?,
                                         "$inc" => n(number(&nullish(get_path(&row, k), n(0.0)))?
                                             + number(v)?),
                                         _ => return Err(SourceRuleError::UnknownDependency.into()),
@@ -691,9 +821,12 @@ impl ContractCore {
                             }
                             row
                         } else {
-                            update.clone()
+                            self.storage_clone(&update)?
                         };
-                        if matches!(row.get("_id"), V::Undefined) {
+                        if matches!(row.get("_id"), V::Undefined)
+                            && (!self.global_clearing_enabled()
+                                || !matches!(old.get("_id"), V::Undefined))
+                        {
                             set(&mut row, "_id", old.get("_id"))?
                         };
                         self.table(name)?[*i] = row
@@ -703,13 +836,14 @@ impl ContractCore {
                 _ => Err(SourceRuleError::UnknownDependency.into()),
             }
         })();
+        let result = result.and_then(|v| self.storage_clone(&v));
         let short = op.strip_suffix("Async").unwrap_or(op);
         let mut event = obj(&[
             ("kind", s("db")),
             ("collection", s(name)),
             ("op", s(short)),
             ("method", s(op)),
-            ("args", V::Array(args)),
+            ("args", self.storage_clone(&V::Array(args))?),
         ]);
         match &result {
             Ok(v) => set(&mut event, "returned", v.clone())?,
@@ -721,6 +855,9 @@ impl ContractCore {
             _ => (),
         };
         self.emit(event);
+        if self.global_clearing_enabled() {
+            self.source_supply_after_db(name, op)?;
+        }
         result
     }
     fn find(&mut self, name: &str, query: V) -> R<V> {
@@ -776,15 +913,39 @@ impl ContractCore {
                 )
                 .map_err(Fault::Local);
         };
+        let object_aliases = if let V::Array(entries) = if self.global_clearing_enabled() {
+            handle.get("sourcePositionObjectAliases")
+        } else {
+            V::Undefined
+        } {
+            entries
+                .iter()
+                .map(|v| {
+                    Ok(PositionObjectAlias {
+                        argument: number(&v.get("argument"))? as usize,
+                        index: if matches!(v.get("index"), V::Undefined) {
+                            None
+                        } else {
+                            Some(number(&v.get("index"))? as usize)
+                        },
+                        object: number(&v.get("object"))? as usize,
+                    })
+                })
+                .collect::<R<Vec<_>>>()?
+        } else {
+            vec![]
+        };
         let mut owner = std::mem::replace(&mut self.margins, MarginMapSourceOwner::new());
         let result = owner
-            .evaluate_detailed(
+            .evaluate_detailed_with_object_aliases(
                 instance,
                 &SourceCall {
                     method: method.into(),
                     arguments: original.to_vec(),
                 },
                 &aliases,
+                &[],
+                &object_aliases,
                 self,
             )
             .map(|v| v.outcome);
@@ -808,7 +969,56 @@ impl ContractCore {
             );
         }
         if let Some(method) = target.strip_prefix("Margin.") {
+            if !self.global_clearing_enabled()
+                && !crate::margin_map_source_owner::METHODS[..18].contains(&method)
+                && method != "inspectPosition"
+            {
+                return Err(SourceRuleError::UnknownDependency.into());
+            }
             return self.margin_call(method, a);
+        }
+        if let Some(method) = target.strip_prefix("Channels.") {
+            if !self.global_clearing_enabled() {
+                return Err(SourceRuleError::UnknownDependency.into());
+            }
+            let mut owner = std::mem::take(&mut self.channels);
+            let result = owner.execute_unverified(
+                &SourceCall {
+                    method: method.into(),
+                    arguments: a.clone(),
+                },
+                &mut SourceChannelsBackend(self),
+            );
+            self.channels = owner;
+            return outcome(result?.outcome);
+        }
+        if let Some(method) = target.strip_prefix("Property.") {
+            if self.global_clearing_enabled() {
+                return self.source_clearing_property(method, a);
+            }
+        }
+        if let Some(method) = target.strip_prefix("Vaults.") {
+            if self.global_clearing_enabled() {
+                return self.source_clearing_vault_query(method, a);
+            }
+        }
+        if let Some(method) = target.strip_prefix("Insurance.") {
+            if !self.global_clearing_enabled() {
+                return Err(SourceRuleError::UnknownDependency.into());
+            }
+            return self.source_insurance_call(method, a);
+        }
+        if target == "Orderbook.estimateLiquidation" && self.global_clearing_enabled() {
+            return self.source_liquidation_estimate(a);
+        }
+        if target == "Orderbook._pruneInstaLiqOrdersFromFreshBook" && self.global_clearing_enabled()
+        {
+            return self.source_liquidation_prune(a);
+        }
+        if let Some(method) = target.strip_prefix("Orderbook.") {
+            if self.global_clearing_enabled() && method != "recordContractTrade" {
+                return self.source_clearing_orderbook_call(method, a);
+            }
         }
         if let Some(method) = target.strip_prefix("Tally.") {
             return self.tally_call(method, a);
@@ -857,6 +1067,9 @@ impl ContractCore {
             "Oracle.publishData" => self.oracle_publish(a),
             "Oracle.getOracleInfo" => self.oracle_source_info(arg(a, 0)),
             "Oracle.getOraclePrice" => self.oracle_price(arg(a, 0)),
+            "Oracle.getTWAP" if self.global_clearing_enabled() => {
+                self.source_funding_oracle_twap(a)
+            }
             "Activation.isTxTypeActive" => Ok(V::Bool(self.active)),
             "Activation.getAdmin" => Ok(s("admin")),
             "Activation.areActivationsAboveThreshold" => Ok(V::Bool(false)),
@@ -894,7 +1107,11 @@ impl SourceBackend for ContractCore {
         let start = self.effects.len();
         let trace = !matches!(
             call.target.as_str(),
-            "Margin.inspectPosition" | "SourceGlobal.get"
+            "Margin.inspectPosition"
+                | "SourceGlobal.get"
+                | "Orderbook.inspectBook"
+                | "Orderbook.setCachedBook"
+                | "Orderbook.newInstance"
         ) && !call.target.starts_with("db.");
         if trace {
             self.emit(obj(&[
@@ -926,7 +1143,39 @@ impl SourceBackend for ContractCore {
                 | "Activation.areActivationsAboveThreshold"
                 | "Clock.nowISOString"
                 | "Clock.now"
-        ) {
+        ) || (self.global_clearing_enabled()
+            && matches!(
+                call.target.as_str(),
+                "Clearing.clampFundingRate"
+                    | "Clearing.calculateClearingPNL"
+                    | "Clearing.calculateNewContractPNL"
+                    | "Clearing.computeLossCoverage"
+                    | "Clearing.initPositionCache"
+                    | "Clearing.getPositionsFromCache"
+                    | "Clearing.flushPositionCache"
+                    | "Clearing.addOrUpdatePositionInCache"
+                    | "Clearing.recordDeleverageTrade"
+                    | "Clearing.recordLiquidation"
+                    | "Clearing.recordTrade"
+                    | "Clearing.getLiquidation"
+                    | "Clearing.getDeleverageTradesThisBlock"
+                    | "Clearing.resetBlockTracking"
+                    | "Clearing.resetBlockTrades"
+                    | "Margin.generateLiquidationOrder"
+                    | "Margin.calcPriceDelta"
+                    | "Margin.needsLiquidation"
+                    | "Margin.calculateLiquidationPrice"
+                    | "Margin.calculateMarginRequirement"
+                    | "Margin.estimatePNL"
+                    | "PnlIou.key"
+                    | "PnlIou.claimKey"
+                    | "PnlIou.blockReductionTowardZero"
+                    | "Clearing.resolveOptionExerciseTarget"
+                    | "Clearing.computeExerciseContracts"
+                    | "Clearing.applyAssignedUnderlyingPosition"
+                    | "Clearing.computeLiquidationPriceFromLoss"
+            ))
+        {
             match result {
                 Ok(v) => Ok(DependencyReturn::Immediate(v)),
                 Err(Fault::Thrown(e)) => Ok(DependencyReturn::Throw(e)),
@@ -976,6 +1225,9 @@ struct FinancialBackend<'a> {
 impl SourceBackend for FinancialBackend<'_> {
     fn invoke(&mut self, call: &DependencyCall) -> Result<DependencyReturn, SourceRuleError> {
         self.core.harvest_queue(self.queue);
+        if call.target == "TradeHistory.savePNL" && self.core.global_clearing_enabled() {
+            return returned(self.core.source_history_begin(&call.arguments));
+        }
         if matches!(
             call.target.as_str(),
             "Orderbook.cancelExcessOrders" | "Orderbook.sourceCrossContractReserve"
@@ -1006,8 +1258,21 @@ impl SourceBackend for FinancialBackend<'_> {
 }
 impl ContractCore {
     fn harvest_queue(&mut self, queue: &mut ContractQueueSourceOwner) {
-        for call in queue.take_db_calls() {
-            self.emit(call.value())
+        let old = queue.take_db_calls();
+        let detailed = queue.take_detailed_db_calls();
+        if self.global_clearing_enabled() {
+            match detailed {
+                Ok(events) => {
+                    for event in events {
+                        self.emit(event);
+                    }
+                }
+                Err(_) => self.effects_exhausted = true,
+            }
+        } else {
+            for call in old {
+                self.emit(call.value());
+            }
         }
     }
 }
@@ -1017,3 +1282,19 @@ include!("source_contract_aux_impl.rs");
 include!("source_contract_fee_impl.rs");
 
 include!("source_contract_oracle_impl.rs");
+
+include!("source_clearing_funding_impl.rs");
+include!("source_insurance_lifecycle_impl.rs");
+include!("source_clearing_global_impl.rs");
+
+include!("source_insurance_legacy_v1_impl.rs");
+
+include!("source_iou_settlement_impl.rs");
+include!("source_clearing_liquidation_impl.rs");
+include!("source_clearing_expiry_impl.rs");
+
+include!("source_clearing_mark_settlement_impl.rs");
+
+include!("source_clearing_supply_impl.rs");
+
+include!("source_contract_history_schedule_impl.rs");

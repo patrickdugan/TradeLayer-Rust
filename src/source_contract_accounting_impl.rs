@@ -30,6 +30,9 @@ impl ContractCore {
             let row = self.find("tallyMap", obj(&[("_id", s("tallyMap"))]))?;
             let entries = Self::tally_parsed_entries(&row)?;
             self.tally = entries;
+            if self.global_clearing_enabled() {
+                self.tally_static_initialized = true;
+            }
             Ok(V::Array(
                 self.tally
                     .iter()
@@ -44,6 +47,11 @@ impl ContractCore {
     }
     fn tally_get(&mut self, address: V, property: V) -> R<V> {
         self.tally_load_rows()?;
+        if self.global_clearing_enabled() && !self.tally_static_initialized {
+            return Err(type_error(
+                "Cannot read properties of undefined (reading 'has')",
+            ));
+        }
         let Some((_, properties)) = self.tally.iter().find(|(key, _)| same(key, &address)) else {
             return Ok(n(0.0));
         };
@@ -69,6 +77,9 @@ impl ContractCore {
         );
         let result = (|| {
             self.database("tallyMap")?;
+            if self.global_clearing_enabled() && !self.tally_static_initialized {
+                return Err(type_error("this.addresses is not iterable"));
+            }
             self.update(
                 "tallyMap",
                 obj(&[("_id", s("tallyMap"))]),
@@ -100,7 +111,12 @@ impl ContractCore {
         let existing = self.find("tallyMapDelta", obj(&[("_id", s(&key))]))?;
         let persisted = self.find("tallyMap", obj(&[("_id", s("tallyMap"))]))?;
         match Self::tally_parsed_entries(&persisted) {
-            Ok(entries) => self.tally = entries,
+            Ok(entries) => {
+                self.tally = entries;
+                if self.global_clearing_enabled() {
+                    self.tally_static_initialized = true;
+                }
+            }
             Err(Fault::Thrown(_)) => (),
             Err(e) => return Err(e),
         }
@@ -135,6 +151,9 @@ impl ContractCore {
                 vec![obj(&[("_id", s(&key)), ("data", data)])],
             )?;
         };
+        if self.global_clearing_enabled() {
+            self.tally_mod = V::Bool(true);
+        }
         Ok(())
     }
     fn tally_update(&mut self, a: &[V]) -> R<V> {
@@ -164,6 +183,11 @@ impl ContractCore {
             ]));
         }
         self.tally_load_rows()?;
+        if self.global_clearing_enabled() && !self.tally_static_initialized {
+            return Err(type_error(
+                "Cannot read properties of undefined (reading 'has')",
+            ));
+        }
         let index = if let Some(i) = self.tally.iter().position(|(key, _)| same(key, &address)) {
             i
         } else {
@@ -271,6 +295,18 @@ impl ContractCore {
     }
     fn tally_call(&mut self, method: &str, a: &[V]) -> R<V> {
         match method {
+            "recordTallyMapDelta" if self.global_clearing_enabled() => {
+                self.source_clearing_record_tally_delta(a)
+            }
+            "getTotalForProperty" | "getTotalTally" | "loadFeeCacheForProperty"
+                if self.global_clearing_enabled() =>
+            {
+                self.source_clearing_tally_query(method, a)
+            }
+            "setModFlag" if self.global_clearing_enabled() => {
+                self.tally_mod = arg(a, 0);
+                Ok(V::Undefined)
+            }
             "getTally" => self.tally_get(arg(a, 0), arg(a, 1)),
             "updateBalance" => self.tally_update(a),
             "hasSufficientBalance" => self.tally_sufficient("available", a),
@@ -344,6 +380,12 @@ impl ContractCore {
     }
     fn contract_call(&mut self, method: &str, a: &[V]) -> R<V> {
         match method {
+            "getAllPerpContracts" if self.global_clearing_enabled() => {
+                self.source_funding_perp_contracts()
+            }
+            "loadContractSeries" if self.global_clearing_enabled() => {
+                self.source_clearing_load_contracts()
+            }
             "getContractInfo" => self.contract_info(arg(a, 0)),
             "getAllContracts" => {
                 self.database("contractList")?;
@@ -356,6 +398,9 @@ impl ContractCore {
             }
             "setModFlag" => {
                 self.contract_mod = truth(&arg(a, 0));
+                if self.global_clearing_enabled() {
+                    self.contract_mod_raw = arg(a, 0);
+                }
                 Ok(V::Undefined)
             }
             "isInverse" | "isNativeContract" | "isOracleContract" | "getOracleId"

@@ -3,7 +3,9 @@
 Review and bounded execution evidence for archived source commit
 `dca0888b827c5bc28fa9189bc9e1d507f5c5670c`. The literal `SourceContractRuntime`
 now connects actual raw type18 validation, queue, placement and financial
-settlement and compares all32 full-JavaScript scenes/135 observations, including
+settlement and compares all32 full-JavaScript scenes/135 observations, with new
+GlobalClearingV2 funding, marks, ADL/liquidation, insurance/IOU, expiry and supply
+corpora documented in `SOURCE_CLEARING_GLOBAL.md`, including
 persisted collections, live caches and partial failure/retry behavior. It is an
 explicit alternative to the separately named conserving EconomicState. See
 [SOURCE_CONTRACT_RUNTIME.md](SOURCE_CONTRACT_RUNTIME.md) for the execution API,

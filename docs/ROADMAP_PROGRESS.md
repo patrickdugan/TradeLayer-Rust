@@ -11,6 +11,25 @@ that worker's branches, publish a branch, or authorize economic transitions.
 
 ## Tracking the 49 source modules
 
+The GlobalClearingV2 batch passes **1,375 Rust test executions** (1,374
+top-level plus one subprocess) across186 executable targets, including18 new
+tests. All-target Clippy, formatting, doc tests, release, zero-external-crate
+policy and11 policy mutation tests pass against684 frozen inputs. The new
+funding, Margin, insurance, IOU, liquidation, expiry, mark/supply and transport
+corpora comprise908 observations (including reset states), plus8 pure AMM
+mutation scenes. All22 focused tests in12 targets also pass under genuine
+source-lock BigNumber9.1.2. The committed record is
+`fixtures/reference_fidelity/source-global-clearing.json`.
+
+Actual block clearing now composes funding, three mark passes, live book/AMM
+liquidation and ADL, source IOU/insurance, option expiry and final supply checks.
+Queue DB return/throw effects and un-awaited history/dust jobs retain their
+actual source order and failure prefixes. TLCRv2 replay binds full continuation
+state; an original compiled TLCRv1 fixture retains byte-identical restoration
+and its old unavailable methods. Source/conserving policy choices stay explicit.
+Remaining gates include channel transactions/queue, full native/dated definition
+lifecycle, production storage, authenticated history and portable witnesses.
+
 The literal on-chain settlement batch passes **1,357 Rust test executions**
 (1,356 top-level plus one subprocess check) across176 executable targets,
 including18 new tests. Rust1.90 formatting, all-target Clippy, all-target release,
@@ -46,7 +65,7 @@ complete persisted collections, caches, fees, PNL/IOUs/rewards and retained fail
 prefixes. SourceContractReplay restores the actual owner by replaying original
 commands and checking outcomes/effects/full continuation state against an
 independently expected head. This is an alternative source execution policy;
-channel/global-clearing/ADL/expiry and authenticated history remain open. See
+channel/native lifecycle and authenticated history remain open; global clearing/ADL/expiry now have independent source execution coverage. See
 [SOURCE_CONTRACT_READS.md](SOURCE_CONTRACT_READS.md),
 [SOURCE_CONTRACT_EXECUTION_REVIEW.md](SOURCE_CONTRACT_EXECUTION_REVIEW.md) and
 [CONTRACT_QUEUE_SOURCE_OWNER.md](CONTRACT_QUEUE_SOURCE_OWNER.md).

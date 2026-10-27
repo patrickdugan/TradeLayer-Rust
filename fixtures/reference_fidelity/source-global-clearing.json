@@ -1,0 +1,130 @@
+{
+  "schema": "source-global-clearing-validation-v1",
+  "verifiedAtUtc": "2026-10-27T01:02:22Z",
+  "parentCommit": "99210d434528d950890ab459c4a7f2a4cee7caa5",
+  "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "rustVersion": "1.90.0",
+  "passedTestExecutions": 1375,
+  "topLevelTests": 1374,
+  "subprocessTestPasses": 1,
+  "executableTargets": 186,
+  "newRustTests": 18,
+  "globalClearing": true,
+  "literalSettlement": true,
+  "contractSourceScenes": 32,
+  "contractSourceObservations": 135,
+  "globalSourceObservations": 908,
+  "observationsIncludeResetStates": true,
+  "fundingObservations": 104,
+  "marginTotalObservations": 166,
+  "marginNewObservations": 90,
+  "insuranceObservations": 144,
+  "iouObservations": 89,
+  "liquidationObservations": 101,
+  "pureAmmSweeps": 8,
+  "expiryObservations": 94,
+  "globalMarkObservations": 50,
+  "supplyObservations": 187,
+  "signatureObservations": 49,
+  "numericReference": {
+    "archived": "genuine9.3.1",
+    "locked": "genuine source-lock9.1.2 with raw SHA-verified preloader",
+    "lockedRustTests": 22,
+    "lockedTargets": 12
+  },
+  "replay": {
+    "version": 2,
+    "legacyVersion": 1,
+    "legacyCompiledCommit": "99210d434528d950890ab459c4a7f2a4cee7caa5",
+    "legacyFixture": "fixtures/source_contract_replay_v1.bin",
+    "independentExpectedHeadRequired": true,
+    "repairedCrcVersionPromotionRejected": true,
+    "actualFailurePrefixesAndContinuation": true,
+    "authenticationEstablished": false
+  },
+  "runtimePolicy": "GlobalClearingV2",
+  "sourceDomain": "bounded actual block-clearing graph over sole source Tally and established Margin/queue owners; unverified imported metadata/actors/storage boundaries; conserving EconomicState remains separate",
+  "sourcePreservedDefects": [
+    "negative-funding direction",
+    "cross-property insurance payouts",
+    "negative/lexical withdrawals",
+    "missing absorbDust after credits",
+    "un-awaited history and dust-delta interleaving",
+    "source IOU allocation without invented bucket debit",
+    "captured partial CommonJS exports",
+    "static Tally first-load distinction",
+    "Vault findOne/array mismatch"
+  ],
+  "fullReferenceParityEstablished": false,
+  "exportedTransitionWitness": "not-exported",
+  "supplyMutationTests": 11,
+  "thirdPartyRustCrates": 0,
+  "remainingGates": [
+    "channel transaction settlement and channel queue",
+    "complete native/dated/multiple-contract definition lifecycle",
+    "remaining inactive/unreached source methods and admitted numeric/alias domains",
+    "production NeDB and real-disk behavior",
+    "authenticated source inputs/actors/history",
+    "portable per-type transition witnesses"
+  ],
+  "implementationInputs": 684,
+  "frozenInputHash": "dfa52364e7b4ea5378acf983619c63ab54e24eb63dcfb23f99aeeedc0d5cd415",
+  "logs": {
+    "format": {
+      "passed": true,
+      "emptyOutput": true
+    },
+    "includes-format": {
+      "passed": true,
+      "emptyOutput": true
+    },
+    "clippy": {
+      "name": "global-clearing-clippy.log",
+      "sha256": "e90505ed54738f427de503bd18301b95c16da69092317cca5822dcf74d9a345b"
+    },
+    "full-tests": {
+      "name": "global-clearing-full-tests.log",
+      "sha256": "296620b47df0232f99ef727e15acd93d99022c12e2823af902d5e540db99cab4"
+    },
+    "doctest": {
+      "name": "global-clearing-doctest.log",
+      "sha256": "f244d6e53de706eba5cc5d0e4f7dcaf50c80b3775000a9b4f987ef2a9c8e072e"
+    },
+    "supply-policy": {
+      "name": "global-clearing-supply-policy.log",
+      "sha256": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01"
+    },
+    "supply-mutations": {
+      "name": "global-clearing-supply-mutations.log",
+      "sha256": "de9e95f92c8e2c5a54868f0bdfb82b97b1057eb1296f93e6678711b6385f71f9"
+    },
+    "inventory": {
+      "name": "global-clearing-inventory.log",
+      "sha256": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393"
+    },
+    "locked-reference": {
+      "name": "global-clearing-locked-reference.log",
+      "sha256": "81ed9c4262722086f8edc02f04025df7c71ab4fb60e95ef9b848cf8d6b1fff17"
+    },
+    "locked-preloader": {
+      "name": "global-clearing-locked-preloader.log",
+      "sha256": "45dcbbe6dce81aa39447f73ca189ff78101e648a464e75319f31fd91293e6aad"
+    },
+    "release": {
+      "name": "global-clearing-release.log",
+      "sha256": "c65d81bce4b91096bdd6da8a70b9a4084a089f75c11ff0e9390d7e1ff2827ea3"
+    }
+  },
+  "commands": [
+    "cargo fmt --all -- --check",
+    "rustfmt --check --edition2021 <all CI include files>",
+    "cargo clippy --frozen --all-targets -- -D warnings",
+    "cargo test --frozen --all-targets",
+    "cargo test --frozen --doc",
+    "cargo build --frozen --release --all-targets",
+    "python scripts/check_rust_supply_chain.py",
+    "python -m unittest discover -s tests -p test_rust_supply_chain.py -v",
+    "python scripts/check_logic_inventory.py",
+    "NODE_OPTIONS=--require scripts/bignumber_lock_reference.cjs cargo test --frozen <12 actual source/replay targets>"
+  ]
+}

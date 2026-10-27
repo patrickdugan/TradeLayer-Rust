@@ -2,7 +2,9 @@
 //! Expected heads detect substituted history; neither hashes nor CRC authenticate L1.
 use crate::codec::{verify_crc, with_crc, Cursor};
 use crate::hash256::sha256;
-use crate::source_contract_runtime::{SourceContractRuntime, StorageFailure};
+use crate::source_contract_runtime::{
+    SourceContractRuntime, SourceContractRuntimePolicy, StorageFailure,
+};
 use crate::validity_source::{
     DependencyCall, DependencyReturn, SourceCall, SourceException, SourceOutcome, SourceRuleError,
     SourceValue as V,
@@ -14,7 +16,8 @@ pub const MAX_FRAME_BYTES: usize = 4 * 1024 * 1024;
 pub const MAX_CHECKPOINT_BYTES: usize = 32 * 1024 * 1024;
 const MAX_STATE_NODES: usize = 262_144;
 const MAX_STATE_BYTES: usize = 16 * 1024 * 1024;
-const MAGIC: &[u8; 5] = b"TLCR\x01";
+const MAGIC_V1: &[u8; 5] = b"TLCR\x01";
+const MAGIC_V2: &[u8; 5] = b"TLCR\x02";
 const SOURCE_PIN: &[u8] = b"dca0888b827c5bc28fa9189bc9e1d507f5c5670c";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -425,9 +428,19 @@ fn entry_head(
 }
 impl SourceContractReplay {
     pub fn new() -> Result<Self> {
-        let runtime = SourceContractRuntime::new();
+        Self::with_policy(SourceContractRuntimePolicy::GlobalClearingV2)
+    }
+    pub fn with_policy(policy: SourceContractRuntimePolicy) -> Result<Self> {
+        let runtime = SourceContractRuntime::with_policy(policy);
         let initial = state_commitment(&runtime)?;
-        let mut seed = b"TradeLayer/SourceContractBootstrap/v1/".to_vec();
+        let mut seed = match policy {
+            SourceContractRuntimePolicy::OnchainV1 => {
+                b"TradeLayer/SourceContractBootstrap/v1/".to_vec()
+            }
+            SourceContractRuntimePolicy::GlobalClearingV2 => {
+                b"TradeLayer/SourceContractBootstrap/v2/".to_vec()
+            }
+        };
         seed.extend_from_slice(SOURCE_PIN);
         seed.extend_from_slice(&initial);
         Ok(Self {
@@ -552,7 +565,10 @@ impl SourceContractReplay {
         }
     }
     pub fn checkpoint(&self) -> Result<Vec<u8>> {
-        let mut bytes = MAGIC.to_vec();
+        let mut bytes = match self.runtime.policy() {
+            SourceContractRuntimePolicy::OnchainV1 => MAGIC_V1.to_vec(),
+            SourceContractRuntimePolicy::GlobalClearingV2 => MAGIC_V2.to_vec(),
+        };
         bytes.extend_from_slice(&self.initial);
         bytes.extend_from_slice(&(self.journal.len() as u32).to_be_bytes());
         bytes.extend_from_slice(&self.head.commitment);
@@ -588,12 +604,14 @@ impl SourceContractReplay {
         let payload =
             verify_crc(bytes).map_err(|_| SourceContractReplayError::InvalidCheckpoint)?;
         let mut c = Cursor::new(payload);
-        if c.take(5)
+        let policy = match c
+            .take(5)
             .map_err(|_| SourceContractReplayError::InvalidCheckpoint)?
-            != MAGIC
         {
-            return Err(SourceContractReplayError::InvalidCheckpoint);
-        }
+            magic if magic == MAGIC_V1 => SourceContractRuntimePolicy::OnchainV1,
+            magic if magic == MAGIC_V2 => SourceContractRuntimePolicy::GlobalClearingV2,
+            _ => return Err(SourceContractReplayError::InvalidCheckpoint),
+        };
         let initial = c
             .fixed::<32>()
             .map_err(|_| SourceContractReplayError::InvalidCheckpoint)?;
@@ -609,7 +627,7 @@ impl SourceContractReplay {
         if expected_head.commands != count as u64 || expected_head.commitment != head {
             return Err(SourceContractReplayError::WrongHead);
         }
-        let mut replay = Self::new()?;
+        let mut replay = Self::with_policy(policy)?;
         if replay.initial != initial {
             return Err(SourceContractReplayError::InvalidCheckpoint);
         }

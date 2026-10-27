@@ -53,6 +53,26 @@ pub(crate) fn source_finite_decimal_unverified(value: &V) -> Result<Decimal, Sou
         Err(Fault::Local(error)) => Err(error),
     }
 }
+/// Complete bounded BigNumber constructor result for literal source owners.
+/// The BigNumber diagnostic carries signed zero and nonfinite values without
+/// converting them into a usable finite financial observation.
+pub(crate) fn source_bignumber_value_unverified(
+    value: &V,
+) -> Result<SourceOutcome, SourceRuleError> {
+    match Bn::new(value) {
+        Ok(Bn::Finite(value)) => Ok(SourceOutcome::Returned(V::BigNumber(value.to_string()))),
+        Ok(Bn::NegativeZero) => Ok(SourceOutcome::Returned(V::BigNumber("-0".into()))),
+        Ok(Bn::Special(value)) => Ok(SourceOutcome::Returned(V::BigNumber(if value.is_nan() {
+            "NaN".into()
+        } else if value.is_sign_negative() {
+            "-Infinity".into()
+        } else {
+            "Infinity".into()
+        }))),
+        Err(Fault::Thrown(error)) => Ok(SourceOutcome::Thrown(error)),
+        Err(Fault::Local(error)) => Err(error),
+    }
+}
 pub(crate) fn source_greater_unverified(left: &V, right: &V) -> Result<bool, SourceRuleError> {
     relational(left, right)
         .map(|o| o == Some(core::cmp::Ordering::Greater))

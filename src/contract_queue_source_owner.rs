@@ -793,6 +793,10 @@ pub struct ContractQueueSourceOwner {
     placement_calls: Vec<DependencyCall>,
     db_bytes: usize,
     placement_bytes: usize,
+    // Ephemeral execution observations. Never part of V1 state/checkpoint/Eq.
+    detailed_db_calls: Vec<V>,
+    detailed_db_bytes: usize,
+    detailed_db_exhausted: bool,
 }
 impl PartialEq for ContractQueueSourceOwner {
     fn eq(&self, o: &Self) -> bool {
@@ -836,6 +840,15 @@ impl ContractQueueSourceOwner {
     pub fn take_db_calls(&mut self) -> Vec<QueueDbCall> {
         self.db_bytes = 0;
         core::mem::take(&mut self.db_calls)
+    }
+    pub fn take_detailed_db_calls(&mut self) -> Result<Vec<V>, SourceRuleError> {
+        self.detailed_db_bytes = 0;
+        let events = core::mem::take(&mut self.detailed_db_calls);
+        if core::mem::take(&mut self.detailed_db_exhausted) {
+            Err(SourceRuleError::Capacity)
+        } else {
+            Ok(events)
+        }
     }
     pub fn take_placement_calls(&mut self) -> Vec<DependencyCall> {
         self.placement_bytes = 0;
@@ -1140,42 +1153,110 @@ impl ContractQueueSourceOwner {
         Ok(())
     }
     fn database(&mut self) -> Eval<()> {
-        self.db_call("getDatabase", V::Undefined, V::Undefined, V::Undefined)
+        let result = self.db_call("getDatabase", V::Undefined, V::Undefined, V::Undefined);
+        self.detailed_db(
+            "getDatabase",
+            vec![s("orderBooks")],
+            &result
+                .as_ref()
+                .map(|_| obj(&[("database", s("orderBooks"))])),
+        );
+        result
     }
     fn reload(&mut self) -> Eval<()> {
-        self.db_call("loadDatabase", V::Undefined, V::Undefined, V::Undefined)
+        let result = self.db_call("loadDatabase", V::Undefined, V::Undefined, V::Undefined);
+        self.detailed_db(
+            "loadDatabase",
+            vec![],
+            &result.as_ref().map(|_| V::Undefined),
+        );
+        result
     }
     fn find(&mut self, key: V) -> Eval<V> {
-        self.db_call(
-            "findOneAsync",
-            obj(&[("_id", key.clone())]),
-            V::Undefined,
-            V::Undefined,
-        )?;
-        Ok(self
-            .rows
-            .iter()
-            .find(|r| strict(&r.get("_id"), &key))
-            .cloned()
-            .unwrap_or(V::Null))
+        let query = obj(&[("_id", key.clone())]);
+        let result = (|| {
+            self.db_call("findOneAsync", query.clone(), V::Undefined, V::Undefined)?;
+            Ok(self
+                .rows
+                .iter()
+                .find(|r| strict(&r.get("_id"), &key))
+                .cloned()
+                .unwrap_or(V::Null))
+        })();
+        self.detailed_db("findOneAsync", vec![query], &result.as_ref().cloned());
+        result
     }
     fn update(&mut self, key: V, doc: V) -> Eval<()> {
-        self.db_call(
-            "updateAsync",
-            obj(&[("_id", key.clone())]),
-            doc.clone(),
-            obj(&[("upsert", V::Bool(true))]),
-        )?;
-        doc.validate()?;
-        if let Some(i) = self.rows.iter().position(|r| strict(&r.get("_id"), &key)) {
-            self.rows[i] = doc;
-        } else {
-            if self.rows.len() >= MAX_ROWS {
-                return Err(SourceRuleError::Capacity.into());
+        let query = obj(&[("_id", key.clone())]);
+        let options = obj(&[("upsert", V::Bool(true))]);
+        let args = vec![query.clone(), doc.clone(), options.clone()];
+        let result = (|| {
+            self.db_call("updateAsync", query, doc.clone(), options)?;
+            doc.validate()?;
+            if let Some(i) = self.rows.iter().position(|r| strict(&r.get("_id"), &key)) {
+                self.rows[i] = doc;
+            } else {
+                if self.rows.len() >= MAX_ROWS {
+                    return Err(SourceRuleError::Capacity.into());
+                }
+                self.rows.push(doc);
             }
-            self.rows.push(doc);
+            Ok(())
+        })();
+        self.detailed_db(
+            "updateAsync",
+            args,
+            &result.as_ref().map(|_| V::number(1.0)),
+        );
+        result
+    }
+    fn detailed_db(&mut self, method: &str, args: Vec<V>, result: &Result<V, &Fault>) {
+        let mut event = if method == "getDatabase" {
+            obj(&[
+                ("kind", s("database")),
+                ("name", s("orderBooks")),
+                ("method", s(method)),
+                ("args", V::Array(args)),
+            ])
+        } else {
+            obj(&[
+                ("kind", s("db")),
+                ("collection", s("orderBooks")),
+                ("op", s(method.strip_suffix("Async").unwrap_or(method))),
+                ("method", s(method)),
+                ("args", V::Array(args)),
+            ])
+        };
+        match result {
+            Ok(v) => {
+                if set_object(&mut event, "returned", v.clone()).is_err() {
+                    self.detailed_db_exhausted = true;
+                    return;
+                }
+            }
+            Err(Fault::Thrown(e)) => {
+                if set_object(
+                    &mut event,
+                    "thrown",
+                    obj(&[("name", s(&e.name)), ("message", s(&e.message))]),
+                )
+                .is_err()
+                {
+                    self.detailed_db_exhausted = true;
+                    return;
+                }
+            }
+            _ => (),
         }
-        Ok(())
+        let bytes = value_size(&event);
+        if self.detailed_db_calls.len() >= MAX_ROWS * 16
+            || self.detailed_db_bytes.saturating_add(bytes) > MAX_STATE_BYTES
+        {
+            self.detailed_db_exhausted = true;
+            return;
+        }
+        self.detailed_db_bytes += bytes;
+        self.detailed_db_calls.push(event);
     }
     pub(crate) fn load_book_with_alias(
         &mut self,

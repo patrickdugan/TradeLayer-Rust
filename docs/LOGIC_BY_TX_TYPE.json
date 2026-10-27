@@ -1,8 +1,8 @@
 {
   "schema": "tl-logic-reference-review-v1",
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
-  "rustCommit": "3117f5e4ebafb72ca505f5f03725b07cb03c307d",
-  "rustCommitScope": "Immutable parent baseline; runtimePins bind the literal on-chain source settlement and replay owner. Executed checks and committed validation are recorded separately.",
+  "rustCommit": "99210d434528d950890ab459c4a7f2a4cee7caa5",
+  "rustCommitScope": "Immutable parent baseline; runtimePins bind GlobalClearingV2 source execution and policy-preserving TLCR v1/v2 replay. Executed checks and committed validation are recorded separately.",
   "reviewedAtUtc": "2026-10-26T20:09:02Z",
   "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
@@ -75,7 +75,7 @@
     },
     {
       "path": "src/contract_queue_source_owner.rs",
-      "sha256": "aab03dbeb17bd1f5b3e46c998be1ce5b063c0dc74104ff977c6b8a20966e86be",
+      "sha256": "f71b5ca5dfcd083524eeed524ba47bb4b239dc0b1e58a021af3e99798d25c391",
       "lfNormalized": true
     },
     {
@@ -100,7 +100,7 @@
     },
     {
       "path": "src/oracle_source_owner.rs",
-      "sha256": "b094766533c059be5f9db99b8b1bd0034f00ddae1f08a4c7a6d2a26ed52661ef",
+      "sha256": "63eab4d5e77192ce2dd0b502c90860e5d83b39391ee6accb109d1debdc07f77f",
       "lfNormalized": true
     },
     {
@@ -136,22 +136,22 @@
     {
       "path": "src/margin_map_source_owner.rs",
       "lfNormalized": true,
-      "sha256": "8ebd1b6aad4a1e453cd6486cd90d3658dd5506c59ea32f167105996bd3a224d5"
+      "sha256": "d5c88dda2a6c9e27ae8069dd3adbec86ce7bf201baca13e35afdfa98e732b039"
     },
     {
       "path": "src/source_contract_accounting_impl.rs",
       "lfNormalized": true,
-      "sha256": "6e538cd4a20687c6af349bdf064f880f69206106a85f82ec2331110d1bef82e6"
+      "sha256": "055d27976ceb62a1346cc1f5fa2a90d1b840a620d624822fdb965b6c27884953"
     },
     {
       "path": "src/source_contract_aux_impl.rs",
       "lfNormalized": true,
-      "sha256": "cb3b4757606a7cb30b94bb5e9a506d1d0243fbdb73573c05c9427730c34f554d"
+      "sha256": "2a74c286578e2542b58492ef49760706a82820853eeb6b2fc5b36bbcf6429a71"
     },
     {
       "path": "src/source_contract_fee_impl.rs",
       "lfNormalized": true,
-      "sha256": "92b19bb0a0dd37a8d46a0469fc42d422cfb0dfc430587c25f329f9f31011e978"
+      "sha256": "47b9c813f5c44606b95f7b357dcaed83e7309dadac7b38455994a238744acf1c"
     },
     {
       "path": "src/source_contract_oracle_impl.rs",
@@ -161,17 +161,67 @@
     {
       "path": "src/source_contract_replay.rs",
       "lfNormalized": true,
-      "sha256": "16137c487bad089a4e756bba63bb5ce264315530b99f2d524abd0bd74afbd426"
+      "sha256": "a32a1d35fec4d017576975c495959ff84793da95693d5733c667edcb67e8dc4d"
     },
     {
       "path": "src/source_contract_runtime.rs",
       "lfNormalized": true,
-      "sha256": "35aa130eb027d87df7793ecac98e4a98fb2a40901d110fe75f5809ded28faa40"
+      "sha256": "f30b98592659af3c0deca28adcc06150f738a71b167b6b834771a923640ddf5c"
     },
     {
       "path": "src/source_contract_values.rs",
       "lfNormalized": true,
       "sha256": "8c03323f0ea851a2d5097a9c487c974f058f3239c310d9aa730e31ecd362d573"
+    },
+    {
+      "path": "src/source_clearing_funding_impl.rs",
+      "sha256": "2f79010bd663beb694f3de5b90b8071a131244ed9bcb2b9b219cbe14db829cfd",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_insurance_lifecycle_impl.rs",
+      "sha256": "025a0f83af40fafa828dd8d377df6884bad4dd61130be616c881c4ec3a2d95dc",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_insurance_legacy_v1_impl.rs",
+      "sha256": "f9a101b49056023acebaba6360ed15398c1573644993458a190226ec266675fe",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_iou_settlement_impl.rs",
+      "sha256": "12976b0212ca1f34ba0757eb4adff06024370f13049452d610172293ffb113b9",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_clearing_liquidation_impl.rs",
+      "sha256": "55620a27798afb7eefcf762b268bf626e637451dcc741560cb61008e0ea589bf",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_clearing_expiry_impl.rs",
+      "sha256": "fbdd7f658918be116bb35a196f57e13a8b2e601edc850d0f61f383a8e21ecfee",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_clearing_global_impl.rs",
+      "sha256": "a8eb39bcdbb9d476b3d4b8cba32a193ee0d7e55fbf5d662e58632c75eff492b4",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_clearing_mark_settlement_impl.rs",
+      "sha256": "541f5fae00c0533c28c36bb3a43615ec922f258bcbee1c0e57a746dda3937922",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_clearing_supply_impl.rs",
+      "sha256": "d48415eae50eccece346adfb6e58cd117d86c84bf0bdcd674f2f5f2ca9c5fd99",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_contract_history_schedule_impl.rs",
+      "sha256": "9a602ac9defa01eb2064f10ee83450135d5503cda04a423ee16a1f7434ae0793",
+      "lfNormalized": true
     }
   ],
   "catalogExecutionTypes": [
@@ -718,10 +768,10 @@
       "sourceRoute": "decodeTradeContractOnchain â†’ validateTradeContractOnchain â†’ Logic.tradeContractOnchain.",
       "sourceEffects": "Queues an on-chain contract order in Orderbook; immediate matching is deferred.",
       "sourceDefects": "The positional switch shifts params.reduceâ†’isLiq, params.postâ†’reduce, params.stopâ†’post, and params.blockâ†’stop in the actual handler signature. Logic.typeSwitch shifts the order flags: isLiq receives params.reduce, reduce receives params.post, post receives params.stop, and stop receives params.block. Existing typed flag mapping is an explicit conserving difference.",
-      "runtimeScope": "Literal SourceContractRuntime connects actual Types/Validity+Logic flags, queue, placement, matches, Tally collateral, Margin aliases/PNL, mutable Clearing caches, IOUs, fees/rewards/volume/history and reached Oracle/Insurance writes. All32 full-JS scenes/135 observations compare complete collections/live caches. Separately, the conserving V2 owner retains its own funded invariants.",
-      "missingLogic": "Bounded on-chain source execution is verified; this does not complete channels, global clearing/funding/ADL/expiry, native/multiple-contract lifecycle, production NeDB behavior or authenticated historical input. Conserving EconomicState remains a distinct policy. Full per-type parity/proof is unestablished.",
-      "nextTask": "Finish the remaining channel/global-clearing/expiry lifecycle under independently selected source policy and export a complete pre/post/input/context/dependency witness. Preserve explicit finite/resource boundaries and authenticated-input gates.",
-      "evidence": "docs/SOURCE_CONTRACT_RUNTIME.md; docs/SOURCE_CONTRACT_REPLAY.md; tests/source_contract_runtime.rs (135 complete observations), contract_placement_source.rs (109 actions+9 real Tally reclaim actions), margin_map_source_owner.rs (76 actions), contract_settlement_source.rs (27 composed invocations+200 fee cases), source_contract_fees.rs (55 actions), source_contract_oracle.rs (140 actions), source_contract_adapters.rs (33 observations), source_contract_clearing.rs (42 observations). Actual replay compares commands/outcomes/effects/full continuation state; hashes are integrity pins, not authority.",
+      "runtimeScope": "Literal SourceContractRuntime composes original raw18 decode/validity/Logic queue, placement, matches, sole source Tally, actual Margin arena, marks/IOUs/fees/rewards/history. GlobalClearingV2 adds actual block funding, three-pass mark settlement, book/AMM liquidation and ADL, Insurance payouts/withdrawals, source IOU allocation, option expiry and supply checks. Conserving EconomicState remains a distinct policy.",
+      "missingLogic": "Remaining channel transaction settlement and complete native/multiple-contract definition lifecycle, inactive/unreached source methods, production NeDB behavior and authenticated historical input. The implemented source financial graph is bounded; complete per-type parity and a portable fraud-proof witness remain unestablished.",
+      "nextTask": "Finish remaining channel/native lifecycle and portable pre/post/input/context/dependency witness export. Preserve explicit source-policy binding, resource domains and authenticated-input gates.",
+      "evidence": "docs/SOURCE_CLEARING_GLOBAL.md; docs/SOURCE_CLEARING_FUNDING.md; docs/SOURCE_CLEARING_LIQUIDATION.md; docs/SOURCE_CLEARING_EXPIRY.md; docs/SOURCE_CLEARING_SUPPLY.md; docs/SOURCE_INSURANCE_LIFECYCLE.md; docs/SOURCE_IOU_SETTLEMENT.md; actual independent full-module tests plus source_contract_replay_versions original-compiled-v1 fixture. Prior raw18 32 scenes/135 observations remain unchanged.",
       "preStateWitness": "Literal replay binds imported source documents, actual caches, alias identities and module policy through an independently expected command-history head. Source provenance/authentication remains external.",
       "postStateWitness": "Local replay recomputes actual full source post-state and effects. A complete exported cross-repository per-type transition proof is still absent.",
       "inputWitness": "Actual raw18 decode/validity/shifted Logic args execute in Rust. Replay binds original unverified inputs; a signature/chain provenance witness is external.",

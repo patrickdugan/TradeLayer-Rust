@@ -39,7 +39,13 @@ cannot be duplicated, reordered, or moved to another sequence without rejection.
 
 ## Checkpoint admission
 
-`checkpoint()` produces canonical `TLCR` version 1 bytes. `from_checkpoint(bytes,
+`checkpoint()` produces canonical `TLCR` version 2 bytes for the default
+`GlobalClearingV2` runtime. `with_policy(OnchainV1)` retains canonical version 1
+bytes. Restore admits only those two versions and constructs the matching policy;
+version changes cannot reinterpret a stored journal. The versioned bootstrap and
+V2 policy/state fields bind the execution graph. A frozen real TLCR v1 checkpoint
+from compiled commit `99210d434528d950890ab459c4a7f2a4cee7caa5` verifies unchanged
+bytes, previous unknown-dependency outcomes and future V1 continuation. `from_checkpoint(bytes,
 expected_head)` requires an independently retained `SourceContractReplayHead`,
 containing both the command count and 32-byte commitment. Reading that expected
 head from the same untrusted checkpoint defeats the external history pin.
@@ -62,7 +68,12 @@ by an untrusted party.
 The actual state commitment includes the shared source database rows, queue
 checkpoint including pending failures, Margin instances and established object
 aliases, Tally/cache and fee buffer, clearing marks/trades, globals, Insurance,
-source oracle cache/watermarks/initialization, and continuation state. Continuation
+source oracle cache/watermarks/initialization, and continuation state. V2 also
+binds live clearing context arena references, deleverage/liquidation maps, loaded
+contract-series and property metadata, channel owner state/action count, lazy
+vault initialization, Tally initialization/modification flags, the exact raw Contract modification
+flag (with its separately retained effective boolean projection), pending-job
+indicators and unhandled source rejection diagnostics. Continuation
 state includes RNG, UUID/database counters, height/clock, module flags and entry,
 activation, remaining failures, and last decoded parameters. Effects are drained
 and committed separately. Restore rebuilds these values through execution rather

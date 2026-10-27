@@ -46,6 +46,7 @@ impl ContractCore {
         match method {
             "recordTrade" => self.record_clearing_trade(a),
             "isPriceUpdatedForBlockHeight" => self.price_updated(a),
+            _ if self.global_clearing_enabled() => self.source_clearing_global_call(method, a),
             _ => Err(SourceRuleError::UnknownDependency.into()),
         }
     }
@@ -407,6 +408,7 @@ impl ContractCore {
     }
     fn volume_call(&mut self, method: &str, a: &[V]) -> R<V> {
         match method {
+            "getVWAP" if self.global_clearing_enabled() => self.source_funding_volume_vwap(a),
             "getContractUnitLTCValue" => {
                 if self.entry == "volume-first" {
                     return Err(type_error(
@@ -651,6 +653,9 @@ impl ContractCore {
             return Ok(doc);
         }
         if !matches!(method, "addProfit" | "addLoss") {
+            if self.global_clearing_enabled() {
+                return self.source_iou_settlement_call(method, a);
+            }
             return Err(SourceRuleError::UnknownDependency.into());
         };
         let amount = d0(&arg(a, 2))?;

@@ -13,7 +13,7 @@ pub const SOURCE_SHA256: &str = "ad5af4a639a50623319236cce42e8728027109ac3b8ae46
 pub const MAX_INSTANCES: usize = 1024;
 pub const MAX_OBJECTS: usize = 1024;
 pub const MAX_STATE_BYTES: usize = 2 * 1024 * 1024;
-pub const METHODS: [&str; 18] = [
+pub const METHODS: [&str; 39] = [
     "getInstance",
     "loadMarginMap",
     "getPositionForAddress",
@@ -32,6 +32,27 @@ pub const METHODS: [&str; 18] = [
     "calculateMarginRequirement",
     "estimatePNL",
     "writePositionToMap",
+    "mergePositions",
+    "cleanupFlatPositions",
+    "computeMaintenanceMarginRequirement",
+    "isBelowMaintenanceMargin",
+    "updateMargin",
+    "clear",
+    "generateLiquidationOrder",
+    "saveLiquidationOrders",
+    "simpleDeleverage",
+    "calcPriceDelta",
+    "adjustDeleveraging",
+    "dynamicDeleverage",
+    "calculateNetExposure",
+    "executeDeleveraging",
+    "fetchLiquidationVolume",
+    "needsLiquidation",
+    "getMarketPrice",
+    "recordContractTrade",
+    "saveTrade",
+    "getExpiringTickersUpTo",
+    "cleanupExpiredTickersUpTo",
 ];
 type Eval<T> = Result<T, Fault>;
 #[derive(Debug)]
@@ -476,6 +497,15 @@ impl MarginMapSourceOwner {
             ]));
         }
         let p = self.root(f, 0, None)?;
+        self.reduce_position(id, p, f, b)
+    }
+    fn reduce_position<B: SourceBackend>(
+        &mut self,
+        id: u64,
+        p: usize,
+        f: &mut Frame,
+        b: &mut B,
+    ) -> Eval<V> {
         let mut margin = Bn::from(&prop(&self.objects[p], "margin")?)?;
         let required = Bn::from(&prop(&self.objects[p], "contracts")?)?
             .abs()
@@ -535,6 +565,746 @@ impl MarginMapSourceOwner {
         )?;
         self.save(id, arg(&f.args, 4), f, b)?;
         Ok(self.objects[p].clone())
+    }
+    fn merge_positions<B: SourceBackend>(&mut self, id: u64, f: &mut Frame, b: &mut B) -> Eval<V> {
+        let input = arg(&f.args, 0);
+        let positions = match &input {
+            V::String(s) => s.chars().map(|c| V::String(c.to_string())).collect(),
+            _ => source_array(&input, "finalPositions is not iterable")?,
+        };
+        let flatten = if matches!(arg(&f.args, 2), V::Undefined) {
+            true
+        } else {
+            truth(&arg(&f.args, 2))
+        };
+        let mut entries: Vec<(V, usize)> = vec![];
+        for (index, position) in positions.iter().enumerate() {
+            let p = if matches!(input, V::Array(_)) {
+                self.array_root(f, 0, index)?
+            } else {
+                self.alloc(position.clone())?
+            };
+            let pos = &self.objects[p];
+            if flatten {
+                let iou = Bn::from(&or_zero(prop(pos, "iouClaim")?))?;
+                let contracts = prop(pos, "contracts")?;
+                if (!truth(&contracts) || strict(&contracts, &n(0.0))) && iou.zero() {
+                    continue;
+                }
+            }
+            let address = prop(pos, "address")?;
+            primitive(&address)?;
+            let address = if matches!(&address,V::Number(bits)if f64::from_bits(*bits)==0.0) {
+                n(0.0)
+            } else {
+                address
+            };
+            if let Some((_, previous)) = entries.iter_mut().find(|(k, _)| key_eq(k, &address)) {
+                *previous = p;
+            } else {
+                entries.push((address, p));
+            }
+        }
+        self.inst_mut(id)?.margins = entries;
+        self.save(id, V::Undefined, f, b)
+    }
+    fn cleanup_flat<B: SourceBackend>(&mut self, id: u64, f: &mut Frame, b: &mut B) -> Eval<V> {
+        let entries = self.inst(id)?.margins.clone();
+        for (key, p) in entries {
+            let pos = &self.objects[p];
+            let contracts = prop(pos, "contracts")?;
+            if !strict(&contracts, &n(0.0)) {
+                continue;
+            }
+            let margin = prop(pos, "margin")?;
+            if truth(&margin) && !strict(&margin, &n(0.0)) {
+                continue;
+            }
+            let upnl = prop(pos, "unrealizedPNL")?;
+            if truth(&upnl) && !strict(&upnl, &n(0.0)) {
+                continue;
+            }
+            if Bn::from(&or_zero(prop(pos, "iouClaim")?))?.zero() {
+                self.inst_mut(id)?.margins.retain(|(k, _)| !key_eq(k, &key));
+            }
+        }
+        self.save(id, V::Bool(true), f, b)
+    }
+    fn maintenance<B: SourceBackend>(
+        contract: V,
+        position: V,
+        f: &mut Frame,
+        b: &mut B,
+    ) -> Eval<V> {
+        if !truth(&position) {
+            return Ok(n(0.0));
+        }
+        let initial = Self::call(
+            f,
+            b,
+            "Contract.getInitialMargin",
+            vec![contract, prop(&position, "avgPrice")?],
+            true,
+        )?;
+        Ok(
+            Bn::from(&n(number(&or_zero(prop(&position, "contracts")?))?.abs()))?
+                .mul(&Bn::from(&or_zero(initial))?)?
+                .mul(&Bn::from(&s("0.5"))?)?
+                .dp(8)?
+                .value(),
+        )
+    }
+    fn below_maintenance<B: SourceBackend>(
+        &mut self,
+        id: u64,
+        f: &mut Frame,
+        b: &mut B,
+    ) -> Eval<V> {
+        let mut position = arg(&f.args, 2);
+        if !truth(&position) {
+            position = self.inspect_position(id, &arg(&f.args, 0))?;
+        }
+        if !truth(&position) {
+            return Ok(V::Undefined);
+        }
+        let required = Self::maintenance(arg(&f.args, 1), position.clone(), f, b)?;
+        Ok(V::Bool(
+            number(&prop(&position, "margin")?)? < number(&required)?,
+        ))
+    }
+    fn update_margin<B: SourceBackend>(&mut self, id: u64, f: &mut Frame, b: &mut B) -> Eval<V> {
+        let p = if truth(&arg(&f.args, 4)) {
+            self.root(f, 4, None)?
+        } else if let Some(p) = self.cached(id, &arg(&f.args, 0))? {
+            if truth(&self.objects[p]) {
+                p
+            } else {
+                self.alloc(default_margin_position())?
+            }
+        } else {
+            self.alloc(default_margin_position())?
+        };
+        let change = Bn::from(&arg(&f.args, 2))?
+            .add(&Bn::from(&prop(&self.objects[p], "margin")?)?)?
+            .dp(8)?
+            .value();
+        set(&mut self.objects[p], "margin", change.clone())?;
+        self.cache_set(id, prop(&self.objects[p], "address")?, p)?;
+        self.delta(
+            &[
+                arg(&f.args, 0),
+                arg(&f.args, 1),
+                prop(&self.objects[p], "contracts")?,
+                n(0.0),
+                change,
+                n(0.0),
+                n(0.0),
+                s("updateMargin"),
+                arg(&f.args, 3),
+            ],
+            f,
+            b,
+        )?;
+        self.save(id, arg(&f.args, 3), f, b)?;
+        Ok(self.objects[p].clone())
+    }
+    fn clear_position<B: SourceBackend>(&mut self, id: u64, f: &mut Frame, b: &mut B) -> Eval<V> {
+        let p = self.root(f, 0, None)?;
+        if matches!(
+            prop(&self.objects[p], "unrealizedPNL")?,
+            V::Null | V::Undefined
+        ) {
+            set(&mut self.objects[p], "unrealizedPNL", n(0.0))?;
+        }
+        set(&mut self.objects[p], "oldMark", arg(&f.args, 7))?;
+        set(&mut self.objects[p], "lastMark", arg(&f.args, 6))?;
+        let upnl = Bn::from(&arg(&f.args, 2))?
+            .add(&Bn::from(&prop(&self.objects[p], "unrealizedPNL")?)?)?
+            .dp(8)?
+            .value();
+        set(&mut self.objects[p], "unrealizedPNL", upnl)?;
+        self.cache_set(id, prop(&self.objects[p], "address")?, p)?;
+        let outer = f.args.clone();
+        f.args = vec![arg(&outer, 4), self.objects[p].clone()];
+        let written = self.write_position(f, b);
+        f.args = outer;
+        written?;
+        self.delta(
+            &[
+                arg(&f.args, 1),
+                arg(&f.args, 4),
+                prop(&self.objects[p], "contracts")?,
+                n(0.0),
+                n(0.0),
+                arg(&f.args, 2),
+                arg(&f.args, 3),
+                s("markPrice"),
+                arg(&f.args, 5),
+                arg(&f.args, 6),
+            ],
+            f,
+            b,
+        )?;
+        Ok(self.objects[p].clone())
+    }
+    fn generate_liquidation(args: &[V]) -> Eval<V> {
+        let amount = arg(args, 2);
+        if !truth(&amount) || number(&amount)? <= 0.0 {
+            return Ok(V::Null);
+        }
+        let position = arg(args, 0);
+        let contracts = prop(&position, "contracts")?;
+        if strict(&contracts, &n(0.0)) {
+            return Ok(V::Null);
+        }
+        let sell = number(&contracts)? > 0.0;
+        let equity = Bn::from(&or_zero(prop(&position, "margin")?))?
+            .add(&Bn::from(&or_zero(prop(&position, "available")?))?)?;
+        if equity
+            .cmp(&Bn::c(0))
+            .is_some_and(|c| c != core::cmp::Ordering::Greater)
+        {
+            return Ok(V::Null);
+        }
+        let address = prop(&position, "address")?;
+        let bankruptcy = arg(args, 5);
+        if !matches!(bankruptcy, V::BigNumber(_)) {
+            if matches!(bankruptcy, V::Undefined | V::Null) {
+                prop(&bankruptcy, "toNumber")?;
+            }
+            return Err(ty("bankruptcyPrice.toNumber is not a function"));
+        }
+        Ok(obj(&[
+            ("address", address),
+            ("contractId", arg(args, 1)),
+            ("amount", n(number(&amount)?.abs())),
+            ("price", Bn::from(&bankruptcy)?.value()),
+            ("sell", V::Bool(sell)),
+            ("isLiq", V::Bool(true)),
+            ("isMarket", V::Bool(true)),
+            ("blockTime", arg(args, 3)),
+        ]))
+    }
+    fn save_liquidations<B: SourceBackend>(f: &mut Frame, b: &mut B) -> Eval<V> {
+        let db = Self::database(f, b, "liquidations")?;
+        let key = format!(
+            "liquidationOrders-{}-{}",
+            text(&arg(&f.args, 0))?,
+            text(&arg(&f.args, 4))?
+        );
+        let value = obj(&[
+            ("_id", s(&key)),
+            ("order", arg(&f.args, 2)),
+            ("position", arg(&f.args, 1)),
+            ("reason", arg(&f.args, 3)),
+            ("blockHeight", arg(&f.args, 4)),
+            ("liquidationLoss", arg(&f.args, 5)),
+            ("contractsDeleveraged", arg(&f.args, 6)),
+            ("realizedLiquidation", arg(&f.args, 7)),
+            ("deleverage", arg(&f.args, 8)),
+            ("info", arg(&f.args, 9)),
+        ]);
+        Self::db(
+            f,
+            b,
+            &db,
+            "updateAsync",
+            vec![
+                obj(&[("_id", s(&key))]),
+                obj(&[("$set", value)]),
+                obj(&[("upsert", V::Bool(true))]),
+            ],
+        )?;
+        Ok(V::Undefined)
+    }
+    fn price_delta(args: &[V]) -> Eval<V> {
+        let contracts = Bn::from(&arg(args, 0))?;
+        let from = Bn::from(&arg(args, 1))?;
+        let to = Bn::from(&arg(args, 2))?;
+        let supplied = arg(args, 4);
+        let notional = Bn::from(&if truth(&supplied) { supplied } else { n(1.0) })?;
+        let delta = if truth(&arg(args, 3)) {
+            Bn::c(1)
+                .div(&from)?
+                .sub(&Bn::c(1).div(&to)?)?
+                .mul(&contracts)?
+                .mul(&notional)?
+        } else {
+            to.sub(&from)?.mul(&contracts)?.mul(&notional)?
+        };
+        Ok(if truth(&arg(args, 5)) {
+            delta
+        } else {
+            delta.neg()
+        }
+        .dp(8)?
+        .tagged())
+    }
+    fn adjust_deleveraging<B: SourceBackend>(
+        &mut self,
+        id: u64,
+        f: &mut Frame,
+        b: &mut B,
+    ) -> Eval<V> {
+        let requested = number(&arg(&f.args, 4))?;
+        let cache = arg(&f.args, 0);
+        let value = prop(&cache, &text(&arg(&f.args, 1))?)?;
+        if requested == 0.0 || requested.is_nan() || requested <= 0.0 {
+            return Ok(value);
+        }
+        if !truth(&value) || !truth(&prop(&value, "contracts")?) {
+            return Ok(value);
+        }
+        let index = number(&arg(&f.args, 1))?;
+        if !index.is_finite() || index < 0.0 || index.fract() != 0.0 {
+            return Err(SourceRuleError::UnsupportedNumericDomain.into());
+        }
+        let p = self.array_root(f, 0, index as usize)?;
+        self.adjust_position(id, p, f, b)
+    }
+    fn adjust_position<B: SourceBackend>(
+        &mut self,
+        id: u64,
+        p: usize,
+        f: &mut Frame,
+        b: &mut B,
+    ) -> Eval<V> {
+        let requested = number(&arg(&f.args, 4))?;
+        if requested == 0.0
+            || requested.is_nan()
+            || requested <= 0.0
+            || !truth(&prop(&self.objects[p], "contracts")?)
+        {
+            return Ok(self.objects[p].clone());
+        }
+        let before = number(&prop(&self.objects[p], "contracts")?)?;
+        let maximum = before.abs();
+        if maximum <= 0.0 {
+            return Ok(self.objects[p].clone());
+        }
+        let effective = js_min(requested, maximum);
+        let change = if before > 0.0 { -effective } else { effective };
+        let after = before + change;
+        let stored_after = if (before > 0.0 && after < 0.0) || (before < 0.0 && after > 0.0) {
+            0.0
+        } else {
+            after
+        };
+        set(&mut self.objects[p], "contracts", n(stored_after))?;
+        let initial = Self::call(
+            f,
+            b,
+            "Contract.getInitialMargin",
+            vec![arg(&f.args, 3), arg(&f.args, 7)],
+            true,
+        )?;
+        let collateral = Self::call(
+            f,
+            b,
+            "Contract.getCollateralId",
+            vec![arg(&f.args, 3)],
+            true,
+        )?;
+        let outer = f.args.clone();
+        f.args = vec![
+            self.objects[p].clone(),
+            n(change.abs()),
+            initial,
+            arg(&outer, 3),
+            arg(&outer, 2),
+            arg(&outer, 5),
+            V::Bool(false),
+            n(0.0),
+        ];
+        let reduced = self.reduce_position(id, p, f, b);
+        f.args = outer;
+        let mut reduction = reduced?;
+        let sufficient = Self::call(
+            f,
+            b,
+            "Tally.hasSufficientMargin",
+            vec![arg(&f.args, 2), collateral.clone(), reduction.clone()],
+            true,
+        )?;
+        if !truth(&prop(&sufficient, "hasSufficient")?) {
+            reduction = Bn::from(&reduction)?
+                .sub(&Bn::from(&prop(&sufficient, "shortfall")?)?)?
+                .dp(8)?
+                .value();
+        }
+        if !strict(&reduction, &n(0.0)) {
+            Self::call(
+                f,
+                b,
+                "Tally.updateBalance",
+                vec![
+                    arg(&f.args, 2),
+                    collateral,
+                    reduction.clone(),
+                    n(0.0),
+                    n(-number(&reduction)?),
+                    n(0.0),
+                    s("contractDelevMarginReturn"),
+                    arg(&f.args, 6),
+                ],
+                true,
+            )?;
+        }
+        let delta = vec![
+            arg(&f.args, 2),
+            arg(&f.args, 3),
+            n(after),
+            n(change),
+            n(-number(&reduction)?),
+            n(0.0),
+            n(0.0),
+            s("deleverage"),
+        ];
+        self.delta(&delta, f, b)?;
+        if strict(&prop(&self.objects[p], "contracts")?, &n(0.0)) {
+            set(&mut self.objects[p], "bankruptcyPrice", V::Null)?;
+            set(&mut self.objects[p], "averagePrice", V::Null)?;
+            set(&mut self.objects[p], "unrealizedPNL", n(0.0))?;
+        }
+        self.delta(&delta, f, b)?;
+        Ok(self.objects[p].clone())
+    }
+    fn simple_deleverage<B: SourceBackend>(
+        &mut self,
+        id: u64,
+        f: &mut Frame,
+        b: &mut B,
+    ) -> Eval<V> {
+        let db = Self::database(f, b, "liquidations")?;
+        let mut result = obj(&[
+            ("contractId", arg(&f.args, 1)),
+            ("liquidatingAddress", arg(&f.args, 5)),
+            ("attemptedDeleverage", arg(&f.args, 2)),
+            ("totalDeleveraged", n(0.0)),
+            ("counterparties", V::Array(vec![])),
+            ("poolAssignments", V::Array(vec![])),
+        ]);
+        let mut remaining = Bn::from(&or_zero(arg(&f.args, 2)))?;
+        let positions = source_array(&arg(&f.args, 0), "positionCache.map is not a function")?;
+        let mut cps: Vec<(usize, V, Bn)> = vec![];
+        for (index, position) in positions.iter().enumerate() {
+            let mut cp = spread(position)?;
+            set(&mut cp, "_i", n(index as f64))?;
+            if strict(&prop(&cp, "address")?, &arg(&f.args, 5)) {
+                continue;
+            }
+            let count = number(&prop(&cp, "contracts")?)?;
+            if !(if truth(&arg(&f.args, 3)) {
+                count < 0.0
+            } else {
+                count > 0.0
+            }) {
+                continue;
+            }
+            let size = Bn::from(&or_zero(prop(&cp, "contracts")?))?;
+            let last = Bn::from(&or_zero(prop(&cp, "lastMark")?))?;
+            let mark = Bn::from(&or_zero(arg(&f.args, 9)))?;
+            let mut pnl = Bn::c(0);
+            if bn_gt(&last, &Bn::c(0)) && bn_gt(&mark, &Bn::c(0)) {
+                pnl = if !truth(&arg(&f.args, 6)) {
+                    size.mul(&mark.sub(&last)?)?
+                        .mul(&Bn::from(&arg(&f.args, 7))?)?
+                } else {
+                    size.mul(&Bn::c(1).div(&last)?.sub(&Bn::c(1).div(&mark)?)?)?
+                };
+            }
+            set(&mut cp, "movePnl", pnl.tagged())?;
+            cps.push((index, cp, pnl));
+        }
+        if cps.iter().any(|(_, _, pnl)| bn_gt(pnl, &Bn::c(0))) {
+            cps.retain(|(_, _, pnl)| bn_gt(pnl, &Bn::c(0)));
+        } else {
+            sort_counterparties(&mut cps, false)?;
+        }
+        // The source sorts once inside the winners branch and once again
+        // unconditionally. Its comparator is pure; stable ordering is retained.
+        sort_counterparties(&mut cps, true)?;
+        let mut counterparties = vec![];
+        let mut returned_positions = vec![];
+        let mut total = 0.0;
+        for (index, cp, pnl) in cps {
+            if remaining
+                .cmp(&Bn::c(0))
+                .is_some_and(|c| c != core::cmp::Ordering::Greater)
+            {
+                break;
+            }
+            let abs = number(&prop(&cp, "contracts")?)?.abs();
+            if abs <= 0.0 {
+                continue;
+            }
+            let matched = js_min(abs, remaining.f64());
+            let p = self.array_root(f, 0, index)?;
+            let outer = f.args.clone();
+            f.args = vec![
+                arg(&outer, 0),
+                n(index as f64),
+                prop(&cp, "address")?,
+                arg(&outer, 1),
+                n(matched),
+                arg(&outer, 3),
+                arg(&outer, 8),
+                arg(&outer, 4),
+            ];
+            let adjusted = self.adjust_position(id, p, f, b);
+            f.args = outer;
+            let updated = adjusted?;
+            remaining = remaining.sub(&Bn::from(&n(matched))?)?;
+            total += matched;
+            let key = format!(
+                "adl-{}-{}-{}-{}",
+                text(&arg(&f.args, 1))?,
+                text(&arg(&f.args, 8))?,
+                text(&arg(&f.args, 5))?,
+                text(&prop(&cp, "address")?)?
+            );
+            let after = if matches!(updated, V::Undefined | V::Null) {
+                n(0.0)
+            } else {
+                let v = prop(&updated, "contracts")?;
+                if matches!(v, V::Undefined | V::Null) {
+                    n(0.0)
+                } else {
+                    v
+                }
+            };
+            Self::db(
+                f,
+                b,
+                &db,
+                "updateAsync",
+                vec![
+                    obj(&[("_id", s(&key))]),
+                    obj(&[
+                        ("_id", s(&key)),
+                        ("block", arg(&f.args, 8)),
+                        ("contractId", arg(&f.args, 1)),
+                        ("liquidatingAddress", arg(&f.args, 5)),
+                        ("counterparty", prop(&cp, "address")?),
+                        ("contractsReduced", n(matched)),
+                        ("contractsBefore", prop(&cp, "contracts")?),
+                        ("contractsAfter", after),
+                        ("markPrice", arg(&f.args, 9)),
+                        ("liqPrice", arg(&f.args, 4)),
+                        ("reason", s("autoDeleverage")),
+                    ]),
+                    obj(&[("upsert", V::Bool(true))]),
+                ],
+            )?;
+            counterparties.push(obj(&[
+                ("address", prop(&cp, "address")?),
+                ("matchSize", n(matched)),
+                ("updatedPosition", updated),
+                ("_adlAbsPos", n(abs)),
+                ("_adlMovePnl", pnl.tagged()),
+            ]));
+            returned_positions.push(p);
+        }
+        let pool = Bn::from(&or_zero(arg(&f.args, 11)))?;
+        let mut assignments = vec![];
+        if bn_gt(&pool, &Bn::c(0)) && !counterparties.is_empty() {
+            let mut denominator = Bn::c(0);
+            for cp in &counterparties {
+                let raw = prop(cp, "_adlAbsPos")?;
+                let count = if truth(&raw) { raw } else { n(1.0) };
+                let per = Bn::from(&or_zero(prop(cp, "_adlMovePnl")?))?
+                    .div(&Bn::from(&or_zero(count))?)?;
+                denominator =
+                    denominator.add(&per.mul(&Bn::from(&or_zero(prop(cp, "matchSize")?))?)?)?;
+            }
+            let total_bn = Bn::from(&or_zero(n(total)))?;
+            for cp in &mut counterparties {
+                let mut share = Bn::c(0);
+                if bn_gt(&denominator, &Bn::c(0)) {
+                    let raw = prop(cp, "_adlAbsPos")?;
+                    let count = if truth(&raw) { raw } else { n(1.0) };
+                    let weight = Bn::from(&or_zero(prop(cp, "_adlMovePnl")?))?
+                        .div(&Bn::from(&or_zero(count))?)?
+                        .mul(&Bn::from(&or_zero(prop(cp, "matchSize")?))?)?;
+                    share = pool.mul(&weight.div(&denominator)?)?;
+                } else if bn_gt(&total_bn, &Bn::c(0)) {
+                    share =
+                        pool.mul(&Bn::from(&or_zero(prop(cp, "matchSize")?))?.div(&total_bn)?)?;
+                }
+                assignments.push(obj(&[
+                    ("address", prop(cp, "address")?),
+                    ("poolShare", share.dp(8)?.value()),
+                ]));
+                if let V::Object(fields) = cp {
+                    fields.retain(|(k, _)| k != "_adlAbsPos" && k != "_adlMovePnl");
+                }
+            }
+        }
+        for (cp, p) in counterparties.iter_mut().zip(returned_positions) {
+            set(cp, "updatedPosition", self.objects[p].clone())?;
+        }
+        set(&mut result, "totalDeleveraged", n(total))?;
+        set(&mut result, "counterparties", V::Array(counterparties))?;
+        set(&mut result, "poolAssignments", V::Array(assignments))?;
+        Ok(result)
+    }
+    fn dynamic_deleverage<B: SourceBackend>(&mut self, f: &mut Frame, b: &mut B) -> Eval<V> {
+        Bn::from(&arg(&f.args, 2))?;
+        let map = self.load(arg(&f.args, 0), V::Undefined, f, b)?;
+        if matches!(map, V::Null | V::Undefined) {
+            prop(&map, "getAllPositions")?;
+        }
+        self.all_positions(V::Undefined, V::Undefined, f, b)?;
+        Err(thrown("ReferenceError", "ContractRegistry is not defined"))
+    }
+    fn execute_deleveraging<B: SourceBackend>(&mut self, f: &mut Frame, b: &mut B) -> Eval<V> {
+        let contract = arg(&f.args, 1);
+        let loaded = self.load(contract.clone(), V::Undefined, f, b)?;
+        if matches!(loaded, V::Null | V::Undefined) {
+            prop(&loaded, "getPositionForAddress")?;
+        }
+        let id = number(&loaded.get("sourceMarginInstance"))? as u64;
+        let before_instances = self.instances.len();
+        let position = self.get_position(arg(&f.args, 0), contract, f, b)?;
+        if !truth(&position) {
+            return Ok(V::Undefined);
+        }
+        // getPositionForAddress independently loaded another map. Reuse the
+        // actual returned object's identity from that load, not an equal row.
+        let p = if self.instances.len() > before_instances {
+            let last = self.instances.len() as u64;
+            let address = arg(&f.args, 0);
+            let entries = self.inst(last)?.margins.clone();
+            let found = entries.iter().find(|(key, _)| strict(key, &address))
+                .or_else(|| entries.iter().find(|(key, _)| {
+                    matches!((&address,key),(V::String(a),V::String(k))
+                        if ["ltc1","tltc1","bc1","tb1"].iter().any(|p|a.starts_with(p)) && a.to_lowercase()==k.to_lowercase())
+                }));
+            if let Some((_, p)) = found {
+                *p
+            } else {
+                self.alloc(position)?
+            }
+        } else {
+            self.alloc(position)?
+        };
+        let size = arg(&f.args, 2);
+        let change = if truth(&arg(&f.args, 3)) {
+            size
+        } else {
+            n(-number(&size)?)
+        };
+        let contracts = Bn::from(&prop(&self.objects[p], "contracts")?)?
+            .add(&Bn::from(&change)?)?
+            .value();
+        set(&mut self.objects[p], "contracts", contracts.clone())?;
+        if strict(&contracts, &n(0.0)) {
+            set(&mut self.objects[p], "liqPrice", V::Null)?;
+            set(&mut self.objects[p], "bankruptcyPrice", V::Null)?;
+        }
+        self.cache_set(id, prop(&self.objects[p], "address")?, p)?;
+        self.save(id, arg(&f.args, 5), f, b)
+    }
+    fn fetch_liquidation_volume<B: SourceBackend>(f: &mut Frame, b: &mut B) -> Eval<V> {
+        let db = Self::database(f, b, "liquidations")?;
+        let key = format!(
+            "liquidationOrders-{}-{}",
+            text(&arg(&f.args, 1))?,
+            text(&arg(&f.args, 0))?
+        );
+        let liquidations = match Self::db(f, b, &db, "findOneAsync", vec![obj(&[("_id", s(&key))])])
+        {
+            Err(Fault::Thrown(_)) => V::Array(vec![]),
+            other => other?,
+        };
+        let mut count = Bn::c(0);
+        let mut orders = Bn::c(0);
+        let mut bank = Bn::c(0);
+        let mut average_bankruptcy = Bn::c(0);
+        if truth(&liquidations) && number(&prop(&liquidations, "length")?)? > 0.0 {
+            for liquidation in
+                source_array(&liquidations, "liquidations.forEach is not a function")?
+            {
+                orders = orders.add(&Bn::c(1))?;
+                count = count.add(&Bn::from(&prop(&liquidation, "contractCount")?)?)?;
+                bank = bank.add(
+                    &Bn::from(&prop(&liquidation, "size")?)?
+                        .mul(&Bn::from(&prop(&liquidation, "bankruptcyPrice")?)?)?,
+                )?;
+                // avgBankrupcyPrice and zero-valued buy/sell counters are
+                // calculated but never returned by the pinned source.
+                average_bankruptcy =
+                    average_bankruptcy.add(&Bn::from(&prop(&liquidation, "bankruptcyPrice")?)?)?;
+            }
+        }
+        bank = bank.div(&count)?;
+        let _unused_average = average_bankruptcy.div(&orders)?;
+        let db = Self::database(f, b, "tradeHistory")?;
+        let trades = Self::db(f, b, &db, "findAsync", vec![])?;
+        let mut filled = Bn::c(0);
+        let mut vwap = Bn::c(0);
+        if matches!(trades, V::Null | V::Undefined) {
+            prop(&trades, "forEach")?;
+        }
+        for trade in source_array(&trades, "trades.forEach is not a function")? {
+            let inner = prop(&trade, "trade")?;
+            if strict(&prop(&inner, "isLiq")?, &V::Bool(true))
+                && loose_equal(&prop(&trade, "blockHeight")?, &arg(&f.args, 0))?
+            {
+                filled = filled.add(&Bn::from(&prop(&inner, "amount")?)?)?;
+                vwap = vwap.add(&Bn::from(&prop(&inner, "tradePrice")?)?)?;
+            }
+        }
+        vwap = vwap.div(&filled)?;
+        Ok(obj(&[
+            ("liqTotal", count.value()),
+            ("liqOrders", orders.value()),
+            ("unfilled", count.sub(&filled)?.value()),
+            ("bankruptcyVWAPPreFill", bank.value()),
+            ("filledVWAP", vwap.value()),
+            ("lossDelta", bank.sub(&vwap)?.value()),
+        ]))
+    }
+    fn record_trade<B: SourceBackend>(f: &mut Frame, b: &mut B) -> Eval<V> {
+        let trade = arg(&f.args, 0);
+        let record = obj(&[
+            (
+                "key",
+                s(&format!("contract-{}", text(&prop(&trade, "contractId")?)?)),
+            ),
+            ("type", s("contract")),
+            ("trade", trade),
+            ("blockHeight", arg(&f.args, 1)),
+            ("sellerTx", arg(&f.args, 2)),
+            ("buyerTx", arg(&f.args, 3)),
+        ]);
+        Self::save_trade(record, f, b)
+    }
+    fn save_trade<B: SourceBackend>(record: V, f: &mut Frame, b: &mut B) -> Eval<V> {
+        let db = Self::database(f, b, "tradeHistory")?;
+        let uuid = Self::call(f, b, "uuid.v4", vec![], false)?;
+        let key = format!(
+            "{}-{}-{}",
+            text(&prop(&record, "key")?)?,
+            text(&uuid)?,
+            text(&prop(&record, "blockHeight")?)?
+        );
+        let mut document = obj(&[("_id", s(&key))]);
+        for (k, v) in object_fields(&spread(&record)?)? {
+            set(&mut document, &k, v)?;
+        }
+        Self::db(
+            f,
+            b,
+            &db,
+            "updateAsync",
+            vec![
+                obj(&[("_id", s(&key))]),
+                document,
+                obj(&[("upsert", V::Bool(true))]),
+            ],
+        )?;
+        Ok(V::Undefined)
     }
     fn run<B: SourceBackend>(
         &mut self,
@@ -597,6 +1367,21 @@ impl MarginMapSourceOwner {
                 return Ok(change.mul(&Bn::from(&arg(&f.args, 0))?)?.dp(8)?.value());
             }
             "recordMarginMapDelta" => return self.delta(&f.args.clone(), f, b),
+            "computeMaintenanceMarginRequirement" => {
+                return Self::maintenance(arg(&f.args, 0), arg(&f.args, 1), f, b)
+            }
+            "generateLiquidationOrder" => return Self::generate_liquidation(&f.args),
+            "calcPriceDelta" => return Self::price_delta(&f.args),
+            "calculateNetExposure" => {
+                return Err(thrown("ReferenceError", "ContractRegistry is not defined"))
+            }
+            "getMarketPrice" => {
+                return Err(thrown("ReferenceError", "ContractsRegistry is not defined"))
+            }
+            "fetchLiquidationVolume" => return Self::fetch_liquidation_volume(f, b),
+            "saveLiquidationOrders" => return Self::save_liquidations(f, b),
+            "recordContractTrade" => return Self::record_trade(f, b),
+            "saveTrade" => return Self::save_trade(arg(&f.args, 0), f, b),
             _ => {}
         }
         let id = receiver.ok_or(SourceRuleError::InvalidInput)?;
@@ -614,6 +1399,69 @@ impl MarginMapSourceOwner {
             "reduceMargin" => self.reduce(id, f, b),
             "feeMarginReduce" => self.fee_reduce(id, f, b),
             "writePositionToMap" => self.write_position(f, b),
+            "mergePositions" => self.merge_positions(id, f, b),
+            "cleanupFlatPositions" => self.cleanup_flat(id, f, b),
+            "isBelowMaintenanceMargin" => self.below_maintenance(id, f, b),
+            "updateMargin" => self.update_margin(id, f, b),
+            "clear" => self.clear_position(id, f, b),
+            "adjustDeleveraging" => self.adjust_deleveraging(id, f, b),
+            "simpleDeleverage" => self.simple_deleverage(id, f, b),
+            "dynamicDeleverage" => self.dynamic_deleverage(f, b),
+            "executeDeleveraging" => self.execute_deleveraging(f, b),
+            "needsLiquidation" => {
+                let key = text(&prop(&arg(&f.args, 0), "id")?)?;
+                if [
+                    "size",
+                    "get",
+                    "set",
+                    "has",
+                    "delete",
+                    "clear",
+                    "entries",
+                    "keys",
+                    "values",
+                    "forEach",
+                    "constructor",
+                    "__proto__",
+                    "toString",
+                    "valueOf",
+                    "hasOwnProperty",
+                    "isPrototypeOf",
+                    "propertyIsEnumerable",
+                    "toLocaleString",
+                    "__defineGetter__",
+                    "__defineSetter__",
+                    "__lookupGetter__",
+                    "__lookupSetter__",
+                ]
+                .contains(&key.as_str())
+                {
+                    Ok(V::Bool(false))
+                } else {
+                    Err(ty("Cannot convert undefined or null to object"))
+                }
+            }
+            "getExpiringTickersUpTo" => {
+                // These indexes are genuinely empty constructor-owned Maps.
+                // loadMarginMap hydrates positions only; no implemented method
+                // populates an option index. Do not infer it from pos.options.
+                let V::Array(entries) = self.instance_value(id)?.get("expiryIndex") else {
+                    return Err(SourceRuleError::InvalidInput.into());
+                };
+                let mut out = vec![];
+                for entry in entries {
+                    if number(&prop(&entry, "0")?)? <= number(&arg(&f.args, 0))? {
+                        out.extend(source_array(&prop(&entry, "1")?, "set is not iterable")?);
+                    }
+                }
+                Ok(V::Array(out))
+            }
+            "cleanupExpiredTickersUpTo" => {
+                // Constructor-empty indexes have no expiry/ticker/OI entries
+                // to delete. Index mutators remain explicit UnknownMethod.
+                self.instance_value(id)?;
+                Ok(V::Undefined)
+            }
             _ => Err(SourceRuleError::UnknownMethod.into()),
         }
     }
@@ -709,10 +1557,44 @@ impl MarginMapSourceOwner {
         aliases: &[PositionAlias],
         backend: &mut B,
     ) -> Result<SourceEvaluation, SourceRuleError> {
+        self.evaluate_detailed_with_array_aliases(instance, call, aliases, &[], backend)
+    }
+    /// Array-element aliases require the same explicit established-reference
+    /// knowledge as root position aliases. Equal copied values are insufficient.
+    pub fn evaluate_detailed_with_array_aliases<B: SourceBackend>(
+        &mut self,
+        instance: Option<u64>,
+        call: &SourceCall,
+        aliases: &[PositionAlias],
+        array_aliases: &[PositionArrayAlias],
+        backend: &mut B,
+    ) -> Result<SourceEvaluation, SourceRuleError> {
+        self.evaluate_detailed_with_object_aliases(
+            instance,
+            call,
+            aliases,
+            array_aliases,
+            &[],
+            backend,
+        )
+    }
+    pub fn evaluate_detailed_with_object_aliases<B: SourceBackend>(
+        &mut self,
+        instance: Option<u64>,
+        call: &SourceCall,
+        aliases: &[PositionAlias],
+        array_aliases: &[PositionArrayAlias],
+        object_aliases: &[PositionObjectAlias],
+        backend: &mut B,
+    ) -> Result<SourceEvaluation, SourceRuleError> {
         if !METHODS.contains(&call.method.as_str()) {
             return Err(SourceRuleError::UnknownMethod);
         }
-        if call.arguments.len() > 16 || aliases.len() > 16 {
+        if call.arguments.len() > 16
+            || aliases.len() > 16
+            || array_aliases.len() > MAX_OBJECTS
+            || object_aliases.len() > MAX_OBJECTS
+        {
             return Err(SourceRuleError::Capacity);
         }
         for a in &call.arguments {
@@ -724,6 +1606,8 @@ impl MarginMapSourceOwner {
         let mut f = Frame {
             args: call.arguments.clone(),
             aliases: aliases.to_vec(),
+            array_aliases: array_aliases.to_vec(),
+            object_aliases: object_aliases.to_vec(),
             ..Frame::default()
         };
         for alias in &f.aliases {
@@ -732,6 +1616,46 @@ impl MarginMapSourceOwner {
                 return Err(SourceRuleError::InvalidInput);
             }
             f.args[alias.argument] = value;
+        }
+        for alias in &f.array_aliases {
+            let value = self.inspect_position(alias.instance, &alias.address)?;
+            if matches!(value, V::Undefined) {
+                return Err(SourceRuleError::InvalidInput);
+            }
+            let Some(V::Array(array)) = f.args.get_mut(alias.argument) else {
+                return Err(SourceRuleError::InvalidInput);
+            };
+            let Some(element) = array.get_mut(alias.index) else {
+                return Err(SourceRuleError::InvalidInput);
+            };
+            *element = value;
+        }
+        for (index, alias) in f.object_aliases.iter().enumerate() {
+            if f.object_aliases[..index].iter().any(|previous| {
+                previous.argument == alias.argument && previous.index == alias.index
+            }) || (alias.index.is_none()
+                && f.aliases.iter().any(|a| a.argument == alias.argument))
+                || f.array_aliases
+                    .iter()
+                    .any(|a| a.argument == alias.argument && Some(a.index) == alias.index)
+            {
+                return Err(SourceRuleError::InvalidInput);
+            }
+            let value = self.inspect_position_object(alias.object)?;
+            let Some(argument) = f.args.get_mut(alias.argument) else {
+                return Err(SourceRuleError::InvalidInput);
+            };
+            if let Some(index) = alias.index {
+                let V::Array(array) = argument else {
+                    return Err(SourceRuleError::InvalidInput);
+                };
+                let Some(element) = array.get_mut(index) else {
+                    return Err(SourceRuleError::InvalidInput);
+                };
+                *element = value;
+            } else {
+                *argument = value;
+            }
         }
         let result = self.run(instance, &call.method, &mut f, backend);
         for (index, field, p) in &f.roots {
@@ -743,6 +1667,15 @@ impl MarginMapSourceOwner {
                     *v = self.objects[*p].clone()
                 }
             }
+        }
+        for (argument, index, p) in &f.array_roots {
+            let Some(V::Array(array)) = f.args.get_mut(*argument) else {
+                return Err(SourceRuleError::InvalidInput);
+            };
+            let Some(element) = array.get_mut(*index) else {
+                return Err(SourceRuleError::InvalidInput);
+            };
+            *element = self.objects[*p].clone();
         }
         self.state_value()?.validate()?;
         let outcome = match result {
@@ -774,19 +1707,71 @@ impl MarginMapSourceOwner {
         aliases: &[PositionAlias],
         backend: &mut B,
     ) -> Result<DependencyReturn, SourceRuleError> {
+        self.invoke_source_instance_with_array_aliases(
+            instance,
+            method,
+            args,
+            aliases,
+            &[],
+            backend,
+        )
+    }
+    pub fn invoke_source_instance_with_array_aliases<B: SourceBackend>(
+        &mut self,
+        instance: Option<u64>,
+        method: &str,
+        args: &[V],
+        aliases: &[PositionAlias],
+        array_aliases: &[PositionArrayAlias],
+        backend: &mut B,
+    ) -> Result<DependencyReturn, SourceRuleError> {
+        self.invoke_source_instance_with_object_aliases(
+            instance,
+            method,
+            args,
+            aliases,
+            array_aliases,
+            &[],
+            backend,
+        )
+    }
+    #[allow(clippy::too_many_arguments)]
+    pub fn invoke_source_instance_with_object_aliases<B: SourceBackend>(
+        &mut self,
+        instance: Option<u64>,
+        method: &str,
+        args: &[V],
+        aliases: &[PositionAlias],
+        array_aliases: &[PositionArrayAlias],
+        object_aliases: &[PositionObjectAlias],
+        backend: &mut B,
+    ) -> Result<DependencyReturn, SourceRuleError> {
+        let synchronous = matches!(
+            method,
+            "calculateLiquidationPrice"
+                | "calculateMarginRequirement"
+                | "estimatePNL"
+                | "generateLiquidationOrder"
+                | "calcPriceDelta"
+                | "needsLiquidation"
+        );
         Ok(
             match self
-                .evaluate_detailed(
+                .evaluate_detailed_with_object_aliases(
                     instance,
                     &SourceCall {
                         method: method.into(),
                         arguments: args.to_vec(),
                     },
                     aliases,
+                    array_aliases,
+                    object_aliases,
                     backend,
                 )?
                 .outcome
             {
+                SourceOutcome::Returned(v) if synchronous => DependencyReturn::Immediate(v),
+                SourceOutcome::Thrown(e) if synchronous => DependencyReturn::Throw(e),
                 SourceOutcome::Returned(v) => DependencyReturn::Pending(v),
                 SourceOutcome::Thrown(e) => DependencyReturn::PendingThrow(e),
             },
@@ -1113,6 +2098,117 @@ fn prop(v: &V, key: &str) -> Eval<V> {
         })
     }
 }
+fn default_margin_position() -> V {
+    obj(&[
+        ("contracts", n(0.0)),
+        ("margin", n(0.0)),
+        ("unrealizedPNL", n(0.0)),
+        ("avgPrice", n(0.0)),
+    ])
+}
+fn source_array(v: &V, message: &str) -> Eval<Vec<V>> {
+    match v {
+        V::Array(a) => Ok(a.clone()),
+        V::Null | V::Undefined if message.contains(".map") => {
+            prop(v, "map")?;
+            unreachable!()
+        }
+        V::Null | V::Undefined if message.contains(".forEach") => {
+            prop(v, "forEach")?;
+            unreachable!()
+        }
+        _ => Err(ty(message)),
+    }
+}
+fn object_fields(v: &V) -> Eval<Vec<(String, V)>> {
+    match v {
+        V::Object(fields) => Ok(fields.clone()),
+        _ => Err(SourceRuleError::UnsupportedNumericDomain.into()),
+    }
+}
+fn spread(v: &V) -> Eval<V> {
+    Ok(match v {
+        V::Object(fields) => V::Object(fields.clone()),
+        V::Array(a) => V::Object(
+            a.iter()
+                .enumerate()
+                .map(|(i, v)| (i.to_string(), v.clone()))
+                .collect(),
+        ),
+        V::String(s) if s.is_ascii() => V::Object(
+            s.chars()
+                .enumerate()
+                .map(|(i, v)| (i.to_string(), V::String(v.to_string())))
+                .collect(),
+        ),
+        V::String(_) | V::BigNumber(_) => {
+            return Err(SourceRuleError::UnsupportedNumericDomain.into())
+        }
+        _ => obj(&[]),
+    })
+}
+fn bn_gt(a: &Bn, b: &Bn) -> bool {
+    a.cmp(b) == Some(core::cmp::Ordering::Greater)
+}
+fn sort_counterparties(cps: &mut [(usize, V, Bn)], by_pnl: bool) -> Eval<()> {
+    let mut fault = None;
+    cps.sort_by(|(_, a, ap), (_, b, bp)| {
+        let comparison = (|| {
+            let ap = ap.abs();
+            let bp = bp.abs();
+            let difference = if by_pnl && ap.cmp(&bp) != Some(core::cmp::Ordering::Equal) {
+                bp.sub(&ap)?.f64()
+            } else {
+                number(&prop(b, "contracts")?)?.abs() - number(&prop(a, "contracts")?)?.abs()
+            };
+            Ok(difference
+                .partial_cmp(&0.0)
+                .unwrap_or(core::cmp::Ordering::Equal))
+        })();
+        match comparison {
+            Ok(ordering) => ordering,
+            Err(e) => {
+                fault = Some(e);
+                core::cmp::Ordering::Equal
+            }
+        }
+    });
+    if let Some(e) = fault {
+        Err(e)
+    } else {
+        Ok(())
+    }
+}
+fn js_min(a: f64, b: f64) -> f64 {
+    if a.is_nan() || b.is_nan() {
+        f64::NAN
+    } else if a == 0.0 && b == 0.0 {
+        if a.is_sign_negative() || b.is_sign_negative() {
+            -0.0
+        } else {
+            0.0
+        }
+    } else {
+        a.min(b)
+    }
+}
+fn loose_equal(a: &V, b: &V) -> Eval<bool> {
+    if matches!(a, V::Null | V::Undefined) || matches!(b, V::Null | V::Undefined) {
+        return Ok(matches!(a, V::Null | V::Undefined) && matches!(b, V::Null | V::Undefined));
+    }
+    if matches!(
+        (a, b),
+        (V::String(_), V::String(_)) | (V::Bool(_), V::Bool(_))
+    ) {
+        return Ok(strict(a, b));
+    }
+    if matches!(a, V::Object(_) | V::Array(_) | V::Promise | V::BigNumber(_))
+        || matches!(b, V::Object(_) | V::Array(_) | V::Promise | V::BigNumber(_))
+    {
+        return Err(SourceRuleError::UnsupportedNumericDomain.into());
+    }
+    Ok(number(a)? == number(b)?)
+}
 fn set(v: &mut V, key: &str, value: V) -> Eval<()> {
     if !matches!(v, V::Object(_)) {
         if matches!(v, V::Array(_) | V::BigNumber(_) | V::Promise) {
@@ -1380,6 +2476,15 @@ impl Bn {
     fn value(&self) -> V {
         n(self.f64())
     }
+    fn tagged(&self) -> V {
+        V::BigNumber(match self {
+            Self::Finite(d, negative_zero) if d.is_zero() && *negative_zero => "-0".into(),
+            Self::Finite(d, _) => big_text(d),
+            Self::Infinity(true) => "-Infinity".into(),
+            Self::Infinity(false) => "Infinity".into(),
+            Self::Nan => "NaN".into(),
+        })
+    }
     fn cmp(&self, b: &Self) -> Option<core::cmp::Ordering> {
         match (self, b) {
             (Self::Nan, _) | (_, Self::Nan) => None,
@@ -1485,6 +2590,19 @@ pub struct PositionAlias {
     pub instance: u64,
     pub address: V,
 }
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PositionArrayAlias {
+    pub argument: usize,
+    pub index: usize,
+    pub instance: u64,
+    pub address: V,
+}
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PositionObjectAlias {
+    pub argument: usize,
+    pub index: Option<usize>,
+    pub object: usize,
+}
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct MarginMapSourceOwner {
     instances: Vec<Instance>,
@@ -1495,6 +2613,9 @@ struct Frame {
     args: Vec<V>,
     roots: Vec<(usize, Option<String>, usize)>,
     aliases: Vec<PositionAlias>,
+    array_roots: Vec<(usize, usize, usize)>,
+    array_aliases: Vec<PositionArrayAlias>,
+    object_aliases: Vec<PositionObjectAlias>,
     observations: Vec<DependencyObservation>,
     deferred: Vec<SourceException>,
 }
@@ -1530,6 +2651,41 @@ impl MarginMapSourceOwner {
         }
         self.objects.push(v);
         Ok(self.objects.len() - 1)
+    }
+    /// Allocate an actual source object known by the composing runtime. IDs are
+    /// zero-based arena indices and remain stable across the owner checkpoint.
+    pub fn allocate_position_object(&mut self, value: V) -> Result<usize, SourceRuleError> {
+        self.alloc(value).map_err(|fault| match fault {
+            Fault::Local(e) => e,
+            Fault::Thrown(_) => SourceRuleError::InvalidInput,
+        })
+    }
+    pub fn inspect_position_object(&self, object: usize) -> Result<V, SourceRuleError> {
+        self.objects
+            .get(object)
+            .cloned()
+            .ok_or(SourceRuleError::InvalidInput)
+    }
+    /// Actual map entries and their established arena identities, in Map order.
+    /// This adapter projection never loads, allocates, or infers references.
+    pub fn position_object_entries(
+        &self,
+        instance: u64,
+    ) -> Result<Vec<(V, usize)>, SourceRuleError> {
+        Ok(self.inst(instance)?.margins.clone())
+    }
+    pub fn replace_position_object(
+        &mut self,
+        object: usize,
+        value: V,
+    ) -> Result<(), SourceRuleError> {
+        value.validate()?;
+        let position = self
+            .objects
+            .get_mut(object)
+            .ok_or(SourceRuleError::InvalidInput)?;
+        *position = value;
+        Ok(())
     }
     fn cached(&self, id: u64, address: &V) -> Eval<Option<usize>> {
         primitive(address)?;
@@ -1602,7 +2758,13 @@ impl MarginMapSourceOwner {
     }
     fn root(&mut self, f: &mut Frame, index: usize, field: Option<&str>) -> Eval<usize> {
         let p = if field.is_none() {
-            if let Some(alias) = f.aliases.iter().find(|a| a.argument == index) {
+            if let Some(alias) = f
+                .object_aliases
+                .iter()
+                .find(|a| a.argument == index && a.index.is_none())
+            {
+                alias.object
+            } else if let Some(alias) = f.aliases.iter().find(|a| a.argument == index) {
                 self.cached(alias.instance, &alias.address)?
                     .ok_or(SourceRuleError::InvalidInput)?
             } else {
@@ -1612,6 +2774,38 @@ impl MarginMapSourceOwner {
             self.alloc(prop(&arg(&f.args, index), field.unwrap_or_default())?)?
         };
         f.roots.push((index, field.map(str::to_string), p));
+        Ok(p)
+    }
+    fn array_root(&mut self, f: &mut Frame, argument: usize, index: usize) -> Eval<usize> {
+        if let Some((_, _, p)) = f
+            .array_roots
+            .iter()
+            .find(|(a, i, _)| *a == argument && *i == index)
+        {
+            return Ok(*p);
+        }
+        let p = if let Some(alias) = f
+            .object_aliases
+            .iter()
+            .find(|a| a.argument == argument && a.index == Some(index))
+        {
+            alias.object
+        } else if let Some(alias) = f
+            .array_aliases
+            .iter()
+            .find(|a| a.argument == argument && a.index == index)
+        {
+            self.cached(alias.instance, &alias.address)?
+                .ok_or(SourceRuleError::InvalidInput)?
+        } else {
+            let array = source_array(&arg(&f.args, argument), "Position cache is not an array")?;
+            let value = array
+                .get(index)
+                .ok_or(SourceRuleError::InvalidInput)?
+                .clone();
+            self.alloc(value)?
+        };
+        f.array_roots.push((argument, index, p));
         Ok(p)
     }
     fn handle(id: u64) -> V {
