@@ -1,0 +1,76 @@
+name: Durable candidate evidence store
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/candidate_index_sqlite.py'
+      - 'scripts/bench_candidate_sqlite.py'
+      - 'scripts/candidate_block_provenance.py'
+      - 'tests/test_candidate_index_sqlite.py'
+      - 'tests/test_candidate_block_provenance.py'
+      - 'tests/test_candidate_index_real_scanner.py'
+      - 'tests/test_candidate_index_reorg_scanner.py'
+      - 'docs/DURABLE_CANDIDATE_INDEX.md'
+      - '.github/workflows/candidate-store.yml'
+  push:
+    paths:
+      - 'scripts/candidate_index_sqlite.py'
+      - 'scripts/bench_candidate_sqlite.py'
+      - 'scripts/candidate_block_provenance.py'
+      - 'tests/test_candidate_index_sqlite.py'
+      - 'tests/test_candidate_block_provenance.py'
+      - 'tests/test_candidate_index_real_scanner.py'
+      - 'tests/test_candidate_index_reorg_scanner.py'
+      - 'docs/DURABLE_CANDIDATE_INDEX.md'
+      - '.github/workflows/candidate-store.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  candidate-store:
+    name: SQLite reorg-safe candidate evidence tests
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout pinned GitHub action
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Python bytecode preflight
+        run: |
+          python3 -m py_compile scripts/candidate_index_sqlite.py scripts/candidate_block_provenance.py tests/test_candidate_index_sqlite.py tests/test_candidate_block_provenance.py
+      - name: Independent Bitcoin serialized transaction and Merkle integrity tests
+        run: |
+          python3 -m unittest discover -s tests -p 'test_candidate_block_provenance.py' -v
+      - name: Adversarial atomic commit and rollback tests
+        run: |
+          python3 -m unittest discover -s tests -p 'test_candidate_index_sqlite.py' -v
+
+  scanner-integration:
+    name: Real Rust scanner to durable SQLite integration
+    runs-on: ubuntu-24.04
+    env:
+      CARGO_NET_OFFLINE: "true"
+    steps:
+      - name: Checkout pinned GitHub action
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Install pinned Rust
+        run: rustup toolchain install 1.90.0 --profile minimal
+      - name: Verify frozen Cargo dependency policy
+        run: python3 scripts/check_rust_supply_chain.py
+      - name: Compile actual Stage 8C/8D Rust candidate scanner
+        run: cargo build --frozen --bin tradelayer-core-index-ingest
+      - name: Run actual scanner to SQLite completion and rollback test
+        run: python3 -m unittest discover -s tests -p 'test_candidate_index_real_scanner.py' -v
+      - name: Replay A-B-A real-scanner fork replacement
+        run: python3 -m unittest discover -s tests -p 'test_candidate_index_reorg_scanner.py' -v
+      - name: Measure checked multi-block offline throughput (no speed gate)
+        run: |
+          python3 scripts/bench_candidate_sqlite.py --count 16 > /tmp/candidate-sqlite-perf.log
+          cat /tmp/candidate-sqlite-perf.log
+          grep -Fxq 'benchmark=OFFLINE_UNVERIFIED_RAW_BLOCKS count=16' /tmp/candidate-sqlite-perf.log
+          grep -Fxq 'block_and_merkle_binding=CHECKED' /tmp/candidate-sqlite-perf.log
+          grep -Fxq 'bitcoin_consensus=UNVERIFIED' /tmp/candidate-sqlite-perf.log
