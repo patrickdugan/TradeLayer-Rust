@@ -225,6 +225,9 @@ impl MarginMapSourceOwner {
         if !was_empty {
             self.save(id, V::Bool(true), f, b)?;
         }
+        if f.track_return {
+            f.returned_position = Some(p);
+        }
         Ok(self.objects[p].clone())
     }
     fn update<B: SourceBackend>(
@@ -1587,6 +1590,34 @@ impl MarginMapSourceOwner {
         object_aliases: &[PositionObjectAlias],
         backend: &mut B,
     ) -> Result<SourceEvaluation, SourceRuleError> {
+        Ok(self
+            .evaluate_detailed_with_position_identity(
+                instance,
+                call,
+                aliases,
+                array_aliases,
+                object_aliases,
+                &[],
+                false,
+                backend,
+            )?
+            .evaluation)
+    }
+    /// Tracks actual returned object identity and explicit nested-field aliases.
+    /// The caller must have established provenance from this owner's original
+    /// return; equal position values do not establish an alias.
+    #[allow(clippy::too_many_arguments)]
+    pub fn evaluate_detailed_with_position_identity<B: SourceBackend>(
+        &mut self,
+        instance: Option<u64>,
+        call: &SourceCall,
+        aliases: &[PositionAlias],
+        array_aliases: &[PositionArrayAlias],
+        object_aliases: &[PositionObjectAlias],
+        field_aliases: &[PositionFieldObjectAlias],
+        track_return: bool,
+        backend: &mut B,
+    ) -> Result<PositionIdentityEvaluation, SourceRuleError> {
         if !METHODS.contains(&call.method.as_str()) {
             return Err(SourceRuleError::UnknownMethod);
         }
@@ -1594,6 +1625,7 @@ impl MarginMapSourceOwner {
             || aliases.len() > 16
             || array_aliases.len() > MAX_OBJECTS
             || object_aliases.len() > MAX_OBJECTS
+            || field_aliases.len() > MAX_OBJECTS
         {
             return Err(SourceRuleError::Capacity);
         }
@@ -1608,6 +1640,8 @@ impl MarginMapSourceOwner {
             aliases: aliases.to_vec(),
             array_aliases: array_aliases.to_vec(),
             object_aliases: object_aliases.to_vec(),
+            field_aliases: field_aliases.to_vec(),
+            track_return,
             ..Frame::default()
         };
         for alias in &f.aliases {
@@ -1657,6 +1691,26 @@ impl MarginMapSourceOwner {
                 *argument = value;
             }
         }
+        for (index, alias) in f.field_aliases.iter().enumerate() {
+            if f.field_aliases[..index]
+                .iter()
+                .any(|a| a.argument == alias.argument && a.field == alias.field)
+                || f.object_aliases
+                    .iter()
+                    .any(|a| a.argument == alias.argument && a.index.is_none())
+                || f.aliases.iter().any(|a| a.argument == alias.argument)
+            {
+                return Err(SourceRuleError::InvalidInput);
+            }
+            let value = self.inspect_position_object(alias.object)?;
+            let Some(argument) = f.args.get_mut(alias.argument) else {
+                return Err(SourceRuleError::InvalidInput);
+            };
+            if !matches!(argument, V::Object(_)) {
+                return Err(SourceRuleError::InvalidInput);
+            }
+            set(argument, &alias.field, value).map_err(|_| SourceRuleError::InvalidInput)?;
+        }
         let result = self.run(instance, &call.method, &mut f, backend);
         for (index, field, p) in &f.roots {
             if let Some(v) = f.args.get_mut(*index) {
@@ -1683,12 +1737,20 @@ impl MarginMapSourceOwner {
             Err(Fault::Thrown(e)) => SourceOutcome::Thrown(e),
             Err(Fault::Local(e)) => return Err(e),
         };
-        Ok(SourceEvaluation {
-            outcome,
-            arguments_after: f.args,
-            dependencies: f.observations,
-            deferred_rejections: f.deferred,
-            global_writes: vec![],
+        let returned_position = if matches!(outcome, SourceOutcome::Returned(_)) {
+            f.returned_position
+        } else {
+            None
+        };
+        Ok(PositionIdentityEvaluation {
+            evaluation: SourceEvaluation {
+                outcome,
+                arguments_after: f.args,
+                dependencies: f.observations,
+                deferred_rejections: f.deferred,
+                global_writes: vec![],
+            },
+            returned_position,
         })
     }
     pub fn invoke_source<B: SourceBackend>(
@@ -2603,6 +2665,17 @@ pub struct PositionObjectAlias {
     pub index: Option<usize>,
     pub object: usize,
 }
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PositionFieldObjectAlias {
+    pub argument: usize,
+    pub field: String,
+    pub object: usize,
+}
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PositionIdentityEvaluation {
+    pub evaluation: SourceEvaluation,
+    pub returned_position: Option<usize>,
+}
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct MarginMapSourceOwner {
     instances: Vec<Instance>,
@@ -2616,6 +2689,9 @@ struct Frame {
     array_roots: Vec<(usize, usize, usize)>,
     array_aliases: Vec<PositionArrayAlias>,
     object_aliases: Vec<PositionObjectAlias>,
+    field_aliases: Vec<PositionFieldObjectAlias>,
+    track_return: bool,
+    returned_position: Option<usize>,
     observations: Vec<DependencyObservation>,
     deferred: Vec<SourceException>,
 }
@@ -2770,6 +2846,12 @@ impl MarginMapSourceOwner {
             } else {
                 self.alloc(arg(&f.args, index))?
             }
+        } else if let Some(alias) = f
+            .field_aliases
+            .iter()
+            .find(|a| a.argument == index && Some(a.field.as_str()) == field)
+        {
+            alias.object
         } else {
             self.alloc(prop(&arg(&f.args, index), field.unwrap_or_default())?)?
         };
@@ -2992,13 +3074,20 @@ impl MarginMapSourceOwner {
             if !truth(&prop(&self.objects[p], "address")?) {
                 set(&mut self.objects[p], "address", key)?
             }
+            if f.track_return {
+                f.returned_position = Some(p);
+            }
             return Ok(self.objects[p].clone());
         }
-        Ok(obj(&[
+        let position = obj(&[
             ("contracts", n(0.0)),
             ("margin", n(0.0)),
             ("unrealizedPNL", n(0.0)),
-        ]))
+        ]);
+        if f.track_return {
+            f.returned_position = Some(self.alloc(position.clone())?);
+        }
+        Ok(position)
     }
     fn save<B: SourceBackend>(&mut self, id: u64, block: V, f: &mut Frame, b: &mut B) -> Eval<V> {
         let key = stringify(&obj(&[("seriesId", self.inst(id)?.series.clone())]))?;

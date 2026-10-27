@@ -118,6 +118,7 @@ pub mod state_commitment; // Experimental domain-separated state and transition 
 pub mod state_oracle; // Immutable Ledger balance payloads; hashes are not signed attestations.
 pub mod storage; // Bounded OS-locked disk journal and explicit restart recovery.
 pub mod tally; // Source tally projections and fee metadata, no independent spendable ledger.
+pub mod token_settlement_source;
 pub mod trade_history; // Caller-supplied trade reporting and canonical checkpoints; no settlement authority.
 pub mod types_economic; // Unverified exact mapping into supported economic handlers.
 pub mod types_source; // Full source decode-to-validity orchestration.

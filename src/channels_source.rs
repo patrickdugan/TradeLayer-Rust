@@ -668,6 +668,12 @@ fn bn_lt(a: &V, b: &V) -> Eval<bool> {
         (_, Bn::Nonfinite(b)) => b == f64::INFINITY,
     })
 }
+pub(crate) fn source_big_number_text(v: &V) -> Result<String> {
+    bn_text(v).map_err(|fault| match fault {
+        Fault::Local(e) => e,
+        Fault::Thrown(_) => SourceRuleError::UnsupportedNumericDomain,
+    })
+}
 fn bn_text(v: &V) -> Eval<String> {
     match bn(v)? {
         Bn::Nonfinite(n) => Ok(number_text(n)?),
@@ -856,6 +862,64 @@ impl SourceChannels {
     }
     pub const fn action_count(&self) -> usize {
         self.actions
+    }
+    /// Internal reference-path mutation: equivalent to writing through the
+    /// object returned by Channels.getChannel. This is not setChannel and
+    /// deliberately performs no save, dependency call, or action increment.
+    pub(crate) fn mutate_cached_channel<F>(&mut self, key: &V, mutation: F) -> Result<()>
+    where
+        F: FnOnce(&mut V) -> Result<()>,
+    {
+        let (_, channel) = self
+            .state
+            .registry
+            .iter_mut()
+            .find(|(k, _)| same_key(k, key))
+            .ok_or(SourceRuleError::InvalidInput)?;
+        mutation(channel)?;
+        self.state.validate()
+    }
+    pub(crate) fn replace_loaded_registry(&mut self, rows: Vec<V>) -> Result<()> {
+        let mut registry = Vec::new();
+        for row in rows {
+            let key = canonical_map_key(row.get("_id"));
+            let value = row.get("data");
+            if let Some((_, old)) = registry.iter_mut().find(|(k, _)| same_key(k, &key)) {
+                *old = value;
+            } else {
+                registry.push((key, value));
+            }
+        }
+        self.state.registry = registry;
+        self.state.validate()
+    }
+    pub(crate) fn begin_withdrawal(&mut self, args: &[V]) -> Result<V> {
+        let column = if loose_equal(&arg(args, 6), &V::Bool(false))
+            .map_err(|_| SourceRuleError::UnsupportedNumericDomain)?
+        {
+            strv("A")
+        } else if loose_equal(&arg(args, 6), &V::Bool(true))
+            .map_err(|_| SourceRuleError::UnsupportedNumericDomain)?
+        {
+            strv("B")
+        } else {
+            arg(args, 6)
+        };
+        let row = obj(vec![
+            ("withdrawAll", arg(args, 5)),
+            ("blockHeight", arg(args, 0)),
+            ("senderAddress", arg(args, 1)),
+            ("amount", arg(args, 2)),
+            ("channel", arg(args, 3)),
+            ("propertyId", arg(args, 4)),
+            ("column", column),
+        ]);
+        if self.state.pending_withdrawals.len() >= MAX_RECORDS {
+            return Err(SourceRuleError::Capacity);
+        }
+        self.state.pending_withdrawals.push(row.clone());
+        self.state.validate()?;
+        Ok(row)
     }
     pub fn execute_unverified<B: SourceBackend>(
         &mut self,

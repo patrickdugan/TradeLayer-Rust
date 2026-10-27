@@ -123,3 +123,5 @@ fixtures/bip32_public_vectors.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/oracle_source_owner_vectors.tsv text eol=lf
 fixtures/source_send_vectors.tsv text eol=lf -whitespace
 fixtures/source_contract_execution_vectors.tsv text eol=lf -whitespace
+fixtures/source_channel_txutils_reference.txt -text -whitespace
+fixtures/source_contract_replay_v2.bin -text

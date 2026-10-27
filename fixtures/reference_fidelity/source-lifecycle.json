@@ -1,0 +1,142 @@
+{
+  "schema": "source-lifecycle-validation-v1",
+  "verifiedAtUtc": "2026-10-27T03:12:44Z",
+  "parentCommit": "8a442528b5d4396c9a47b5fbcf37567b441a4fc5",
+  "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "rustVersion": "1.90.0",
+  "passedTestExecutions": 1391,
+  "topLevelTests": 1390,
+  "subprocessTestPasses": 1,
+  "executableTargets": 191,
+  "newRustTests": 16,
+  "runtimePolicy": "SourceLifecycleV3",
+  "defaultRuntimePolicy": "GlobalClearingV2",
+  "literalSettlement": true,
+  "sourceLifecycleObservations": 456,
+  "observationsIncludeResetStates": true,
+  "registryObservations": 166,
+  "registryMethodCalls": 140,
+  "channelFinancialObservations": 236,
+  "channelFinancialMethodCalls": 126,
+  "channelFinancialRawCalls": 4,
+  "channelLogicObservations": 54,
+  "channelLogicResetStates": 17,
+  "channelLogicSupportedCalls": 35,
+  "explicitUnboundRpcRefusals": 2,
+  "focusedCoercionComparisons": 3,
+  "returnedPositionIdentity": "actual Margin arena object IDs passed through collateral return and match composition; no equal-value inference",
+  "numericReference": {
+    "archived": "genuine9.3.1",
+    "locked": "genuine source-lock9.1.2 with raw SHA-verified preloader",
+    "lockedRustTests": 38,
+    "lockedTargets": 17
+  },
+  "replay": {
+    "version": 3,
+    "legacyVersions": [
+      1,
+      2
+    ],
+    "v2CompiledCommit": "8a442528b5d4396c9a47b5fbcf37567b441a4fc5",
+    "v2Fixture": "fixtures/source_contract_replay_v2.bin",
+    "independentExpectedHeadRequired": true,
+    "repairedCrcVersionPromotionRejected": true,
+    "actualFailurePrefixesAndContinuation": true,
+    "authenticationEstablished": false
+  },
+  "exportedTransitionWitness": {
+    "format": "TLSW1",
+    "domain": "conditional literal-source command slice",
+    "originalCommandSlices": 14,
+    "independentPrestateHeadRequired": true,
+    "commands": [
+      "height",
+      "raw18",
+      "actual queue drain",
+      "fee flush",
+      "global clearing"
+    ],
+    "arbitraryStateOrVerdictsAccepted": false,
+    "authenticationEstablished": false,
+    "completeBlockFraudProof": false
+  },
+  "sourceDomain": "bounded actual registry/channel/contract/clearing graph over sole source Tally and existing live Margin, Channels, queue and collection owners; imports/actors/raw RPC are unverified boundary inputs",
+  "sourcePreservedDefects": [
+    "raw17 derivativeRegistry ReferenceError",
+    "un-awaited channel collateral/inverse reads",
+    "un-awaited withdrawal/transfer jobs",
+    "stale singleton maps",
+    "channel settlement overdrafts/string concatenation",
+    "persisted-prefix failures and repeated retry effects"
+  ],
+  "fullReferenceParityEstablished": false,
+  "supplyMutationTests": 11,
+  "thirdPartyRustCrates": 0,
+  "remainingGates": [
+    "options/synthetic complete source lifecycle",
+    "remaining registry/owner methods and broader malformed/alias/numeric domains",
+    "production NeDB/RPC and real disk",
+    "authenticated actors/source inputs/history",
+    "complete per-type and block fraud-proof context"
+  ],
+  "implementationInputs": 701,
+  "frozenInputHash": "f876968986e1396941a056bc46c4b0f896557c10e544aa01bcd37b07c2de943b",
+  "logs": {
+    "format": {
+      "passed": true,
+      "emptyOutput": true
+    },
+    "includes-format": {
+      "passed": true,
+      "emptyOutput": true
+    },
+    "clippy": {
+      "name": "source-lifecycle-clippy.log",
+      "sha256": "95568fc6d0e2a511e20f85b2632df16705aba8ddb1d9b321fd198744a9914ea2"
+    },
+    "full-tests": {
+      "name": "source-lifecycle-full-tests.log",
+      "sha256": "b15665ef69b2fd141e57823eb685031704c224fb2ffaf8c9c501b02df58147c2"
+    },
+    "doctest": {
+      "name": "source-lifecycle-doctest.log",
+      "sha256": "f393dedd1508958dc2889cbee6eb3c4417ddddf846ea8e7c81aae3d53c580d90"
+    },
+    "supply-policy": {
+      "name": "source-lifecycle-supply-policy.log",
+      "sha256": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01"
+    },
+    "supply-mutations": {
+      "name": "source-lifecycle-supply-mutations.log",
+      "sha256": "4f0a2693272619237900b16c0456f07b23e6911365049b1f73718df524e60b80"
+    },
+    "inventory": {
+      "name": "source-lifecycle-inventory.log",
+      "sha256": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393"
+    },
+    "locked-reference": {
+      "name": "source-lifecycle-locked-reference.log",
+      "sha256": "dc352b2164f230c5d2bd82b85f284827fbb431400797d2b8d2b6b7d57418deee"
+    },
+    "locked-preloader": {
+      "name": "source-lifecycle-locked-preloader.log",
+      "sha256": "45dcbbe6dce81aa39447f73ca189ff78101e648a464e75319f31fd91293e6aad"
+    },
+    "release": {
+      "name": "source-lifecycle-release.log",
+      "sha256": "4fbe6b5bee141d055e22f5b77be702bfd7454193ac42e1b33162053efc541ca0"
+    }
+  },
+  "commands": [
+    "cargo fmt --all -- --check",
+    "rustfmt --check --edition 2021 <all CI include files>",
+    "cargo clippy --frozen --all-targets -- -D warnings",
+    "cargo test --frozen --all-targets",
+    "cargo test --frozen --doc",
+    "cargo build --frozen --release --all-targets",
+    "python scripts/check_rust_supply_chain.py",
+    "python -m unittest discover -s tests -p test_rust_supply_chain.py -v",
+    "python scripts/check_logic_inventory.py",
+    "NODE_OPTIONS=--require scripts/bignumber_lock_reference.cjs cargo test --frozen <17 source/replay targets>"
+  ]
+}

@@ -11,6 +11,12 @@ struct SourceSupplyDelta {
 struct SourceChannelsBackend<'a>(&'a mut ContractCore);
 impl SourceBackend for SourceChannelsBackend<'_> {
     fn invoke(&mut self, c: &DependencyCall) -> Result<DependencyReturn, SourceRuleError> {
+        if self.0.lifecycle_enabled() && c.target == "UUID.v4" {
+            return self.0.invoke(&DependencyCall {
+                target: "uuid.v4".into(),
+                arguments: c.arguments.clone(),
+            });
+        }
         if let Some(method) = c.target.strip_prefix("DB.") {
             let result = if method == "getDatabase" {
                 self.0.database(

@@ -43,7 +43,9 @@ def main():
         assert row['catalogExecutionCandidate'] == (number in data['catalogExecutionTypes'])
         assert row['fullReferenceParity'] is False
         assert row['transitionProofComplete'] is False
-    assert data['transitionWitness'] == 'not-exported'
+    assert data['transitionWitness'] == 'conditional-literal-source-command-slice-v1'
+    assert all(row['transitionProofComplete'] is False for row in rows)
+    assert 'conditional' in rows[18]['proofCoverage'].lower()
     print(f'PASS: 36 exact source routes + unrouted36; {len(mapped)} mapper candidates; parity/proof claims remain explicitly incomplete')
 
 

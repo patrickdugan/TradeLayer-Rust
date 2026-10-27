@@ -18,6 +18,7 @@ const MAX_STATE_NODES: usize = 262_144;
 const MAX_STATE_BYTES: usize = 16 * 1024 * 1024;
 const MAGIC_V1: &[u8; 5] = b"TLCR\x01";
 const MAGIC_V2: &[u8; 5] = b"TLCR\x02";
+const MAGIC_V3: &[u8; 5] = b"TLCR\x03";
 const SOURCE_PIN: &[u8] = b"dca0888b827c5bc28fa9189bc9e1d507f5c5670c";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -440,6 +441,9 @@ impl SourceContractReplay {
             SourceContractRuntimePolicy::GlobalClearingV2 => {
                 b"TradeLayer/SourceContractBootstrap/v2/".to_vec()
             }
+            SourceContractRuntimePolicy::SourceLifecycleV3 => {
+                b"TradeLayer/SourceContractBootstrap/v3/".to_vec()
+            }
         };
         seed.extend_from_slice(SOURCE_PIN);
         seed.extend_from_slice(&initial);
@@ -568,6 +572,7 @@ impl SourceContractReplay {
         let mut bytes = match self.runtime.policy() {
             SourceContractRuntimePolicy::OnchainV1 => MAGIC_V1.to_vec(),
             SourceContractRuntimePolicy::GlobalClearingV2 => MAGIC_V2.to_vec(),
+            SourceContractRuntimePolicy::SourceLifecycleV3 => MAGIC_V3.to_vec(),
         };
         bytes.extend_from_slice(&self.initial);
         bytes.extend_from_slice(&(self.journal.len() as u32).to_be_bytes());
@@ -610,6 +615,7 @@ impl SourceContractReplay {
         {
             magic if magic == MAGIC_V1 => SourceContractRuntimePolicy::OnchainV1,
             magic if magic == MAGIC_V2 => SourceContractRuntimePolicy::GlobalClearingV2,
+            magic if magic == MAGIC_V3 => SourceContractRuntimePolicy::SourceLifecycleV3,
             _ => return Err(SourceContractReplayError::InvalidCheckpoint),
         };
         let initial = c
@@ -694,3 +700,5 @@ fn encoded_entry_size(command: &[u8], outcome: &[u8], effects: &[V]) -> Result<u
     }
     Ok(size)
 }
+
+include!("source_transition_witness_impl.rs");

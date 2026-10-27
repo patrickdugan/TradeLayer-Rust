@@ -11,6 +11,27 @@ that worker's branches, publish a branch, or authorize economic transitions.
 
 ## Tracking the 49 source modules
 
+The explicit SourceLifecycleV3 batch passes **1,391 Rust test executions**
+(1,390 top-level plus one subprocess) across 191 executable targets, including 16
+new tests. All-target Clippy, formatting, doc tests, release, zero-external-crate
+policy and 11 policy mutation tests pass against 701 frozen inputs. All 38
+focused tests across 17 targets also pass with genuine locked BigNumber 9.1.2.
+The independent registry/channel corpora contain 456 observations (including
+reset states and two explicit unbound-RPC refusals), plus focused coercion tests.
+The committed evidence is `fixtures/reference_fidelity/source-lifecycle.json`.
+
+Native/oracle, dated/perpetual and multiple-series definition creation now runs
+the actual source lifecycle. Channel contract/token calls, withdrawal, transfer,
+keep-alive, close/net/King settlement and queue draining use the same Tally,
+live Channels registry and Margin identity arena as on-chain settlement.
+Concurrent Tally operations and collateral-return aliases preserve complete
+cache/storage/failure prefixes. TLCRv3 is opt-in; the default remains V2, and
+compiled original V1/V2 fixtures retain their byte-identical replay behavior.
+TLSW1 exports 14 tested conditional command slices from independently pinned
+prestates; it does not establish actors, chain context or a complete block
+fraud proof. Options/synthetics, remaining methods/domains, production storage
+and authenticated history remain gates.
+
 The GlobalClearingV2 batch passes **1,375 Rust test executions** (1,374
 top-level plus one subprocess) across186 executable targets, including18 new
 tests. All-target Clippy, formatting, doc tests, release, zero-external-crate

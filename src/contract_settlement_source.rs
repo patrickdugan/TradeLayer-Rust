@@ -1,11 +1,28 @@
 //! Pinned Orderbook contract settlement over explicit live source owners.
 //! Financial effects belong to SourceBackend; this module owns no balances.
 use crate::decimal::{Decimal, Rounding};
+use crate::margin_map_source_owner::{PositionFieldObjectAlias, PositionObjectAlias};
 use crate::validity_source::{
     DependencyCall, DependencyReturn, SourceBackend, SourceException, SourceOutcome,
     SourceRuleError, SourceValue as V,
 };
 use core::str::FromStr;
+/// An actual owner can preserve established source object identities across
+/// dependency returns. The ordinary SourceBackend entry remains unchanged.
+pub trait ContractSettlementIdentityBackend: SourceBackend {
+    fn invoke_with_position_identity(
+        &mut self,
+        call: &DependencyCall,
+        roots: &[PositionObjectAlias],
+        fields: &[PositionFieldObjectAlias],
+    ) -> Result<(DependencyReturn, Option<usize>), SourceRuleError>;
+}
+type IdentityInvoke<B> = fn(
+    &mut B,
+    &DependencyCall,
+    &[PositionObjectAlias],
+    &[PositionFieldObjectAlias],
+) -> Result<(DependencyReturn, Option<usize>), SourceRuleError>;
 pub const SOURCE_COMMIT: &str = "dca0888b827c5bc28fa9189bc9e1d507f5c5670c";
 pub const SOURCE_SHA256: &str = "c368acbc04f988b989fa320b3a1aefdb9522b9f9f5eff536137e7a2e8e9f4f98";
 const MAX_CALLS: usize = 16384;
@@ -248,11 +265,13 @@ impl<B: SourceBackend> Engine<'_, B> {
                 "getPositionForAddress",
                 vec![buyer.clone(), buy_contract.clone()],
             )?;
+            let mut buyer_origin = self.returned_position;
             let mut sp = self.margin(
                 &handle,
                 "getPositionForAddress",
                 vec![seller.clone(), buy_contract.clone()],
             )?;
+            let mut seller_origin = self.returned_position;
             if loose(&prop(&bp, "address")?, &V::Undefined) {
                 set(&mut bp, "address", buyer.clone())?;
             }
@@ -512,7 +531,7 @@ impl<B: SourceBackend> Engine<'_, B> {
                 } else {
                     prop(&m, "channelAddress")?
                 };
-                bp = self.call(
+                bp = self.call_with_position_identity(
                     "Contract.moveCollateralToMargin",
                     vec![
                         buyer.clone(),
@@ -531,7 +550,17 @@ impl<B: SourceBackend> Engine<'_, B> {
                         or(prop(&m, "txid")?, s("")),
                         bp,
                     ],
+                    &buyer_origin
+                        .map(|object| PositionObjectAlias {
+                            argument: 14,
+                            index: None,
+                            object,
+                        })
+                        .into_iter()
+                        .collect::<Vec<_>>(),
+                    &[],
                 )?;
+                buyer_origin = self.returned_position;
             }
             if !seller_reducing && !truth(&prop(&sell, "liq")?) && (channel_false || channel_true) {
                 let entry_price = if channel_false {
@@ -544,7 +573,7 @@ impl<B: SourceBackend> Engine<'_, B> {
                 } else {
                     prop(&m, "channelAddress")?
                 };
-                sp = self.call(
+                sp = self.call_with_position_identity(
                     "Contract.moveCollateralToMargin",
                     vec![
                         seller.clone(),
@@ -561,13 +590,38 @@ impl<B: SourceBackend> Engine<'_, B> {
                         prop(&buy, "maker")?,
                         sp,
                     ],
+                    // The source incorrectly supplies this position as the
+                    // flag argument (12), omitting its actual slot (14).
+                    &seller_origin
+                        .map(|object| PositionObjectAlias {
+                            argument: 12,
+                            index: None,
+                            object,
+                        })
+                        .into_iter()
+                        .collect::<Vec<_>>(),
+                    &[],
                 )?;
+                seller_origin = self.returned_position;
             }
             set(&mut m, "buyerPosition", bp.clone())?;
             set(&mut m, "sellerPosition", sp.clone())?;
             let buyer_avg = prop(&bp, "avgPrice")?;
             let seller_avg = prop(&sp, "avgPrice")?;
-            let positions = self.margin(
+            let fields = [
+                ("buyerPosition", buyer_origin),
+                ("sellerPosition", seller_origin),
+            ]
+            .into_iter()
+            .filter_map(|(field, origin)| {
+                origin.map(|object| PositionFieldObjectAlias {
+                    argument: 1,
+                    field: field.into(),
+                    object,
+                })
+            })
+            .collect::<Vec<_>>();
+            let positions = self.margin_with_position_identity(
                 &handle,
                 "updateContractBalancesWithMatch",
                 vec![
@@ -579,6 +633,8 @@ impl<B: SourceBackend> Engine<'_, B> {
                     n(flip_short),
                     block.clone(),
                 ],
+                &[],
+                &fields,
             )?;
             bp = prop(&positions, "bp")?;
             sp = prop(&positions, "sp")?;
@@ -1109,6 +1165,31 @@ pub fn process_contract_matches<B: SourceBackend>(
             backend,
             calls: 0,
             bytes: 0,
+            identity: None,
+            returned_position: None,
+        }
+        .process(arguments),
+    )
+}
+/// V3 composition entry, over exact returned owner identities rather than
+/// matching copied values or guessing an object's origin from its address.
+pub fn process_contract_matches_with_position_identity<B: ContractSettlementIdentityBackend>(
+    arguments: &[V],
+    backend: &mut B,
+) -> Result<SourceOutcome, SourceRuleError> {
+    if arguments.len() > 4 {
+        return Err(SourceRuleError::Capacity);
+    }
+    for value in arguments {
+        value.validate()?;
+    }
+    finish(
+        Engine {
+            backend,
+            calls: 0,
+            bytes: 0,
+            identity: Some(B::invoke_with_position_identity),
+            returned_position: None,
         }
         .process(arguments),
     )
@@ -1143,6 +1224,8 @@ pub fn source_funds_for_loss<B: SourceBackend>(
             backend,
             calls: 0,
             bytes: 0,
+            identity: None,
+            returned_position: None,
         }
         .loss(arguments),
     )
@@ -1487,9 +1570,21 @@ struct Engine<'a, B: SourceBackend> {
     backend: &'a mut B,
     calls: usize,
     bytes: usize,
+    identity: Option<IdentityInvoke<B>>,
+    returned_position: Option<usize>,
 }
 impl<B: SourceBackend> Engine<'_, B> {
     fn dep(&mut self, target: &str, args: Vec<V>, awaited: bool) -> Eval<V> {
+        self.dep_with_position_identity(target, args, awaited, &[], &[])
+    }
+    fn dep_with_position_identity(
+        &mut self,
+        target: &str,
+        args: Vec<V>,
+        awaited: bool,
+        roots: &[PositionObjectAlias],
+        fields: &[PositionFieldObjectAlias],
+    ) -> Eval<V> {
         self.calls += 1;
         if self.calls > MAX_CALLS {
             return Err(SourceRuleError::Capacity.into());
@@ -1503,10 +1598,18 @@ impl<B: SourceBackend> Engine<'_, B> {
         if self.bytes > MAX_BYTES {
             return Err(SourceRuleError::Capacity.into());
         }
-        let returned = self.backend.invoke(&DependencyCall {
+        let call = DependencyCall {
             target: target.into(),
             arguments: args,
-        })?;
+        };
+        let returned = if let Some(invoke) = self.identity {
+            let (returned, origin) = invoke(self.backend, &call, roots, fields)?;
+            self.returned_position = origin;
+            returned
+        } else {
+            self.returned_position = None;
+            self.backend.invoke(&call)?
+        };
         match &returned {
             DependencyReturn::Immediate(v) | DependencyReturn::Pending(v) => {
                 v.validate()?;
@@ -1552,10 +1655,31 @@ impl<B: SourceBackend> Engine<'_, B> {
     fn call(&mut self, target: &str, args: Vec<V>) -> Eval<V> {
         self.dep(target, args, true)
     }
+    fn call_with_position_identity(
+        &mut self,
+        target: &str,
+        args: Vec<V>,
+        roots: &[PositionObjectAlias],
+        fields: &[PositionFieldObjectAlias],
+    ) -> Eval<V> {
+        self.dep_with_position_identity(target, args, true, roots, fields)
+    }
     fn margin(&mut self, handle: &V, method: &str, args: Vec<V>) -> Eval<V> {
         let mut all = vec![handle.clone()];
         all.extend(args);
         self.call(&format!("Margin.{method}"), all)
+    }
+    fn margin_with_position_identity(
+        &mut self,
+        handle: &V,
+        method: &str,
+        args: Vec<V>,
+        roots: &[PositionObjectAlias],
+        fields: &[PositionFieldObjectAlias],
+    ) -> Eval<V> {
+        let mut all = vec![handle.clone()];
+        all.extend(args);
+        self.call_with_position_identity(&format!("Margin.{method}"), all, roots, fields)
     }
     fn alias_margin(
         &mut self,

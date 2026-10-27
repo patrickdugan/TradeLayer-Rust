@@ -408,6 +408,8 @@ impl ContractCore {
     }
     fn volume_call(&mut self, method: &str, a: &[V]) -> R<V> {
         match method {
+            "getLastPrice" if self.lifecycle_enabled() => self.source_registry_last_price(a),
+            "getTokenPriceInLTC" if self.lifecycle_enabled() => self.source_channel_token_price(a),
             "getVWAP" if self.global_clearing_enabled() => self.source_funding_volume_vwap(a),
             "getContractUnitLTCValue" => {
                 if self.entry == "volume-first" {

@@ -295,6 +295,9 @@ impl ContractCore {
     }
     fn tally_call(&mut self, method: &str, a: &[V]) -> R<V> {
         match method {
+            "updateChannelBalance" if self.lifecycle_enabled() => {
+                self.source_channel_tally_update(a)
+            }
             "recordTallyMapDelta" if self.global_clearing_enabled() => {
                 self.source_clearing_record_tally_delta(a)
             }
@@ -328,7 +331,11 @@ impl ContractCore {
     }
     fn contract_info(&mut self, id: V) -> R<V> {
         let t = text(&id)?;
-        let trimmed = t.trim_start();
+        let trimmed = if self.lifecycle_enabled() {
+            t.trim_start_matches(funding_js_space)
+        } else {
+            t.trim_start()
+        };
         let offset = usize::from(trimmed.starts_with(['-', '+']));
         let end = offset
             + trimmed[offset..]
@@ -380,6 +387,27 @@ impl ContractCore {
     }
     fn contract_call(&mut self, method: &str, a: &[V]) -> R<V> {
         match method {
+            "createContractSeries"
+            | "getNextIdFromMap"
+            | "generateContracts"
+            | "saveDataToDb"
+            | "isDuplicateNativeContract"
+            | "getContractSeries"
+            | "getNextId"
+            | "getAllContractsForCollateral"
+            | "lookupInverseNativeByNotionalPid"
+            | "getContractType"
+            | "getAMM"
+            | "isValidSeriesId"
+            | "saveAllData"
+                if self.lifecycle_enabled() =>
+            {
+                self.source_registry_lifecycle_call(method, a)
+            }
+            "getInstance" if self.lifecycle_enabled() => {
+                self.contract_registry_initialized = true;
+                Ok(obj(&[("sourceContractRegistry", V::Bool(true))]))
+            }
             "getAllPerpContracts" if self.global_clearing_enabled() => {
                 self.source_funding_perp_contracts()
             }
@@ -653,7 +681,16 @@ impl ContractCore {
                 return Err(error(format!("Insufficient collateral for contractTradeInitMargin sender={} prop={} need={} avail={} res={} mar={}",text(&owner)?,text(&property)?,total,available,reserve,margin)));
             }
         } else if arg(a, 7) == V::Bool(true) {
-            return Err(SourceRuleError::UnknownDependency.into());
+            if !self.lifecycle_enabled() {
+                return Err(SourceRuleError::UnknownDependency.into());
+            }
+            self.source_channel_collateral_move(
+                owner.clone(),
+                property.clone(),
+                dn(&total)?,
+                arg(a, 8),
+                arg(a, 9),
+            )?;
         };
         self.call(
             "Margin.setInitialMargin",

@@ -1,5 +1,6 @@
 //! Actual pinned orderbook.js queue documents and per-instance book caches.
 //! Placement is an explicit capability over the same owner; no Ledger is copied.
+include!("contract_channel_queue_source_impl.rs");
 use crate::codec::{verify_crc, with_crc, Cursor};
 use crate::decimal::Decimal;
 use crate::validity_source::{

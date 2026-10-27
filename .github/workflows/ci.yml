@@ -55,7 +55,7 @@ jobs:
       - name: Check included synthetic bilateral partial reduction formatting
         run: rustfmt --check --edition 2021 src/clearing_partial_impl.rs
       - name: Check included literal global settlement formatting
-        run: rustfmt --check --edition 2021 src/source_clearing_funding_impl.rs src/source_insurance_lifecycle_impl.rs src/source_insurance_legacy_v1_impl.rs src/source_iou_settlement_impl.rs src/source_clearing_liquidation_impl.rs src/source_clearing_expiry_impl.rs src/source_clearing_global_impl.rs src/source_clearing_mark_settlement_impl.rs src/source_clearing_supply_impl.rs src/source_contract_history_schedule_impl.rs
+        run: rustfmt --check --edition 2021 src/source_clearing_funding_impl.rs src/source_insurance_lifecycle_impl.rs src/source_insurance_legacy_v1_impl.rs src/source_iou_settlement_impl.rs src/source_clearing_liquidation_impl.rs src/source_clearing_expiry_impl.rs src/source_clearing_global_impl.rs src/source_clearing_mark_settlement_impl.rs src/source_clearing_supply_impl.rs src/source_contract_history_schedule_impl.rs src/source_contract_registry_lifecycle_impl.rs src/source_channel_financial_impl.rs src/contract_channel_queue_source_impl.rs src/source_channel_logic_impl.rs src/source_transition_witness_impl.rs src/source_contract_position_identity_impl.rs src/source_channel_volume_impl.rs
       - name: Lint
         run: cargo clippy --all-targets --frozen -- -D warnings
       - name: Install pinned test-only cryptographic references
@@ -91,7 +91,7 @@ jobs:
           TRADELAYER_JS_ROOT: ${{ runner.temp }}/tl-secp-reference
           TL_BIGNUMBER_LOCK_ROOT: ${{ runner.temp }}/tl-bignumber-lock
           NODE_OPTIONS: --require ${{ github.workspace }}/scripts/bignumber_lock_reference.cjs
-        run: cargo test --frozen --test contract_placement_source --test contract_settlement_source --test margin_map_source_owner --test source_contract_runtime --test source_contract_fees --test source_contract_oracle --test source_contract_adapters --test source_contract_clearing --test source_contract_replay --test source_contract_replay_versions --test source_contract_runtime_signatures --test margin_map_source_clearing --test source_clearing_funding --test source_insurance_lifecycle --test source_iou_settlement --test source_clearing_liquidation --test source_clearing_expiry --test source_clearing_global --test source_clearing_supply
+        run: cargo test --frozen --test contract_placement_source --test contract_settlement_source --test margin_map_source_owner --test source_contract_runtime --test source_contract_fees --test source_contract_oracle --test source_contract_adapters --test source_contract_clearing --test source_contract_replay --test source_contract_replay_versions --test source_contract_runtime_signatures --test margin_map_source_clearing --test source_clearing_funding --test source_insurance_lifecycle --test source_iou_settlement --test source_clearing_liquidation --test source_clearing_expiry --test source_clearing_global --test source_clearing_supply --test source_contract_registry_lifecycle --test source_contract_lifecycle_versions --test source_channel_financial --test source_channel_logic --test source_transition_witness
       - name: Native public ECDSA independent and genuine reference vectors
         run: node scripts/secp256k1_vectors.cjs --check --tiny-root "$RUNNER_TEMP/tl-secp-reference"
       - name: Co-signed allocation transcripts and actual-owner signed fixtures

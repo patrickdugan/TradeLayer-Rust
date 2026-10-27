@@ -76,6 +76,9 @@ impl ContractCore {
         ])
     }
     fn source_clearing_load_contracts(&mut self) -> R<V> {
+        if self.lifecycle_enabled() {
+            self.contract_registry_initialized = true;
+        }
         let result = (|| {
             self.database("contractList")?;
             let rows = array(&self.db(
@@ -94,6 +97,9 @@ impl ContractCore {
                 }
             }
             self.contract_series = map;
+            if self.lifecycle_enabled() {
+                self.contract_series_initialized = true;
+            }
             Ok(V::Array(
                 self.contract_series
                     .iter()
@@ -224,9 +230,7 @@ impl ContractCore {
                     core: self,
                     queue: &mut queue,
                 };
-                return outcome(crate::contract_settlement_source::process_contract_matches(
-                    original, &mut b,
-                )?);
+                return outcome(process_contract_matches_actual(original, &mut b)?);
             }
             if method == "addContractOrder" {
                 let mut b = PlacementBackend { core: self };
@@ -238,7 +242,15 @@ impl ContractCore {
                 method: method.into(),
                 arguments: original.to_vec(),
             };
-            let result = if let Some(id) = id {
+            let result = if self.lifecycle_enabled()
+                && matches!(
+                    method,
+                    "queueChannelTrade" | "processQueuedChannelTradesForBlock"
+                ) {
+                queue.evaluate_channel_with_capability(&call, &mut |queue, call| {
+                    self.source_channel_queue_capability(queue, call)
+                })
+            } else if let Some(id) = id {
                 queue.evaluate_instance(id, &call)
             } else {
                 queue.evaluate_with_backend(&call, self)

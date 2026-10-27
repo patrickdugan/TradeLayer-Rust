@@ -124,3 +124,17 @@ single-byte corruption. Local error attempts replay with unchanged owner state;
 overlong wrapper input leaves both owner and journal unchanged. Three tests pass
 against the actual composed Rust runtime. Full source fixture provenance remains
 documented in `CONTRACT_EXECUTION_FIDELITY.md`.
+
+## V3 lifecycle and portable command slices
+
+Explicit `SourceLifecycleV3` emits TLCRv3 with its own bootstrap policy domain.
+The default remains V2. The original compiled V1 and V2 fixture journals are
+immutable compatibility inputs; a repaired checksum cannot promote either to
+V3. New definition, channel and declared realm capabilities are gated to V3.
+
+`SOURCE_TRANSITION_WITNESS.md` documents the separate TLSWv1 conditional command
+slice. Verification restores the complete prior TLCR journal and re-executes
+original admitted commands. It accepts neither supplied poststate nor dependency
+answers. An independently retained expected pre-head and explicit execution
+boundary are required. It leaves TLSEv1 unchanged and supplies no actor, UTXO,
+chain or custody authentication to an external consumer.
