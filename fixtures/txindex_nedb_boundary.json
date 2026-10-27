@@ -1,0 +1,156 @@
+{
+  "boundary": "genuine NeDB1.8.0 under narrowly restored legacy Node util helpers",
+  "legacyHost": [
+    "util.isDate=util.types.isDate",
+    "util.isRegExp=util.types.isRegExp"
+  ],
+  "original": {
+    "_id": "boundary",
+    "decodedParams": {
+      "$promise": 1
+    },
+    "rejectedParams": {
+      "$promise": 2
+    },
+    "error": {
+      "$error": {
+        "name": "Error",
+        "message": "returned error"
+      }
+    },
+    "missing": {
+      "$undefined": true
+    },
+    "nan": {
+      "$number": "NaN"
+    },
+    "infinity": {
+      "$number": "Infinity"
+    },
+    "negativeInfinity": {
+      "$number": "-Infinity"
+    },
+    "negativeZero": {
+      "$number": "-0"
+    },
+    "array": [
+      {
+        "$undefined": true
+      },
+      {
+        "$number": "NaN"
+      },
+      {
+        "$number": "-0"
+      }
+    ]
+  },
+  "memoryCopy": {
+    "_id": "boundary",
+    "decodedParams": {},
+    "rejectedParams": {},
+    "error": {},
+    "missing": {
+      "$undefined": true
+    },
+    "nan": {
+      "$number": "NaN"
+    },
+    "infinity": {
+      "$number": "Infinity"
+    },
+    "negativeInfinity": {
+      "$number": "-Infinity"
+    },
+    "negativeZero": {
+      "$number": "-0"
+    },
+    "array": [
+      {
+        "$undefined": true
+      },
+      {
+        "$number": "NaN"
+      },
+      {
+        "$number": "-0"
+      }
+    ]
+  },
+  "serialized": "{\"_id\":\"boundary\",\"decodedParams\":{},\"rejectedParams\":{},\"error\":{},\"nan\":null,\"infinity\":null,\"negativeInfinity\":null,\"negativeZero\":0,\"array\":[null,null,0]}",
+  "reloaded": {
+    "_id": "boundary",
+    "decodedParams": {},
+    "rejectedParams": {},
+    "error": {},
+    "nan": null,
+    "infinity": null,
+    "negativeInfinity": null,
+    "negativeZero": 0,
+    "array": [
+      null,
+      null,
+      0
+    ]
+  },
+  "futures": [
+    {
+      "id": 1,
+      "status": "fulfilled",
+      "value": {
+        "$error": {
+          "name": "Error",
+          "message": "Invalid payload"
+        }
+      }
+    },
+    {
+      "id": 2,
+      "status": "rejected",
+      "error": {
+        "name": "TypeError",
+        "message": "decoder rejection"
+      }
+    }
+  ],
+  "rejectedFields": [
+    {
+      "input": {
+        "_id": "bad",
+        "nested": {
+          "$bad": 1
+        }
+      },
+      "thrown": {
+        "name": "Error",
+        "message": "Field names cannot begin with the $ character"
+      }
+    },
+    {
+      "input": {
+        "_id": "bad",
+        "dotted.key": 1
+      },
+      "thrown": {
+        "name": "Error",
+        "message": "Field names cannot contain a ."
+      }
+    }
+  ],
+  "duplicate": {
+    "thrown": {
+      "name": "Error",
+      "message": "Can't insert key same, it violates the unique constraint"
+    },
+    "properties": {
+      "key": "same",
+      "errorType": "uniqueViolated"
+    },
+    "rows": [
+      {
+        "_id": "same",
+        "value": 1
+      }
+    ]
+  }
+}

@@ -126,3 +126,10 @@ fixtures/source_contract_execution_vectors.tsv text eol=lf -whitespace
 fixtures/source_channel_txutils_reference.txt -text -whitespace
 fixtures/source_contract_replay_v2.bin -text
 fixtures/source_contract_replay_v3.bin -text
+fixtures/source_contract_replay_v4.bin -text
+
+# Reproducible whole-source txIndex oracle records.
+fixtures/txindex_source_proof10.jsonl text eol=lf
+fixtures/txindex_source_vectors.jsonl text eol=lf
+fixtures/txindex_source_method_inventory.json text eol=lf
+fixtures/txindex_nedb_boundary.json text eol=lf

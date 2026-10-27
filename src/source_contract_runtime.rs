@@ -20,6 +20,7 @@ pub enum SourceContractRuntimePolicy {
     GlobalClearingV2,
     SourceLifecycleV3,
     OptionLifecycleV4,
+    DistributionLifecycleV5,
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StorageFailure {
@@ -346,7 +347,9 @@ impl SourceContractRuntime {
             set(
                 &mut value,
                 "runtimePolicy",
-                s(if self.core.option_lifecycle_enabled() {
+                s(if self.core.distribution_lifecycle_enabled() {
+                    "DistributionLifecycleV5"
+                } else if self.core.option_lifecycle_enabled() {
                     "OptionLifecycleV4"
                 } else if self.core.lifecycle_enabled() {
                     "SourceLifecycleV3"
@@ -529,6 +532,10 @@ impl SourceContractRuntime {
     ) -> Result<SourceOutcome, SourceRuleError> {
         self.last_parameters = None;
         if arguments.get(1) != Some(&n(18.0))
+            && !(self.core.distribution_lifecycle_enabled()
+                && [26., 28., 29.]
+                    .iter()
+                    .any(|kind| arguments.get(1) == Some(&n(*kind))))
             && !(self.core.option_lifecycle_enabled()
                 && [24., 25., 27.]
                     .iter()
@@ -567,6 +574,13 @@ impl SourceContractRuntime {
             crate::types_source::TypesOutcome::Returned(params) => {
                 self.last_parameters = Some(params.clone());
                 let logic = if params.get("valid") == V::Bool(true)
+                    && self.core.distribution_lifecycle_enabled()
+                    && [26., 28., 29.]
+                        .iter()
+                        .any(|kind| arguments.get(1) == Some(&n(*kind)))
+                {
+                    self.source_distribution_raw_logic(&arguments[1], &params)?
+                } else if params.get("valid") == V::Bool(true)
                     && self.core.option_lifecycle_enabled()
                     && arguments.get(1) == Some(&n(27.0))
                 {
@@ -689,6 +703,7 @@ impl ContractCore {
             SourceContractRuntimePolicy::GlobalClearingV2
                 | SourceContractRuntimePolicy::SourceLifecycleV3
                 | SourceContractRuntimePolicy::OptionLifecycleV4
+                | SourceContractRuntimePolicy::DistributionLifecycleV5
         )
     }
     fn lifecycle_enabled(&self) -> bool {
@@ -696,10 +711,18 @@ impl ContractCore {
             self.policy,
             SourceContractRuntimePolicy::SourceLifecycleV3
                 | SourceContractRuntimePolicy::OptionLifecycleV4
+                | SourceContractRuntimePolicy::DistributionLifecycleV5
         )
     }
     fn option_lifecycle_enabled(&self) -> bool {
-        self.policy == SourceContractRuntimePolicy::OptionLifecycleV4
+        matches!(
+            self.policy,
+            SourceContractRuntimePolicy::OptionLifecycleV4
+                | SourceContractRuntimePolicy::DistributionLifecycleV5
+        )
+    }
+    fn distribution_lifecycle_enabled(&self) -> bool {
+        self.policy == SourceContractRuntimePolicy::DistributionLifecycleV5
     }
     fn rows(&self, name: &str) -> &[V] {
         self.tables
@@ -1191,6 +1214,13 @@ impl ContractCore {
     fn dispatch(&mut self, call: &DependencyCall) -> R<V> {
         let a = &call.arguments;
         let target = call.target.as_str();
+        if self.distribution_lifecycle_enabled() {
+            if let Some(method) = target.strip_prefix("Logic.") {
+                if ["payToTokens", "tradeBaiUrbun", "tradeMurabaha"].contains(&method) {
+                    return self.source_distribution_logic(method, a);
+                }
+            }
+        }
         if self.option_lifecycle_enabled() {
             if let Some(method) = target.strip_prefix("Logic.") {
                 if [
@@ -1493,14 +1523,15 @@ impl SourceBackend for ContractCore {
                 | "Activation.areActivationsAboveThreshold"
                 | "Clock.nowISOString"
                 | "Clock.now"
-        ) || (self.lifecycle_enabled()
-            && matches!(
-                call.target.as_str(),
-                "Contract.getInstance"
-                    | "Contract.isValidSeriesId"
-                    | "Logic.withdrawal"
-                    | "TxUtils.getAddressTypeUniversal"
-            ))
+        ) || (self.distribution_lifecycle_enabled() && call.target == "Logic.tradeMurabaha")
+            || (self.lifecycle_enabled()
+                && matches!(
+                    call.target.as_str(),
+                    "Contract.getInstance"
+                        | "Contract.isValidSeriesId"
+                        | "Logic.withdrawal"
+                        | "TxUtils.getAddressTypeUniversal"
+                ))
             || (self.option_lifecycle_enabled()
                 && matches!(
                     call.target.as_str(),
@@ -1671,3 +1702,5 @@ include!("source_contract_position_identity_impl.rs");
 include!("source_option_trade_impl.rs");
 include!("source_synthetic_lifecycle_impl.rs");
 include!("source_derivative_exercise_impl.rs");
+
+include!("source_distribution_lifecycle_impl.rs");

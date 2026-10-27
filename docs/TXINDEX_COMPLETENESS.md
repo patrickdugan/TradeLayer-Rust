@@ -1,29 +1,58 @@
-# txIndex completeness
+# txIndex completeness boundaries
 
-The parallel scanner is implemented. The remaining source-port work is the
-complete pinned `txIndex.js` database lifecycle, which should be tracked
-separately from performance promotion and authenticated chain admission.
+The parallel scanner and literal source metadata owner are implemented as
+separate components. Their integration and performance promotion are separate
+gates; neither is a claim of authenticated Bitcoin input.
 
-| Area | Verified scope | Remaining work |
+| Component | Implemented scope | Remaining gate |
 | --- | --- | --- |
-| Read-only scanner | Bounded parallel fetch, fused parsing, TXID/wTXID hashing, TL carrier extraction, deterministic source ordering, Merkle comparison and optional same-block dependency waves | Broader real-chain interoperability measurements |
-| Literal JavaScript behavior | Pinned marker/first-nulldata behavior, reference projection and three-versus-nine-argument decoder mismatch are characterized independently | Whole initialization, MaxHeight and recovery flags, transaction rows/lookups, validity updates and clear/reset owner, including source failures and restart behavior |
-| HashMap performance candidate | External PR141 has source-order equivalence checks, synthetic CPU measurements and a real mainnet block-1 smoke test | Representative multi-transaction real-block CPU and peak-RSS measurements on the intended host before promotion |
-| Authenticated admission | Existing scanner reports remain explicitly unverified | Parent UTXO/script and authoritative chain/context integration in its separate worker lane |
+| Parallel scanner | Bounded fetch, fused raw parsing and TXID/wTXID checks, TL candidate extraction, deterministic source-order reduction and optional dependency waves | Compose source metadata writes under an explicit execution policy |
+| Literal `txIndex.js` owner | All 21 methods plus constructor/singleton, client and DB initialization, MaxHeight/recovery flags, row insert/update/lookups, validity updates, source clear/reset errors and sequential RPC scans | Broader JS/RegExp domains and production backend integration |
+| HashMap reducer candidate | Externally owned draft PR141 and its existing synthetic evidence | Representative real-block CPU and peak-RSS measurements on the intended host |
 
-The local source baseline is `dd79498`. This assessment inspected
-`src/parallel_txindex.rs`, `src/raw_block_ingest.rs`,
-`src/legacy_txindex_audit.rs`, their tests and existing source/throughput reviews.
-Generic journal and durable observer functionality does not establish a
-complete literal TxIndex owner.
+The metadata owner is `TxIndexSourceOwner`. Its unchanged-source oracle covers
+320 observations, of which 319 compare supported Rust execution and one records
+an explicit local refusal of arbitrary RegExp injection. The genuine NeDB
+reference includes memory/disk differences, invalid keys, duplicate-key behavior
+at the backend boundary, source retained errors and retries. See
+`TXINDEX_SOURCE_REFERENCE.md` and `TXINDEX_SOURCE_OWNER.md` for exact scopes.
+Integrated Rust verification is recorded in
+`fixtures/reference_fidelity/source-index-distribution.json`.
 
-PR141 was read through GitHub on 27 October 2026 at
-`8cb31416adf36dc7eefa53a396a40659eb3a6668`: open, draft and unmerged. Its body
-explicitly leaves representative real-block CPU/RSS evidence pending.
-[PR141](https://github.com/patrickdugan/TradeLayer-Rust/pull/141) remains owned by
-the external worker; this assessment changes no scheduler or candidate branch.
+`processTransaction` really invokes Types with three arguments and does not
+await the returned Promise. Rust preserves that original call and its unused
+settlement rather than supplying a decoded success. Ordinary NeDB persistence
+copies the Promise to an empty object. Source MaxHeight and startup rejection
+suffixes are compared after draining the declared reference boundary. Exact
+return-time/intercommand concurrency and production host survival after an
+unhandled rejection are outside this component API.
 
-Full Bitcoin validation is not a prerequisite for describing read-only scanning
-as implemented. It is a separate gate before treating observations as accepted
-state-changing inputs. The source DB lifecycle remains an independent porting
-task; neither that lifecycle nor a faster reducer supplies authentication.
+A TLTI checkpoint restores the source owner's cache and singleton state.
+External database rows, RPC facts, failure schedules and an independently
+expected replay head belong to a composing runtime. A CRC or hash alone does
+not establish execution history or authentication. Local owner rollback cannot
+undo arbitrary side effects already performed by a generic backend; atomic
+composition requires a transactional or candidate backend.
+
+PR141 was last checked open, draft and unmerged at head
+`8cb31416adf36dc7eefa53a396a40659eb3a6668`. The external worker retains ownership
+of that lane. This port does not change its scanner or reducer implementation.
+Bitcoin parent-UTXO, script and chain admission are separate authenticated-input
+gates, not missing scanner code. TL emits checkable state-oracle data; UTXORef
+is an external consumer.
+
+## Current storage direction
+
+Merged PR142 (`41007c5`) supplies the actual cookie-authenticated Bitcoin Core
+bulk raw-block bridge and bounded Rust candidate consumer. This integration
+uses that merged code. The compact-index research is tracked by PR143 against
+upstream Bitcoin Core36629; it is not a TL dependency or a whole-output-script
+prefix scan. Varying TL OP_RETURN payloads still use complete raw blocks.
+
+External draft PR144 supplies durable SQLite candidate staging with independent
+transaction/Merkle binding; draft PR145 explores immutable native Rust segment
+publication. They are candidate-evidence storage lanes. Neither is a general
+NeDB metadata replacement yet. The new literal owner has no Rust NeDB runtime:
+genuine NeDB is used only to compare the old implementation in tests. The
+production direction is an explicit compact candidate-store adapter, followed
+by logic execution over verified inputs, with no migration back to NeDB.

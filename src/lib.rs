@@ -120,6 +120,7 @@ pub mod storage; // Bounded OS-locked disk journal and explicit restart recovery
 pub mod tally; // Source tally projections and fee metadata, no independent spendable ledger.
 pub mod token_settlement_source;
 pub mod trade_history; // Caller-supplied trade reporting and canonical checkpoints; no settlement authority.
+pub mod txindex_source_owner;
 pub mod types_economic; // Unverified exact mapping into supported economic handlers.
 pub mod types_source; // Full source decode-to-validity orchestration.
 pub mod unified_chain; // Offline reversible registry+ledger block projection; adapter external.

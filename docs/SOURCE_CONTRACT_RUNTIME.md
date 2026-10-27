@@ -86,7 +86,7 @@ Component suites independently compare109 placement/queue actions, nine reclaim 
 
 ## Remaining gates
 
-This bounded on-chain execution path does not complete the entire orderbook, MarginMap, ContractRegistry or Clearing module. V3 adds the explicitly tested definition/channel paths above. Remaining inactive/unreached methods, options and synthetic lifecycle, production storage/query equivalence and authenticated input/history remain separate gates. Active global block funding/ADL/liquidation and option-expiry paths now have independent composed source coverage described above. Arithmetic remains resource bounded. The new funding, liquidation, insurance and expiry helpers retain the source nonfinite/signed-zero cases exercised by their corpora; older finite-only adapters and unsupported option-pricing domains still reject explicitly. Diagnostic Number nonfinites and negative zero are retained where the source produces them. Large malformed/nontransitive V8 sort inputs have an explicit unsupported boundary in the placement owner. Object-identity graphs outside the explicit queue and margin alias capabilities are unsupported.
+This bounded on-chain execution path does not complete the entire orderbook, MarginMap, ContractRegistry or Clearing module. V3 adds the explicitly tested definition/channel paths above. V4 adds the tested option and synthetic lifecycle. Remaining inactive/unreached methods, broader domains, production storage/query equivalence and authenticated input/history remain separate gates. Active global block funding/ADL/liquidation and option-expiry paths now have independent composed source coverage described above. Arithmetic remains resource bounded. The new funding, liquidation, insurance and expiry helpers retain the source nonfinite/signed-zero cases exercised by their corpora; older finite-only adapters and unsupported option-pricing domains still reject explicitly. Diagnostic Number nonfinites and negative zero are retained where the source produces them. Large malformed/nontransitive V8 sort inputs have an explicit unsupported boundary in the placement owner. Object-identity graphs outside the explicit queue and margin alias capabilities are unsupported.
 
 Replay snapshots re-execute original commands and compare outcomes, effects and actual continuation state; see `SOURCE_CONTRACT_REPLAY.md`. An independently expected replay head is required. Integrity hashes/checksums do not establish signer authority, chain provenance, fraud-proof completeness or historical acceptance. A portable conditional literal-source command-slice witness is exported for raw18 and its real queue/fee/global-clearing phases; see `SOURCE_TRANSITION_WITNESS.md`. It verifies actual execution against an independent expected pre-head and explicit source/boundary/policy descriptor. It is not a complete authenticated per-transaction or whole-block fraud proof.
 
@@ -114,3 +114,17 @@ TLSW1 still covers its original raw18/queue/fees/clearing slices; this batch
 does not export new authenticated option/synthetic fraud proofs. See the five
 V4 method reviews and `fixtures/reference_fidelity/source-option-lifecycle.json`
 for checked scope and remaining gates.
+
+## DistributionLifecycleV5
+
+The V5 graph inherits V4 and adds the actual payToTokens, BaiUrbun and Murabaha
+member calls, with raw26/28/29 Types admission. The complete unchanged source
+reaches wrong-receiver or missing-helper errors before these handlers can
+perform financial writes. Original error priority and synchronous/Promise
+transport are retained. Four import orders and 146 observations include 144
+Rust-comparable observations and two separate Node-only genuine Tally-instance
+probes. See `SOURCE_DISTRIBUTION_LIFECYCLE.md`.
+
+TLCRv5 binds a distinct bootstrap domain; an independently captured compiled V4
+fixture restores populated Vault, option and index state with exact old bytes
+and future route refusals. V1-V4 retain their prior graphs; default stays V2.

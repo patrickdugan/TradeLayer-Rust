@@ -1,0 +1,15 @@
+{
+  "policy": "OptionLifecycleV4",
+  "commands": 14,
+  "head": "a294259075ae5cb069be1f549fae755f02e0d6d166321ca85084e6a7454dd5ee",
+  "fixtureSha256": "1af493eac866c75bf73ca57c275c03672e048537d44eb76c539812baff105f18",
+  "bytes": 14588,
+  "releaseLibrarySha256": "2a23d76ddf5f0f0440a82ddcadcc3d62ad08b04c9e70b3b3dd5d7ddda257466f",
+  "implementationInputs": 714,
+  "frozenInputHash": "694ce3fd104f97e207d6b18d56e5683466c09039b7870bef32ced40e0f616e5b",
+  "generatorSha256": "38e223ff87c9e10ffa845d45e7617a90caf7f9f63d3134e92539f8ca49ea33b7",
+  "compiler": "Rust1.90.0 MSVC",
+  "commitPending": false,
+  "compiledCommit": "c025384c8353122b3a69c4966a7f63414c3a5987",
+  "scope": "Actual Vault and synthetic maps, option position, populated ordered expiry indexes and saved margin deltas; future V5 direct/raw route refusals."
+}

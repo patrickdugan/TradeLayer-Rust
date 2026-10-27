@@ -7,3 +7,6 @@
 
 # Private, node-backed archival observations and differential logs
 /archive/
+
+# Disposable genuine legacy-NeDB oracle databases.
+/work/nedb/

@@ -147,3 +147,14 @@ from original commands. The independent compiled V3 fixture at
 before V4 code existed. Its original 10-command head is an external test pin;
 correcting CRC and replacing a bootstrap field cannot promote its history.
 V1-V3 retain their earlier capability graphs; default construction remains V2.
+
+## DistributionLifecycleV5
+
+V5 uses TLCRv5 and bootstrap domain `TradeLayer/SourceContractBootstrap/v5/`.
+It inherits V4 and records the literal distribution/financing failure graph.
+The independently captured 14-command V4 fixture contains actual Vault,
+synthetic and Margin state with populated expiry indexes. Tests require its
+external expected head, restore exact bytes/outcomes/effects, continue V4 and
+reject V4/V5 version or bootstrap substitution even with a repaired CRC.
+Default replay construction remains V2. These integrity checks do not
+establish actor authority or historical chain provenance.

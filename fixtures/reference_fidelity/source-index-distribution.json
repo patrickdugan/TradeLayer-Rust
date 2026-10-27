@@ -1,0 +1,160 @@
+{
+  "schema": "source-index-distribution-validation-v1",
+  "verifiedAtUtc": "2026-10-27T05:02:26Z",
+  "parentCommit": "c025384c8353122b3a69c4966a7f63414c3a5987",
+  "upstreamMergeParent": "41007c5dd423d6fffca32a849404ac52c0caf72c",
+  "mergedPr": 142,
+  "bitcoinCoreBridgePythonTests": 10,
+  "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "rustVersion": "1.90.0",
+  "passedTestExecutions": 1421,
+  "topLevelTests": 1420,
+  "subprocessTestPasses": 1,
+  "executableTargets": 201,
+  "newRustTests": 14,
+  "runtimePolicy": "DistributionLifecycleV5",
+  "defaultRuntimePolicy": "GlobalClearingV2",
+  "literalSettlement": true,
+  "distributionObservations": 146,
+  "distributionRustComparable": 144,
+  "distributionSourceCalls": 136,
+  "distributionBindingAdapters": 4,
+  "distributionResets": 4,
+  "distributionNodeOnlyInstanceProbes": 2,
+  "txIndexObservations": 320,
+  "txIndexSuccessfulComparisons": 319,
+  "txIndexExplicitRegExpRefusals": 1,
+  "txIndexCallableMethods": 21,
+  "txIndexStaticMethods": 18,
+  "txIndexInstanceMethods": 3,
+  "txIndexConstructor": true,
+  "txIndexScopes": {
+    "reset": 61,
+    "constructor": 22,
+    "restart": 4,
+    "static": 211,
+    "instance": 22
+  },
+  "txIndexRecordSha256": "94dc759fbe6925d72c4400b11869658d6776e947e86c46f16b6b921dde34801b",
+  "observationsIncludeResetStates": true,
+  "numericReference": {
+    "archived": "genuine9.3.1",
+    "locked": "genuine source-lock9.1.2 with raw SHA-verified preloader",
+    "lockedRustTests": 63,
+    "lockedTargets": 25
+  },
+  "replay": {
+    "version": 5,
+    "legacyVersions": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "v4CompiledCommit": "c025384c8353122b3a69c4966a7f63414c3a5987",
+    "v4Fixture": "fixtures/source_contract_replay_v4.bin",
+    "v4FixtureSha256": "1af493eac866c75bf73ca57c275c03672e048537d44eb76c539812baff105f18",
+    "v4Commands": 14,
+    "v4ExpectedHead": "a294259075ae5cb069be1f549fae755f02e0d6d166321ca85084e6a7454dd5ee",
+    "independentExpectedHeadRequired": true,
+    "repairedCrcVersionPromotionRejected": true,
+    "authenticationEstablished": false
+  },
+  "distributionScope": "Actual payToTokens, BaiUrbun and Murabaha direct/raw error prefixes and argument/transport behavior over the actual unchanged source modules. No financial success is reachable in the admitted source member graph.",
+  "txIndexScope": "Constructor/singleton/client initialization, recovery flags/MaxHeight, complete row lifecycle and validity writes/lookups/clear/reset, RPC-forward scans, reached actual TxUtils/Types decoder graph, source failures/restart and stable-after-drain continuations.",
+  "txIndexBackend": "External DB/RPC authority stays supplied through SourceBackend; component TLTI checkpoints bind owner state only and do not authenticate external state or source history.",
+  "txIndexHostBoundary": "The diagnostic host records genuine unhandled rejections; it does not assert production Node survives its default termination policy.",
+  "txIndexTiming": "Comparison/checkpoint boundary is stable after source continuations drain; return-time snapshots are independently recorded by Node and are not an owner timing capability.",
+  "txIndexScannerCompositionEstablished": false,
+  "sourcePreservedDefects": [
+    "payToTokens unbound Tally or missing class totalTokens",
+    "raw26 wrong validity receiver",
+    "missing Bai/Murabaha decoders and earlier payload evaluation failures",
+    "Channels.hasChannel absent",
+    "Murabaha this.channelsRegistry absent",
+    "unawaited original three-argument Types Promise retained/copied as an ordinary empty NeDB object",
+    "source background MaxHeight/client/decoder rejections and retained failure prefixes"
+  ],
+  "genuineNeDB": {
+    "version": "1.8.0",
+    "modelSha256": "57d4551a20abcd4efe48880700d30378f09b7e8b145617010729562837b27258",
+    "datastoreSha256": "9c5575bdaba5127b748305a27f0cac7727595aa9f2f2c15f8735254d765df8ee",
+    "legacyNodeBoundaryShim": "util.isDate/util.isRegExp only when missing; no TL function body changed"
+  },
+  "fullReferenceParityEstablished": false,
+  "completeBlockFraudProof": false,
+  "thirdPartyRustCrates": 0,
+  "supplyMutationTests": 11,
+  "remainingGates": [
+    "scanner/source metadata composition",
+    "arbitrary JavaScript RegExp injection and broader receiver/numeric domains",
+    "production storage/RPC and authenticated history",
+    "representative real-block CPU/RSS for externally owned PR141 promotion",
+    "remaining source handlers and conditional per-type/block witnesses"
+  ],
+  "implementationInputs": 730,
+  "frozenInputHash": "6e7c8a6da21d08db3975e09dddc1eac48e7aa7aa25f94d6febae9876f7d7b963",
+  "logs": {
+    "format": {
+      "passed": true,
+      "emptyOutput": true
+    },
+    "includes-format": {
+      "passed": true,
+      "emptyOutput": true
+    },
+    "clippy": {
+      "name": "source-index-distribution-clippy.log",
+      "sha256": "dd0fd77b4f7aa3564db44bf74923715f8e022cd61806798c6f514c0ab365565a"
+    },
+    "full-tests": {
+      "name": "source-index-distribution-full-tests.log",
+      "sha256": "a6c982d7d9dd2ee890968b4e4f5a751880534c5d82eea9d85cf97f84cc8feb80"
+    },
+    "doctest": {
+      "name": "source-index-distribution-doctest.log",
+      "sha256": "34c310aa1258d7cda7ca03c70fae00f085f5fc3ac3053dce9a2063b0ded8e5e5"
+    },
+    "supply-policy": {
+      "name": "source-index-distribution-supply-policy.log",
+      "sha256": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01"
+    },
+    "supply-mutations": {
+      "name": "source-index-distribution-supply-mutations.log",
+      "sha256": "2a1941d84c300185ed2e5b961b09af8b98bdcf1b0ba1a3c51aa396ce2b5a7504"
+    },
+    "inventory": {
+      "name": "source-index-distribution-inventory.log",
+      "sha256": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393"
+    },
+    "locked-reference": {
+      "name": "source-index-distribution-locked-reference.log",
+      "sha256": "5a2e7eb64f6a8a7ae4e1db10241a2758ab76ea28292341bb22b43fb0d749c016"
+    },
+    "locked-preloader": {
+      "name": "source-index-distribution-locked-preloader.log",
+      "sha256": "45dcbbe6dce81aa39447f73ca189ff78101e648a464e75319f31fd91293e6aad"
+    },
+    "bitcoin-core-bridge": {
+      "name": "source-index-distribution-bitcoin-core-bridge.log",
+      "sha256": "1f88cafc2ce36c82efab6bcb04ac367d863bf24148497c9905cbb8a176f0ac64"
+    },
+    "release": {
+      "name": "source-index-distribution-release.log",
+      "sha256": "8177de0d52ae25ba7edab19174f962e2146c080983518b356fd57378426ea1a7"
+    }
+  },
+  "commands": [
+    "cargo fmt --all -- --check",
+    "rustfmt --check --edition 2021 <all CI include files>",
+    "cargo clippy --frozen --all-targets -- -D warnings",
+    "cargo test --frozen --all-targets",
+    "cargo test --frozen --doc",
+    "cargo build --frozen --release --all-targets",
+    "python scripts/check_rust_supply_chain.py",
+    "python -m unittest discover -s tests -p test_rust_supply_chain.py -v",
+    "python scripts/check_logic_inventory.py",
+    "genuine Node txIndex --proof10 --check and --check",
+    "locked genuine9.1.2 cargo test <25 source/replay targets> with TL_TXINDEX_LOCKED_DEPENDENCY=1"
+  ]
+}

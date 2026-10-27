@@ -1,0 +1,517 @@
+{
+  "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "sourcePath": "src/txIndex.js",
+  "gitBlob": "3d7bdafbdffe5af7d3250c4dcc80b8358c485597",
+  "lfSha256": "095449d90f511df44aff7b316105f57d4c0508ea8fb0b6f9c4a5f358edf6ca51",
+  "completeBytes": 19891,
+  "callableMethods": 21,
+  "constructor": {
+    "line": 13,
+    "cases": [
+      "proof/01-constructor",
+      "proof/02-constructor-singleton",
+      "cache/constructor-does-not-set-class-client",
+      "height/load-flag-rows-as-object-after-constructor",
+      "rows/constructor",
+      "lookup/constructor",
+      "fault/genesis-database-constructor",
+      "fault/genesis-read-constructor",
+      "fault/genesis-insert-constructor",
+      "fault/height-first-update-constructor",
+      "fault/height-flag-update-constructor",
+      "fault/max-read-constructor",
+      "fault/check-swallow-constructor",
+      "fault/query-rethrow-constructor",
+      "fault/validity-scan-constructor",
+      "fault/validity-write-constructor",
+      "fault/instance-init-read-constructor",
+      "fault/instance-save-insert-swallow-constructor",
+      "fault/instance-save-update-swallow-constructor",
+      "fault/instance-load-constructor",
+      "durable/constructor",
+      "bad-key/constructor"
+    ]
+  },
+  "observations": 320,
+  "scopes": {
+    "reset": 61,
+    "constructor": 22,
+    "restart": 4,
+    "static": 211,
+    "instance": 22
+  },
+  "methods": [
+    {
+      "name": "init",
+      "scope": "static",
+      "async": true,
+      "line": 22,
+      "bodySha256": "300af4e92958d36e68f3bd2c296b91060f73c6b4528e5ed024e91c4052b87c13",
+      "cases": [
+        "proof/03-static-init",
+        "cache/static-init-only",
+        "client/undefined-raw-factory-value-init",
+        "client/null-raw-factory-value-init",
+        "client/false-raw-factory-value-init",
+        "client/0-raw-factory-value-init",
+        "client/\"client-without-methods\"-raw-factory-value-init",
+        "client/{}-raw-factory-value-init",
+        "rpcfault/client-init",
+        "rpcretry/client-init"
+      ]
+    },
+    {
+      "name": "getInstance",
+      "scope": "static",
+      "async": true,
+      "line": 30,
+      "bodySha256": "8bf6990696716776aaa563a231f212084d043c670af14550e16223eedf3bf86b",
+      "cases": [
+        "proof/04-get-instance-reinitializes",
+        "cache/getInstance-after-restart",
+        "cache/repeat-getInstance-repeats-client-init",
+        "rows/restart-new-singleton",
+        "rpc/init",
+        "block/init",
+        "rpcfault/client-init-init",
+        "rpcfault/chain-tip-wrapped-init",
+        "rpcfault/block-hash-rethrow-init",
+        "rpcfault/block-rethrow-init",
+        "rpcfault/raw-rethrow-init",
+        "rpcfault/decoder-swallow-init",
+        "rpcfault/sender-first-read-caught-init",
+        "rpcfault/sender-parent-read-rejects-init",
+        "rpcfault/outputs-read-caught-then-filter-throws-init",
+        "rpcfault/block-row-write-caught-init",
+        "rpcfault/block-max-write-rejects-init",
+        "rpcfault/block-flag-write-rejects-init",
+        "extract/normal-from-1-init",
+        "extract/undefined-start-defaults0-init",
+        "extract/null-start-defaults0-init",
+        "extract/already-above-tip-init",
+        "extract/forward-no-max-starts-tip-init",
+        "extract/forward-resumes-plus1-init",
+        "extract/forward-string-max-concatenates-init",
+        "extract/forward-false-string-does-not-enable-init",
+        "extract/forward-uppercase-does-not-enable-init",
+        "extract/failure-init",
+        "extract/background-0-init",
+        "extract/background-1-init",
+        "durable/new-instance",
+        "serialized/legacy-init",
+        "serialized/segwit_same_txid-init"
+      ]
+    },
+    {
+      "name": "initializeIndex",
+      "scope": "static",
+      "async": true,
+      "line": 39,
+      "bodySha256": "31aa6a45214f3c7000970afa2b1bbebb35b4be62dbb64c7b5a6c3d3487c170fb",
+      "cases": [
+        "proof/05-initialize-genesis",
+        "proof/06-existing-genesis",
+        "fault/genesis-database",
+        "retry/genesis-database",
+        "fault/genesis-read",
+        "retry/genesis-read",
+        "fault/genesis-insert",
+        "retry/genesis-insert",
+        "durable/genesis-object-with-undefined-and-nan",
+        "bad-key/genesis-nested-dollar-rejects",
+        "bad-key/genesis-valid-retry"
+      ]
+    },
+    {
+      "name": "extractBlockData",
+      "scope": "static",
+      "async": true,
+      "line": 64,
+      "bodySha256": "a74199e2f25f00669202c134ed80450efd88d272fb6f220d2ad2d0f22f2a49f7",
+      "cases": [
+        "extract/normal-from-1",
+        "extract/undefined-start-defaults0",
+        "extract/null-start-defaults0",
+        "extract/already-above-tip",
+        "extract/forward-no-max-starts-tip",
+        "extract/forward-resumes-plus1",
+        "extract/forward-string-max-concatenates",
+        "extract/forward-false-string-does-not-enable",
+        "extract/forward-uppercase-does-not-enable",
+        "extract/max-read-error-falls-back-to-original-start",
+        "extract/background-0-primary-return-is-undefined",
+        "extract/background-1-primary-return-is-undefined"
+      ]
+    },
+    {
+      "name": "saveMaxHeight",
+      "scope": "static",
+      "async": true,
+      "line": 109,
+      "bodySha256": "20f79f464df5c06747e4fccd33532fa1afa915704626fb5c57b139d079875efa",
+      "cases": [
+        "proof/08-save-height",
+        "cache/save-before-restart",
+        "height/save-undefined-undefined",
+        "height/save-object-null",
+        "height/save-number-0",
+        "height/save-boolean-false",
+        "height/save-string-0",
+        "height/save-number-NaN",
+        "height/save-number--0",
+        "height/save-string-12",
+        "height/save-number-Infinity",
+        "fault/height-first-update",
+        "retry/height-first-update",
+        "fault/height-flag-update",
+        "retry/height-flag-update",
+        "durable/height-nan-memory"
+      ]
+    },
+    {
+      "name": "fetchChainTip",
+      "scope": "static",
+      "async": true,
+      "line": 138,
+      "bodySha256": "83b57c4c32c0adbb6e4ad6ee7a70d606b0edbe473c630563cd0b87a7784ba650",
+      "cases": [
+        "cache/static-client-absent",
+        "cache/client-still-absent",
+        "cache/fetch-tip",
+        "client/undefined-raw-factory-value-fetch-tip",
+        "client/null-raw-factory-value-fetch-tip",
+        "client/false-raw-factory-value-fetch-tip",
+        "client/0-raw-factory-value-fetch-tip",
+        "client/\"client-without-methods\"-raw-factory-value-fetch-tip",
+        "client/{}-raw-factory-value-fetch-tip",
+        "rpc/chain-tip",
+        "rpcfault/chain-tip-wrapped",
+        "rpcretry/chain-tip-wrapped"
+      ]
+    },
+    {
+      "name": "fetchBlockData",
+      "scope": "static",
+      "async": true,
+      "line": 148,
+      "bodySha256": "599dd160d0dfa97ca27bfc50e88bb5047d8ffc88a3c69371d834f51d1f76b508",
+      "cases": [
+        "rpc/block-height",
+        "rpcfault/block-hash-rethrow",
+        "rpcretry/block-hash-rethrow",
+        "rpcfault/block-rethrow",
+        "rpcretry/block-rethrow"
+      ]
+    },
+    {
+      "name": "processBlockData",
+      "scope": "static",
+      "async": true,
+      "line": 161,
+      "bodySha256": "2351be6360c3bd5ee8aced6c10c30fd305241bcd1e8af45559cc90187f30e7e2",
+      "cases": [
+        "rpc/process-block-actual-promise-copy",
+        "block/sequential-mixed",
+        "block/retry-duplicates-update-docs",
+        "block/no-marker-does-not-advance-max",
+        "block/malformed-tx-list",
+        "rpcfault/block-row-write-caught",
+        "rpcretry/block-row-write-caught",
+        "rpcfault/block-max-write-rejects",
+        "rpcretry/block-max-write-rejects",
+        "rpcfault/block-flag-write-rejects",
+        "rpcretry/block-flag-write-rejects",
+        "serialized/legacy-whole-process",
+        "serialized/segwit_same_txid-whole-process"
+      ]
+    },
+    {
+      "name": "fetchTransactionData",
+      "scope": "static",
+      "async": true,
+      "line": 199,
+      "bodySha256": "43a419526b96623969859c8b3d7ec05664c173def23329514baf86421197c8c8",
+      "cases": [
+        "rpc/raw-original-arity",
+        "rpc/verbose-request",
+        "rpcfault/raw-rethrow",
+        "rpcretry/raw-rethrow",
+        "serialized/legacy-fetch",
+        "serialized/segwit_same_txid-fetch"
+      ]
+    },
+    {
+      "name": "DecodeRawTransaction",
+      "scope": "static",
+      "async": true,
+      "line": 241,
+      "bodySha256": "e8b064a0661e965cb43cebed9a83711daf7ad5fe31919d20a1ea49427d8e3cf0",
+      "cases": [
+        "rpc/decode-raw",
+        "decode/normal-offset4",
+        "decode/fallback-offset2",
+        "decode/offset5",
+        "decode/offset6",
+        "decode/too-late",
+        "decode/uppercase-marker",
+        "decode/odd-trailing-nibble",
+        "decode/empty-payload",
+        "decode/non-ascii-byte",
+        "decode/high-latin1-byte",
+        "decode/invalid-hex-truncation",
+        "decode/no-nulldata",
+        "decode/null-decoded",
+        "decode/malformed-vout",
+        "decode/first-nulldata-wins",
+        "rpcfault/decoder-swallow",
+        "rpcretry/decoder-swallow",
+        "serialized/legacy-decode",
+        "serialized/segwit_same_txid-decode"
+      ]
+    },
+    {
+      "name": "isPrintableASCII",
+      "scope": "static",
+      "async": false,
+      "line": 294,
+      "bodySha256": "de13f6a968cd16829a303cdfd472addf3b2a31fe4950f78a88373e2f9974e726",
+      "cases": [
+        "ascii/\"\"",
+        "ascii/\" ~\"",
+        "ascii/\"line\\n\"",
+        "ascii/\"é\"",
+        "ascii/{\"$undefined\":true}",
+        "ascii/null",
+        "ascii/1",
+        "ascii/[]",
+        "ascii/[\"A\",\"B\"]",
+        "ascii/{\"$buffer\":\"00\"}",
+        "ascii/{\"$buffer\":\"ff\"}"
+      ]
+    },
+    {
+      "name": "processTransaction",
+      "scope": "static",
+      "async": true,
+      "line": 301,
+      "bodySha256": "de6567f559bbe6762c0a8d560a26605928a4ddd04088b5a052913ffe09040456",
+      "cases": [
+        "rpc/real-TxUtils-and-unawaited-Types",
+        "rpc/payload-tl-unknown-type-future",
+        "rpc/numeric-marker-rejected-future",
+        "rpcfault/sender-first-read-caught",
+        "rpcretry/sender-first-read-caught",
+        "rpcfault/sender-parent-read-rejects",
+        "rpcretry/sender-parent-read-rejects",
+        "rpcfault/outputs-read-caught-then-filter-throws",
+        "rpcretry/outputs-read-caught-then-filter-throws",
+        "raw-input/no-vin",
+        "raw-input/no-parent-id",
+        "raw-input/invalid-parent-vout",
+        "raw-input/string-vout-excluded",
+        "raw-input/output-fraction-and-address-filter",
+        "raw-input/missing-output-script-caught",
+        "startup/outputs-awaits-same-original-rejection"
+      ]
+    },
+    {
+      "name": "upsertTxValidityAndReason",
+      "scope": "static",
+      "async": true,
+      "line": 366,
+      "bodySha256": "7f84fa341dbbc091118ad3500cd90c8fb6c74c4b1906a8399d9d8fc9695fbcc9",
+      "cases": [
+        "rows/validity-on-instance-saved-row",
+        "rows/missing-validity-does-not-create",
+        "lookup/first-prefix-suffix-row-validity",
+        "rpc/validity-is-top-level",
+        "fault/validity-scan",
+        "retry/validity-scan",
+        "fault/validity-write",
+        "retry/validity-write",
+        "bad-key/validity-nested-dollar-reason-rejects",
+        "bad-key/validity-dollar-reason-valid-retry",
+        "bad-key/validity-dotted-reason-rejects",
+        "bad-key/validity-dotted-reason-valid-retry"
+      ]
+    },
+    {
+      "name": "clearTxIndex",
+      "scope": "static",
+      "async": true,
+      "line": 389,
+      "bodySha256": "afe7f4f7e4b52a48585f817c7cf310cc23ffae45141e43233f47967b1f0decc9",
+      "cases": [
+        "height/clear-unbound-Datastore"
+      ]
+    },
+    {
+      "name": "resetIndexFlag",
+      "scope": "static",
+      "async": true,
+      "line": 438,
+      "bodySha256": "e846a29ef748e3b4c95118b51eb30d8a82e9af0ea2466d2d11e71079df1e8752",
+      "cases": [
+        "height/reset-unbound-global"
+      ]
+    },
+    {
+      "name": "findMaxIndexedBlock",
+      "scope": "static",
+      "async": true,
+      "line": 444,
+      "bodySha256": "f7e34a4f2eecf3215982471c85776443f16ffbbca3057acecab11e10d8cfb1a9",
+      "cases": [
+        "proof/07-missing-max",
+        "proof/09-read-max",
+        "cache/max-survives-restart",
+        "height/find-raw-infinity",
+        "fault/max-read",
+        "retry/max-read",
+        "extract/normal-from-1-max-after-background",
+        "extract/undefined-start-defaults0-max-after-background",
+        "extract/null-start-defaults0-max-after-background",
+        "extract/already-above-tip-max-after-background",
+        "extract/forward-no-max-starts-tip-max-after-background",
+        "extract/forward-resumes-plus1-max-after-background",
+        "extract/forward-string-max-concatenates-max-after-background",
+        "extract/forward-false-string-does-not-enable-max-after-background",
+        "extract/forward-uppercase-does-not-enable-max-after-background",
+        "extract/background-0-read-partial-prefix",
+        "extract/background-1-read-partial-prefix",
+        "durable/max-nan-persisted-as-null"
+      ]
+    },
+    {
+      "name": "getTransactionData",
+      "scope": "static",
+      "async": true,
+      "line": 467,
+      "bodySha256": "1c8ce385297a956df69386e7ad4982f60899c6db838a695ab846e0abebfd4036",
+      "cases": [
+        "rows/query-row-without-value",
+        "rows/absent-id-is-null",
+        "lookup/exact-pattern-first-db-match",
+        "lookup/invalid-regexp-[",
+        "lookup/invalid-regexp-(",
+        "lookup/invalid-regexp-)",
+        "lookup/regex-metacharacters-are-source-semantics",
+        "rpc/persisted-promise-is-empty-object",
+        "fault/query-rethrow",
+        "retry/query-rethrow"
+      ]
+    },
+    {
+      "name": "checkForIndex",
+      "scope": "static",
+      "async": true,
+      "line": 485,
+      "bodySha256": "52bba21bf3743c70e70590f0e739347ba191252e22b24ac49e0dfed87fd48fd5",
+      "cases": [
+        "proof/10-index-flag",
+        "height/check-presence-not-value",
+        "fault/check-swallow",
+        "retry/check-swallow"
+      ]
+    },
+    {
+      "name": "saveTransactionData",
+      "scope": "instance",
+      "async": true,
+      "line": 317,
+      "bodySha256": "5592e16a0f3e652d79ae6b220c38eeba6e8a41dc27f760883bf48c6a650e3d11",
+      "cases": [
+        "rows/first-save-uses-last-argument",
+        "rows/update-uses-second-argument-and-payload",
+        "fault/instance-save-insert-swallow",
+        "retry/instance-save-insert-swallow",
+        "fault/instance-save-update-swallow",
+        "retry/instance-save-update-swallow",
+        "bad-key/first-save-dotted-last-argument-caught",
+        "bad-key/first-save-valid-last-argument-retry",
+        "bad-key/update-nested-dollar-second-argument-caught",
+        "bad-key/update-valid-second-argument-retry"
+      ]
+    },
+    {
+      "name": "loadIndex",
+      "scope": "instance",
+      "async": true,
+      "line": 349,
+      "bodySha256": "c05fb90def644895eea0bc5f361e97b1cd613a2f13864d98445d48c22d18e9ba",
+      "cases": [
+        "height/load-index",
+        "rows/load-index-has-undefined-value",
+        "rows/restart-load",
+        "lookup/load-object-integer-key-order",
+        "fault/instance-load",
+        "retry/instance-load",
+        "durable/load-before-real-db-restart",
+        "durable/load-after-real-db-restart"
+      ]
+    },
+    {
+      "name": "initializeOrLoadDB",
+      "scope": "instance",
+      "async": true,
+      "line": 407,
+      "bodySha256": "cfafae7166fe9355c148d82deb3ab075eb45d9a9937140ee4a3cc611a5becf80",
+      "cases": [
+        "rows/init-or-load-genesis",
+        "rows/init-or-load-retains-original",
+        "fault/instance-init-read",
+        "retry/instance-init-read"
+      ]
+    }
+  ],
+  "pins": {
+    "txIndex": [
+      "legacy_txindex_source_txIndex.txt",
+      "095449d90f511df44aff7b316105f57d4c0508ea8fb0b6f9c4a5f358edf6ca51"
+    ],
+    "txUtils": [
+      "source_channel_txutils_reference.txt",
+      "38fbc7b5c1dc4d187867238b5ea00bc165c855e9ccfbc20c48141cd4796ac8a3"
+    ],
+    "types": [
+      "legacy_types_source_types.txt",
+      "a49c1b1f846fe3eab91f4434c9f016586ffddf1bb3fb4492516a065df396a0e1"
+    ],
+    "txEncoder": [
+      "legacy_types_source_txEncoder.txt",
+      "c3b95909e66ef04320501fd8e919ae954f761af0449a09782c083e71a7ef8c42"
+    ],
+    "txDecoder": [
+      "legacy_types_source_txDecoder.txt",
+      "a573e2ad3e843b2c573cb3f61c8d67b64ff05f1a554d36e3ad6bd5764d86d076"
+    ],
+    "base94": [
+      "legacy_base94_source.txt",
+      "0b33c7b2beaa3d86f13a3ef5c995121457281b2d744cc87f8ca58d32070234eb"
+    ],
+    "base256": [
+      "legacy_base256_source.txt",
+      "11a0d6be7142f9baa4e41e9c9c295c80583b803b7d79495ed260d28d45db6edc"
+    ],
+    "converter": [
+      "legacy_base_converter_source.txt",
+      "a047cb70ef64fce2ad7a70ed4dc844efc05d3c72c5ccf4f53ed7957b95b35b62"
+    ]
+  },
+  "dependencies": {
+    "nedb": "1.8.0",
+    "modelSha256": "57d4551a20abcd4efe48880700d30378f09b7e8b145617010729562837b27258",
+    "datastoreSha256": "9c5575bdaba5127b748305a27f0cac7727595aa9f2f2c15f8735254d765df8ee",
+    "bigNumberBaseline": "9.3.1",
+    "bigNumberBaselineSha256": "58ba6fb59668342346f17983a61ace455f6f425ac4fbfab84f489df257594d16",
+    "bigNumberLockReference": "9.1.2",
+    "bigNumberLockSha256": "20db2d8d32fd388a927588beb9c1cdbb2c91ddf0273a180161334b28cb00902e"
+  },
+  "diagnosticOnlyCases": [
+    {
+      "case": "lookup/regex-metacharacters-are-source-semantics",
+      "domain": "arbitrary-regexp"
+    }
+  ],
+  "recordSha256": "94dc759fbe6925d72c4400b11869658d6776e947e86c46f16b6b921dde34801b"
+}

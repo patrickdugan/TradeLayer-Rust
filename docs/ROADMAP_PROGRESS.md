@@ -11,6 +11,30 @@ that worker's branches, publish a branch, or authorize economic transitions.
 
 ## Tracking the 49 source modules
 
+The source-index/distribution batch passes **1,421 Rust test executions**
+(1,420 top-level plus one subprocess) across 201 targets, including 14 new
+tests. Formatting, all-target Clippy, doctests, release, zero-external-crate
+policy and 11 policy mutation tests pass against 730 frozen inputs.
+All 63 focused tests across 25 targets also pass with genuine locked BigNumber
+9.1.2. The complete txIndex oracle executes 320 observations: 319
+successful owner comparisons and one explicit local RegExp-injection refusal.
+All 21 source methods and the constructor are covered. Its component checkpoint
+is diagnostic owner state; external DB/RPC and original source return-time
+scheduling remain separate from this stable-after-drain API.
+
+Opt-in DistributionLifecycleV5 inherits V4 and adds actual payToTokens,
+BaiUrbun and Murabaha error prefixes plus raw26/28/29. Its 146-observation
+corpus includes 144 Rust-comparable observations and two Node-only genuine
+instance probes. Missing source helpers and wrong receivers remain literal;
+no financial success is fabricated. An independently compiled, populated V4
+fixture restores exact old bytes and future refusals. Default remains V2.
+See `fixtures/reference_fidelity/source-index-distribution.json` for evidence.
+The actual merged PR142 CoreRPC/raw-block bridge is integrated from upstream
+41007c5 and checked on the same tree, including 10 Python tests. Native/SQLite
+candidate-store PRs144/145 remain externally owned drafts. Scanner/metadata
+composition, broader source domains, authenticated history,
+full per-type/block proofs and external PR141 CPU/RSS promotion remain gates.
+
 The explicit OptionLifecycleV4 batch passes **1,407 Rust test executions**
 (1,406 top-level plus one subprocess) across 197 executable targets, including 16
 new tests. Formatting, all-target Clippy, doc tests, release, zero-external-crate
