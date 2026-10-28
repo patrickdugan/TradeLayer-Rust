@@ -1,0 +1,210 @@
+{
+  "sourceMainSHA256": "006d59ba3d28d802b0e0c5be2d9d661b58caf1c919a704b3f0d40bc9613c4009",
+  "mainMethods": [
+    {
+      "method": "constructor",
+      "async": false,
+      "status": "constructor input mapping only",
+      "evidence": "none claimed here"
+    },
+    {
+      "method": "static getInstance",
+      "async": true,
+      "status": "PENDING production orchestration",
+      "evidence": "none claimed here"
+    },
+    {
+      "method": "delay",
+      "async": true,
+      "status": "PENDING production orchestration",
+      "evidence": "none claimed here"
+    },
+    {
+      "method": "initialize",
+      "async": true,
+      "status": "V12 selected finite service paths; strict Rust/source/replay checks pass",
+      "evidence": "tests/source_main_service.rs; 72 source frames/41 calls under both numeric profiles; broader service domains remain pending"
+    },
+    {
+      "method": "getCurrentBlockHeight",
+      "async": true,
+      "status": "V12 finite production phase; strict Rust/source/replay checks pass",
+      "evidence": "tests/source_main_production.rs; 68 source frames/39 calls under both numeric profiles"
+    },
+    {
+      "method": "initOrLoadTxIndex",
+      "async": true,
+      "status": "V12 finite production phase; strict Rust/source/replay checks pass",
+      "evidence": "tests/source_main_production.rs; 68 source frames/39 calls under both numeric profiles"
+    },
+    {
+      "method": "syncIndex",
+      "async": true,
+      "status": "V12 finite production phase; strict Rust/source/replay checks pass",
+      "evidence": "tests/source_main_production.rs; 68 source frames/39 calls under both numeric profiles"
+    },
+    {
+      "method": "constructOrLoadConsensus",
+      "async": true,
+      "status": "V12 finite production phase; strict Rust/source/replay checks pass",
+      "evidence": "tests/source_main_production.rs; 68 source frames/39 calls under both numeric profiles"
+    },
+    {
+      "method": "constructConsensusFromIndex",
+      "async": true,
+      "status": "V12 finite production phase; strict Rust/source/replay checks pass",
+      "evidence": "tests/source_main_production.rs; 68 source frames/39 calls under both numeric profiles"
+    },
+    {
+      "method": "checkSync",
+      "async": true,
+      "status": "V12 finite production phase; strict Rust/source/replay checks pass",
+      "evidence": "tests/source_main_production.rs; 68 source frames/39 calls under both numeric profiles"
+    },
+    {
+      "method": "processTxSet",
+      "async": true,
+      "status": "existing validated transaction/mid/height core",
+      "evidence": "existing Root tests"
+    },
+    {
+      "method": "processTx",
+      "async": true,
+      "status": "existing validated transaction/mid/height core",
+      "evidence": "existing Root tests"
+    },
+    {
+      "method": "syncIfNecessary",
+      "async": true,
+      "status": "V12 selected finite service paths; strict Rust/source/replay checks pass",
+      "evidence": "tests/source_main_service.rs; 72 source frames/41 calls under both numeric profiles; broader service domains remain pending"
+    },
+    {
+      "method": "setPause",
+      "async": false,
+      "status": "PENDING production orchestration",
+      "evidence": "none claimed here"
+    },
+    {
+      "method": "checkBlockLag",
+      "async": true,
+      "status": "V12 finite production phase; strict Rust/source/replay checks pass",
+      "evidence": "tests/source_main_production.rs; 68 source frames/39 calls under both numeric profiles"
+    },
+    {
+      "method": "processIncomingBlocks",
+      "async": true,
+      "status": "V12 selected finite service paths; strict Rust/source/replay checks pass",
+      "evidence": "tests/source_main_service.rs; 72 source frames/41 calls under both numeric profiles; broader service domains remain pending"
+    },
+    {
+      "method": "checkNetworkStatus",
+      "async": true,
+      "status": "V12 selected finite service paths; strict Rust/source/replay checks pass",
+      "evidence": "tests/source_main_service.rs; 72 source frames/41 calls under both numeric profiles; broader service domains remain pending"
+    },
+    {
+      "method": "enterRecoveryMode",
+      "async": true,
+      "status": "V12 selected finite service paths; strict Rust/source/replay checks pass",
+      "evidence": "tests/source_main_service.rs; 72 source frames/41 calls under both numeric profiles; broader service domains remain pending"
+    },
+    {
+      "method": "processBlock",
+      "async": true,
+      "status": "V12 selected finite service paths; strict Rust/source/replay checks pass",
+      "evidence": "tests/source_main_service.rs; 72 source frames/41 calls under both numeric profiles; broader service domains remain pending"
+    },
+    {
+      "method": "shutdown",
+      "async": true,
+      "status": "PENDING production orchestration",
+      "evidence": "none claimed here"
+    },
+    {
+      "method": "fetchWithRetry",
+      "async": true,
+      "status": "V12 selected finite service paths; strict Rust/source/replay checks pass",
+      "evidence": "tests/source_main_service.rs; 72 source frames/41 calls under both numeric profiles; broader service domains remain pending"
+    },
+    {
+      "method": "blockHandlerBegin",
+      "async": true,
+      "status": "V12 selected finite service paths; strict Rust/source/replay checks pass",
+      "evidence": "tests/source_main_service.rs; 72 source frames/41 calls under both numeric profiles; broader service domains remain pending"
+    },
+    {
+      "method": "blockHandlerMid",
+      "async": true,
+      "status": "existing validated transaction/mid/height core",
+      "evidence": "existing Root tests"
+    },
+    {
+      "method": "blockHandlerEnd",
+      "async": true,
+      "status": "V12 finite production phase; strict Rust/source/replay checks pass",
+      "evidence": "tests/source_main_production.rs; 68 source frames/39 calls under both numeric profiles"
+    },
+    {
+      "method": "handleReorg",
+      "async": true,
+      "status": "V12 original unset-field native failure covered; successful rollback pending",
+      "evidence": "tests/source_main_service.rs; no financial rollback success supplied"
+    },
+    {
+      "method": "saveMaxProcessedHeight",
+      "async": true,
+      "status": "existing validated transaction/mid/height core",
+      "evidence": "existing Root tests"
+    },
+    {
+      "method": "saveTrackHeight",
+      "async": true,
+      "status": "existing validated transaction/mid/height core",
+      "evidence": "existing Root tests"
+    },
+    {
+      "method": "loadMaxProcessedHeight",
+      "async": true,
+      "status": "existing validated transaction/mid/height core",
+      "evidence": "existing Root tests"
+    },
+    {
+      "method": "loadTrackHeight",
+      "async": true,
+      "status": "existing validated transaction/mid/height core",
+      "evidence": "existing Root tests"
+    },
+    {
+      "method": "static getGenesisBlock",
+      "async": true,
+      "status": "PENDING production orchestration",
+      "evidence": "none claimed here"
+    },
+    {
+      "method": "static getLastBlock",
+      "async": true,
+      "status": "PENDING production orchestration",
+      "evidence": "none claimed here"
+    }
+  ],
+  "txIndex": {
+    "sourceSHA256": "25f61a0206e56e59cfe6bdc924c1c609c85d589cfe6aec38b93b886ac4807b9c",
+    "owner": "existing TxIndexSourceOwner;21 metadata methods",
+    "newComposition": "same Core DB; owner borrowed for evaluation, restored before accepted boundary",
+    "corpusScope": "empty raw block indexing and existing indexed TL rows; raw transaction RPC decoding remains an explicit unsupported dependency unless already owned"
+  },
+  "persistence": {
+    "sourceSHA256": "628c5b3cfd919fd518aedc2b757cdc256f7ccc36c447090f30aebd8a677ce2e1",
+    "existing": "typed PersistentJointChain and SourceDurableReplay compact journal; no claim of literal filesystem snapshot parity",
+    "next": "original Persistence singleton/network/fs/reorg lifecycle and Main.blockHandlerBegin composition",
+    "integrationNote": "Selected finite Main/Persistence composition is tested; full snapshots/restoration/module startup remain pending."
+  },
+  "reOrg": {
+    "sourceSHA256": "3e4cabb0dc560fd8c601b72e05f0e698ce02adc646eaef241189fd192d906a82",
+    "existing": "source-compatible RPC tip observer; no authority to rewind economic state",
+    "next": "Main/Persistence rollback, snapshot restore and catchup publication composition"
+  },
+  "validationRecord": "fixtures/reference_fidelity/main-v12-integration.json",
+  "fullReferenceParityEstablished": false
+}

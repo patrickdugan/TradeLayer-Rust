@@ -1,0 +1,11 @@
+# V12 review correction
+
+This revision retains all pinned source bodies and all54 corrected earlier commands/results/effects/state, adding only actual original TxIndex.client===Main.client identity evidence. The corpus now has68 frames:39 actual Main calls and29 resets, including the first ten original calls. Extra controls cover MAX_SAFE_INTEGER completion, FEFF vs0085 whitespace, default-radix hex, returned-Promise rejection propagation and numeric signed zero. Both numeric full/proof regenerations pass.
+
+The private literal TxIndex owner requires an existing numbered RPC capability. The adapter now returns exactly {$rpcClient:1}, accepts only lowercase client.* with that registered reference, and resolves it through one replay-bound mapping to the unchanged plain source client metadata. The source mock has no fabricated dollar field; an independently observed actual JS reference equality binds TxIndex.client to Main.client. No reference or hash authenticates RPC facts or financial state.
+
+Original syncIndex equality returns its catchup Promise without awaiting it inside try; those later rejections now propagate, retaining real Tally/DB prefixes. Awaited RPC/index-extraction errors remain swallowed exactly as source. Mixed-type heights explicitly refuse within this finite Number profile instead of silently taking a different branch.
+
+The original2^53 catchup loop does not progress. This finite profile locally refuses unsafe/nonprogressing parsed ranges and caps actual iterations independently. Two original loop expressions document that unsafe behavior without inventing a full Main outcome. The actual original MAX_SAFE_INTEGER control terminates and retains its max-height write before recorded IO failure. All local refusals restore the entire prior runtime.
+
+The Root parser correction preserves ECMAScript whitespace and uses exact integer conversion before final hexadecimal binary64 rounding. All 716 independently captured native Node cases match the actual private Rust helper, including the 11 earlier long-hex differences. Active-loop resource checks remain distinct from finite source early returns. Focused Rust checks now execute the full production/service/Error corpora; full release promotion is recorded separately. V1-V11 formats and default V2 remain unchanged.

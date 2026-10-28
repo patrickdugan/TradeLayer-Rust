@@ -35,6 +35,7 @@ fn proof_canonical_artifact_path_for_policy(
         SourceContractRuntimePolicy::SpotLifecycleV9
             | SourceContractRuntimePolicy::ActivationLifecycleV10
             | SourceContractRuntimePolicy::AmmLifecycleV11
+            | SourceContractRuntimePolicy::MainOrchestrationV12
     ) && (path.starts_with('/') || path.starts_with('\\'))
         && path.split(['/', '\\']).find(|part| !part.is_empty()) == Some("tl-source-artifacts")
     {

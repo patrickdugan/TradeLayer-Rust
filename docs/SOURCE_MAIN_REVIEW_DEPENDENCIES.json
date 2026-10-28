@@ -1,0 +1,990 @@
+{
+  "kind": "Observed successful file reads from final six group/default+lock --check runs against current integrated v2 source loaders",
+  "node": "v24.22.1",
+  "numericProfiles": [
+    "genuine pinned BigNumber9.3.1 default",
+    "genuine packed BigNumber9.1.2 lock"
+  ],
+  "files": [
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/@noble+hashes@1.8.0/node_modules/@noble/hashes/_md.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 6470,
+      "sha256": "4eaf0ae8f8191c50acdab7c3de7f335bf24845e4b562bdbc3e9f61cb7a873831"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/@noble+hashes@1.8.0/node_modules/@noble/hashes/_u64.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 3819,
+      "sha256": "9b109bb57c0d8852bda12136f0f588ffea2a1a3c0f4241bdbb3727cd449976ae"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/@noble+hashes@1.8.0/node_modules/@noble/hashes/cryptoNode.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 579,
+      "sha256": "7d96258d2ff9da048ceb1fe88fb68172c5f952e461dda65fd08f30e20b5416ae"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/@noble+hashes@1.8.0/node_modules/@noble/hashes/hmac.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 3187,
+      "sha256": "1e0e4081a255691a1bae9148d9c5795e3439980d4ecb346a5e62a9c7fb3764a4"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/@noble+hashes@1.8.0/node_modules/@noble/hashes/legacy.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 10376,
+      "sha256": "f4e0c6e5ce845ae819a3aa90dfc92fe3b6e2345028fc4a262dc2686adfd901b4"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/@noble+hashes@1.8.0/node_modules/@noble/hashes/ripemd160.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 627,
+      "sha256": "895b507479873c9472a39d43b427248dadafd9853cc629c9b9e939312e549f42"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/@noble+hashes@1.8.0/node_modules/@noble/hashes/sha1.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 460,
+      "sha256": "bd6111c877b310aee9b4cdb78f4ba80c18a4910693582162a3ed4e8fec4e06dc"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/@noble+hashes@1.8.0/node_modules/@noble/hashes/sha2.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 17868,
+      "sha256": "53b6dc30db76a7c4e4b9370049e7a3c01bbb5507d058c084e97ccb3ee050faa4"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/@noble+hashes@1.8.0/node_modules/@noble/hashes/sha256.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 975,
+      "sha256": "f2119097d9414c28c9539b0160a33def471c4f78c075e3f8ab06df72dae47938"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/@noble+hashes@1.8.0/node_modules/@noble/hashes/sha512.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 1411,
+      "sha256": "3864c87085dd6244a3bf1fbb019bd0730054ee895a570f401cb6c38262ed852b"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/@noble+hashes@1.8.0/node_modules/@noble/hashes/utils.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 11528,
+      "sha256": "7edf19720c345e1cb76e8d3a9306f3344457d4e03576bbb0b3e1ffd0a42d0d30"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/@scure+base@1.2.6/node_modules/@scure/base/lib/index.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 25417,
+      "sha256": "275c5d28b15a773540f4c63b67228b4d563c47ab818d731c43dc5e057db52f34"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/base-x@4.0.1/node_modules/base-x/src/index.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 4301,
+      "sha256": "39fd160efe678e9e1573c06e4977658ce58ac8d7d95f5432d012c50604518229"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/base-x@5.0.1/node_modules/base-x/src/cjs/index.cjs",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 4343,
+      "sha256": "726a8919ad36298313a42c90a98dfe33f261c51263d4854b0ac76c036a5af911"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bech32@2.0.0/node_modules/bech32/dist/index.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 5231,
+      "sha256": "7e389c4495ce1fc3a0024485d1554494a959735c68caf8e677951275b15ea3cc"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/combiner/index.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 2592,
+      "sha256": "38add2882cbe2f531f87023c6cd8544bcb975479a6da43fd387817af475e3a65"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/converter/global/globalXpub.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 2602,
+      "sha256": "382aeee120c88b4cd5adec1a7e92abdea5b25f5dbc4fe672f494d6102fcd8beb"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/converter/global/unsignedTx.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 284,
+      "sha256": "b106684c652ca3cb8bdea17b18d5f5c34e56336d94297d4e7905388f36ef186d"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/converter/index.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 2931,
+      "sha256": "526f2c90ea41b50c699661e8f6f56327c9a16b346b9c537d0fe9b2354e4e8711"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/converter/input/finalScriptSig.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 826,
+      "sha256": "203b49b9f07e55c102f0659ac6fa380cd5e4dc35ab8001d44d1538e51bc7cd13"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/converter/input/finalScriptWitness.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 852,
+      "sha256": "73fe123611c5462fb54a8f801883326dd67a9a5f6051468706b0e055e23faebe"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/converter/input/nonWitnessUtxo.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 814,
+      "sha256": "ce5233af0439647625cb7bb5dbc4d6a3d5f700cf31f386875026380ae5f79b0b"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/converter/input/partialSig.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 2017,
+      "sha256": "147498ff7038f74420b2a1e8cb582fde992ae4b1fe9e9692c5fce96c8021a882"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/converter/input/porCommitment.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 863,
+      "sha256": "9f2b6c0b7c620aa505fe4f56326d1385df342b09e4ab8eeb30cb4615a95a6cd1"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/converter/input/sighashType.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 898,
+      "sha256": "6e2251709c1fa02c275d4a7a8feabdef68a7098cf0e546f48528c5b722802b7b"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/converter/input/tapKeySig.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 1012,
+      "sha256": "deb676a02e3d991df7c1cf99fca29b51afd1edf99832d0c34107a573db778a69"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/converter/input/tapLeafScript.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 1888,
+      "sha256": "ab3ad61315c36bfa3d2f63ec9e734c8958808b07112cc77fbafb704509935ad3"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/converter/input/tapMerkleRoot.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 974,
+      "sha256": "d0c15fff571997474be3177b98f4e32e74565ef80b97f880d83f8716e35568be"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/converter/input/tapScriptSig.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 1886,
+      "sha256": "38d8ed192b49b870da69cb4341848f414d877411f4db91602aebafcc6822ff16"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/converter/input/witnessUtxo.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 1595,
+      "sha256": "a68f0336ed50adf5bf75ef01caa8b693f30c628ef30ad54e93a6197ea362a0f1"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/converter/output/tapTree.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 1820,
+      "sha256": "a56725238bcbb6cb27e3551b40f256ff6a364231bbcc3779dc2a83adf6fb7088"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/converter/shared/bip32Derivation.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 2645,
+      "sha256": "2a98d68932c9fcd7ff45e68d9ce67109cf3f110865e9cc67606c8c5616954172"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/converter/shared/checkPubkey.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 577,
+      "sha256": "3d0e122d85cdf29becc89448f2370e79c6fb02388b5615d13d509dbee73ee385"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/converter/shared/redeemScript.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 812,
+      "sha256": "0b94fc17f87edf632dbded578dc31288183704a61b253a1e20d2174b492707cc"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/converter/shared/tapBip32Derivation.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 1748,
+      "sha256": "068fc056bef6420ff496baf46c2ab594f368566a701bcfdf37628cdff223e9d2"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/converter/shared/tapInternalKey.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 1001,
+      "sha256": "7f1abf799144e8ad07f70977cab3fb16f3e7ada2deaedcebde5295e5f564ddbd"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/converter/shared/witnessScript.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 828,
+      "sha256": "57e8b937794a7f873addae07b2c9894b9d5418eb1952aff897b7f65d32c44072"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/converter/tools.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 2184,
+      "sha256": "8b1afcf0cad5450b8300e0b62d4ffc85ae35b4f636e935c0ec5b6f129e0a9b16"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/converter/varint.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 2310,
+      "sha256": "914deff0948766050be8da7b8f85e9f40491b306dfce2fe2eeef4719654753ff"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/parser/fromBuffer.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 13241,
+      "sha256": "07a7fda16813207ee3c6cb2919bcee19c9f417191e6355cc04e6a243541359f4"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/parser/index.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 240,
+      "sha256": "91da97ba11c774ba34c918639a149797906ff9e23011aac49eb85c39441adda6"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/parser/toBuffer.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 2412,
+      "sha256": "9158b45ba4fa3e403931c70e212fc30cee71d9080aff6b1a7356dee4df5860c8"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/psbt.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 4438,
+      "sha256": "622a8f51765f765be885910a035248140517e1f71c93a534e9c20ef23c27e5db"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/typeFields.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 2653,
+      "sha256": "c69b2420ded0ea86f12bdb4a870cea153500b039a48df00a53db2c4265326786"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip174@2.1.1/node_modules/bip174/src/lib/utils.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 4691,
+      "sha256": "2fda7d3b60168ceba6ffa2975264a77732648673dc59eb5fe6ca52ecb7d4b235"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip32@5.0.1/node_modules/bip32/src/cjs/bip32.cjs",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 16100,
+      "sha256": "9d734c0f833cdb77a556204236fca160dd7df90b80e2a2d3b65e83554fa99220"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip32@5.0.1/node_modules/bip32/src/cjs/crypto.cjs",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 529,
+      "sha256": "e82b02454f77371bc6ece8645369567d10d4f9f81ffb676d9d3fdf943f0be394"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip32@5.0.1/node_modules/bip32/src/cjs/index.cjs",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 410,
+      "sha256": "2b7c638f0c0cc28c55ec26f835e811a7ee0b6a7d77252b72d6610773cdf66009"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip32@5.0.1/node_modules/bip32/src/cjs/testecc.cjs",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 5612,
+      "sha256": "239d41e4a806b78bfd3d9649bf46e024993f13b8ec1d28df59eb67cc0389a110"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bip32@5.0.1/node_modules/bip32/src/cjs/types.cjs",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 1964,
+      "sha256": "9461796be309f7549a69794b3cb32931327953b30228e42338fcdf1d38838515"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/address.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 6230,
+      "sha256": "82f3fb4851db0ad49e23d04c77befe088e299c3e5dfb94218e15394b19276c01"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/bip66.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 4019,
+      "sha256": "3f79b1e6bc0d01e04cdff87cd4ead45211b3274c43515ce0fd3f074cd41fbce4"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/block.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 7745,
+      "sha256": "071f6b461c612d3200028bd09bd42c62d57081276fd2de6b586b585fcf52d91d"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/bufferutils.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 5136,
+      "sha256": "55e730131d8fa20df6f0cf7aa763f87cfe285740d0a72b0f7c1e08f4e33f3ba2"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/crypto.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 4857,
+      "sha256": "f1f32934010823d74ceb77b3760f6a41e6bac2b8cf64a4f1173f3470b3fc077d"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/ecc_lib.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 3618,
+      "sha256": "ecd6bdada9bcfa194118f6ce840d98cf5f4ded5504452df7222ed4c7ad5a8fb0"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/index.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 1424,
+      "sha256": "3b8f9941493856d79bda797d072cb80380c9880bfcb822d5011d240590922a6b"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/merkle.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 1404,
+      "sha256": "a32b1899b4284cd57c86c20f73efb1e7c42485a8b07abf455dfd37a7ca8b037e"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/networks.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 1615,
+      "sha256": "d37cbb8f2ebe977a1caaeb66be4d9980071ac68d6d3af8bbaaed3a716e2343c3"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/ops.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 2381,
+      "sha256": "327d90130611e80c51de9181ccd51c918736e041fb8422f823571cc2cad66c8f"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/payments/bip341.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 4056,
+      "sha256": "986a3267d5d77618fe74868c4561cb9a96cb774556de3bbaa5437d3ac663d8a2"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/payments/embed.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 1798,
+      "sha256": "4bd907e59c26585e261c4940c12327e8998152a9a8b3491933952034b716e720"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/payments/index.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 1476,
+      "sha256": "1befa4f9c7aafa79685028b1fe0fdaa53c972ed4d51faf9732b2d46a24d77553"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/payments/lazy.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 707,
+      "sha256": "7c7d99241facc54edb18ce205c9c33c4e5e8258365df4e5785c203bf9ea5ca55"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/payments/p2ms.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 4991,
+      "sha256": "aa17b7e96299dfefe2da48ff7c501fce541d40362622851bd74c01c941c15a10"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/payments/p2pk.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 2667,
+      "sha256": "f9b332ce2a14fa857d9fc483d68afc6c65d337e61994c352d4a2d0bf94c53c67"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/payments/p2pkh.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 4824,
+      "sha256": "271825ce53effd9e51055ff2d9e0a18c87026438f2e8c01e6ecf1dd4d7d0c01a"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/payments/p2sh.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 7154,
+      "sha256": "6b6e9efeade6de4c739a4cdf44055d26497520e7c888b8222e8d35de929b06e0"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/payments/p2tr.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 10855,
+      "sha256": "dfb94c33cc2e4204f0c0a0efb4e12facbf11bf191fe2c3169215145ff1d5010a"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/payments/p2wpkh.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 4965,
+      "sha256": "752f32a10a025c5df42c771680c39904492578fb7a74ef1272a24b6d7629b6d7"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/payments/p2wsh.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 7559,
+      "sha256": "65410c792f1913847a88bf0705071eeff31be40c64a31c098a1201e84c17e50d"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/psbt.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 55203,
+      "sha256": "29c4a1af6a132ab5db64f79e425218f2ad2d59157eee399dd9324a808849aea4"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/psbt/bip371.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 14653,
+      "sha256": "4b8112414e2addb69c2dfe0a3cf2ad22b4a393ffedd4adaf8e1f5b2bc810a36d"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/psbt/psbtutils.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 6608,
+      "sha256": "7028de67d4c8a36e0e52d3c86b60f78d971c53163cb6977b7915cc45c8cf2350"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/push_data.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 2640,
+      "sha256": "43955f7b86818d89eebae106b027e97ffbdcc0a2fc26a81b6c9d0ce4d829c2fc"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/script.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 6720,
+      "sha256": "9326d38b110da0ca19dca8b88c104d9855788ac9960ccf754ad933fba0b718f3"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/script_number.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 2304,
+      "sha256": "0324ae6442133a89561c458bb6dcf0f5a2970ff866b22be3e4f305fa1648b9cf"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/script_signature.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 2535,
+      "sha256": "936ab8dbfeb7df883bdedb8b1a43566bde2109222f42f3f93c8aa7ea322000d5"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/transaction.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 18753,
+      "sha256": "9226db6462a6989a56cd63912dcb562472f3338b15948a063cf4d7cc030f49fc"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bitcoinjs-lib@6.1.8/node_modules/bitcoinjs-lib/src/types.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 3333,
+      "sha256": "6a7e08f731da5f5576bc9d982c74e654f89787203490b727dacf8738dadc4496"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bs58@5.0.0/node_modules/bs58/index.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 144,
+      "sha256": "f9558949f7ab8ca3d4bfe8e0718a21fe62626fd5173d7cfecd8dded601e06ea1"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bs58@6.0.0/node_modules/bs58/src/cjs/index.cjs",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 395,
+      "sha256": "268595b96914d391c41aa5c55816e06380a92a50c9e42a23c0efffa3a758a461"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bs58check@3.0.1/node_modules/bs58check/base.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 1301,
+      "sha256": "8122b92c8a5cf5ad723e662a72f7ecb0955061991dc49f67b121bfb2a223ad20"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bs58check@3.0.1/node_modules/bs58check/index.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 233,
+      "sha256": "bb1078f0b9e750a78a05b3daf32774c23a1a7396c8cb139370f6f3e105901bd7"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bs58check@4.0.0/node_modules/bs58check/src/cjs/base.cjs",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 1752,
+      "sha256": "da6aa038bcd487e2785088cb7333e4c5f2b127a54b84f392886a0719cc00d021"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/bs58check@4.0.0/node_modules/bs58check/src/cjs/index.cjs",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 491,
+      "sha256": "e3f7d42aad0f625edbe9cb3bbb9f8dfea96eb801d75917e456ea1bad347d2c01"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/safe-buffer@5.2.1/node_modules/safe-buffer/index.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 1670,
+      "sha256": "184d5c4a83512e3f49d4d5b52f7073f601f933bad11f1fbb3ad364ca5e6478e1"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/tiny-secp256k1@2.2.4/node_modules/tiny-secp256k1/lib/cjs/index.cjs",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 13985,
+      "sha256": "3864bb04fb2a7a663038301f312010f462142c2555763600ae8eb3a7ecda8b01"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/tiny-secp256k1@2.2.4/node_modules/tiny-secp256k1/lib/cjs/rand.cjs",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 269,
+      "sha256": "e127ac9d56eaba3c9bda159f06472c992bd3fa64bfe60cd8e80318d88cfb3cd1"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/tiny-secp256k1@2.2.4/node_modules/tiny-secp256k1/lib/cjs/validate.cjs",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 5908,
+      "sha256": "f0638d147bac3b60764b2b68f79d72cdccad52523fcd0a98599b32e0873f58e2"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/tiny-secp256k1@2.2.4/node_modules/tiny-secp256k1/lib/cjs/validate_error.cjs",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 1329,
+      "sha256": "8d15985e17c729223e29c44de2a576594c28bddfbc186f296249233f5e05970c"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/tiny-secp256k1@2.2.4/node_modules/tiny-secp256k1/lib/cjs/wasm_loader.cjs",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 567,
+      "sha256": "e4388fa73c720db94ede8557441900aff56e1d91b861a94b2506029539106394"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/tiny-secp256k1@2.2.4/node_modules/tiny-secp256k1/lib/cjs/wasm_path_cjs.cjs",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 462,
+      "sha256": "91d2658d8fb3d6d4343b52eddd3f22436ce0b4ae426ca8dd00f966f2ebe9e0a2"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/tiny-secp256k1@2.2.4/node_modules/tiny-secp256k1/lib/secp256k1.wasm",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 1242788,
+      "sha256": "5cbbcb8adc7acc3b78a3fd31c76d573302705ff5fd714d03f5a2602591197cb5"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/typeforce@1.18.0/node_modules/typeforce/errors.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 3053,
+      "sha256": "0ee45797934467889fcf94b3dd1057d3493c172ec73dc2e5b05ec7c010dd4e84"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/typeforce@1.18.0/node_modules/typeforce/extra.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 2211,
+      "sha256": "04c9b90b70a8cfb98bf096418b68e95791fb65267f663023f30d7e21fe10ce74"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/typeforce@1.18.0/node_modules/typeforce/index.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 6660,
+      "sha256": "cb1eecf2650c476ea31d596f8bf5aeeec70fe00965b4f6be56d102cc881ede2b"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/typeforce@1.18.0/node_modules/typeforce/native.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 742,
+      "sha256": "231f95da6d5c241d145f2f4b360d692354fe9972163f4db109e9a84b568e29f3"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/uint8array-tools@0.0.7/node_modules/uint8array-tools/src/cjs/index.cjs",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 472,
+      "sha256": "1915522c337ecebb1411df58e21a92d5a10b533c42722576e2db0a0b889aa15b"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/uint8array-tools@0.0.8/node_modules/uint8array-tools/src/cjs/index.cjs",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 4713,
+      "sha256": "f19ddae195fa1948b666be0dede4a0fcd32e5daf4d40d3b6e87218ace2bd6134"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/valibot@1.5.0/node_modules/valibot/dist/index.cjs",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 212980,
+      "sha256": "74bc3fa27b5b5af787e72bfa90e04f3762a121ced9a30fba149061439ec9e1e4"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/varuint-bitcoin@1.1.2/node_modules/varuint-bitcoin/index.js",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 2074,
+      "sha256": "27d592f4c33d8984b45f5da16127752c48beda4ad3683c0b582d45863bf29552"
+    },
+    {
+      "path": "$TRADELAYER_JS_ROOT/node_modules/.pnpm/wif@5.0.0/node_modules/wif/src/cjs/index.cjs",
+      "scope": "existing genuine npm oracle dependency",
+      "bytes": 1773,
+      "sha256": "6b85d94ceb337b39811ce3d60288d84cb1beecba26d8395413542c0845785374"
+    },
+    {
+      "path": "fixtures/insurance_owner_review/insurance.js",
+      "scope": "existing repository dependency",
+      "bytes": 13585,
+      "sha256": "5abbe7934ca4c2f4180ed910989ae8f90d752bf9e17cb8944b8b49e33d03c39c"
+    },
+    {
+      "path": "fixtures/legacy_amm_source.txt",
+      "scope": "existing repository dependency",
+      "bytes": 21262,
+      "sha256": "bfb4f5d94c1d4754ae9a17b646c42c4ffe62e077590d0a184ac8ddc0b38255b1"
+    },
+    {
+      "path": "fixtures/legacy_base256_source.txt",
+      "scope": "existing repository dependency",
+      "bytes": 2079,
+      "sha256": "11a0d6be7142f9baa4e41e9c9c295c80583b803b7d79495ed260d28d45db6edc"
+    },
+    {
+      "path": "fixtures/legacy_base94_source.txt",
+      "scope": "existing repository dependency",
+      "bytes": 2427,
+      "sha256": "0b33c7b2beaa3d86f13a3ef5c995121457281b2d744cc87f8ca58d32070234eb"
+    },
+    {
+      "path": "fixtures/legacy_base_converter_source.txt",
+      "scope": "existing repository dependency",
+      "bytes": 4885,
+      "sha256": "a047cb70ef64fce2ad7a70ed4dc844efc05d3c72c5ccf4f53ed7957b95b35b62"
+    },
+    {
+      "path": "fixtures/legacy_bignumber_source.txt",
+      "scope": "existing repository dependency",
+      "bytes": 86762,
+      "sha256": "58ba6fb59668342346f17983a61ace455f6f425ac4fbfab84f489df257594d16"
+    },
+    {
+      "path": "fixtures/legacy_channels_source.txt",
+      "scope": "existing repository dependency",
+      "bytes": 50151,
+      "sha256": "b3fa22beab9a9fdb63246daa12582f86591a4217863240321f88fdff0160ec79"
+    },
+    {
+      "path": "fixtures/legacy_clearing_source.txt",
+      "scope": "existing repository dependency",
+      "bytes": 137069,
+      "sha256": "612d1ec49c1d5cc412d0072a194da4975c5232ba5294b81cd3097df11bff1528"
+    },
+    {
+      "path": "fixtures/legacy_clearlist_audit_reference.txt",
+      "scope": "existing repository dependency",
+      "bytes": 20170,
+      "sha256": "fbdb702e5e89bac113226223f42bf762af13fff40dee4e0c4ab6cd4a50d451e1"
+    },
+    {
+      "path": "fixtures/legacy_consensus_source.txt",
+      "scope": "existing repository dependency",
+      "bytes": 25057,
+      "sha256": "af4c2fe7c37680be018dcb0df9f2cf8b348baac8aec1fe2335a220ce27dc0230"
+    },
+    {
+      "path": "fixtures/legacy_contract_registry_source.txt",
+      "scope": "existing repository dependency",
+      "bytes": 44437,
+      "sha256": "d14c8db7d2a40471d51c5d51931eccb5a0d4f4380c9a0589d5eb1c0990636121"
+    },
+    {
+      "path": "fixtures/legacy_iou_source.txt",
+      "scope": "existing repository dependency",
+      "bytes": 17506,
+      "sha256": "7ad5e87e4d72cf57c640c8c15564a3da21dfb4f2e692097ac8aab8215018cf96"
+    },
+    {
+      "path": "fixtures/legacy_margin_map_source.txt",
+      "scope": "existing repository dependency",
+      "bytes": 89827,
+      "sha256": "ad5af4a639a50623319236cce42e8728027109ac3b8ae4616387798110cfb636"
+    },
+    {
+      "path": "fixtures/legacy_options_source.txt",
+      "scope": "existing repository dependency",
+      "bytes": 4746,
+      "sha256": "02277caaece5339a9ea0dac15437d14ce3fac8dc5ee92a727a0f544efcdbb703"
+    },
+    {
+      "path": "fixtures/legacy_oracle_bridge_source.txt",
+      "scope": "existing repository dependency",
+      "bytes": 4072,
+      "sha256": "954a7fbf30b66e52b587a2d7108e080c41da812acff77ccd457c6e547cb1587f"
+    },
+    {
+      "path": "fixtures/legacy_oracle_source.txt",
+      "scope": "existing repository dependency",
+      "bytes": 20706,
+      "sha256": "70778913a22a323f64a1b2de0b28095a204fba113f39597dedb65938eeb30e3d"
+    },
+    {
+      "path": "fixtures/legacy_orderbook_source.txt",
+      "scope": "existing repository dependency",
+      "bytes": 189251,
+      "sha256": "c368acbc04f988b989fa320b3a1aefdb9522b9f9f5eff536137e7a2e8e9f4f98"
+    },
+    {
+      "path": "fixtures/legacy_persistence_source.txt",
+      "scope": "existing repository dependency",
+      "bytes": 19527,
+      "sha256": "628c5b3cfd919fd518aedc2b757cdc256f7ccc36c447090f30aebd8a677ce2e1"
+    },
+    {
+      "path": "fixtures/legacy_procedural_source.txt",
+      "scope": "existing repository dependency",
+      "bytes": 4508,
+      "sha256": "0a89e5447a07d592a25032d55ced478b01797cda96da055c888a0da6664f062e"
+    },
+    {
+      "path": "fixtures/legacy_reorg_source.txt",
+      "scope": "existing repository dependency",
+      "bytes": 1150,
+      "sha256": "3e4cabb0dc560fd8c601b72e05f0e698ce02adc646eaef241189fd192d906a82"
+    },
+    {
+      "path": "fixtures/legacy_trade_history_source.txt",
+      "scope": "existing repository dependency",
+      "bytes": 20206,
+      "sha256": "670035f8153abda542c732deee0cf995fcd1e1e7c7b9f50464fce6ab1b5c1569"
+    },
+    {
+      "path": "fixtures/legacy_txindex_source_txIndex.txt",
+      "scope": "existing repository dependency",
+      "bytes": 20396,
+      "sha256": "25f61a0206e56e59cfe6bdc924c1c609c85d589cfe6aec38b93b886ac4807b9c"
+    },
+    {
+      "path": "fixtures/legacy_types_source_txDecoder.txt",
+      "scope": "existing repository dependency",
+      "bytes": 25710,
+      "sha256": "8a395367be182141129be6f5a96ec2cf334bc4376edfccd0b7dcacafd8f5a885"
+    },
+    {
+      "path": "fixtures/legacy_types_source_txEncoder.txt",
+      "scope": "existing repository dependency",
+      "bytes": 27545,
+      "sha256": "65af678ffe3952fa2f63549e1d3b43890ab84b0facef6e4afb36411cd2eb6bbe"
+    },
+    {
+      "path": "fixtures/legacy_types_source_types.txt",
+      "scope": "existing repository dependency",
+      "bytes": 24156,
+      "sha256": "c85b0aa402c105723566e2f75f829c03f3c49e2860ec5bee25568ab1c3b262a5"
+    },
+    {
+      "path": "fixtures/legacy_validity_source.txt",
+      "scope": "existing repository dependency",
+      "bytes": 170303,
+      "sha256": "ed9b7fed5b733740c26033030379abe0f4a63d488ff431dfc7b1f10eb4f93b00"
+    },
+    {
+      "path": "fixtures/legacy_vaults_source.txt",
+      "scope": "existing repository dependency",
+      "bytes": 16787,
+      "sha256": "3dcf0554923864729bedcfc8244a06e4235d10a3241256eb3ba0a9d3d1534983"
+    },
+    {
+      "path": "fixtures/legacy_volume_index_source.txt",
+      "scope": "existing repository dependency",
+      "bytes": 23346,
+      "sha256": "d4d4329254125ce8e4217d22b0ba57a1581c6279df999af60281b0365dffb08c"
+    },
+    {
+      "path": "fixtures/main_orchestration_review_errors.jsonl",
+      "scope": "new support or fixture",
+      "bytes": 60198,
+      "sha256": "86fcb66eef486db43b662eb3e1d2ed38d54b63ae0cae85d7adbb37335e2d21e8"
+    },
+    {
+      "path": "fixtures/main_orchestration_review_main.jsonl",
+      "scope": "new support or fixture",
+      "bytes": 236117,
+      "sha256": "ec1b3810d8ac78fa150d032fda3bb46822af599363b5d98e03703d4801cb2c5e"
+    },
+    {
+      "path": "fixtures/main_orchestration_review_service.jsonl",
+      "scope": "new support or fixture",
+      "bytes": 203340,
+      "sha256": "ce0c11f7748883f618b97be7bb9ab45ec65e65ccd005c331ed53eb3fe4975158"
+    },
+    {
+      "path": "fixtures/native_genesis/source/activation.js",
+      "scope": "existing repository dependency",
+      "bytes": 12976,
+      "sha256": "268f08438eb80765587b8ce24d719f41de573648e108ef64df557faad870ea0e"
+    },
+    {
+      "path": "fixtures/native_genesis/source/logic.js",
+      "scope": "existing repository dependency",
+      "bytes": 118868,
+      "sha256": "f09d476e581d38cf7278f1424aadba7266f25e0fbc23763ceba4afa79c5b3e1d"
+    },
+    {
+      "path": "fixtures/native_genesis/source/main.js",
+      "scope": "existing repository dependency",
+      "bytes": 43435,
+      "sha256": "006d59ba3d28d802b0e0c5be2d9d661b58caf1c919a704b3f0d40bc9613c4009"
+    },
+    {
+      "path": "fixtures/native_genesis/source/tally.js",
+      "scope": "existing repository dependency",
+      "bytes": 59507,
+      "sha256": "cfde9e5845f810bf62d9f1a07d4db4ea011b11d3d2bb63f041d39bea557cddef"
+    },
+    {
+      "path": "fixtures/native_genesis/source/vesting.js",
+      "scope": "existing repository dependency",
+      "bytes": 19178,
+      "sha256": "4c134b6871f450d3190a0958b629731d960540069d0c8c37a6da33d6e1f70d2b"
+    },
+    {
+      "path": "fixtures/reference_fidelity/property.js",
+      "scope": "existing repository dependency",
+      "bytes": 17638,
+      "sha256": "ef0ee7ba5c362227a8bfd44192e351c107871a93a3dc93b04ce6d1a5ebfc70b1"
+    },
+    {
+      "path": "scripts/legacy_numeric_oracle.cjs",
+      "scope": "existing repository dependency",
+      "bytes": 1465,
+      "sha256": "e570de41173962d5013c3eb289b86903c3d6bd070be068e6f20c6372d86a7a15"
+    },
+    {
+      "path": "scripts/main_orchestration_review_vectors.cjs",
+      "scope": "new support or fixture",
+      "bytes": 7113,
+      "sha256": "34f403ffd46a1d2a17fdb0fa9a1f5c003b5d389da4a9655d3e342b9fd5777dcc"
+    },
+    {
+      "path": "scripts/main_production_vectors.cjs",
+      "scope": "existing oracle copied into check",
+      "bytes": 48402,
+      "sha256": "db8c83189ef96bd0216bbd99c36d79c63a8d0b2bb837ba363e24108f05f4cd2c"
+    },
+    {
+      "path": "scripts/main_service_vectors.cjs",
+      "scope": "existing oracle copied into check",
+      "bytes": 56548,
+      "sha256": "fc6117265275b594ea61ddf0746ebdf0c4a96aa0ee7207739e65b624c2f54e8d"
+    },
+    {
+      "path": "scripts/scaling_vectors.cjs",
+      "scope": "existing repository dependency",
+      "bytes": 41925,
+      "sha256": "a43a5fcca5894f900d37703574b297ef088eedfa6131935dc90c0805bc8a6498"
+    },
+    {
+      "path": "scripts/source_contract_execution_vectors.cjs",
+      "scope": "existing repository dependency",
+      "bytes": 37915,
+      "sha256": "cb7af611bc3224057036fcbdb3ec6f13d1984b8402c306b99c5a1f55fb144c64"
+    }
+  ],
+  "existingNpmOracleDependencies": [
+    {
+      "name": "@noble/hashes",
+      "version": "1.8.0",
+      "packageJsonSHA256": "7c4657c5e616c22cefa2691cc30670824a639dc71d97bf83925be2d239dc60e3"
+    },
+    {
+      "name": "@scure/base",
+      "version": "1.2.6",
+      "packageJsonSHA256": "55662e9d984231ed6fb2b4b36e4acb96075b44f8b1478c8bd51c6b03a888c25c"
+    },
+    {
+      "name": "base-x",
+      "version": "4.0.1",
+      "packageJsonSHA256": "a2c5d728447956ff49ae77b1876bbed63b2e9e526891997c80cdb7e1dcfaba53"
+    },
+    {
+      "name": "base-x",
+      "version": "5.0.1",
+      "packageJsonSHA256": "219181d85974678247ef7fe8f2adf14ae64059a15f338c33cebc30cd26fc516e"
+    },
+    {
+      "name": "bech32",
+      "version": "2.0.0",
+      "packageJsonSHA256": "f463652475700e5299bf82a24b80871b36ba5dd9971a68672bfe9180c44053c5"
+    },
+    {
+      "name": "bip174",
+      "version": "2.1.1",
+      "packageJsonSHA256": "a411762630e91a74e3a022c7e0c479e2f7680a5b813b4edeafb768609eef324c"
+    },
+    {
+      "name": "bip32",
+      "version": "5.0.1",
+      "packageJsonSHA256": "e800e832a8bc1d8a8469e1b9b933df42a1b8ce195781723e0f59ac19a3560285"
+    },
+    {
+      "name": "bitcoinjs-lib",
+      "version": "6.1.8",
+      "packageJsonSHA256": "36cb080d41a34db138183ba389844d572719ad1d189971775d5e68a3ddb33e88"
+    },
+    {
+      "name": "bs58",
+      "version": "5.0.0",
+      "packageJsonSHA256": "a48d800d4b7dc618ef8c3869df5d2f3249087f283f78fd0e06cd100bc39424c0"
+    },
+    {
+      "name": "bs58",
+      "version": "6.0.0",
+      "packageJsonSHA256": "b48a6f957d976838730a222224eb0607a793bcffae71c33906f6a783216267b6"
+    },
+    {
+      "name": "bs58check",
+      "version": "3.0.1",
+      "packageJsonSHA256": "58736e1cfa3df41f1770bc9b0e33661a086a082de6fc46f6fd4256cc768353e6"
+    },
+    {
+      "name": "bs58check",
+      "version": "4.0.0",
+      "packageJsonSHA256": "430884acc5e4631cb854680be4340f48fd7a27e23c2e3d9e6345d8f7eb1e8c77"
+    },
+    {
+      "name": "safe-buffer",
+      "version": "5.2.1",
+      "packageJsonSHA256": "e4018fdbfe625433371f48274fee26f520bbe865e0d8c85bf3aa07424134b90c"
+    },
+    {
+      "name": "tiny-secp256k1",
+      "version": "2.2.4",
+      "packageJsonSHA256": "32028f4ea342f4522af0fd7ad6146671a2369084541ec6a9443538f00c6ed91d"
+    },
+    {
+      "name": "typeforce",
+      "version": "1.18.0",
+      "packageJsonSHA256": "ff3e06c8bcc392972f9f086612d49f440c77e79be6acf993eb3bb9501d0788ef"
+    },
+    {
+      "name": "uint8array-tools",
+      "version": "0.0.7",
+      "packageJsonSHA256": "8725764df3a19c5f6ad69b6ef6e9528e599c6b17b49ef911c42197c82292366f"
+    },
+    {
+      "name": "uint8array-tools",
+      "version": "0.0.8",
+      "packageJsonSHA256": "6a221e9db4bc15ae49894a30f2e4907d1fb6417601021df60a9be6cb578ff533"
+    },
+    {
+      "name": "valibot",
+      "version": "1.5.0",
+      "packageJsonSHA256": "d8ce2daa0555ee0d6bcbbba7b58a31a3265018095dce4a5cf958df7a8a69c528"
+    },
+    {
+      "name": "varuint-bitcoin",
+      "version": "1.1.2",
+      "packageJsonSHA256": "d8f51f9c80a99945637bb074dc0ca89d7ecd4bbb5475726a4353c800ae9c449a"
+    },
+    {
+      "name": "wif",
+      "version": "5.0.0",
+      "packageJsonSHA256": "08a607f51939e2d8ac0239accf3e45c121fbb13a4a12d772ce3df5e1388991cd"
+    }
+  ],
+  "externalProductionDependencyAdded": false,
+  "caveat": "Read inventory supplements module declarations; not an omission proof for unexecuted branches."
+}

@@ -27,6 +27,7 @@ pub enum SourceContractRuntimePolicy {
     SpotLifecycleV9,
     ActivationLifecycleV10,
     AmmLifecycleV11,
+    MainOrchestrationV12,
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StorageFailure {
@@ -46,7 +47,7 @@ pub struct SourceContractRuntime {
     pub(crate) core: ContractCore,
     last_parameters: Option<V>,
 }
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub(crate) struct ContractCore {
     policy: SourceContractRuntimePolicy,
     queue_context: Option<ContractQueueSourceOwner>,
@@ -132,11 +133,157 @@ pub(crate) struct ContractCore {
     main_activation_profile: String,
     main_activation_locked: bool,
     main_height_job: Option<SourceMainHeightJob>,
+    main_production: Option<SourceMainProduction>,
     main_height_rejections: Vec<crate::validity_source::SourceException>,
     source_spot_main_active: bool,
     source_spot_orders_read: Option<SourceSpotOrdersReadJob>,
     source_spot_fee_buffer_initialized: bool,
 }
+impl std::fmt::Debug for ContractCore {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut view = f.debug_struct("ContractCore");
+        view.field("policy", &self.policy);
+        view.field("queue_context", &self.queue_context);
+        view.field("clearing_contexts", &self.clearing_contexts);
+        view.field("deleverage_trades", &self.deleverage_trades);
+        view.field("liquidation_marks", &self.liquidation_marks);
+        view.field("contract_series", &self.contract_series);
+        view.field(
+            "contract_series_initialized",
+            &self.contract_series_initialized,
+        );
+        view.field(
+            "contract_registry_initialized",
+            &self.contract_registry_initialized,
+        );
+        view.field("channel_inverse_jobs", &self.channel_inverse_jobs);
+        view.field("channel_balance_jobs", &self.channel_balance_jobs);
+        view.field("channel_balance_stage", &self.channel_balance_stage);
+        view.field("channel_save_writes", &self.channel_save_writes);
+        view.field("channel_token_validation", &self.channel_token_validation);
+        view.field(
+            "source_token_threshold_reads",
+            &self.source_token_threshold_reads,
+        );
+        view.field(
+            "source_main_withdrawal_save",
+            &self.source_main_withdrawal_save,
+        );
+        view.field("channel_sufficiency_reads", &self.channel_sufficiency_reads);
+        view.field("channel_token_price_job", &self.channel_token_price_job);
+        view.field("tally_mod", &self.tally_mod);
+        view.field("tally_static_initialized", &self.tally_static_initialized);
+        view.field("channels", &self.channels);
+        view.field("property_cache", &self.property_cache);
+        view.field("source_amm_instances", &self.source_amm_instances);
+        view.field("source_amm_property_index", &self.source_amm_property_index);
+        view.field(
+            "source_amm_returned_origin",
+            &self.source_amm_returned_origin,
+        );
+        view.field("source_proof_environment", &self.source_proof_environment);
+        view.field("source_proof_artifacts", &self.source_proof_artifacts);
+        view.field(
+            "source_proof_property_initialized",
+            &self.source_proof_property_initialized,
+        );
+        view.field("source_clearlist_lists", &self.source_clearlist_lists);
+        view.field("source_clearlist_banlist", &self.source_clearlist_banlist);
+        view.field(
+            "source_clearlist_xpub_cache",
+            &self.source_clearlist_xpub_cache,
+        );
+        view.field("source_clearlist_roots", &self.source_clearlist_roots);
+        view.field("source_clearlist_library", &self.source_clearlist_library);
+        view.field(
+            "source_clearlist_library_locked",
+            &self.source_clearlist_library_locked,
+        );
+        view.field("vault_initialized", &self.vault_initialized);
+        view.field("vault_cache", &self.vault_cache);
+        view.field("synthetic_token_cache", &self.synthetic_token_cache);
+        view.field(
+            "source_unhandled_rejections",
+            &self.source_unhandled_rejections,
+        );
+        view.field("source_supply_delta", &self.source_supply_delta);
+        view.field("source_history_jobs", &self.source_history_jobs);
+        view.field("tables", &self.tables);
+        view.field("margins", &self.margins);
+        view.field("tally", &self.tally);
+        view.field("fee_buffer", &self.fee_buffer);
+        view.field("block_trades", &self.block_trades);
+        view.field("oracle_marks", &self.oracle_marks);
+        view.field("native_marks", &self.native_marks);
+        view.field("globals", &self.globals);
+        view.field("effects", &self.effects);
+        view.field("effects_exhausted", &self.effects_exhausted);
+        view.field("failures", &self.failures);
+        view.field("uuid", &self.uuid);
+        view.field("db_id", &self.db_id);
+        view.field("random", &self.random);
+        view.field("height", &self.height);
+        view.field("time_millis", &self.time_millis);
+        view.field("contract_mod", &self.contract_mod);
+        view.field("contract_mod_raw", &self.contract_mod_raw);
+        view.field("entry", &self.entry);
+        view.field("active", &self.active);
+        view.field("insurance", &self.insurance);
+        view.field("oracle_source_cache", &self.oracle_source_cache);
+        view.field("oracle_source_watermarks", &self.oracle_source_watermarks);
+        view.field("oracle_source_initialized", &self.oracle_source_initialized);
+        view.field("returned_position_origin", &self.returned_position_origin);
+        view.field(
+            "collateral_position_origin",
+            &self.collateral_position_origin,
+        );
+        view.field("position_identity_active", &self.position_identity_active);
+        view.field(
+            "source_send_tally_instance_initialized",
+            &self.source_send_tally_instance_initialized,
+        );
+        view.field(
+            "source_send_tally_read_job",
+            &self.source_send_tally_read_job,
+        );
+        view.field("activation_client_profile", &self.activation_client_profile);
+        view.field("activation_client_locked", &self.activation_client_locked);
+        view.field("activation_vesting", &self.activation_vesting);
+        view.field(
+            "activation_consensus_vector",
+            &self.activation_consensus_vector,
+        );
+        view.field("activation_native_errors", &self.activation_native_errors);
+        view.field("activation_insurance_job", &self.activation_insurance_job);
+        view.field("activation_clearlist_jobs", &self.activation_clearlist_jobs);
+        view.field("activation_async_active", &self.activation_async_active);
+        view.field("activation_async_clock", &self.activation_async_clock);
+        view.field("activation_async_serial", &self.activation_async_serial);
+        view.field("activation_async_running", &self.activation_async_running);
+        view.field(
+            "activation_async_child_depth",
+            &self.activation_async_child_depth,
+        );
+        view.field("main_activation", &self.main_activation);
+        view.field("main_activation_profile", &self.main_activation_profile);
+        view.field("main_activation_locked", &self.main_activation_locked);
+        view.field("main_height_job", &self.main_height_job);
+        // Historical profiles have no production owner. Unexpected data
+        // remains visible instead of being hidden by the compatibility view.
+        if self.main_production_enabled() || self.main_production.is_some() {
+            view.field("main_production", &self.main_production);
+        }
+        view.field("main_height_rejections", &self.main_height_rejections);
+        view.field("source_spot_main_active", &self.source_spot_main_active);
+        view.field("source_spot_orders_read", &self.source_spot_orders_read);
+        view.field(
+            "source_spot_fee_buffer_initialized",
+            &self.source_spot_fee_buffer_initialized,
+        );
+        view.finish()
+    }
+}
+
 impl Default for SourceContractRuntime {
     fn default() -> Self {
         Self::new()
@@ -416,7 +563,9 @@ impl SourceContractRuntime {
             set(
                 &mut value,
                 "runtimePolicy",
-                s(if self.core.amm_lifecycle_enabled() {
+                s(if self.core.main_production_enabled() {
+                    "MainOrchestrationV12"
+                } else if self.core.amm_lifecycle_enabled() {
                     "AmmLifecycleV11"
                 } else if self.core.activation_lifecycle_enabled() {
                     "ActivationLifecycleV10"
@@ -533,6 +682,14 @@ impl SourceContractRuntime {
         if self.core.amm_lifecycle_enabled() {
             set(&mut value, "ammLifecycle", self.core.source_amm_state())
                 .map_err(|_| SourceRuleError::InvalidInput)?;
+        }
+        if self.core.main_production_enabled() {
+            set(
+                &mut value,
+                "mainProduction",
+                self.core.source_main_production_state()?,
+            )
+            .map_err(|_| SourceRuleError::InvalidInput)?;
         }
         Ok(value)
     }
@@ -807,6 +964,7 @@ impl ContractCore {
             main_activation_profile: "source-registry".into(),
             main_activation_locked: false,
             main_height_job: None,
+            main_production: None,
             main_height_rejections: vec![],
             source_spot_main_active: false,
             source_spot_orders_read: None,
@@ -1656,6 +1814,12 @@ impl ContractCore {
                 }
             }
         }
+        if self.main_production_enabled() && target == "SourceMain.configureService" {
+            return self.source_main_service_configure(a);
+        }
+        if self.main_production_enabled() && target == "SourceMain.configureProduction" {
+            return self.source_main_production_configure(a);
+        }
         if self.main_callable_enabled() {
             if target == "SourceMain.configure" {
                 return self.source_main_configure(a);
@@ -2090,7 +2254,15 @@ impl SourceBackend for ContractCore {
                 _ => (),
             }
         }
-        if self.main_callable_enabled() && call.target == "SourceMain.configure" {
+        if self.main_callable_enabled()
+            && (call.target == "SourceMain.configure"
+                || self.main_production_enabled()
+                    && [
+                        "SourceMain.configureProduction",
+                        "SourceMain.configureService",
+                    ]
+                    .contains(&call.target.as_str()))
+        {
             return match result {
                 Ok(v) => Ok(DependencyReturn::Immediate(v)),
                 Err(Fault::Thrown(e)) => Ok(DependencyReturn::Throw(e)),
@@ -2694,3 +2866,36 @@ include!("source_amm_lifecycle_impl.rs");
 include!("source_amm_quote_impl.rs");
 
 include!("source_amm_remaining_impl.rs");
+
+include!("source_main_production_impl.rs");
+
+include!("source_main_service_impl.rs");
+
+#[cfg(test)]
+mod main_production_parse_int_tests {
+    #[test]
+    fn omitted_radix_parser_matches_independent_native_node_binary64_results() {
+        let fixture = include_str!("../fixtures/main_production_parse_int.tsv");
+        let mut count = 0;
+        for line in fixture.lines().filter(|line| !line.starts_with('#')) {
+            let parts = line.split('\t').collect::<Vec<_>>();
+            assert_eq!(parts.len(), 3);
+            assert_eq!(parts[1].len() % 2, 0);
+            let bytes = parts[1]
+                .as_bytes()
+                .chunks_exact(2)
+                .map(|pair| u8::from_str_radix(std::str::from_utf8(pair).unwrap(), 16).unwrap())
+                .collect::<Vec<_>>();
+            let text = std::str::from_utf8(&bytes).unwrap();
+            let expected = u64::from_str_radix(parts[2], 16).unwrap();
+            assert_eq!(
+                super::source_main_parse_int10(text).to_bits(),
+                expected,
+                "{}: {text:?}",
+                parts[0]
+            );
+            count += 1;
+        }
+        assert_eq!(count, 716);
+    }
+}

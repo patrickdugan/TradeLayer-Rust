@@ -332,6 +332,9 @@ impl SourceContractRuntime {
                 .core
                 .source_main_height_write("MaxProcessedHeight", arg(a, 0)),
             "Main.saveTrackHeight" => self.core.source_main_height_write("TrackHeight", arg(a, 0)),
+            _ if self.core.main_production_enabled() && self.core.main_production.is_some() => {
+                self.source_main_production_dispatch(&call.target, a)
+            }
             _ => Err(SourceRuleError::UnknownDependency.into()),
         }
     }

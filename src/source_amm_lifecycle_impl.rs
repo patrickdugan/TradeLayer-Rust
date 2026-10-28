@@ -50,7 +50,11 @@ fn amm_own_address(value: &V) -> R<String> {
 }
 impl ContractCore {
     fn amm_lifecycle_enabled(&self) -> bool {
-        self.policy == SourceContractRuntimePolicy::AmmLifecycleV11
+        matches!(
+            self.policy,
+            SourceContractRuntimePolicy::AmmLifecycleV11
+                | SourceContractRuntimePolicy::MainOrchestrationV12
+        )
     }
     fn source_amm_insert(&mut self, value: V) -> R<usize> {
         if self.source_amm_instances.len() == MAX_SOURCE_AMM_INSTANCES {

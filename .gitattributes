@@ -234,3 +234,15 @@ fixtures/bitcoin_standard_input.tsv text eol=lf
 fixtures/source_durable_transition_compatibility.tsv text eol=lf
 
 fixtures/source_durable_transition_compatibility_provenance.json text eol=lf
+fixtures/main_production_*.jsonl text eol=lf
+fixtures/main_production_inventory.json text eol=lf
+fixtures/main_production_finite_bounds_probe.json text eol=lf
+fixtures/main_service_*.jsonl text eol=lf
+fixtures/main_service_inventory.json text eol=lf
+fixtures/main_startup_modules.jsonl text eol=lf
+fixtures/source_main_legacy_debug.tsv text eol=lf
+fixtures/source_contract_replay_v11_before_production.provenance.json text eol=lf
+fixtures/source_contract_replay_v11_before_production.bin -text
+fixtures/main_error_labels_*.jsonl text eol=lf
+fixtures/main_production_parse_int.tsv text eol=lf
+fixtures/main_orchestration_review_*.jsonl text eol=lf

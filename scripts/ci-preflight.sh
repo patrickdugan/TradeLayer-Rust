@@ -43,6 +43,8 @@ rustfmt --check --edition 2021 \
   src/source_lower_send_commit_impl.rs \
   src/source_lower_utxo_trade_impl.rs \
   src/source_main_callable_impl.rs \
+  src/source_main_production_impl.rs \
+  src/source_main_service_impl.rs \
   src/source_procedural_bitvm_impl.rs \
   src/source_proof_lifecycle_impl.rs \
   src/source_proof_settlement_impl.rs \
@@ -68,6 +70,7 @@ rustfmt --check --edition 2021 \
 
 cargo clippy --all-targets --locked -- -D warnings
 if [[ "$mode" == "--full" ]]; then
+  node scripts/check_main_production_parse_int.cjs
   cargo test --locked
 fi
 echo "Rust CI preflight passed ($mode). GitHub still runs network, Lean and Kani gates."

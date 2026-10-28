@@ -1,0 +1,24 @@
+{
+  "kind": "EXPRESSION-ONLY: no full Main invocation/outcome at unsafe height",
+  "sourceSHA256": "006d59ba3d28d802b0e0c5be2d9d661b58caf1c919a704b3f0d40bc9613c4009",
+  "condition": "blockHeight <= lastIndexBlock",
+  "step": "blockHeight++",
+  "observations": [
+    {
+      "start": 9007199254740991,
+      "last": 9007199254740991,
+      "enters": true,
+      "afterStep": 9007199254740992,
+      "progresses": true,
+      "stillEnters": false
+    },
+    {
+      "start": 9007199254740992,
+      "last": 9007199254740992,
+      "enters": true,
+      "afterStep": 9007199254740992,
+      "progresses": false,
+      "stillEnters": true
+    }
+  ]
+}

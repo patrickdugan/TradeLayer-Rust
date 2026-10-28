@@ -1,0 +1,10 @@
+{
+  "kind": "actual pre-V12 V11 DEBUG byte/refusal gate; no independent release claim",
+  "providerSHA256": "a19118368cf9ccd4ee6e14b36df0f775b4cc0c6ba345eafa9bfcb5f3ecc55c7a",
+  "commands": 3,
+  "bytes": 2271,
+  "head": "ad83bba96f54b925a51127e092842bf9b0f85d9474fe88352ffab4f11422a24b",
+  "sha256": "bd87a2143c23d316a968954dedd3c3adf5218aeb2f3e91486986179eae1fb929",
+  "actualExistingVersionTest": "PASS1test; old V11 only",
+  "futureV12RustExecution": "UNCOMPILED; Parent owns actual build"
+}
