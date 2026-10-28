@@ -1,0 +1,29 @@
+{
+  "schema": "compact-candidate-scrypt-focused-v1",
+  "verifiedAtUtc": "2026-10-28T12:59:24.042901+00:00",
+  "existingDependenciesCommit": "b02a0454e4da34c4c167b50f93dc579bda9e75ec",
+  "scope": "Focused Root integration targets, not a full-suite result. The test library also contained the separately uncommitted activation candidate. These two modules use unchanged raw-block/read-only/SHA providers.",
+  "tests": {
+    "compactCandidateReader": 15,
+    "litecoinScrypt": 4
+  },
+  "formattingPassed": true,
+  "standaloneClippyPassed": true,
+  "rootAllTargetClippyPending": true,
+  "fullSuitePromotion": false,
+  "chainOrActorAuthorization": false,
+  "files": {
+    "src/lib.rs": "28abdc4299946208034cd23c347e583dfec2effea14612450064fd201dd19c37",
+    "src/compact_candidate_snapshot.rs": "44da62b7d57321b1b3a91c1baf63cc8740a7c35c50f0c36b391a4b28ba93e1bf",
+    "tests/compact_candidate_snapshot.rs": "b253d053c6c11a04395a2bc8509e521d2aa3cb081e6beae68c3de93b4279b990",
+    "docs/COMPACT_CANDIDATE_SNAPSHOT.md": "3a8079b0d8c885915471b07b98926647a6e29175c49875ed8ab0bfa8e547a0dc",
+    "src/litecoin_scrypt.rs": "3dd3691873e0becb9a5bf4cc9b22886ac954673d721af6a255c13ee24b698dbe",
+    "tests/litecoin_scrypt.rs": "feca6beb0e839e11a15f4619be6df6417bf8b6fb77a38561f9d709f260f58c03",
+    "docs/LITECOIN_SCRYPT.md": "b5884b60e8e68f8416e00e48c7e4641e7866807eb93af812c1d2a4d5974a1d2e"
+  },
+  "log": {
+    "name": "v10-other-focused.log",
+    "sha256": "1e023118448d275c91a7bcc56435c608908364735976b06a1126dc39f8b77ef5",
+    "note": "The two completed targets pass; later activation comparison failures remain visible in this same log."
+  }
+}

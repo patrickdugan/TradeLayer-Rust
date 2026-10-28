@@ -200,4 +200,6 @@ mod tests {
     }
 }
 
+pub mod compact_candidate_snapshot;
+pub mod litecoin_scrypt;
 pub mod native_entitlement;
