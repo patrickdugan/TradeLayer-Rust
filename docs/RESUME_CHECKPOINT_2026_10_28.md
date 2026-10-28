@@ -1,6 +1,6 @@
-# Local checkpoint — 2026-10-28
+# Local checkpoint â€” 2026-10-28
 
-Paused at the user travel checkpoint. No push, publication or PR.
+Travel checkpoint saved, then resumed on 2026-10-28. No push, publication or PR.
 
 ## Saved implementation
 
@@ -22,3 +22,11 @@ The Main lower corpus and Spot implementation remain staged under the workspace 
 ## Final checkpoint checks
 
 Rust 1.90 direct formatting (library, all five new targets and include files) and git diff --check passed. The five-target Cargo run reached a raw3 oracle harness failure: Node 24 rejected the script shebang under -e. The test now strips only that interpreter directive before evaluating the unchanged oracle body. This correction still requires its rerun; no source parity pass is claimed for raw3. All remaining gates above stay pending.
+
+## Resumed validation
+
+At source checkpoint a405348 (with inventory review 901cf01), the raw3 harness correction passes all three focused Rust tests. All 14 new V8 focused tests have now passed. All-target Clippy with warnings denied, pinned formatting and implementation-include formatting pass. The zero-external-crate policy, 11 supply-policy mutation tests and 10 Core bridge Python tests pass. Original Main and raw3 source fixtures regenerate identically under both genuine BigNumber versions.
+
+The full Rust suite remains running in work/v8-resume-full-tests.log, terminal handle 99999; poll that existing handle before starting another build. The long economic_source_catalog_oracle_snapshot group passed all five tests. Full/release validation has not yet been completed.
+
+The broader Main lower integration is frozen under work/next-main-lower-integration with 38 source frames, 23 comparable calls and two isolated unavailable-RPC calls. Its corrected portable observer emits freshly executed records. Parent must verify the latest manifest, mount after the current suite is terminal, and compile/run the new guard and test together. Future spot V9 is frozen in work/next-lower-spot/root-ready; source-only Main+spot and activation work are separate work stages. None is promoted by the V8 focused results.
