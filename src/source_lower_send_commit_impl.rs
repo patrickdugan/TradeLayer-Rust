@@ -166,6 +166,7 @@ impl ContractCore {
             }
             "getAddressBalances" => {
                 self.call("Tally.loadFromDB", vec![])?;
+                self.source_activation_await_turns(SOURCE_ACTIVATION_VM_RETURN)?;
                 if !self.tally_static_initialized {
                     return Err(type_error(
                         "Cannot read properties of undefined (reading 'has')",
@@ -183,6 +184,7 @@ impl ContractCore {
                 let mut balances = vec![];
                 for (id, balance) in fields {
                     let info = self.call("Property.getPropertyData", vec![s(&id)])?;
+                    self.source_activation_await_turns(SOURCE_ACTIVATION_VM_RETURN)?;
                     // Source unconditionally dereferences info.ticker after an
                     // unused guarded ticker assignment; null still throws.
                     let ticker = funding_prop(&info, "ticker")?;

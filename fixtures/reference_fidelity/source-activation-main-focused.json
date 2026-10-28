@@ -1,0 +1,274 @@
+{
+  "schema": "source-activation-main-focused-v1",
+  "verifiedAtUtc": "2026-10-28T14:24:59Z",
+  "codeParent": "50e4f239d665b6467c20d47c1d437e5ce7bc1b22",
+  "runtimePolicy": "ActivationLifecycleV10",
+  "defaultPolicy": "GlobalClearingV2",
+  "rustVersion": "1.90.0 MSVC",
+  "nodeVersion": "24.22.1",
+  "focusedRootExecutions": 46,
+  "focusedRootTargets": 11,
+  "sourceRegenerationChecks": 14,
+  "allTargetClippyPassed": true,
+  "formattingPassed": true,
+  "mainKinds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35
+  ],
+  "mainCorpus": {
+    "frames": 105,
+    "availableMainCalls": 43,
+    "propertySupportCalls": 32,
+    "localUnavailableMainCalls": 1,
+    "resets": 29
+  },
+  "mixedNativeCorpus": {
+    "frames": 64,
+    "calls": 48,
+    "subsets": 16
+  },
+  "oldV8AndV9BytesPreserved": true,
+  "newV10DebugFixture": {
+    "policy": "ActivationLifecycleV10",
+    "profile": "focused-debug",
+    "compiledCommit": null,
+    "capturedFromUncommittedCandidate": true,
+    "codeParent": "50e4f239d665b6467c20d47c1d437e5ce7bc1b22",
+    "compiler": "Rust1.90.0 MSVC",
+    "releaseClaim": false,
+    "exhaustivePolicyCeiling": 10,
+    "capturedBeforeV11": true,
+    "commands": 15,
+    "bytes": 94665,
+    "head": "38bbe0a230b3cd29e37d6617f0ca7d7ebae99e21ef2004a4237713b9a419c83a",
+    "fixtureSha256": "978f0b18e5651a2fe45d21e1484f61c992507a131f60892011c6e81ce8cb1e21",
+    "debugLibrarySha256": "f9bba0f557f2f20d4683b8b982363d8ccf966bd71e8887eb0cb3e667445df6ce",
+    "generatorSha256": "f0e41674b49fbf6e2e0c302324a773dc0deafcecc959af710953c6a908559522",
+    "capturedAtUtc": "2026-10-28T13:42:33.2516732Z",
+    "scope": "Current replay at the first populated Tally boundary after ten genuine Main0 comparisons (11 source calls had executed across reset scenes); exact current-context inputs/operations plus three future AMM refusals. Actual debug library, not a release fixture. Canonical reconstruction checked. Actor and chain facts remain unverified."
+  },
+  "observerCorrection": "Main0-only nonmutating audit views; unchanged commands/results/effects/nonempty rows/non-table state",
+  "implementationInputs": 866,
+  "frozenInputHash": "645ccf0dbc0e35b410fa2372d050d742aec5a695d2c00440bcebc5f15bdede4e",
+  "fullReleaseVerificationPending": true,
+  "fullHistoricalParityEstablished": false,
+  "completeBlockProof": false,
+  "authenticationEstablished": false,
+  "fullSuiteBaseline": {
+    "commit": "b02a0454e4da34c4c167b50f93dc579bda9e75ec",
+    "releaseExecutions": 1502,
+    "lockedReferenceTests": 151
+  },
+  "logs": {
+    "v10-final-normalized-guard.log": {
+      "bytes": 15597,
+      "sha256": "0c73eda3311a3cb157e01508029aa35e9e789b8f1607cd6dd2d77154bcb52512"
+    },
+    "v10-populated-version-gate.log": {
+      "bytes": 5040,
+      "sha256": "14cf4656c882e53bd015d3b1d47aa8110cbd7bbc3fce78b6ef65a79463f53af7"
+    },
+    "v10-final-clippy.log": {
+      "bytes": 170,
+      "sha256": "1ef16aae209e3d9be5bf06e071243e92d8b9c425b7f8bcd7a0e5685431357829"
+    },
+    "v10-final-format.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "v10-final-includes-format.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "v10-node-evidence.json": {
+      "bytes": 4296,
+      "sha256": "dfedd20da47ce3e2178b08bdf6ef0e39a3b6b492b8ece494de3caad122447638"
+    }
+  },
+  "nodeChecks": [
+    {
+      "command": [
+        "scripts/lower_activation_vectors.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "log": "v10-node-evidence-00.log",
+      "bytes": 53269,
+      "sha256": "96fb2bbfb65bfa0e56545429575220c388d26f3404b006e8173780363b66d260"
+    },
+    {
+      "command": [
+        "scripts/lower_activation_vectors.cjs",
+        "--lock",
+        "--check"
+      ],
+      "exitCode": 0,
+      "log": "v10-node-evidence-01.log",
+      "bytes": 53269,
+      "sha256": "f152126c3ab5b66fb6855901cc4135ed40120aff9c228cf0490bd3953cd0bc70"
+    },
+    {
+      "command": [
+        "scripts/lower_activation_vectors.cjs",
+        "--proof10",
+        "--check"
+      ],
+      "exitCode": 0,
+      "log": "v10-node-evidence-02.log",
+      "bytes": 9275,
+      "sha256": "1d9d14716e0ac58a9cf30168d5f3baf1bd26ae23d74cb7037d790eab6f267fae"
+    },
+    {
+      "command": [
+        "scripts/lower_activation_vectors.cjs",
+        "--proof10",
+        "--lock",
+        "--check"
+      ],
+      "exitCode": 0,
+      "log": "v10-node-evidence-03.log",
+      "bytes": 9275,
+      "sha256": "35bac122e9508182533fd7d406a74576714bf5013835c75627161be9141208e9"
+    },
+    {
+      "command": [
+        "scripts/main_activation_vectors.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "log": "v10-node-evidence-04.log",
+      "bytes": 10089,
+      "sha256": "4b7a1e02accc77c5f35029d3e44c7e8793dc42b2db9910e275362d21f6b6aa02"
+    },
+    {
+      "command": [
+        "scripts/main_activation_vectors.cjs",
+        "--lock",
+        "--check"
+      ],
+      "exitCode": 0,
+      "log": "v10-node-evidence-05.log",
+      "bytes": 10089,
+      "sha256": "4b7a1e02accc77c5f35029d3e44c7e8793dc42b2db9910e275362d21f6b6aa02"
+    },
+    {
+      "command": [
+        "scripts/main_activation_vectors.cjs",
+        "--proof10",
+        "--check"
+      ],
+      "exitCode": 0,
+      "log": "v10-node-evidence-06.log",
+      "bytes": 2717,
+      "sha256": "abe90b703472bd9343495e483a3c4934eac1b2b4fc894b88d3dea993d1d00064"
+    },
+    {
+      "command": [
+        "scripts/main_activation_vectors.cjs",
+        "--proof10",
+        "--lock",
+        "--check"
+      ],
+      "exitCode": 0,
+      "log": "v10-node-evidence-07.log",
+      "bytes": 2717,
+      "sha256": "abe90b703472bd9343495e483a3c4934eac1b2b4fc894b88d3dea993d1d00064"
+    },
+    {
+      "command": [
+        "scripts/mixed_activation_vectors.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "log": "v10-node-evidence-08.log",
+      "bytes": 18288,
+      "sha256": "55cf482da6928776df956b6627e45421c819c18395653678bc78e695082b4b29"
+    },
+    {
+      "command": [
+        "scripts/mixed_activation_vectors.cjs",
+        "--lock",
+        "--check"
+      ],
+      "exitCode": 0,
+      "log": "v10-node-evidence-09.log",
+      "bytes": 18288,
+      "sha256": "c3df975fef207e8a04f620cdb51cc4b9b1e1d3ab7624d4a0cb647db2bf608b0a"
+    },
+    {
+      "command": [
+        "scripts/v10_consensus_type_vectors.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "log": "v10-node-evidence-10.log",
+      "bytes": 27459,
+      "sha256": "edbe545f67766844b9338fb1df5e5bdd904c43b54d887a21cb1e2ebfa4a43133"
+    },
+    {
+      "command": [
+        "scripts/v10_consensus_type_vectors.cjs",
+        "--lock",
+        "--check"
+      ],
+      "exitCode": 0,
+      "log": "v10-node-evidence-11.log",
+      "bytes": 27459,
+      "sha256": "a487593f626852e72f36c068af2f26bef8a9d8bc731a70ec395116b5c3c6088e"
+    },
+    {
+      "command": [
+        "scripts/v10_insurance_find_vectors.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "log": "v10-node-evidence-12.log",
+      "bytes": 134,
+      "sha256": "79a9e199ef32b33d94b2e1c5bf8503273f39344872672a4100d1d4a70b9c9407"
+    },
+    {
+      "command": [
+        "scripts/v10_insurance_find_vectors.cjs",
+        "--lock",
+        "--check"
+      ],
+      "exitCode": 0,
+      "log": "v10-node-evidence-13.log",
+      "bytes": 134,
+      "sha256": "22663651d7e3e2b68b359804ce4c980bcae81614ccf8ed811eb06dfcd5f18044"
+    }
+  ]
+}

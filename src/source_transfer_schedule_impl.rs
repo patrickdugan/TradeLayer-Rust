@@ -26,7 +26,7 @@ impl ContractCore {
         Ok(())
     }
     fn source_transfer_balance_after_await(&mut self, collection: &str) -> R<()> {
-        if self.policy != SourceContractRuntimePolicy::SpotLifecycleV9
+        if !self.spot_lifecycle_enabled()
             || !self.source_spot_main_active
             || self.channel_balance_jobs.is_empty()
             || !matches!(collection, "consensus" | "txIndex")
@@ -42,9 +42,7 @@ impl ContractCore {
         Ok(())
     }
     fn source_transfer_balance_finish(&mut self) -> R<()> {
-        if self.policy == SourceContractRuntimePolicy::SpotLifecycleV9
-            && !self.channel_balance_jobs.is_empty()
-        {
+        if self.spot_lifecycle_enabled() && !self.channel_balance_jobs.is_empty() {
             self.source_channel_balance_drain()?;
         }
         Ok(())

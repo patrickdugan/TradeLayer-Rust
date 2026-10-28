@@ -30,8 +30,11 @@ fn proof_canonical_artifact_path_for_policy(
     policy: SourceContractRuntimePolicy,
     path: &str,
 ) -> bool {
-    if policy == SourceContractRuntimePolicy::SpotLifecycleV9
-        && (path.starts_with('/') || path.starts_with('\\'))
+    if matches!(
+        policy,
+        SourceContractRuntimePolicy::SpotLifecycleV9
+            | SourceContractRuntimePolicy::ActivationLifecycleV10
+    ) && (path.starts_with('/') || path.starts_with('\\'))
         && path.split(['/', '\\']).find(|part| !part.is_empty()) == Some("tl-source-artifacts")
     {
         let Some(tail) = path.strip_prefix("/tl-source-artifacts/") else {

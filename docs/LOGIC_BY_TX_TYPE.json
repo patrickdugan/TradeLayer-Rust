@@ -1,9 +1,9 @@
 {
   "schema": "tl-logic-reference-review-v1",
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
-  "rustCommit": "b02a0454e4da34c4c167b50f93dc579bda9e75ec",
-  "rustCommitScope": "Actual release-validated V9 source implementation; later metadata-only commits are separate.",
-  "reviewedAtUtc": "2026-10-28T12:28:29Z",
+  "rustCommit": "50e4f239d665b6467c20d47c1d437e5ce7bc1b22",
+  "rustCommitScope": "Parent of focused-validated V10 integration; full-suite V9 baseline is separately recorded.",
+  "reviewedAtUtc": "2026-10-28T14:24:59Z",
   "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
     {
@@ -141,7 +141,7 @@
     {
       "path": "src/source_contract_accounting_impl.rs",
       "lfNormalized": true,
-      "sha256": "0ec159bc2614770ccd4a1e38df6aeec6014f47d5c0fa79c9b3fc57e33b93dbc1"
+      "sha256": "7a2c798e2476213ee74fe0293222074dd6abcce8f22b80bf7968f9d22ec6fd43"
     },
     {
       "path": "src/source_contract_aux_impl.rs",
@@ -151,7 +151,7 @@
     {
       "path": "src/source_contract_fee_impl.rs",
       "lfNormalized": true,
-      "sha256": "58ccefb5fe84480a294ae4ce9f575116893b5027c0367a4bb5185a7a53f426b8"
+      "sha256": "d66cfed8ed38a9382fae299ef0fc99199c337d8a27bdaa288b6ee2384ecffc29"
     },
     {
       "path": "src/source_contract_oracle_impl.rs",
@@ -161,12 +161,12 @@
     {
       "path": "src/source_contract_replay.rs",
       "lfNormalized": true,
-      "sha256": "71bbea6552955933891a9723f1e8977bc7374caf137eaab35faa68e16e02c826"
+      "sha256": "41741b956a956c9fffb79f7bdfaf63f568dff81033528b2ead8ca9585c3e991c"
     },
     {
       "path": "src/source_contract_runtime.rs",
       "lfNormalized": true,
-      "sha256": "13103da940be225747c2df52f5fa51d124c256de1e7264aa261f8bb107c7cc02"
+      "sha256": "c60e4e64f98407570fa8f23644e7b21075a8e632bc281f6d5331eac87ec55017"
     },
     {
       "path": "src/source_contract_values.rs",
@@ -240,7 +240,7 @@
     },
     {
       "path": "src/source_channel_logic_impl.rs",
-      "sha256": "46f57664064961a05f64fb51c298be82f2b81f65e688f24244bffe1f50fb6dd5",
+      "sha256": "c71bf3d0ff027dcdab019c2f08d1cdf8618ada1f651601b3e781ccee56afee00",
       "lfNormalized": true
     },
     {
@@ -315,7 +315,7 @@
     },
     {
       "path": "src/source_proof_settlement_impl.rs",
-      "sha256": "a40e8c1e6fe76c433d992e7684d22974f7111fd5f7326fb65e91ea3c71e6cf33",
+      "sha256": "9c7d8d5998b8a695d6b9627bdbd2e4202bcee78ecb54bcbd4c51cbde31a50e35",
       "lfNormalized": true
     },
     {
@@ -346,7 +346,7 @@
     {
       "path": "src/source_main_callable_impl.rs",
       "lfNormalized": true,
-      "sha256": "2f66665a11ac89c655abaaba2fa8a13e4556ffddc6b7c1768a5161b9af35204c"
+      "sha256": "53083eb8509f6637d5899a379bb9537fcc06b41ce9ce26adcc8d2b1aea30ff54"
     },
     {
       "path": "src/source_lower_clearlist_impl.rs",
@@ -356,7 +356,7 @@
     {
       "path": "src/source_lower_send_commit_impl.rs",
       "lfNormalized": true,
-      "sha256": "1aa88022f1c920db4a347336444d2844b3b1039cb32a0be351206ed02fc73907"
+      "sha256": "aea8437ef60ee503887f6378dec7ddff5030bf191fcc0de3c1959a5515bcce39"
     },
     {
       "path": "src/source_lower_utxo_trade_impl.rs",
@@ -386,12 +386,12 @@
     {
       "path": "src/source_transfer_schedule_impl.rs",
       "lfNormalized": true,
-      "sha256": "faa444e148ba08024fc9f837183859235451e511f112453a82f128465ad32496"
+      "sha256": "4a94281aec3885d4e695aff1958d9e98310c1ac2f68b3efc11158de03d3f7f1b"
     },
     {
       "path": "src/source_token_channel_schedule_impl.rs",
       "lfNormalized": true,
-      "sha256": "df69970b3318fa2636ac7a6b24f40c004e2792f661fe4c9f75d115181208b001"
+      "sha256": "39b32bec1112b856c96785a3ee16d90ae71ed48abf9124a805352a604369095f"
     },
     {
       "path": "src/source_recent_lifecycle_transition_witness_impl.rs",
@@ -401,7 +401,17 @@
     {
       "path": "src/source_withdrawal_schedule_impl.rs",
       "lfNormalized": true,
-      "sha256": "791bd4d1081a539c8ebcbc1592b6620f69845981b9da6f17b54d69373f6e114c"
+      "sha256": "4a1dabe4095a01772fb5ce58514e0fb991d6f07b91efd0a679422ee5d44f382c"
+    },
+    {
+      "path": "src/source_activation_lifecycle_impl.rs",
+      "lfNormalized": true,
+      "sha256": "0d48fc19c649bf5c7f9a9e0f4bc130c51533274959686832f3f0163b392f8cf8"
+    },
+    {
+      "path": "src/source_activation_hash_impl.rs",
+      "lfNormalized": true,
+      "sha256": "d563c317bb1fe462cbbd32510cdf58c5b2ccdafdd1f55a0e91f8804a752f63d0"
     }
   ],
   "catalogExecutionTypes": [
@@ -426,10 +436,10 @@
       "sourceRoute": "0 / base36 0 / Logic.activateTradeLayer",
       "sourceEffects": "Loops requested types, awaits Activation.activate, writes activation block/codeHash and consensus activation metadata. Activating target0 invokes source vesting initializer.",
       "sourceDefects": "Source repeats can overwrite activation height; source validity accepts in-range fractional IDs; async persistence can swallow failures. Runtime differences: Actual Registry requires independently configured administrator, bounded integer types and prior-height effectiveness; type0 does not invent funded genesis.",
-      "runtimeScope": "Source mapper maps0 to actual Registry Activate; actual v7 activation/history, rollback and replay tests exist. No funded genesis is created.",
-      "missingLogic": "Full source activation metadata/persistence semantics and funded type0 genesis are not integrated as historical behavior.",
-      "nextTask": "Compare full activation metadata and initializer/failure effects from identical configured initial state; keep authenticated genesis admission separate.",
-      "evidence": "JS dca0888b src/types.js decodePayload case0; src/logic.js typeSwitch case0; src/activation.rs; src/activation_history.rs; src/registry.rs; tests/activation_history.rs; tests/consensus_source.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
+      "runtimeScope": "The separate literal ActivationLifecycleV10 policy composes original raw0 and Main0 with the existing SourceActivation registry, Tally, Property, Vesting, Insurance and Consensus owners. It preserves all16 mixed native-token subsets, source code-hash profiles, asynchronous initialization, ignored Errors and retained failure prefixes. The generic conserving mapper remains separately scoped.",
+      "missingLogic": "Full daemon/startup, production persistence/RPC, broader historical cases and authenticated actor/chain input admission. AMM10 is the remaining Main kind; complete block proofs remain open.",
+      "nextTask": "Complete source AMM composition and production/authenticated historical boundaries without repairing pinned source behavior.",
+      "evidence": "JS dca0888b src/types.js decodePayload case0; src/logic.js typeSwitch case0; src/activation.rs; src/activation_history.rs; src/registry.rs; tests/activation_history.rs; tests/consensus_source.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.;docs/SOURCE_ACTIVATION_LIFECYCLE.md;docs/SOURCE_MAIN_V10_OBSERVER_STORAGE.md;tests/source_activation_lifecycle.rs;tests/source_activation_mixed_native.rs;tests/source_main_activation_callable.rs;tests/source_main_activation_inherited.rs;fixtures/reference_fidelity/source-activation-main-focused.json",
       "preStateWitness": "Independent configured Registry activation/admin and ordered accepted activation origins.",
       "postStateWitness": "Activation metadata/code hashes and any explicitly authorized genesis effects, with global replay IDs.",
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
@@ -1440,8 +1450,9 @@
     ]
   },
   "currentCandidate": {
-    "policy": "SpotLifecycleV9",
+    "policy": "ActivationLifecycleV10",
     "mainKinds": [
+      0,
       1,
       2,
       3,
@@ -1477,14 +1488,12 @@
       34,
       35
     ],
-    "status": "release, exact numeric reference, formatting and all-target Clippy passed",
-    "fullSuitePromotion": true,
+    "status": "46 focused Root executions,14 genuine regeneration checks, formatting and all-target Clippy passed; complete release checks pending",
+    "fullSuitePromotion": false,
     "completeBlockProof": false,
     "authenticationEstablished": false,
-    "verifiedImplementationCommit": "b02a0454e4da34c4c167b50f93dc579bda9e75ec",
-    "releaseTestExecutions": 1502,
-    "lockedReferenceTests": 151,
-    "validationRecord": "fixtures/reference_fidelity/source-spot-main-validation.json"
+    "fullSuiteBaseline": "b02a0454e4da34c4c167b50f93dc579bda9e75ec",
+    "validationRecord": "fixtures/reference_fidelity/source-activation-main-focused.json"
   },
   "recentConditionalWitness": {
     "profile": "TLSW3",

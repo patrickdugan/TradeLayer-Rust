@@ -25,6 +25,7 @@ pub enum SourceContractRuntimePolicy {
     LowerLifecycleV7,
     MainCallableV8,
     SpotLifecycleV9,
+    ActivationLifecycleV10,
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StorageFailure {
@@ -111,6 +112,18 @@ pub(crate) struct ContractCore {
     position_identity_active: bool,
     source_send_tally_instance_initialized: bool,
     source_send_tally_read_job: Option<SourceSendTallyReadJob>,
+    activation_client_profile: V,
+    activation_client_locked: bool,
+    activation_vesting: V,
+    activation_consensus_vector: Vec<V>,
+    activation_native_errors: Vec<V>,
+    activation_insurance_job: Option<SourceActivationInsuranceJob>,
+    activation_clearlist_jobs: Vec<SourceActivationClearlistJob>,
+    activation_async_active: bool,
+    activation_async_clock: u64,
+    activation_async_serial: u64,
+    activation_async_running: bool,
+    activation_async_child_depth: u8,
     main_activation: crate::activation::SourceActivation,
     main_activation_profile: String,
     main_activation_locked: bool,
@@ -372,7 +385,9 @@ impl SourceContractRuntime {
             set(
                 &mut value,
                 "runtimePolicy",
-                s(if self.core.spot_lifecycle_enabled() {
+                s(if self.core.activation_lifecycle_enabled() {
+                    "ActivationLifecycleV10"
+                } else if self.core.spot_lifecycle_enabled() {
                     "SpotLifecycleV9"
                 } else if self.core.main_callable_enabled() {
                     "MainCallableV8"
@@ -471,6 +486,14 @@ impl SourceContractRuntime {
                 &mut value,
                 "spotLifecycle",
                 self.core.source_spot_schedule_state(),
+            )
+            .map_err(|_| SourceRuleError::InvalidInput)?;
+        }
+        if self.core.activation_lifecycle_enabled() {
+            set(
+                &mut value,
+                "activationLifecycle",
+                self.core.source_activation_state(),
             )
             .map_err(|_| SourceRuleError::InvalidInput)?;
         }
@@ -725,6 +748,18 @@ impl ContractCore {
             position_identity_active: false,
             source_send_tally_instance_initialized: false,
             source_send_tally_read_job: None,
+            activation_client_profile: V::Null,
+            activation_client_locked: false,
+            activation_vesting: V::Undefined,
+            activation_consensus_vector: vec![],
+            activation_native_errors: vec![],
+            activation_insurance_job: None,
+            activation_clearlist_jobs: vec![],
+            activation_async_active: false,
+            activation_async_clock: 0,
+            activation_async_serial: 0,
+            activation_async_running: false,
+            activation_async_child_depth: 0,
             main_activation: crate::activation::SourceActivation::new(),
             main_activation_profile: "source-registry".into(),
             main_activation_locked: false,
@@ -746,6 +781,7 @@ impl ContractCore {
                 | SourceContractRuntimePolicy::LowerLifecycleV7
                 | SourceContractRuntimePolicy::MainCallableV8
                 | SourceContractRuntimePolicy::SpotLifecycleV9
+                | SourceContractRuntimePolicy::ActivationLifecycleV10
         )
     }
     fn lifecycle_enabled(&self) -> bool {
@@ -758,6 +794,7 @@ impl ContractCore {
                 | SourceContractRuntimePolicy::LowerLifecycleV7
                 | SourceContractRuntimePolicy::MainCallableV8
                 | SourceContractRuntimePolicy::SpotLifecycleV9
+                | SourceContractRuntimePolicy::ActivationLifecycleV10
         )
     }
     fn option_lifecycle_enabled(&self) -> bool {
@@ -769,6 +806,7 @@ impl ContractCore {
                 | SourceContractRuntimePolicy::LowerLifecycleV7
                 | SourceContractRuntimePolicy::MainCallableV8
                 | SourceContractRuntimePolicy::SpotLifecycleV9
+                | SourceContractRuntimePolicy::ActivationLifecycleV10
         )
     }
     fn distribution_lifecycle_enabled(&self) -> bool {
@@ -779,6 +817,7 @@ impl ContractCore {
                 | SourceContractRuntimePolicy::LowerLifecycleV7
                 | SourceContractRuntimePolicy::MainCallableV8
                 | SourceContractRuntimePolicy::SpotLifecycleV9
+                | SourceContractRuntimePolicy::ActivationLifecycleV10
         )
     }
     fn proof_lifecycle_enabled(&self) -> bool {
@@ -788,6 +827,7 @@ impl ContractCore {
                 | SourceContractRuntimePolicy::LowerLifecycleV7
                 | SourceContractRuntimePolicy::MainCallableV8
                 | SourceContractRuntimePolicy::SpotLifecycleV9
+                | SourceContractRuntimePolicy::ActivationLifecycleV10
         )
     }
     fn lower_lifecycle_enabled(&self) -> bool {
@@ -796,6 +836,7 @@ impl ContractCore {
             SourceContractRuntimePolicy::LowerLifecycleV7
                 | SourceContractRuntimePolicy::MainCallableV8
                 | SourceContractRuntimePolicy::SpotLifecycleV9
+                | SourceContractRuntimePolicy::ActivationLifecycleV10
         )
     }
     fn main_callable_enabled(&self) -> bool {
@@ -803,10 +844,15 @@ impl ContractCore {
             self.policy,
             SourceContractRuntimePolicy::MainCallableV8
                 | SourceContractRuntimePolicy::SpotLifecycleV9
+                | SourceContractRuntimePolicy::ActivationLifecycleV10
         )
     }
     fn spot_lifecycle_enabled(&self) -> bool {
-        self.policy == SourceContractRuntimePolicy::SpotLifecycleV9
+        matches!(
+            self.policy,
+            SourceContractRuntimePolicy::SpotLifecycleV9
+                | SourceContractRuntimePolicy::ActivationLifecycleV10
+        )
     }
     fn rows(&self, name: &str) -> &[V] {
         self.tables
@@ -864,7 +910,9 @@ impl ContractCore {
         Ok(())
     }
     fn database(&mut self, name: &str) -> R<V> {
-        self.table(name)?;
+        if !self.activation_lifecycle_enabled() {
+            self.table(name)?;
+        }
         let result = self
             .check_failure(name, "getDatabase")
             .map(|()| obj(&[("sourceDatabase", s(name))]));
@@ -884,6 +932,9 @@ impl ContractCore {
             _ => (),
         };
         self.emit(event);
+        if self.activation_lifecycle_enabled() {
+            self.source_activation_after_database(name)?;
+        }
         self.source_main_withdrawal_after_database(name)?;
         self.source_token_threshold_after_database(name)?;
         self.source_transfer_balance_after_await(name)?;
@@ -994,6 +1045,23 @@ impl ContractCore {
     fn db(&mut self, name: &str, op: &str, args: Vec<V>) -> R<V> {
         let result = (|| {
             self.check_failure(name, op)?;
+            // The source fixture adapter calls table(name) inside these
+            // operations, after its injected-failure check. A factory handle
+            // or failed operation alone does not create persisted rows.
+            if self.activation_lifecycle_enabled()
+                && matches!(
+                    op,
+                    "findOneAsync"
+                        | "findAsync"
+                        | "get"
+                        | "put"
+                        | "removeAsync"
+                        | "insertAsync"
+                        | "updateAsync"
+                )
+            {
+                self.table(name)?;
+            }
             match op {
                 "findOneAsync" => {
                     for row in self.rows(name) {
@@ -1167,6 +1235,9 @@ impl ContractCore {
             _ => (),
         };
         self.emit(event);
+        if self.activation_lifecycle_enabled() {
+            self.source_activation_after_db(name, op)?;
+        }
         self.source_token_threshold_after_read(name)?;
         self.source_transfer_balance_after_await(name)?;
         if self.global_clearing_enabled() {
@@ -1179,7 +1250,7 @@ impl ContractCore {
             // Main's un-awaited Tally jobs progress across the awaited channel
             // write even when that write rejects. Older profiles stay exact.
             && (result.is_ok()
-                || (self.policy == SourceContractRuntimePolicy::SpotLifecycleV9
+                || (self.spot_lifecycle_enabled()
                     && self.source_spot_main_active
                     && matches!(&result, Err(Fault::Thrown(_)))))
         {
@@ -1331,6 +1402,41 @@ impl ContractCore {
     fn dispatch(&mut self, call: &DependencyCall) -> R<V> {
         let a = &call.arguments;
         let target = call.target.as_str();
+        if self.activation_lifecycle_enabled() {
+            if target == "SourceMain.configure"
+                && arg(a, 0).get("activationProfile") != s("source-registry")
+            {
+                return Err(SourceRuleError::InvalidInput.into());
+            }
+            match target {
+                "SourceActivation.configureClient" => return self.source_activation_configure(a),
+                "Logic.activateTradeLayer" => return self.source_activation_logic(a),
+                "Tally.checkInitializationFlag" => {
+                    return self.source_activation_flags("checkInitializationFlag")
+                }
+                "Tally.setInitializationFlag" => {
+                    return self.source_activation_flags("setInitializationFlag")
+                }
+                "Vesting.getInstance" => return self.source_activation_vesting_instance(a),
+                "Vesting.initializeTokens" => {
+                    if self.activation_vesting == V::Undefined {
+                        return Err(SourceRuleError::InvalidInput.into());
+                    }
+                    return self.source_activation_initialize(arg(a, 0));
+                }
+                "Consensus.pushLatestActivationToConsensusVector" => {
+                    return self.source_activation_consensus_push()
+                }
+                "Consensus.hashFiles" => return self.source_activation_code_hash(),
+                "Consensus.stateConsensusHash" => {
+                    if !a.is_empty() {
+                        return Err(SourceRuleError::UnknownDependency.into());
+                    }
+                    return self.source_activation_consensus_state_hash();
+                }
+                _ => (),
+            }
+        }
         if self.spot_lifecycle_enabled() {
             if target == "SourceGlobal.bindSpotRpcDocuments" {
                 if !a.is_empty() {
@@ -2149,6 +2255,7 @@ impl SourceContractRuntime {
     ) -> Result<crate::types_source::TypesOutcome, SourceRuleError> {
         self.last_parameters = None;
         if arguments.get(1) != Some(&n(18.0))
+            && !(self.core.activation_lifecycle_enabled() && arguments.get(1) == Some(&n(0.)))
             && !(self.core.spot_lifecycle_enabled()
                 && [5., 6.]
                     .iter()
@@ -2208,7 +2315,7 @@ impl SourceContractRuntime {
         let result = if self.core.spot_lifecycle_enabled() && arguments.get(1) == Some(&n(6.0)) {
             let mut backend = SourceSpotValidityBackend::new(&mut self.core);
             crate::types_source::decode_payload_unverified(arguments, &mut backend)
-        } else if self.core.policy == SourceContractRuntimePolicy::SpotLifecycleV9
+        } else if self.core.spot_lifecycle_enabled()
             && self.core.source_spot_main_active
             && arguments.get(1) == Some(&n(22.0))
         {
@@ -2248,8 +2355,7 @@ impl SourceContractRuntime {
             // Preserve the actual unavailable dependency at the new Main
             // boundary. Older policies retain their historical error receipt.
             crate::types_source::TypesError::Validity(SourceRuleError::UnknownDependency)
-                if self.core.policy == SourceContractRuntimePolicy::SpotLifecycleV9
-                    && self.core.source_spot_main_active =>
+                if self.core.spot_lifecycle_enabled() && self.core.source_spot_main_active =>
             {
                 SourceRuleError::UnknownDependency
             }
@@ -2272,6 +2378,12 @@ impl SourceContractRuntime {
             && arguments.get(1) == Some(&n(3.0))
         {
             return self.source_lower_utxo_trade_raw_logic(params);
+        }
+        if self.core.activation_lifecycle_enabled()
+            && arguments.get(1) == Some(&n(0.))
+            && params.get("valid") == V::Bool(true)
+        {
+            return self.source_activation_raw_logic(params);
         }
         let logic = if params.get("valid") == V::Bool(true)
             && self.core.spot_lifecycle_enabled()
@@ -2383,3 +2495,6 @@ include!("source_transfer_schedule_impl.rs");
 include!("source_token_channel_schedule_impl.rs");
 
 include!("source_withdrawal_schedule_impl.rs");
+
+include!("source_activation_lifecycle_impl.rs");
+include!("source_activation_hash_impl.rs");

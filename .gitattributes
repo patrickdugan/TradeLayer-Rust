@@ -148,3 +148,13 @@ fixtures/main_token_threshold_*.jsonl text eol=lf
 fixtures/main_token_threshold_*.json text eol=lf
 fixtures/main_withdrawal_schedule_*.jsonl text eol=lf
 fixtures/main_withdrawal_schedule_*.json text eol=lf
+
+# Literal activation and Main bootstrap source observations.
+fixtures/lower_activation_source.jsonl text eol=lf
+fixtures/lower_activation_proof10.jsonl text eol=lf
+fixtures/mixed_native_activation.jsonl text eol=lf
+fixtures/v10_consensus_type_vectors.jsonl text eol=lf
+fixtures/v10_insurance_find_vectors.jsonl text eol=lf
+fixtures/main_activation_vectors.jsonl text eol=lf
+fixtures/main_activation_proof10.jsonl text eol=lf
+fixtures/main_activation_inventory.json text eol=lf

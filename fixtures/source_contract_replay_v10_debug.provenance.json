@@ -1,0 +1,19 @@
+{
+  "policy": "ActivationLifecycleV10",
+  "profile": "focused-debug",
+  "compiledCommit": null,
+  "capturedFromUncommittedCandidate": true,
+  "codeParent": "50e4f239d665b6467c20d47c1d437e5ce7bc1b22",
+  "compiler": "Rust1.90.0 MSVC",
+  "releaseClaim": false,
+  "exhaustivePolicyCeiling": 10,
+  "capturedBeforeV11": true,
+  "commands": 15,
+  "bytes": 94665,
+  "head": "38bbe0a230b3cd29e37d6617f0ca7d7ebae99e21ef2004a4237713b9a419c83a",
+  "fixtureSha256": "978f0b18e5651a2fe45d21e1484f61c992507a131f60892011c6e81ce8cb1e21",
+  "debugLibrarySha256": "f9bba0f557f2f20d4683b8b982363d8ccf966bd71e8887eb0cb3e667445df6ce",
+  "generatorSha256": "f0e41674b49fbf6e2e0c302324a773dc0deafcecc959af710953c6a908559522",
+  "capturedAtUtc": "2026-10-28T13:42:33.2516732Z",
+  "scope": "Current replay at the first populated Tally boundary after ten genuine Main0 comparisons (11 source calls had executed across reset scenes); exact current-context inputs/operations plus three future AMM refusals. Actual debug library, not a release fixture. Canonical reconstruction checked. Actor and chain facts remain unverified."
+}

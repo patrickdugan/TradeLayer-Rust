@@ -20,6 +20,21 @@ impl SourceBackend for SourceMainActivationBackend<'_> {
             "DB.updateAsync" => self
                 .core
                 .db("activations", "updateAsync", call.arguments.clone()),
+            _ if self.core.activation_lifecycle_enabled() => match call.target.as_str() {
+                "Client.getInstance" | "Client.getChain" | "Client.getTest" => self
+                    .core
+                    .source_activation_client(&call.target, &call.arguments),
+                "Vesting.getInstance" => self
+                    .core
+                    .source_activation_vesting_instance(&call.arguments),
+                "Vesting.initializeTokens" => self
+                    .core
+                    .source_activation_initialize(arg(&call.arguments, 0)),
+                "Consensus.pushLatestActivationToConsensusVector" => {
+                    self.core.source_activation_consensus_push()
+                }
+                _ => return Err(SourceRuleError::UnknownDependency),
+            },
             _ => return Err(SourceRuleError::UnknownDependency),
         };
         returned(value)
@@ -48,17 +63,18 @@ impl ContractCore {
         if self.source_token_threshold_enabled() && method == "areActivationsAboveThreshold" {
             return self.source_token_threshold_begin(a);
         }
-        if ![
-            "getAdmin",
-            "getActivationBlock",
-            "initializeTxRegistry",
-            "isTxTypeActive",
-            "checkActivationBlock",
-            "areActivationsAboveThreshold",
-            "loadActivationsList",
-            "saveActivationsList",
-        ]
-        .contains(&method)
+        if !((self.activation_lifecycle_enabled() && ["init", "activate"].contains(&method))
+            || [
+                "getAdmin",
+                "getActivationBlock",
+                "initializeTxRegistry",
+                "isTxTypeActive",
+                "checkActivationBlock",
+                "areActivationsAboveThreshold",
+                "loadActivationsList",
+                "saveActivationsList",
+            ]
+            .contains(&method))
         {
             return Err(SourceRuleError::UnknownDependency.into());
         }
@@ -275,7 +291,7 @@ impl SourceContractRuntime {
         // Source un-awaited raw22 rejection notifications occur after Main's
         // awaited work. Their exceptions already live in replay-bound source
         // diagnostics; no suspended transfer job crosses this boundary.
-        if self.core.policy == SourceContractRuntimePolicy::SpotLifecycleV9 {
+        if self.core.spot_lifecycle_enabled() {
             let new_rejections =
                 self.core.source_unhandled_rejections[transfer_rejected_before..].to_vec();
             for error in new_rejections {
@@ -419,7 +435,7 @@ impl SourceContractRuntime {
             ty,
             Some(1 | 2 | 3 | 4 | 7 | 8 | 9 | 11 | 12 | 13 | 14 | 15 | 18 | 32)
         );
-        let upper_kind = self.core.policy == SourceContractRuntimePolicy::SpotLifecycleV9
+        let upper_kind = self.core.spot_lifecycle_enabled()
             && matches!(
                 ty,
                 Some(
@@ -443,7 +459,10 @@ impl SourceContractRuntime {
                 )
             );
         let spot_kind = self.core.spot_lifecycle_enabled() && matches!(ty, Some(5 | 6));
-        if !(inherited_kind || upper_kind || spot_kind) {
+        let activation_kind = self.core.policy
+            == SourceContractRuntimePolicy::ActivationLifecycleV10
+            && matches!(ty, Some(0));
+        if !(inherited_kind || upper_kind || spot_kind || activation_kind) {
             return Err(SourceRuleError::InvalidInput.into());
         }
         let sender = funding_prop(&value, "sender")?;

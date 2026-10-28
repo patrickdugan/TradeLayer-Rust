@@ -54,7 +54,9 @@ rustfmt --check --edition 2021 \
   src/source_tail_lifecycle_impl.rs \
   src/source_transfer_schedule_impl.rs \
   src/source_token_channel_schedule_impl.rs \
-  src/source_withdrawal_schedule_impl.rs
+  src/source_withdrawal_schedule_impl.rs \
+  src/source_activation_lifecycle_impl.rs \
+  src/source_activation_hash_impl.rs
 
 cargo clippy --all-targets --locked -- -D warnings
 if [[ "$mode" == "--full" ]]; then

@@ -1,0 +1,722 @@
+{
+  "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "pins": {
+    "main": [
+      "native_genesis/source/main.js",
+      "006d59ba3d28d802b0e0c5be2d9d661b58caf1c919a704b3f0d40bc9613c4009"
+    ],
+    "txIndex": [
+      "legacy_txindex_source_txIndex.txt",
+      "095449d90f511df44aff7b316105f57d4c0508ea8fb0b6f9c4a5f358edf6ca51"
+    ],
+    "activation": [
+      "native_genesis/source/activation.js",
+      "268f08438eb80765587b8ce24d719f41de573648e108ef64df557faad870ea0e"
+    ],
+    "vaults": [
+      "legacy_vaults_source.txt",
+      "3dcf0554923864729bedcfc8244a06e4235d10a3241256eb3ba0a9d3d1534983"
+    ]
+  },
+  "referenceDriverSha256": "cb7af611bc3224057036fcbdb3ec6f13d1984b8402c306b99c5a1f55fb144c64",
+  "classes": {
+    "TxIndex": {
+      "sha256": "01dcd57e943046f5bb1dc7bc01efe6ea98e456be593ff91ddb5b4799072b257e",
+      "bytes": 19533,
+      "fullClass": true
+    },
+    "Main": {
+      "sha256": "cadcab37cf95dcc78d2258d12817c88fc6a01b9220c6cf18a25ddf68b43a7ea2",
+      "bytes": 39938,
+      "fullClass": true
+    }
+  },
+  "methods": {
+    "Main.constructor": {
+      "sha256": "cadcab37cf95dcc78d2258d12817c88fc6a01b9220c6cf18a25ddf68b43a7ea2",
+      "async": false
+    },
+    "Main.delay": {
+      "sha256": "60e77b8ed582884001ba86ebf7d0bf4893eb837b32eb765d24a15be04227ece4",
+      "async": true
+    },
+    "Main.initialize": {
+      "sha256": "ce51e848b36cdd96637983c04b10360815c5de418af0f13bb543b14c4b308cd1",
+      "async": true
+    },
+    "Main.getCurrentBlockHeight": {
+      "sha256": "372108cf7a8457fc6b3f3d3a178c61bdd2981b8858cc3cc4bbc11eac2418a39e",
+      "async": true
+    },
+    "Main.initOrLoadTxIndex": {
+      "sha256": "947398d773058ab8c0b5726e16d6823bfcda8d634a2a674d61b69c23f95b1090",
+      "async": true
+    },
+    "Main.syncIndex": {
+      "sha256": "090dd06b6b7e161a88b3ef8a2efe451c645f2d8db7684355f5a2cdf327af1be3",
+      "async": true
+    },
+    "Main.constructOrLoadConsensus": {
+      "sha256": "cf15a255b4f8ea5a166ff9c6818d8ebc4eca52dda7cf76fcb0904ab5024310bc",
+      "async": true
+    },
+    "Main.constructConsensusFromIndex": {
+      "sha256": "49d765706d2959d0d134b13951b4f8b56f5a21f0442c567a5e20add572272d2a",
+      "async": true
+    },
+    "Main.checkSync": {
+      "sha256": "3512685ad5c4cc7aa03866465ac0d9edac28b1a374e0960b7e31ef4eb1aadaa3",
+      "async": true
+    },
+    "Main.processTxSet": {
+      "sha256": "8e5b8f262824b636cbcef8c304d00304e363a447d309bc09a1f3386117a95e7c",
+      "async": true
+    },
+    "Main.processTx": {
+      "sha256": "3b0a52813e06d82cf6f8419abab9e15c91f287deb5a67873d67ca932f627a091",
+      "async": true
+    },
+    "Main.syncIfNecessary": {
+      "sha256": "4a357c68024399bd614c742b86efe13dd49f060c3dd87cf3529a6c9d54d413cd",
+      "async": true
+    },
+    "Main.setPause": {
+      "sha256": "bebb46d92bc138cdc8531842e040f07e4931845916b521de79f8c1786719741d",
+      "async": false
+    },
+    "Main.checkBlockLag": {
+      "sha256": "b8373bf562ab79fad7465f2ad98705e70630a729426b902646c3c336094aec8b",
+      "async": true
+    },
+    "Main.processIncomingBlocks": {
+      "sha256": "f23856d8da14a9978ccd4a7f181ace6c7e6582d216f429b5b9e9959522c682b8",
+      "async": true
+    },
+    "Main.checkNetworkStatus": {
+      "sha256": "d444b0b40fa4a678916373e0786735f85b364aaee9a361f0bcb26ccce672f0a5",
+      "async": true
+    },
+    "Main.enterRecoveryMode": {
+      "sha256": "af7c2dae860cb211c64190fca6093c3ee6270e22c166e763ca59ef1b69f966d1",
+      "async": true
+    },
+    "Main.processBlock": {
+      "sha256": "ca6d11798c366f4813bb60d7b397a25a195e8b3bf0f36efe6009dba59ec64753",
+      "async": true
+    },
+    "Main.shutdown": {
+      "sha256": "9ba4172df4ea0d835679614d05f70b6508fcdd3cdcb8e4595974f5b9953bfe6e",
+      "async": true
+    },
+    "Main.fetchWithRetry": {
+      "sha256": "ad1fac04da14f2ef6674f02cb5f55b9dfe746eef374bd4342fe80316dec3d038",
+      "async": true
+    },
+    "Main.blockHandlerBegin": {
+      "sha256": "9f66235294e7d1b6c5da544f6c3f41ac33d47fa21a313dbf31549f6de5247f94",
+      "async": true
+    },
+    "Main.blockHandlerMid": {
+      "sha256": "9f72101ef4ddbbaa01c440ae0819b23aeddcb25549c6eddf855706bc696b3a76",
+      "async": true
+    },
+    "Main.blockHandlerEnd": {
+      "sha256": "f2c702d9ac824378eea19b972cf7f752a8aa99c1904e9155de0152502bcf26ec",
+      "async": true
+    },
+    "Main.handleReorg": {
+      "sha256": "a2e53358b4f5d59eed38692420b041cd28811c8c6b7813681a4ae34d1ecb0aa9",
+      "async": true
+    },
+    "Main.saveMaxProcessedHeight": {
+      "sha256": "6b859c8cee024dc8aa8fbdfcadcd35a2a2867dd85a0f0e9d699df0990daec5f7",
+      "async": true
+    },
+    "Main.saveTrackHeight": {
+      "sha256": "23976327f45d1eb4042b814a140074b296a8a5654dfc78350ffce771842ee0cb",
+      "async": true
+    },
+    "Main.loadMaxProcessedHeight": {
+      "sha256": "c30d11ad7b86a173704393cb88b5144d9b925d223f198432b762d0f75cd0d318",
+      "async": true
+    },
+    "Main.loadTrackHeight": {
+      "sha256": "4716d92073f910a5c99b138ef8bf7bf02232364857238d6b592bcc8dec8f9d7f",
+      "async": true
+    },
+    "TxIndex.init": {
+      "sha256": "300af4e92958d36e68f3bd2c296b91060f73c6b4528e5ed024e91c4052b87c13",
+      "async": true
+    },
+    "TxIndex.getInstance": {
+      "sha256": "8bf6990696716776aaa563a231f212084d043c670af14550e16223eedf3bf86b",
+      "async": true
+    },
+    "TxIndex.initializeIndex": {
+      "sha256": "31aa6a45214f3c7000970afa2b1bbebb35b4be62dbb64c7b5a6c3d3487c170fb",
+      "async": true
+    },
+    "TxIndex.extractBlockData": {
+      "sha256": "a74199e2f25f00669202c134ed80450efd88d272fb6f220d2ad2d0f22f2a49f7",
+      "async": true
+    },
+    "TxIndex.saveMaxHeight": {
+      "sha256": "20f79f464df5c06747e4fccd33532fa1afa915704626fb5c57b139d079875efa",
+      "async": true
+    },
+    "TxIndex.fetchChainTip": {
+      "sha256": "83b57c4c32c0adbb6e4ad6ee7a70d606b0edbe473c630563cd0b87a7784ba650",
+      "async": true
+    },
+    "TxIndex.fetchBlockData": {
+      "sha256": "599dd160d0dfa97ca27bfc50e88bb5047d8ffc88a3c69371d834f51d1f76b508",
+      "async": true
+    },
+    "TxIndex.processBlockData": {
+      "sha256": "2351be6360c3bd5ee8aced6c10c30fd305241bcd1e8af45559cc90187f30e7e2",
+      "async": true
+    },
+    "TxIndex.fetchTransactionData": {
+      "sha256": "43a419526b96623969859c8b3d7ec05664c173def23329514baf86421197c8c8",
+      "async": true
+    },
+    "TxIndex.DecodeRawTransaction": {
+      "sha256": "e8b064a0661e965cb43cebed9a83711daf7ad5fe31919d20a1ea49427d8e3cf0",
+      "async": true
+    },
+    "TxIndex.isPrintableASCII": {
+      "sha256": "de13f6a968cd16829a303cdfd472addf3b2a31fe4950f78a88373e2f9974e726",
+      "async": false
+    },
+    "TxIndex.processTransaction": {
+      "sha256": "de6567f559bbe6762c0a8d560a26605928a4ddd04088b5a052913ffe09040456",
+      "async": true
+    },
+    "TxIndex.upsertTxValidityAndReason": {
+      "sha256": "7f84fa341dbbc091118ad3500cd90c8fb6c74c4b1906a8399d9d8fc9695fbcc9",
+      "async": true
+    },
+    "TxIndex.clearTxIndex": {
+      "sha256": "afe7f4f7e4b52a48585f817c7cf310cc23ffae45141e43233f47967b1f0decc9",
+      "async": true
+    },
+    "TxIndex.resetIndexFlag": {
+      "sha256": "e846a29ef748e3b4c95118b51eb30d8a82e9af0ea2466d2d11e71079df1e8752",
+      "async": true
+    },
+    "TxIndex.findMaxIndexedBlock": {
+      "sha256": "f7e34a4f2eecf3215982471c85776443f16ffbbca3057acecab11e10d8cfb1a9",
+      "async": true
+    },
+    "TxIndex.getTransactionData": {
+      "sha256": "1c8ce385297a956df69386e7ad4982f60899c6db838a695ab846e0abebfd4036",
+      "async": true
+    },
+    "TxIndex.checkForIndex": {
+      "sha256": "52bba21bf3743c70e70590f0e739347ba191252e22b24ac49e0dfed87fd48fd5",
+      "async": true
+    },
+    "Tally.flushQueuedFeeAccruals": {
+      "sha256": "9cef155e3ae687676fcd150ef963ba4dc5ffc186ce8277363b8bcbb73ab865c3",
+      "async": true
+    },
+    "Logic.settleLiquidityRewards": {
+      "sha256": "b817d692609213f5be57357d59c7e5acf853a58ccf2e2cc8c59806f08a9e1e1d",
+      "async": true
+    },
+    "Orderbook.processQueuedOnChainOrdersForBlock": {
+      "sha256": "07626f4f7cfe03dedb1baf18dcdb5e7f2bc5d40bf7eb69cac744bc8e56e62240",
+      "async": true
+    },
+    "Orderbook.processQueuedChannelTradesForBlock": {
+      "sha256": "37103ecf670b33a8f35364c00b40fa84e26cfe6e6169c91f08da9c79179bff15",
+      "async": true
+    },
+    "Channels.processWithdrawals": {
+      "sha256": "76dcb950acf3d0d5e7900cfee167ebb3b8dcc37e62197802e0ca8982c1340881",
+      "async": true
+    },
+    "Clearing.clearingFunction": {
+      "sha256": "3bad2ac9a12e0b147790410f383a7d321f615655b8d53e72bed9cceb170eca42",
+      "async": true
+    },
+    "Types.decodePayload": {
+      "sha256": "4eba9326414db0e41bdb71d053a182512dc575fc89ded011f1e6b3eb09c2ac38",
+      "async": true
+    }
+  },
+  "boundary": {
+    "fullMainImport": "declared unavailable ./reOrg.js; no imported module success supplied",
+    "callable": "byte-exact full Main and TxIndex classes; real constructors/prototypes; module startup IIFEs not executed",
+    "activation": "complete actual Activation/Vesting/Consensus modules; actual metadata init and registry writes; no supplied activation/hash/supply/validity results",
+    "storage": "shared explicit source fixture DB adapter; anchored /^tx/ RegExp is genuine JS test; production NeDB equivalence not claimed",
+    "rpc": "explicit chain/test/clock metadata; virtual read-only archived file inputs; Main/TxIndex constructor startup remains separately unavailable; unsupported method calls are isolated audit experiments",
+    "observation": "nonmutating audit table views; original return plus finite drained turns; no generic event-loop equivalence"
+  },
+  "inputLabels": {
+    "038ff66624c82d3849c27c245ae0d2a0e0d96abcae70d7d413ef8881c74ff9c6": {
+      "label": "one",
+      "kind": 0
+    },
+    "e128320baac9ecdec81adfd8098de4d736c1635894ca0866d3a7591f2e98f7d7": {
+      "label": "batch",
+      "kind": 0
+    },
+    "cf818facf225fc76188600e2955b95f4af1508754824ff3cddb451d01b2af2f6": {
+      "label": "unauthorized",
+      "kind": 0
+    },
+    "9a47b9cfae6621b7900426e386d403853544f2a54733fca818d5741cdd1a6ae5": {
+      "label": "outbound",
+      "kind": 0
+    },
+    "ef7c3945455222704425498bf2b9d91caa9d5166c777bc31d88fd19438010375": {
+      "label": "boot",
+      "kind": 0
+    },
+    "c1b86f6e6a59914f6b4aba6b994199e482638b1c98609917842f386fd5c74734": {
+      "label": "repeat",
+      "kind": 0
+    },
+    "0c6fedda21d86f0702a68a7b7e0338a5e994dc7a94ec41596fd041e4dcc50c97": {
+      "label": "last",
+      "kind": 0
+    },
+    "1a1a8d678bab34ea0ce81a3e62a6d6848c2015a604e26c29521508fcb3a292b2": {
+      "label": "live-boot",
+      "kind": 0
+    },
+    "40f1b60f4f828c3a2a8fc6e39574a7160796ea418b1c488d26e25b327d68bd87": {
+      "label": "mixed-0000",
+      "kind": 0
+    },
+    "202a8b359fe7275a5cd46d47560caf0703b30597d5033ddc2897b60c70f1fda6": {
+      "label": "mixed-0001",
+      "kind": 0
+    },
+    "5ed19e68f56f7b7e20d81f3326882e9dbb3fde57691a1474e1a0c53cea5c8d4e": {
+      "label": "mixed-0010",
+      "kind": 0
+    },
+    "68d4d5f55b9e9b33731b2c9a6f67de63f4140505504d70ded78239df3a262612": {
+      "label": "mixed-0011",
+      "kind": 0
+    },
+    "e11860a1de4b2d9f73aeba23721c5567402ebcbc4311d2f95bff7c63afc662db": {
+      "label": "mixed-0100",
+      "kind": 0
+    },
+    "e0935bed368dbde4f7a74e3bd4c8155ed186512286f091e7f836ef448174db82": {
+      "label": "mixed-0101",
+      "kind": 0
+    },
+    "fc3fa3039621ed8ffeac01ad380aed034540d63a9aaf5bf426d38fa0fb27c7a8": {
+      "label": "mixed-0110",
+      "kind": 0
+    },
+    "d4dda03c7919ac0dc13c9861c006ebe5f5cee19c636f94e5e504534c17c9f619": {
+      "label": "mixed-0111",
+      "kind": 0
+    },
+    "69e47a0601a498e31cd2b5b28c583b42348edb5b842f7e0fb173ab484239cf53": {
+      "label": "mixed-1000",
+      "kind": 0
+    },
+    "9e0fbe43323bb5fc7d783f1973f8ebeace792b1932fa4897953fdd4e3225bd59": {
+      "label": "mixed-1001",
+      "kind": 0
+    },
+    "b6af10fde482298cb3383322f8c254f3777f220a683df3bb1e1a9c12a855062a": {
+      "label": "mixed-1010",
+      "kind": 0
+    },
+    "cf12c347a4e7274455a9aa6dd148e87bdee0f02b564789fdf26e68f6283691af": {
+      "label": "mixed-1011",
+      "kind": 0
+    },
+    "377e98892a9f30fb42974e4ca4a7dd01f5b08c3e19faf8763e6c9d0cacd4d518": {
+      "label": "mixed-1100",
+      "kind": 0
+    },
+    "bbb701e9c23fe654ab1a1ad23e2453887f421f540207b0d9320f18760d3dbf2d": {
+      "label": "mixed-1101",
+      "kind": 0
+    },
+    "09492919fcff39ec5ef3d4ceade45eb3e859107896fc477c2e4abb604ddf4515": {
+      "label": "mixed-1110",
+      "kind": 0
+    },
+    "f149cf71df52898a7ef36d23e6132aaf9563655451a59ca2953981b05aae0620": {
+      "label": "mixed-1111",
+      "kind": 0
+    },
+    "a53e8c15c1216e73a2a2cc9f8999f0773a9ddb624f1f2c11f407f6f90cc4f9db": {
+      "label": "failure-delta-second-first",
+      "kind": 0
+    },
+    "5cc28f490c334bb20d2ccb60a88dbe4301b4f6fec61bf30d22fb28c3ad73b730": {
+      "label": "failure-delta-second-new-tx",
+      "kind": 0
+    },
+    "abf4d71c6bd42856b26139cc480b41f63730b5932f8715d456d33c5bd9571e7d": {
+      "label": "failure-flag-write-first",
+      "kind": 0
+    },
+    "7347c6188acf4e61598da52209303a853ecab58440894de4d487af0170a1e14e": {
+      "label": "failure-flag-write-new-tx",
+      "kind": 0
+    },
+    "bca352773205db46983e72e1077b8105e33e2c0058efb3aeb2f552347b555c96": {
+      "label": "failure-insurance-snapshot-first",
+      "kind": 0
+    },
+    "7296f87fca32403a81de401ece6e1ab94dd8d6a98d9f9f6e0fe99c821a590f65": {
+      "label": "failure-insurance-snapshot-new-tx",
+      "kind": 0
+    },
+    "09a8b8ae527b40ba5705710d631b31ded97a7fbeb190cd922cec55a146091080": {
+      "label": "failure-registry-save-first",
+      "kind": 0
+    },
+    "b52ca5e30f451209dcc5b0ce3ffde1762bf8ec14b1264104375615540e0c6af9": {
+      "label": "failure-registry-save-new-tx",
+      "kind": 0
+    },
+    "b8a73d8223c8a33ad0312c48ed9bbcfb4d8e23a8aa008a82ec306b793fe83ae4": {
+      "label": "chain-BTC",
+      "kind": 0
+    },
+    "432220aa1abd6f39611be078668b39bbe4f71d21a61f1c2acf80c490aa8e251a": {
+      "label": "chain-DOGE",
+      "kind": 0
+    },
+    "d852b461241a50a5694a86afaf5e31e8d7f8ff6759a38cf2bf6a92aa56f58c89": {
+      "label": "live-native-and-contracts",
+      "kind": 0
+    },
+    "b2d33b37172e5a1792a4fe98b137a453cf7db6e5c03f508d80af6d2ed3128b99": {
+      "label": "live-chain-BTC",
+      "kind": 0
+    },
+    "37ff5e5aa46ecdc08948733fb1cc3337c47a495d20bf00e93088a6b5239fed6e": {
+      "label": "live-chain-DOGE",
+      "kind": 0
+    },
+    "2d777baac201479c7fb9eb3000db4c697a0186033434cf00c4d2a59431655cc0": {
+      "label": "unavailable-client",
+      "kind": 0
+    }
+  },
+  "findings": [
+    {
+      "name": "first10/01-indexed-real-registry-activation",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "first10/02-live-activation-batch",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "first10/03-indexed-nonadmin",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "first10/04-indexed-out-of-bounds",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "first10/05-indexed-real-bootstrap",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "first10/06-indexed-bootstrap-repeat",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "first10/07-live-final-registry-id",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "first10/08-live-processed-retry",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "first10/09-live-bootstrap-real-postphases",
+      "phases": [
+        "Tally.flushQueuedFeeAccruals",
+        "Logic.settleLiquidityRewards",
+        "Orderbook.processQueuedOnChainOrdersForBlock",
+        "Orderbook.processQueuedChannelTradesForBlock",
+        "Clearing.clearingFunction",
+        "Channels.processWithdrawals"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "first10/10-empty-live-withdrawal-phase",
+      "phases": [
+        "Channels.processWithdrawals"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "mixed/0000/indexed-bootstrap",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "mixed/0001/indexed-bootstrap",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "mixed/0010/indexed-bootstrap",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "mixed/0011/indexed-bootstrap",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "mixed/0100/indexed-bootstrap",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "mixed/0101/indexed-bootstrap",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "mixed/0110/indexed-bootstrap",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "mixed/0111/indexed-bootstrap",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "mixed/1000/indexed-bootstrap",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "mixed/1001/indexed-bootstrap",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "mixed/1010/indexed-bootstrap",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "mixed/1011/indexed-bootstrap",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "mixed/1100/indexed-bootstrap",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "mixed/1101/indexed-bootstrap",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "mixed/1110/indexed-bootstrap",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "mixed/1111/indexed-bootstrap",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "failure/delta-second/actual-prefix-and-journal",
+      "phases": [],
+      "diagnostics": [
+        {
+          "level": "error",
+          "values": [
+            "Error saving delta:",
+            "Error: main-native-delta-second"
+          ]
+        },
+        {
+          "level": "error",
+          "values": [
+            "Logic failure while processing tx a53e8c15c1216e73a2a2cc9f8999f0773a9ddb624f1f2c11f407f6f90cc4f9db at block 10:",
+            "Error: main-native-delta-second"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "failure/delta-second/same-tx-is-processed",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "failure/delta-second/new-tx-real-retry",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "failure/flag-write/actual-prefix-and-journal",
+      "phases": [],
+      "diagnostics": [
+        {
+          "level": "error",
+          "values": [
+            "Logic failure while processing tx abf4d71c6bd42856b26139cc480b41f63730b5932f8715d456d33c5bd9571e7d at block 10:",
+            "Error: main-native-flag"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "failure/flag-write/same-tx-is-processed",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "failure/flag-write/new-tx-real-retry",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "failure/insurance-snapshot/actual-prefix-and-journal",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "failure/insurance-snapshot/same-tx-is-processed",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "failure/insurance-snapshot/new-tx-real-retry",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "failure/registry-save/actual-prefix-and-journal",
+      "phases": [],
+      "diagnostics": [
+        {
+          "level": "error",
+          "values": [
+            "Error saving activations list:",
+            "Error: main-native-registry-save"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "failure/registry-save/same-tx-is-processed",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "failure/registry-save/new-tx-real-retry",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "chain/BTC/indexed-original-bootstrap",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "chain/DOGE/indexed-original-bootstrap",
+      "phases": [],
+      "diagnostics": []
+    },
+    {
+      "name": "live/native-and-contract-activation-real-postphases",
+      "phases": [
+        "Tally.flushQueuedFeeAccruals",
+        "Logic.settleLiquidityRewards",
+        "Orderbook.processQueuedOnChainOrdersForBlock",
+        "Orderbook.processQueuedChannelTradesForBlock",
+        "Clearing.clearingFunction",
+        "Channels.processWithdrawals"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "live-chain/BTC/original-native-postphases",
+      "phases": [
+        "Tally.flushQueuedFeeAccruals",
+        "Logic.settleLiquidityRewards",
+        "Orderbook.processQueuedOnChainOrdersForBlock",
+        "Orderbook.processQueuedChannelTradesForBlock",
+        "Clearing.clearingFunction"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "live-chain/DOGE/original-native-postphases",
+      "phases": [
+        "Tally.flushQueuedFeeAccruals",
+        "Logic.settleLiquidityRewards",
+        "Orderbook.processQueuedOnChainOrdersForBlock",
+        "Orderbook.processQueuedChannelTradesForBlock",
+        "Clearing.clearingFunction",
+        "Channels.processWithdrawals"
+      ],
+      "diagnostics": [
+        {
+          "level": "warn",
+          "values": [
+            "⚠️ Property 3 supply changed, diff -598500000.00000000 (Expected: 600000000.00000000, Found: 1500000.00000000), but it's allowed."
+          ]
+        },
+        {
+          "level": "warn",
+          "values": [
+            "⚠️ Property 4 supply changed, diff -598500000.00000000 (Expected: 600000001.00000000, Found: 1500001.00000000), but it's allowed."
+          ]
+        }
+      ]
+    },
+    {
+      "name": "unavailable/missing-client-is-an-adapter-capability",
+      "phases": [],
+      "diagnostics": [
+        {
+          "level": "error",
+          "values": [
+            "Logic failure while processing tx 2d777baac201479c7fb9eb3000db4c697a0186033434cf00c4d2a59431655cc0 at block 10:",
+            "SourceBoundaryUnavailable: Unavailable explicit Client metadata profile"
+          ]
+        }
+      ]
+    }
+  ],
+  "observations": 105,
+  "calls": 44,
+  "fixtureSha256": "e49c3ee75f6f30a8e6a0efbf50b692786058fae72933aa329dab5f46413d2b9f",
+  "domains": {
+    "source-call": 75,
+    "unavailable-capability": 1,
+    "constructor-and-input": 29,
+    "explicit-input": 0
+  }
+}

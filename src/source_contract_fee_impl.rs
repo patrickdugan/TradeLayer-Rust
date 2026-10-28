@@ -239,27 +239,9 @@ impl ContractCore {
         )?;
         self.database("insurance")?;
         let row = self.find("insurance", obj(&[("key", s(key))]))?;
-        if truth(&row) && truth(&row.get("value")) {
-            let value = row.get("value");
-            let balances = value.get("balances");
-            let hedge = value.get("hedgeRatio");
-            set(
-                instance,
-                "balances",
-                if truth(&balances) {
-                    balances
-                } else {
-                    V::Array(vec![])
-                },
-            )?;
-            set(
-                instance,
-                "hedgeRatio",
-                if truth(&hedge) { hedge } else { n(0.5) },
-            )?;
-        }
-        Ok(())
+        self.source_insurance_apply_loaded(instance, &row)
     }
+
     fn source_insurance_instance(&mut self, contract: V, oracle: bool) -> R<String> {
         if !self.global_clearing_enabled() {
             return self.legacy_source_insurance_instance(contract, oracle);
@@ -284,56 +266,12 @@ impl ContractCore {
         let mut instance = self.insurance.get(key);
         self.source_insurance_load(&mut instance)?;
         insurance_cache_set(&mut self.insurance, key, instance.clone())?;
-        let prop = if matches!(property, V::Null | V::Undefined) {
-            "unknown".into()
-        } else {
-            text(&property)?
-        };
-        let amount = InsuranceBn::new(&if truth(&amount) { amount } else { n(0.0) })?;
-        let Some(amount) = amount.finite() else {
+        let Some((event, snapshot)) =
+            self.source_insurance_credit(&mut instance, property, amount, block.clone())?
+        else {
             return Ok(V::Undefined);
         };
-        if amount <= FeeDecimal::zero() {
-            return Ok(V::Undefined);
-        }
-        let mut balances = match instance.get("balances") {
-            V::Array(a) => a,
-            _ => return Err(type_error("this.balances.find is not a function")),
-        };
-        if let Some(i) = balances
-            .iter()
-            .position(|balance| text(&balance.get("propertyId")).is_ok_and(|p| p == prop))
-        {
-            let before = InsuranceBn::new(&if truth(&balances[i].get("amountAvailable")) {
-                balances[i].get("amountAvailable")
-            } else {
-                n(0.0)
-            })?;
-            let after = before
-                .plus(&InsuranceBn::Finite(amount.clone()))?
-                .quantize(8, crate::decimal::Rounding::Down)?;
-            set(&mut balances[i], "amountAvailable", s(after.fixed(None)?))?;
-        } else {
-            balances.push(obj(&[
-                ("propertyId", s(&prop)),
-                ("amountAvailable", s(fee_down(&amount, 8)?.to_string())),
-            ]));
-        }
-        set(&mut instance, "balances", V::Array(balances.clone()))?;
-        insurance_cache_set(&mut self.insurance, key, instance.clone())?;
-        let contract = text(&instance.get("contractSeriesId"))?;
-        let event = obj(&[
-            ("type", s("deposit")),
-            (
-                "data",
-                obj(&[
-                    ("contractId", s(&contract)),
-                    ("propertyId", s(prop)),
-                    ("amount", s(fee_down(&amount, 8)?.to_string())),
-                ]),
-            ),
-            ("timestamp", block.clone()),
-        ]);
+        insurance_cache_set(&mut self.insurance, key, instance)?;
         self.database("insurance")?;
         self.db(
             "insurance",
@@ -343,13 +281,6 @@ impl ContractCore {
                 ("value", event),
             ])],
         )?;
-        let snapshot = obj(&[
-            ("balances", V::Array(balances)),
-            ("contractSeriesId", s(contract)),
-            ("hedgeRatio", instance.get("hedgeRatio")),
-            ("block", block),
-        ]);
-        // Source always calls this RPC boundary, even with a supplied snapshot.
         self.call("TxUtils.getBlockCount", vec![])?;
         self.database("insurance")?;
         self.update(
@@ -360,6 +291,7 @@ impl ContractCore {
         )?;
         Ok(V::Undefined)
     }
+
     fn source_fee_deposit(
         &mut self,
         contract: V,
@@ -530,5 +462,110 @@ impl ContractCore {
             )?;
         }
         Ok(V::Undefined)
+    }
+}
+
+impl ContractCore {
+    fn source_insurance_apply_loaded(&mut self, instance: &mut V, row: &V) -> R<()> {
+        if truth(row) && truth(&row.get("value")) {
+            let value = row.get("value");
+            let balances = value.get("balances");
+            let hedge = value.get("hedgeRatio");
+            set(
+                instance,
+                "balances",
+                if truth(&balances) {
+                    balances
+                } else {
+                    V::Array(vec![])
+                },
+            )?;
+            set(
+                instance,
+                "hedgeRatio",
+                if truth(&hedge) { hedge } else { n(0.5) },
+            )?;
+        }
+        Ok(())
+    }
+    fn source_insurance_credit(
+        &mut self,
+        instance: &mut V,
+        property: V,
+        amount: V,
+        block: V,
+    ) -> R<Option<(V, V)>> {
+        let prop = if matches!(property, V::Null | V::Undefined) {
+            "unknown".into()
+        } else {
+            text(&property)?
+        };
+        let amount = InsuranceBn::new(&if truth(&amount) { amount } else { n(0.0) })?;
+        let Some(amount) = amount.finite() else {
+            return Ok(None);
+        };
+        if amount <= FeeDecimal::zero() {
+            return Ok(None);
+        }
+        let mut balances = match instance.get("balances") {
+            V::Array(a) => a,
+            _ => return Err(type_error("this.balances.find is not a function")),
+        };
+        let matching = if self.activation_lifecycle_enabled() {
+            // Original find evaluates in order and stops at the first match.
+            // A null receiver or failed String conversion rejects the deposit;
+            // rows after an earlier match are never inspected.
+            let mut matching = None;
+            for (index, balance) in balances.iter().enumerate() {
+                let property = funding_prop(balance, "propertyId")?;
+                if source_channel_string(&property)? == prop {
+                    matching = Some(index);
+                    break;
+                }
+            }
+            matching
+        } else {
+            balances
+                .iter()
+                .position(|balance| text(&balance.get("propertyId")).is_ok_and(|p| p == prop))
+        };
+        if let Some(i) = matching {
+            let before = InsuranceBn::new(&if truth(&balances[i].get("amountAvailable")) {
+                balances[i].get("amountAvailable")
+            } else {
+                n(0.0)
+            })?;
+            let after = before
+                .plus(&InsuranceBn::Finite(amount.clone()))?
+                .quantize(8, crate::decimal::Rounding::Down)?;
+            set(&mut balances[i], "amountAvailable", s(after.fixed(None)?))?;
+        } else {
+            balances.push(obj(&[
+                ("propertyId", s(&prop)),
+                ("amountAvailable", s(fee_down(&amount, 8)?.to_string())),
+            ]));
+        }
+        set(instance, "balances", V::Array(balances.clone()))?;
+
+        let contract = text(&instance.get("contractSeriesId"))?;
+        let event = obj(&[
+            ("type", s("deposit")),
+            (
+                "data",
+                obj(&[
+                    ("contractId", s(&contract)),
+                    ("propertyId", s(prop)),
+                    ("amount", s(fee_down(&amount, 8)?.to_string())),
+                ]),
+            ),
+            ("timestamp", block.clone()),
+        ]);
+        let snapshot = obj(&[
+            ("balances", V::Array(balances)),
+            ("contractSeriesId", s(contract)),
+            ("hedgeRatio", instance.get("hedgeRatio")),
+            ("block", block),
+        ]);
+        Ok(Some((event, snapshot)))
     }
 }

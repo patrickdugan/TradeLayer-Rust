@@ -40,10 +40,7 @@ impl ContractCore {
         Ok(V::Undefined)
     }
     fn source_main_withdrawal_after_database(&mut self, name: &str) -> R<()> {
-        if self.policy == SourceContractRuntimePolicy::SpotLifecycleV9
-            && self.source_spot_main_active
-            && name == "consensus"
-        {
+        if self.spot_lifecycle_enabled() && self.source_spot_main_active && name == "consensus" {
             self.source_main_withdrawal_finish()?;
         }
         Ok(())

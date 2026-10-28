@@ -111,9 +111,10 @@ impl ContractCore {
         );
         // Source getTally is intentionally un-awaited. Its Promise properties
         // produce NaN total, and its load resumes after delta find starts.
-        self.database("tallyMap")?;
+        self.source_activation_child_database("tallyMap")?;
         let existing = self.find("tallyMapDelta", obj(&[("_id", s(&key))]))?;
-        let persisted = self.find("tallyMap", obj(&[("_id", s("tallyMap"))]))?;
+        let persisted =
+            self.source_activation_child_find("tallyMap", obj(&[("_id", s("tallyMap"))]))?;
         match Self::tally_parsed_entries(&persisted) {
             Ok(entries) => {
                 self.tally = entries;
@@ -182,11 +183,19 @@ impl ContractCore {
                 ("name", s("Error")),
                 (
                     "message",
-                    s(format!("Invalid propertyId: {}", text(&property)?)),
+                    s(format!(
+                        "Invalid propertyId: {}",
+                        if self.activation_lifecycle_enabled() {
+                            self.source_activation_native_text(&property)?
+                        } else {
+                            text(&property)?
+                        }
+                    )),
                 ),
             ]));
         }
         self.tally_load_rows()?;
+        self.source_activation_await_turns(SOURCE_ACTIVATION_VM_RETURN)?;
         if self.global_clearing_enabled() && !self.tally_static_initialized {
             return Err(type_error(
                 "Cannot read properties of undefined (reading 'has')",
@@ -248,7 +257,8 @@ impl ContractCore {
         set(&mut properties, &key, balance.clone())?;
         self.tally[index].1 = properties.clone();
         if changes.iter().any(|v| number(v).unwrap_or(f64::NAN) != 0.0) {
-            self.tally_delta(a, dn(&total)?, &changes)?
+            self.tally_delta(a, dn(&total)?, &changes)?;
+            self.source_activation_await_turns(SOURCE_ACTIVATION_VM_RETURN)?
         }
         if let Some(i) = self.tally.iter().position(|(key, _)| same(key, &address)) {
             self.tally[i].1 = properties
@@ -256,6 +266,7 @@ impl ContractCore {
             self.tally.push((address, properties))
         };
         self.tally_save(arg(a, 7))?;
+        self.source_activation_await_turns(SOURCE_ACTIVATION_VM_RETURN)?;
         Ok(V::Undefined)
     }
     fn tally_sufficient(&mut self, bucket: &str, a: &[V]) -> R<V> {

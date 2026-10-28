@@ -25,6 +25,7 @@ const MAGIC_V6: &[u8; 5] = b"TLCR\x06";
 const MAGIC_V7: &[u8; 5] = b"TLCR\x07";
 const MAGIC_V8: &[u8; 5] = b"TLCR\x08";
 const MAGIC_V9: &[u8; 5] = b"TLCR\x09";
+const MAGIC_V10: &[u8; 5] = b"TLCR\x0a";
 const SOURCE_PIN: &[u8] = b"dca0888b827c5bc28fa9189bc9e1d507f5c5670c";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -468,6 +469,9 @@ impl SourceContractReplay {
             SourceContractRuntimePolicy::SpotLifecycleV9 => {
                 b"TradeLayer/SourceContractBootstrap/v9/".to_vec()
             }
+            SourceContractRuntimePolicy::ActivationLifecycleV10 => {
+                b"TradeLayer/SourceContractBootstrap/v10/".to_vec()
+            }
         };
         seed.extend_from_slice(SOURCE_PIN);
         seed.extend_from_slice(&initial);
@@ -603,6 +607,7 @@ impl SourceContractReplay {
             SourceContractRuntimePolicy::LowerLifecycleV7 => MAGIC_V7.to_vec(),
             SourceContractRuntimePolicy::MainCallableV8 => MAGIC_V8.to_vec(),
             SourceContractRuntimePolicy::SpotLifecycleV9 => MAGIC_V9.to_vec(),
+            SourceContractRuntimePolicy::ActivationLifecycleV10 => MAGIC_V10.to_vec(),
         };
         bytes.extend_from_slice(&self.initial);
         bytes.extend_from_slice(&(self.journal.len() as u32).to_be_bytes());
@@ -652,6 +657,7 @@ impl SourceContractReplay {
             magic if magic == MAGIC_V7 => SourceContractRuntimePolicy::LowerLifecycleV7,
             magic if magic == MAGIC_V8 => SourceContractRuntimePolicy::MainCallableV8,
             magic if magic == MAGIC_V9 => SourceContractRuntimePolicy::SpotLifecycleV9,
+            magic if magic == MAGIC_V10 => SourceContractRuntimePolicy::ActivationLifecycleV10,
             _ => return Err(SourceContractReplayError::InvalidCheckpoint),
         };
         let initial = c

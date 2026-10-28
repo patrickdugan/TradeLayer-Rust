@@ -31,7 +31,7 @@ impl SourceBackend for SourceTokenThresholdPrefix<'_> {
 }
 impl ContractCore {
     fn source_token_threshold_enabled(&self) -> bool {
-        self.policy == SourceContractRuntimePolicy::SpotLifecycleV9
+        self.spot_lifecycle_enabled()
             && self.source_spot_main_active
             && self.channel_token_validation
             && self.main_activation_profile == "source-registry"
