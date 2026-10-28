@@ -1,5 +1,11 @@
 # Reference fidelity and runtime coverage
 
+## Current focused integration
+
+`AmmLifecycleV11` now composes all 36 Main kinds in the focused source domain. The latest integrated evidence is [SOURCE_AMM_LIFECYCLE.md](SOURCE_AMM_LIFECYCLE.md); full release, authenticated history and complete block proofs remain separate gates. The last full release baseline is V9 at `b02a045`. Earlier-stage descriptions below retain their original narrower scope.
+
+## Earlier lower-profile evidence
+
 The explicit lower lifecycle profile is now `LowerLifecycleV7`. It runs actual
 raw1/8/11-15 and named issuance/grant/redemption/Oracle methods over the same
 literal Core, with 137 genuine Property and 212 genuine Oracle observations.

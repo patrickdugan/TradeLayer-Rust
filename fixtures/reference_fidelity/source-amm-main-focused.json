@@ -1,0 +1,120 @@
+{
+  "kind": "focused working-tree source AMM/Main, durable replay and Litecoin integration",
+  "verifiedAtUtc": "2026-10-28T15:29:20Z",
+  "codeParent": "70f568ad703bef189c01c989631692fdf75235bb",
+  "compiledCommit": null,
+  "policy": "AmmLifecycleV11",
+  "replayVersion": 11,
+  "defaultPolicy": "GlobalClearingV2",
+  "mainKinds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35
+  ],
+  "focusedRootExecutions": 54,
+  "checks": {
+    "v11-reviewed-capital.log": {
+      "executions": 29,
+      "targets": 9,
+      "sha256": "f7e8d5c1ad9b7d220674d324816711ee14d803a77f7381af0770125594d6c5fe",
+      "bytes": 13755
+    },
+    "v11-litecoin-root-first.log": {
+      "executions": 14,
+      "targets": 2,
+      "sha256": "69793935d9e7ff3bc96187655bf24ae10d7204f63f32cafa6fee810011553731",
+      "bytes": 6282
+    },
+    "v11-durable-current.log": {
+      "executions": 11,
+      "targets": 1,
+      "sha256": "6c808c32bd0c5a5fb39faf03a7bbb86f942704debe13807199527531863d9429",
+      "bytes": 2697
+    },
+    "v11-node-post-whitespace.json": {
+      "checks": 20,
+      "sha256": "8b35d2bfa7d91fa09e2cfd9834ff03e01be67d608541e7d6d25f4ae9ca7169cc"
+    },
+    "v11-litecoin-reference.json": {
+      "checks": 3,
+      "sha256": "65634e57ac43f7aca3901b1f05aadcbacc4a606fd69e090065b863263f538101"
+    },
+    "v11-final-clippy.log": {
+      "sha256": "459b218190ec83d21aa45ae887cdca27abd272179619ec474cf0b9df6d8e9d92",
+      "bytes": 170
+    },
+    "v11-final-current-policy-clippy.log": {
+      "sha256": "7bac773a4868c39593b9e4eb91ea7375da295284d998046244bc46f05dc3f64d",
+      "bytes": 170
+    },
+    "v11-final-format.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "v11-final-includes-format.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "inputManifest": "source-amm-main-inputs.json",
+  "inputManifestSHA256": "973a25470fd910211fc96f726cd82e81e8cd1f2805969f37e911b182722dd067",
+  "inputs": 941,
+  "fullSuitePromotion": false,
+  "lastFullReleaseBaseline": "b02a0454e4da34c4c167b50f93dc579bda9e75ec",
+  "completeBlockProof": false,
+  "authenticationEstablished": false,
+  "remainingGates": [
+    "shared mixed-transaction stress and broader historical domains",
+    "full release and exact numeric-reference promotion",
+    "production startup/storage/network integration",
+    "authenticated UTXO/script/chain/actor admission",
+    "new profile and complete block witness coverage"
+  ],
+  "preservedFailures": {
+    "v11-first.log": {
+      "sha256": "67424605e0b0a8bb2889f6c9e6efac8b3841cecfce2f0f04d9b9dd332ada39da",
+      "bytes": 7072
+    },
+    "v11-all-targets-first.log": {
+      "sha256": "5a620a6383a69b9686719f4b05790d2555c6f1362bb0772110c88b2b6c77c5e9",
+      "bytes": 12126
+    },
+    "v11-durable-first.log": {
+      "sha256": "9653568a39eac5d5ac2a0bd7d731bc75a6fb084631722b20100b3989bb0a2cd1",
+      "bytes": 657
+    }
+  }
+}

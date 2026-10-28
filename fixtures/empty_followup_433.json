@@ -1,0 +1,116 @@
+{
+  "hash": "d623ede215742ff72f8ddef258068c6cc191602e9882bb422154c21277c62762",
+  "confirmations": 10,
+  "strippedsize": 312,
+  "size": 519,
+  "weight": 1284,
+  "height": 433,
+  "version": 536870912,
+  "versionHex": "20000000",
+  "merkleroot": "12263f3d6b34c4409383eedbe8da63acb33a3356d178c84f2ddedd858a658b57",
+  "tx": [
+    {
+      "txid": "2ef0fe2ecd5b33278149cd2be89603900d78b7218cfd0f5d2a8acf2bedcad51a",
+      "hash": "8635b2ca304104a8af7f9be39d1af85953dcd379793424a701565a0c9330856f",
+      "version": 2,
+      "size": 173,
+      "vsize": 146,
+      "weight": 584,
+      "locktime": 0,
+      "vin": [
+        {
+          "ismweb": false,
+          "coinbase": "02b1010101",
+          "txinwitness": [
+            "0000000000000000000000000000000000000000000000000000000000000000"
+          ],
+          "sequence": 4294967295
+        }
+      ],
+      "vout": [
+        {
+          "ismweb": false,
+          "value": 12.5,
+          "n": 0,
+          "scriptPubKey": {
+            "asm": "OP_DUP OP_HASH160 a2b3b8bab0de6c224bd4c92d982b8ca7a2cad40c OP_EQUALVERIFY OP_CHECKSIG",
+            "hex": "76a914a2b3b8bab0de6c224bd4c92d982b8ca7a2cad40c88ac",
+            "reqSigs": 1,
+            "type": "pubkeyhash",
+            "addresses": [
+              "mvMF4QWWnZJsJuxzgw391Z3NDuoritzi9A"
+            ]
+          }
+        },
+        {
+          "ismweb": false,
+          "value": 0.0,
+          "n": 1,
+          "scriptPubKey": {
+            "asm": "OP_RETURN aa21a9ed12faf5c36c1d50f577525e64138f97582dee091e3f719da77af10a01a32e0273",
+            "hex": "6a24aa21a9ed12faf5c36c1d50f577525e64138f97582dee091e3f719da77af10a01a32e0273",
+            "type": "nulldata"
+          }
+        }
+      ],
+      "hex": "020000000001010000000000000000000000000000000000000000000000000000000000000000ffffffff0502b1010101ffffffff02807c814a000000001976a914a2b3b8bab0de6c224bd4c92d982b8ca7a2cad40c88ac0000000000000000266a24aa21a9ed12faf5c36c1d50f577525e64138f97582dee091e3f719da77af10a01a32e02730120000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "txid": "549941744932f2ba5944e69a2c5f82c8593499690d55f1fdac6bd9e3f7314f73",
+      "hash": "549941744932f2ba5944e69a2c5f82c8593499690d55f1fdac6bd9e3f7314f73",
+      "version": 2,
+      "size": 97,
+      "vsize": 94,
+      "weight": 376,
+      "locktime": 0,
+      "vin": [
+        {
+          "ismweb": false,
+          "txid": "b4f5f8624377a668cc1366eabf85be6034b079afbb652f1dfaf1cd26fd9290dd",
+          "vout": 0,
+          "scriptSig": {
+            "asm": "",
+            "hex": ""
+          },
+          "sequence": 4294967295
+        }
+      ],
+      "vout": [
+        {
+          "ismweb": false,
+          "value": 12.4999369,
+          "n": 0,
+          "scriptPubKey": {
+            "asm": "8 57f3347e50010758bf732ac8a07ab6798e2ac05941c55eac732e9ebc3835d41c",
+            "hex": "582057f3347e50010758bf732ac8a07ab6798e2ac05941c55eac732e9ebc3835d41c",
+            "type": "witness_mweb_hogaddr"
+          }
+        }
+      ],
+      "hex": "02000000000801dd9092fd26cdf1fa1d2f65bbaf79b03460be85bfea6613cc68a6774362f8f5b40000000000ffffffff01da63814a0000000022582057f3347e50010758bf732ac8a07ab6798e2ac05941c55eac732e9ebc3835d41c0000000000"
+    }
+  ],
+  "time": 1793196018,
+  "mediantime": 1793196018,
+  "nonce": 0,
+  "bits": "207fffff",
+  "difficulty": 4.656542373906925e-10,
+  "chainwork": "0000000000000000000000000000000000000000000000000000000000000364",
+  "nTx": 2,
+  "mweb": {
+    "hash": "57f3347e50010758bf732ac8a07ab6798e2ac05941c55eac732e9ebc3835d41c",
+    "height": 433,
+    "kernel_offset": "3cf3974f2539a75a6d380260f0a0b303fd674e9f450946f9997e095e1a3e763a",
+    "stealth_offset": "0000000000000000000000000000000000000000000000000000000000000000",
+    "num_kernels": 0,
+    "num_txos": 2,
+    "kernel_root": "0000000000000000000000000000000000000000000000000000000000000000",
+    "output_root": "60905169d9121956ae41b8c292ddf8956e85b37036d57686729607f704d0876f",
+    "leaf_root": "af2edc674154ff129d9e826727ada0828d3ba480924bbed84bf6dcae2e1f1db2",
+    "inputs": [],
+    "outputs": [],
+    "kernels": []
+  },
+  "previousblockhash": "87dd1cce54daa4df8fbb62658cb1b49ae0209ff9ccbb61892ae784866c46c888",
+  "nextblockhash": "fb51ecf8c63472b602395a055439a335d18d6fa2fd46bbb6ab4bf2d1be77722d"
+}

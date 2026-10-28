@@ -26,6 +26,7 @@ const MAGIC_V7: &[u8; 5] = b"TLCR\x07";
 const MAGIC_V8: &[u8; 5] = b"TLCR\x08";
 const MAGIC_V9: &[u8; 5] = b"TLCR\x09";
 const MAGIC_V10: &[u8; 5] = b"TLCR\x0a";
+const MAGIC_V11: &[u8; 5] = b"TLCR\x0b";
 const SOURCE_PIN: &[u8] = b"dca0888b827c5bc28fa9189bc9e1d507f5c5670c";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -472,6 +473,9 @@ impl SourceContractReplay {
             SourceContractRuntimePolicy::ActivationLifecycleV10 => {
                 b"TradeLayer/SourceContractBootstrap/v10/".to_vec()
             }
+            SourceContractRuntimePolicy::AmmLifecycleV11 => {
+                b"TradeLayer/SourceContractBootstrap/v11/".to_vec()
+            }
         };
         seed.extend_from_slice(SOURCE_PIN);
         seed.extend_from_slice(&initial);
@@ -608,6 +612,7 @@ impl SourceContractReplay {
             SourceContractRuntimePolicy::MainCallableV8 => MAGIC_V8.to_vec(),
             SourceContractRuntimePolicy::SpotLifecycleV9 => MAGIC_V9.to_vec(),
             SourceContractRuntimePolicy::ActivationLifecycleV10 => MAGIC_V10.to_vec(),
+            SourceContractRuntimePolicy::AmmLifecycleV11 => MAGIC_V11.to_vec(),
         };
         bytes.extend_from_slice(&self.initial);
         bytes.extend_from_slice(&(self.journal.len() as u32).to_be_bytes());
@@ -658,6 +663,7 @@ impl SourceContractReplay {
             magic if magic == MAGIC_V8 => SourceContractRuntimePolicy::MainCallableV8,
             magic if magic == MAGIC_V9 => SourceContractRuntimePolicy::SpotLifecycleV9,
             magic if magic == MAGIC_V10 => SourceContractRuntimePolicy::ActivationLifecycleV10,
+            magic if magic == MAGIC_V11 => SourceContractRuntimePolicy::AmmLifecycleV11,
             _ => return Err(SourceContractReplayError::InvalidCheckpoint),
         };
         let initial = c
@@ -746,3 +752,9 @@ fn encoded_entry_size(command: &[u8], outcome: &[u8], effects: &[V]) -> Result<u
 include!("source_transition_witness_impl.rs");
 include!("source_lifecycle_transition_witness_impl.rs");
 include!("source_recent_lifecycle_transition_witness_impl.rs");
+
+/// Bounded archive segments over the same live source owner.
+pub mod source_durable {
+    use super::*;
+    include!("source_durable_replay_impl.rs");
+}

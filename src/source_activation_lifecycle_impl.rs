@@ -282,7 +282,8 @@ impl SourceContractRuntime {
 }
 impl ContractCore {
     fn activation_lifecycle_enabled(&self) -> bool {
-        self.policy == SourceContractRuntimePolicy::ActivationLifecycleV10
+        (self.policy == SourceContractRuntimePolicy::ActivationLifecycleV10)
+            || self.amm_lifecycle_enabled()
     }
     fn source_activation_state(&self) -> V {
         obj(&[

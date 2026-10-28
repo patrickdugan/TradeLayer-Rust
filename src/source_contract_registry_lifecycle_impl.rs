@@ -172,6 +172,9 @@ impl ContractCore {
             ("lpAddresses", obj(&[])),
             ("ammOrders", V::Array(vec![])),
         ]);
+        if self.amm_lifecycle_enabled() {
+            self.source_amm_insert(amm.clone())?;
+        }
         if matches!(registry_field(params, "whitelist")?, V::Undefined | V::Null) {
             set(params, "whitelist", n(0.0))?;
         }
@@ -422,7 +425,11 @@ impl ContractCore {
                     set(
                         &mut hydrated,
                         field,
-                        n(number(&if truth(&value) { value } else { fallback })?),
+                        n(if self.amm_lifecycle_enabled() {
+                            amm_quote_number(&if truth(&value) { value } else { fallback })?
+                        } else {
+                            number(&if truth(&value) { value } else { fallback })?
+                        }),
                     )?;
                 }
                 let lp = pool.get("lpAddresses");

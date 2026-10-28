@@ -1,0 +1,51 @@
+Root integration note: the focused checks recorded in [SOURCE_AMM_LIFECYCLE.md](SOURCE_AMM_LIFECYCLE.md) have passed. The staged handoff below is preserved for provenance; its work-only/uncompiled statements describe the earlier handoff, not the current Root integration. Full release promotion remains pending.
+
+# Durable continuation of the literal source owner
+
+This adapter continues one `SourceContractRuntime` beyond the 4,096-command TLCR proof limit. It preserves the actual Core, queue, receiver arenas, caches, jobs, counters and source failure prefixes between bounded archive segments. Portable restart rebuilds that same owner by executing the complete command history from bootstrap and comparing every recorded outcome, ordered effect and state link. It does not restore a supplied current state.
+
+## API and visibility boundary
+
+The proposed API is `source_contract_replay::source_durable::SourceDurableReplay`. `initialize` creates an empty archive under an existing directory. `commit_batch(expected_publication, label, commands)` executes up to 256 existing source commands on an isolated clone of the current owner, writes one immutable segment, then publishes its resulting head through the existing locked `Journal`. Only a successful publication makes the batch visible. The clone becomes the sole current owner; there is no second balance ledger or conserving mapper. The prior owner is not updated on an uncommitted batch.
+
+At a segment boundary only the replay receipt buffer, its encoded-size counter and its local command counter are reset. No source field is reset. Each segment uses local receipt sequence numbers starting at zero and links the preceding actual receipt hash. The durable receipt additionally exposes an absolute command sequence. This is a separate `TLDS1` command archive and `TLDP1` publication format, not a larger TLCR checkpoint. Existing TLCR V1–V9 serialization, command limits and witness behavior remain unchanged.
+
+Source-thrown results retain their literal prefixes, just as existing `SourceContractReplay::apply` does. Local capability/refusal errors retain the existing rollback behavior. In particular a failed source `Tally.updateBalance` can leave `available=11` with `amount=10`; recovery preserves that discrepancy. The outer disk batch is the acknowledgement boundary, not a new source transaction boundary.
+
+`open(root, context, expected_publication, recovery)` requires an independently retained exact publication and the explicit chain label, test flag, policy and filesystem profile. It checks the journal configuration and publication revision, walks the complete immutable history, then reexecutes it from the original bootstrap. A supplied segment digest, repaired checksum or supplied state hash is never accepted as an execution verdict. The API intentionally provides no method for obtaining a trusted expected head from the same potentially rolled-back archive.
+
+After any ambiguous publication failure the object is poisoned: neither its runtime nor its cached publication is readable. The error reports the attempted publication, which the caller may compare with its retained prior publication while reopening. An attempted head is an execution-derived candidate, not proof that disk acknowledged it. Reopening against the old head succeeds only if the old publication remains current; reopening against the attempted head succeeds only if that publication is present and its entire command history reexecutes. Retrying an unpublished identical batch reuses the identical immutable segment and applies it once.
+
+`rewind_to(expected_publication, ancestor_history)` checks ancestry, reconstructs the requested ancestor by full execution, and publishes a new monotonic revision. A subsequent batch creates a branch from those actual owners. This provides source-history rollback mechanics; it does not choose an authenticated Bitcoin fork or authorize a reorg.
+
+## Files and bounds
+
+The existing `Journal` namespace is `(chain, test, consensus)` and must be dedicated to this adapter. Only two live keys are stored there: `source-durable/config-v1` and `source-durable/publication-v1`. A caller must not share that namespace with other consensus records.
+
+Immutable files live in `source-command-segments/<sha256>.tlds`. Filenames are derived internally, not supplied paths. Reads reject symlinks, non-files, over-sized files, checksum errors, digest substitution and noncanonical frames. Segment context binds the pinned JavaScript commit, policy magic, namespace and filesystem profile. The journal lock serializes writers. This is not a defense against a hostile process racing arbitrary mutations inside an actively used directory; the directory needs normal exclusive application ownership.
+
+Each segment contains at most 256 commands and is bounded by the existing 32 MiB checkpoint/frame/effect limits. An archive contains at most 65,536 segments. The existing journal still has its 512 MiB total-log limit, 128 MiB live-store limit and other bounds. The two-key publication scheme avoids a live-key-per-command problem; it does not remove journal or disk capacity limits. Temporary and unreachable segment files are retained, not silently adopted or garbage-collected.
+
+`FileSyncOnly` syncs segment file bytes before rename and uses the existing journal's synced publication commit. It is available on Windows. Its recovery tests establish process-termination behavior, not power-loss certification of directory entries. `FileAndDirectorySync` additionally syncs directories and is supported only on Unix; it rejects explicitly on the tested Windows host. Unix directory-sync behavior is staged but unexecuted here.
+
+## Verified behavior
+
+The standalone tests link the unchanged actual owners and storage implementation from an immutable copy of Root's Rust 1.90 rlib, SHA-256 `90e478a58b0bbe79a35dbaa13c8a3349f357d2ff3ef27933abfe86c7e986a64a`. Only the exact existing replay helper source plus this adapter is compiled locally. No whole-library build or checkout modification was performed in this lane.
+
+The financial continuation test executes 5,038 commands across 23 segments: explicit initial unverified database inputs, actual source Tally loads/property lookup, a reserved-negative source throw, its retry, 32 successful balance updates, and 5,000 actual fee-buffer accrual mutations. It drops and reopens after the retained financial prefix and after the complete history, compares the entire runtime including private fields/arenas/counters with an independent continuous runtime receiving the same inputs, then applies two more commands. Rewinding to the five-command retained prefix and branching produces exactly the corresponding seven-command runtime. It does not repair source accounting.
+
+A second test uses original raw18 queue inputs from the pinned genuine-source fixture, crosses a segment and restart at every operation, retains a real late `volumeIndex` write failure and resumes the actual retry. The extracted input fixture contains only the initial reset's database rows and the five original operation inputs, not later expected source poststates or financial answers. Its historical OnchainV1 activation answer is explicitly a dependency profile; that scene does not claim owned activation or authenticated transaction validation.
+
+Adversarial tests reject absent, truncated, corrupted, substituted, duplicated and reordered files. They also repair segment digests, counts and the published head after changing commands, omitting an ancestor, duplicating a command or reordering commands; actual source receipt reexecution still rejects every case. Separate tests terminate a child process with exit code 86 without running destructors after a half-written temporary segment, after segment sync/rename, and after publication sync. Restart plus identical-batch retry reaches the one expected owner state at all three boundaries.
+
+Fresh and short TLCR checkpoints for all nine existing policies match the unchanged Root rlib byte-for-byte. Command 4,097 still returns the original TLCR capacity error. Tests also reject a stale expected head after replacement with an older structurally valid journal. Supplying that older head explicitly permits conditional reconstruction of the older history; it does not establish current chain freshness.
+
+## Remaining production work
+
+This is a concrete bounded continuation adapter, not a compact validated snapshot or an unlimited production daemon. Restart is O(all recorded commands); it rereads and verifies complete history. The live Core still has its existing table/row, receiver, effect, diagnostic and other resource bounds. Journals and orphan segments still require an explicit maintenance/compaction design, disk quotas and crash-safe retention rules. No history may be discarded merely because a recent state hash is available.
+
+A portable compact restart would need an alias-preserving codec for the full actual runtime, not just database tables: the queue and margin receiver arenas, position identity, source singleton caches, pending jobs/continuations, storage failure schedules, random/UUID/database counters, activation registry, insurance, clearlist, properties, vault/synthetic state and every future owner field. The exact current private Core inventory and source hashes are recorded in `current-api-evidence.json` in the work evidence. There is no existing full runtime restore API in the audited base; this adapter avoids pretending that `state_value()` is one.
+
+Bitcoin chain authentication, transaction/script authentication, actor authorization, source-code approval and authenticated oracle freshness remain separate inputs/gates. The adapter's chain label, hash links, receipts and replay do not confer those properties. `require_authenticated_input_and_state` continues to return `UnauthenticatedInputAndState`.
+
+Root owns integration and the final commit. The work-only `prepare_replay` transform appends the child module to the current replay source and leaves its entire prior byte sequence intact. Root must mount the two source files, the input fixture/provenance and this document, run its normal full-build/release checks, and retain older-policy regression checks before promotion.

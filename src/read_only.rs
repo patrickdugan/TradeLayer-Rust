@@ -624,3 +624,9 @@ mod tests {
         );
     }
 }
+
+/// Explicit, unverified Litecoin transparent serialization profile.
+pub mod litecoin_transparent {
+    use super::*;
+    include!("litecoin_transparent_impl.rs");
+}

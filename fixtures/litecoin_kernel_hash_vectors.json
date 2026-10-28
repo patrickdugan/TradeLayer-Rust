@@ -1,0 +1,40 @@
+{
+  "sourceCommit": "beae01d62292a0aab363b7a4d3f606708cea7260",
+  "hasherGitBlob": "7feedda29b0c1e584b9a830bccff50d4e2011048",
+  "kernelGitBlob": "d114e624a421161bee94868c6c4efee23424a2d7",
+  "vectors": [
+    {
+      "name": "pegin_envelope",
+      "preimageHex": "139d3c83d384e516031c12ae0ab49e9da8078d7c96e8d957e8bc422d5df79aa6b72783f8786a6ac55408036da1264df90c50a67e1894f9fd2841016f5909b7670197677906e956f9494ade6c4ae55d8c6542fcd2629297ece8c85bddbe5a6041cd749695f420feda5a1ae07355770092d137bd393ba7e98f4a09bfb0f9d0f89bd20e2af63efdd9185600",
+      "naturalBlake3": "1c3c0e4085ebce76eb6b2d50e81407907041a55c8c088d7cf802f94e934e8d59",
+      "kernelDisplayId": "598d4e934ef902f87c8d088c5ca54170900714e8502d6beb76ceeb85400e3c1c",
+      "coreTxid": "a1125ae6e87065ce5a9f85e09d92a9ba4b65176a8cff4ed18c2026233d22d17b",
+      "pureMweb": false,
+      "features": 19,
+      "preimageSha256": "cb0468e9b2b293f7be0caac34efcfe67946f419dcc2b9869c8b257b917433b29",
+      "canonical": "genuine Core-produced raw transaction, exact last kernel; no empty conditional vectors"
+    },
+    {
+      "name": "mweb_only_transfer",
+      "preimageHex": "119d3c025ff22f12df584cfffb1c9e35b65eb1d57e9cb6f9776ef35915f54569f22dfa1e08c0e5122ecc5c170d3f09b4ed9bca7d803a86931143762605a6e35d71651a36f9d1708331b11efa52af75cf9d75387fa6fd69b1fcd172bd46c4970cbb0fa5839741c124a73e6f41ff38223b960fc6ead3afe416b9b3ba1dc6037c809baabd1301",
+      "naturalBlake3": "aa21bef8b7b754dd68a792a7aa40b3202586ca221476d4df1825a4a6b0e82f32",
+      "kernelDisplayId": "322fe8b0a6a42518dfd4761422ca862520b340aaa792a768dd54b7b7f8be21aa",
+      "coreTxid": "322fe8b0a6a42518dfd4761422ca862520b340aaa792a768dd54b7b7f8be21aa",
+      "pureMweb": true,
+      "features": 17,
+      "preimageSha256": "5a1f036eccd974478da6143ea5452173e4d371855151d2c473433a8bb1c64bd2",
+      "canonical": "genuine Core-produced raw transaction, exact last kernel; no empty conditional vectors"
+    },
+    {
+      "name": "pegout_envelope",
+      "preimageHex": "15926c0183e1ac001976a914bd2dd046c3673a9b998ebedf73ef5a780d8d5c0588ac035fdd81fec50c57ee398009d7c83af3af9ee60c330170bfcf1c261805abb885ec0866604129ebbae5fdd117ca238389c8e3e33dfe6c4e062617a3698b693a68a5ba7c8f96e11c0e22a205dd1ec93589343a05739c00f4f7417dd75164211438df98556c660f27637e17f057e61122dc2f823659a7c6cc813e0de17d19969378d19a",
+      "naturalBlake3": "79195e316cf4ea4fa5b48aeb354cf1b3211da6b273922484d244601e0e5af42c",
+      "kernelDisplayId": "2cf45a0e1e6044d284249273b2a61d21b3f14c35eb8ab4a54feaf46c315e1979",
+      "coreTxid": "2cf45a0e1e6044d284249273b2a61d21b3f14c35eb8ab4a54feaf46c315e1979",
+      "pureMweb": true,
+      "features": 21,
+      "preimageSha256": "2bbdee58cfed861dbb605af131d8283b94c108bbb249958ba3c763c9745f9194",
+      "canonical": "genuine Core-produced raw transaction, exact last kernel; no empty conditional vectors"
+    }
+  ]
+}

@@ -1,0 +1,159 @@
+{
+  "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "sourceSHA256": "bfb4f5d94c1d4754ae9a17b646c42c4ffe62e077590d0a184ac8ddc0b38255b1",
+  "classDeclarations": 25,
+  "staticDeclarations": 17,
+  "instanceDeclarationsIncludingConstructor": 8,
+  "methods": [
+    {
+      "receiver": "instance",
+      "method": "constructor",
+      "sourceGate": "existing frozen capital/quote/Number-hint evidence",
+      "boundary": "existing real instance arena"
+    },
+    {
+      "receiver": "instance",
+      "method": "addCapital",
+      "sourceGate": "existing frozen capital/quote/Number-hint evidence",
+      "boundary": "existing real instance arena"
+    },
+    {
+      "receiver": "instance",
+      "method": "redeemCapital",
+      "sourceGate": "existing frozen capital/quote/Number-hint evidence",
+      "boundary": "existing real instance arena"
+    },
+    {
+      "receiver": "instance",
+      "method": "quoteContractOrders",
+      "sourceGate": "existing frozen capital/quote/Number-hint evidence",
+      "boundary": "existing real instance arena"
+    },
+    {
+      "receiver": "instance",
+      "method": "createAMM",
+      "sourceGate": "existing frozen capital/quote/Number-hint evidence",
+      "boundary": "existing real instance arena"
+    },
+    {
+      "receiver": "instance",
+      "method": "saveAMMState",
+      "sourceGate": "existing frozen capital/quote/Number-hint evidence",
+      "boundary": "existing real instance arena"
+    },
+    {
+      "receiver": "instance",
+      "method": "loadAMMState",
+      "sourceGate": "existing frozen capital/quote/Number-hint evidence",
+      "boundary": "existing real instance arena"
+    },
+    {
+      "receiver": "instance",
+      "method": "loadAMMRegistry",
+      "sourceGate": "existing frozen capital/quote/Number-hint evidence",
+      "boundary": "existing real instance arena"
+    },
+    {
+      "receiver": "static",
+      "method": "updateOrdersForAllContractAMMs",
+      "sourceGate": "existing frozen capital/quote/Number-hint evidence",
+      "boundary": "ordinary own class data; no executable/prototype inputs"
+    },
+    {
+      "receiver": "static",
+      "method": "insertCapital",
+      "sourceGate": "new remaining-class corpus and helper",
+      "boundary": "ordinary own class data; no executable/prototype inputs"
+    },
+    {
+      "receiver": "static",
+      "method": "redeemCapital",
+      "sourceGate": "new remaining-class corpus and helper",
+      "boundary": "ordinary own class data; no executable/prototype inputs"
+    },
+    {
+      "receiver": "static",
+      "method": "requestLiquidity",
+      "sourceGate": "new remaining-class corpus and helper",
+      "boundary": "ordinary own class data; no executable/prototype inputs"
+    },
+    {
+      "receiver": "static",
+      "method": "runOptionStrategy",
+      "sourceGate": "new remaining-class corpus and helper",
+      "boundary": "ordinary own class data; no executable/prototype inputs"
+    },
+    {
+      "receiver": "static",
+      "method": "buildStraddle",
+      "sourceGate": "new remaining-class corpus and helper",
+      "boundary": "ordinary own class data; no executable/prototype inputs"
+    },
+    {
+      "receiver": "static",
+      "method": "buildIronFly",
+      "sourceGate": "new remaining-class corpus and helper",
+      "boundary": "ordinary own class data; no executable/prototype inputs"
+    },
+    {
+      "receiver": "static",
+      "method": "buildCalendar",
+      "sourceGate": "new remaining-class corpus and helper",
+      "boundary": "ordinary own class data; no executable/prototype inputs"
+    },
+    {
+      "receiver": "static",
+      "method": "calculateRedemptionValue",
+      "sourceGate": "existing frozen capital/quote/Number-hint evidence",
+      "boundary": "ordinary own class data; no executable/prototype inputs"
+    },
+    {
+      "receiver": "static",
+      "method": "calculateTotalPosition",
+      "sourceGate": "new remaining-class corpus and helper",
+      "boundary": "ordinary own class data; no executable/prototype inputs"
+    },
+    {
+      "receiver": "static",
+      "method": "getLPAddresses",
+      "sourceGate": "new remaining-class corpus and helper",
+      "boundary": "ordinary own class data; no executable/prototype inputs"
+    },
+    {
+      "receiver": "static",
+      "method": "getAMMOrdersAndPositions",
+      "sourceGate": "new remaining-class corpus and helper",
+      "boundary": "ordinary own class data; no executable/prototype inputs"
+    },
+    {
+      "receiver": "static",
+      "method": "calculateOrderSize",
+      "sourceGate": "existing frozen capital/quote/Number-hint evidence",
+      "boundary": "ordinary own class data; no executable/prototype inputs"
+    },
+    {
+      "receiver": "static",
+      "method": "generateOrdersForInverse",
+      "sourceGate": "new remaining-class corpus and helper",
+      "boundary": "ordinary own class data; no executable/prototype inputs"
+    },
+    {
+      "receiver": "static",
+      "method": "generateOrdersForLinear",
+      "sourceGate": "new remaining-class corpus and helper",
+      "boundary": "ordinary own class data; no executable/prototype inputs"
+    },
+    {
+      "receiver": "static",
+      "method": "generateTokenOrders",
+      "sourceGate": "existing frozen capital/quote/Number-hint evidence",
+      "boundary": "default free txid unbound; exact caught-loop prefix and messages now retained; bound-free-txid graph not admitted"
+    },
+    {
+      "receiver": "static",
+      "method": "generateOrders",
+      "sourceGate": "existing frozen capital/quote/Number-hint evidence; configured generateOrders additionally covered here",
+      "boundary": "ordinary own class data; no executable/prototype inputs"
+    }
+  ]
+}

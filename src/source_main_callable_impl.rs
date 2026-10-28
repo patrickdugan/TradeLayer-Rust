@@ -459,10 +459,9 @@ impl SourceContractRuntime {
                 )
             );
         let spot_kind = self.core.spot_lifecycle_enabled() && matches!(ty, Some(5 | 6));
-        let activation_kind = self.core.policy
-            == SourceContractRuntimePolicy::ActivationLifecycleV10
-            && matches!(ty, Some(0));
-        if !(inherited_kind || upper_kind || spot_kind || activation_kind) {
+        let activation_kind = self.core.activation_lifecycle_enabled() && matches!(ty, Some(0));
+        let amm_kind = self.core.amm_lifecycle_enabled() && matches!(ty, Some(10));
+        if !(inherited_kind || upper_kind || spot_kind || activation_kind || amm_kind) {
             return Err(SourceRuleError::InvalidInput.into());
         }
         let sender = funding_prop(&value, "sender")?;

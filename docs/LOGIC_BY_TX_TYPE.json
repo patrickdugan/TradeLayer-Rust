@@ -1,9 +1,9 @@
 {
   "schema": "tl-logic-reference-review-v1",
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
-  "rustCommit": "50e4f239d665b6467c20d47c1d437e5ce7bc1b22",
-  "rustCommitScope": "Parent of focused-validated V10 integration; full-suite V9 baseline is separately recorded.",
-  "reviewedAtUtc": "2026-10-28T14:24:59Z",
+  "rustCommit": "70f568ad703bef189c01c989631692fdf75235bb",
+  "rustCommitScope": "Parent of the focused-validated V11 integration; full release baseline remains separately pinned.",
+  "reviewedAtUtc": "2026-10-28T15:29:20Z",
   "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
     {
@@ -161,12 +161,12 @@
     {
       "path": "src/source_contract_replay.rs",
       "lfNormalized": true,
-      "sha256": "41741b956a956c9fffb79f7bdfaf63f568dff81033528b2ead8ca9585c3e991c"
+      "sha256": "f57466a4d03525c8898aa1a6e2e7d4a39a282a542cd00ddf15cba90299f6ee6f"
     },
     {
       "path": "src/source_contract_runtime.rs",
       "lfNormalized": true,
-      "sha256": "c60e4e64f98407570fa8f23644e7b21075a8e632bc281f6d5331eac87ec55017"
+      "sha256": "b8b43c89680c20992777b2400dd694aa12d60c00257358cdfa2e7018ffc22917"
     },
     {
       "path": "src/source_contract_values.rs",
@@ -225,7 +225,7 @@
     },
     {
       "path": "src/source_contract_registry_lifecycle_impl.rs",
-      "sha256": "84a6927525f75ff5f585be2c92d46c774bb7beedf9dcc6e59e227f0b407440dc",
+      "sha256": "309ce2006d0e0597e658f73f7d30f30c1b61aeae8929a7dfa1494e7fa54b4f5a",
       "lfNormalized": true
     },
     {
@@ -315,7 +315,7 @@
     },
     {
       "path": "src/source_proof_settlement_impl.rs",
-      "sha256": "9c7d8d5998b8a695d6b9627bdbd2e4202bcee78ecb54bcbd4c51cbde31a50e35",
+      "sha256": "bae24b9aba9bddbc35ef00484a8cd460297e8242f2c2bc76ec61a8822c8b6721",
       "lfNormalized": true
     },
     {
@@ -346,7 +346,7 @@
     {
       "path": "src/source_main_callable_impl.rs",
       "lfNormalized": true,
-      "sha256": "53083eb8509f6637d5899a379bb9537fcc06b41ce9ce26adcc8d2b1aea30ff54"
+      "sha256": "3fb9baba9c3b6b5d9f41d938687540831d41c656a9f2a40052b22ab5b948e559"
     },
     {
       "path": "src/source_lower_clearlist_impl.rs",
@@ -406,12 +406,57 @@
     {
       "path": "src/source_activation_lifecycle_impl.rs",
       "lfNormalized": true,
-      "sha256": "0d48fc19c649bf5c7f9a9e0f4bc130c51533274959686832f3f0163b392f8cf8"
+      "sha256": "de0eaf3d9c519fb8c8766c1d12ea2428041a3e5f531bfaa7e1b7136b8c04f046"
     },
     {
       "path": "src/source_activation_hash_impl.rs",
       "lfNormalized": true,
       "sha256": "d563c317bb1fe462cbbd32510cdf58c5b2ccdafdd1f55a0e91f8804a752f63d0"
+    },
+    {
+      "path": "src/source_amm_lifecycle_impl.rs",
+      "sha256": "6eca2f27ba4fae1e0f7870f5acc451533f1f691bdaf259a769735ade21c91987",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_amm_quote_impl.rs",
+      "sha256": "2dc1ebdb60f1d7698733199e9346503682a91b85d1233c21a226c474f70255c2",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_amm_remaining_impl.rs",
+      "sha256": "d5b92588592c1864ab8d8f20a5d9d34fb8d124209c8d40ee4a4c8aac8fb975b2",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_durable_replay_impl.rs",
+      "sha256": "ac72c0c266de0d8a5edf6095b754680a93031f34b4a5493ebdf5f9900ff08584",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_durable_replay_tests.rs",
+      "sha256": "432dea9bb4ad6033a24158c3343a5f6a70e9b106faff5b33a6a7987478c79c0b",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/read_only.rs",
+      "sha256": "ff26cd40785ac54d0c7cae63cd64f44939567e66b6ae78dfceba4972b2ecd4dc",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/litecoin_transparent_impl.rs",
+      "sha256": "4152a38273910779c8345ac2429ab4ec7533fe3875181ebc95a54ea862ec0ef5",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/litecoin_mweb_structure_impl.rs",
+      "sha256": "ad50f91cb087bab97283ed5ad8161c0501047f5c085852d13e9464d6e1f985a1",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/blake3.rs",
+      "sha256": "1f1244c4dce1215fd5fce56fa094ef09f425ca204be2372189d12838a9462119",
+      "lfNormalized": true
     }
   ],
   "catalogExecutionTypes": [
@@ -437,7 +482,7 @@
       "sourceEffects": "Loops requested types, awaits Activation.activate, writes activation block/codeHash and consensus activation metadata. Activating target0 invokes source vesting initializer.",
       "sourceDefects": "Source repeats can overwrite activation height; source validity accepts in-range fractional IDs; async persistence can swallow failures. Runtime differences: Actual Registry requires independently configured administrator, bounded integer types and prior-height effectiveness; type0 does not invent funded genesis.",
       "runtimeScope": "The separate literal ActivationLifecycleV10 policy composes original raw0 and Main0 with the existing SourceActivation registry, Tally, Property, Vesting, Insurance and Consensus owners. It preserves all16 mixed native-token subsets, source code-hash profiles, asynchronous initialization, ignored Errors and retained failure prefixes. The generic conserving mapper remains separately scoped.",
-      "missingLogic": "Full daemon/startup, production persistence/RPC, broader historical cases and authenticated actor/chain input admission. AMM10 is the remaining Main kind; complete block proofs remain open.",
+      "missingLogic": "Full daemon/startup, production persistence/RPC, broader historical cases and authenticated actor/chain input admission. V11 now composes AMM10; mixed-block stress, full release and complete block proofs remain open.",
       "nextTask": "Complete source AMM composition and production/authenticated historical boundaries without repairing pinned source behavior.",
       "evidence": "JS dca0888b src/types.js decodePayload case0; src/logic.js typeSwitch case0; src/activation.rs; src/activation_history.rs; src/registry.rs; tests/activation_history.rs; tests/consensus_source.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.;docs/SOURCE_ACTIVATION_LIFECYCLE.md;docs/SOURCE_MAIN_V10_OBSERVER_STORAGE.md;tests/source_activation_lifecycle.rs;tests/source_activation_mixed_native.rs;tests/source_main_activation_callable.rs;tests/source_main_activation_inherited.rs;fixtures/reference_fidelity/source-activation-main-focused.json",
       "preStateWitness": "Independent configured Registry activation/admin and ordered accepted activation origins.",
@@ -726,16 +771,16 @@
       "sourceRoute": "10 / base36 a / Logic.AMMPool",
       "sourceEffects": "Obtains contract or property AMM, adds/redeems capital and for contract pools persists position/LP/quote metadata into contract list.",
       "sourceDefects": "Missing pool throws; source validators compare property objects to numeric vesting IDs; add/redeem semantics differ by contract/property branch. Runtime differences: ConservingFundedContractAmmV1 uses real capital and immutable policy; it is not source type10 wire acceptance.",
-      "runtimeScope": "Actual funded contract-AMM capital, LP shares, quotes and cash replay exist as typed EconomicInput::Amm operations. There is no source type10 mapper.",
-      "missingLogic": "Wire-to-actual pool configuration/ownership/capital mapping and property-AMM execution are missing.",
-      "nextTask": "Port the source capital/share/property lifecycle and compare it with the separately funded private-pool implementation.",
-      "evidence": "JS dca0888b src/types.js decodePayload case10; src/logic.js typeSwitch case10; src/economic_amm_impl.rs; src/economic_amm_replay_impl.rs; src/amm.rs; tests/economic_amm.rs; tests/economic_amm_snapshot.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
+      "runtimeScope": "The current literal AmmLifecycleV11 policy executes original raw10 and Main10 with shared AMM receiver identity, Property/Contract registry caches and the same Tally/queue. Capital, quote, rebalance and remaining static-method source prefixes are exercised; genuine source errors and partial writes remain literal. Focused checks pass; full release is pending.",
+      "missingLogic": "Expanded coercion and mixed-transaction stress, broader historical domains, production startup/storage and authenticated chain/actor admission; complete block proof/export coverage remains open.",
+      "nextTask": "Finish shared mixed-block parity and release verification, then extend independently bound transition witnesses over the same source owners.",
+      "evidence": "src/source_amm_lifecycle_impl.rs;src/source_amm_quote_impl.rs;src/source_amm_remaining_impl.rs;tests/source_lower_amm.rs;tests/source_main_amm_callable.rs;tests/source_amm_quotes.rs;tests/source_amm_quote_number_hint.rs;tests/source_amm_remaining.rs;tests/source_main_amm_inherited.rs;tests/source_main_amm_activation_inherited.rs;docs/AMM_SOURCE_METHOD_MAP.json. Current focused AMM/BLAKE3 batch:29 passing executions across9 targets;20 original-JS regeneration checks. Full-suite promotion remains pending.",
       "preStateWitness": "Actual pool cash, LP shares, position/margin, funded quotes, accepted contract or property pair and immutable AMM config.",
       "postStateWitness": "Real capital debit/redemption, exact LP accounting, quote funding and conserved pool custody.",
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
       "contextWitness": "Explicit network/genesis, actual parent/header and height, prior activation, full ordered same-block inputs/end-phase order and independently expected configuration/bootstrap.",
       "dependencyWitness": "Actual accepted property/list/country/oracle/book/channel facts used on this path, including missing/absent rows and asynchronous call semantics; caller-provided answers are not trusted. See missingLogic for route-specific gaps.",
-      "proofCoverage": "No exported complete transition witness or independent per-type verifier. TLSE1 exports codecs1-7; native8/insurance9/catalog10 export remains pending. Complete local catalog replay is not an exported transition proof.",
+      "proofCoverage": "TLSW3 remains limited to V7/V8 selected command slices; V11 transition witness and complete block coverage are pending. No authentication follows from a supplied hash.",
       "fullReferenceParity": false,
       "endToEndSourceParity": false,
       "transitionFraudProofComplete": false,
@@ -747,7 +792,7 @@
       "sourceHandler": "AMMPool",
       "mapperCandidate": false,
       "transitionProofComplete": false,
-      "fidelity": "Unmapped source path",
+      "fidelity": "Partial; source graph",
       "catalogExecutionCandidate": false
     },
     {
@@ -1450,7 +1495,7 @@
     ]
   },
   "currentCandidate": {
-    "policy": "ActivationLifecycleV10",
+    "policy": "AmmLifecycleV11",
     "mainKinds": [
       0,
       1,
@@ -1462,6 +1507,7 @@
       7,
       8,
       9,
+      10,
       11,
       12,
       13,
@@ -1488,12 +1534,12 @@
       34,
       35
     ],
-    "status": "46 focused Root executions,14 genuine regeneration checks, formatting and all-target Clippy passed; complete release checks pending",
+    "status": "54 focused Root executions:29 AMM/BLAKE3,14 Litecoin and11 durable checks;20 original-source regeneration checks; formatting and all-target Clippy pass. Shared mixed-block and full release promotion remain pending.",
     "fullSuitePromotion": false,
     "completeBlockProof": false,
     "authenticationEstablished": false,
     "fullSuiteBaseline": "b02a0454e4da34c4c167b50f93dc579bda9e75ec",
-    "validationRecord": "fixtures/reference_fidelity/source-activation-main-focused.json"
+    "validationRecord": "fixtures/reference_fidelity/source-amm-main-focused.json"
   },
   "recentConditionalWitness": {
     "profile": "TLSW3",

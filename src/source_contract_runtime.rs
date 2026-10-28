@@ -26,6 +26,7 @@ pub enum SourceContractRuntimePolicy {
     MainCallableV8,
     SpotLifecycleV9,
     ActivationLifecycleV10,
+    AmmLifecycleV11,
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StorageFailure {
@@ -68,6 +69,9 @@ pub(crate) struct ContractCore {
     tally_static_initialized: bool,
     channels: crate::channels_source::SourceChannels,
     property_cache: Vec<(V, V)>,
+    source_amm_instances: Vec<V>,
+    source_amm_property_index: Vec<(String, usize)>,
+    source_amm_returned_origin: Option<usize>,
     source_proof_environment: V,
     source_proof_artifacts: V,
     source_proof_property_initialized: bool,
@@ -385,7 +389,9 @@ impl SourceContractRuntime {
             set(
                 &mut value,
                 "runtimePolicy",
-                s(if self.core.activation_lifecycle_enabled() {
+                s(if self.core.amm_lifecycle_enabled() {
+                    "AmmLifecycleV11"
+                } else if self.core.activation_lifecycle_enabled() {
                     "ActivationLifecycleV10"
                 } else if self.core.spot_lifecycle_enabled() {
                     "SpotLifecycleV9"
@@ -497,6 +503,10 @@ impl SourceContractRuntime {
             )
             .map_err(|_| SourceRuleError::InvalidInput)?;
         }
+        if self.core.amm_lifecycle_enabled() {
+            set(&mut value, "ammLifecycle", self.core.source_amm_state())
+                .map_err(|_| SourceRuleError::InvalidInput)?;
+        }
         Ok(value)
     }
     pub fn invoke_dependency(
@@ -543,6 +553,7 @@ impl SourceContractRuntime {
         } else {
             result
         };
+        self.core.source_amm_returned_origin = None;
         self.core.returned_position_origin = None;
         self.core.collateral_position_origin = None;
         self.core.position_identity_active = false;
@@ -616,6 +627,7 @@ impl SourceContractRuntime {
         } else {
             result
         };
+        self.core.source_amm_returned_origin = None;
         self.core.returned_position_origin = None;
         self.core.collateral_position_origin = None;
         self.core.position_identity_active = false;
@@ -640,6 +652,7 @@ impl SourceContractRuntime {
         } else {
             result
         };
+        self.core.source_amm_returned_origin = None;
         self.core.returned_position_origin = None;
         self.core.collateral_position_origin = None;
         self.core.position_identity_active = false;
@@ -699,6 +712,9 @@ impl ContractCore {
             tally_static_initialized: false,
             channels: crate::channels_source::SourceChannels::new(),
             property_cache: vec![],
+            source_amm_instances: vec![],
+            source_amm_property_index: vec![],
+            source_amm_returned_origin: None,
             source_proof_environment: obj(&[]),
             source_proof_artifacts: obj(&[]),
             source_proof_property_initialized: false,
@@ -771,7 +787,7 @@ impl ContractCore {
         }
     }
     fn global_clearing_enabled(&self) -> bool {
-        matches!(
+        (matches!(
             self.policy,
             SourceContractRuntimePolicy::GlobalClearingV2
                 | SourceContractRuntimePolicy::SourceLifecycleV3
@@ -782,10 +798,10 @@ impl ContractCore {
                 | SourceContractRuntimePolicy::MainCallableV8
                 | SourceContractRuntimePolicy::SpotLifecycleV9
                 | SourceContractRuntimePolicy::ActivationLifecycleV10
-        )
+        )) || self.amm_lifecycle_enabled()
     }
     fn lifecycle_enabled(&self) -> bool {
-        matches!(
+        (matches!(
             self.policy,
             SourceContractRuntimePolicy::SourceLifecycleV3
                 | SourceContractRuntimePolicy::OptionLifecycleV4
@@ -795,10 +811,10 @@ impl ContractCore {
                 | SourceContractRuntimePolicy::MainCallableV8
                 | SourceContractRuntimePolicy::SpotLifecycleV9
                 | SourceContractRuntimePolicy::ActivationLifecycleV10
-        )
+        )) || self.amm_lifecycle_enabled()
     }
     fn option_lifecycle_enabled(&self) -> bool {
-        matches!(
+        (matches!(
             self.policy,
             SourceContractRuntimePolicy::OptionLifecycleV4
                 | SourceContractRuntimePolicy::DistributionLifecycleV5
@@ -807,10 +823,10 @@ impl ContractCore {
                 | SourceContractRuntimePolicy::MainCallableV8
                 | SourceContractRuntimePolicy::SpotLifecycleV9
                 | SourceContractRuntimePolicy::ActivationLifecycleV10
-        )
+        )) || self.amm_lifecycle_enabled()
     }
     fn distribution_lifecycle_enabled(&self) -> bool {
-        matches!(
+        (matches!(
             self.policy,
             SourceContractRuntimePolicy::DistributionLifecycleV5
                 | SourceContractRuntimePolicy::ProofLifecycleV6
@@ -818,41 +834,41 @@ impl ContractCore {
                 | SourceContractRuntimePolicy::MainCallableV8
                 | SourceContractRuntimePolicy::SpotLifecycleV9
                 | SourceContractRuntimePolicy::ActivationLifecycleV10
-        )
+        )) || self.amm_lifecycle_enabled()
     }
     fn proof_lifecycle_enabled(&self) -> bool {
-        matches!(
+        (matches!(
             self.policy,
             SourceContractRuntimePolicy::ProofLifecycleV6
                 | SourceContractRuntimePolicy::LowerLifecycleV7
                 | SourceContractRuntimePolicy::MainCallableV8
                 | SourceContractRuntimePolicy::SpotLifecycleV9
                 | SourceContractRuntimePolicy::ActivationLifecycleV10
-        )
+        )) || self.amm_lifecycle_enabled()
     }
     fn lower_lifecycle_enabled(&self) -> bool {
-        matches!(
+        (matches!(
             self.policy,
             SourceContractRuntimePolicy::LowerLifecycleV7
                 | SourceContractRuntimePolicy::MainCallableV8
                 | SourceContractRuntimePolicy::SpotLifecycleV9
                 | SourceContractRuntimePolicy::ActivationLifecycleV10
-        )
+        )) || self.amm_lifecycle_enabled()
     }
     fn main_callable_enabled(&self) -> bool {
-        matches!(
+        (matches!(
             self.policy,
             SourceContractRuntimePolicy::MainCallableV8
                 | SourceContractRuntimePolicy::SpotLifecycleV9
                 | SourceContractRuntimePolicy::ActivationLifecycleV10
-        )
+        )) || self.amm_lifecycle_enabled()
     }
     fn spot_lifecycle_enabled(&self) -> bool {
-        matches!(
+        (matches!(
             self.policy,
             SourceContractRuntimePolicy::SpotLifecycleV9
                 | SourceContractRuntimePolicy::ActivationLifecycleV10
-        )
+        )) || self.amm_lifecycle_enabled()
     }
     fn rows(&self, name: &str) -> &[V] {
         self.tables
@@ -1402,6 +1418,38 @@ impl ContractCore {
     fn dispatch(&mut self, call: &DependencyCall) -> R<V> {
         let a = &call.arguments;
         let target = call.target.as_str();
+        if self.amm_lifecycle_enabled() {
+            match target {
+                "SourceGlobal.bindPropertyRegistry" => {
+                    if !a.is_empty() {
+                        return Err(SourceRuleError::InvalidInput.into());
+                    }
+                    self.globals
+                        .insert("sourcePropertyRegistry", V::Bool(true))?;
+                    return Ok(V::Undefined);
+                }
+                "SourceAMM.configureStatic" => return self.source_amm_configure_statics(a),
+                "SourceAMM.bindStaticTally" => {
+                    if !a.is_empty() {
+                        return Err(SourceRuleError::InvalidInput.into());
+                    }
+                    self.globals.insert("sourceAmmStaticTally", V::Bool(true))?;
+                    return Ok(V::Undefined);
+                }
+                "SourceAMM.construct" => return self.source_amm_construct(a),
+                "SourceAMM.attachPropertyPool" => return self.source_amm_bind_property_input(a),
+                "Property.getAMM" => return self.source_amm_property_get(a),
+                "Contract.getAMM" => return self.source_amm_contract_get(a),
+                "Logic.AMMPool" => return self.source_amm_logic(a),
+                _ => (),
+            }
+            if let Some(method) = target.strip_prefix("AMMStatic.") {
+                return self.source_amm_static_call(method, a);
+            }
+            if let Some(method) = target.strip_prefix("AMM.") {
+                return self.source_amm_instance_call(method, a);
+            }
+        }
         if self.activation_lifecycle_enabled() {
             if target == "SourceMain.configure"
                 && arg(a, 0).get("activationProfile") != s("source-registry")
@@ -2023,6 +2071,56 @@ impl SourceBackend for ContractCore {
                 Err(Fault::Local(e)) => Err(e),
             };
         }
+        if self.amm_lifecycle_enabled()
+            && matches!(
+                call.target.as_str(),
+                "SourceGlobal.bindPropertyRegistry"
+                    | "SourceAMM.construct"
+                    | "SourceAMM.attachPropertyPool"
+            )
+        {
+            return match result {
+                Ok(v) => Ok(DependencyReturn::Immediate(v)),
+                Err(Fault::Thrown(e)) => Ok(DependencyReturn::Throw(e)),
+                Err(Fault::Local(e)) => Err(e),
+            };
+        }
+        if self.amm_lifecycle_enabled()
+            && matches!(
+                call.target.as_str(),
+                "AMM.quoteContractOrders"
+                    | "AMMStatic.calculateOrderSize"
+                    | "AMMStatic.calculateRedemptionValue"
+                    | "AMMStatic.generateOrders"
+            )
+        {
+            return match result {
+                Ok(v) => Ok(DependencyReturn::Immediate(v)),
+                Err(Fault::Thrown(e)) => Ok(DependencyReturn::Throw(e)),
+                Err(Fault::Local(e)) => Err(e),
+            };
+        }
+        if self.amm_lifecycle_enabled()
+            && matches!(
+                call.target.as_str(),
+                "SourceAMM.configureStatic"
+                    | "SourceAMM.bindStaticTally"
+                    | "AMMStatic.buildStraddle"
+                    | "AMMStatic.buildIronFly"
+                    | "AMMStatic.buildCalendar"
+                    | "AMMStatic.calculateTotalPosition"
+                    | "AMMStatic.getLPAddresses"
+                    | "AMMStatic.getAMMOrdersAndPositions"
+                    | "AMMStatic.generateOrdersForInverse"
+                    | "AMMStatic.generateOrdersForLinear"
+            )
+        {
+            return match result {
+                Ok(v) => Ok(DependencyReturn::Immediate(v)),
+                Err(Fault::Thrown(e)) => Ok(DependencyReturn::Throw(e)),
+                Err(Fault::Local(e)) => Err(e),
+            };
+        }
         if matches!(
             call.target.as_str(),
             "uuid.v4"
@@ -2255,6 +2353,7 @@ impl SourceContractRuntime {
     ) -> Result<crate::types_source::TypesOutcome, SourceRuleError> {
         self.last_parameters = None;
         if arguments.get(1) != Some(&n(18.0))
+            && !(self.core.amm_lifecycle_enabled() && arguments.get(1) == Some(&n(10.)))
             && !(self.core.activation_lifecycle_enabled() && arguments.get(1) == Some(&n(0.)))
             && !(self.core.spot_lifecycle_enabled()
                 && [5., 6.]
@@ -2385,6 +2484,12 @@ impl SourceContractRuntime {
         {
             return self.source_activation_raw_logic(params);
         }
+        if self.core.amm_lifecycle_enabled()
+            && arguments.get(1) == Some(&n(10.))
+            && params.get("valid") == V::Bool(true)
+        {
+            return self.source_amm_raw_logic(params);
+        }
         let logic = if params.get("valid") == V::Bool(true)
             && self.core.spot_lifecycle_enabled()
             && [5., 6.]
@@ -2498,3 +2603,9 @@ include!("source_withdrawal_schedule_impl.rs");
 
 include!("source_activation_lifecycle_impl.rs");
 include!("source_activation_hash_impl.rs");
+
+include!("source_amm_lifecycle_impl.rs");
+
+include!("source_amm_quote_impl.rs");
+
+include!("source_amm_remaining_impl.rs");

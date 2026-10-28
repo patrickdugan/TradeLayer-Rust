@@ -1,0 +1,51 @@
+{
+  "pin": "beae01d62292a0aab363b7a4d3f606708cea7260",
+  "source": "doc/mweb/mining-changes.md",
+  "sourceGitBlob": "468c29ef17fa8979e9f52afb2f8212884ab5a7a2",
+  "classification": "official submitted-block example; chain inclusion unverified",
+  "rawSha256": "b442b20e4525f92f77f4097148019681f13595e01501b9f4e889ba7a2fddd09d",
+  "blockId": "015e0a3aeca99cc8bd924beebd13ad7e697a1cddf73b54d478d21521f07c41c2",
+  "merkleRoot": "c1d0a808a49f04ac12753bbe990def6943c4a7bd6734f66a3514ab2578540f92",
+  "transactions": [
+    {
+      "start": 81,
+      "end": 291,
+      "txid": "47bc54ec3a2c07e5023727c1489e110a95a06ce6027c91db94ebf8f38386233c",
+      "wtxid": "4341af3bbe5be8d974fdb4447965717710a57ab4d41049829f9f13b3b280ec2d",
+      "hogex": false,
+      "inputs": 1,
+      "outputs": 2,
+      "strippedBytes": 174,
+      "transparentBytes": 210
+    },
+    {
+      "start": 291,
+      "end": 676,
+      "txid": "f695435385ef0d7bd8cc3c1d5c10b9f5f0a2e2d6978a7ed5bf011fd3a4817d03",
+      "wtxid": "5c5211aef305551bcdf90e2f4af78fcc834b51041da8512f9fcb14bcff0b07e7",
+      "hogex": false,
+      "inputs": 1,
+      "outputs": 6,
+      "strippedBytes": 276,
+      "transparentBytes": 385
+    },
+    {
+      "start": 676,
+      "end": 773,
+      "txid": "efe1699039d3a8fa35dd3fad367e446937ab33bd19f9f0252c46d09b29fe733f",
+      "wtxid": "efe1699039d3a8fa35dd3fad367e446937ab33bd19f9f0252c46d09b29fe733f",
+      "hogex": true,
+      "inputs": 1,
+      "outputs": 1,
+      "strippedBytes": 94,
+      "transparentBytes": 94
+    }
+  ],
+  "mweb": {
+    "start": 773,
+    "end": 944,
+    "height": 2273263,
+    "outputMmrSize": 1614,
+    "kernelMmrSize": 0
+  }
+}

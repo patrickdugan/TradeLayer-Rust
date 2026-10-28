@@ -1,0 +1,393 @@
+{
+  "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "pins": {
+    "main": [
+      "native_genesis/source/main.js",
+      "006d59ba3d28d802b0e0c5be2d9d661b58caf1c919a704b3f0d40bc9613c4009"
+    ],
+    "txIndex": [
+      "legacy_txindex_source_txIndex.txt",
+      "095449d90f511df44aff7b316105f57d4c0508ea8fb0b6f9c4a5f358edf6ca51"
+    ],
+    "activation": [
+      "native_genesis/source/activation.js",
+      "268f08438eb80765587b8ce24d719f41de573648e108ef64df557faad870ea0e"
+    ],
+    "vaults": [
+      "legacy_vaults_source.txt",
+      "3dcf0554923864729bedcfc8244a06e4235d10a3241256eb3ba0a9d3d1534983"
+    ]
+  },
+  "referenceDriverSha256": "cb7af611bc3224057036fcbdb3ec6f13d1984b8402c306b99c5a1f55fb144c64",
+  "classes": {
+    "TxIndex": {
+      "sha256": "01dcd57e943046f5bb1dc7bc01efe6ea98e456be593ff91ddb5b4799072b257e",
+      "bytes": 19533,
+      "fullClass": true
+    },
+    "Main": {
+      "sha256": "cadcab37cf95dcc78d2258d12817c88fc6a01b9220c6cf18a25ddf68b43a7ea2",
+      "bytes": 39938,
+      "fullClass": true
+    }
+  },
+  "methods": {
+    "Main.constructor": {
+      "sha256": "cadcab37cf95dcc78d2258d12817c88fc6a01b9220c6cf18a25ddf68b43a7ea2",
+      "async": false
+    },
+    "Main.delay": {
+      "sha256": "60e77b8ed582884001ba86ebf7d0bf4893eb837b32eb765d24a15be04227ece4",
+      "async": true
+    },
+    "Main.initialize": {
+      "sha256": "ce51e848b36cdd96637983c04b10360815c5de418af0f13bb543b14c4b308cd1",
+      "async": true
+    },
+    "Main.getCurrentBlockHeight": {
+      "sha256": "372108cf7a8457fc6b3f3d3a178c61bdd2981b8858cc3cc4bbc11eac2418a39e",
+      "async": true
+    },
+    "Main.initOrLoadTxIndex": {
+      "sha256": "947398d773058ab8c0b5726e16d6823bfcda8d634a2a674d61b69c23f95b1090",
+      "async": true
+    },
+    "Main.syncIndex": {
+      "sha256": "090dd06b6b7e161a88b3ef8a2efe451c645f2d8db7684355f5a2cdf327af1be3",
+      "async": true
+    },
+    "Main.constructOrLoadConsensus": {
+      "sha256": "cf15a255b4f8ea5a166ff9c6818d8ebc4eca52dda7cf76fcb0904ab5024310bc",
+      "async": true
+    },
+    "Main.constructConsensusFromIndex": {
+      "sha256": "49d765706d2959d0d134b13951b4f8b56f5a21f0442c567a5e20add572272d2a",
+      "async": true
+    },
+    "Main.checkSync": {
+      "sha256": "3512685ad5c4cc7aa03866465ac0d9edac28b1a374e0960b7e31ef4eb1aadaa3",
+      "async": true
+    },
+    "Main.processTxSet": {
+      "sha256": "8e5b8f262824b636cbcef8c304d00304e363a447d309bc09a1f3386117a95e7c",
+      "async": true
+    },
+    "Main.processTx": {
+      "sha256": "3b0a52813e06d82cf6f8419abab9e15c91f287deb5a67873d67ca932f627a091",
+      "async": true
+    },
+    "Main.syncIfNecessary": {
+      "sha256": "4a357c68024399bd614c742b86efe13dd49f060c3dd87cf3529a6c9d54d413cd",
+      "async": true
+    },
+    "Main.setPause": {
+      "sha256": "bebb46d92bc138cdc8531842e040f07e4931845916b521de79f8c1786719741d",
+      "async": false
+    },
+    "Main.checkBlockLag": {
+      "sha256": "b8373bf562ab79fad7465f2ad98705e70630a729426b902646c3c336094aec8b",
+      "async": true
+    },
+    "Main.processIncomingBlocks": {
+      "sha256": "f23856d8da14a9978ccd4a7f181ace6c7e6582d216f429b5b9e9959522c682b8",
+      "async": true
+    },
+    "Main.checkNetworkStatus": {
+      "sha256": "d444b0b40fa4a678916373e0786735f85b364aaee9a361f0bcb26ccce672f0a5",
+      "async": true
+    },
+    "Main.enterRecoveryMode": {
+      "sha256": "af7c2dae860cb211c64190fca6093c3ee6270e22c166e763ca59ef1b69f966d1",
+      "async": true
+    },
+    "Main.processBlock": {
+      "sha256": "ca6d11798c366f4813bb60d7b397a25a195e8b3bf0f36efe6009dba59ec64753",
+      "async": true
+    },
+    "Main.shutdown": {
+      "sha256": "9ba4172df4ea0d835679614d05f70b6508fcdd3cdcb8e4595974f5b9953bfe6e",
+      "async": true
+    },
+    "Main.fetchWithRetry": {
+      "sha256": "ad1fac04da14f2ef6674f02cb5f55b9dfe746eef374bd4342fe80316dec3d038",
+      "async": true
+    },
+    "Main.blockHandlerBegin": {
+      "sha256": "9f66235294e7d1b6c5da544f6c3f41ac33d47fa21a313dbf31549f6de5247f94",
+      "async": true
+    },
+    "Main.blockHandlerMid": {
+      "sha256": "9f72101ef4ddbbaa01c440ae0819b23aeddcb25549c6eddf855706bc696b3a76",
+      "async": true
+    },
+    "Main.blockHandlerEnd": {
+      "sha256": "f2c702d9ac824378eea19b972cf7f752a8aa99c1904e9155de0152502bcf26ec",
+      "async": true
+    },
+    "Main.handleReorg": {
+      "sha256": "a2e53358b4f5d59eed38692420b041cd28811c8c6b7813681a4ae34d1ecb0aa9",
+      "async": true
+    },
+    "Main.saveMaxProcessedHeight": {
+      "sha256": "6b859c8cee024dc8aa8fbdfcadcd35a2a2867dd85a0f0e9d699df0990daec5f7",
+      "async": true
+    },
+    "Main.saveTrackHeight": {
+      "sha256": "23976327f45d1eb4042b814a140074b296a8a5654dfc78350ffce771842ee0cb",
+      "async": true
+    },
+    "Main.loadMaxProcessedHeight": {
+      "sha256": "c30d11ad7b86a173704393cb88b5144d9b925d223f198432b762d0f75cd0d318",
+      "async": true
+    },
+    "Main.loadTrackHeight": {
+      "sha256": "4716d92073f910a5c99b138ef8bf7bf02232364857238d6b592bcc8dec8f9d7f",
+      "async": true
+    },
+    "TxIndex.init": {
+      "sha256": "300af4e92958d36e68f3bd2c296b91060f73c6b4528e5ed024e91c4052b87c13",
+      "async": true
+    },
+    "TxIndex.getInstance": {
+      "sha256": "8bf6990696716776aaa563a231f212084d043c670af14550e16223eedf3bf86b",
+      "async": true
+    },
+    "TxIndex.initializeIndex": {
+      "sha256": "31aa6a45214f3c7000970afa2b1bbebb35b4be62dbb64c7b5a6c3d3487c170fb",
+      "async": true
+    },
+    "TxIndex.extractBlockData": {
+      "sha256": "a74199e2f25f00669202c134ed80450efd88d272fb6f220d2ad2d0f22f2a49f7",
+      "async": true
+    },
+    "TxIndex.saveMaxHeight": {
+      "sha256": "20f79f464df5c06747e4fccd33532fa1afa915704626fb5c57b139d079875efa",
+      "async": true
+    },
+    "TxIndex.fetchChainTip": {
+      "sha256": "83b57c4c32c0adbb6e4ad6ee7a70d606b0edbe473c630563cd0b87a7784ba650",
+      "async": true
+    },
+    "TxIndex.fetchBlockData": {
+      "sha256": "599dd160d0dfa97ca27bfc50e88bb5047d8ffc88a3c69371d834f51d1f76b508",
+      "async": true
+    },
+    "TxIndex.processBlockData": {
+      "sha256": "2351be6360c3bd5ee8aced6c10c30fd305241bcd1e8af45559cc90187f30e7e2",
+      "async": true
+    },
+    "TxIndex.fetchTransactionData": {
+      "sha256": "43a419526b96623969859c8b3d7ec05664c173def23329514baf86421197c8c8",
+      "async": true
+    },
+    "TxIndex.DecodeRawTransaction": {
+      "sha256": "e8b064a0661e965cb43cebed9a83711daf7ad5fe31919d20a1ea49427d8e3cf0",
+      "async": true
+    },
+    "TxIndex.isPrintableASCII": {
+      "sha256": "de13f6a968cd16829a303cdfd472addf3b2a31fe4950f78a88373e2f9974e726",
+      "async": false
+    },
+    "TxIndex.processTransaction": {
+      "sha256": "de6567f559bbe6762c0a8d560a26605928a4ddd04088b5a052913ffe09040456",
+      "async": true
+    },
+    "TxIndex.upsertTxValidityAndReason": {
+      "sha256": "7f84fa341dbbc091118ad3500cd90c8fb6c74c4b1906a8399d9d8fc9695fbcc9",
+      "async": true
+    },
+    "TxIndex.clearTxIndex": {
+      "sha256": "afe7f4f7e4b52a48585f817c7cf310cc23ffae45141e43233f47967b1f0decc9",
+      "async": true
+    },
+    "TxIndex.resetIndexFlag": {
+      "sha256": "e846a29ef748e3b4c95118b51eb30d8a82e9af0ea2466d2d11e71079df1e8752",
+      "async": true
+    },
+    "TxIndex.findMaxIndexedBlock": {
+      "sha256": "f7e34a4f2eecf3215982471c85776443f16ffbbca3057acecab11e10d8cfb1a9",
+      "async": true
+    },
+    "TxIndex.getTransactionData": {
+      "sha256": "1c8ce385297a956df69386e7ad4982f60899c6db838a695ab846e0abebfd4036",
+      "async": true
+    },
+    "TxIndex.checkForIndex": {
+      "sha256": "52bba21bf3743c70e70590f0e739347ba191252e22b24ac49e0dfed87fd48fd5",
+      "async": true
+    },
+    "Tally.flushQueuedFeeAccruals": {
+      "sha256": "9cef155e3ae687676fcd150ef963ba4dc5ffc186ce8277363b8bcbb73ab865c3",
+      "async": true
+    },
+    "Logic.settleLiquidityRewards": {
+      "sha256": "b817d692609213f5be57357d59c7e5acf853a58ccf2e2cc8c59806f08a9e1e1d",
+      "async": true
+    },
+    "Orderbook.processQueuedOnChainOrdersForBlock": {
+      "sha256": "07626f4f7cfe03dedb1baf18dcdb5e7f2bc5d40bf7eb69cac744bc8e56e62240",
+      "async": true
+    },
+    "Orderbook.processQueuedChannelTradesForBlock": {
+      "sha256": "37103ecf670b33a8f35364c00b40fa84e26cfe6e6169c91f08da9c79179bff15",
+      "async": true
+    },
+    "Channels.processWithdrawals": {
+      "sha256": "76dcb950acf3d0d5e7900cfee167ebb3b8dcc37e62197802e0ca8982c1340881",
+      "async": true
+    },
+    "Clearing.clearingFunction": {
+      "sha256": "3bad2ac9a12e0b147790410f383a7d321f615655b8d53e72bed9cceb170eca42",
+      "async": true
+    },
+    "Types.decodePayload": {
+      "sha256": "4eba9326414db0e41bdb71d053a182512dc575fc89ded011f1e6b3eb09c2ac38",
+      "async": true
+    },
+    "Logic.AMMPool": {
+      "sha256": "e2476d2361839903afac8c9ff038ec93ecdb960efff3fd2f181a52200c298d47",
+      "async": true
+    },
+    "Property.getAMM": {
+      "sha256": "7d79545f22b234d107cfaa2deeac7c1b24ae208086d361eec5b72adb69a97491",
+      "async": true
+    },
+    "Contract.getAMM": {
+      "sha256": "504803ddf0f26f31d142605b7f14dd6587f7fd46a34655282cfbfcc9cf4c7d39",
+      "async": true
+    },
+    "Contract.getContractInfo": {
+      "sha256": "3cb9d14d8f75298c6993cbdbd2601267854d5b37826ca0990cb01be6aad7c391",
+      "async": true
+    },
+    "Tally.updateBalance": {
+      "sha256": "771a5a0e4adccccb8167be3e5c7a505c5cd9e02dd54825c28e10f1319bea76bf",
+      "async": true
+    },
+    "AMM.addCapital": {
+      "sha256": "19e3f3099fb166b52a806c86cddec6e747e8e28b6db6458112afb1b6eb0af338",
+      "async": true
+    },
+    "AMM.redeemCapital": {
+      "sha256": "dc541f09e12c50bd4c8ff376de4f01587f884405c3f1fcb95c27949a56b2153c",
+      "async": true
+    },
+    "AMM.quoteContractOrders": {
+      "sha256": "880f6833c2c9b56fa2ba723f8e43ee055ca1ba7baa280ac931815d32334a9f8b",
+      "async": false
+    }
+  },
+  "boundary": {
+    "fullMainImport": "declared unavailable ./reOrg.js; no imported module success supplied",
+    "callable": "byte-exact full Main and TxIndex classes; real constructors/prototypes; module startup IIFEs not executed",
+    "activation": "complete unchanged original Activation, actual persisted 36-entry registry with raw10 active at block1; no validity result supplied",
+    "storage": "shared explicit source fixture DB adapter; anchored /^tx/ RegExp is genuine JS test; production NeDB equivalence not claimed",
+    "rpc": "all reached ClientWrapper/TxUtils calls unavailable; no height/client success answer",
+    "observation": "nonmutating audit table views; ordinary console undefined, genuine RegExp, every real Orderbook and AMMPool constructor tracked with original prototype/constructor; unhandled rejections retained",
+    "amm": "unchanged full original AMM/Property/Contract/Tally bodies; only input rows, genuine constructor cache inputs and explicit PropertyRegistry class binding"
+  },
+  "inputLabels": {
+    "2ec4238d0f0c992f1188d757e5a8ad90797bdc8963b84ec523e3036c8c532f34": {
+      "label": "property-unbound",
+      "type": 10
+    },
+    "e57d0a53459a10d4bdf70b9c29cce3de2cef71e5492e2a4788a903a6d10bada9": {
+      "label": "contract-add",
+      "type": 10
+    },
+    "15d1e0caddf83dbbfff5c064170b47a22c14ae5cf7ff4e9260c2595bb1247a00": {
+      "label": "contract-redeem",
+      "type": 10
+    },
+    "97d5fcc2fffb2ba30ee184ef14ec0147b1f9dc327c41a42cb8ac296f8d84e0de": {
+      "label": "contract-live-add",
+      "type": 10
+    },
+    "7690ffbc464fb343dde28373437aac3d52efa3071030cc71cf8988c00069f8c2": {
+      "label": "zero-first",
+      "type": 10
+    },
+    "dd340db296d0a9c29e5fa1bb7329bae6a518ea20794f68aec5f49cc463454795": {
+      "label": "contract-live-redeem",
+      "type": 10
+    },
+    "9ed315f373060002991d421c182b53728465df1b258ef7ecc441ca42dffe1b87": {
+      "label": "contract-metadata-write-failure",
+      "type": 10
+    },
+    "b6e5717bc399d998ec25fe992e6ac4271122683fac15d6936f8f4bb402687afe": {
+      "label": "roundtrip-contract-add",
+      "type": 10
+    },
+    "04f0ac58905ffeca21b9fd2049fc9a2791901c4cdb5f9f44b52a8c272c971e56": {
+      "label": "roundtrip-contract-redeem",
+      "type": 10
+    },
+    "6a7bc31dab4ad23d98ff7670d56a9cd0b6e5b154e6421eecc01502f04c30d466": {
+      "label": "roundtrip-contract-over-max",
+      "type": 10
+    },
+    "c8be0889fef0dc80dd4ef89d07bacc274728d5467cf9b5339f1faff55925bdad": {
+      "label": "property-roundtrip-add",
+      "type": 10
+    },
+    "807c258e2adb9d2ee6d6d6ab839b5ad496a5c471b07d353bc18147bf2987e958": {
+      "label": "property-roundtrip-redeem",
+      "type": 10
+    },
+    "9b45bc265f7d967270c8f4e48b023911d3ce115ecfc228bbb7e6152a9e4b578f": {
+      "label": "property-reverse-pair",
+      "type": 10
+    },
+    "32942f7a920ea12afe3aa88f6d66bfd9f9e5177ec3987aee007e6c667b110812": {
+      "label": "property-overredeem-add",
+      "type": 10
+    },
+    "52ee50fec409f4ce6260280a470620bebb496a2688ff4e394c7c7a3ebf470e8d": {
+      "label": "property-second-overredeem",
+      "type": 10
+    },
+    "3265961ab83402b7273b544630c1304b6b5e45474ddd61b6dbef0e07878471b3": {
+      "label": "bound-missing-property-pool",
+      "type": 10
+    },
+    "270663f90d5e9f21ba2d09c9ae789999d0feff46d8621f54f4fa8b3b6ecaed1f": {
+      "label": "property-first-delta-failure",
+      "type": 10
+    },
+    "c40e5d8cf9092fc3c203d35b5fafda856d2701a8a935b406699b4cae647ba9bf": {
+      "label": "property-fresh-retry",
+      "type": 10
+    },
+    "cdae4037d1927298b37e47ad1703ee714c435399c95ab40b20f64954c9ac1fd7": {
+      "label": "contract-live-persist-failure",
+      "type": 10
+    },
+    "9383c3f74b6d31aa9f89f2be814bc56263c5fd61eb6f685d62d7663c49de97b8": {
+      "label": "contract-live-fresh-retry",
+      "type": 10
+    },
+    "29930361db1bd8263b3385c4cad6d5d071b8040e8dc3c0b7a59a8417bd30d546": {
+      "label": "inactive-main-contract",
+      "type": 10
+    }
+  },
+  "observations": 36,
+  "calls": 28,
+  "fixtureSha256": "6a22e81a4df8774ec6afd825e820fecbf05a679ce988767c95e9491eb1813271",
+  "proof10Sha256": "3d860b92ecdadcae535670353dcc64074fc94c2361ce3d9b22f0bc04bd6ecc80",
+  "domains": {
+    "source-call": 27,
+    "unavailable-capability": 1,
+    "constructor-and-input": 8,
+    "explicit-input": 0
+  },
+  "postphaseCoverage": {
+    "Tally.flushQueuedFeeAccruals": 9,
+    "Logic.settleLiquidityRewards": 9,
+    "Orderbook.processQueuedOnChainOrdersForBlock": 9,
+    "Orderbook.processQueuedChannelTradesForBlock": 9,
+    "Clearing.clearingFunction": 9,
+    "Channels.processWithdrawals": 11
+  }
+}

@@ -56,7 +56,14 @@ rustfmt --check --edition 2021 \
   src/source_token_channel_schedule_impl.rs \
   src/source_withdrawal_schedule_impl.rs \
   src/source_activation_lifecycle_impl.rs \
-  src/source_activation_hash_impl.rs
+  src/source_activation_hash_impl.rs \
+  src/source_amm_lifecycle_impl.rs \
+  src/source_amm_quote_impl.rs \
+  src/source_amm_remaining_impl.rs \
+  src/source_durable_replay_impl.rs \
+  src/source_durable_replay_tests.rs \
+  src/litecoin_transparent_impl.rs \
+  src/litecoin_mweb_structure_impl.rs
 
 cargo clippy --all-targets --locked -- -D warnings
 if [[ "$mode" == "--full" ]]; then

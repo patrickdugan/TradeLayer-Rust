@@ -158,3 +158,56 @@ fixtures/v10_insurance_find_vectors.jsonl text eol=lf
 fixtures/main_activation_vectors.jsonl text eol=lf
 fixtures/main_activation_proof10.jsonl text eol=lf
 fixtures/main_activation_inventory.json text eol=lf
+
+# Literal AMM and durable source observations.
+fixtures/amm_quote_number_vectors.jsonl text eol=lf
+fixtures/amm_quote_vectors.jsonl text eol=lf
+fixtures/amm_quotes_proof10.jsonl text eol=lf
+fixtures/lower_amm_proof10.jsonl text eol=lf
+fixtures/lower_amm_vectors.jsonl text eol=lf
+fixtures/main_amm_inventory.json text eol=lf
+fixtures/main_amm_proof10.jsonl text eol=lf
+fixtures/main_amm_vectors.jsonl text eol=lf
+fixtures/amm_remaining_vectors.jsonl text eol=lf
+fixtures/amm_remaining_proof10.jsonl text eol=lf
+fixtures/amm_remaining_inventory.json text eol=lf
+fixtures/source_durable_contract_inputs.jsonl text eol=lf
+fixtures/source_durable_contract_inputs.provenance.json text eol=lf
+
+# Exact Litecoin Core observations.
+fixtures/empty_followup_433.hex text eol=lf
+fixtures/empty_followup_433.json text eol=lf
+fixtures/litecoin_core_codec_goldens.jsonl text eol=lf
+fixtures/litecoin_core_codec_observations.json text eol=lf
+fixtures/litecoin_core_mining_changes_source.txt -text -whitespace
+fixtures/litecoin_core_oracle_provenance.json text eol=lf
+fixtures/litecoin_core_regtest_goldens.jsonl text eol=lf
+fixtures/litecoin_main_genesis.hex text eol=lf
+fixtures/litecoin_official_post_mweb.hex text eol=lf
+fixtures/litecoin_official_post_mweb.json text eol=lf
+fixtures/litecoin_regtest_genesis.hex text eol=lf
+fixtures/litecoin_test_genesis.hex text eol=lf
+fixtures/multiple_kernels_445.hex text eol=lf
+fixtures/multiple_kernels_445.json text eol=lf
+fixtures/mweb_only_transfer.hex text eol=lf
+fixtures/mweb_only_transfer.json text eol=lf
+fixtures/mweb_only_transfer.kernel.hex text eol=lf
+fixtures/pegin_block_432.hex text eol=lf
+fixtures/pegin_block_432.json text eol=lf
+fixtures/pegin_envelope.hex text eol=lf
+fixtures/pegin_envelope.json text eol=lf
+fixtures/pegin_envelope.kernel.hex text eol=lf
+fixtures/pegout_block_444.hex text eol=lf
+fixtures/pegout_block_444.json text eol=lf
+fixtures/pegout_envelope.hex text eol=lf
+fixtures/pegout_envelope.json text eol=lf
+fixtures/pegout_envelope.kernel.hex text eol=lf
+fixtures/pre_mweb_431.hex text eol=lf
+fixtures/pre_mweb_431.json text eol=lf
+fixtures/transfer_block_443.hex text eol=lf
+fixtures/transfer_block_443.json text eol=lf
+fixtures/witness_hybrid_block_453.hex text eol=lf
+fixtures/witness_hybrid_block_453.json text eol=lf
+fixtures/witness_hybrid_envelope.hex text eol=lf
+fixtures/witness_hybrid_envelope.json text eol=lf
+fixtures/litecoin_kernel_hash_vectors.json text eol=lf

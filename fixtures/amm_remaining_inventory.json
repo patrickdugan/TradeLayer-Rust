@@ -1,0 +1,72 @@
+{
+  "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "sourceSha256": "bfb4f5d94c1d4754ae9a17b646c42c4ffe62e077590d0a184ac8ddc0b38255b1",
+  "methods": {
+    "insertCapital": {
+      "sha256": "9e64a012053954f72f222691b9e37f740409ebdbe55be693d4cd2dd5d4ceb8ae",
+      "async": true
+    },
+    "redeemCapital": {
+      "sha256": "721f60d536c625fff9c9a3de60ad771fc702d6b5b5638a850f8c02120c23fa0d",
+      "async": true
+    },
+    "requestLiquidity": {
+      "sha256": "e1de89a914a2b20adb366edf74ec3bf56d6e8d2008b61412abd68425518e1040",
+      "async": true
+    },
+    "runOptionStrategy": {
+      "sha256": "1a9e8d49db91e4bdb8b0dd54028d8603e870ef85ba74b0d2abaec0987a2c5cc0",
+      "async": true
+    },
+    "buildStraddle": {
+      "sha256": "feb74e592652dcff46fe8030d7253f4f46fee172f92f0ff4375a2062cad943f4",
+      "async": false
+    },
+    "buildIronFly": {
+      "sha256": "baef6b5155371086deadf930b2c85b5e16c953b01f35f6342b0cfa536ef010f9",
+      "async": false
+    },
+    "buildCalendar": {
+      "sha256": "11ea30c11afa9a7bcb22405d88f9bc84294c8b188f7567b5bdbfaea5dbab7af0",
+      "async": false
+    },
+    "calculateTotalPosition": {
+      "sha256": "adbf4701e6f6df6b894bf054ecd8cb93b18610c8d19fbec3657278c56329eeee",
+      "async": false
+    },
+    "getLPAddresses": {
+      "sha256": "6dc3422b450aefa121a7bb8885304a52721769ed95a31a2ea577afc664d3bcd8",
+      "async": false
+    },
+    "getAMMOrdersAndPositions": {
+      "sha256": "6db58d9c0f9a6b591d1310725f10210f30c91c61848924c8d0fe7f3343daa7b8",
+      "async": false
+    },
+    "generateOrdersForInverse": {
+      "sha256": "0466c5ca0c474f278411f7369308aed0d363b4e0b7b05c1c3f75197fdea6c442",
+      "async": false
+    },
+    "generateOrdersForLinear": {
+      "sha256": "83f32fb268b0d9866801a0333b1c619559325139caf9da119ae6642ac04a70bd",
+      "async": false
+    }
+  },
+  "staticFields": [
+    "position",
+    "maxPosition",
+    "maxQuoteSize",
+    "contractType",
+    "lpShares",
+    "lpAddresses",
+    "ammOrders",
+    "strategyBlob"
+  ],
+  "profile": "ordinary own class data only; no method/prototype replacement; constructors do not initialize class fields",
+  "frames": 77,
+  "actualCalls": 56,
+  "resetFrames": 7,
+  "explicitDataFrames": 14,
+  "fullSHA256": "50beb7ea5890158d71bc7fef8a70fd2436ae22affa854417d99ecae7e57b277e",
+  "proofSHA256": "c12ee6b13977e9ee32a781cb8a646b01793e5abe92d550e19bdd8b25f8ca621a",
+  "numeric": "genuine9.3.1-and9.1.2-byte-equal"
+}

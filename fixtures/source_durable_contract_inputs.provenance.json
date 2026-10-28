@@ -1,0 +1,9 @@
+{
+  "sourceFixture": "fixtures/source_contract_execution_vectors.tsv",
+  "sourceFixtureSha256": "fd1f5fd95c9fa02ba729e344e632f77e75a324d2f195b0a77ef61279fc0113fe",
+  "scene": "late-volume-write-failure-retry",
+  "outputSha256": "78ef050666144b677c9339322df49fa2697132b40e513a35c2ee609ef995442e",
+  "bootstrapInputsOnly": true,
+  "expectedPoststatesIncluded": false,
+  "setActivationAnswer": "explicit historical OnchainV1 fixture dependency profile; not owned authentication or source registry execution"
+}
