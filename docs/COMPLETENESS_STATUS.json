@@ -1,0 +1,81 @@
+{
+  "schema": "tl-completeness-refresh-v1",
+  "verifiedAtUtc": "2026-10-28T09:43:36Z",
+  "inspectedCheckoutCommit": "d24478e5dc6e40d413aa5ff5257ff686d2e8e41d",
+  "verifiedImplementationCommit": "7e5d5eac05a15f682b9f258080cede44ab9f7a18",
+  "verifiedReleaseTests": 1476,
+  "topLevelTests": 1475,
+  "subprocessChecks": 1,
+  "verifiedLockedReferenceTests": 111,
+  "moduleRows": 48,
+  "externalReferenceRows": 1,
+  "transactionRows": 37,
+  "fullReferenceParityEstablished": false,
+  "completeBlockFraudProofEstablished": false,
+  "authenticationEstablished": false,
+  "candidateChecks": {
+    "spotV9": {
+      "status": "focused-checks-passed-uncommitted",
+      "tests": 7,
+      "fullSuitePromotion": false
+    },
+    "recentLifecycleWitnessTLSW3": {
+      "status": "focused-checks-passed-before-upper-candidate",
+      "tests": 12,
+      "fullSuitePromotion": false
+    },
+    "upperMain": {
+      "status": "one-failing-differential-test",
+      "passed": 6,
+      "failed": 1,
+      "failure": "type22 asynchronous DB ordering mismatch, observed as effect kind db versus database"
+    },
+    "activationV10": {
+      "status": "staged-not-executed-in-root"
+    },
+    "ammV11": {
+      "status": "staged-not-executed-in-root"
+    }
+  },
+  "scope": "The full-suite count remains the committed V8 baseline. Candidate focused checks do not establish full integration or authenticated input truth.",
+  "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
+  "logs": {
+    "v8-main-lower-release-full.log": {
+      "bytes": 181638,
+      "sha256": "3735a15d8530c9bf7ac99ef6e43c0465858b32587a18f58537ac550b3365ff4e"
+    },
+    "v8-main-lower-locked-reference.log": {
+      "bytes": 21365,
+      "sha256": "b2f2199cc509142e5c23e0d9602d8d4f063ab557db228e00dc89f07f30569eb9"
+    },
+    "v9-spot-lf-rerun.log": {
+      "bytes": 1506,
+      "sha256": "f94b73b8c90b1a1ae32d2f2ed0afb64c6bda529b49d6b6cb7632bd464abb35a2"
+    },
+    "v9-recent-focused.log": {
+      "bytes": 5989,
+      "sha256": "9a5775c688b17fb84f33a9381bf39df12e68bfb1d815f362a09c83711e522705"
+    },
+    "v9-main-upper-focused.log": {
+      "bytes": 2323,
+      "sha256": "f041bf39dfa29b502eb0402029fc309f6ec05ae344c8b663cd742fac906bbed9"
+    }
+  },
+  "workerArtifacts": {
+    "next-v10-mixed-native/root-ready/MANIFEST.json": {
+      "bytes": 3506,
+      "sha256": "8ccbd4bbd29a4baa6623485ea12fa882a14c20ac9f70b6d3f6083fbbcde73fcc"
+    },
+    "next-lower-amm/root-ready/MANIFEST.json": {
+      "bytes": 1681,
+      "sha256": "6c60fc765b2cad389bbd4481f1fc0eb0932d50b70823446e5646179d923bae00"
+    }
+  },
+  "workbookNote": "V8 full baseline: 1,476 release tests and 111 locked-reference tests. V9 spot: 7 focused tests passed. TLSW3: 12 focused tests passed before upper candidate. Upper Main: 6/7 passed; type22 asynchronous DB ordering mismatch under review. Activation and AMM: staged, Rust checks pending. Oracle-abuse/UTXORef mock deferred. Authentication and full-block proofs remain open.",
+  "savedWorkbook": {
+    "path": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\outputs\\completeness-6b9c6c5f\\TradeLayer-completeness.xlsx",
+    "sha256": "d79b54333495d41ea00fdde5b25015e781003bff85cf4782d46dede2c4271ffd"
+  },
+  "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
+  "workbookVerification": "Exact sidebar/saved table hashes agree; metadata-only edits; cached formulas, table filters, row and column layout, panes and zero-error checks passed."
+}
