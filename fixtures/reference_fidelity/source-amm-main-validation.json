@@ -1,0 +1,103 @@
+{
+  "schema": "tl-full-release-verification-v1",
+  "verifiedAtUtc": "2026-10-28T16:13:38Z",
+  "compiledCommit": "31ee8f4a3fc8996f410282028b4150a3cff01003",
+  "compiler": "Rust1.90.0 MSVC",
+  "releaseExecutions": 1597,
+  "topLevelTests": 1596,
+  "successfulSubprocessExecutions": 1,
+  "releaseTargets": 246,
+  "exactNumericReferenceExecutions": 198,
+  "exactNumericReferenceTargets": 71,
+  "docTests": 0,
+  "allExistingReleaseTestsPassed": true,
+  "inputManifest": "source-amm-main-inputs.json",
+  "inputManifestSHA256": "973a25470fd910211fc96f726cd82e81e8cd1f2805969f37e911b182722dd067",
+  "inputFiles": 941,
+  "releaseProviderSHA256": "84aa7174f66676daaab99422e2a9c252f887e0567ca157e3c7ad8154b8763d7f",
+  "logs": {
+    "v11-release-full.log": {
+      "executions": 1597,
+      "targets": 246,
+      "topLevel": 1596,
+      "extraSuccessfulSubprocessExecutions": 1,
+      "resultRecords": 247,
+      "multiResultTargets": [
+        {
+          "name": "tests\\storage.rs (C:/Users/patri/Documents/Codex/2026-10-26/go/work/source-settlement-target\\release\\deps\\storage-d2af554335b1c1f2.exe)",
+          "results": [
+            [
+              "1",
+              "0",
+              "0"
+            ],
+            [
+              "8",
+              "0",
+              "0"
+            ]
+          ]
+        }
+      ],
+      "sha256": "f15b8477dc3f4bc8dab449b9eb4e0574e71a232ed7a11ff10ac2f545e06a2676",
+      "bytes": 201318
+    },
+    "v11-locked-reference.log": {
+      "executions": 198,
+      "targets": 71,
+      "topLevel": 198,
+      "extraSuccessfulSubprocessExecutions": 0,
+      "resultRecords": 71,
+      "multiResultTargets": [],
+      "sha256": "54b21a38f6f288b8f799351ed853fa54828b247164214b60a4e0e2f040288678",
+      "bytes": 38536
+    },
+    "v11-release-doctest.log": {
+      "executions": 0,
+      "targets": 0,
+      "topLevel": 0,
+      "extraSuccessfulSubprocessExecutions": 0,
+      "resultRecords": 1,
+      "multiResultTargets": [],
+      "sha256": "01276ca89aa731415f1d095ee4c85f7ef043b7f58ac79cfc99457164370f3154",
+      "bytes": 211
+    },
+    "v11-final-clippy.log": {
+      "sha256": "459b218190ec83d21aa45ae887cdca27abd272179619ec474cf0b9df6d8e9d92",
+      "bytes": 170
+    },
+    "v11-final-current-policy-clippy.log": {
+      "sha256": "7bac773a4868c39593b9e4eb91ea7375da295284d998046244bc46f05dc3f64d",
+      "bytes": 170
+    },
+    "v11-final-format.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "v11-final-includes-format.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "v11-node-post-whitespace.json": {
+      "sha256": "8b35d2bfa7d91fa09e2cfd9834ff03e01be67d608541e7d6d25f4ae9ca7169cc",
+      "bytes": 6225
+    },
+    "v11-litecoin-reference.json": {
+      "sha256": "65634e57ac43f7aca3901b1f05aadcbacc4a606fd69e090065b863263f538101",
+      "bytes": 1146
+    },
+    "v11-supply-chain.log": {
+      "sha256": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01",
+      "bytes": 89
+    }
+  },
+  "knownReferenceGaps": [
+    "Mixed Main history can leave Core.tables/Core.rows orderBooks stale while Queue has the authoritative rows; Consensus.stateConsensusHash is affected. Correction is staged outside Root and not included in this release."
+  ],
+  "fullReferenceParityEstablished": false,
+  "completeBlockProofEstablished": false,
+  "authenticationEstablished": false,
+  "defaultPolicy": "GlobalClearingV2",
+  "literalCandidatePolicy": "AmmLifecycleV11",
+  "scope": "Completed existing full release and exact-number test suites; not proof of all source behaviors or canonical/authenticated state."
+}

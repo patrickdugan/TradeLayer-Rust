@@ -1,12 +1,12 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-28T15:29:20Z",
-  "inspectedCheckoutCommit": "70f568ad703bef189c01c989631692fdf75235bb",
-  "verifiedImplementationCommit": "b02a0454e4da34c4c167b50f93dc579bda9e75ec",
-  "verifiedReleaseTests": 1502,
-  "topLevelTests": 1501,
+  "verifiedAtUtc": "2026-10-28T16:17:14Z",
+  "inspectedCheckoutCommit": "31ee8f4a3fc8996f410282028b4150a3cff01003",
+  "verifiedImplementationCommit": "31ee8f4a3fc8996f410282028b4150a3cff01003",
+  "verifiedReleaseTests": 1597,
+  "topLevelTests": 1596,
   "subprocessChecks": 1,
-  "verifiedLockedReferenceTests": 151,
+  "verifiedLockedReferenceTests": 198,
   "moduleRows": 48,
   "externalReferenceRows": 1,
   "transactionRows": 37,
@@ -39,24 +39,33 @@
       "allTargetClippyPassed": true,
       "formattingPassed": true,
       "fullSuitePromotion": false,
-      "record": "fixtures/reference_fidelity/source-activation-main-focused.json"
+      "record": "fixtures/reference_fidelity/source-activation-main-focused.json",
+      "coveredByReleaseCommit": "31ee8f4a3fc8996f410282028b4150a3cff01003"
     },
     "compactReaderAndScrypt": {
       "status": "committed-focused-integration-passed",
       "commit": "9d44d75",
       "readerTests": 15,
       "scryptTests": 4,
-      "fullSuitePromotion": false
+      "fullSuitePromotion": false,
+      "coveredByReleaseCommit": "31ee8f4a3fc8996f410282028b4150a3cff01003"
     },
     "ammV11": {
-      "status": "working-tree-focused-validated",
+      "status": "release-suite-passed-known-reference-gap",
       "mainKinds": 36,
       "focusedRootExecutions": 29,
       "sourceRegenerationChecks": 20,
       "allTargetClippyPassed": true,
       "formattingPassed": true,
-      "fullSuitePromotion": false,
-      "record": "fixtures/reference_fidelity/source-amm-main-focused.json"
+      "fullSuitePromotion": true,
+      "record": "fixtures/reference_fidelity/source-amm-main-validation.json",
+      "commit": "31ee8f4a3fc8996f410282028b4150a3cff01003",
+      "releaseExecutions": 1597,
+      "exactNumericReferenceTests": 198,
+      "sourceFidelityComplete": false,
+      "knownReferenceGaps": [
+        "Mixed Main history can leave Core.tables/Core.rows orderBooks stale while Queue has the authoritative rows; Consensus.stateConsensusHash is affected. Correction is staged outside Root and not included in this release."
+      ]
     },
     "durableReplay": {
       "status": "working-tree-focused-validated",
@@ -65,12 +74,14 @@
       "segments": 23,
       "directorySyncRetryFixValidated": true,
       "V10V11RestartValidated": true,
-      "fullSuitePromotion": false
+      "fullSuitePromotion": false,
+      "coveredByReleaseCommit": "31ee8f4a3fc8996f410282028b4150a3cff01003"
     },
     "nativeBlake3": {
       "status": "working-tree-focused-validated",
       "RootTests": 4,
-      "fullSuitePromotion": false
+      "fullSuitePromotion": false,
+      "coveredByReleaseCommit": "31ee8f4a3fc8996f410282028b4150a3cff01003"
     },
     "litecoinNonempty": {
       "status": "working-tree-focused-validated",
@@ -80,10 +91,35 @@
       "offlineCoreObservations": 29,
       "RootIntegrated": true,
       "chainOrActorAdmission": false,
-      "fullSuitePromotion": false
+      "fullSuitePromotion": false,
+      "coveredByReleaseCommit": "31ee8f4a3fc8996f410282028b4150a3cff01003"
+    },
+    "TLSW4Staged": {
+      "status": "work-only-not-Root-integrated",
+      "manifestSHA256": "5e2b5c7fc43b8e9ddb19ce30f034792bac240a9947913122ef8a97d2388bd379",
+      "fullSuitePromotion": false,
+      "authenticationEstablished": false
+    },
+    "TLSW4StrictGuardStaged": {
+      "status": "work-only-not-Root-integrated",
+      "manifestSHA256": "65c84799fc235494c509723a08e10bc971c9881e0d04a23b0d8235749f4fb6f2",
+      "fullSuitePromotion": false,
+      "authenticationEstablished": false
+    },
+    "BIP141Staged": {
+      "status": "work-only-not-Root-integrated",
+      "manifestSHA256": "bcac039400ccc5076d71acb5d36bdfae22618e9207faaae54f1bc6b178f0b539",
+      "fullSuitePromotion": false,
+      "authenticationEstablished": false
+    },
+    "P2WSHStaged": {
+      "status": "work-only-not-Root-integrated",
+      "manifestSHA256": "fd355397049e648b0a5da5eb5041327331c62603291c9b8fe402f3d724fcb279",
+      "fullSuitePromotion": false,
+      "authenticationEstablished": false
     }
   },
-  "scope": "The full-suite count remains the committed V9 baseline. Current V11 focused checks do not establish full historical integration, block completeness or authenticated input truth.",
+  "scope": "Existing release suites passed at31ee8f4. The known mixed-history state/Consensus defect, historical parity, production integration, complete block proofs and authentication remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -165,6 +201,56 @@
     "v11-node-post-whitespace.json": {
       "sha256": "8b35d2bfa7d91fa09e2cfd9834ff03e01be67d608541e7d6d25f4ae9ca7169cc",
       "bytes": 6225
+    },
+    "v11-release-full.log": {
+      "executions": 1597,
+      "targets": 246,
+      "topLevel": 1596,
+      "extraSuccessfulSubprocessExecutions": 1,
+      "resultRecords": 247,
+      "multiResultTargets": [
+        {
+          "name": "tests\\storage.rs (C:/Users/patri/Documents/Codex/2026-10-26/go/work/source-settlement-target\\release\\deps\\storage-d2af554335b1c1f2.exe)",
+          "results": [
+            [
+              "1",
+              "0",
+              "0"
+            ],
+            [
+              "8",
+              "0",
+              "0"
+            ]
+          ]
+        }
+      ],
+      "sha256": "f15b8477dc3f4bc8dab449b9eb4e0574e71a232ed7a11ff10ac2f545e06a2676",
+      "bytes": 201318
+    },
+    "v11-locked-reference.log": {
+      "executions": 198,
+      "targets": 71,
+      "topLevel": 198,
+      "extraSuccessfulSubprocessExecutions": 0,
+      "resultRecords": 71,
+      "multiResultTargets": [],
+      "sha256": "54b21a38f6f288b8f799351ed853fa54828b247164214b60a4e0e2f040288678",
+      "bytes": 38536
+    },
+    "v11-release-doctest.log": {
+      "executions": 0,
+      "targets": 0,
+      "topLevel": 0,
+      "extraSuccessfulSubprocessExecutions": 0,
+      "resultRecords": 1,
+      "multiResultTargets": [],
+      "sha256": "01276ca89aa731415f1d095ee4c85f7ef043b7f58ac79cfc99457164370f3154",
+      "bytes": 211
+    },
+    "v11-supply-chain.log": {
+      "sha256": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01",
+      "bytes": 89
     }
   },
   "workerArtifacts": {
@@ -177,20 +263,28 @@
       "sha256": "6c60fc765b2cad389bbd4481f1fc0eb0932d50b70823446e5646179d923bae00"
     }
   },
-  "workbookNote": "Full V9 baseline: 1,502 release executions and 151 exact numeric-reference tests. Current uncommitted V11 composes all 36 Main kinds: 29 focused AMM/BLAKE3 checks and 20 original-source regeneration checks pass after a real side-effect ordering fix. Litecoin V2 passes 14 Root checks and 29 genuine offline Core comparisons. Durable replay passes 8 Root tests over 5,038 commands; a reviewed directory-sync retry fix is pending. Mixed-transaction stress, full release, authenticated history and complete block proofs remain open.",
+  "workbookNote": "Release verified at 31ee8f4: 1,597 executions (1,596 top-level plus one successful subprocess), 198 exact numeric-reference checks, formatting and Clippy passed. Main reaches all 36 kinds in the tested domain. A known mixed-history Queue/Core orderBooks discrepancy also affects Consensus hashing; its fix is not included. TLSW4, its strict guard, BIP141 and selected P2WSH verification are staged outside Root. Historical parity, production integration, authenticated input and complete-block proofs remain open.",
   "savedWorkbook": {
-    "sha256": "93723e7de80e1dd0e2d664780b7593078e7780d951161f0c7cb94836bbfcf07f",
-    "bytes": 47848,
+    "sha256": "d52bf6a8c94cf2d1b6906a8a8e54fe296beedb0af445e19eaaa0b7345a624dae",
+    "bytes": 48227,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-28T15:03:58Z",
+    "asOfUtc": "2026-10-28T16:17:14Z",
     "rowHashes": {
-      "modules": 4170741705,
-      "logic": 1792155813
+      "modules": 96109507,
+      "logic": 123378200
     },
-    "verifiedEdits": 19,
+    "verifiedEdits": 23,
     "layoutAndFormulaPreservationVerified": true
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": "Exact sidebar/saved table hashes agree; metadata-only edits; cached formulas, table filters, row and column layout, panes and zero-error checks passed.",
-  "validationRecord": "fixtures/reference_fidelity/source-spot-main-validation.json"
+  "validationRecord": "fixtures/reference_fidelity/source-spot-main-validation.json",
+  "knownReferenceGaps": [
+    "Mixed Main history can leave Core.tables/Core.rows orderBooks stale while Queue has the authoritative rows; Consensus.stateConsensusHash is affected. Correction is staged outside Root and not included in this release."
+  ],
+  "previousFullSuiteBaseline": {
+    "commit": "b02a0454e4da34c4c167b50f93dc579bda9e75ec",
+    "releaseExecutions": 1502,
+    "exactNumericReferenceTests": 151
+  }
 }

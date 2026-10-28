@@ -1,3 +1,7 @@
+Release verification: the existing suite passed at `31ee8f4` with1,597 executions and198 exact numeric-reference checks. A known mixed-history Queue/Core orderBooks inconsistency also affects Consensus hashing; that correction is not included. Broader source parity, authenticated admission and complete block proofs remain open. See [the release record](../fixtures/reference_fidelity/source-amm-main-validation.json).
+
+Earlier focused-stage account (preserved for provenance):
+
 # Current AMM, durability and Litecoin integration
 
 The opt-in literal `AmmLifecycleV11` profile composes all 36 original Main transaction kinds over the existing Core owners. It adds original raw10/Main10, shared AMM receivers and Property aliases, capital lifecycle, quotations, rebalance and the remaining static methods. The default remains `GlobalClearingV2`. Source exceptions, ignored Errors, coercions, side-effect order, retained partial writes and retries remain literal.

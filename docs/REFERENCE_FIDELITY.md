@@ -1,3 +1,7 @@
+Release verification: the existing suite passed at `31ee8f4` with1,597 executions and198 exact numeric-reference checks. A known mixed-history Queue/Core orderBooks inconsistency also affects Consensus hashing; that correction is not included. Broader source parity, authenticated admission and complete block proofs remain open. See [the release record](../fixtures/reference_fidelity/source-amm-main-validation.json).
+
+Earlier focused-stage account (preserved for provenance):
+
 # Reference fidelity and runtime coverage
 
 ## Current focused integration
