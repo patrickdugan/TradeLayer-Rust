@@ -255,6 +255,23 @@ impl SourceContractRuntime {
         call: &DependencyCall,
     ) -> Result<DependencyReturn, SourceRuleError> {
         let before = self.clone();
+        if self.core.main_production_enabled()
+            && self.core.source_main_service_enabled()
+            && self
+                .core
+                .source_main_service_get("startupModules")
+                .map_err(|_| SourceRuleError::InvalidInput)?
+                != V::Undefined
+            && call.target.starts_with("Main.")
+            && !truth(
+                &self
+                    .core
+                    .source_main_startup_get("imported")
+                    .map_err(|_| SourceRuleError::InvalidInput)?,
+            )
+        {
+            return Err(SourceRuleError::UnknownDependency);
+        }
         if self.core.main_activation_profile != "source-registry" {
             return Err(SourceRuleError::InvalidInput);
         }
@@ -310,6 +327,13 @@ impl SourceContractRuntime {
         self.core.collateral_position_origin = None;
         self.core.position_identity_active = false;
         match result {
+            Ok(v)
+                if self.core.main_production_enabled()
+                    && ["Main.setPause", "SourceMain.importStartupModules"]
+                        .contains(&call.target.as_str()) =>
+            {
+                Ok(DependencyReturn::Immediate(v))
+            }
             Ok(v) => Ok(DependencyReturn::Pending(v)),
             Err(Fault::Thrown(e)) => Ok(DependencyReturn::PendingThrow(e)),
             Err(Fault::Local(e)) => {

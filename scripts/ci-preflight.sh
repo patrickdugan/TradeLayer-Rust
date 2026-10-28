@@ -45,6 +45,8 @@ rustfmt --check --edition 2021 \
   src/source_main_callable_impl.rs \
   src/source_main_production_impl.rs \
   src/source_main_service_impl.rs \
+  src/source_main_snapshot_impl.rs \
+  src/source_main_startup_impl.rs \
   src/source_procedural_bitvm_impl.rs \
   src/source_proof_lifecycle_impl.rs \
   src/source_proof_settlement_impl.rs \

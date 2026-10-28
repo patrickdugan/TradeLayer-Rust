@@ -2,8 +2,8 @@
   "schema": "tl-logic-reference-review-v1",
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
   "rustCommit": "70f568ad703bef189c01c989631692fdf75235bb",
-  "rustCommitScope": "Inventory parent is historical. Full Rust release fa00946 covers the integrated V12 finite Main/service profile; snapshot/cold-startup follow-ons remain isolated. Full reference parity is unproven.",
-  "reviewedAtUtc": "2026-10-28T21:24:00Z",
+  "rustCommitScope": "Inventory parent is historical. Full release fa00946 covers the preceding finite V12 Main/service profile. The additive startup/snapshot/control phase has focused checks; full-suite promotion remains separate. Full reference parity is unproven.",
+  "reviewedAtUtc": "2026-10-28T21:48:11Z",
   "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
     {
@@ -166,7 +166,7 @@
     {
       "path": "src/source_contract_runtime.rs",
       "lfNormalized": true,
-      "sha256": "c434e75ed61c0eb0c936cf508b7756f23aa05d1f1740943c620168442c10c17a"
+      "sha256": "afa0ad57b44b74d6dedcd55f378a500b27c40a856de81e61a858f605fc2a2d1c"
     },
     {
       "path": "src/source_contract_values.rs",
@@ -346,7 +346,7 @@
     {
       "path": "src/source_main_callable_impl.rs",
       "lfNormalized": true,
-      "sha256": "e62687e960d42252800f7818aec8e7cf3a547d2b3409f9ca2a163faa609be513"
+      "sha256": "33e736bae203b5561c9251ce72d923c88c650184c8ad8a7951b3533e69dc6b5a"
     },
     {
       "path": "src/source_lower_clearlist_impl.rs",
@@ -487,6 +487,26 @@
       "path": "src/source_durable_transition_witness_impl.rs",
       "lfNormalized": true,
       "sha256": "1ea03756e5b7b96d3be500c8691f9d6c3292d79017909cab88c7e0b739cd55e4"
+    },
+    {
+      "path": "src/source_main_service_impl.rs",
+      "sha256": "3b30c140486dd540afe4029cd853c089574ff762f4b3706c39e3d7353270da49",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_snapshot_impl.rs",
+      "sha256": "16a51b069c16c1150e2097f228378dc10e85be3e0ca89d3d134c13f6fb5addce",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_startup_impl.rs",
+      "sha256": "79416b380b8da38a04a9ec4e68dd08534968c06e536a9147f72296103c45a599",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_control.rs",
+      "sha256": "673bea9188de506975ebaac976a7934530678e53b39e2bded6585f0ed946df09",
+      "lfNormalized": true
     }
   ],
   "catalogExecutionTypes": [
@@ -1670,5 +1690,12 @@
     "authenticationEstablished": false,
     "commit": "0d6a50c0ea0c235eee86552372487296a442d0e5",
     "fullSuitePromotion": true
+  },
+  "startupSnapshotControl": {
+    "status": "Root integrated; focused checks recorded separately from the full-release baseline",
+    "validationRecord": "fixtures/reference_fidelity/main-startup-control-integration.json",
+    "fullSuitePromotion": false,
+    "financialOwner": "existing Core/Ledger; file restore never implies cache reload or financial rollback",
+    "terminalProfile": "opt-in SourceMainControlSessionV1; old V1-V12 replay wire and Invoke unchanged"
   }
 }

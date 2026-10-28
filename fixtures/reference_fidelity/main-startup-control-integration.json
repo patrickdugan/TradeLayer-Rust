@@ -1,0 +1,257 @@
+{
+  "schema": "tl-main-startup-snapshot-control-integration-v1",
+  "verifiedAtUtc": "2026-10-28T21:54:36Z",
+  "parentCommit": "3920fa00407e10b9f70386d163f96ff5976919ca",
+  "scope": "Focused Root integration, not complete release promotion or full reference parity",
+  "defaultPolicyChanged": false,
+  "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "sourceObservations": {
+    "snapshots": 57,
+    "coldStartup": 65,
+    "terminalChildren": 3
+  },
+  "newUniqueIntegrationTests": 14,
+  "rootFocusedExecutions": 165,
+  "rootLibraryPasses": 134,
+  "priorMainRegressionPasses": 17,
+  "rootFocusedIgnoredChildHelpers": 1,
+  "isolatedWitnessIntegrationExecutions": 27,
+  "fullSuitePromotion": false,
+  "priorFullReleaseCommit": "fa0094610c9d87617e40913e938f60654f05a480",
+  "priorFullReleaseExecutions": 1659,
+  "priorLockedReferenceExecutions": 231,
+  "logs": [
+    {
+      "path": "main-startup-control-root-focused.log",
+      "sha256": "3fc8cdc4946956ce579670c05eda9765f7dfeb0eedf6d34916738c851c98c96f",
+      "bytes": 25189,
+      "passed": 165,
+      "resultRecords": 13,
+      "ignored": 1
+    },
+    {
+      "path": "main-startup-control-integration-v2.log",
+      "sha256": "e0f580065c2175ec56a0ab22d0e8f95244d1244343bb9ae55edfb0fd1433b93e",
+      "bytes": 10751,
+      "passed": 27,
+      "resultRecords": 6,
+      "ignored": 0
+    },
+    {
+      "path": "main-startup-control-root-clippy.log",
+      "sha256": "17b02778dc8762be93d60a2d1eb901ef8e9619e0e65c2a6503382b845c85360d",
+      "status": "pass all-targets -D warnings"
+    }
+  ],
+  "staticChecks": {
+    "count": 7,
+    "includedRustFormatterFiles": 102,
+    "logicAndSourcePins": "pass",
+    "rustSupplyChain": "zero third-party production crates",
+    "nativeParserBinary64Cases": 716,
+    "originalShutdownNumericProfiles": [
+      "default",
+      "locked"
+    ]
+  },
+  "compatibility": "V1-V11/defaultV2 unchanged; ordinary old V12 checkpoint remains admitted; isolated old capability-error receipts reject on real replay mismatch; TLMS1 is an explicit separate terminal-control envelope",
+  "remaining": [
+    "full-suite promotion",
+    "pause/resume scheduling",
+    "startup exit1",
+    "rich thrown values",
+    "remaining Persistence IO branches",
+    "compact native Main streaming",
+    "host storage/RPC publication",
+    "authenticated history",
+    "complete-block proofs"
+  ],
+  "reviewedInputs": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "279efd1e1ac322ba30529768e5096d39bef1c80e3e941a337d51267d7a3cb5de",
+      "bytes": 38305,
+      "lfNormalized": true
+    },
+    {
+      "path": "docs/LOGIC_BY_TX_TYPE.json",
+      "sha256": "65cee53c25924668aa1c38309bab4af350f83abc7ece0a4576231c46933708ec",
+      "bytes": 179372,
+      "lfNormalized": true
+    },
+    {
+      "path": "docs/SOURCE_MAIN_CONTROL_V1.md",
+      "sha256": "e08f8d383e45c102a1e6e824abdb1c936ca2d5571f5f0349e38fa2f875ae46de",
+      "bytes": 4409,
+      "lfNormalized": true
+    },
+    {
+      "path": "docs/SOURCE_MAIN_PRODUCTION_METHOD_MAP.json",
+      "sha256": "6352ab5834ac33281971b2042f693b9b781111de244a634a7510b36e0d83ccef",
+      "bytes": 9200,
+      "lfNormalized": true
+    },
+    {
+      "path": "docs/SOURCE_MAIN_STARTUP_SNAPSHOTS_V12.md",
+      "sha256": "faac0ff27655ac95cf39523a3e2a73209cd20752e46772d17e6a3c6baac9843e",
+      "bytes": 2758,
+      "lfNormalized": true
+    },
+    {
+      "path": "fixtures/main_shutdown_control_vectors.jsonl",
+      "sha256": "595910246135211f22ea1d4b5a565d322a1884e487258747baeae8bed50c38a2",
+      "bytes": 2057,
+      "lfNormalized": true
+    },
+    {
+      "path": "fixtures/main_shutdown_vectors.jsonl",
+      "sha256": "231478fa4a8422fe8a9fde6dab8bf730955531ecbbc11b5b6884e18c2fdab5c2",
+      "bytes": 7875,
+      "lfNormalized": true
+    },
+    {
+      "path": "fixtures/main_snapshot_proof10.jsonl",
+      "sha256": "7aa75990ce3a5a7d0e128c9ac1427f241e65d9ac251a44969d76cf70af3d7a75",
+      "bytes": 166124,
+      "lfNormalized": true
+    },
+    {
+      "path": "fixtures/main_snapshot_vectors.jsonl",
+      "sha256": "17919b9bb12c408f6b429a1d998c74c894368e158dfa02f4297159d28b6be2bb",
+      "bytes": 807865,
+      "lfNormalized": true
+    },
+    {
+      "path": "fixtures/main_startup_proof10.jsonl",
+      "sha256": "613b0355b90b445185b3529030f62bec6f6367eb299b13708d915388b69b0669",
+      "bytes": 147361,
+      "lfNormalized": true
+    },
+    {
+      "path": "fixtures/main_startup_vectors.jsonl",
+      "sha256": "b8e644e223090328a5c961b3c3feba8fd0bad2afb8d0d9fd9964dbff7d96e662",
+      "bytes": 804882,
+      "lfNormalized": true
+    },
+    {
+      "path": "fixtures/main_v12_before_snapshot_control.bin",
+      "sha256": "824f2438c0798b1a0ee476f309afdf4e94631fc2351da634a3be408653749c84",
+      "bytes": 5111,
+      "lfNormalized": false
+    },
+    {
+      "path": "fixtures/main_v12_old_snapshot_refusal.bin",
+      "sha256": "d8d9890dea1c522b65ee29fb270646e894d82227ae243bb0fe566c5475f6842b",
+      "bytes": 5590,
+      "lfNormalized": false
+    },
+    {
+      "path": "scripts/ci-preflight.sh",
+      "sha256": "3a87efa379346be7f463166911bcc8ed20214a58650894f070ecc4bbba534965",
+      "bytes": 4542,
+      "lfNormalized": true
+    },
+    {
+      "path": "scripts/main_shutdown_control_vectors.cjs",
+      "sha256": "b61e9acd08850093dc1e726bae8f702756e7d6db7ffadf93bedb3e63734b082c",
+      "bytes": 4019,
+      "lfNormalized": true
+    },
+    {
+      "path": "scripts/main_shutdown_vectors.cjs",
+      "sha256": "ef1674981646425ed6c0ba5673cb76cbe0a92e5c044c87202db7221f5b0cef4d",
+      "bytes": 1240,
+      "lfNormalized": true
+    },
+    {
+      "path": "scripts/main_snapshot_observer.cjs",
+      "sha256": "a749fcbfe9fb79c0486cdd94c88ef67f26e58bdcbbb40510a91b1825eb2cfa64",
+      "bytes": 5237,
+      "lfNormalized": true
+    },
+    {
+      "path": "scripts/main_snapshot_vectors.cjs",
+      "sha256": "59317bd0ad66a90fa37c17d4b5a6afd524df17127e805a3b52bc2f4e472f2c36",
+      "bytes": 64939,
+      "lfNormalized": true
+    },
+    {
+      "path": "scripts/main_startup_observer.cjs",
+      "sha256": "5203ee9fdbba49e8a8e4d72e5ab0bb7bdedacc08712a1620cdc52acd2a5c3d91",
+      "bytes": 5309,
+      "lfNormalized": true
+    },
+    {
+      "path": "scripts/main_startup_vectors.cjs",
+      "sha256": "de09e0455dfdf7833ce9d747f1f1270a8225bb58377f9871f4eed79e4a00f641",
+      "bytes": 67221,
+      "lfNormalized": true
+    },
+    {
+      "path": "src/lib.rs",
+      "sha256": "27b08c91a74544ab1c6af7122092723772922ac23e6ba2a248fbd6cda7ffa1ee",
+      "bytes": 13366,
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_contract_runtime.rs",
+      "sha256": "afa0ad57b44b74d6dedcd55f378a500b27c40a856de81e61a858f605fc2a2d1c",
+      "bytes": 119025,
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_callable_impl.rs",
+      "sha256": "33e736bae203b5561c9251ce72d923c88c650184c8ad8a7951b3533e69dc6b5a",
+      "bytes": 25129,
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_control.rs",
+      "sha256": "673bea9188de506975ebaac976a7934530678e53b39e2bded6585f0ed946df09",
+      "bytes": 13358,
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_service_impl.rs",
+      "sha256": "3b30c140486dd540afe4029cd853c089574ff762f4b3706c39e3d7353270da49",
+      "bytes": 26135,
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_snapshot_impl.rs",
+      "sha256": "16a51b069c16c1150e2097f228378dc10e85be3e0ca89d3d134c13f6fb5addce",
+      "bytes": 23953,
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_startup_impl.rs",
+      "sha256": "79416b380b8da38a04a9ec4e68dd08534968c06e536a9147f72296103c45a599",
+      "bytes": 9624,
+      "lfNormalized": true
+    },
+    {
+      "path": "tests/source_main_control.rs",
+      "sha256": "1ee0525ea80e1a8b5b57c38774a5cb92b3389353543edbc512ad5660e279a1dc",
+      "bytes": 13259,
+      "lfNormalized": true
+    },
+    {
+      "path": "tests/source_main_snapshot_versions.rs",
+      "sha256": "5195c0909e35730ec81356b64c50283b56b918cd7aeb29bc0dc2575833d843de",
+      "bytes": 1436,
+      "lfNormalized": true
+    },
+    {
+      "path": "tests/source_main_snapshots.rs",
+      "sha256": "02571d2326134b0ffc736519d021da09218ffab29095ab85231463452765fc91",
+      "bytes": 29149,
+      "lfNormalized": true
+    },
+    {
+      "path": "tests/source_main_startup.rs",
+      "sha256": "4b523ffccdc35ff437b073d5c782968518033a46564ea595e6650d1e287d83bb",
+      "bytes": 30310,
+      "lfNormalized": true
+    }
+  ]
+}

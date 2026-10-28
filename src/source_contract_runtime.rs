@@ -700,7 +700,13 @@ impl SourceContractRuntime {
         for v in &call.arguments {
             v.validate()?
         }
-        if self.core.main_callable_enabled() && call.target.starts_with("Main.") {
+        if self.core.main_callable_enabled()
+            && (call.target.starts_with("Main.")
+                || (self.core.main_production_enabled()
+                    && self.core.source_main_service_enabled()
+                    && (call.target.starts_with("Persistence.")
+                        || call.target == "SourceMain.importStartupModules")))
+        {
             return self.source_main_invoke(call);
         }
         let before = self.clone();
@@ -1814,6 +1820,9 @@ impl ContractCore {
                 }
             }
         }
+        if self.main_production_enabled() && target == "SourceMain.configureColdStartup" {
+            return self.source_main_startup_configure();
+        }
         if self.main_production_enabled() && target == "SourceMain.configureService" {
             return self.source_main_service_configure(a);
         }
@@ -2260,6 +2269,7 @@ impl SourceBackend for ContractCore {
                     && [
                         "SourceMain.configureProduction",
                         "SourceMain.configureService",
+                        "SourceMain.configureColdStartup",
                     ]
                     .contains(&call.target.as_str()))
         {
@@ -2870,6 +2880,8 @@ include!("source_amm_remaining_impl.rs");
 include!("source_main_production_impl.rs");
 
 include!("source_main_service_impl.rs");
+include!("source_main_snapshot_impl.rs");
+include!("source_main_startup_impl.rs");
 
 #[cfg(test)]
 mod main_production_parse_int_tests {

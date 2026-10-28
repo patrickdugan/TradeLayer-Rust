@@ -31,7 +31,10 @@ impl ContractCore {
         let V::Object(fields) = &config else {
             return Err(SourceRuleError::InvalidInput.into());
         };
-        if fields.iter().any(|(k, _)| k != "fileInputs") {
+        if fields
+            .iter()
+            .any(|(k, _)| !["fileInputs", "directoryInputs"].contains(&k.as_str()))
+        {
             return Err(SourceRuleError::InvalidInput.into());
         }
         let mut files: Vec<V> = vec![];
@@ -60,12 +63,33 @@ impl ContractCore {
                 files.push(V::Array(vec![s(path), bytes]));
             }
         }
+        let mut dirs = vec![s("/tl-data")];
+        match config.get("directoryInputs") {
+            V::Undefined => (),
+            V::Array(inputs) => {
+                for dir in inputs {
+                    let path = text(&dir)?;
+                    if !path.starts_with("/tl-data/")
+                        || path
+                            .split('/')
+                            .skip(1)
+                            .any(|p| p.is_empty() || p == "." || p == "..")
+                    {
+                        return Err(SourceRuleError::InvalidInput.into());
+                    }
+                    if !dirs.contains(&dir) {
+                        dirs.push(dir);
+                    }
+                }
+            }
+            _ => return Err(SourceRuleError::InvalidInput.into()),
+        }
         self.main_production
             .as_mut()
             .ok_or(SourceRuleError::InvalidInput)?
             .service = Some(obj(&[
             ("persistence", V::Null),
-            ("directories", V::Array(vec![s("/tl-data")])),
+            ("directories", V::Array(dirs)),
             ("files", V::Array(files)),
             ("extraOwn", obj(&[])),
             ("lastRpc", V::Undefined),
@@ -114,14 +138,38 @@ impl ContractCore {
         Ok(())
     }
     fn source_main_service_persistence(&mut self) -> R<V> {
+        self.source_main_service_persistence_options(&[])
+    }
+    fn source_main_service_persistence_options(&mut self, a: &[V]) -> R<V> {
         let existing = self.source_main_service_get("persistence")?;
         if existing != V::Null {
             return Ok(existing);
         }
         let mut p = obj(&[
-            ("rawNetwork", V::Null),
-            ("rawTestFlag", V::Null),
-            ("snapshotInterval", n(1000.)),
+            (
+                "rawNetwork",
+                if truth(&arg(a, 0).get("network")) {
+                    arg(a, 0).get("network")
+                } else {
+                    V::Null
+                },
+            ),
+            (
+                "rawTestFlag",
+                if matches!(arg(a, 0).get("test"), V::Bool(_)) {
+                    arg(a, 0).get("test")
+                } else {
+                    V::Null
+                },
+            ),
+            (
+                "snapshotInterval",
+                if matches!(arg(a, 0).get("snapshotInterval"), V::Number(_)) {
+                    arg(a, 0).get("snapshotInterval")
+                } else {
+                    n(1000.)
+                },
+            ),
             ("networkFull", V::Null),
             ("dbDir", V::Null),
             ("snapshotsDir", V::Null),
@@ -132,8 +180,16 @@ impl ContractCore {
         let client = self.source_main_service_client(vec![V::Bool(true)])?;
         set(&mut p, "client", client)?;
         self.source_main_service_set("persistence", p.clone())?;
-        let chain = self.source_main_production_io("Client.getChain", &[])?;
-        let test = self.source_main_production_io("Client.getTest", &[])?;
+        let chain = if truth(&p.get("rawNetwork")) {
+            p.get("rawNetwork")
+        } else {
+            self.source_main_production_io("Client.getChain", &[])?
+        };
+        let test = if p.get("rawTestFlag") == V::Null {
+            self.source_main_production_io("Client.getTest", &[])?
+        } else {
+            p.get("rawTestFlag")
+        };
         let V::String(chain) = chain else {
             if matches!(chain, V::Null | V::Undefined) {
                 return Err(type_error(format!(
@@ -306,43 +362,7 @@ impl ContractCore {
             }
             h -= 1.;
         }
-        let p = self.source_main_service_get("persistence")?;
-        let dir = text(&p.get("snapshotsDir"))?;
-        let prefix = format!("{dir}/");
-        let directories = array(&self.source_main_service_get("directories")?)?;
-        let files = array(&self.source_main_service_get("files")?)?;
-        let mut keys = directories.clone();
-        for file in files {
-            keys.push(arg(&array(&file)?, 0));
-        }
-        let mut names = vec![];
-        for key in keys {
-            let path = text(&key)?;
-            if let Some(tail) = path.strip_prefix(&prefix) {
-                if !tail.is_empty() && !tail.contains('/') && !names.contains(&s(tail)) {
-                    names.push(s(tail));
-                }
-            }
-        }
-        if names.iter().any(|name| {
-            directories.contains(&s(format!("{dir}/{}", text(name).unwrap_or_default())))
-        }) {
-            return Err(SourceRuleError::UnknownDependency.into());
-        }
-        self.emit(obj(&[
-            ("kind", s("filesystem")),
-            ("method", s("readdir")),
-            (
-                "args",
-                V::Array(vec![s(dir), obj(&[("withFileTypes", V::Bool(true))])]),
-            ),
-            ("returned", V::Array(names)),
-        ]));
-        Ok(obj(&[
-            ("restoredFrom", n(0.)),
-            ("commonAncestor", n(ancestor)),
-            ("lastLocal", last.get("height")),
-        ]))
+        self.source_main_snapshot_reorg_finish(ancestor, last)
     }
 }
 impl SourceContractRuntime {
@@ -412,9 +432,7 @@ impl SourceContractRuntime {
             )]),
             true,
         )?;
-        if number(&height)? % 1000. == 0. {
-            return Err(SourceRuleError::UnknownDependency.into());
-        }
+        self.core.source_main_snapshot_checkpoint(height.clone())?;
         let txs = array(
             &self
                 .core
@@ -458,7 +476,15 @@ impl SourceContractRuntime {
             .ok_or(SourceRuleError::InvalidInput)?
             .client
             .clone();
-        if !truth(&client.get("chain")) {
+        if !truth(&client.get("chain"))
+            && !truth(
+                &self
+                    .core
+                    .source_main_service_get("startupModules")?
+                    .get("database")
+                    .get("initialized"),
+            )
+        {
             return Err(SourceRuleError::UnknownDependency.into());
         }
         self.core
@@ -614,10 +640,25 @@ impl SourceContractRuntime {
             "Main.enterRecoveryMode" => self.source_main_service_recovery(),
             "Main.processIncomingBlocks" => self.source_main_service_live(a),
             "Main.syncIfNecessary" => self.source_main_service_sync(a),
-            "Main.handleReorg" => Err(type_error(
-                "Cannot read properties of undefined (reading 'handleReorg')",
-            )),
-            _ => Err(SourceRuleError::UnknownDependency.into()),
+            "Main.handleReorg" => {
+                let persistence = self
+                    .core
+                    .source_main_service_get("extraOwn")?
+                    .get("blockchainPersistence");
+                if matches!(persistence, V::Undefined | V::Null) {
+                    return Err(type_error(format!(
+                        "Cannot read properties of {} (reading 'handleReorg')",
+                        text(&persistence)?
+                    )));
+                }
+                // The original owned Persistence receiver has no handleReorg
+                // method. Keep its real alias and the source native error;
+                // do not repair it into detectAndHandleReorg or supply a result.
+                Err(type_error(
+                    "this.blockchainPersistence.handleReorg is not a function",
+                ))
+            }
+            _ => self.source_main_snapshot_dispatch(target, a),
         }
     }
 }

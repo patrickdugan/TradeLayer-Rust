@@ -1,5 +1,7 @@
 # Original Main orchestration profile V12
 
+The additive startup/snapshot/control phase passes 165 focused Root executions and all-target Clippy. It is separate from the preceding full release below. Evidence: `fixtures/reference_fidelity/main-startup-control-integration.json`; scope: `docs/SOURCE_MAIN_STARTUP_SNAPSHOTS_V12.md`. Full-suite promotion and remaining IO/scheduler domains are still open.
+
 Verified full Rust release `fa00946`: **1,659 executions and 231 exact numeric-reference checks**, including committed finite V12 Main/service paths. All 1,293 frozen inputs match. Snapshot/cold-startup follow-ons are isolated and excluded. Full source parity, authenticated inputs and complete-block proofs remain open. Evidence: `fixtures/reference_fidelity/main-v12-release-validation.json`.
 
 `MainOrchestrationV12` composes original finite indexing/catchup phases and selected Main/Persistence service paths over the existing owners. One literal `TxIndexSourceOwner` holds class/client metadata; its adapter reads and writes the same Core collections used by Main, Consensus, Tally, Queue and registries. It introduces no second balance or financial snapshot authority. The default remains `GlobalClearingV2`.

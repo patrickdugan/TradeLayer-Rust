@@ -4,20 +4,20 @@
     {
       "method": "constructor",
       "async": false,
-      "status": "constructor input mapping only",
-      "evidence": "none claimed here"
+      "status": "V12 finite cold module/constructor paths; broader startup domains remain open",
+      "evidence": "tests/source_main_startup.rs; 65 full original-module observations"
     },
     {
       "method": "static getInstance",
       "async": true,
-      "status": "PENDING production orchestration",
-      "evidence": "none claimed here"
+      "status": "V12 finite warm/cold singleton paths use existing owners",
+      "evidence": "tests/source_main_startup.rs; tests/source_main_snapshots.rs"
     },
     {
       "method": "delay",
       "async": true,
-      "status": "PENDING production orchestration",
-      "evidence": "none claimed here"
+      "status": "V12 finite recorded timer return; suspended scheduler remains open",
+      "evidence": "tests/source_main_snapshots.rs"
     },
     {
       "method": "initialize",
@@ -82,8 +82,8 @@
     {
       "method": "setPause",
       "async": false,
-      "status": "PENDING production orchestration",
-      "evidence": "none claimed here"
+      "status": "V12 immediate lexical pause toggle; concurrent pause/resume remains open",
+      "evidence": "tests/source_main_snapshots.rs"
     },
     {
       "method": "checkBlockLag",
@@ -118,8 +118,8 @@
     {
       "method": "shutdown",
       "async": true,
-      "status": "PENDING production orchestration",
-      "evidence": "none claimed here"
+      "status": "Explicit SourceMainControlSessionV1 terminal exit0; legacy Invoke unchanged",
+      "evidence": "tests/source_main_control.rs; docs/SOURCE_MAIN_CONTROL_V1.md"
     },
     {
       "method": "fetchWithRetry",
@@ -148,8 +148,8 @@
     {
       "method": "handleReorg",
       "async": true,
-      "status": "V12 original unset-field native failure covered; successful rollback pending",
-      "evidence": "tests/source_main_service.rs; no financial rollback success supplied"
+      "status": "V12 exact unset-receiver and assigned-Persistence missing-method errors; no repaired rollback",
+      "evidence": "tests/source_main_service.rs; tests/source_main_startup.rs"
     },
     {
       "method": "saveMaxProcessedHeight",
@@ -178,14 +178,14 @@
     {
       "method": "static getGenesisBlock",
       "async": true,
-      "status": "PENDING production orchestration",
-      "evidence": "none claimed here"
+      "status": "V12 finite warm/cold Main singleton genesis read",
+      "evidence": "tests/source_main_snapshots.rs; tests/source_main_startup.rs"
     },
     {
       "method": "static getLastBlock",
       "async": true,
-      "status": "PENDING production orchestration",
-      "evidence": "none claimed here"
+      "status": "V12 original missing TxUtils method TypeError",
+      "evidence": "tests/source_main_snapshots.rs"
     }
   ],
   "txIndex": {
@@ -197,8 +197,8 @@
   "persistence": {
     "sourceSHA256": "628c5b3cfd919fd518aedc2b757cdc256f7ccc36c447090f30aebd8a677ce2e1",
     "existing": "typed PersistentJointChain and SourceDurableReplay compact journal; no claim of literal filesystem snapshot parity",
-    "next": "original Persistence singleton/network/fs/reorg lifecycle and Main.blockHandlerBegin composition",
-    "integrationNote": "Selected finite Main/Persistence composition is tested; full snapshots/restoration/module startup remain pending."
+    "next": "remaining safeCopy/safeDelete retry/mtime/direct-return paths, host durability and service publication",
+    "integrationNote": "V12 scheduled snapshot/restore and cold module composition tested against recorded POSIX file artifacts. Restore does not reload open collections/caches."
   },
   "reOrg": {
     "sourceSHA256": "3e4cabb0dc560fd8c601b72e05f0e698ce02adc646eaef241189fd192d906a82",
@@ -206,5 +206,6 @@
     "next": "Main/Persistence rollback, snapshot restore and catchup publication composition"
   },
   "validationRecord": "fixtures/reference_fidelity/main-v12-integration.json",
-  "fullReferenceParityEstablished": false
+  "fullReferenceParityEstablished": false,
+  "startupSnapshotValidationRecord": "fixtures/reference_fidelity/main-startup-control-integration.json"
 }

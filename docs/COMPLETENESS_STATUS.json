@@ -242,33 +242,19 @@
       }
     },
     "isolatedSnapshotStartup": {
-      "status": "isolated-corrected-tests-and-prior-main-regressions-pass",
-      "RootIntegrated": false,
+      "status": "Root-integrated-focused-tests-pass",
+      "RootIntegrated": true,
       "fullSuitePromotion": false,
-      "focusedTests": 6,
-      "priorMainRegressionTests": 17,
+      "newUniqueTests": 14,
+      "rootFocusedPasses": 165,
+      "libraryPasses": 134,
+      "priorMainRegressionPasses": 17,
       "testedSnapshotFrames": 57,
       "testedColdStartupFrames": 65,
+      "validationRecord": "fixtures/reference_fidelity/main-startup-control-integration.json",
       "remainingChecks": [
-        "formatting",
-        "all-target Clippy",
-        "remaining compatibility review",
-        "Root integration",
-        "full-suite promotion"
-      ],
-      "logs": [
-        {
-          "path": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\main-v12-cold-native-corrections.log",
-          "sha256": "eaf04b6e94e59fc7e211b1c436dc08a559141ac5d12f0312362267ef54bbaf6b",
-          "passed": 6,
-          "targets": 3
-        },
-        {
-          "path": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\main-v12-cold-prior-regressions.log",
-          "sha256": "9fcc0a021f2b442097dfe59e34749dc74c65512e208e9892290c47530e5833ee",
-          "passed": 17,
-          "targets": 8
-        }
+        "full-suite promotion",
+        "remaining IO/terminal/scheduler domains"
       ]
     },
     "compactStreamingFollowOn": {
@@ -284,14 +270,14 @@
       "performanceScope": "Retained disk reduction is not a throughput improvement; measured compaction adds write IO."
     },
     "terminalControlFollowOn": {
-      "status": "worker-reported-standalone-tests-pass-unintegrated",
-      "RootIntegrated": false,
+      "status": "Root-integrated-eight-control-tests-pass",
+      "RootIntegrated": true,
       "fullSuitePromotion": false,
-      "remainingChecks": [
-        "frozen handoff",
-        "independent review",
-        "Root compilation and integration",
-        "full-suite promotion"
+      "validationRecord": "fixtures/reference_fidelity/main-startup-control-integration.json",
+      "remaining": [
+        "pause/resume",
+        "startup exit1",
+        "host service lifecycle"
       ]
     }
   },
