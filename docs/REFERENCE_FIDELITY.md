@@ -1,6 +1,12 @@
-Current release ef6dbe9: 1,641 executions (1,640 top-level plus one successful subprocess), 218 exact numeric checks, formatting and Clippy pass. All 1,247 frozen inputs were rehashed. The mixed ownership correction and selected TLSW4/5 and Bitcoin profiles are included. V12 remains staged and uncompiled. Broader historical parity, production integration, authenticated inputs and complete-block proofs remain open. See [release evidence](../fixtures/reference_fidelity/archive-witness-release-validation.json).
+# Reference fidelity and remaining integration
 
-Verified full Rust release `fa00946`: **1,659 executions and 231 exact numeric-reference checks**, including committed finite V12 Main/service paths. All 1,293 frozen inputs match. Snapshot/cold-startup follow-ons are isolated and excluded. Full source parity, authenticated inputs and complete-block proofs remain open. Evidence: `fixtures/reference_fidelity/main-v12-release-validation.json`.
+Current full release `9ff4aab`: **1,678 Rust executions and 238 locked numeric-reference checks**, with all 1,337 frozen inputs verified. Main startup/snapshot/control and IO/sort are included. Native storage/13, rich14, suspended scheduling, authenticated history and complete-block proofs remain open. Evidence: `fixtures/reference_fidelity/main-io-sort-release-validation.json`.
+
+The following earlier records are retained as historical accounts, not current completion claims.
+
+Historical release ef6dbe9: 1,641 executions (1,640 top-level plus one successful subprocess), 218 exact numeric checks, formatting and Clippy pass. All 1,247 frozen inputs were rehashed. The mixed ownership correction and selected TLSW4/5 and Bitcoin profiles are included. V12 remains staged and uncompiled. Broader historical parity, production integration, authenticated inputs and complete-block proofs remain open. See [release evidence](../fixtures/reference_fidelity/archive-witness-release-validation.json).
+
+Historical full Rust release `fa00946`: **1,659 executions and 231 exact numeric-reference checks**, including committed finite V12 Main/service paths. All 1,293 frozen inputs match. Snapshot/cold-startup follow-ons are isolated and excluded. Full source parity, authenticated inputs and complete-block proofs remain open. Evidence: `fixtures/reference_fidelity/main-v12-release-validation.json`.
 
 Earlier integration accounts retained for provenance:
 

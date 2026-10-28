@@ -1,0 +1,88 @@
+{
+  "schema": "tl-full-release-verification-v1",
+  "compiledCommit": "9ff4aabcd7805562ec49550db91202ff999a13b4",
+  "productionCodeCommits": [
+    "2484c73a28fe0dbddb44b496363244a598fc0670",
+    "9ff4aabcd7805562ec49550db91202ff999a13b4"
+  ],
+  "sourceArtifact": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\source-settlement-target\\release\\libtradelayer_core.rlib",
+  "sha256": "00e74250dd16122686fad2bffe5306deba95a4d7ffc85cd66e619635b059518f",
+  "bytes": 63141828,
+  "verifiedAtUtc": "2026-10-28T22:55:00.471753+00:00",
+  "releaseExecutions": 1678,
+  "topLevelTests": 1677,
+  "successfulSubprocessExecutions": 1,
+  "releaseTargets": 269,
+  "exactNumericReferenceExecutions": 238,
+  "exactNumericReferenceTargets": 86,
+  "inputFiles": 1337,
+  "inputManifest": "main-io-sort-release-inputs.json",
+  "inputManifestSHA256": "5a4297f9750f02710f708cbaa4a2ab7cbbebd61a06ef875c3494bc6c12f35d57",
+  "frozenExecutionManifestSHA256": "6b66a75f8e55bb3579ebd9c1c2823ce5798f9df602e916de71ceb907be673d12",
+  "inputManifestEncoding": "Canonical LF JSON; per-file hashes retain exact tested Windows worktree bytes. Frozen execution digest preserves original manifest framing.",
+  "allExistingReleaseTestsPassed": true,
+  "allTargetClippyPassed": true,
+  "formattingPassed": true,
+  "includedFormatterFiles": 104,
+  "defaultPolicy": "GlobalClearingV2",
+  "literalCandidatePolicy": "MainOrchestrationV12",
+  "terminalProfile": "SourceMainControlSessionV1 / TLMS1",
+  "logs": {
+    "main-io-sort-release-full.log": {
+      "sha256": "885c52f3f4f5514424efc81a4cacb0e0e3fbb68c0367aab83410edbeeb5da112",
+      "bytes": 215740,
+      "executions": 1678,
+      "topLevel": 1677,
+      "extraSuccessfulSubprocessExecutions": 1,
+      "targets": 269,
+      "resultRecords": 270,
+      "multiResultTargets": [
+        {
+          "name": "tests\\storage.rs (C:/Users/patri/Documents/Codex/2026-10-26/go/work/source-settlement-target\\release\\deps\\storage-d2af554335b1c1f2.exe)",
+          "results": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              8,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    "main-io-sort-locked-reference.log": {
+      "sha256": "6f16a4872446f2fffe7ff7aba3bf42e7fb48eb73ef154866565ceaa3d4b0102e",
+      "bytes": 47674,
+      "executions": 238,
+      "topLevel": 238,
+      "extraSuccessfulSubprocessExecutions": 0,
+      "targets": 86,
+      "resultRecords": 86,
+      "multiResultTargets": []
+    },
+    "main-io-sort-release-doctest.log": {
+      "sha256": "90772499dcc4d8fda5474b845abc465fcf0663e3c8aaf2c119721e3fb6fc47d8",
+      "bytes": 211,
+      "executions": 0,
+      "topLevel": 0,
+      "extraSuccessfulSubprocessExecutions": 0,
+      "targets": 1,
+      "resultRecords": 1,
+      "multiResultTargets": []
+    }
+  },
+  "fullReferenceParityEstablished": false,
+  "authenticationEstablished": false,
+  "completeBlockProofEstablished": false,
+  "remainingGates": [
+    "Native compact Main storage/stream/replay/startup integration; isolated20 Core checks are excluded from this release",
+    "Pause/resume and startup exit1 lifecycle",
+    "Rich thrown-value transport/heap and broader source domains",
+    "Host service publication and physical durability",
+    "Independent authenticated chain/UTXO/actor history and complete-block proofs"
+  ]
+}

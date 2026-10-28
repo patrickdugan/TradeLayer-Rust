@@ -1,19 +1,21 @@
 # Original Main orchestration profile V12
 
-The additive startup/snapshot/control phase passes 165 focused Root executions and all-target Clippy. It is separate from the preceding full release below. Evidence: `fixtures/reference_fidelity/main-startup-control-integration.json`; scope: `docs/SOURCE_MAIN_STARTUP_SNAPSHOTS_V12.md`. Full-suite promotion and remaining IO/scheduler domains are still open.
-
-Verified full Rust release `fa00946`: **1,659 executions and 231 exact numeric-reference checks**, including committed finite V12 Main/service paths. All 1,293 frozen inputs match. Snapshot/cold-startup follow-ons are isolated and excluded. Full source parity, authenticated inputs and complete-block proofs remain open. Evidence: `fixtures/reference_fidelity/main-v12-release-validation.json`.
+Full release `9ff4aab` passes **1,678 Rust executions and 238 locked numeric-reference checks**. All 1,337 frozen inputs match. Startup/snapshot/control and IO/sort phases are covered; native storage/13 and rich14 are excluded. Full source parity, authenticated history and complete-block proofs remain open. Evidence: `fixtures/reference_fidelity/main-io-sort-release-validation.json`.
 
 `MainOrchestrationV12` composes original finite indexing/catchup phases and selected Main/Persistence service paths over the existing owners. One literal `TxIndexSourceOwner` holds class/client metadata; its adapter reads and writes the same Core collections used by Main, Consensus, Tally, Queue and registries. It introduces no second balance or financial snapshot authority. The default remains `GlobalClearingV2`.
 
 These independent original-JavaScript corpora are separate evidence sets, not a combined historical block run:
 
-| Corpus | Frames | Actual Main calls | Scope |
+| Corpus | Frames | Actual calls | Scope |
 | --- | ---: | ---: | --- |
 | Main production phases | 68 | 39 | indexing, ordered catchup, block end, errors and partial writes |
 | Finite service paths | 72 | 41 | Persistence/network initialization, empty block phases, retries, recovery, finite live ingress and native reorg failures |
 | RPC Error labels | 28 | 14 | native defaults, message coercion, constructor errors and ordered effects |
-| Complete Main/init/db startup | 4 | 2 | original source evidence only; full Rust module/IIFE composition remains pending |
+| Complete Main/init/db startup | 65 | 55 | five original module imports and shared-owner cold startup |
+| Scheduled snapshots | 57 | 33 | artifact copying/pruning/restoration and native partial failures |
+| Persistence file IO | 66 | 41 | direct lifecycle, retries, mtimes and retained source writes |
+| Literal V8 sorting | 32 | 16 | NaN, merge boundaries and native coercion errors |
+| Typed terminal shutdown | 3 | 3 | actual source child exit0 and exact console prefix |
 
 Both archived BigNumber numeric profiles regenerate the corpora. Strict Rust comparisons execute real commands and compare outcomes, every ordered effect, complete tables and row order, receiver/client identities, caches, pending jobs and checkpoint reconstruction/re-encoding. Failure descriptors map original storage operation names to existing Core `*Async` names, so failure scenes execute instead of being rejected as malformed test setup. The first ten Main calls remain separately reproducible. The expanded service corpus retains all earlier 51 frames and its first-ten fixture byte-for-byte.
 
@@ -27,6 +29,6 @@ V12 has distinct TLCR12 magic and bootstrap domain. V1-V11 outcomes, checkpoint 
 
 TLSW4 and TLSW5 still admit only their original V9-V11 policies. Tests reject V12 in both command/Main scopes. Existing `SourceDurableReplay` persists V12 commands over the same owners, but this does not extend exported witness coverage or authenticate an archive. Hashes/publication expectations are consistency pins.
 
-Full module/IIFE startup and class-reference composition, scheduled snapshots, nonempty restoration/DB reload, durable production service publication, arbitrary nonempty raw ingress and broader historical/value/event-loop domains remain open. Native `handleReorg` failure and an empty-snapshot restoration signal do not establish successful financial rollback. An endless daemon loop has no completed outcome to replace with fabricated success. Rich non-string JavaScript exception fields require a compatible transport beyond the current typed exception API. The method map distinguishes these gaps from paths with executed evidence.
+Native Main storage/replay binding, pause/resume and startup exit1 scheduling, richer thrown values, host service durability, broader historical/value domains, authenticated admission and complete-block proofs remain open. Source restore does not reload live DB handles/Tally caches; it is not a repaired financial rollback. An endless pending daemon has no successful completed outcome to fabricate.
 
 Root integration evidence is recorded separately in `fixtures/reference_fidelity/main-v12-integration.json`. Focused checks do not replace a complete release validation or establish full reference parity.

@@ -208,5 +208,12 @@
   },
   "validationRecord": "fixtures/reference_fidelity/main-v12-integration.json",
   "fullReferenceParityEstablished": false,
-  "startupSnapshotValidationRecord": "fixtures/reference_fidelity/main-startup-control-integration.json"
+  "startupSnapshotValidationRecord": "fixtures/reference_fidelity/main-startup-control-integration.json",
+  "currentFullRelease": {
+    "commit": "9ff4aabcd7805562ec49550db91202ff999a13b4",
+    "record": "fixtures/reference_fidelity/main-io-sort-release-validation.json",
+    "tests": 1678,
+    "lockedReferenceTests": 238,
+    "native13AndRich14Included": false
+  }
 }

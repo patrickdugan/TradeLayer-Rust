@@ -2,8 +2,8 @@
   "schema": "tl-logic-reference-review-v1",
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
   "rustCommit": "70f568ad703bef189c01c989631692fdf75235bb",
-  "rustCommitScope": "Inventory parent is historical. Full release fa00946 covers the preceding finite V12 Main/service profile. The additive startup/snapshot/control phase has focused checks; full-suite promotion remains separate. Full reference parity is unproven.",
-  "reviewedAtUtc": "2026-10-28T22:02:44Z",
+  "rustCommitScope": "Inventory parent is historical. Full release9ff4aab covers integrated V12 Main startup/snapshot/service/IO/sort and typed terminal controls. Native13/rich14 remain staged; full-reference parity is unproven.",
+  "reviewedAtUtc": "2026-10-28T23:01:35Z",
   "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
     {
@@ -1594,7 +1594,7 @@
       34,
       35
     ],
-    "status": "V12 finite Main/service profile covered by complete release fa00946",
+    "status": "Main V12 startup/snapshot/service/IO/sort covered by complete release9ff4aab",
     "fullSuitePromotion": true,
     "completeBlockProof": false,
     "authenticationEstablished": false,
@@ -1610,10 +1610,10 @@
     "focusedExecutions": 35,
     "commit": "bfd12ddb06c7cf67aeaeed2d16fa531d12a643c6",
     "record": "fixtures/reference_fidelity/main-v12-integration.json",
-    "coveredByReleaseCommit": "fa0094610c9d87617e40913e938f60654f05a480",
-    "releaseExecutions": 1659,
-    "lockedReferenceExecutions": 231,
-    "releaseRecord": "fixtures/reference_fidelity/main-v12-release-validation.json"
+    "coveredByReleaseCommit": "9ff4aabcd7805562ec49550db91202ff999a13b4",
+    "releaseExecutions": 1678,
+    "lockedReferenceExecutions": 238,
+    "releaseRecord": "fixtures/reference_fidelity/main-io-sort-release-validation.json"
   },
   "recentConditionalWitness": {
     "profile": "TLSW3",
@@ -1704,20 +1704,24 @@
   "startupSnapshotControl": {
     "status": "Root integrated; focused checks recorded separately from the full-release baseline",
     "validationRecord": "fixtures/reference_fidelity/main-startup-control-integration.json",
-    "fullSuitePromotion": false,
+    "fullSuitePromotion": true,
     "financialOwner": "existing Core/Ledger; file restore never implies cache reload or financial rollback",
-    "terminalProfile": "opt-in SourceMainControlSessionV1; old V1-V12 replay wire and Invoke unchanged"
+    "terminalProfile": "opt-in SourceMainControlSessionV1; old V1-V12 replay wire and Invoke unchanged",
+    "coveredByReleaseCommit": "9ff4aabcd7805562ec49550db91202ff999a13b4",
+    "releaseRecord": "fixtures/reference_fidelity/main-io-sort-release-validation.json"
   },
   "fileIOComposition": {
     "status": "Root focused execution checks pass; full-suite promotion separate",
     "validationRecord": "fixtures/reference_fidelity/main-file-io-integration.json",
-    "fullSuitePromotion": false,
+    "fullSuitePromotion": true,
     "sourceObservations": 66,
     "sourceCalls": 41,
     "facts": "recorded file failures and stat mtimes; no financial answers or automatic database/cache reload",
     "sortSourceFrames": 32,
     "sortSourceCalls": 16,
     "primitiveV8Cases": 44890,
-    "sortProfile": "literal V8 TimSort including comparator schedule and native Number-hint errors"
+    "sortProfile": "literal V8 TimSort including comparator schedule and native Number-hint errors",
+    "coveredByReleaseCommit": "9ff4aabcd7805562ec49550db91202ff999a13b4",
+    "releaseRecord": "fixtures/reference_fidelity/main-io-sort-release-validation.json"
   }
 }
