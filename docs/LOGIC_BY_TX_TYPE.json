@@ -1,9 +1,9 @@
 {
   "schema": "tl-logic-reference-review-v1",
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
-  "rustCommit": "6ed0bff1969a8d8952d26653765ce7ad02bd5033",
-  "rustCommitScope": "Parent of the local LowerLifecycleV7 changes; exact final gates and input manifest are recorded separately.",
-  "reviewedAtUtc": "2026-10-27T07:01:05Z",
+  "rustCommit": "a40534832b4833fb1f323e76bae903f016bf1937",
+  "rustCommitScope": "Parent of MainCallableV8 validation changes; completed gates and frozen inputs are recorded separately.",
+  "reviewedAtUtc": "2026-10-28T06:27:20Z",
   "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
     {
@@ -50,7 +50,7 @@
     },
     {
       "path": "src/clearlist_source_owner.rs",
-      "sha256": "6a3ff2f06cfcd2912bfd70a6109030dee9bbc09041e0bc023d79a76db1d01499",
+      "sha256": "7422a9491212e31acab3da0e5d807ca3fb54d2fa6b0423e9f280632b5ac69fd6",
       "lfNormalized": true
     },
     {
@@ -141,7 +141,7 @@
     {
       "path": "src/source_contract_accounting_impl.rs",
       "lfNormalized": true,
-      "sha256": "3af0d81757d778cf67a96d31b122443c4bcb196b0dc495bb03e2adbaf402cc50"
+      "sha256": "0ec159bc2614770ccd4a1e38df6aeec6014f47d5c0fa79c9b3fc57e33b93dbc1"
     },
     {
       "path": "src/source_contract_aux_impl.rs",
@@ -161,12 +161,12 @@
     {
       "path": "src/source_contract_replay.rs",
       "lfNormalized": true,
-      "sha256": "e9ce7d9f3628493cbbe7b4b47c8f0531af21e5c78a250a7cc639d445f252eadb"
+      "sha256": "2e2c23065bf800aaa3ac92be98d4a906b88cb3a9d68cd1729ca52aae0fe6e232"
     },
     {
       "path": "src/source_contract_runtime.rs",
       "lfNormalized": true,
-      "sha256": "53b92d343711b72cedc3a38ad6c2c7b167cf92d750536404fa809b77a58e1233"
+      "sha256": "76ccaf3918ff2e2f3e366c5a3663557b5f45f561f730765af5d18b6bdaf4f0cc"
     },
     {
       "path": "src/source_contract_values.rs",
@@ -342,6 +342,26 @@
       "path": "src/source_lower_oracle_lifecycle_impl.rs",
       "lfNormalized": true,
       "sha256": "3a2199d95619e73ec9bbf35afd250b638f43520a7aa14a8df8ded704a60d6dd9"
+    },
+    {
+      "path": "src/source_main_callable_impl.rs",
+      "lfNormalized": true,
+      "sha256": "de1add55523d8e4cb77fe664157b531be70662ea0757e165a8dced3b84660c27"
+    },
+    {
+      "path": "src/source_lower_clearlist_impl.rs",
+      "lfNormalized": true,
+      "sha256": "2c3ff4cfdddd105fe984f5214d3f42fe8980885571d9e72906e187f008ec51ad"
+    },
+    {
+      "path": "src/source_lower_send_commit_impl.rs",
+      "lfNormalized": true,
+      "sha256": "1aa88022f1c920db4a347336444d2844b3b1039cb32a0be351206ed02fc73907"
+    },
+    {
+      "path": "src/source_lower_utxo_trade_impl.rs",
+      "lfNormalized": true,
+      "sha256": "f491ba871cdddcd6a3756f89cb02e9968ff22da092054b14d416fc14ae6650ce"
     }
   ],
   "catalogExecutionTypes": [
@@ -424,10 +444,10 @@
       "sourceRoute": "2 / base36 2 / Logic.sendToken",
       "sourceEffects": "Scalar ordinary sends debit/credit Tally; coupon2/3 sends also move whole-token-rounded vesting markers. Multi-send iterates recipients; sendAll attempts all balances.",
       "sourceDefects": "Source sendAll boolean shadows a function; direct multisend calls an unbound helper, while normal comma-wire forms can collapse to scalar parseInt behavior. Literal2/3 vesting and Number balance-storage loss remain significant. Conserving precision-loss rejection is explicit.",
-      "runtimeScope": "Fresh Types/validity results bind scalar send to actual catalogs and the sole Ledger. Literal source properties2/3 use the matching native entitlement policy and preserve vesting marker behavior. Complete source-composed sendAll/multi failure evidence is retained; unsupported Number precision-loss domains reject explicitly.",
-      "missingLogic": "Conserving Ledger arithmetic differs where JS Number storage loses units. Unrepresented native policies, source sendAll/multi defects, wider source domains, source Tally persistence deltas and authenticated historical admission remain incomplete.",
-      "nextTask": "Add exact owned Tally persistence/delta behavior and remaining send numeric domains without treating repaired conservation as source parity.",
-      "evidence": "JS dca0888b src/types.js decodePayload case2; src/logic.js typeSwitch case2; src/types_economic.rs; src/joint_native_impl.rs; src/ledger_native_impl.rs; tests/types_economic.rs; tests/native_economic.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Actual send/spot/oracle follow-up: docs/SOURCE_SEND_EXECUTION.md (17 composed unchanged-source scenes); docs/ORACLE_SOURCE_OWNER.md (311 actual source actions/all19methods); docs/SOURCE_SPOT_EXECUTION.md; docs/SOURCE_ORACLE_EXECUTION.md; docs/SOURCE_ORACLE_CHECKPOINTS.md; tests/economic_source_oracle_contracts.rs. Runtime checks are recorded separately; no blanket parity claim. Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
+      "runtimeScope": "V8: Original raw2 and direct send/vesting helpers now use the sole Core Tally, Property and ClearList. Source coercions, ignored sufficiency Promise, shadowed/unbound send errors, separate nonspendable instance cache and retained partial writes are preserved.",
+      "missingLogic": "Full Main/startup/daemon composition, wider JavaScript identity/value domains, production compact storage/RPC, authenticated actors/history and V8 witness export remain open.",
+      "nextTask": "Complete source-composed Main and remaining raw handlers; extend conditional transition witnesses and authenticated input admission.",
+      "evidence": "JS dca0888b src/types.js decodePayload case2; src/logic.js typeSwitch case2; src/types_economic.rs; src/joint_native_impl.rs; src/ledger_native_impl.rs; tests/types_economic.rs; tests/native_economic.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Actual send/spot/oracle follow-up: docs/SOURCE_SEND_EXECUTION.md (17 composed unchanged-source scenes); docs/ORACLE_SOURCE_OWNER.md (311 actual source actions/all19methods); docs/SOURCE_SPOT_EXECUTION.md; docs/SOURCE_ORACLE_EXECUTION.md; docs/SOURCE_ORACLE_CHECKPOINTS.md; tests/economic_source_oracle_contracts.rs. Runtime checks are recorded separately; no blanket parity claim. Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established. V8 MainCallable: docs/SOURCE_LOWER_SEND_COMMIT.md;docs/SOURCE_MAIN_CALLABLE.md;tests/source_main_callable_versions.rs",
       "preStateWitness": "Sender/recipient actual available balances, property metadata, native markers and funded target policy if enabled.",
       "postStateWitness": "Conserved available balances plus exact coupled marker movement, deterministic receipt and replay state.",
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
@@ -453,10 +473,10 @@
       "sourceRoute": "3 / base36 3 / Logic.tradeTokenForUTXO",
       "sourceEffects": "Reads actual channel column, debits channel custody, credits delivery or another channel, charges fees, saves volume/trade history and queues eligible rewards.",
       "sourceDefects": "const tokensToDeliver is reassigned when short; fee is based on requested amount and delivery then debited again; source parsing/validator have missing-output/reference defects. Runtime differences: Explicit authentication-required rejection prevents partial/unfunded source delivery.",
-      "runtimeScope": "Types/validity diagnostics and channel metadata primitives exist. Joint UtxoTradeType3 explicitly rejects authentication-required; no source mapper. V6 separately composes actual direct Logic.tradeTokenForUTXO and original reward queue/volume-cache/settlement methods with genuine eligibility and existing owners; this does not expand the older raw3 Types admission.",
-      "missingLogic": "Actual UTXO payment/output ownership evidence, coherent fee/custody integration and source channel execution are absent; txUtils is deprioritized.",
-      "nextTask": "Capture complete channel/payment/output effects; compare original failure and fee behavior before defining any explicit custody repair.",
-      "evidence": "JS dca0888b src/types.js decodePayload case3; src/logic.js typeSwitch case3; src/joint.rs; src/validity_source.rs; src/channels_source.rs; tests/channel_escrow.rs; tests/types_source.rs;tests/source_liquidity_rewards.rs;docs/SOURCE_LIQUIDITY_REWARDS.md",
+      "runtimeScope": "V8: Original raw3 Types/Validity and its actual 13-field Logic dispatch now execute on the existing Core. Missing valid flags and omitted validator outputs retain source failures. No financial success or RPC/ownership verdict is invented.",
+      "missingLogic": "Full Main/startup/daemon composition, wider JavaScript identity/value domains, production compact storage/RPC, authenticated actors/history and V8 witness export remain open.",
+      "nextTask": "Complete source-composed Main and remaining raw handlers; extend conditional transition witnesses and authenticated input admission.",
+      "evidence": "JS dca0888b src/types.js decodePayload case3; src/logic.js typeSwitch case3; src/joint.rs; src/validity_source.rs; src/channels_source.rs; tests/channel_escrow.rs; tests/types_source.rs;tests/source_liquidity_rewards.rs;docs/SOURCE_LIQUIDITY_REWARDS.md V8 MainCallable: docs/SOURCE_LOWER_UTXO_TRADE.md;docs/SOURCE_MAIN_CALLABLE.md;tests/source_main_callable_versions.rs",
       "preStateWitness": "Channel participants/columns and escrow, offered asset, payment references, fee caches and reward/volume state.",
       "postStateWitness": "Exact token delivery/channel transfers, real fee custody, history/volume and reward queue without double debit.",
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
@@ -482,10 +502,10 @@
       "sourceRoute": "4 / base36 4 / Logic.commitToken",
       "sourceEffects": "Sequentially debits sender available, credits channel tally, then records participant/column/pay/list metadata in Channels.",
       "sourceDefects": "Generic Types encoder calls absent encodeCommitToken export. Source can leave earlier tally effects if channel recording fails. Runtime differences: Standalone typed channel custody is atomic; economic Joint channel fence remains. Signed revisions are a separate independently pinned policy.",
-      "runtimeScope": "Standalone actual Protocol/Ledger channel commit and strict signed-channel opt-in exist; Joint/Economic source channel path is fenced, and mapper has no type4.",
-      "missingLogic": "Source-v7 channel creation/column ownership/pay/clearlist integration into the economic owner is absent.",
-      "nextTask": "Bind source commit metadata and custody to the actual Joint owner; compare source partial-failure effects explicitly.",
-      "evidence": "JS dca0888b src/types.js decodePayload case4; src/logic.js typeSwitch case4; src/ledger_channels_impl.rs; src/execution.rs; src/channel_revision.rs; tests/channel_escrow.rs; tests/signed_channel_owner.rs Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
+      "runtimeScope": "V8: Original raw4 and direct commitToken now share the sole Core Tally and Channels. Explicit raw-document inputs invoke archived TxUtils helpers; default unbound RPC is a local refusal. Original financial/channel write prefixes survive later source exceptions.",
+      "missingLogic": "Full Main/startup/daemon composition, wider JavaScript identity/value domains, production compact storage/RPC, authenticated actors/history and V8 witness export remain open.",
+      "nextTask": "Complete source-composed Main and remaining raw handlers; extend conditional transition witnesses and authenticated input admission.",
+      "evidence": "JS dca0888b src/types.js decodePayload case4; src/logic.js typeSwitch case4; src/ledger_channels_impl.rs; src/execution.rs; src/channel_revision.rs; tests/channel_escrow.rs; tests/signed_channel_owner.rs Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established. V8 MainCallable: docs/SOURCE_LOWER_SEND_COMMIT.md;docs/SOURCE_MAIN_CALLABLE.md;tests/source_main_callable_versions.rs",
       "preStateWitness": "Actual available funds, destination channel columns/participants, pay/list metadata and independently pinned channel policy.",
       "postStateWitness": "Conserved available-to-channel custody and participant ownership, with no stranded partial commit.",
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
@@ -569,10 +589,10 @@
       "sourceRoute": "7 / base36 7 / Logic.createClearList",
       "sourceEffects": "Calls ClearList.createClearlist with admin/name/url/description/backup, then returns a new-ID message.",
       "sourceDefects": "Source drops URL, leaves created list out of the singleton cache, and uses its own ID/database lookup behavior; these are preserved by the actual clearlist owner. Outer candidate rollback/prior activation remain deliberate differences.",
-      "runtimeScope": "Actual source createClearlist writes owned collection state, source ID/metadata/cache behavior and source URL omission. Original metadata txid is replay-bound without creating substitute Registry rows.",
-      "missingLogic": "Full composed JavaScript failure scheduling, unsupported value domains and authenticated actors remain unverified; external six-file patch is not imported.",
-      "nextTask": "Extend composed Logic failure sequences while preserving actual source storage/cache behavior.",
-      "evidence": "JS dca0888b src/types.js decodePayload case7; src/logic.js typeSwitch case7; src/types_economic.rs; src/registry.rs; src/legacy_clearlist_audit.rs; tests/registry_transitions.rs Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
+      "runtimeScope": "V8: Original raw7 and all25 static ClearList methods now use existing Core collections and four singleton caches. Source creation/ID/URL omissions, cache behavior and partial failures remain literal.",
+      "missingLogic": "Full Main/startup/daemon composition, wider JavaScript identity/value domains, production compact storage/RPC, authenticated actors/history and V8 witness export remain open.",
+      "nextTask": "Complete source-composed Main and remaining raw handlers; extend conditional transition witnesses and authenticated input admission.",
+      "evidence": "JS dca0888b src/types.js decodePayload case7; src/logic.js typeSwitch case7; src/types_economic.rs; src/registry.rs; src/legacy_clearlist_audit.rs; tests/registry_transitions.rs Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established. V8 MainCallable: docs/SOURCE_LOWER_CLEARLIST.md;docs/SOURCE_MAIN_CALLABLE.md;tests/source_main_callable_versions.rs",
       "preStateWitness": "Clearlist allocation frontier, administrator/backup and current exact list metadata.",
       "postStateWitness": "New accepted list definition and allocation/replay state, with no invented membership.",
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
@@ -598,10 +618,10 @@
       "sourceRoute": "8 / base36 8 / Logic.updateAdmin",
       "sourceEffects": "Branches whitelist, token or oracle to update admin/backup metadata.",
       "sourceDefects": "Source whitelist validation reads the attestations collection through getList and expects fields unlike ordinary createClearlist output. Logic token target refers to undefined PropertyList. These source failures remain visible.",
-      "runtimeScope": "V7 executes original raw8 decoding/validation and Logic.updateAdmin; the Oracle branch uses the same Oracle cache/DB. The token branch retains the actual unbound PropertyList ReferenceError. ClearList administration remains an explicit unmounted dependency in this literal Core. The separate conserving mapper has its own rules.",
-      "missingLogic": "Broader admitted JavaScript/identity and uncaught engine-specific JSON domains; raw address RPC fallback, ClearList composition where reached, complete Main phase/journal integration, production storage, authenticated actors/history and exported V7 disputed-transition slices remain open.",
-      "nextTask": "Compose original Main transaction and phase ordering over these same owners; then add independently pinned V7 conditional command-slice export. Keep original source failures distinct from separately specified repairs.",
-      "evidence": "JS dca0888b src/types.js decodePayload case8; src/logic.js typeSwitch case8; src/types_economic.rs; src/registry.rs; tests/protocol_execution.rs; tests/registry_transitions.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Actual send/spot/oracle follow-up: docs/SOURCE_SEND_EXECUTION.md (17 composed unchanged-source scenes); docs/ORACLE_SOURCE_OWNER.md (311 actual source actions/all19methods); docs/SOURCE_SPOT_EXECUTION.md; docs/SOURCE_ORACLE_EXECUTION.md; docs/SOURCE_ORACLE_CHECKPOINTS.md; tests/economic_source_oracle_contracts.rs. Runtime checks are recorded separately; no blanket parity claim. Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established. V7: src/source_lower_property_lifecycle_impl.rs;src/source_lower_oracle_lifecycle_impl.rs;tests/source_lower_property_lifecycle.rs;tests/source_lower_oracle_lifecycle.rs;tests/source_lower_lifecycle_versions.rs;docs/SOURCE_LOWER_PROPERTY_LIFECYCLE.md;docs/SOURCE_LOWER_ORACLE_LIFECYCLE.md. Genuine unchanged-source corpora have137 Property and212 Oracle observations; two explicit local-domain refusals are counted separately. The independent populated27-command V6 release fixture predates V7 edits.",
+      "runtimeScope": "V8: The original ClearList admin branch now shares the Core with raw7/9. Typed shadow rows, cache changes before DB failure and attestation-collection validation remain literal. Oracle administration is inherited; the token branch retains the unbound PropertyList source exception.",
+      "missingLogic": "Full Main/startup/daemon composition, wider JavaScript identity/value domains, production compact storage/RPC, authenticated actors/history and V8 witness export remain open.",
+      "nextTask": "Complete source-composed Main and remaining raw handlers; extend conditional transition witnesses and authenticated input admission.",
+      "evidence": "JS dca0888b src/types.js decodePayload case8; src/logic.js typeSwitch case8; src/types_economic.rs; src/registry.rs; tests/protocol_execution.rs; tests/registry_transitions.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Actual send/spot/oracle follow-up: docs/SOURCE_SEND_EXECUTION.md (17 composed unchanged-source scenes); docs/ORACLE_SOURCE_OWNER.md (311 actual source actions/all19methods); docs/SOURCE_SPOT_EXECUTION.md; docs/SOURCE_ORACLE_EXECUTION.md; docs/SOURCE_ORACLE_CHECKPOINTS.md; tests/economic_source_oracle_contracts.rs. Runtime checks are recorded separately; no blanket parity claim. Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established. V7: src/source_lower_property_lifecycle_impl.rs;src/source_lower_oracle_lifecycle_impl.rs;tests/source_lower_property_lifecycle.rs;tests/source_lower_oracle_lifecycle.rs;tests/source_lower_lifecycle_versions.rs;docs/SOURCE_LOWER_PROPERTY_LIFECYCLE.md;docs/SOURCE_LOWER_ORACLE_LIFECYCLE.md. Genuine unchanged-source corpora have137 Property and212 Oracle observations; two explicit local-domain refusals are counted separately. The independent populated27-command V6 release fixture predates V7 edits. V8 MainCallable: docs/SOURCE_LOWER_CLEARLIST.md;docs/SOURCE_MAIN_CALLABLE.md;tests/source_main_callable_versions.rs",
       "preStateWitness": "Exact existing admin/backup and target kind, claimed actor and independent governance policy.",
       "postStateWitness": "Selected policy, full actual Property/Oracle/Tally/Procedural collections and caches, returned/thrown outcome, ordered retained source write prefixes and retries. No atomic or once-only guarantee is inferred from the source.",
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
@@ -627,10 +647,10 @@
       "sourceRoute": "9 / base36 9 / Logic.issueOrRevokeAttestation",
       "sourceEffects": "For list0 BANLIST normalizes country codes and sets banlist; otherwise adds/revokes attestation and optionally stores a Merkle root for xpub batches.",
       "sourceDefects": "Source address-only keys can overwrite another list, list0 self-cert/country records have special routing, and source banlist getter returns Undefined. Root/xpub/revocation behavior is bounded by actual owner conformance. Outer atomic rollback differs from source partial failures.",
-      "runtimeScope": "Actual source clearlist owner performs attestation, revocation reasons/timestamps, list0 countries/banlist and root/xpub helpers; source address-only cross-list overwrite persists. Genuine LTC/BTC public derivation is tested; the wire decoder still uppercases metadata and omits merkleRoot.",
-      "missingLogic": "Whole-source async/partial failure scheduling, private extended keys/reference-identity domains and bounded pathological history sorting remain explicit limits. Generic diagnostic mapper is narrower than actual owned execution.",
-      "nextTask": "Add composed unchanged Logic/root/revocation failure cases and exact historical state inputs; preserve documented source defects.",
-      "evidence": "JS dca0888b src/types.js decodePayload case9; src/logic.js typeSwitch case9; src/types_economic.rs; src/registry.rs; src/legacy_clearlist_audit.rs; tests/registry_transitions.rs Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.",
+      "runtimeScope": "V8: Original raw9 and direct attestation/country/banlist/history/Merkle/xpub helpers now share actual Core caches and collections. Genuine LTC/BTC-fallback derivation is selected and locked explicitly. Source cross-list overwrites, retained roots, coercion order and partial failures remain literal.",
+      "missingLogic": "Full Main/startup/daemon composition, wider JavaScript identity/value domains, production compact storage/RPC, authenticated actors/history and V8 witness export remain open.",
+      "nextTask": "Complete source-composed Main and remaining raw handlers; extend conditional transition witnesses and authenticated input admission.",
+      "evidence": "JS dca0888b src/types.js decodePayload case9; src/logic.js typeSwitch case9; src/types_economic.rs; src/registry.rs; src/legacy_clearlist_audit.rs; tests/registry_transitions.rs Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established. V8 MainCallable: docs/SOURCE_LOWER_CLEARLIST.md;docs/SOURCE_MAIN_CALLABLE.md;tests/source_main_callable_versions.rs",
       "preStateWitness": "Exact list administrator, subject attestation, banlist/country state and any xpub root/context.",
       "postStateWitness": "Correct attestation/revocation or banlist/root update, with exact provenance and replay markers.",
       "inputWitness": "Exact raw TL payload and original txid/position, actor/reference/amount claims; independently verified transaction ownership and inclusion are separate required evidence.",
@@ -1338,5 +1358,26 @@
     "mainNodeObservations": 39,
     "mainRustIntegration": false,
     "newV7WitnessExport": false
+  },
+  "mainCallableExecution": {
+    "policy": "MainCallableV8",
+    "replayVersion": 8,
+    "defaultPolicy": "GlobalClearingV2",
+    "actualActivationOwner": true,
+    "newStandaloneRawTypes": [
+      2,
+      3,
+      4,
+      7,
+      9
+    ],
+    "clearlistFramesPerLibrary": 204,
+    "sendCommitFrames": 121,
+    "sendCommitComparableCalls": 82,
+    "utxoTradeFrames": 42,
+    "utxoTradeCalls": 34,
+    "mainReferenceFrames": 39,
+    "fullHistoricalParityEstablished": false,
+    "newWitnessExport": false
   }
 }
