@@ -963,3 +963,32 @@ fn generate_proof(xpubs: &V, target: &V) -> Eval<V> {
     }
     Ok(V::Array(proof))
 }
+
+/// Stateless reuse of verified source pure helpers. No rows or owner are created.
+pub(crate) fn source_clearlist_pure_unverified(
+    method: &str,
+    args: &[V],
+) -> Result<SourceOutcome, SourceRuleError> {
+    let result = (|| -> Eval<V> {
+        match method {
+            "verifyMerkleProof" => Ok(V::Bool(verify_proof(
+                &arg(args, 0),
+                &arg(args, 1),
+                &arg(args, 2),
+            )?)),
+            "buildMerkleTree" => build_tree(&arg(args, 0)),
+            "generateMerkleProof" => generate_proof(&arg(args, 0), &arg(args, 1)),
+            "sortHistory" => {
+                let mut rows = array(&arg(args, 0))?.to_vec();
+                sort_history(&mut rows)?;
+                Ok(V::Array(rows))
+            }
+            _ => Err(SourceRuleError::UnknownMethod.into()),
+        }
+    })();
+    match result {
+        Ok(v) => Ok(SourceOutcome::Returned(v)),
+        Err(Fault::Thrown(e)) => Ok(SourceOutcome::Thrown(e)),
+        Err(Fault::Local(e)) => Err(e),
+    }
+}

@@ -6,12 +6,14 @@ The generator produces **39 observations: one full-import boundary, 13 original-
 
 | Artifact | SHA-256 |
 | --- | --- |
-| `fixtures/main_phase_proof10.jsonl` | `e69ea166fece3dc682e38c4c6f121a86d0d310c6c3a8525b4a93b805ad704107` |
-| `fixtures/main_phase_vectors.jsonl` | `0efbb184f59f39f1a387bea0d4870797b5223f5694922759d837009e622abced` |
+| `fixtures/main_phase_proof10.jsonl` | `a82a5645bb1da77ec7285aa6d20aacc2508cdfa9f7755df8f57fd080dbc29959` |
+| `fixtures/main_phase_vectors.jsonl` | `0ab682ca935899f8f548fd2846ac969bead7d936aab59acb4b68e0c755be0939` |
 
 `fixtures/main_phase_inventory.json` pins the original sources, underlying reference driver, complete extracted classes, and callable method text. The JSONL records keep readable names and summaries; the authoritative `command`, `result`, `state`, and `effects` fields are tagged values retaining Undefined, Number bits/nonfinites/signed zero, BigNumber, Map, Set, RegExp, Promise and field order. A summary is only a convenience projection.
 
 The final observer corrects an initial channel-cache projection to the actual `channelsRegistry` field and additionally records full Property/Contract instance fields and tracked lexical Clearing contexts. The source commands, outcomes, ordered calls and financial effects did not change. These final hashes supersede the preliminary first-ten projection.
+
+The resumed observer also registers every actual Orderbook receiver that reaches the unchanged original `loadOrderBook`, using the reference driver's existing `instanceId` closure before forwarding the original receiver, arguments and promise. This includes the fresh `new Orderbook(key)` receiver created by `_pruneInstaLiqOrdersFromFreshBook`; the earlier selected-method observation missed that third receiver. No receiver or state field is dropped from the comparison. This observation change updates the two fixture hashes above while preserving all pinned class/method bytes, commands, outcomes and database/financial effects. Earlier observation hashes remain in Git history.
 
 ## Import and extraction boundary
 

@@ -1,0 +1,16 @@
+{
+  "policy": "LowerLifecycleV7",
+  "commands": 37,
+  "head": "e5337955bfaeca0102ed77f8b5b7f8ced805e03df7d02f77e0fc075eefffc66d",
+  "fixtureSha256": "55e364a0f2bfa7626bd58d08347695f77a08478b5ccace9ee6f69ff9c95ecf54",
+  "bytes": 70918,
+  "releaseLibrarySha256": "5bbb30dc68f2f89977c0f528163f9c7d02435240227af98604103241f9f342d2",
+  "implementationInputs": 762,
+  "frozenInputHash": "8047d7ecfd399a7941aa6a6136adbcf098f12b462a396c5ff75619a9d177fa39",
+  "generatorSha256": "c65594546f5305e208c3fc5a30033e4b4f88e5a0ee517418bcb32a19ff8068de",
+  "compiler": "Rust1.90.0 MSVC",
+  "commitPending": false,
+  "compiledCommit": "cd9dd14c68192e77ffd230531505c9fe45ba2585",
+  "capturedAtUtc": "2026-10-27T07:24:42Z",
+  "scope": "Actual V7 managed issuance, grant/redemption, Oracle create/publication plus inherited V6 environment, Property singleton, Procedural/cache/risk/Oracle stake/Tally/reward/Vault state. Nine future Main/ClearList/send/Tally direct refusals and nine future lower raw refusals. Exact release round-trip before any future V8 edits; no supplied method outcome or platform-specific artifact path."
+}

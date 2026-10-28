@@ -23,6 +23,7 @@ pub enum SourceContractRuntimePolicy {
     DistributionLifecycleV5,
     ProofLifecycleV6,
     LowerLifecycleV7,
+    MainCallableV8,
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StorageFailure {
@@ -66,6 +67,12 @@ pub(crate) struct ContractCore {
     source_proof_environment: V,
     source_proof_artifacts: V,
     source_proof_property_initialized: bool,
+    source_clearlist_lists: Vec<(V, V)>,
+    source_clearlist_banlist: V,
+    source_clearlist_xpub_cache: Vec<(V, V)>,
+    source_clearlist_roots: Vec<(V, V)>,
+    source_clearlist_library: crate::bip32_public::SourceLibrary,
+    source_clearlist_library_locked: bool,
     vault_initialized: bool,
     vault_cache: Vec<(V, V)>,
     synthetic_token_cache: Vec<(V, V)>,
@@ -99,6 +106,13 @@ pub(crate) struct ContractCore {
     returned_position_origin: Option<usize>,
     collateral_position_origin: Option<usize>,
     position_identity_active: bool,
+    source_send_tally_instance_initialized: bool,
+    source_send_tally_read_job: Option<SourceSendTallyReadJob>,
+    main_activation: crate::activation::SourceActivation,
+    main_activation_profile: String,
+    main_activation_locked: bool,
+    main_height_job: Option<SourceMainHeightJob>,
+    main_height_rejections: Vec<crate::validity_source::SourceException>,
 }
 impl Default for SourceContractRuntime {
     fn default() -> Self {
@@ -352,7 +366,9 @@ impl SourceContractRuntime {
             set(
                 &mut value,
                 "runtimePolicy",
-                s(if self.core.lower_lifecycle_enabled() {
+                s(if self.core.main_callable_enabled() {
+                    "MainCallableV8"
+                } else if self.core.lower_lifecycle_enabled() {
                     "LowerLifecycleV7"
                 } else if self.core.proof_lifecycle_enabled() {
                     "ProofLifecycleV6"
@@ -422,6 +438,26 @@ impl SourceContractRuntime {
             )
             .map_err(|_| SourceRuleError::InvalidInput)?;
         }
+        if self.core.main_callable_enabled() {
+            set(&mut value, "mainCallable", self.core.source_main_state())
+                .map_err(|_| SourceRuleError::InvalidInput)?;
+        }
+        if self.core.main_callable_enabled() {
+            set(
+                &mut value,
+                "clearlistLifecycle",
+                self.core.source_clearlist_state(),
+            )
+            .map_err(|_| SourceRuleError::InvalidInput)?;
+        }
+        if self.core.main_callable_enabled() {
+            set(
+                &mut value,
+                "sendCommit",
+                self.core.source_send_commit_state(),
+            )
+            .map_err(|_| SourceRuleError::InvalidInput)?;
+        }
         Ok(value)
     }
     pub fn invoke_dependency(
@@ -430,6 +466,9 @@ impl SourceContractRuntime {
     ) -> Result<DependencyReturn, SourceRuleError> {
         for v in &call.arguments {
             v.validate()?
+        }
+        if self.core.main_callable_enabled() && call.target.starts_with("Main.") {
+            return self.source_main_invoke(call);
         }
         let before = self.clone();
         self.core.queue_context = Some(std::mem::replace(
@@ -562,129 +601,11 @@ impl SourceContractRuntime {
         &mut self,
         arguments: &[V],
     ) -> Result<SourceOutcome, SourceRuleError> {
-        self.last_parameters = None;
-        if arguments.get(1) != Some(&n(18.0))
-            && !(self.core.lower_lifecycle_enabled()
-                && [1., 11., 12.]
-                    .iter()
-                    .any(|kind| arguments.get(1) == Some(&n(*kind))))
-            && !(self.core.lower_lifecycle_enabled()
-                && [8., 13., 14., 15.]
-                    .iter()
-                    .any(|k| arguments.get(1) == Some(&n(*k))))
-            && !(self.core.proof_lifecycle_enabled()
-                && [30., 32., 33., 34., 35.]
-                    .iter()
-                    .any(|kind| arguments.get(1) == Some(&n(*kind))))
-            && !(self.core.distribution_lifecycle_enabled()
-                && [26., 28., 29.]
-                    .iter()
-                    .any(|kind| arguments.get(1) == Some(&n(*kind))))
-            && !(self.core.option_lifecycle_enabled()
-                && [24., 25., 27.]
-                    .iter()
-                    .any(|kind| arguments.get(1) == Some(&n(*kind))))
-            && !(self.core.lifecycle_enabled()
-                && [16., 17., 19., 20., 21., 22., 23., 31.]
-                    .iter()
-                    .any(|kind| arguments.get(1) == Some(&n(*kind))))
-        {
-            return Err(SourceRuleError::InvalidInput);
-        };
-        self.core.channel_token_validation =
-            self.core.lifecycle_enabled() && arguments.get(1) == Some(&n(20.));
-        let result = if self.core.option_lifecycle_enabled() && arguments.get(1) == Some(&n(27.0)) {
-            let mut backend = SourceOptionValidityBackend::new(&mut self.core);
-            crate::types_source::decode_payload_unverified(arguments, &mut backend)
-        } else {
-            crate::types_source::decode_payload_unverified(arguments, &mut self.core)
-        };
-        self.core.channel_token_validation = false;
-        if self.core.lifecycle_enabled() {
-            self.core
-                .source_channel_sufficiency_drain()
-                .map_err(|e| match e {
-                    Fault::Local(e) => e,
-                    Fault::Thrown(_) => SourceRuleError::Backend,
-                })?;
-        }
-        let result = result.map_err(|_| SourceRuleError::Backend)?;
-        if let Some(validity) = &result.validity {
-            for (key, value) in &validity.settlement.evaluation.global_writes {
-                self.core.globals.insert(key, value.clone())?
-            }
-        }
-        match result.outcome {
+        let result = self.source_main_decode_reused(arguments)?;
+        match result {
             crate::types_source::TypesOutcome::Returned(params) => {
                 self.last_parameters = Some(params.clone());
-                let logic = if params.get("valid") == V::Bool(true)
-                    && self.core.lower_lifecycle_enabled()
-                    && [1., 11., 12.]
-                        .iter()
-                        .any(|kind| arguments.get(1) == Some(&n(*kind)))
-                {
-                    self.source_lower_property_raw_logic(&arguments[1], &params)?
-                } else if params.get("valid") == V::Bool(true)
-                    && self.core.lower_lifecycle_enabled()
-                    && [8., 13., 14., 15.]
-                        .iter()
-                        .any(|k| arguments.get(1) == Some(&n(*k)))
-                {
-                    self.source_lower_oracle_raw_logic(&arguments[1], &params)?
-                } else if params.get("valid") == V::Bool(true)
-                    && self.core.proof_lifecycle_enabled()
-                    && arguments.get(1) == Some(&n(30.0))
-                {
-                    self.source_proof_raw_logic(&params)?
-                } else if params.get("valid") == V::Bool(true)
-                    && self.core.distribution_lifecycle_enabled()
-                    && [26., 28., 29.]
-                        .iter()
-                        .any(|kind| arguments.get(1) == Some(&n(*kind)))
-                {
-                    self.source_distribution_raw_logic(&arguments[1], &params)?
-                } else if params.get("valid") == V::Bool(true)
-                    && self.core.option_lifecycle_enabled()
-                    && arguments.get(1) == Some(&n(27.0))
-                {
-                    self.source_option_raw_logic(&params)?
-                } else if params.get("valid") == V::Bool(true)
-                    && self.core.option_lifecycle_enabled()
-                    && [24., 25.]
-                        .iter()
-                        .any(|kind| arguments.get(1) == Some(&n(*kind)))
-                {
-                    self.source_synthetic_raw_logic(&arguments[1], &params)?
-                } else if params.get("valid") == V::Bool(true) && arguments.get(1) != Some(&n(18.0))
-                {
-                    self.source_lifecycle_raw_logic(&arguments[1], &params)?
-                } else if params.get("valid") == V::Bool(true) {
-                    let queued = obj(&[
-                        ("contractId", params.get("contractId")),
-                        ("price", params.get("price")),
-                        ("amount", params.get("amount")),
-                        ("sell", params.get("sell")),
-                        ("insurance", params.get("insurance")),
-                        ("blockTime", params.get("block")),
-                        ("isLiq", params.get("reduce")),
-                        ("reduce", params.get("post")),
-                        ("post", params.get("stop")),
-                        ("stop", params.get("block")),
-                    ]);
-                    self.evaluate_queue(&SourceCall {
-                        method: "queueOnChainContractOrder".into(),
-                        arguments: vec![
-                            s(text(&params.get("contractId"))
-                                .map_err(|_| SourceRuleError::InvalidInput)?),
-                            params.get("senderAddress"),
-                            queued,
-                            params.get("block"),
-                            params.get("txid"),
-                        ],
-                    })?
-                } else {
-                    SourceOutcome::Returned(V::Undefined)
-                };
+                let logic = self.source_main_logic_reused(arguments, &params)?;
                 match logic {
                     SourceOutcome::Returned(value) => Ok(SourceOutcome::Returned(obj(&[
                         ("params", params),
@@ -728,6 +649,17 @@ impl ContractCore {
             source_proof_environment: obj(&[]),
             source_proof_artifacts: obj(&[]),
             source_proof_property_initialized: false,
+            source_clearlist_lists: vec![],
+            source_clearlist_banlist: V::Array(
+                ["US", "KP", "SY", "RU", "IR", "CU"]
+                    .into_iter()
+                    .map(s)
+                    .collect(),
+            ),
+            source_clearlist_xpub_cache: vec![],
+            source_clearlist_roots: vec![],
+            source_clearlist_library: crate::bip32_public::SourceLibrary::Litecoin,
+            source_clearlist_library_locked: false,
             vault_initialized: false,
             vault_cache: vec![],
             synthetic_token_cache: vec![],
@@ -761,6 +693,13 @@ impl ContractCore {
             returned_position_origin: None,
             collateral_position_origin: None,
             position_identity_active: false,
+            source_send_tally_instance_initialized: false,
+            source_send_tally_read_job: None,
+            main_activation: crate::activation::SourceActivation::new(),
+            main_activation_profile: "source-registry".into(),
+            main_activation_locked: false,
+            main_height_job: None,
+            main_height_rejections: vec![],
         }
     }
     fn global_clearing_enabled(&self) -> bool {
@@ -772,6 +711,7 @@ impl ContractCore {
                 | SourceContractRuntimePolicy::DistributionLifecycleV5
                 | SourceContractRuntimePolicy::ProofLifecycleV6
                 | SourceContractRuntimePolicy::LowerLifecycleV7
+                | SourceContractRuntimePolicy::MainCallableV8
         )
     }
     fn lifecycle_enabled(&self) -> bool {
@@ -782,6 +722,7 @@ impl ContractCore {
                 | SourceContractRuntimePolicy::DistributionLifecycleV5
                 | SourceContractRuntimePolicy::ProofLifecycleV6
                 | SourceContractRuntimePolicy::LowerLifecycleV7
+                | SourceContractRuntimePolicy::MainCallableV8
         )
     }
     fn option_lifecycle_enabled(&self) -> bool {
@@ -791,6 +732,7 @@ impl ContractCore {
                 | SourceContractRuntimePolicy::DistributionLifecycleV5
                 | SourceContractRuntimePolicy::ProofLifecycleV6
                 | SourceContractRuntimePolicy::LowerLifecycleV7
+                | SourceContractRuntimePolicy::MainCallableV8
         )
     }
     fn distribution_lifecycle_enabled(&self) -> bool {
@@ -799,6 +741,7 @@ impl ContractCore {
             SourceContractRuntimePolicy::DistributionLifecycleV5
                 | SourceContractRuntimePolicy::ProofLifecycleV6
                 | SourceContractRuntimePolicy::LowerLifecycleV7
+                | SourceContractRuntimePolicy::MainCallableV8
         )
     }
     fn proof_lifecycle_enabled(&self) -> bool {
@@ -806,10 +749,18 @@ impl ContractCore {
             self.policy,
             SourceContractRuntimePolicy::ProofLifecycleV6
                 | SourceContractRuntimePolicy::LowerLifecycleV7
+                | SourceContractRuntimePolicy::MainCallableV8
         )
     }
     fn lower_lifecycle_enabled(&self) -> bool {
-        self.policy == SourceContractRuntimePolicy::LowerLifecycleV7
+        matches!(
+            self.policy,
+            SourceContractRuntimePolicy::LowerLifecycleV7
+                | SourceContractRuntimePolicy::MainCallableV8
+        )
+    }
+    fn main_callable_enabled(&self) -> bool {
+        self.policy == SourceContractRuntimePolicy::MainCallableV8
     }
     fn rows(&self, name: &str) -> &[V] {
         self.tables
@@ -887,6 +838,9 @@ impl ContractCore {
             _ => (),
         };
         self.emit(event);
+        if self.main_callable_enabled() && name == "tallyMap" {
+            self.source_send_read_after_database()?;
+        }
         if self.global_clearing_enabled() {
             self.source_history_after_database(name)?;
             self.source_supply_after_database(name)?;
@@ -902,6 +856,9 @@ impl ContractCore {
         }
         if self.lifecycle_enabled() && name == "volumeIndex" {
             self.source_channel_price_after_database()?;
+        }
+        if self.main_callable_enabled() {
+            self.source_main_after_database()?;
         }
         result
     }
@@ -1315,6 +1272,68 @@ impl ContractCore {
     fn dispatch(&mut self, call: &DependencyCall) -> R<V> {
         let a = &call.arguments;
         let target = call.target.as_str();
+        if self.main_callable_enabled() {
+            if ["Tally.getTotalForProperty", "Tally.getTotalTally"].contains(&target) {
+                self.source_send_tally_instance_initialized = true;
+            }
+            if let Some(method) = target.strip_prefix("Tally.") {
+                if [
+                    "getInstance",
+                    "getAddressBalances",
+                    "instanceGetAddressBalances",
+                ]
+                .contains(&method)
+                {
+                    return self.source_send_tally(method, a);
+                }
+            }
+            if let Some(method) = target.strip_prefix("Logic.") {
+                if [
+                    "sendToken",
+                    "sendSingle",
+                    "sendAll",
+                    "processSend",
+                    "vestingSend",
+                    "calculateVestingMovement",
+                    "roundToEightDecimals",
+                    "commitToken",
+                ]
+                .contains(&method)
+                {
+                    return self.source_send_commit_logic(method, a);
+                }
+            }
+        }
+        if self.main_callable_enabled() {
+            if target == "SourceClearList.configureLibrary" {
+                return self.source_clearlist_configure_library(a);
+            }
+            if let Some(method) = target.strip_prefix("ClearList.") {
+                return self.source_clearlist_call(method, a);
+            }
+            if let Some(method) = target.strip_prefix("Logic.") {
+                if [
+                    "createClearList",
+                    "issueOrRevokeAttestation",
+                    "updateBannedCountries",
+                ]
+                .contains(&method)
+                {
+                    return self.source_clearlist_logic(method, a);
+                }
+            }
+        }
+        if self.main_callable_enabled() {
+            if target == "SourceMain.configure" {
+                return self.source_main_configure(a);
+            }
+            if let Some(method) = target.strip_prefix("Activation.") {
+                self.main_activation_locked = true;
+                if self.main_activation_profile == "source-registry" {
+                    return self.source_main_activation(method, a);
+                }
+            }
+        }
         if self.lower_lifecycle_enabled() {
             if let Some(method) = target.strip_prefix("Oracle.") {
                 if [
@@ -1738,6 +1757,51 @@ impl SourceBackend for ContractCore {
                 _ => (),
             }
         }
+        if self.main_callable_enabled() && call.target == "SourceMain.configure" {
+            return match result {
+                Ok(v) => Ok(DependencyReturn::Immediate(v)),
+                Err(Fault::Thrown(e)) => Ok(DependencyReturn::Throw(e)),
+                Err(Fault::Local(e)) => Err(e),
+            };
+        }
+        if self.main_callable_enabled()
+            && self.main_activation_profile == "source-registry"
+            && call.target.starts_with("Activation.")
+        {
+            let sync = matches!(
+                call.target.as_str(),
+                "Activation.getAdmin"
+                    | "Activation.getActivationBlock"
+                    | "Activation.initializeTxRegistry"
+            );
+            return match result {
+                Ok(v) => Ok(if sync {
+                    DependencyReturn::Immediate(v)
+                } else {
+                    DependencyReturn::Pending(v)
+                }),
+                Err(Fault::Thrown(e)) => Ok(if sync {
+                    DependencyReturn::Throw(e)
+                } else {
+                    DependencyReturn::PendingThrow(e)
+                }),
+                Err(Fault::Local(e)) => Err(e),
+            };
+        }
+        if self.main_callable_enabled()
+            && matches!(
+                call.target.as_str(),
+                "Logic.calculateVestingMovement"
+                    | "Logic.roundToEightDecimals"
+                    | "Tally.instanceGetAddressBalances"
+            )
+        {
+            return match result {
+                Ok(v) => Ok(DependencyReturn::Immediate(v)),
+                Err(Fault::Thrown(e)) => Ok(DependencyReturn::Throw(e)),
+                Err(Fault::Local(e)) => Err(e),
+            };
+        }
         if matches!(
             call.target.as_str(),
             "uuid.v4"
@@ -1745,7 +1809,17 @@ impl SourceBackend for ContractCore {
                 | "Activation.areActivationsAboveThreshold"
                 | "Clock.nowISOString"
                 | "Clock.now"
-        ) || (self.lower_lifecycle_enabled() && call.target == "Oracle.getInstance")
+        ) || (self.main_callable_enabled()
+            && (call.target == "SourceClearList.configureLibrary"
+                || matches!(
+                    call.target.as_str(),
+                    "ClearList.deriveAddressesFromXpub"
+                        | "ClearList.registerXpubForRoot"
+                        | "ClearList.verifyMerkleProof"
+                        | "ClearList.buildMerkleTree"
+                        | "ClearList.generateMerkleProof"
+                )))
+            || (self.lower_lifecycle_enabled() && call.target == "Oracle.getInstance")
             || (self.proof_lifecycle_enabled() && call.target == "Logic.batchMoveZkRollup")
             || (self.proof_lifecycle_enabled() && call.target == "Logic.queueLiquidityReward")
             || (self.proof_lifecycle_enabled()
@@ -1952,3 +2026,175 @@ include!("source_tail_lifecycle_impl.rs");
 include!("source_lower_oracle_lifecycle_impl.rs");
 
 include!("source_lower_property_lifecycle_impl.rs");
+
+impl SourceContractRuntime {
+    fn source_main_decode_reused(
+        &mut self,
+        arguments: &[V],
+    ) -> Result<crate::types_source::TypesOutcome, SourceRuleError> {
+        self.last_parameters = None;
+        if arguments.get(1) != Some(&n(18.0))
+            && !(self.core.main_callable_enabled() && arguments.get(1) == Some(&n(3.0)))
+            && !(self.core.main_callable_enabled()
+                && [2., 4.]
+                    .iter()
+                    .any(|kind| arguments.get(1) == Some(&n(*kind))))
+            && !(self.core.main_callable_enabled()
+                && [7., 9.]
+                    .iter()
+                    .any(|kind| arguments.get(1) == Some(&n(*kind))))
+            && !(self.core.lower_lifecycle_enabled()
+                && [1., 11., 12.]
+                    .iter()
+                    .any(|kind| arguments.get(1) == Some(&n(*kind))))
+            && !(self.core.lower_lifecycle_enabled()
+                && [8., 13., 14., 15.]
+                    .iter()
+                    .any(|k| arguments.get(1) == Some(&n(*k))))
+            && !(self.core.proof_lifecycle_enabled()
+                && [30., 32., 33., 34., 35.]
+                    .iter()
+                    .any(|kind| arguments.get(1) == Some(&n(*kind))))
+            && !(self.core.distribution_lifecycle_enabled()
+                && [26., 28., 29.]
+                    .iter()
+                    .any(|kind| arguments.get(1) == Some(&n(*kind))))
+            && !(self.core.option_lifecycle_enabled()
+                && [24., 25., 27.]
+                    .iter()
+                    .any(|kind| arguments.get(1) == Some(&n(*kind))))
+            && !(self.core.lifecycle_enabled()
+                && [16., 17., 19., 20., 21., 22., 23., 31.]
+                    .iter()
+                    .any(|kind| arguments.get(1) == Some(&n(*kind))))
+        {
+            return Err(SourceRuleError::InvalidInput);
+        };
+        self.core.channel_token_validation =
+            self.core.lifecycle_enabled() && arguments.get(1) == Some(&n(20.));
+        let result = if self.core.option_lifecycle_enabled() && arguments.get(1) == Some(&n(27.0)) {
+            let mut backend = SourceOptionValidityBackend::new(&mut self.core);
+            crate::types_source::decode_payload_unverified(arguments, &mut backend)
+        } else {
+            crate::types_source::decode_payload_unverified(arguments, &mut self.core)
+        };
+        self.core.channel_token_validation = false;
+        if self.core.lifecycle_enabled() {
+            self.core
+                .source_channel_sufficiency_drain()
+                .map_err(|e| match e {
+                    Fault::Local(e) => e,
+                    Fault::Thrown(_) => SourceRuleError::Backend,
+                })?;
+        }
+        let result = result.map_err(|_| SourceRuleError::Backend)?;
+        if let Some(validity) = &result.validity {
+            for (key, value) in &validity.settlement.evaluation.global_writes {
+                self.core.globals.insert(key, value.clone())?
+            }
+        }
+        Ok(result.outcome)
+    }
+    fn source_main_logic_reused(
+        &mut self,
+        arguments: &[V],
+        params: &V,
+    ) -> Result<SourceOutcome, SourceRuleError> {
+        if params.get("valid") == V::Bool(true)
+            && self.core.main_callable_enabled()
+            && arguments.get(1) == Some(&n(3.0))
+        {
+            return self.source_lower_utxo_trade_raw_logic(params);
+        }
+        let logic = if params.get("valid") == V::Bool(true)
+            && self.core.main_callable_enabled()
+            && [2., 4.]
+                .iter()
+                .any(|kind| arguments.get(1) == Some(&n(*kind)))
+        {
+            self.source_send_commit_raw_logic(&arguments[1], params)?
+        } else if params.get("valid") == V::Bool(true)
+            && self.core.main_callable_enabled()
+            && [7., 9.]
+                .iter()
+                .any(|kind| arguments.get(1) == Some(&n(*kind)))
+        {
+            self.source_clearlist_raw_logic(&arguments[1], params)?
+        } else if params.get("valid") == V::Bool(true)
+            && self.core.lower_lifecycle_enabled()
+            && [1., 11., 12.]
+                .iter()
+                .any(|kind| arguments.get(1) == Some(&n(*kind)))
+        {
+            self.source_lower_property_raw_logic(&arguments[1], params)?
+        } else if params.get("valid") == V::Bool(true)
+            && self.core.lower_lifecycle_enabled()
+            && [8., 13., 14., 15.]
+                .iter()
+                .any(|k| arguments.get(1) == Some(&n(*k)))
+        {
+            self.source_lower_oracle_raw_logic(&arguments[1], params)?
+        } else if params.get("valid") == V::Bool(true)
+            && self.core.proof_lifecycle_enabled()
+            && arguments.get(1) == Some(&n(30.0))
+        {
+            self.source_proof_raw_logic(params)?
+        } else if params.get("valid") == V::Bool(true)
+            && self.core.distribution_lifecycle_enabled()
+            && [26., 28., 29.]
+                .iter()
+                .any(|kind| arguments.get(1) == Some(&n(*kind)))
+        {
+            self.source_distribution_raw_logic(&arguments[1], params)?
+        } else if params.get("valid") == V::Bool(true)
+            && self.core.option_lifecycle_enabled()
+            && arguments.get(1) == Some(&n(27.0))
+        {
+            self.source_option_raw_logic(params)?
+        } else if params.get("valid") == V::Bool(true)
+            && self.core.option_lifecycle_enabled()
+            && [24., 25.]
+                .iter()
+                .any(|kind| arguments.get(1) == Some(&n(*kind)))
+        {
+            self.source_synthetic_raw_logic(&arguments[1], params)?
+        } else if params.get("valid") == V::Bool(true) && arguments.get(1) != Some(&n(18.0)) {
+            self.source_lifecycle_raw_logic(&arguments[1], params)?
+        } else if params.get("valid") == V::Bool(true) {
+            let queued = obj(&[
+                ("contractId", params.get("contractId")),
+                ("price", params.get("price")),
+                ("amount", params.get("amount")),
+                ("sell", params.get("sell")),
+                ("insurance", params.get("insurance")),
+                ("blockTime", params.get("block")),
+                ("isLiq", params.get("reduce")),
+                ("reduce", params.get("post")),
+                ("post", params.get("stop")),
+                ("stop", params.get("block")),
+            ]);
+            self.evaluate_queue(&SourceCall {
+                method: "queueOnChainContractOrder".into(),
+                arguments: vec![
+                    s(text(&params.get("contractId"))
+                        .map_err(|_| SourceRuleError::InvalidInput)?),
+                    params.get("senderAddress"),
+                    queued,
+                    params.get("block"),
+                    params.get("txid"),
+                ],
+            })?
+        } else {
+            SourceOutcome::Returned(V::Undefined)
+        };
+        Ok(logic)
+    }
+}
+
+include!("source_main_callable_impl.rs");
+
+include!("source_lower_clearlist_impl.rs");
+
+include!("source_lower_send_commit_impl.rs");
+
+include!("source_lower_utxo_trade_impl.rs");

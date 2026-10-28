@@ -254,6 +254,6 @@
     "observation": "original return plus finite drained turns; no generic event-loop equivalence"
   },
   "observations": 39,
-  "proof10Sha256": "e69ea166fece3dc682e38c4c6f121a86d0d310c6c3a8525b4a93b805ad704107",
-  "fixtureSha256": "0efbb184f59f39f1a387bea0d4870797b5223f5694922759d837009e622abced"
+  "proof10Sha256": "a82a5645bb1da77ec7285aa6d20aacc2508cdfa9f7755df8f57fd080dbc29959",
+  "fixtureSha256": "0ab682ca935899f8f548fd2846ac969bead7d936aab59acb4b68e0c755be0939"
 }

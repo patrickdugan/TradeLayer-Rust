@@ -40,10 +40,14 @@ impl ContractCore {
                     .collect(),
             ))
         })();
-        match result {
+        let result = match result {
             Err(Fault::Thrown(_)) => Ok(V::Undefined),
             other => other,
+        };
+        if self.main_callable_enabled() {
+            self.source_send_read_after_load()?;
         }
+        result
     }
     fn tally_get(&mut self, address: V, property: V) -> R<V> {
         self.tally_load_rows()?;
