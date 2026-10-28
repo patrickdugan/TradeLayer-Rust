@@ -136,6 +136,33 @@
       "fullSuitePromotion": false,
       "record": "fixtures/reference_fidelity/shared-owner-witness-focused.json",
       "commit": "7f5733e9285f89b87f7dd97c8fd18a8b551cbb5b"
+    },
+    "TLSW5": {
+      "status": "Root-integrated-focused-passed",
+      "RootTests": 9,
+      "oldDurableRegressions": 11,
+      "commands": 5038,
+      "segments": 23,
+      "fullSuitePromotion": false,
+      "record": "fixtures/reference_fidelity/archive-witness-bitcoin-focused.json"
+    },
+    "bitcoinStandardInput": {
+      "status": "Root-integrated-focused-passed",
+      "RootIntegrationTests": 4,
+      "RootPrivateNormalizationTest": 1,
+      "genuineCoreCases": 212,
+      "fullSuitePromotion": false
+    },
+    "bitcoinBlockInput": {
+      "status": "Root-integrated-focused-passed",
+      "RootTests": 4,
+      "fullSuitePromotion": false,
+      "authenticationEstablished": false
+    },
+    "MainV12": {
+      "status": "work-only-uncompiled-source-corpus-correction-staged",
+      "RootIntegrated": false,
+      "fullSuitePromotion": false
     }
   },
   "scope": "Existing release suites passed at31ee8f4. The known mixed-history state/Consensus defect, historical parity, production integration, complete block proofs and authentication remain open.",
@@ -306,6 +333,6 @@
     "releaseExecutions": 1502,
     "exactNumericReferenceTests": 151
   },
-  "focusedValidationRecord": "fixtures/reference_fidelity/shared-owner-witness-focused.json",
+  "focusedValidationRecord": "fixtures/reference_fidelity/archive-witness-bitcoin-focused.json",
   "focusedImplementationCommit": "7f5733e9285f89b87f7dd97c8fd18a8b551cbb5b"
 }

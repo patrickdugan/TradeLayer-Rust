@@ -208,3 +208,6 @@ pub mod native_entitlement;
 pub mod bitcoin_witness_binding;
 
 pub mod bitcoin_p2wsh_verify;
+
+pub mod bitcoin_block_input;
+pub mod bitcoin_standard_input;

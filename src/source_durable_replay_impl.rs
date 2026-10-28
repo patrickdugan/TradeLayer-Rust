@@ -439,6 +439,22 @@ fn durable_restore(
     context_hash: [u8; 32],
     target: SourceDurableHistoryHead,
 ) -> DurableResult<SourceContractReplay> {
+    durable_restore_observed(root, context, context_hash, target, |_, _, _, _| Ok(()))
+}
+// Private read-only observation. It receives no mutable owner and never
+// supplies a command, receipt, poststate or rule result to execution.
+fn durable_restore_observed(
+    root: &Path,
+    context: &SourceDurableContext,
+    context_hash: [u8; 32],
+    target: SourceDurableHistoryHead,
+    mut observer: impl FnMut(
+        u64,
+        &SourceContractReplay,
+        &SourceContractCommand,
+        &SourceContractReceipt,
+    ) -> DurableResult<()>,
+) -> DurableResult<SourceContractReplay> {
     if target.segments > MAX_DURABLE_REPLAY_SEGMENTS as u64 {
         return Err(SourceDurableError::Capacity);
     }
@@ -472,6 +488,12 @@ fn durable_restore(
                     SourceContractReplayError::ReplayMismatch,
                 ));
             }
+            observer(
+                head.commands + entry.receipt.sequence,
+                &replay,
+                &entry.command,
+                &entry.receipt,
+            )?;
         }
         head = durable_after(context_hash, &segment, digest)?;
         replay = durable_rotate(replay);
@@ -765,6 +787,7 @@ impl SourceDurableReplay {
         Err(SourceRuleError::UnauthenticatedInputAndState)
     }
 }
+include!("source_durable_transition_witness_impl.rs");
 #[cfg(test)]
 mod tests {
     use super::*;

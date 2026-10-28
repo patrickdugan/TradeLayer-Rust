@@ -64,7 +64,7 @@ rustfmt --check --edition 2021 \
   src/source_durable_replay_tests.rs \
   src/litecoin_transparent_impl.rs \
   src/litecoin_mweb_structure_impl.rs \
-  src/source_full_dispatch_transition_witness_impl.rs
+  src/source_full_dispatch_transition_witness_impl.rs src/source_durable_transition_witness_impl.rs src/source_durable_transition_witness_tests.rs
 
 cargo clippy --all-targets --locked -- -D warnings
 if [[ "$mode" == "--full" ]]; then

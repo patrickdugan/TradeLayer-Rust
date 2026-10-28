@@ -1,4 +1,9 @@
-Root integration note: the focused checks recorded in [SOURCE_AMM_LIFECYCLE.md](SOURCE_AMM_LIFECYCLE.md) have passed. The staged handoff below is preserved for provenance; its work-only/uncompiled statements describe the earlier handoff, not the current Root integration. Full release promotion remains pending.
+Root integration note: the original durable adapter is included in the passing
+31ee8f4 release. The new read-only restore observer and archive-backed TLSW5
+witness pass nine Root checks; all eleven existing durable regressions also
+pass. Promotion of this new batch through the full release suite remains pending.
+See [the focused record](../fixtures/reference_fidelity/archive-witness-bitcoin-focused.json).
+The earlier handoff below is preserved for provenance.
 
 # Durable continuation of the literal source owner
 

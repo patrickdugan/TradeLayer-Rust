@@ -1,0 +1,501 @@
+{
+  "schema": "tl-archive-witness-bitcoin-focused-v1",
+  "recordedAtUtc": "2026-10-28T18:31:17.026704+00:00",
+  "codeParent": "ba9f48d6715102b0eb5952c5830361b84397cba7",
+  "status": "Root-focused-validation-passed-full-release-pending",
+  "rootFocusedExecutions": 35,
+  "newRegisteredChecks": 18,
+  "existingDurableRegressions": 11,
+  "previousBitcoinChecks": 6,
+  "intentionalCrashTerminationsAreNotExtraPassingTests": true,
+  "rootLogs": {
+    "archive-standard-integration-first.log": {
+      "sha256": "724dbbe7855329d6095008e37b9b21e81e3af3cac419fd5ed0ca4113daa5e21a",
+      "bytes": 7065,
+      "executions": 10,
+      "ignored": 0
+    },
+    "archive-standard-block-corrected.log": {
+      "sha256": "c86ab118febf15dd7bc79b278c8e1a3272a9c9a227554b94568a87ca1fe10e1b",
+      "bytes": 879,
+      "executions": 4,
+      "ignored": 0
+    },
+    "archive-standard-legacy-normalization.log": {
+      "sha256": "5776f2265fbaf4d63a88f0e1eae4708664200539a490e7354d9108ee5caa1af5",
+      "bytes": 245,
+      "executions": 1,
+      "ignored": 0
+    },
+    "archive-standard-durable-current-root.log": {
+      "sha256": "45a7789d0054e610e61471fba4f7e7372fe01823a7e95a1ace26df3ad1a7f964",
+      "bytes": 1595,
+      "executions": 9,
+      "ignored": 0
+    },
+    "archive-standard-old-durable-regressions.log": {
+      "sha256": "015c11972ca74e9b7b6489d6169e50e4a6447afd296dc6974ee4727e4766717b",
+      "bytes": 1787,
+      "executions": 11,
+      "ignored": 1
+    }
+  },
+  "rootClippy": {
+    "sha256": "03e011da873540932ba053b6f40994a3ee40d7695457c0fc32c63db45955b8aa",
+    "bytes": 182
+  },
+  "sourceChecks": {
+    "schema": "tl-shared-proof-source-checks-v1",
+    "includeFormatFiles": 98,
+    "checks": [
+      {
+        "name": "shared-0",
+        "command": [
+          "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+          "scripts/shared_orderbook_vectors.cjs",
+          "--check"
+        ],
+        "exitCode": 0,
+        "seconds": 0.343,
+        "log": "archive-standard-source-shared-0.log",
+        "sha256": "244189d796afc7a709618367c3a8432acdf5934d9960c1432520e6f45e601a5d",
+        "bytes": 269
+      },
+      {
+        "name": "shared-1",
+        "command": [
+          "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+          "scripts/shared_orderbook_vectors.cjs",
+          "--lock",
+          "--check"
+        ],
+        "exitCode": 0,
+        "seconds": 0.359,
+        "log": "archive-standard-source-shared-1.log",
+        "sha256": "244189d796afc7a709618367c3a8432acdf5934d9960c1432520e6f45e601a5d",
+        "bytes": 269
+      },
+      {
+        "name": "mixed-0",
+        "command": [
+          "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+          "scripts/main_mixed_vectors.cjs",
+          "--check"
+        ],
+        "exitCode": 0,
+        "seconds": 4.36,
+        "log": "archive-standard-source-mixed-0.log",
+        "sha256": "c436d935869968d739be6a1035af3401e0418c419933cc82834c231801fe394b",
+        "bytes": 232449
+      },
+      {
+        "name": "mixed-1",
+        "command": [
+          "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+          "scripts/main_mixed_vectors.cjs",
+          "--lock",
+          "--check"
+        ],
+        "exitCode": 0,
+        "seconds": 4.266,
+        "log": "archive-standard-source-mixed-1.log",
+        "sha256": "c436d935869968d739be6a1035af3401e0418c419933cc82834c231801fe394b",
+        "bytes": 232449
+      },
+      {
+        "name": "mixed-2",
+        "command": [
+          "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+          "scripts/main_mixed_vectors.cjs",
+          "--proof10",
+          "--check"
+        ],
+        "exitCode": 0,
+        "seconds": 0.609,
+        "log": "archive-standard-source-mixed-2.log",
+        "sha256": "026b5e1dd87593690e1ff21a33af02e54ac98954930dc913168d32ee7d85e2b0",
+        "bytes": 28732
+      },
+      {
+        "name": "mixed-3",
+        "command": [
+          "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+          "scripts/main_mixed_vectors.cjs",
+          "--proof10",
+          "--lock",
+          "--check"
+        ],
+        "exitCode": 0,
+        "seconds": 0.593,
+        "log": "archive-standard-source-mixed-3.log",
+        "sha256": "026b5e1dd87593690e1ff21a33af02e54ac98954930dc913168d32ee7d85e2b0",
+        "bytes": 28732
+      },
+      {
+        "name": "project-inputs",
+        "command": [
+          "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "scripts/source_full_dispatch_main_inputs.py",
+          "--check"
+        ],
+        "exitCode": 0,
+        "seconds": 0.562,
+        "log": "archive-standard-source-project-inputs.log",
+        "sha256": "3ac249be4be3c9b1f547ffd44105b68b03391b947a5c5291f57716a644c58270",
+        "bytes": 1374
+      },
+      {
+        "name": "command-pins",
+        "command": [
+          "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+          "scripts/full_dispatch_witness_command_pins.cjs"
+        ],
+        "exitCode": 0,
+        "seconds": 0.063,
+        "log": "archive-standard-source-command-pins.log",
+        "sha256": "fcf02f5b8d9fcf8d09b367b7314bd43bf2fe06e5a645d6cd8cc348c085860543",
+        "bytes": 598
+      },
+      {
+        "name": "supply-chain",
+        "command": [
+          "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "scripts/check_rust_supply_chain.py"
+        ],
+        "exitCode": 0,
+        "seconds": 1.516,
+        "log": "archive-standard-source-supply-chain.log",
+        "sha256": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01",
+        "bytes": 89
+      },
+      {
+        "name": "supply-chain-tests",
+        "command": [
+          "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-p",
+          "test_rust_supply_chain.py",
+          "-v"
+        ],
+        "exitCode": 0,
+        "seconds": 0.469,
+        "log": "archive-standard-source-supply-chain-tests.log",
+        "sha256": "f54bfde79527bfa47841c7d47261968d8666211185ece71253dacc211beed370",
+        "bytes": 1650
+      },
+      {
+        "name": "cargo-fmt",
+        "command": [
+          "C:\\Users\\patri\\.rustup\\toolchains\\1.90.0-x86_64-pc-windows-msvc\\bin\\cargo.exe",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "exitCode": 0,
+        "seconds": 2.453,
+        "log": "archive-standard-source-cargo-fmt.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "name": "logic-inventory",
+        "command": [
+          "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "scripts/check_logic_inventory.py"
+        ],
+        "exitCode": 1,
+        "seconds": 0.093,
+        "log": "archive-standard-source-logic-inventory.log",
+        "sha256": "4453a8a2061da838595a377f0a570df8e1c40cafd814586e1a912d3800a764a4",
+        "bytes": 547
+      },
+      {
+        "name": "core-standard-reference",
+        "command": [
+          "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\next-bitcoin-p2wsh-verify\\reference-target\\debug\\tl-p2wsh-core-reference.exe",
+          "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\outputs\\TradeLayer-Rust\\fixtures\\bitcoin_standard_input.tsv"
+        ],
+        "exitCode": 0,
+        "seconds": 0.11,
+        "log": "archive-standard-source-core-standard-reference.log",
+        "sha256": "5f7d3f1b50accfe5355e6afe1ec413c2a79919dddea010e55ab0c2b6f3f1cfa6",
+        "bytes": 9129
+      },
+      {
+        "name": "include-fmt",
+        "command": [
+          "C:\\Users\\patri\\.rustup\\toolchains\\1.90.0-x86_64-pc-windows-msvc\\bin\\rustfmt.exe",
+          "--check",
+          "--edition",
+          "2021",
+          "src/clearing_distress_impl.rs",
+          "src/clearing_partial_impl.rs",
+          "src/clearing_snapshot_impl.rs",
+          "src/contract_channel_queue_source_impl.rs",
+          "src/contract_orderbook_liquidation_impl.rs",
+          "src/economic_amm_impl.rs",
+          "src/economic_amm_replay_impl.rs",
+          "src/economic_block_stage_impl.rs",
+          "src/economic_consensus_impl.rs",
+          "src/economic_contract_impl.rs",
+          "src/economic_funding_impl.rs",
+          "src/economic_insurance_impl.rs",
+          "src/economic_insurance_snapshot_impl.rs",
+          "src/economic_liquidation_impl.rs",
+          "src/economic_liquidation_replay_impl.rs",
+          "src/economic_mark_impl.rs",
+          "src/economic_native_impl.rs",
+          "src/economic_snapshot_impl.rs",
+          "src/economic_source_catalog_impl.rs",
+          "src/economic_source_catalog_snapshot_impl.rs",
+          "src/economic_source_oracle_impl.rs",
+          "src/economic_source_send_impl.rs",
+          "src/execution_channel_revisions_impl.rs",
+          "src/execution_snapshot_impl.rs",
+          "src/iou_ledger_snapshot_impl.rs",
+          "src/iou_snapshot_impl.rs",
+          "src/joint_chain_native_impl.rs",
+          "src/joint_economic_impl.rs",
+          "src/joint_native_impl.rs",
+          "src/joint_snapshot_impl.rs",
+          "src/ledger_channel_revisions_impl.rs",
+          "src/ledger_channels_impl.rs",
+          "src/ledger_native_impl.rs",
+          "src/ledger_settlement_impl.rs",
+          "src/litecoin_mweb_structure_impl.rs",
+          "src/litecoin_transparent_impl.rs",
+          "src/margin_option_index_source_impl.rs",
+          "src/registry_snapshot_impl.rs",
+          "src/rpc_http_impl.rs",
+          "src/rpc_json_impl.rs",
+          "src/source_activation_hash_impl.rs",
+          "src/source_activation_lifecycle_impl.rs",
+          "src/source_amm_lifecycle_impl.rs",
+          "src/source_amm_quote_impl.rs",
+          "src/source_amm_remaining_impl.rs",
+          "src/source_channel_financial_impl.rs",
+          "src/source_channel_logic_impl.rs",
+          "src/source_channel_volume_impl.rs",
+          "src/source_clearing_expiry_impl.rs",
+          "src/source_clearing_funding_impl.rs",
+          "src/source_clearing_global_impl.rs",
+          "src/source_clearing_liquidation_impl.rs",
+          "src/source_clearing_mark_settlement_impl.rs",
+          "src/source_clearing_supply_impl.rs",
+          "src/source_contract_accounting_impl.rs",
+          "src/source_contract_aux_impl.rs",
+          "src/source_contract_fee_impl.rs",
+          "src/source_contract_history_schedule_impl.rs",
+          "src/source_contract_oracle_impl.rs",
+          "src/source_contract_position_identity_impl.rs",
+          "src/source_contract_registry_lifecycle_impl.rs",
+          "src/source_derivative_exercise_impl.rs",
+          "src/source_distribution_lifecycle_impl.rs",
+          "src/source_durable_replay_impl.rs",
+          "src/source_durable_replay_tests.rs",
+          "src/source_durable_transition_witness_impl.rs",
+          "src/source_durable_transition_witness_tests.rs",
+          "src/source_full_dispatch_transition_witness_impl.rs",
+          "src/source_insurance_legacy_v1_impl.rs",
+          "src/source_insurance_lifecycle_impl.rs",
+          "src/source_iou_settlement_impl.rs",
+          "src/source_lifecycle_transition_witness_impl.rs",
+          "src/source_liquidity_rewards_impl.rs",
+          "src/source_lower_clearlist_impl.rs",
+          "src/source_lower_oracle_lifecycle_impl.rs",
+          "src/source_lower_property_lifecycle_impl.rs",
+          "src/source_lower_send_commit_impl.rs",
+          "src/source_lower_utxo_trade_impl.rs",
+          "src/source_main_callable_impl.rs",
+          "src/source_option_trade_impl.rs",
+          "src/source_procedural_bitvm_impl.rs",
+          "src/source_proof_lifecycle_impl.rs",
+          "src/source_proof_settlement_impl.rs",
+          "src/source_recent_lifecycle_transition_witness_impl.rs",
+          "src/source_spot_lifecycle_impl.rs",
+          "src/source_spot_matching_impl.rs",
+          "src/source_spot_queue_fragments_impl.rs",
+          "src/source_spot_schedule_impl.rs",
+          "src/source_synthetic_lifecycle_impl.rs",
+          "src/source_tail_lifecycle_impl.rs",
+          "src/source_token_channel_schedule_impl.rs",
+          "src/source_transfer_schedule_impl.rs",
+          "src/source_transition_witness_impl.rs",
+          "src/source_withdrawal_schedule_impl.rs",
+          "src/spot_native_impl.rs",
+          "src/spot_snapshot_impl.rs",
+          "src/trade_history_position_impl.rs",
+          "src/volume_index_source_impl.rs"
+        ],
+        "exitCode": 0,
+        "seconds": 0.718,
+        "log": "archive-standard-source-include-fmt.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    ]
+  },
+  "sourceCheckResolution": {
+    "check": "logic-inventory",
+    "reason": "Refresh exact runtime hashes after the private durable observer change",
+    "finalLog": {
+      "sha256": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393",
+      "bytes": 115
+    },
+    "passed": true
+  },
+  "workerManifests": {
+    "standardInput": "098c1085f564df257f95e00aa42e40ca4093e18e76e046b944a9323614d14778",
+    "TLSW5": "9487e6496ab730bb6183e674c28eba0e79caf1a5c4e52b790af507d199cfa8bd",
+    "TLSW5Compatibility": "a729d6f80f95adad38d26897bf42a7352de34bc429f32a85ee4961b56f8dff96"
+  },
+  "RootUnitExecutable": {
+    "sha256": "c6f8951525fdc4d5efa2bf1c9b5f4701e8f90449d57b4572b095b8894613230f",
+    "bytes": 24466432
+  },
+  "scope": {
+    "standardInput": {
+      "templates": 6,
+      "definedHashModes": 6,
+      "genuineCoreCases": 212,
+      "nativeAccepts": 78,
+      "allNativeAcceptsCoreValid": true,
+      "privateLegacyFindAndDeleteTestPassed": true
+    },
+    "blockInput": {
+      "RootTests": 4,
+      "actualBlockSliceBound": true,
+      "detachedVerdictAccepted": false,
+      "recommittedInvalidWitnessRejected": true,
+      "weakModesRetainAuthorityRefusals": true
+    },
+    "TLSW5": {
+      "policies": [
+        9,
+        10,
+        11
+      ],
+      "prefixCommands": 5036,
+      "afterThrowRetryCommands": 5038,
+      "segments": 23,
+      "newRootTests": 9,
+      "newRealCrashBoundaries": 3,
+      "oldProviderGoldenRows": 39,
+      "oldProviderFiles": 5,
+      "liveOwnerImmutable": true,
+      "financialPoststateImported": false
+    },
+    "MainV12": {
+      "status": "work-only-uncompiled-excluded",
+      "sourceFactoryAdapterCorrectionRequired": true,
+      "RootIntegrated": false
+    }
+  },
+  "fullSuiteBaseline": {
+    "commit": "31ee8f4a3fc8996f410282028b4150a3cff01003",
+    "releaseExecutions": 1597,
+    "lockedReferenceTests": 198
+  },
+  "fullReferenceParityEstablished": false,
+  "completeBlockProofEstablished": false,
+  "authenticationEstablished": false,
+  "changedInputPins": {
+    ".gitattributes": {
+      "sha256": "6e1c923f4597faca11d98e565345be0b18dbec8ac8f25703d2436264b6fa3bbf",
+      "bytes": 12574
+    },
+    ".github/workflows/ci.yml": {
+      "sha256": "916cd5a33ca1cf8636857c84011eb24cc03a9ea85b92bf13fc79ffbf90ced7f8",
+      "bytes": 37804
+    },
+    "docs/BITCOIN_BLOCK_INPUT.md": {
+      "sha256": "1e6d6aa535294abb13c45c61987b7a00377be9c47d9990752dee9fa5bd05e7dd",
+      "bytes": 1719
+    },
+    "docs/BITCOIN_STANDARD_INPUT.md": {
+      "sha256": "59fad069b1ce13ddbcfe3ab8fd47bf5e7b0bacf6aa31df75880bc3c6b9823712",
+      "bytes": 9798
+    },
+    "docs/REFERENCE_FIDELITY.md": {
+      "sha256": "e6f07f6be4c35db0f1e7015104ceb181e1f2700ceaeac138ecc078ee955f166d",
+      "bytes": 8736
+    },
+    "docs/SOURCE_DURABLE_REPLAY.md": {
+      "sha256": "a378ab4eb9eaa3f13f13c13f9e0071b011eeb29a8b00266828065b977aab06da",
+      "bytes": 10427
+    },
+    "docs/SOURCE_DURABLE_TRANSITION_WITNESS.md": {
+      "sha256": "e5faf20675f91bf3cc90413264f8bb34b30ccdbfe32962d6d8be37d72bd96372",
+      "bytes": 9263
+    },
+    "docs/SOURCE_FULL_DISPATCH_TRANSITION_WITNESS.md": {
+      "sha256": "582e8b69927797b9f5e290b41b9113bd9de097ea73d76405b884a2226d5c08f4",
+      "bytes": 5466
+    },
+    "fixtures/bitcoin_standard_input.tsv": {
+      "sha256": "2e6b90efe149166f592656bac5b411c8a62f695b016e775a32228d08445245c4",
+      "bytes": 228072
+    },
+    "fixtures/source_durable_transition_compatibility.tsv": {
+      "sha256": "cbc2f2d8353fcbed5bfdfc17b66cafe1f95a255e53da28c7f4322e296a717f53",
+      "bytes": 236560
+    },
+    "fixtures/source_durable_transition_compatibility_provenance.json": {
+      "sha256": "c75b6a4270f5b52f81f13a1b511c92490bddb5e6d87803077b712a585dffdb7d",
+      "bytes": 2735
+    },
+    "scripts/ci-preflight.sh": {
+      "sha256": "f3ed23a72d496b3a7e65388d610bab6ac3c01fd11449276530083b19a9082535",
+      "bytes": 4343
+    },
+    "src/bitcoin_block_input.rs": {
+      "sha256": "aaea8d26fdb286d33e90a7de9a4de3ca80a199c3b143e690f0b8ce86be9a9ee2",
+      "bytes": 3567
+    },
+    "src/bitcoin_block_input_tests.rs": {
+      "sha256": "5dc4c60f2cc9d016cf68be0440361db318cd76462525e65f6b65f28cb24a4965",
+      "bytes": 10872
+    },
+    "src/bitcoin_standard_input.rs": {
+      "sha256": "fbf5c77da3658183d0270af46b87ebd1b4a1a1a9b2a9bad9b8be50dbc2b8c1f3",
+      "bytes": 22240
+    },
+    "src/lib.rs": {
+      "sha256": "c04e52e60d3956b0a4b717101f3912b618d20c11e5d1ac9d06bacb6bbe7d85c9",
+      "bytes": 13273
+    },
+    "src/source_durable_replay_impl.rs": {
+      "sha256": "da3b58dad9386237bc8891a40dee16ef19ae66badc1c3b27c08f80e7d26cef94",
+      "bytes": 29006
+    },
+    "src/source_durable_transition_witness_impl.rs": {
+      "sha256": "1ea03756e5b7b96d3be500c8691f9d6c3292d79017909cab88c7e0b739cd55e4",
+      "bytes": 23978
+    },
+    "src/source_durable_transition_witness_tests.rs": {
+      "sha256": "e795aaa112232a18d5eec591609d9d99658748596cfd89e114e78423b8a96d28",
+      "bytes": 29908
+    },
+    "tests/bitcoin_standard_input.rs": {
+      "sha256": "66405103a72f2da11770309fd67f566a3000fab12d788ff6fd8845683630d969",
+      "bytes": 7542
+    }
+  },
+  "standardInputPeer": {
+    "sha256": "1dda230a04328f0007683910c49487cab995144fbaf30716e72523e4073b77f5",
+    "bytes": 2470
+  },
+  "blockInputPeer": {
+    "sha256": "28cba348ee05a032ccc3702eb4d12df21d0618290d3862a67b84e3703a8f5a73",
+    "bytes": 3678
+  },
+  "TLSW5Peer": {
+    "sha256": "ddd8b848a8e9305769a8b0c259d3c0c13e1eeee114ed2939cd4c03e50c3acf02",
+    "bytes": 4667
+  }
+}

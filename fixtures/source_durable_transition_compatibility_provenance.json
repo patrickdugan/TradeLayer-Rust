@@ -1,0 +1,54 @@
+{
+  "schema": "tl-durable-old-provider-compatibility-capture-v1",
+  "providerSha256": "a19118368cf9ccd4ee6e14b36df0f775b4cc0c6ba345eafa9bfcb5f3ecc55c7a",
+  "producer": "work-only capture_old.rs directly linked solely to immutable old provider public APIs; no overlay/new observer",
+  "captureSourceSha256": "33011b11aa5802a724ff3ae41eb0166339ea943b448473b537a494595bc7547e",
+  "captureExecutableSha256": "36e11b74756996ed3aeca81ea32b9e0ef8087997f467eae9be2a506414f9c7cc",
+  "rustToolchain": "Rust1.90 edition2021 MSVC",
+  "firstFrozenManifestSha256": "9487e6496ab730bb6183e674c28eba0e79caf1a5c4e52b790af507d199cfa8bd",
+  "originalDirectComparisonEvidence": "artifacts/compatibility.log and unmodified first frozen source test, preserved outside Root dependency graph",
+  "deterministicIndependentRuns": 2,
+  "fixtureSha256": "cbc2f2d8353fcbed5bfdfc17b66cafe1f95a255e53da28c7f4322e296a717f53",
+  "fixtureBytes": 236560,
+  "recordCounts": {
+    "command": 10,
+    "context": 1,
+    "file": 5,
+    "publication": 4,
+    "receipt": 10,
+    "reopened_runtime": 1,
+    "runtime": 4,
+    "state": 4
+  },
+  "actualArchiveFiles": [
+    {
+      "path": "source-command-segments/bc4b7d26715ed08d8f01be5d2dab77d85d605dc2add00999b52ffb6d7a9dad7d.tlds",
+      "bytes": 10330,
+      "sha256": "bc4b7d26715ed08d8f01be5d2dab77d85d605dc2add00999b52ffb6d7a9dad7d"
+    },
+    {
+      "path": "source-command-segments/c3946d296fbcd49949edbdf677a55aec5faebc7edae9fecc55e5d1fbfeb184e5.tlds",
+      "bytes": 836,
+      "sha256": "c3946d296fbcd49949edbdf677a55aec5faebc7edae9fecc55e5d1fbfeb184e5"
+    },
+    {
+      "path": "source-command-segments/db6ed7319f8332cd6bfee342797f62329d9a1f03ec7d53a4d11d903e9fe29389.tlds",
+      "bytes": 2042,
+      "sha256": "db6ed7319f8332cd6bfee342797f62329d9a1f03ec7d53a4d11d903e9fe29389"
+    },
+    {
+      "path": "source-command-segments/ee94ca9e17cd999301a4a7f20585f0aaed0dc9fd750dc11bb95e88bb207bc5b3.tlds",
+      "bytes": 4508,
+      "sha256": "ee94ca9e17cd999301a4a7f20585f0aaed0dc9fd750dc11bb95e88bb207bc5b3"
+    },
+    {
+      "path": "tl-durable-witness-test/consensus.tldb",
+      "bytes": 1508,
+      "sha256": "e4178022fc42cb192a4b3422be1b40f68d819f367dc36577910ab235f6935725"
+    }
+  ],
+  "inputProfile": "TL-DURABLE-WITNESS test namespace; V11; FileSyncOnly; four batches compatibility-0..3; public throwaway alice/property7 inputs; actual success, native throw and local refusal",
+  "testUse": "expected comparison only; commands are independently constructed and executed; no financial poststate imported or restored from fixture",
+  "rootShapedCheck": "test compiles and passes with no old_core crate or alias, immutable provider only for native source execution",
+  "productionDependenciesAdded": false
+}

@@ -1,4 +1,16 @@
-Release verification: the existing suite passed at `31ee8f4` with1,597 executions and198 exact numeric-reference checks. A known mixed-history Queue/Core orderBooks inconsistency also affects Consensus hashing; that correction is not included. Broader source parity, authenticated admission and complete block proofs remain open. See [the release record](../fixtures/reference_fidelity/source-amm-main-validation.json).
+The full release baseline remains `31ee8f4`: 1,597 executions and 198 exact
+numeric-reference checks. The mixed Queue/Core/Consensus correction is committed
+at `7f5733e` and passes its focused mixed-history and compatibility gates.
+
+The next batch adds TLSW5 archive-backed conditional witnesses, six Bitcoin
+payment/channel input templates and exact block/input byte binding. Its 35 Root
+focused executions pass, including 11 prior durable regressions. Clippy and
+formatting pass; full release promotion is pending. Independent Core script
+comparisons, historical compatibility goldens and scope limits are recorded in
+[the focused record](../fixtures/reference_fidelity/archive-witness-bitcoin-focused.json).
+Broader source/historical parity, production orchestration, authenticated inputs
+and complete-block proofs remain open. The V12 orchestration candidate remains
+work-only and uncompiled; it is not part of this batch.
 
 Earlier focused-stage account (preserved for provenance):
 

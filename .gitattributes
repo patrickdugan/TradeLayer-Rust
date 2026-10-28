@@ -228,3 +228,9 @@ fixtures/bitcoin_p2wsh_verify.tsv text eol=lf
 fixtures/main_mixed_vectors.jsonl text eol=lf
 fixtures/main_mixed_proof10.jsonl text eol=lf
 fixtures/main_mixed_inventory.json text eol=lf
+
+fixtures/bitcoin_standard_input.tsv text eol=lf
+
+fixtures/source_durable_transition_compatibility.tsv text eol=lf
+
+fixtures/source_durable_transition_compatibility_provenance.json text eol=lf

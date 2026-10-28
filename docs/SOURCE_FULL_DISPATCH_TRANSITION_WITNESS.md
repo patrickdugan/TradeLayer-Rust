@@ -74,9 +74,10 @@ unrestricted source-state fidelity. Full release promotion of this batch is pend
 
 All histories remain subject to TLCR's existing 4,096-command total prefix limit,
 4 MiB frames, 32 MiB checkpoint/witness bounds and source runtime resource limits.
-The prehistory is fully replayed on restart. The newer durable segmented journal
-is not accepted by this format; durable-history witness coverage is unimplemented.
-This is not a compact snapshot or a continuous-node resource-bound solution.
+The prehistory is fully replayed on restart. This format does not accept the
+segmented durable journal; the separate [TLSW5 format](SOURCE_DURABLE_TRANSITION_WITNESS.md)
+verifies archive-backed histories. Neither format is a compact snapshot or an
+indefinite continuous-node resource solution.
 
 ## Integration
 
