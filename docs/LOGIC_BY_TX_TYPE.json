@@ -3,7 +3,7 @@
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
   "rustCommit": "70f568ad703bef189c01c989631692fdf75235bb",
   "rustCommitScope": "Inventory parent is historical. Full release baseline ef6dbe9 covers the integrated V11 shared-owner and TLSW4/5 batch; V12 remains staged and uncompiled.",
-  "reviewedAtUtc": "2026-10-28T19:33:56Z",
+  "reviewedAtUtc": "2026-10-28T20:29:45Z",
   "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
     {
@@ -512,8 +512,8 @@
       "sourceEffects": "Loops requested types, awaits Activation.activate, writes activation block/codeHash and consensus activation metadata. Activating target0 invokes source vesting initializer.",
       "sourceDefects": "Source repeats can overwrite activation height; source validity accepts in-range fractional IDs; async persistence can swallow failures. Runtime differences: Actual Registry requires independently configured administrator, bounded integer types and prior-height effectiveness; type0 does not invent funded genesis.",
       "runtimeScope": "The separate literal ActivationLifecycleV10 policy composes original raw0 and Main0 with the existing SourceActivation registry, Tally, Property, Vesting, Insurance and Consensus owners. It preserves all16 mixed native-token subsets, source code-hash profiles, asynchronous initialization, ignored Errors and retained failure prefixes. The generic conserving mapper remains separately scoped.",
-      "missingLogic": "Production Main startup/catchup/reorg, broader historical and authenticated input admission, and complete block proofs remain open. The shared mixed-state correction passes focused checks; release ef6dbe9 covers this correction.",
-      "nextTask": "Compile corrected V12 finite indexing/catchup and service paths, then integrate snapshot restoration and full startup composition.",
+      "missingLogic": "Full Main startup, snapshot restoration/DB reload, durable service publication, broader historical/authenticated admission and complete-block proofs remain open. V12 finite indexing/catchup/service phases pass focused source/replay checks.",
+      "nextTask": "Integrate the source-validated scheduled snapshot/lifecycle candidate, then full module startup and production storage composition.",
       "evidence": "JS dca0888b src/types.js decodePayload case0; src/logic.js typeSwitch case0; src/activation.rs; src/activation_history.rs; src/registry.rs; tests/activation_history.rs; tests/consensus_source.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.;docs/SOURCE_ACTIVATION_LIFECYCLE.md;docs/SOURCE_MAIN_V10_OBSERVER_STORAGE.md;tests/source_activation_lifecycle.rs;tests/source_activation_mixed_native.rs;tests/source_main_activation_callable.rs;tests/source_main_activation_inherited.rs;fixtures/reference_fidelity/source-activation-main-focused.json",
       "preStateWitness": "Independent configured Registry activation/admin and ordered accepted activation origins.",
       "postStateWitness": "Activation metadata/code hashes and any explicitly authorized genesis effects, with global replay IDs.",
@@ -1564,7 +1564,7 @@
       34,
       35
     ],
-    "status": "Full release ef6dbe9: 1641 executions and218 exact numeric checks; V12 excluded.",
+    "status": "V12 finite Main/service integration passes18 new tests; complete release promotion pending",
     "fullSuitePromotion": true,
     "completeBlockProof": false,
     "authenticationEstablished": false,
@@ -1578,7 +1578,8 @@
       "Chain/UTXO/actor evidence and complete-block proofs"
     ],
     "focusedExecutions": 35,
-    "commit": "ef6dbe971238b57b5fd37c6c950f9b007ad3120a"
+    "commit": "bfd12ddb06c7cf67aeaeed2d16fa531d12a643c6",
+    "record": "fixtures/reference_fidelity/main-v12-integration.json"
   },
   "recentConditionalWitness": {
     "profile": "TLSW3",

@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-28T19:33:56Z",
-  "inspectedCheckoutCommit": "2f66bb56c9c4f79a681b7b4b5a9860618e5dc7be",
+  "verifiedAtUtc": "2026-10-28T20:29:45Z",
+  "inspectedCheckoutCommit": "bfd12ddb06c7cf67aeaeed2d16fa531d12a643c6",
   "verifiedImplementationCommit": "ef6dbe971238b57b5fd37c6c950f9b007ad3120a",
   "verifiedReleaseTests": 1641,
   "topLevelTests": 1640,
@@ -179,33 +179,42 @@
       "coveredByReleaseCommit": "ef6dbe971238b57b5fd37c6c950f9b007ad3120a"
     },
     "MainV12": {
-      "status": "work-only-uncompiled-source-corpus-correction-staged",
-      "RootIntegrated": false,
-      "fullSuitePromotion": false
+      "status": "integrated-focused-validated-release-pending",
+      "RootIntegrated": true,
+      "fullSuitePromotion": false,
+      "newTests": 18,
+      "focusedRootExecutions": 19,
+      "record": "fixtures/reference_fidelity/main-v12-integration.json",
+      "codeCommit": "bfd12ddb06c7cf67aeaeed2d16fa531d12a643c6"
     },
     "MainV12Service": {
-      "status": "staged-uncompiled",
-      "sourceFrames": 51,
-      "actualMainCalls": 30,
+      "status": "integrated-focused-validated",
+      "sourceFrames": 72,
+      "actualMainCalls": 41,
       "numericProfilesChecked": 2,
       "sourceStartupObservations": 4,
       "sourceDatabaseCategories": 32,
       "stagedRustTests": 2,
-      "rootRustCompilationPerformed": false,
+      "rootRustCompilationPerformed": true,
       "fullSuitePromotion": false,
       "manifest": {
+        "sha256": "6e9b34797b878628cab78d41afda2b00ca8f663d26cbf87ea6bfee5c6b37d33b",
+        "bytes": 2520
+      },
+      "priorServiceManifest": {
         "sha256": "98478d7278de720e94bf02f7decb3926dfa5aab5aa559236b983a90d9df13e06",
         "bytes": 5285,
         "payloadFiles": 12
       },
-      "completedSourceLogs": {
+      "priorSourceLogs": {
         "final-default-check.log": "2e30538a4f39c5c1081d81b31eb8f5316d6b8148b0167de236748436ac0a5e62",
         "final-locked-check.log": "2e30538a4f39c5c1081d81b31eb8f5316d6b8148b0167de236748436ac0a5e62",
         "final-proof-check.log": "60180e0639dac65035d4b130b9ae3034954fddcffc9523bab13d05793c6cf3ac",
         "final-lock-proof-check.log": "60180e0639dac65035d4b130b9ae3034954fddcffc9523bab13d05793c6cf3ac",
         "final-startup-check.log": "000a71dab2ece838712f74c5239d31359baad07c12e8495dae7e4666bf42c732",
         "final-startup-locked-check.log": "000a71dab2ece838712f74c5239d31359baad07c12e8495dae7e4666bf42c732"
-      }
+      },
+      "record": "fixtures/reference_fidelity/main-v12-integration.json"
     },
     "sourceCompactAdapter": {
       "status": "isolated-component-checks-only",
@@ -429,26 +438,26 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Release ef6dbe9 remains verified: 1,641 Rust executions and 218 exact numeric checks. New staged V12 service evidence has 51 frames/30 Main calls plus separate source startup; Rust composition remains uncompiled. The compact adapter has 11 isolated checks, excluded from the full-suite total. Main streaming, compaction, snapshot/startup integration, broader historical parity, authenticated inputs and complete-block proofs remain open.",
+  "workbookNote": "Full release remains ef6dbe9: 1,641 Rust executions and 218 exact numeric checks. Integrated bfd12dd adds 18 passing tests (19 focused executions including the older archive gate), 716 native parser cases and exact production/service/Error comparisons under both numeric profiles. Startup/snapshot follow-on and compact streaming/compaction remain work-only; full release promotion, historical parity, authenticated inputs and complete-block proofs remain open.",
   "savedWorkbook": {
-    "sha256": "69f811254470be0ae56eb75b9453187c4df3a1d9e48c855889b270f62e7b6bb9",
-    "bytes": 48030,
+    "sha256": "10d4318417b6915a69effedae8a2afe78b7a0905e66775bfe26aedff46e990dd",
+    "bytes": 48099,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-28T19:33:56Z",
+    "asOfUtc": "2026-10-28T20:29:45Z",
     "rowHashes": {
-      "modules": 3045462454,
-      "logic": 978069326
+      "modules": 4046522689,
+      "logic": 1151758449
     },
-    "verifiedEdits": 13,
+    "verifiedEdits": 12,
     "layoutAndFormulaPreservationVerified": true
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-  "workbookVerification": "Sidebar/saved rows match; 13 targeted cells and necessary heights changed. Formulas, styles, filters, tables, widths and panes preserved; no formula errors. Changed views rendered and reviewed.",
+  "workbookVerification": "Sidebar and saved workbook match; 12 targeted cells and needed heights changed. Formulas, styles, filters, tables, widths and panes preserved; no formula errors. Changed views rendered and reviewed.",
   "validationRecord": "fixtures/reference_fidelity/archive-witness-release-validation.json",
   "knownReferenceGaps": [
-    "V12 orchestration staged/uncompiled",
-    "Broader source/historical domains",
+    "Full module/IIFE startup and scheduled/nonempty snapshot restoration",
     "Compact indexing, streaming and compaction",
+    "Rich thrown-value transport and broader historical/value/event-loop domains",
     "Chain/UTXO/actor evidence and complete-block proofs"
   ],
   "previousFullSuiteBaseline": {
@@ -456,6 +465,6 @@
     "releaseExecutions": 1597,
     "exactNumericReferenceTests": 198
   },
-  "focusedValidationRecord": "fixtures/reference_fidelity/archive-witness-bitcoin-focused.json",
-  "focusedImplementationCommit": "0d6a50c0ea0c235eee86552372487296a442d0e5"
+  "focusedValidationRecord": "fixtures/reference_fidelity/main-v12-integration.json",
+  "focusedImplementationCommit": "bfd12ddb06c7cf67aeaeed2d16fa531d12a643c6"
 }
