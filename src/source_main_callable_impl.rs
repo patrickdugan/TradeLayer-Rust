@@ -382,10 +382,14 @@ impl SourceContractRuntime {
             _ => None,
         });
         *kind = n(ty.map_or(f64::NAN, f64::from));
-        // These are the genuine39 corpus's executed raw kinds. Other Types
-        // graphs are still available through their existing public entry;
-        // Main composition for them is an explicit future local domain.
-        if !matches!(ty, Some(18 | 32)) {
+        // Original Types/Logic are shared with the owned standalone graph.
+        // These kinds are exercised through actual-registry Main corpora,
+        // including source-thrown prefixes; no success is inferred from a
+        // standalone handler or a missing dependency.
+        if !matches!(
+            ty,
+            Some(1 | 2 | 3 | 4 | 7 | 8 | 9 | 11 | 12 | 13 | 14 | 15 | 18 | 32)
+        ) {
             return Err(SourceRuleError::InvalidInput.into());
         }
         let sender = funding_prop(&value, "sender")?;

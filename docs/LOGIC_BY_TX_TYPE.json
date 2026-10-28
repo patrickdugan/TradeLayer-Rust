@@ -1,9 +1,9 @@
 {
   "schema": "tl-logic-reference-review-v1",
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
-  "rustCommit": "a40534832b4833fb1f323e76bae903f016bf1937",
+  "rustCommit": "d8932929da050b48aa2f054f4a8862277ce9047d",
   "rustCommitScope": "Parent of MainCallableV8 validation changes; completed gates and frozen inputs are recorded separately.",
-  "reviewedAtUtc": "2026-10-28T06:27:20Z",
+  "reviewedAtUtc": "2026-10-28T06:59:02Z",
   "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
     {
@@ -346,7 +346,7 @@
     {
       "path": "src/source_main_callable_impl.rs",
       "lfNormalized": true,
-      "sha256": "de1add55523d8e4cb77fe664157b531be70662ea0757e165a8dced3b84660c27"
+      "sha256": "56aa06843c4f2113f9873292e98c85c29dee6a76cbc374cd5f794b4a1655818b"
     },
     {
       "path": "src/source_lower_clearlist_impl.rs",
@@ -1378,6 +1378,25 @@
     "utxoTradeCalls": 34,
     "mainReferenceFrames": 39,
     "fullHistoricalParityEstablished": false,
-    "newWitnessExport": false
+    "newWitnessExport": false,
+    "mainLowerReferenceFrames": 38,
+    "mainLowerComparableCalls": 23,
+    "mainLowerUnavailableCalls": 2,
+    "mainKinds": [
+      1,
+      2,
+      3,
+      4,
+      7,
+      8,
+      9,
+      11,
+      12,
+      13,
+      14,
+      15,
+      18,
+      32
+    ]
   }
 }
