@@ -3,7 +3,7 @@
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
   "rustCommit": "70f568ad703bef189c01c989631692fdf75235bb",
   "rustCommitScope": "Inventory parent is historical. Full release fa00946 covers the preceding finite V12 Main/service profile. The additive startup/snapshot/control phase has focused checks; full-suite promotion remains separate. Full reference parity is unproven.",
-  "reviewedAtUtc": "2026-10-28T21:48:11Z",
+  "reviewedAtUtc": "2026-10-28T22:02:44Z",
   "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
     {
@@ -490,12 +490,12 @@
     },
     {
       "path": "src/source_main_service_impl.rs",
-      "sha256": "3b30c140486dd540afe4029cd853c089574ff762f4b3706c39e3d7353270da49",
+      "sha256": "1734c09402b873e899dba6ad2acb3617cc8ee6002c006e8666e8936889b579b8",
       "lfNormalized": true
     },
     {
       "path": "src/source_main_snapshot_impl.rs",
-      "sha256": "16a51b069c16c1150e2097f228378dc10e85be3e0ca89d3d134c13f6fb5addce",
+      "sha256": "de8e90173d68998bd8b850c1d19ed6955da85cb9babb2644668be854f9849885",
       "lfNormalized": true
     },
     {
@@ -506,6 +506,16 @@
     {
       "path": "src/source_main_control.rs",
       "sha256": "673bea9188de506975ebaac976a7934530678e53b39e2bded6585f0ed946df09",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_file_io_impl.rs",
+      "sha256": "bd0564794780e943e07b6e0c0439cffb2db92636b49822622a1924d946521d94",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_v8_sort_impl.rs",
+      "sha256": "af2a5787df75e48b0fee6f689ddf1fac5c3ae44e0aa1ac81570216ca40df77ef",
       "lfNormalized": true
     }
   ],
@@ -1697,5 +1707,17 @@
     "fullSuitePromotion": false,
     "financialOwner": "existing Core/Ledger; file restore never implies cache reload or financial rollback",
     "terminalProfile": "opt-in SourceMainControlSessionV1; old V1-V12 replay wire and Invoke unchanged"
+  },
+  "fileIOComposition": {
+    "status": "Root focused execution checks pass; full-suite promotion separate",
+    "validationRecord": "fixtures/reference_fidelity/main-file-io-integration.json",
+    "fullSuitePromotion": false,
+    "sourceObservations": 66,
+    "sourceCalls": 41,
+    "facts": "recorded file failures and stat mtimes; no financial answers or automatic database/cache reload",
+    "sortSourceFrames": 32,
+    "sortSourceCalls": 16,
+    "primitiveV8Cases": 44890,
+    "sortProfile": "literal V8 TimSort including comparator schedule and native Number-hint errors"
   }
 }

@@ -197,8 +197,9 @@
   "persistence": {
     "sourceSHA256": "628c5b3cfd919fd518aedc2b757cdc256f7ccc36c447090f30aebd8a677ce2e1",
     "existing": "typed PersistentJointChain and SourceDurableReplay compact journal; no claim of literal filesystem snapshot parity",
-    "next": "remaining safeCopy/safeDelete retry/mtime/direct-return paths, host durability and service publication",
-    "integrationNote": "V12 scheduled snapshot/restore and cold module composition tested against recorded POSIX file artifacts. Restore does not reload open collections/caches."
+    "next": "broader JS value/receiver domains, startup terminal/suspended scheduling, native compact Main storage and host durability/service publication",
+    "integrationNote": "V12 scheduled snapshots, cold startup, direct lifecycle, safeCopy/safeDelete retry/ENOENT paths, partial file/DB failures and distinct newest-backup mtimes execute against recorded POSIX IO. Live Core remains the sole row/financial owner. Header/backup sorting uses literal V8 comparison order, including NaN, merge boundaries and native Number-hint errors; tested separately against the unchanged full module.",
+    "fileIOValidationRecord": "fixtures/reference_fidelity/main-file-io-integration.json"
   },
   "reOrg": {
     "sourceSHA256": "3e4cabb0dc560fd8c601b72e05f0e698ce02adc646eaef241189fd192d906a82",

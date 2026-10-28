@@ -1,0 +1,233 @@
+{
+  "schema": "tl-main-file-io-and-literal-sort-integration-v1",
+  "verifiedAtUtc": "2026-10-28T22:32:52Z",
+  "parentCommit": "2484c73a28fe0dbddb44b496363244a598fc0670",
+  "scope": "focused corrected Root execution; full release promotion separate",
+  "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "ioStage": "ab03386471b1fc6027867303e9379c8f96b612e49a8476a4f766dcc9c4402955",
+  "sortStage": "74f362fdd6c7c6bac56ff73fd305ef5c5dccd11fd9ecaf63ca44a3febacc1b04",
+  "newlineAddendum": "324bd705083d0a48a8744ad417c6853350ce21cdb767e7f862321bf62c6f2d75",
+  "sourceObservations": {
+    "fileIO": 66,
+    "fileIOCalls": 41,
+    "sort": 32,
+    "sortCalls": 16,
+    "firstTenIOProofUnchanged": true
+  },
+  "numericProfiles": [
+    "9.3.1",
+    "9.1.2"
+  ],
+  "primitiveV8OrderAndComparatorTraceCases": 44890,
+  "newUniqueTests": 5,
+  "correctedRootFocusedExecutions": 36,
+  "logs": [
+    {
+      "path": "main-file-sort-root-first.log",
+      "sha256": "b1ae951c841484ac12695db4651b3876c606afe02780e6e28ee3fc9141447ec2",
+      "passed": 7,
+      "targets": 4
+    },
+    {
+      "path": "main-file-sort-root-regressions.log",
+      "sha256": "d2f147e468728c1bf6c2154d2798578a71f506a2ea567c46b9cf03f43d805558",
+      "passed": 29,
+      "targets": 11
+    },
+    {
+      "path": "main-file-sort-root-clippy.log",
+      "sha256": "e3aaf13789769164b5482e6f221ffcd1b9cf11abec0ccdff0812442f68ced66d",
+      "status": "pass all-targets -D warnings"
+    }
+  ],
+  "formatterIncludedRustFiles": 104,
+  "staticChecks": 7,
+  "officialSortSource": {
+    "url": "https://github.com/nodejs/node/blob/v24.22.1/deps/v8/third_party/v8/builtins/array-sort.tq",
+    "gitBlob": "703b74789b4d7e8f223e2c3da44f9fa0eb8983cc",
+    "sha256": "2ac3d8fc187e4f5096afb153d018390e2b250cde3e36badafe89da3faeebe55e",
+    "node": "v24.22.1",
+    "v8": "13.6.233.17-node.58",
+    "licenses": [
+      "licenses/V8-PYTHON-TIMSORT.txt",
+      "licenses/V8-BSD.txt"
+    ]
+  },
+  "fullSuitePromotion": false,
+  "defaultPolicyChanged": false,
+  "newFinancialOwner": false,
+  "olderCheckpointGate": "exact ReplayMismatch; ordinary older V12 bytes remain canonical",
+  "remaining": [
+    "full-suite promotion",
+    "broader JS domains",
+    "pause/resume/startup exit1",
+    "rich thrown values",
+    "native compact Main owner/replay integration",
+    "host service/storage publication",
+    "authenticated history",
+    "complete-block proofs"
+  ],
+  "retainedActualPriorCoreFailures": [
+    {
+      "path": "next-main-file-sort\\old-provider-header-failure.log",
+      "sha256": "0e22bb195188a65bd65097f6b74d6873070465b4e61917aefe2e390c3986765f",
+      "compiledProvider": "bf84ce1de9e536b552c8f49f9bdaa497d97524732dced2002ba2dd5f2d858457"
+    },
+    {
+      "path": "next-main-file-sort\\old-provider-mtime-failure.log",
+      "sha256": "b14b21978ba9db921a0a6b7ae43452386c41b8861cf29bbf3e053236c6dd4558",
+      "compiledProvider": "bf84ce1de9e536b552c8f49f9bdaa497d97524732dced2002ba2dd5f2d858457"
+    },
+    {
+      "path": "next-main-file-sort\\old-provider-native-object-failure.log",
+      "sha256": "0e2d71890166348fdbdce73604e48ee81dfbfb8943b88a0024fcda5a6dd7c741",
+      "compiledProvider": "bf84ce1de9e536b552c8f49f9bdaa497d97524732dced2002ba2dd5f2d858457"
+    }
+  ],
+  "reviewedInputs": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "5eacd0377f94da7f947b08a848300df03802e973e8608f189c3a46e018ff6dcb",
+      "bytes": 38420,
+      "lfNormalized": true
+    },
+    {
+      "path": "docs/LOGIC_BY_TX_TYPE.json",
+      "sha256": "df6383baa93752814e56410041c2b6264ec6a84350e2597b4e24f031ad3949b2",
+      "bytes": 180295,
+      "lfNormalized": true
+    },
+    {
+      "path": "docs/PERSISTENCE_FILE_IO.md",
+      "sha256": "fd7a31683de9a3a2cb0ab27898f3c1f1a5159f5dea013e594805e73fbee1cc9b",
+      "bytes": 3275,
+      "lfNormalized": true
+    },
+    {
+      "path": "docs/SOURCE_MAIN_PRODUCTION_METHOD_MAP.json",
+      "sha256": "780cd166ea3f360c80dd01f3d67d5a549da5e897f4c13ea5a0606d4e77dbcdc8",
+      "bytes": 9587,
+      "lfNormalized": true
+    },
+    {
+      "path": "docs/SOURCE_PERSISTENCE_SORT.md",
+      "sha256": "0df909e450dbc2e62c13e6cd29a42094da2a641cd06d6dfc9e4b0759712a9798",
+      "bytes": 4075,
+      "lfNormalized": true
+    },
+    {
+      "path": "fixtures/main_file_io_proof10.jsonl",
+      "sha256": "7b3110454854b55e7a97452818bd7be2a8c788cecfe538ed7227a0593f7dbf0e",
+      "bytes": 117897,
+      "lfNormalized": true
+    },
+    {
+      "path": "fixtures/main_file_io_vectors.jsonl",
+      "sha256": "cb7e36d185dfb750b523782332e3243ee6803370aa8d0c7b17ea9e86e6c08221",
+      "bytes": 837314,
+      "lfNormalized": true
+    },
+    {
+      "path": "fixtures/main_file_sort_vectors.jsonl",
+      "sha256": "d7f83482c4b64ca9e624c6f075a2f8725a69d828fdb5272ef3b4087924932aef",
+      "bytes": 1645605,
+      "lfNormalized": true
+    },
+    {
+      "path": "licenses/V8-BSD.txt",
+      "sha256": "6ab33af8774a0f396ee3aeeb761e3229057682d6f9fa7f572e390c2cb3a6e509",
+      "bytes": 3093,
+      "lfNormalized": true
+    },
+    {
+      "path": "licenses/V8-PYTHON-TIMSORT.txt",
+      "sha256": "b9a6d9320b8f2693e8d41e496ce56caadacaddcca9be2a64a61749278f425cf2",
+      "bytes": 12763,
+      "lfNormalized": true
+    },
+    {
+      "path": "scripts/ci-preflight.sh",
+      "sha256": "69f028c13252c4e805732270bc6fc5e47ad3734daa8fc1a0835fae57872597bb",
+      "bytes": 4609,
+      "lfNormalized": true
+    },
+    {
+      "path": "scripts/main_file_io_observer.cjs",
+      "sha256": "7e882d3a40fb25c796158e9ee8d85e4ef44bc7dee6e32f292b33f54958cc9ca8",
+      "bytes": 5259,
+      "lfNormalized": true
+    },
+    {
+      "path": "scripts/main_file_io_vectors.cjs",
+      "sha256": "f0e4a78549d926fc16b261ca1ffd399e309457dd44e7f80d38738c168217cc04",
+      "bytes": 73398,
+      "lfNormalized": true
+    },
+    {
+      "path": "scripts/main_file_sort_observer.cjs",
+      "sha256": "5d69b5e2edeb2e9a91fe7ca2cb075c439a93cf3cb586e915b631cbe4c1fcad27",
+      "bytes": 5263,
+      "lfNormalized": true
+    },
+    {
+      "path": "scripts/main_file_sort_vectors.cjs",
+      "sha256": "145a062144c8270502ddae40f948819d5b1b401474689a49f8ea1600c5499c60",
+      "bytes": 75743,
+      "lfNormalized": true
+    },
+    {
+      "path": "scripts/source_v8_sort_vectors.cjs",
+      "sha256": "9b2854f6cccf1a0e11fee37e6173919fb3cff606025e1ccc24715f2ca74e01a7",
+      "bytes": 2142,
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_file_io_impl.rs",
+      "sha256": "bd0564794780e943e07b6e0c0439cffb2db92636b49822622a1924d946521d94",
+      "bytes": 11037,
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_service_impl.rs",
+      "sha256": "1734c09402b873e899dba6ad2acb3617cc8ee6002c006e8666e8936889b579b8",
+      "bytes": 26723,
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_snapshot_impl.rs",
+      "sha256": "de8e90173d68998bd8b850c1d19ed6955da85cb9babb2644668be854f9849885",
+      "bytes": 24412,
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_v8_sort_impl.rs",
+      "sha256": "af2a5787df75e48b0fee6f689ddf1fac5c3ae44e0aa1ac81570216ca40df77ef",
+      "bytes": 14208,
+      "lfNormalized": true
+    },
+    {
+      "path": "tests/source_main_file_io.rs",
+      "sha256": "bc89c4698ac82f8d32bb78f49b859a3910534e16555d365068ebd1ee5de7930e",
+      "bytes": 29351,
+      "lfNormalized": true
+    },
+    {
+      "path": "tests/source_main_file_sort.rs",
+      "sha256": "6ba4e9c4881a4b6edccfeca5bae3c52442c08be5b6e4018def139ec5c5b6700f",
+      "bytes": 29227,
+      "lfNormalized": true
+    },
+    {
+      "path": "tests/source_main_snapshot_versions.rs",
+      "sha256": "9820db9928ab1d1cbd430a911ef55cb9411a30454153b0a6fe8b8c204d9c7039",
+      "bytes": 1485,
+      "lfNormalized": true
+    },
+    {
+      "path": "tests/source_v8_sort.rs",
+      "sha256": "4c29dfe5c523a68f60e037e4169fbd5641179869ae5bae793f7af8c429f49791",
+      "bytes": 2618,
+      "lfNormalized": true
+    }
+  ]
+}

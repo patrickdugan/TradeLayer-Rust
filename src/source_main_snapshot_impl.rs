@@ -70,6 +70,7 @@ impl ContractCore {
         if dirents {
             args.push(obj(&[("withFileTypes", V::Bool(true))]));
         }
+        self.source_main_fs_attempt("readdir", &args)?;
         if !directories.contains(&s(path)) {
             return Err(self.source_main_fs_error("readdir", args, "ENOENT", path));
         }
@@ -94,6 +95,7 @@ impl ContractCore {
     }
     fn source_main_fs_read(&mut self, path: &str) -> R<V> {
         let args = vec![s(path), s("utf8")];
+        self.source_main_fs_attempt("readFile", &args)?;
         let files = self.source_main_fs_files()?;
         let Some(row) = files
             .iter()
@@ -104,6 +106,7 @@ impl ContractCore {
         Ok(self.source_main_fs_emit("readFile", args, arg(&array(row)?, 1)))
     }
     fn source_main_fs_write(&mut self, path: &str, bytes: V) -> R<()> {
+        self.source_main_fs_attempt("writeFile", &[s(path), bytes.clone()])?;
         let mut files = self.source_main_fs_files()?;
         if let Some(row) = files
             .iter_mut()
@@ -117,9 +120,10 @@ impl ContractCore {
         self.source_main_fs_emit("writeFile", vec![s(path), bytes], V::Undefined);
         Ok(())
     }
-    fn source_main_fs_copy(&mut self, src: &str, dst: &str) -> R<()> {
+    fn source_main_fs_copy_once(&mut self, src: &str, dst: &str) -> R<()> {
         let mut files = self.source_main_fs_files()?;
         let args = vec![s(src), s(dst)];
+        self.source_main_fs_attempt("copyFile", &args)?;
         let Some(row) = files
             .iter()
             .find(|row| arg(&array(row).unwrap_or_default(), 0) == s(src))
@@ -139,7 +143,19 @@ impl ContractCore {
         self.source_main_fs_emit("copyFile", args, V::Undefined);
         Ok(())
     }
-    fn source_main_fs_remove(&mut self, path: &str, tree: bool) -> R<()> {
+    fn source_main_fs_remove_once(&mut self, path: &str, tree: bool) -> R<()> {
+        let (method, args) = if tree {
+            (
+                "rm",
+                vec![
+                    s(path),
+                    obj(&[("recursive", V::Bool(true)), ("force", V::Bool(true))]),
+                ],
+            )
+        } else {
+            ("unlink", vec![s(path)])
+        };
+        self.source_main_fs_attempt(method, &args)?;
         let mut files = self.source_main_fs_files()?;
         let mut dirs = array(&self.source_main_service_get("directories")?)?;
         let found = files
@@ -342,33 +358,21 @@ impl ContractCore {
         let backups = text(&p.get("backupsDir"))?;
         let prune = (|| -> R<()> {
             let names = self.source_main_fs_names(&backups, false)?;
-            let directories = array(&self.source_main_service_get("directories")?)?;
-            let files = self.source_main_fs_files()?;
-            let mut old = vec![];
+            let mut old: Vec<(V, String)> = vec![];
             for name in names {
                 let name = text(&name)?;
                 let path = format!("{backups}/{name}");
-                let directory = directories.contains(&s(&path));
-                if !directory
-                    && !files
-                        .iter()
-                        .any(|r| arg(&array(r).unwrap_or_default(), 0) == s(&path))
-                {
-                    return Err(self.source_main_fs_error("stat", vec![s(&path)], "ENOENT", &path));
-                }
-                self.source_main_fs_emit(
-                    "stat",
-                    vec![s(&path)],
-                    obj(&[
-                        ("mtimeMs", n(self.time_millis as f64)),
-                        ("directory", V::Bool(directory)),
-                    ]),
-                );
-                if directory && name.starts_with("backup-") {
-                    old.push(path);
+                let stat = self.source_main_fs_stat(&path)?;
+                if truth(&stat.get("directory")) && name.starts_with("backup-") {
+                    old.push((stat.get("mtimeMs"), path));
                 }
             }
-            for path in old.into_iter().skip(1) {
+            source_v8_stable_sort(&mut old, |a, b| -> R<core::cmp::Ordering> {
+                Ok((amm_quote_number(&b.0)? - amm_quote_number(&a.0)?)
+                    .partial_cmp(&0.0)
+                    .unwrap_or(core::cmp::Ordering::Equal))
+            })?;
+            for (_, path) in old.into_iter().skip(1) {
                 match self.source_main_fs_remove(&path, true) {
                     Ok(()) | Err(Fault::Thrown(_)) => (),
                     Err(e) => return Err(e),
@@ -469,6 +473,10 @@ impl SourceContractRuntime {
                 Err(type_error("TxUtils.getLatestBlockHeight is not a function"))
             }
             target if target.starts_with("Persistence.") => {
+                if target == "Persistence.getInstance" {
+                    self.core.source_main_service_persistence_options(a)?;
+                    return Ok(obj(&[("$persistenceInstance", n(1.))]));
+                }
                 self.core.source_main_service_persistence()?;
                 match target {
                     "Persistence.listSnapshots" => {
@@ -496,7 +504,7 @@ impl SourceContractRuntime {
                         self.core.source_main_snapshot_prune(keep)?;
                         Ok(V::Undefined)
                     }
-                    _ => Err(SourceRuleError::UnknownDependency.into()),
+                    _ => self.core.source_main_file_direct(target, a),
                 }
             }
             _ => self.source_main_startup_dispatch(target, a),
@@ -624,3 +632,5 @@ fn source_main_snapshot_path_argument(value: &V) -> R<String> {
         "The \"path\" argument must be of type string. Received {description}"
     )))
 }
+
+include!("source_main_file_io_impl.rs");

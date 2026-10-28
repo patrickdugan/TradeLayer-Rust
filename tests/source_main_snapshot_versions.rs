@@ -1,4 +1,6 @@
-use tradelayer_core::source_contract_replay::{SourceContractReplay, SourceContractReplayHead};
+use tradelayer_core::source_contract_replay::{
+    SourceContractReplay, SourceContractReplayError, SourceContractReplayHead,
+};
 fn control() -> SourceContractReplayHead {
     SourceContractReplayHead {
         commands: 4,
@@ -27,5 +29,9 @@ fn ordinary_actual_pre_snapshot_v12_bytes_remain_admitted_and_canonical() {
 #[test]
 fn earlier_unpromoted_v12_snapshot_capability_refusal_is_not_relabelled() {
     let bytes = include_bytes!("../fixtures/main_v12_old_snapshot_refusal.bin");
-    assert!(SourceContractReplay::from_checkpoint(bytes,refusal()).is_err(),"actual old source-incomplete LocalError receipt must not become a claimed source snapshot execution at the old expected head");
+    assert_eq!(
+        SourceContractReplay::from_checkpoint(bytes, refusal()),
+        Err(SourceContractReplayError::ReplayMismatch),
+        "the actual earlier capability-error history must fail reexecution"
+    );
 }

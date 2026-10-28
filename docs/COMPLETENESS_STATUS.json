@@ -279,6 +279,22 @@
         "startup exit1",
         "host service lifecycle"
       ]
+    },
+    "MainFileIO": {
+      "status": "Root-integrated-corrected-execution-and-lint-checks-pass",
+      "RootIntegrated": true,
+      "fullSuitePromotion": false,
+      "rootFocusedPasses": 36,
+      "newUniqueTests": 5,
+      "fileIOSourceFrames": 66,
+      "sortSourceFrames": 32,
+      "primitiveV8Cases": 44890,
+      "validationRecord": "fixtures/reference_fidelity/main-file-io-integration.json",
+      "remaining": [
+        "full-suite promotion",
+        "broader domains",
+        "native Main storage and host integration"
+      ]
     }
   },
   "scope": "Existing release suites passed at31ee8f4. The known mixed-history state/Consensus defect, historical parity, production integration, complete block proofs and authentication remain open.",

@@ -33,7 +33,7 @@ impl ContractCore {
         };
         if fields
             .iter()
-            .any(|(k, _)| !["fileInputs", "directoryInputs"].contains(&k.as_str()))
+            .any(|(k, _)| !["fileInputs", "directoryInputs", "fileIOInputs"].contains(&k.as_str()))
         {
             return Err(SourceRuleError::InvalidInput.into());
         }
@@ -95,6 +95,7 @@ impl ContractCore {
             ("lastRpc", V::Undefined),
             ("pause", V::Bool(false)),
         ]));
+        self.source_main_file_io_configure(config.get("fileIOInputs"))?;
         Ok(V::Undefined)
     }
     fn source_main_service_timer(&mut self, delay: V) {
@@ -116,6 +117,7 @@ impl ContractCore {
         Ok(client)
     }
     fn source_main_service_mkdir(&mut self, path: String) -> R<()> {
+        self.source_main_fs_attempt("mkdir", &[s(&path), obj(&[("recursive", V::Bool(true))])])?;
         let mut directories = array(&self.source_main_service_get("directories")?)?;
         let mut part = String::new();
         for item in path.split('/').filter(|p| !p.is_empty()) {
@@ -145,27 +147,33 @@ impl ContractCore {
         if existing != V::Null {
             return Ok(existing);
         }
-        let mut p = obj(&[
+        let options = if arg(a, 0) == V::Undefined {
+            obj(&[])
+        } else {
+            arg(a, 0)
+        };
+        funding_prop(&options, "network")?;
+        let p = obj(&[
             (
                 "rawNetwork",
-                if truth(&arg(a, 0).get("network")) {
-                    arg(a, 0).get("network")
+                if truth(&options.get("network")) {
+                    options.get("network")
                 } else {
                     V::Null
                 },
             ),
             (
                 "rawTestFlag",
-                if matches!(arg(a, 0).get("test"), V::Bool(_)) {
-                    arg(a, 0).get("test")
+                if matches!(options.get("test"), V::Bool(_)) {
+                    options.get("test")
                 } else {
                     V::Null
                 },
             ),
             (
                 "snapshotInterval",
-                if matches!(arg(a, 0).get("snapshotInterval"), V::Number(_)) {
-                    arg(a, 0).get("snapshotInterval")
+                if matches!(options.get("snapshotInterval"), V::Number(_)) {
+                    options.get("snapshotInterval")
                 } else {
                     n(1000.)
                 },
@@ -177,9 +185,15 @@ impl ContractCore {
             ("client", V::Null),
         ]);
         self.source_main_service_set("persistence", p.clone())?;
-        let client = self.source_main_service_client(vec![V::Bool(true)])?;
-        set(&mut p, "client", client)?;
-        self.source_main_service_set("persistence", p.clone())?;
+        self.source_main_service_persistence_init()
+    }
+    fn source_main_service_persistence_init(&mut self) -> R<V> {
+        let mut p = self.source_main_service_get("persistence")?;
+        if !truth(&p.get("client")) {
+            let client = self.source_main_service_client(vec![V::Bool(true)])?;
+            set(&mut p, "client", client)?;
+            self.source_main_service_set("persistence", p.clone())?;
+        }
         let chain = if truth(&p.get("rawNetwork")) {
             p.get("rawNetwork")
         } else {
