@@ -2,8 +2,8 @@
   "schema": "tl-logic-reference-review-v1",
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
   "rustCommit": "70f568ad703bef189c01c989631692fdf75235bb",
-  "rustCommitScope": "Inventory parent is historical. Full release baseline ef6dbe9 covers the integrated V11 shared-owner and TLSW4/5 batch; V12 remains staged and uncompiled.",
-  "reviewedAtUtc": "2026-10-28T20:29:45Z",
+  "rustCommitScope": "Inventory parent is historical. Full Rust release fa00946 covers the integrated V12 finite Main/service profile; snapshot/cold-startup follow-ons remain isolated. Full reference parity is unproven.",
+  "reviewedAtUtc": "2026-10-28T21:24:00Z",
   "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
     {
@@ -1564,7 +1564,7 @@
       34,
       35
     ],
-    "status": "V12 finite Main/service integration passes18 new tests; complete release promotion pending",
+    "status": "V12 finite Main/service profile covered by complete release fa00946",
     "fullSuitePromotion": true,
     "completeBlockProof": false,
     "authenticationEstablished": false,
@@ -1579,7 +1579,11 @@
     ],
     "focusedExecutions": 35,
     "commit": "bfd12ddb06c7cf67aeaeed2d16fa531d12a643c6",
-    "record": "fixtures/reference_fidelity/main-v12-integration.json"
+    "record": "fixtures/reference_fidelity/main-v12-integration.json",
+    "coveredByReleaseCommit": "fa0094610c9d87617e40913e938f60654f05a480",
+    "releaseExecutions": 1659,
+    "lockedReferenceExecutions": 231,
+    "releaseRecord": "fixtures/reference_fidelity/main-v12-release-validation.json"
   },
   "recentConditionalWitness": {
     "profile": "TLSW3",

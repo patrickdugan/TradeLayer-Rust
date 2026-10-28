@@ -1,5 +1,7 @@
 Current release ef6dbe9: 1,641 executions (1,640 top-level plus one successful subprocess), 218 exact numeric checks, formatting and Clippy pass. All 1,247 frozen inputs were rehashed. The mixed ownership correction and selected TLSW4/5 and Bitcoin profiles are included. V12 remains staged and uncompiled. Broader historical parity, production integration, authenticated inputs and complete-block proofs remain open. See [release evidence](../fixtures/reference_fidelity/archive-witness-release-validation.json).
 
+Verified full Rust release `fa00946`: **1,659 executions and 231 exact numeric-reference checks**, including committed finite V12 Main/service paths. All 1,293 frozen inputs match. Snapshot/cold-startup follow-ons are isolated and excluded. Full source parity, authenticated inputs and complete-block proofs remain open. Evidence: `fixtures/reference_fidelity/main-v12-release-validation.json`.
+
 Earlier integration accounts retained for provenance:
 
 The full release baseline remains `31ee8f4`: 1,597 executions and 198 exact
