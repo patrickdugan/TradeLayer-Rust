@@ -512,7 +512,7 @@
       "sourceEffects": "Loops requested types, awaits Activation.activate, writes activation block/codeHash and consensus activation metadata. Activating target0 invokes source vesting initializer.",
       "sourceDefects": "Source repeats can overwrite activation height; source validity accepts in-range fractional IDs; async persistence can swallow failures. Runtime differences: Actual Registry requires independently configured administrator, bounded integer types and prior-height effectiveness; type0 does not invent funded genesis.",
       "runtimeScope": "The separate literal ActivationLifecycleV10 policy composes original raw0 and Main0 with the existing SourceActivation registry, Tally, Property, Vesting, Insurance and Consensus owners. It preserves all16 mixed native-token subsets, source code-hash profiles, asynchronous initialization, ignored Errors and retained failure prefixes. The generic conserving mapper remains separately scoped.",
-      "missingLogic": "Production Main startup/catchup/reorg, broader historical and authenticated input admission, and complete block proofs remain open. The shared mixed-state correction passes focused checks; full release promotion is pending.",
+      "missingLogic": "Production Main startup/catchup/reorg, broader historical and authenticated input admission, and complete block proofs remain open. The shared mixed-state correction passes focused checks; release ef6dbe9 covers this correction.",
       "nextTask": "Compile corrected V12 finite indexing/catchup phases after the current release run, then complete remaining startup/live/reorg integration.",
       "evidence": "JS dca0888b src/types.js decodePayload case0; src/logic.js typeSwitch case0; src/activation.rs; src/activation_history.rs; src/registry.rs; tests/activation_history.rs; tests/consensus_source.rs Independent property review: docs/PROPERTY_REFERENCE_FIDELITY.md (38 bounded source checks; storage/tally modeled; BigNumber9.3.1). Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.;docs/SOURCE_ACTIVATION_LIFECYCLE.md;docs/SOURCE_MAIN_V10_OBSERVER_STORAGE.md;tests/source_activation_lifecycle.rs;tests/source_activation_mixed_native.rs;tests/source_main_activation_callable.rs;tests/source_main_activation_inherited.rs;fixtures/reference_fidelity/source-activation-main-focused.json",
       "preStateWitness": "Independent configured Registry activation/admin and ordered accepted activation origins.",
@@ -657,7 +657,7 @@
       "sourceEffects": "Fetches confirmation height, normalizes stop+post, then queues token order; matching/reserves/fees occur in main end-of-block processing.",
       "sourceDefects": "Source first queries external tx metadata; its queue and later matching span phases. Generic codec framing quirks are retained diagnostics. Runtime differences: Actual atomic reserve/fill custody and deterministic replay policy do not prove all source queue/stop semantics.",
       "runtimeScope": "Real pending property/clearlist/country, Tally balance/ticker and async Orderbook reads feed source validity; admitted ordinary orders reach the sole conserving spot Ledger and full raw replay. The separate literal SpotLifecycleV9 policy now executes raw5/6 and actual Main over the existing source queue, Tally, Property and Volume owners, including original cancellations, partial writes, fees and async receiver reads.",
-      "missingLogic": "The earlier conserving implementation has the documented source differences. Literal V9 has focused source comparisons over the admitted bounded graph; unrestricted object/sort/event-loop domains, historical evidence, production storage and authenticated admission remain open. V11 shared Queue/Core orderBooks reads, writes and Consensus hashing now pass the focused mixed-history correction. Full release promotion of the correction remains pending.",
+      "missingLogic": "The earlier conserving implementation has the documented source differences. Literal V9 has focused source comparisons over the admitted bounded graph; unrestricted object/sort/event-loop domains, historical evidence, production storage and authenticated admission remain open. V11 shared Queue/Core orderBooks reads, writes and Consensus hashing now pass the focused mixed-history correction. The correction is included in release ef6dbe9.",
       "nextTask": "Complete activation/AMM composition and production/historical boundaries while preserving literal source behavior.",
       "evidence": "JS dca0888b src/types.js decodePayload case5; src/logic.js typeSwitch case5; src/types_economic.rs; src/spot.rs; src/economic_spot_prices.rs; tests/spot_exchange.rs; tests/spot_clearing_one_ledger.rs Independent clearlist review: docs/CLEARLIST_REFERENCE_FIDELITY.md (18 bounded source checks; storage modeled; BIP32 unverified). Actual send/spot/oracle follow-up: docs/SOURCE_SEND_EXECUTION.md (17 composed unchanged-source scenes); docs/ORACLE_SOURCE_OWNER.md (311 actual source actions/all19methods); docs/SOURCE_SPOT_EXECUTION.md; docs/SOURCE_ORACLE_EXECUTION.md; docs/SOURCE_ORACLE_CHECKPOINTS.md; tests/economic_source_oracle_contracts.rs. Runtime checks are recorded separately; no blanket parity claim. Actual owner follow-up: docs/PROPERTY_CATALOG.md (103 source scenarios); docs/CLEARLIST_SOURCE_OWNER.md (200 source observations); docs/BIP32_PUBLIC.md (800 genuine source-derived addresses, LTC/BTC); docs/SOURCE_CATALOG_EXECUTION.md; tests/economic_source_catalog_execution.rs; tests/economic_source_catalog_snapshot.rs; tests/economic_source_catalog_chain.rs. Full reference parity is not established.;docs/SOURCE_V9_SPOT_INTEGRATION.md;tests/source_lower_spot.rs;tests/source_main_spot_callable.rs;tests/source_spot_lifecycle_versions.rs",
       "preStateWitness": "Both asset balances, property/clearlist rules, book priority/queues, reserves and source confirmation context.",
@@ -686,7 +686,7 @@
       "sourceEffects": "Selects contract or token book; can cancel all, by txid or source price/side, save the resulting book and return cancellation details.",
       "sourceDefects": "Source validator leaves fromAddress/contractId undefined and does not await getOrdersForAddress. Decoder cancelAll1 also yields price0.125; source selectors/refunds can cross directions or owners. Directional conserving cancellation is a named difference.",
       "runtimeScope": "Actual asynchronous book/address queries preserve missing fromAddress/contractId and the unawaited Promise.length quirk. Raw cancelAll reaches the existing directional owner cancellation and returns actual custody. The separate literal SpotLifecycleV9 policy now executes raw5/6 and actual Main over the existing source queue, Tally, Property and Volume owners, including original cancellations, partial writes, fees and async receiver reads.",
-      "missingLogic": "The earlier conserving implementation has the documented source differences. Literal V9 has focused source comparisons over the admitted bounded graph; unrestricted object/sort/event-loop domains, historical evidence, production storage and authenticated admission remain open. V11 shared Queue/Core orderBooks reads, writes and Consensus hashing now pass the focused mixed-history correction. Full release promotion of the correction remains pending.",
+      "missingLogic": "The earlier conserving implementation has the documented source differences. Literal V9 has focused source comparisons over the admitted bounded graph; unrestricted object/sort/event-loop domains, historical evidence, production storage and authenticated admission remain open. V11 shared Queue/Core orderBooks reads, writes and Consensus hashing now pass the focused mixed-history correction. The correction is included in release ef6dbe9.",
       "nextTask": "Complete activation/AMM composition and production/historical boundaries while preserving literal source behavior.",
       "evidence": "JS dca0888b src/types.js decodePayload case6; src/logic.js typeSwitch case6; src/types_economic.rs; src/contract_orderbook.rs; src/spot.rs; tests/types_economic.rs; tests/contract_orderbook.rs Actual send/spot/oracle follow-up: docs/SOURCE_SEND_EXECUTION.md (17 composed unchanged-source scenes); docs/ORACLE_SOURCE_OWNER.md (311 actual source actions/all19methods); docs/SOURCE_SPOT_EXECUTION.md; docs/SOURCE_ORACLE_EXECUTION.md; docs/SOURCE_ORACLE_CHECKPOINTS.md; tests/economic_source_oracle_contracts.rs. Runtime checks are recorded separately; no blanket parity claim.;docs/SOURCE_V9_SPOT_INTEGRATION.md;tests/source_lower_spot.rs;tests/source_main_spot_callable.rs;tests/source_spot_lifecycle_versions.rs",
       "preStateWitness": "Actual owner identity, configured book, order IDs/priority and funded reserves.",
@@ -801,8 +801,8 @@
       "sourceRoute": "10 / base36 a / Logic.AMMPool",
       "sourceEffects": "Obtains contract or property AMM, adds/redeems capital and for contract pools persists position/LP/quote metadata into contract list.",
       "sourceDefects": "Missing pool throws; source validators compare property objects to numeric vesting IDs; add/redeem semantics differ by contract/property branch. Runtime differences: ConservingFundedContractAmmV1 uses real capital and immutable policy; it is not source type10 wire acceptance.",
-      "runtimeScope": "V11 executes original raw10/Main10 using shared AMM receivers, Property/Contract caches and the same Tally/queue. Capital, quotations, rebalance and remaining static methods preserve literal errors and partial writes. V11 shared Queue/Core orderBooks reads, writes and Consensus hashing now pass the focused mixed-history correction. Full release promotion of the correction remains pending.",
-      "missingLogic": "Full release promotion of the shared-owner correction; broader historical/coercion domains; production startup/storage, authenticated input and complete-block proofs remain open.",
+      "runtimeScope": "V11 executes original raw10/Main10 using shared AMM receivers, Property/Contract caches and the same Tally/queue. Capital, quotations, rebalance and remaining static methods preserve literal errors and partial writes. V11 shared Queue/Core orderBooks reads, writes and Consensus hashing now pass the focused mixed-history correction. The correction is included in release ef6dbe9.",
+      "missingLogic": "broader historical/coercion domains; production startup/storage, authenticated input and complete-block proofs remain open.",
       "nextTask": "Validate the corrected batch full release gates and extend independently bound durable-history witnesses.",
       "evidence": "docs/SOURCE_AMM_LIFECYCLE.md;docs/SOURCE_SHARED_ORDERBOOK_V11.md;docs/SOURCE_MAIN_MIXED_INTEGRATION.md;tests/source_shared_orderbook.rs;tests/source_main_mixed_blocks.rs;fixtures/reference_fidelity/shared-owner-witness-focused.json. New batch: 67 focused executions (66 across 19 targets plus one complete mixed run). Existing release baseline 31ee8f4: 1,597 executions and 198 exact numeric checks.",
       "preStateWitness": "Actual pool cash, LP shares, position/margin, funded quotes, accepted contract or property pair and immutable AMM config.",
@@ -1564,18 +1564,21 @@
       34,
       35
     ],
-    "status": "TLSW5 archive witnesses, standard Bitcoin inputs and exact block/input binding pass 35 focused Root executions; full release promotion pending.",
-    "fullSuitePromotion": false,
+    "status": "Full release ef6dbe9: 1641 executions and218 exact numeric checks; V12 excluded.",
+    "fullSuitePromotion": true,
     "completeBlockProof": false,
     "authenticationEstablished": false,
-    "fullSuiteBaseline": "31ee8f4a3fc8996f410282028b4150a3cff01003",
-    "validationRecord": "fixtures/reference_fidelity/archive-witness-bitcoin-focused.json",
+    "fullSuiteBaseline": "ef6dbe971238b57b5fd37c6c950f9b007ad3120a",
+    "validationRecord": "fixtures/reference_fidelity/archive-witness-release-validation.json",
     "fullReferenceParityEstablished": false,
     "knownReferenceGaps": [
-      "Mixed Queue/Core/Consensus defect corrected and focused-validated; full release promotion pending. Broader source and historical parity remain unestablished."
+      "V12 orchestration staged/uncompiled",
+      "Broader source/historical domains",
+      "Compact indexing, streaming and compaction",
+      "Chain/UTXO/actor evidence and complete-block proofs"
     ],
     "focusedExecutions": 35,
-    "commit": "0d6a50c0ea0c235eee86552372487296a442d0e5"
+    "commit": "ef6dbe971238b57b5fd37c6c950f9b007ad3120a"
   },
   "recentConditionalWitness": {
     "profile": "TLSW3",
@@ -1643,7 +1646,7 @@
     "durableHistory": false,
     "completeBlockProof": false,
     "authenticationEstablished": false,
-    "status": "focused-Root-validated-full-release-pending"
+    "status": "full-release-covered-selected-slices"
   },
   "durableConditionalWitness": {
     "profile": "TLSW5",
@@ -1660,6 +1663,7 @@
     "sourcePrestateSupplied": false,
     "completeBlockProof": false,
     "authenticationEstablished": false,
-    "commit": "0d6a50c0ea0c235eee86552372487296a442d0e5"
+    "commit": "0d6a50c0ea0c235eee86552372487296a442d0e5",
+    "fullSuitePromotion": true
   }
 }

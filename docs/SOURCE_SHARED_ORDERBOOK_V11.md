@@ -1,3 +1,7 @@
+Current release ef6dbe9: 1,641 executions (1,640 top-level plus one successful subprocess), 218 exact numeric checks, formatting and Clippy pass. All 1,247 frozen inputs were rehashed. The mixed ownership correction and selected TLSW4/5 and Bitcoin profiles are included. V12 remains staged and uncompiled. Broader historical parity, production integration, authenticated inputs and complete-block proofs remain open. See [release evidence](../fixtures/reference_fidelity/archive-witness-release-validation.json).
+
+Earlier integration accounts retained for provenance:
+
 # V11 shared orderBooks authority
 
 The mixed source corpus exposes a real unpromoted-V11 defect at case4: complete effects and authoritative collection rows match two source rows, but state_value tables contain an empty Core shadow. Four direct tests on actual debug library60ec139e... also reproduce incorrect reads, writes, replay reads and Consensus hashes. Genuine original Consensus gives ea77215f... for the empty-book DOCUMENT and0910e940... for a different funded-book document; old Core gave55d80f8d... because it read an empty COLLECTION. The three-case unchanged-source oracle and both numeric checks are retained.

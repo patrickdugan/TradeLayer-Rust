@@ -1,0 +1,87 @@
+{
+  "compiledCommit": "ef6dbe971238b57b5fd37c6c950f9b007ad3120a",
+  "sourceArtifact": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\source-settlement-target\\release\\deps\\libtradelayer_core-e3e2f0ceb891e624.rlib",
+  "sha256": "a82936bdfc6e63ae7d5a3cc86fb04e2f40ef8728e0ebf5a5f6a4285175f4f9f5",
+  "bytes": 60372154,
+  "inputFiles": 1247,
+  "inputManifestSHA256": "f961f0df122ba73c46bbe5c4421ec6ebcd1757d7d910869f42377a447cb206f9",
+  "scope": "actual complete release/locked suites passed; not broad historical parity or chain/actor authentication",
+  "schema": "tl-full-release-verification-v1",
+  "releaseExecutions": 1641,
+  "topLevelTests": 1640,
+  "successfulSubprocessExecutions": 1,
+  "exactNumericReferenceExecutions": 218,
+  "logs": {
+    "archive-witness-loopback-release-full.log": {
+      "sha256": "95ce850c6392429644684b483397a1bf9149048499fc26fc2240ae03b83d5f14",
+      "bytes": 208015,
+      "executions": 1641,
+      "topLevel": 1640,
+      "extraSuccessfulSubprocessExecutions": 1,
+      "targets": 254,
+      "resultRecords": 255,
+      "multiResultTargets": [
+        {
+          "name": "tests\\storage.rs (C:/Users/patri/Documents/Codex/2026-10-26/go/work/source-settlement-target\\release\\deps\\storage-d2af554335b1c1f2.exe)",
+          "results": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              8,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    "archive-witness-loopback-locked-reference.log": {
+      "sha256": "193cd7eb3fc34b013ec988fdb584e68fd3eab2a720c597116eccbc8e9647b114",
+      "bytes": 42996,
+      "executions": 218,
+      "topLevel": 218,
+      "extraSuccessfulSubprocessExecutions": 0,
+      "targets": 76,
+      "resultRecords": 76,
+      "multiResultTargets": []
+    },
+    "archive-witness-loopback-release-doctest.log": {
+      "sha256": "90772499dcc4d8fda5474b845abc465fcf0663e3c8aaf2c119721e3fb6fc47d8",
+      "bytes": 211,
+      "executions": 0,
+      "topLevel": 0,
+      "extraSuccessfulSubprocessExecutions": 0,
+      "targets": 1,
+      "resultRecords": 1,
+      "multiResultTargets": []
+    }
+  },
+  "fullReferenceParityEstablished": false,
+  "authenticationEstablished": false,
+  "completeBlockProofEstablished": false,
+  "verifiedAtUtc": "2026-10-28T19:18:02.641845+00:00",
+  "productionCodeCommit": "0d6a50c0ea0c235eee86552372487296a442d0e5",
+  "releaseTargets": 254,
+  "exactNumericReferenceTargets": 76,
+  "docTests": 0,
+  "inputManifest": "archive-witness-release-inputs.json",
+  "releaseProviderSHA256": "a82936bdfc6e63ae7d5a3cc86fb04e2f40ef8728e0ebf5a5f6a4285175f4f9f5",
+  "allExistingReleaseTestsPassed": true,
+  "allTargetClippyPassed": true,
+  "formattingPassed": true,
+  "defaultPolicy": "GlobalClearingV2",
+  "literalCandidatePolicy": "AmmLifecycleV11",
+  "remainingGates": [
+    "V12 orchestration staged/uncompiled",
+    "Broader source/historical domains",
+    "Compact indexing, streaming and compaction",
+    "Chain/UTXO/actor evidence and complete-block proofs"
+  ],
+  "retainedFailedAttempt": {
+    "sha256": "74e770c0610ad434e6200c0e65c489b537096295227352a6a5ec006e863fa835",
+    "reason": "Loopback connections blocked. Same frozen code passed all11 client tests and full rerun with local test access."
+  }
+}

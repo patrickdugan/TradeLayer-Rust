@@ -1,3 +1,7 @@
+Current release ef6dbe9: 1,641 executions (1,640 top-level plus one successful subprocess), 218 exact numeric checks, formatting and Clippy pass. All 1,247 frozen inputs were rehashed. The mixed ownership correction and selected TLSW4/5 and Bitcoin profiles are included. V12 remains staged and uncompiled. Broader historical parity, production integration, authenticated inputs and complete-block proofs remain open. See [release evidence](../fixtures/reference_fidelity/archive-witness-release-validation.json).
+
+Earlier integration accounts retained for provenance:
+
 # Block-bound selected-input satisfaction
 
 `check_bitcoin_block_input` composes complete-block BIP141 byte binding with
