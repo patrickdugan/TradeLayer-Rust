@@ -1,12 +1,12 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-28T12:00:56Z",
-  "inspectedCheckoutCommit": "b02a0454e4da34c4c167b50f93dc579bda9e75ec",
-  "verifiedImplementationCommit": "7e5d5eac05a15f682b9f258080cede44ab9f7a18",
-  "verifiedReleaseTests": 1476,
-  "topLevelTests": 1475,
+  "verifiedAtUtc": "2026-10-28T12:56:02Z",
+  "inspectedCheckoutCommit": "9d44d758132ee637d00fafe1155f87c36d328599",
+  "verifiedImplementationCommit": "b02a0454e4da34c4c167b50f93dc579bda9e75ec",
+  "verifiedReleaseTests": 1502,
+  "topLevelTests": 1501,
   "subprocessChecks": 1,
-  "verifiedLockedReferenceTests": 111,
+  "verifiedLockedReferenceTests": 151,
   "moduleRows": 48,
   "externalReferenceRows": 1,
   "transactionRows": 37,
@@ -14,16 +14,15 @@
   "completeBlockFraudProofEstablished": false,
   "authenticationEstablished": false,
   "candidateChecks": {
-    "spotAndUpperV9": {
-      "status": "committed-focused-checks-passed-release-running",
-      "newRustTests": 26,
+    "V9": {
+      "status": "release-validated",
       "mainKinds": 34,
-      "sourceRegenerationChecks": 29,
-      "fullSuitePromotion": false
+      "releaseExecutions": 1502,
+      "lockedReferenceTests": 151,
+      "codeCommit": "b02a0454e4da34c4c167b50f93dc579bda9e75ec"
     },
-    "recentLifecycleWitnessTLSW3": {
-      "status": "focused-checks-passed",
-      "tests": 12,
+    "TLSW3": {
+      "status": "release-validated-selected-slices",
       "policies": [
         7,
         8
@@ -32,10 +31,34 @@
       "V9Admitted": false
     },
     "activationV10": {
-      "status": "staged-not-executed-in-root"
+      "status": "Root-differential-correction-in-progress",
+      "passedScopes": [
+        "all16mixed-native-bootstrap-subsets",
+        "consensus-value-types",
+        "insurance-ordered-find",
+        "eight-inherited-Main-suites",
+        "independentV9-release-bytes"
+      ],
+      "pending": [
+        "strictstandaloneandMain0comparisonsafterDBmaterializationfix",
+        "fullsuiteandClippy"
+      ]
+    },
+    "compactReaderAndScrypt": {
+      "status": "committed-focused-integration-passed",
+      "commit": "9d44d75",
+      "readerTests": 15,
+      "scryptTests": 4,
+      "fullSuitePromotion": false
     },
     "ammV11": {
-      "status": "staged-not-executed-in-root"
+      "status": "staged-not-executed-in-Root"
+    },
+    "durableReplay": {
+      "status": "staged-standalone-validated-not-mounted",
+      "commandsBeforeRestart": 5038,
+      "segments": 23,
+      "fullSuitePromotion": false
     }
   },
   "scope": "The full-suite count remains the committed V8 baseline. Candidate focused checks do not establish full integration or authenticated input truth.",
@@ -76,11 +99,19 @@
       "sha256": "6c60fc765b2cad389bbd4481f1fc0eb0932d50b70823446e5646179d923bae00"
     }
   },
-  "workbookNote": "V8 baseline: 1,476 release tests and 111 locked-reference tests. Committed V9 b02a045 admits 34/36 Main kinds; 26 new focused Rust tests, 29 original-source regeneration checks and all-target Clippy passed. Full V9 release/locked checks are running. TLSW3 covers selected V7/V8 slices and refuses V9. Activation/AMM remain staged. Authentication, production continuation and complete block proofs remain open.",
+  "workbookNote": "V9 b02a045: 1,502 release executions and151 exact numeric-reference tests passed; Main admits34/36 kinds. TLSW3 verifies selected V7/V8 slices and refuses V9. Activation: mixed bootstrap and inherited routes pass; table materialization and optional binding comparisons are under correction. Reader/Scrypt focused checks pass. AMM and durable replay remain staged. Authentication, historical parity and full-block proofs remain open.",
   "savedWorkbook": {
-    "path": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\outputs\\completeness-6b9c6c5f\\TradeLayer-completeness.xlsx",
-    "sha256": "d79b54333495d41ea00fdde5b25015e781003bff85cf4782d46dede2c4271ffd"
+    "sha256": "6a56ebd226bfb0787c86d967dc6156034667693e4381cfb2967f82b1d41ecd03",
+    "bytes": 47495,
+    "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
+    "rowHashes": {
+      "modules": 2576954624,
+      "logic": 3528931079
+    },
+    "verifiedEdits": 75,
+    "layoutAndFormulaPreservationVerified": true
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-  "workbookVerification": "Exact sidebar/saved table hashes agree; metadata-only edits; cached formulas, table filters, row and column layout, panes and zero-error checks passed."
+  "workbookVerification": "Exact sidebar/saved table hashes agree; metadata-only edits; cached formulas, table filters, row and column layout, panes and zero-error checks passed.",
+  "validationRecord": "fixtures/reference_fidelity/source-spot-main-validation.json"
 }
