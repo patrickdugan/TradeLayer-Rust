@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-28T17:35:30Z",
-  "inspectedCheckoutCommit": "7f5733e9285f89b87f7dd97c8fd18a8b551cbb5b",
+  "verifiedAtUtc": "2026-10-28T18:39:07Z",
+  "inspectedCheckoutCommit": "0d6a50c0ea0c235eee86552372487296a442d0e5",
   "verifiedImplementationCommit": "31ee8f4a3fc8996f410282028b4150a3cff01003",
   "verifiedReleaseTests": 1597,
   "topLevelTests": 1596,
@@ -144,20 +144,23 @@
       "commands": 5038,
       "segments": 23,
       "fullSuitePromotion": false,
-      "record": "fixtures/reference_fidelity/archive-witness-bitcoin-focused.json"
+      "record": "fixtures/reference_fidelity/archive-witness-bitcoin-focused.json",
+      "commit": "0d6a50c0ea0c235eee86552372487296a442d0e5"
     },
     "bitcoinStandardInput": {
       "status": "Root-integrated-focused-passed",
       "RootIntegrationTests": 4,
       "RootPrivateNormalizationTest": 1,
       "genuineCoreCases": 212,
-      "fullSuitePromotion": false
+      "fullSuitePromotion": false,
+      "commit": "0d6a50c0ea0c235eee86552372487296a442d0e5"
     },
     "bitcoinBlockInput": {
       "status": "Root-integrated-focused-passed",
       "RootTests": 4,
       "fullSuitePromotion": false,
-      "authenticationEstablished": false
+      "authenticationEstablished": false,
+      "commit": "0d6a50c0ea0c235eee86552372487296a442d0e5"
     },
     "MainV12": {
       "status": "work-only-uncompiled-source-corpus-correction-staged",
@@ -309,21 +312,21 @@
       "sha256": "6c60fc765b2cad389bbd4481f1fc0eb0932d50b70823446e5646179d923bae00"
     }
   },
-  "workbookNote": "Committed 7f5733e: shared Queue/Core/Consensus correction, TLSW4 strict witnesses and selected BIP141/P2WSH checks pass 67 focused executions. The existing full release baseline stays 31ee8f4: 1,597 executions and 198 exact numeric checks. New full release promotion, broader historical parity, durable-history witnesses, production services, authenticated inputs and complete-block proofs remain open. Two active workers are extending durable witnesses and standard payment/channel script verification.",
+  "workbookNote": "Committed 0d6a50c: TLSW5 archive-backed source witnesses, six Bitcoin input templates and exact block/input binding pass 35 focused executions; Clippy and formatting pass. The full release baseline remains 31ee8f4: 1,597 executions and 198 exact numeric checks. V12 Main orchestration is work-only and uncompiled. Historical parity, production integration, authenticated inputs and complete-block proofs remain open.",
   "savedWorkbook": {
-    "sha256": "2bcc299741f7a363c6931f3ce1316c757ec39f06d20c660b06356e7a6cf0e0de",
-    "bytes": 47682,
+    "sha256": "a97f486559d085fa7d669339bf292d82b99be3796a69f79dba46fc117e13e164",
+    "bytes": 47728,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-28T17:35:30Z",
+    "asOfUtc": "2026-10-28T18:39:07Z",
     "rowHashes": {
-      "modules": 390274151,
-      "logic": 528360628
+      "modules": 4180425168,
+      "logic": 3837717431
     },
-    "verifiedEdits": 69,
+    "verifiedEdits": 52,
     "layoutAndFormulaPreservationVerified": true
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-  "workbookVerification": "Sidebar and saved rows agree;69 intended cells and necessary row heights changed. Formulas, styles, tables, filters, widths, panes and unrelated cells are preserved; no formula errors.",
+  "workbookVerification": "Sidebar/saved rows agree;52 targeted cells and necessary row heights changed. Formulas, styles, filters, tables, widths, panes and unrelated cells preserved; no formula errors.",
   "validationRecord": "fixtures/reference_fidelity/source-amm-main-validation.json",
   "knownReferenceGaps": [
     "The31ee8f4 full release retains the mixed Queue/Core/Consensus defect. Its current correction passes focused integration including the complete23-type mixed corpus, but has not passed the new full release suite. Broader source/historical parity remains open."
@@ -334,5 +337,5 @@
     "exactNumericReferenceTests": 151
   },
   "focusedValidationRecord": "fixtures/reference_fidelity/archive-witness-bitcoin-focused.json",
-  "focusedImplementationCommit": "7f5733e9285f89b87f7dd97c8fd18a8b551cbb5b"
+  "focusedImplementationCommit": "0d6a50c0ea0c235eee86552372487296a442d0e5"
 }
