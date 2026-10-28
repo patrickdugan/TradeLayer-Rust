@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-28T16:17:14Z",
-  "inspectedCheckoutCommit": "ec85c79dd646564dad024f8d8c0c35ad5eb3035e",
+  "verifiedAtUtc": "2026-10-28T17:35:30Z",
+  "inspectedCheckoutCommit": "7f5733e9285f89b87f7dd97c8fd18a8b551cbb5b",
   "verifiedImplementationCommit": "31ee8f4a3fc8996f410282028b4150a3cff01003",
   "verifiedReleaseTests": 1597,
   "topLevelTests": 1596,
@@ -99,28 +99,32 @@
       "manifestSHA256": "5e2b5c7fc43b8e9ddb19ce30f034792bac240a9947913122ef8a97d2388bd379",
       "fullSuitePromotion": false,
       "authenticationEstablished": false,
-      "RootTests": 10
+      "RootTests": 10,
+      "commit": "7f5733e9285f89b87f7dd97c8fd18a8b551cbb5b"
     },
     "TLSW4StrictGuardStaged": {
       "status": "Root-integrated-focused-validation-passed",
       "manifestSHA256": "65c84799fc235494c509723a08e10bc971c9881e0d04a23b0d8235749f4fb6f2",
       "fullSuitePromotion": false,
       "authenticationEstablished": false,
-      "RootTests": 3
+      "RootTests": 3,
+      "commit": "7f5733e9285f89b87f7dd97c8fd18a8b551cbb5b"
     },
     "BIP141Staged": {
       "status": "Root-integrated-focused-validation-passed",
       "manifestSHA256": "bcac039400ccc5076d71acb5d36bdfae22618e9207faaae54f1bc6b178f0b539",
       "fullSuitePromotion": false,
       "authenticationEstablished": false,
-      "RootTests": 3
+      "RootTests": 3,
+      "commit": "7f5733e9285f89b87f7dd97c8fd18a8b551cbb5b"
     },
     "P2WSHStaged": {
       "status": "Root-integrated-focused-validation-passed",
       "manifestSHA256": "fd355397049e648b0a5da5eb5041327331c62603291c9b8fe402f3d724fcb279",
       "fullSuitePromotion": false,
       "authenticationEstablished": false,
-      "RootTests": 3
+      "RootTests": 3,
+      "commit": "7f5733e9285f89b87f7dd97c8fd18a8b551cbb5b"
     },
     "sharedOwnerV11": {
       "status": "Root-focused-validation-passed",
@@ -130,7 +134,8 @@
       "mixedMainCalls": 64,
       "mixedTypes": 23,
       "fullSuitePromotion": false,
-      "record": "fixtures/reference_fidelity/shared-owner-witness-focused.json"
+      "record": "fixtures/reference_fidelity/shared-owner-witness-focused.json",
+      "commit": "7f5733e9285f89b87f7dd97c8fd18a8b551cbb5b"
     }
   },
   "scope": "Existing release suites passed at31ee8f4. The known mixed-history state/Consensus defect, historical parity, production integration, complete block proofs and authentication remain open.",
@@ -277,22 +282,22 @@
       "sha256": "6c60fc765b2cad389bbd4481f1fc0eb0932d50b70823446e5646179d923bae00"
     }
   },
-  "workbookNote": "Release verified at 31ee8f4: 1,597 executions (1,596 top-level plus one successful subprocess), 198 exact numeric-reference checks, formatting and Clippy passed. Main reaches all 36 kinds in the tested domain. A known mixed-history Queue/Core orderBooks discrepancy also affects Consensus hashing; its fix is not included. TLSW4, its strict guard, BIP141 and selected P2WSH verification are staged outside Root. Historical parity, production integration, authenticated input and complete-block proofs remain open.",
+  "workbookNote": "Committed 7f5733e: shared Queue/Core/Consensus correction, TLSW4 strict witnesses and selected BIP141/P2WSH checks pass 67 focused executions. The existing full release baseline stays 31ee8f4: 1,597 executions and 198 exact numeric checks. New full release promotion, broader historical parity, durable-history witnesses, production services, authenticated inputs and complete-block proofs remain open. Two active workers are extending durable witnesses and standard payment/channel script verification.",
   "savedWorkbook": {
-    "sha256": "d52bf6a8c94cf2d1b6906a8a8e54fe296beedb0af445e19eaaa0b7345a624dae",
-    "bytes": 48227,
+    "sha256": "2bcc299741f7a363c6931f3ce1316c757ec39f06d20c660b06356e7a6cf0e0de",
+    "bytes": 47682,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-28T16:17:14Z",
+    "asOfUtc": "2026-10-28T17:35:30Z",
     "rowHashes": {
-      "modules": 96109507,
-      "logic": 123378200
+      "modules": 390274151,
+      "logic": 528360628
     },
-    "verifiedEdits": 23,
+    "verifiedEdits": 69,
     "layoutAndFormulaPreservationVerified": true
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-  "workbookVerification": "Exact sidebar/saved table hashes agree; metadata-only edits; cached formulas, table filters, row and column layout, panes and zero-error checks passed.",
-  "validationRecord": "fixtures/reference_fidelity/source-spot-main-validation.json",
+  "workbookVerification": "Sidebar and saved rows agree;69 intended cells and necessary row heights changed. Formulas, styles, tables, filters, widths, panes and unrelated cells are preserved; no formula errors.",
+  "validationRecord": "fixtures/reference_fidelity/source-amm-main-validation.json",
   "knownReferenceGaps": [
     "The31ee8f4 full release retains the mixed Queue/Core/Consensus defect. Its current correction passes focused integration including the complete23-type mixed corpus, but has not passed the new full release suite. Broader source/historical parity remains open."
   ],
@@ -301,5 +306,6 @@
     "releaseExecutions": 1502,
     "exactNumericReferenceTests": 151
   },
-  "focusedValidationRecord": "fixtures/reference_fidelity/shared-owner-witness-focused.json"
+  "focusedValidationRecord": "fixtures/reference_fidelity/shared-owner-witness-focused.json",
+  "focusedImplementationCommit": "7f5733e9285f89b87f7dd97c8fd18a8b551cbb5b"
 }
