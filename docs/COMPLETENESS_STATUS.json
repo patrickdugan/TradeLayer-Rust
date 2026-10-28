@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-28T12:56:02Z",
-  "inspectedCheckoutCommit": "9d44d758132ee637d00fafe1155f87c36d328599",
+  "verifiedAtUtc": "2026-10-28T14:29:23Z",
+  "inspectedCheckoutCommit": "3c08046b5a33e4033b9a995fe3609bbb3e813fb2",
   "verifiedImplementationCommit": "b02a0454e4da34c4c167b50f93dc579bda9e75ec",
   "verifiedReleaseTests": 1502,
   "topLevelTests": 1501,
@@ -31,18 +31,15 @@
       "V9Admitted": false
     },
     "activationV10": {
-      "status": "Root-differential-correction-in-progress",
-      "passedScopes": [
-        "all16mixed-native-bootstrap-subsets",
-        "consensus-value-types",
-        "insurance-ordered-find",
-        "eight-inherited-Main-suites",
-        "independentV9-release-bytes"
-      ],
-      "pending": [
-        "strictstandaloneandMain0comparisonsafterDBmaterializationfix",
-        "fullsuiteandClippy"
-      ]
+      "status": "committed-focused-validated",
+      "commit": "3c08046b5a33e4033b9a995fe3609bbb3e813fb2",
+      "mainKinds": 35,
+      "focusedRootExecutions": 46,
+      "sourceRegenerationChecks": 14,
+      "allTargetClippyPassed": true,
+      "formattingPassed": true,
+      "fullSuitePromotion": false,
+      "record": "fixtures/reference_fidelity/source-activation-main-focused.json"
     },
     "compactReaderAndScrypt": {
       "status": "committed-focused-integration-passed",
@@ -52,13 +49,26 @@
       "fullSuitePromotion": false
     },
     "ammV11": {
-      "status": "staged-not-executed-in-Root"
+      "status": "fresh-stages-uncompiled-in-Root",
+      "mainAndCapitalTests": 19,
+      "remainingMethodTests": 3,
+      "sourceOraclesExecuted": true
     },
     "durableReplay": {
       "status": "staged-standalone-validated-not-mounted",
       "commandsBeforeRestart": 5038,
       "segments": 23,
       "fullSuitePromotion": false
+    },
+    "nativeBlake3": {
+      "status": "staged-standalone-validated",
+      "tests": 4,
+      "fullSuitePromotion": false
+    },
+    "litecoinNonempty": {
+      "status": "genuine-isolated-Core-corpus-generated-parser-standalone-validation",
+      "RootIntegrated": false,
+      "chainOrActorAdmission": false
     }
   },
   "scope": "The full-suite count remains the committed V8 baseline. Candidate focused checks do not establish full integration or authenticated input truth.",
@@ -87,6 +97,22 @@
     "v9-node-final-evidence.json": {
       "sha256": "89b7fc9201b45ede2c321653ac32b7c8d1d34c9dbb1cc8ebf83fd54004201c97",
       "bytes": 9085
+    },
+    "v10-final-normalized-guard.log": {
+      "bytes": 15597,
+      "sha256": "0c73eda3311a3cb157e01508029aa35e9e789b8f1607cd6dd2d77154bcb52512"
+    },
+    "v10-populated-version-gate.log": {
+      "bytes": 5040,
+      "sha256": "14cf4656c882e53bd015d3b1d47aa8110cbd7bbc3fce78b6ef65a79463f53af7"
+    },
+    "v10-final-clippy.log": {
+      "bytes": 170,
+      "sha256": "1ef16aae209e3d9be5bf06e071243e92d8b9c425b7f8bcd7a0e5685431357829"
+    },
+    "v10-node-evidence.json": {
+      "bytes": 4296,
+      "sha256": "dfedd20da47ce3e2178b08bdf6ef0e39a3b6b492b8ece494de3caad122447638"
     }
   },
   "workerArtifacts": {
@@ -99,16 +125,16 @@
       "sha256": "6c60fc765b2cad389bbd4481f1fc0eb0932d50b70823446e5646179d923bae00"
     }
   },
-  "workbookNote": "V9 b02a045: 1,502 release executions and151 exact numeric-reference tests passed; Main admits34/36 kinds. TLSW3 verifies selected V7/V8 slices and refuses V9. Activation: mixed bootstrap and inherited routes pass; table materialization and optional binding comparisons are under correction. Reader/Scrypt focused checks pass. AMM and durable replay remain staged. Authentication, historical parity and full-block proofs remain open.",
+  "workbookNote": "Full V9 baseline:1,502 release executions and151 exact numeric-reference tests. Committed V10 3c08046 composes35/36 Main kinds;46 focused Root executions,14 original-source checks, formatting and Clippy pass. Complete release promotion awaits the AMM batch. Reader/Scrypt are locally committed; durable replay and fuller Litecoin ingestion remain staged. Authentication, historical parity and complete block proofs remain open.",
   "savedWorkbook": {
-    "sha256": "6a56ebd226bfb0787c86d967dc6156034667693e4381cfb2967f82b1d41ecd03",
-    "bytes": 47495,
+    "sha256": "fb7e71342432abb598c678fcc781c1c93313599958ffa7db562ebc430d08efc1",
+    "bytes": 47779,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
     "rowHashes": {
-      "modules": 2576954624,
-      "logic": 3528931079
+      "modules": 3391843071,
+      "logic": 2915559566
     },
-    "verifiedEdits": 75,
+    "verifiedEdits": 10,
     "layoutAndFormulaPreservationVerified": true
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
