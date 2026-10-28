@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-28T19:22:40Z",
-  "inspectedCheckoutCommit": "ef6dbe971238b57b5fd37c6c950f9b007ad3120a",
+  "verifiedAtUtc": "2026-10-28T19:33:56Z",
+  "inspectedCheckoutCommit": "2f66bb56c9c4f79a681b7b4b5a9860618e5dc7be",
   "verifiedImplementationCommit": "ef6dbe971238b57b5fd37c6c950f9b007ad3120a",
   "verifiedReleaseTests": 1641,
   "topLevelTests": 1640,
@@ -182,6 +182,51 @@
       "status": "work-only-uncompiled-source-corpus-correction-staged",
       "RootIntegrated": false,
       "fullSuitePromotion": false
+    },
+    "MainV12Service": {
+      "status": "staged-uncompiled",
+      "sourceFrames": 51,
+      "actualMainCalls": 30,
+      "numericProfilesChecked": 2,
+      "sourceStartupObservations": 4,
+      "sourceDatabaseCategories": 32,
+      "stagedRustTests": 2,
+      "rootRustCompilationPerformed": false,
+      "fullSuitePromotion": false,
+      "manifest": {
+        "sha256": "98478d7278de720e94bf02f7decb3926dfa5aab5aa559236b983a90d9df13e06",
+        "bytes": 5285,
+        "payloadFiles": 12
+      },
+      "completedSourceLogs": {
+        "final-default-check.log": "2e30538a4f39c5c1081d81b31eb8f5316d6b8148b0167de236748436ac0a5e62",
+        "final-locked-check.log": "2e30538a4f39c5c1081d81b31eb8f5316d6b8148b0167de236748436ac0a5e62",
+        "final-proof-check.log": "60180e0639dac65035d4b130b9ae3034954fddcffc9523bab13d05793c6cf3ac",
+        "final-lock-proof-check.log": "60180e0639dac65035d4b130b9ae3034954fddcffc9523bab13d05793c6cf3ac",
+        "final-startup-check.log": "000a71dab2ece838712f74c5239d31359baad07c12e8495dae7e4666bf42c732",
+        "final-startup-locked-check.log": "000a71dab2ece838712f74c5239d31359baad07c12e8495dae7e4666bf42c732"
+      }
+    },
+    "sourceCompactAdapter": {
+      "status": "isolated-component-checks-only",
+      "isolatedRustTests": 11,
+      "newAdapterTests": 7,
+      "inheritedStorageTests": 4,
+      "sourceMethods": 21,
+      "newExactSourceCalls": 49,
+      "explicitUnsupportedDomains": 1,
+      "mainIntegrated": false,
+      "fullSuitePromotion": false,
+      "remaining": [
+        "source-equivalent Main streaming",
+        "aggregate queries above 1024 rows",
+        "journal compaction and 512 MiB ceiling"
+      ],
+      "manifest": {
+        "sha256": "c49cfb3fd39b9fde9b7fd122e10305d87487dc1fcb2831f594dd1608563bc0d9",
+        "bytes": 15880,
+        "payloadFiles": 41
+      }
     }
   },
   "scope": "Existing release suites passed at31ee8f4. The known mixed-history state/Consensus defect, historical parity, production integration, complete block proofs and authentication remain open.",
@@ -372,23 +417,33 @@
     "next-lower-amm/root-ready/MANIFEST.json": {
       "bytes": 1681,
       "sha256": "6c60fc765b2cad389bbd4481f1fc0eb0932d50b70823446e5646179d923bae00"
+    },
+    "next-main-production-phases-service/root-ready/MANIFEST.json": {
+      "sha256": "98478d7278de720e94bf02f7decb3926dfa5aab5aa559236b983a90d9df13e06",
+      "bytes": 5285,
+      "payloadFiles": 12
+    },
+    "next-source-compact-index/root-ready/MANIFEST.json": {
+      "sha256": "c49cfb3fd39b9fde9b7fd122e10305d87487dc1fcb2831f594dd1608563bc0d9",
+      "bytes": 15880,
+      "payloadFiles": 41
     }
   },
-  "workbookNote": "Release ef6dbe9: 1,641 executions (1,640 top-level plus one successful subprocess), 218 exact numeric checks, formatting and Clippy pass. All 1,247 frozen inputs match. The shared ownership fix, TLSW4/5 and selected Bitcoin profiles are included. V12 orchestration and the new compact adapter remain staged; historical parity, production deployment, authenticated inputs and complete-block proofs remain open.",
+  "workbookNote": "Release ef6dbe9 remains verified: 1,641 Rust executions and 218 exact numeric checks. New staged V12 service evidence has 51 frames/30 Main calls plus separate source startup; Rust composition remains uncompiled. The compact adapter has 11 isolated checks, excluded from the full-suite total. Main streaming, compaction, snapshot/startup integration, broader historical parity, authenticated inputs and complete-block proofs remain open.",
   "savedWorkbook": {
-    "sha256": "7af991decb38d8b48ea052169782f3ae1b2a23190248dd0282cf1aee4e59249d",
-    "bytes": 47697,
+    "sha256": "69f811254470be0ae56eb75b9453187c4df3a1d9e48c855889b270f62e7b6bb9",
+    "bytes": 48030,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-28T19:22:40Z",
+    "asOfUtc": "2026-10-28T19:33:56Z",
     "rowHashes": {
-      "modules": 3201418857,
-      "logic": 1841493029
+      "modules": 3045462454,
+      "logic": 978069326
     },
-    "verifiedEdits": 21,
+    "verifiedEdits": 13,
     "layoutAndFormulaPreservationVerified": true
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-  "workbookVerification": "Sidebar/saved rows match;21 targeted cells and necessary heights changed. Formulas, styles, filters, tables, widths and panes preserved; no formula errors.",
+  "workbookVerification": "Sidebar/saved rows match; 13 targeted cells and necessary heights changed. Formulas, styles, filters, tables, widths and panes preserved; no formula errors. Changed views rendered and reviewed.",
   "validationRecord": "fixtures/reference_fidelity/archive-witness-release-validation.json",
   "knownReferenceGaps": [
     "V12 orchestration staged/uncompiled",
