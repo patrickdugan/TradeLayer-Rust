@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-28T21:24:00Z",
-  "inspectedCheckoutCommit": "fa0094610c9d87617e40913e938f60654f05a480",
+  "verifiedAtUtc": "2026-10-28T21:37:13Z",
+  "inspectedCheckoutCommit": "1a7eda52acdb4a2323e35cd8dbfe697cd389e4e1",
   "verifiedImplementationCommit": "fa0094610c9d87617e40913e938f60654f05a480",
   "verifiedReleaseTests": 1659,
   "topLevelTests": 1658,
@@ -242,14 +242,57 @@
       }
     },
     "isolatedSnapshotStartup": {
-      "status": "isolated-integration-tests-pass-additional-corrections-pending",
+      "status": "isolated-corrected-tests-and-prior-main-regressions-pass",
       "RootIntegrated": false,
       "fullSuitePromotion": false,
       "focusedTests": 6,
-      "testedSnapshotFrames": 33,
-      "testedColdStartupFrames": 60,
-      "additionalSnapshotFramesPending": 57,
-      "additionalStartupFramesPending": 65
+      "priorMainRegressionTests": 17,
+      "testedSnapshotFrames": 57,
+      "testedColdStartupFrames": 65,
+      "remainingChecks": [
+        "formatting",
+        "all-target Clippy",
+        "remaining compatibility review",
+        "Root integration",
+        "full-suite promotion"
+      ],
+      "logs": [
+        {
+          "path": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\main-v12-cold-native-corrections.log",
+          "sha256": "eaf04b6e94e59fc7e211b1c436dc08a559141ac5d12f0312362267ef54bbaf6b",
+          "passed": 6,
+          "targets": 3
+        },
+        {
+          "path": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\main-v12-cold-prior-regressions.log",
+          "sha256": "9fcc0a021f2b442097dfe59e34749dc74c65512e208e9892290c47530e5833ee",
+          "passed": 17,
+          "targets": 8
+        }
+      ]
+    },
+    "compactStreamingFollowOn": {
+      "status": "worker-reported-checks-under-independent-review",
+      "RootIntegrated": false,
+      "fullSuitePromotion": false,
+      "reviewPending": [
+        "cross-store plan binding",
+        "logical/physical sequence distinction",
+        "retention and crash recovery",
+        "Main streaming integration"
+      ],
+      "performanceScope": "Retained disk reduction is not a throughput improvement; measured compaction adds write IO."
+    },
+    "terminalControlFollowOn": {
+      "status": "worker-reported-standalone-tests-pass-unintegrated",
+      "RootIntegrated": false,
+      "fullSuitePromotion": false,
+      "remainingChecks": [
+        "frozen handoff",
+        "independent review",
+        "Root compilation and integration",
+        "full-suite promotion"
+      ]
     }
   },
   "scope": "Existing release suites passed at31ee8f4. The known mixed-history state/Consensus defect, historical parity, production integration, complete block proofs and authentication remain open.",
@@ -498,7 +541,7 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Verified fa00946: 1,659 release executions (1,658 top-level plus one successful subprocess), 231 exact numeric checks and all 1,293 frozen inputs. Main V12, legacy formats, selected Bitcoin checks and TLSW4/5 are included. Snapshot/cold-startup follow-ons have isolated checks but remain outside this release. Host storage/streaming, control flow, broad historical parity, authenticated inputs and complete-block proofs remain open.",
+  "workbookNote": "Verified release fa00946: 1,659 Rust executions (1,658 top-level plus one subprocess) and 231 exact numeric checks. Inspected checkout 1a7eda5 is clean. Separately, six snapshot/startup tests and 17 earlier Main tests pass on the isolated follow-on, covering 57/65 source observations. Storage and shutdown work is unintegrated and under review. Full parity, authenticated inputs and complete-block proofs remain open.",
   "savedWorkbook": {
     "sha256": "d5971ddc83546910e19f76290fa12a169eee4e486873d8232ca6349ec07d0796",
     "bytes": 48140,
