@@ -9,7 +9,37 @@ verification to a separate worker. This pass implements independent supporting
 modules and reviews transaction-index scheduling and parsing. It does not merge
 that worker's branches, publish a branch, or authorize economic transitions.
 
-## Tracking the 49 source modules
+## Tracking 48 TL modules and the external reference
+
+The opt-in MainCallableV8 batch passes **1,476 release-mode Rust test executions**
+(1,475 top-level plus one subprocess) across 217 targets. All-target Clippy,
+formatting, doctests, the zero-external-crate policy, eleven supply-policy
+mutation tests and ten Core bridge Python tests pass. The explicit locked
+BigNumber9.1.2 run passes 111 tests across 40 targets. The full debug run of the
+preceding V8 checkpoint passed 1,475 tests; the broader Main change also passes
+its five focused debug tests. See
+`fixtures/reference_fidelity/source-main-callable.json` for exact scope and
+781 frozen inputs.
+
+Main now composes source-owned raw1/2/3/4/7/8/9/11-15/18/32 with the existing
+Core. It uses the actual Activation registry, all 25 ClearList static methods,
+the original send/commit and UTXO-trade ingress, and actual ordered financial
+phases and journal effects. Main's original 39 and additional 38 source frames
+have separately recorded available calls, constructor inputs and local refusals.
+Source exceptions, partial writes and bounded asynchronous continuations remain
+observable. Default policy remains GlobalClearingV2.
+
+The independently captured V7 release fixture stays exact. A populated V8
+release fixture now binds 27 commands before any V9 edits, including real Main
+financial/catalog state and future-operation refusals. Checksums and expected
+heads do not authenticate actors, imported rows, chain history or RPC facts.
+TLSW2 remains the existing conditional V3-V6 command-slice profile; the new
+V7/V8 witness work is staged separately and is not promoted by this validation.
+
+Remaining work includes spot raw5/6, activation/bootstrap raw0, AMM raw10,
+other Main transaction kinds and startup/catchup/reorg composition, production
+compact storage adapters, authenticated historical inputs and complete per-type
+and block fraud proofs. Source coverage and full parity remain distinct.
 
 The opt-in LowerLifecycleV7 batch passes **1,461 Rust test executions**
 (1,460 top-level plus one subprocess) across 211 targets, including

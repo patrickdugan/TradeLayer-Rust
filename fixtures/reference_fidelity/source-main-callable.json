@@ -1,0 +1,184 @@
+{
+  "schema": "source-main-callable-validation-v1",
+  "verifiedAtUtc": "2026-10-28T07:40:12Z",
+  "compiledCommit": "7e5d5eac05a15f682b9f258080cede44ab9f7a18",
+  "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "runtimePolicy": "MainCallableV8",
+  "defaultRuntimePolicy": "GlobalClearingV2",
+  "rustVersion": "1.90.0 MSVC",
+  "passedTestExecutions": 1476,
+  "topLevelTests": 1475,
+  "subprocessTestPasses": 1,
+  "executableTargets": 217,
+  "newRustTests": 15,
+  "releaseAllTargetsBuiltAndTested": true,
+  "allTargetClippyPassed": true,
+  "debugSuite": {
+    "sourceCommit": "a40534832b4833fb1f323e76bae903f016bf1937",
+    "passedTestExecutions": 1475,
+    "targets": 216,
+    "newMainLowerIncluded": false
+  },
+  "numericReference": {
+    "archived": "genuine9.3.1",
+    "locked": "genuine9.1.2 SHA-verified source constructor",
+    "lockedRustTests": 111,
+    "lockedTargets": 40
+  },
+  "mainKinds": [
+    1,
+    2,
+    3,
+    4,
+    7,
+    8,
+    9,
+    11,
+    12,
+    13,
+    14,
+    15,
+    18,
+    32
+  ],
+  "mainOriginalCorpus": {
+    "frames": 39,
+    "resets": 13,
+    "availableCalls": 18,
+    "localRefusals": 7,
+    "fullImportBoundary": 1
+  },
+  "mainLowerCorpus": {
+    "frames": 38,
+    "resets": 11,
+    "availableCalls": 23,
+    "localUnavailableCalls": 2,
+    "dataInputs": 2,
+    "excludedPoststateNeverReused": true
+  },
+  "clearlistCorpus": {
+    "framesPerLibrary": 204,
+    "libraries": [
+      "litecoin",
+      "bitcoin-fallback"
+    ],
+    "resets": 27,
+    "imports": 7,
+    "directComparableCalls": 110,
+    "rawCalls": 59,
+    "localRefusals": 1
+  },
+  "sendCommitCorpus": {
+    "frames": 121,
+    "resets": 33,
+    "imports": 4,
+    "bindings": 1,
+    "availableCalls": 82,
+    "localUnavailableCalls": 1
+  },
+  "utxoTradeCorpus": {
+    "frames": 42,
+    "availableCalls": 34,
+    "resets": 8
+  },
+  "observationCountsIncludeResetAndInputFrames": true,
+  "replay": {
+    "version": 8,
+    "actualActivationEntryProfileAndLockBound": true,
+    "pendingTallyReadAndHeightStateBound": true,
+    "independentV7ReleaseFixtureVerified": true,
+    "newV8Fixture": {
+      "policy": "MainCallableV8",
+      "compiledCommit": "7e5d5eac05a15f682b9f258080cede44ab9f7a18",
+      "compiler": "Rust1.90.0 MSVC",
+      "profile": "release",
+      "commands": 27,
+      "bytes": 424544,
+      "head": "4a6ea6d8e313a985fadba718039d4d0ef417af801da2a6bd917952c374d5c21c",
+      "fixtureSha256": "6ca8de111e3f3bfd90d3234ebc7cd28b654b3db755a5d0462908ad2e94ecb408",
+      "releaseLibrarySha256": "b86f81abcfcec59171a12d02751cd8904c078221c47375f40083b557106c92c9",
+      "generatorSha256": "f19729d3c82f098f41322ec298d33ebbf1c0097362c459f8a2136e8c0afb21ee",
+      "implementationInputs": 781,
+      "frozenInputHash": "cba569da3a6181a496c76ab48f17a92626a1010e8150bada8aa5ddf0647b6222",
+      "capturedAtUtc": "2026-10-28T07:26:18.2655688Z",
+      "scope": "First ten actual Main lower source-comparison calls over declared constructor inputs, with real Property/Tally/ClearList/Channels/Activation/Main state, plus four future raw and three future Logic refusals; independently captured before V9 edits. Inputs are not authenticated."
+    }
+  },
+  "implementationInputs": 781,
+  "frozenInputHash": "cba569da3a6181a496c76ab48f17a92626a1010e8150bada8aa5ddf0647b6222",
+  "thirdPartyRustCrates": 0,
+  "supplyMutationTests": 11,
+  "bitcoinCoreBridgePythonTests": 10,
+  "fullReferenceParityEstablished": false,
+  "completeBlockFraudProof": false,
+  "authenticationEstablished": false,
+  "existingConditionalWitnessProfile": "TLSW2 V3-V6 unchanged; V8 export remains unavailable",
+  "remainingGates": [
+    "spot raw5/6 and actual Main scheduling",
+    "activation raw0/bootstrap and mixed ticker schedules",
+    "raw10 AMM and remaining Main transaction kinds",
+    "full startup/persistence/index catchup/reorg composition",
+    "new V7/V8 conditional witness API staged, not integrated",
+    "production compact indexing adapters and representative CPU/RSS corpus",
+    "authenticated actor/chain/UTXO/script admission and historical evidence",
+    "complete per-type and block fraud proofs"
+  ],
+  "logs": {
+    "v8-resume-format.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "v8-resume-includes-format.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "v8-main-lower-format.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "v8-main-lower-clippy.log": {
+      "sha256": "8aec2812c3e6ab0dddaf4cf60dc328d41f77997dbfa5b079fa62fcf000e6c3f2",
+      "bytes": 170
+    },
+    "v8-main-lower-focused.log": {
+      "sha256": "27564102d009fd415c8a7e6fc08fc310a25c9ef0811e6414a6542a05c2c4f94d",
+      "bytes": 1493
+    },
+    "v8-main-lower-release-full.log": {
+      "sha256": "3735a15d8530c9bf7ac99ef6e43c0465858b32587a18f58537ac550b3365ff4e",
+      "bytes": 181638
+    },
+    "v8-main-lower-locked-reference.log": {
+      "sha256": "b2f2199cc509142e5c23e0d9602d8d4f063ab557db228e00dc89f07f30569eb9",
+      "bytes": 21365
+    },
+    "v8-main-lower-locked-preloader.log": {
+      "sha256": "45dcbbe6dce81aa39447f73ca189ff78101e648a464e75319f31fd91293e6aad",
+      "bytes": 95
+    },
+    "v8-main-lower-doctest.log": {
+      "sha256": "0a85f067b7dde91e8805c38b413a01f951d6c96708a65ac5cec83d8d30b7d73b",
+      "bytes": 211
+    },
+    "v8-resume-supply-policy.log": {
+      "sha256": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01",
+      "bytes": 89
+    },
+    "v8-resume-supply-mutations.log": {
+      "sha256": "52db135e264746c50ed5845308cd1598fe1e5c2467c5bd83078ee40d3ce91a66",
+      "bytes": 1650
+    },
+    "v8-resume-bitcoin-core-bridge.log": {
+      "sha256": "ac3d9b5d7657f325c081f89f60658b6a13c3cabbf97c964f05d98e8fff15e0d5",
+      "bytes": 1498
+    },
+    "v8-resume-source-evidence.log": {
+      "sha256": "62fb96d1b1ad8caa17d492fb3d5bd7ce8fc07161eecb9aa6fa174e60769861aa",
+      "bytes": 41940
+    },
+    "v8-main-lower-node-evidence.log": {
+      "sha256": "28ebbb680e082d85a6dba332cf37ace41b5efba1388afc339233d01b35546efa",
+      "bytes": 23518
+    }
+  }
+}

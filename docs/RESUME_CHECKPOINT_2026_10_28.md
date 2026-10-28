@@ -30,3 +30,9 @@ At source checkpoint a405348 (with inventory review 901cf01), the raw3 harness c
 The full Rust suite remains running in work/v8-resume-full-tests.log, terminal handle 99999; poll that existing handle before starting another build. The long economic_source_catalog_oracle_snapshot group passed all five tests. Full/release validation has not yet been completed.
 
 The broader Main lower integration is frozen under work/next-main-lower-integration with 38 source frames, 23 comparable calls and two isolated unavailable-RPC calls. Its corrected portable observer emits freshly executed records. Parent must verify the latest manifest, mount after the current suite is terminal, and compile/run the new guard and test together. Future spot V9 is frozen in work/next-lower-spot/root-ready; source-only Main+spot and activation work are separate work stages. None is promoted by the V8 focused results.
+
+## Completed V8 validation
+
+Committed implementation 7e5d5eac05a15f682b9f258080cede44ab9f7a18 passes the full release suite: 1,476 executions across 217 targets, plus 111 locked-reference tests across 40 targets. Five focused debug Main/lower/version tests and all-target Clippy pass. Release/full/locked/doctest processes are terminal success. Full evidence is fixtures/reference_fidelity/source-main-callable.json. The V8 release fixture was captured before V9 changes and round-trips exactly with an independent expected head.
+
+Next Root actions: refresh the existing completeness workbook from this evidence; mount the frozen integrated V9 spot snapshot and separate TLSW3 payload, add V8 compatibility assertions, then run their fresh Cargo tests. The mixed-native V10 extension remains work-only until genuine scheduling domains and compiler validation pass. No push, PR or publication.

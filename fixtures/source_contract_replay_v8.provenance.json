@@ -1,0 +1,16 @@
+{
+  "policy": "MainCallableV8",
+  "compiledCommit": "7e5d5eac05a15f682b9f258080cede44ab9f7a18",
+  "compiler": "Rust1.90.0 MSVC",
+  "profile": "release",
+  "commands": 27,
+  "bytes": 424544,
+  "head": "4a6ea6d8e313a985fadba718039d4d0ef417af801da2a6bd917952c374d5c21c",
+  "fixtureSha256": "6ca8de111e3f3bfd90d3234ebc7cd28b654b3db755a5d0462908ad2e94ecb408",
+  "releaseLibrarySha256": "b86f81abcfcec59171a12d02751cd8904c078221c47375f40083b557106c92c9",
+  "generatorSha256": "f19729d3c82f098f41322ec298d33ebbf1c0097362c459f8a2136e8c0afb21ee",
+  "implementationInputs": 781,
+  "frozenInputHash": "cba569da3a6181a496c76ab48f17a92626a1010e8150bada8aa5ddf0647b6222",
+  "capturedAtUtc": "2026-10-28T07:26:18.2655688Z",
+  "scope": "First ten actual Main lower source-comparison calls over declared constructor inputs, with real Property/Tally/ClearList/Channels/Activation/Main state, plus four future raw and three future Logic refusals; independently captured before V9 edits. Inputs are not authenticated."
+}
