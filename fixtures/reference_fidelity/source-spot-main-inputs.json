@@ -1,0 +1,4157 @@
+[
+  {
+    "path": ".cargo/config.toml",
+    "sha256": "f11e1db0e1d4a0721d38dd69e08d871085b5a0000ec85bb9fa3f237129c3eb45",
+    "lfNormalized": false
+  },
+  {
+    "path": ".gitattributes",
+    "sha256": "f4281afc7501e26f05e7cb89c3ae843840543e89eea1d2a9afed687e34ab4797",
+    "lfNormalized": false
+  },
+  {
+    "path": ".github/workflows/ci.yml",
+    "sha256": "21a9cc979f332590d3c85db65777d614fd7c17391be28ce8afa3d46b1bc16807",
+    "lfNormalized": false
+  },
+  {
+    "path": "Cargo.lock",
+    "sha256": "56203e8601789c90f87cb118a209d48155f944387fd0a3107e6d8a54133006f8",
+    "lfNormalized": false
+  },
+  {
+    "path": "Cargo.toml",
+    "sha256": "294e22eaeb16ecce0660beecdfb72ef26e6d9e676030b6d85eb794bbc5304588",
+    "lfNormalized": false
+  },
+  {
+    "path": "docs/LOGIC_BY_TX_TYPE.json",
+    "sha256": "a50accaf26a3a28da02d151406c597a9f814a4cb6ba1780302b733137b67f90d",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/activation_vectors.tsv",
+    "sha256": "65668ba27161afd9fd8e1f6a953838339a338ce4c164ebb7ecea7667184a228c",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/adjuster_vectors.tsv",
+    "sha256": "3d84a0478f07e6af5db886ae4d46b444b575ce4360a8fc6e52b3358c75a54eeb",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/amm_liquidation_vectors.tsv",
+    "sha256": "ff0ec0bc1b358250cb6e69885218d57a53beb108db28555a927051d7aa4b1eb2",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/amm_vectors.tsv",
+    "sha256": "3a33094a96519ac0b6e2ba7f9e1a38e0e8bb9a3dc1a81847087f166450582c30",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/barrier_scheduler_fault_harness.rs.txt",
+    "sha256": "85e39c9b8875caa065b96294fa653ea634d5b05b44b41914bcb6cb4d14e1429a",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/barrier_startup_cancellation.patch",
+    "sha256": "b7892c22b9ea848509e56b440fec64a49c90e8bcad0a6820a626c0c11de80a3f",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/bip32_public_vectors.tsv",
+    "sha256": "8b77bdeaeba514226d8b8fca90b33243c1232f280ef0f2eccd31d0ca3b296e05",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/bitcoin_chainwork_vectors.tsv",
+    "sha256": "ed78b289eda03ede920942274779f6aa1a0eea14ce52770c3d3e0e281cb46b0e",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/bitcoin_mainnet_block1_coinbase.hex",
+    "sha256": "572db5e0f5f38fdf73072c7cf6fb8eabd48a22557d5695490154118b8414baeb",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/bitcoin_mainnet_genesis_block1_headers.txt",
+    "sha256": "64f8013cecf62fd53a8c1541fffe30a5ed70601d561b8d5f66ee1e0f543829e4",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/bitcoin_mainnet_genesis_block3_headers.txt",
+    "sha256": "1551ef78a0a90b05ad3d8be1bacf1304b8eafa2c6052532ff08d3e87b15501eb",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/bitvm_bundle_vectors.tsv",
+    "sha256": "0e1c415861e1f16bd28c50297a5e6de31835bd6435848a1cdff87d46b9e68664",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/bitvm_cache_vectors.tsv",
+    "sha256": "032041ad2690db6c5fbccc1eb062a89883cd669ca53100496c7d2c5175639bd0",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/bitvm_risk_vectors.tsv",
+    "sha256": "be0a6c359d311febb0a9c0d9d05805005571bbb401c3ce9ba8e4a5f494ec175b",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/bootstrap_vectors.tsv",
+    "sha256": "0aec3871648dab6f1093781df416d97eb718b57476c04199f6cc830d4c887089",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/channel_owner_bootstrap.hex",
+    "sha256": "fcf58ae3a7dd73b663efb22333a512c7ee1cc457db4916ad283e112ecc2bf668",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/channel_owner_vectors.tsv",
+    "sha256": "187961b3bf3c8a87761d746e89b0e858709f19f30cdf73f38b55d17efe8eb934",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/channel_p2sh_ecdsa_signed_synthetic.tsv",
+    "sha256": "5c65bc32b7a21cea380cf1e34535cbaa85ad8923f2063169f435ffa76b5edcf6",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/channel_p2wsh_ecdsa_signed_synthetic.tsv",
+    "sha256": "42d150ea730ec6d3d774a5a50c771c8f496535bea79248e2b8cb0f2681b19675",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/channel_revision_vectors.tsv",
+    "sha256": "cdb0d04f0733e731463a27fdf992bdcf2ae5c12d49119f2fd45ac905c83c651c",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/channel_type9_merkle_synthetic.tsv",
+    "sha256": "87ba74303de2e419cb1f5ac616c89dd047616cccfd2e5e27865016413d294df1",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/channel_type9_p2wpkh_signed_synthetic.tsv",
+    "sha256": "3da7b4155ceaaea7b4dc1d00f8f29f06a96c2c6563cdf0af8063781ce00e2ab9",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/channels_vectors.tsv",
+    "sha256": "e9173efaab31bbb6b49c25021a1b9b51b094f7597fe4fe1f20c526c3d770edea",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/clearing_cadence_vectors.tsv",
+    "sha256": "ac94396ca64f5c1db7af36199d0e2f7d7cd1465fea5b4d570cc2cfb3c9ae76e3",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/clearing_math_vectors.tsv",
+    "sha256": "0f362bb79e91814659b7543ec0851b841b24673de990dde5ce00f7aaeadfd3be",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/clearing_pnl_vectors.tsv",
+    "sha256": "4ef6863aabb2c16ddd0f89f61b95cb251154b2e6896b436842c694d9f906f993",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/clearing_quirks.tsv",
+    "sha256": "86f3009e8efa7b5c2d2439e6f59daa401de855abe17d8230ed72650aa9ee5acb",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/clearing_vectors.tsv",
+    "sha256": "9904263a07f45e9f26606221f55832e5e2735fa2c010a8045bc849170b6d8e47",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/clearlist_source_owner_vectors.tsv",
+    "sha256": "13cd908846d0396ad03301dd4130f5859cc51731e70f60acc27e8c8ce71e4cd6",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/client_vectors.tsv",
+    "sha256": "df6ffe45527c7a486c0b650f9c2d5fecb895a13038b3ffccb609926f0d47d55d",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/consensus_legacy_snapshot_vectors.tsv",
+    "sha256": "f13132bcc600edc8be7e3d837ac797e3d43b7ab18a28bc6f10ed7d4b4d8228da",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/consensus_vectors.tsv",
+    "sha256": "c3466a12dd5345fd184335ef87df996d6ab7cddc34334976cd2045332129a08a",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/contract_binding_vectors.tsv",
+    "sha256": "8e718ea5cc5d04428b297da32831913758c86cb3e4b34677284ffa354613f2ce",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/contract_registry_vectors.tsv",
+    "sha256": "6b9ded2e5dd5b05bcb07107fc128b6a8b2e515fd59b314d75513876e7149f66f",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/daemon_vectors.tsv",
+    "sha256": "4efa76b03ca6dc7795bc83f414b5c9588ede360ae34f3a0992293cbe0be6a2a7",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/decimal_vectors.tsv",
+    "sha256": "42907054375698944bfdbf13dcfd0260f1b9ce012f5a21c5bbd152c2df183238",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/dlc_oracle_bridge_vectors.tsv",
+    "sha256": "dc395249c9bf96622210cbda7b7db5c31cfb5e9e99791841a8f9c9d67b5f814f",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/funding_audit_vectors.tsv",
+    "sha256": "9ee64e1eb4275b411cc4ca16f5dd4c293828b35ff8bc773e87b34293c8890106",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/insurance_owner_review/economic_chain.log",
+    "sha256": "09f983ae5749526e35949010fdfba75c9a92e647c6dcd973c142f5b43c8f4ffc",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/insurance_owner_review/insurance.js",
+    "sha256": "5abbe7934ca4c2f4180ed910989ae8f90d752bf9e17cb8944b8b49e33d03c39c",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/insurance_owner_review/insurance_ledger_v2.log",
+    "sha256": "e0c88dbf14f4ff6a2235b0b1f06b907a02165ff3e190dffb8308592e7072e722",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/insurance_owner_review/insured_distressed_closeout.log",
+    "sha256": "8c96c2bdff585ea712bc2da3ea6533a2f0b521c826d4e86bbb40426c8dd7753a",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/insurance_owner_review/journal_poison.log",
+    "sha256": "080677375ace1da01806a359c98dc9c9181e2f4a9572fa314431e709e82c38ef",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/insurance_owner_review/manifest.json",
+    "sha256": "22ab258c9748d59f22d5b31ebe4ef9a2644cdd6640fd423b0dbd9b9b3ec950eb",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/insurance_owner_review/poisoned_owner.log",
+    "sha256": "f25324f7b27689acaed2864c8b1bccd2abbfb3c9a798a36153372a60af8bfb04",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/iou_vectors.tsv",
+    "sha256": "f5372a25bf53db9811fa59a882fbe9cf1faf1eb6e28b5f624d4b388ab95ce6c9",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/issuance_intent_vectors.tsv",
+    "sha256": "6be265cd04f8ee8b75afb8345bc93bf51acebc1d6e7f466a5d44cb2da94355ac",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_activation_js_names.tsv",
+    "sha256": "08f0d5b76bc622bbe32d1c3953ef8f050a4262f28c72a19639cf05461326d22d",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_activation_source.txt",
+    "sha256": "268f08438eb80765587b8ce24d719f41de573648e108ef64df557faad870ea0e",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_adjuster_source.txt",
+    "sha256": "b6eea50581a9cc19f2296bae180b528c0116900a73662e5ce9a8ce762c36f77c",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_amm_source.txt",
+    "sha256": "bfb4f5d94c1d4754ae9a17b646c42c4ffe62e077590d0a184ac8ddc0b38255b1",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_base256_source.txt",
+    "sha256": "11a0d6be7142f9baa4e41e9c9c295c80583b803b7d79495ed260d28d45db6edc",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_base94_source.txt",
+    "sha256": "0b33c7b2beaa3d86f13a3ef5c995121457281b2d744cc87f8ca58d32070234eb",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_base_converter_license.txt",
+    "sha256": "38238727d9c0d5b966cfccbd0ed38f3026ee1ecf0537a9671e3d426a7b79cefa",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_base_converter_source.txt",
+    "sha256": "a047cb70ef64fce2ad7a70ed4dc844efc05d3c72c5ccf4f53ed7957b95b35b62",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_base_vectors.tsv",
+    "sha256": "4f8fc119968f553de82c33f71b557c0ab55e13362446f10a52269c7e705715f2",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_bignumber_license.txt",
+    "sha256": "cc84225fb9bf55cb8a8b653713d8e322fb2a962a47ff818b67a7ad65ab446932",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_bignumber_source.txt",
+    "sha256": "58ba6fb59668342346f17983a61ace455f6f425ac4fbfab84f489df257594d16",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_bitvm_bundle_source.txt",
+    "sha256": "e63a2f2e09e195a03ab2e3acb3fb6f582917c628a4c08774911c4ba6558903fe",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_bitvm_cache_source.txt",
+    "sha256": "053d2c2518485a0dcc0f42a76b100a945e0c568f54bcfb04a5b8fa97b80ba0ca",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_bitvm_risk_source.txt",
+    "sha256": "14e6f4edcb6590e043a46188a3ef122adcae88cbf18bc2853d64e59b8791ef66",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_channels_source.txt",
+    "sha256": "b3fa22beab9a9fdb63246daa12582f86591a4217863240321f88fdff0160ec79",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_clearing_source.txt",
+    "sha256": "612d1ec49c1d5cc412d0072a194da4975c5232ba5294b81cd3097df11bff1528",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_clearlist_audit_reference.txt",
+    "sha256": "fbdb702e5e89bac113226223f42bf762af13fff40dee4e0c4ab6cd4a50d451e1",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_client_source.txt",
+    "sha256": "dc8cf76301825e865a92d7b0e6028ccbe06c600a79e1e5cdcf59ac366cc6212e",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_consensus_source.txt",
+    "sha256": "af4c2fe7c37680be018dcb0df9f2cf8b348baac8aec1fe2335a220ce27dc0230",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_contract_registry_source.txt",
+    "sha256": "d14c8db7d2a40471d51c5d51931eccb5a0d4f4380c9a0589d5eb1c0990636121",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_contract_validity_source.txt",
+    "sha256": "ed9b7fed5b733740c26033030379abe0f4a63d488ff431dfc7b1f10eb4f93b00",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_db_source.txt",
+    "sha256": "b92a05fee6652494b72bf6893d9633850c697be773e88b24d62798a8bc8f5e38",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_dlc_oracle_bridge_source.txt",
+    "sha256": "954a7fbf30b66e52b587a2d7108e080c41da812acff77ccd457c6e547cb1587f",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_init_source.txt",
+    "sha256": "55c7dd6da798a58dc57d34ad75be357f9811574db5e6f384620055f966447cc0",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_interface_express_source.txt",
+    "sha256": "8cfa990d9aa460d29f5d309beb0987a040e06e2840632fac38e713d94836aab2",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_interface_source.txt",
+    "sha256": "d2887a94f2e6770194aa976b91a155fe534b14f96dc4ba99c91f00dcff8181bb",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_iou_source.txt",
+    "sha256": "7ad5e87e4d72cf57c640c8c15564a3da21dfb4f2e692097ac8aab8215018cf96",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_issuance_intent_source.txt",
+    "sha256": "dafabd4d8a51e805cac299b33e815a2367ffb1b934f943c4519454a671aec932",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_listener_source.txt",
+    "sha256": "25bcbe7521e58ad9ae52d624fe9e937f079abca5e8c2e9ff9e9f73667ef2e146",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_main_source.txt",
+    "sha256": "006d59ba3d28d802b0e0c5be2d9d661b58caf1c919a704b3f0d40bc9613c4009",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_margin_map_source.txt",
+    "sha256": "ad5af4a639a50623319236cce42e8728027109ac3b8ae4616387798110cfb636",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_options_source.txt",
+    "sha256": "02277caaece5339a9ea0dac15437d14ce3fac8dc5ee92a727a0f544efcdbb703",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_oracle_bridge_source.txt",
+    "sha256": "954a7fbf30b66e52b587a2d7108e080c41da812acff77ccd457c6e547cb1587f",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_oracle_source.txt",
+    "sha256": "70778913a22a323f64a1b2de0b28095a204fba113f39597dedb65938eeb30e3d",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_orderbook_source.txt",
+    "sha256": "c368acbc04f988b989fa320b3a1aefdb9522b9f9f5eff536137e7a2e8e9f4f98",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_persistence_source.txt",
+    "sha256": "628c5b3cfd919fd518aedc2b757cdc256f7ccc36c447090f30aebd8a677ce2e1",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_procedural_source.txt",
+    "sha256": "0a89e5447a07d592a25032d55ced478b01797cda96da055c888a0da6664f062e",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_reorg_source.txt",
+    "sha256": "3e4cabb0dc560fd8c601b72e05f0e698ce02adc646eaef241189fd192d906a82",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_scaling_source.txt",
+    "sha256": "ea2103b70dd051d39e44c9201a1eed2107b8110ac9803a0b825b92942799ca61",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_state_oracle_source.txt",
+    "sha256": "4a8a06227544ffa12c43c5fe5f987dc02b1ae2c1c0f27aa70de3645fdcc57988",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_tally_source.txt",
+    "sha256": "cfde9e5845f810bf62d9f1a07d4db4ea011b11d3d2bb63f041d39bea557cddef",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_trade_history_source.txt",
+    "sha256": "670035f8153abda542c732deee0cf995fcd1e1e7c7b9f50464fce6ab1b5c1569",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_txdecoder_body_vectors.tsv",
+    "sha256": "d603af49c714b668c050ade863f76581a18392d1d6627abf9457c25282f29105",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_txdecoder_historical_vectors.tsv",
+    "sha256": "4be3d285312e3b43a9963f672ff4fbf083cfaf62246e124c2cb42e3dd3e364c4",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_txencoder_source_vectors.tsv",
+    "sha256": "0cfa755c74a1c5b8f7ad0bc005410e4d940dfb19103573c9eca5632e28ccef7a",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_txindex_source_txIndex.txt",
+    "sha256": "25f61a0206e56e59cfe6bdc924c1c609c85d589cfe6aec38b93b886ac4807b9c",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_types_routes.tsv",
+    "sha256": "887b2208814c22e80d1a9823e796e63e1d9073ccc0344f49457bc83dbc41d254",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_types_source_txDecoder.txt",
+    "sha256": "8a395367be182141129be6f5a96ec2cf334bc4376edfccd0b7dcacafd8f5a885",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_types_source_txEncoder.txt",
+    "sha256": "65af678ffe3952fa2f63549e1d3b43890ab84b0facef6e4afb36411cd2eb6bbe",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_types_source_types.txt",
+    "sha256": "c85b0aa402c105723566e2f75f829c03f3c49e2860ec5bee25568ab1c3b262a5",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_validity_source.txt",
+    "sha256": "ed9b7fed5b733740c26033030379abe0f4a63d488ff431dfc7b1f10eb4f93b00",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_vaults_source.txt",
+    "sha256": "3dcf0554923864729bedcfc8244a06e4235d10a3241256eb3ba0a9d3d1534983",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_vesting_source.txt",
+    "sha256": "4c134b6871f450d3190a0958b629731d960540069d0c8c37a6da33d6e1f70d2b",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_volume_index_source.txt",
+    "sha256": "d4d4329254125ce8e4217d22b0ba57a1581c6279df999af60281b0365dffb08c",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_wallet_interface_source.txt",
+    "sha256": "d22fbe4ee631ca15fbb4fe4fb2af65c7a424ef4f249eb8686f8aa7b5fd2d8735",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/legacy_wallet_listener_source.txt",
+    "sha256": "d97a2997d70d2df8708d3fa9024c4f7b87dadf79921d876771181cd88837d3b8",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/liquidation_loss_budget_vectors.tsv",
+    "sha256": "6365b65d9a9cc04fcac7a02e46911b40e366459d8af0cbd0cf74710569a3f682",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/lower_spot_proof10.jsonl",
+    "sha256": "b87030cd8de623dcc34b33d2f6d7d9926ebe2383bf16fee0140b5f24cdc31172",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/lower_spot_proof10_receivers_v2.jsonl",
+    "sha256": "ee72732c5e8ffba1ccea10be2e7df2271aef6518c9dca9c34c7e486bd3a7afbc",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/lower_spot_source.jsonl",
+    "sha256": "05ca901528b286368d2b1c40db40ed0107eb92015907d7f338d32190979fae3b",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/lower_spot_source_receivers_v2.jsonl",
+    "sha256": "fee82c52b82c32b2bcd08e34f2150ea3dd6f25784c494e0a3cffb46368e2ba8e",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/lower_utxo_trade_proof10.jsonl",
+    "sha256": "a963b069e39a92492b996e4179bbdd8baf890fe4c42619cdc1923f75f755a745",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/lower_utxo_trade_source.jsonl",
+    "sha256": "a09190687dc043b4826c5d4631d68b9d0e7677c21b3a3b3a221d713222ca763a",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/main_lower_inventory.json",
+    "sha256": "fdb1bbfd5cda8c85de72dbbf9ef77e54f33600ef710f2bcce87bb59cf5db969a",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/main_lower_proof10.jsonl",
+    "sha256": "d062b27ae9e4eab9a6f08a5553945b16f4f5bddeacad5cd56059a83e9b7d5057",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/main_lower_vectors.jsonl",
+    "sha256": "004db73601ffd6aba3ee857cf72869b9059b758e24b8b93b5729858717a3dda8",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/main_phase_inventory.json",
+    "sha256": "fbd2637aaeb87074c20271c7d42f82caedfd892de74d77a75d00426d2ee0fa4a",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/main_phase_proof10.jsonl",
+    "sha256": "a82a5645bb1da77ec7285aa6d20aacc2508cdfa9f7755df8f57fd080dbc29959",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/main_phase_vectors.jsonl",
+    "sha256": "0ab682ca935899f8f548fd2846ac969bead7d936aab59acb4b68e0c755be0939",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/main_spot_inventory.json",
+    "sha256": "e2a518f1de30733eeee4ac91888b1a855828f7819d0a93dcb1bfc369cd9fe4af",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/main_spot_inventory_receivers_v2.json",
+    "sha256": "9324210320788857118a83f2fc0a09573e3f34ec638cf328d9e758711b54519d",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/main_spot_proof10.jsonl",
+    "sha256": "b29cfe035e1733981450092e15650fc149d0cad7108e39ac7ce9eff972e6bf6d",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/main_spot_proof10_receivers_v2.jsonl",
+    "sha256": "1773f9de772f390fdc0005ee35d60f2230ebcf8b4aaf87485dcdd1490aea9225",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/main_spot_vectors.jsonl",
+    "sha256": "9ecf7c8876f33f8c8607799f4be0d03a1cb5917658d15942f6523afea88b801b",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/main_spot_vectors_receivers_v2.jsonl",
+    "sha256": "fdd45a6e35a8935f75e5f9f98d7cfc0b06da467b8257463e820fb410baf007e2",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/main_token_threshold_inventory.json",
+    "sha256": "02d3f528df5308f0558214dbb746f65692bbbc09009533ac15084db95ff5ff6e",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/main_token_threshold_vectors.jsonl",
+    "sha256": "d384ec5fddb47278c81910277163bbc4e160f8c651db908438383251c2c9aec9",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/main_transfer_continuations_inventory.json",
+    "sha256": "3fe9887f0e6409a9088f7f5e1474e5bce3dc2555e2ee28b441c08a3e68d94567",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/main_transfer_continuations_vectors.jsonl",
+    "sha256": "d56e6574921a7917e641af4032b6a67c7d72cbeeda7de1ae20541051efb98f1b",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/main_transfer_schedule_inventory.json",
+    "sha256": "97f7eaec0c4fac899be4b2c1740ccd7dee006303280d32382a3ff6a9c8492031",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/main_transfer_schedule_vectors.jsonl",
+    "sha256": "3751f92a764eab38f7cb76c4a3d6535048d9ca3538fc28080c49737292eeeb69",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/main_upper_inventory.json",
+    "sha256": "0e2d87161c8f91fa3c15231853aef76daf8f01d7e93a127082e21fbbc40a341a",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/main_upper_proof10.jsonl",
+    "sha256": "f349abf8ac4bfa2a5ecefb475e0a3b4010fc3ee5d921f72a3b29e104bec528ba",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/main_upper_vectors.jsonl",
+    "sha256": "e2bb63a08e29b3f5fe556dfaeca50b71721cab29f01201e3df96cdbb2ad5e53e",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/main_withdrawal_schedule_inventory.json",
+    "sha256": "cca767501a05361727c7278dea9e534f7c017644242240c499a5d112037db1e3",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/main_withdrawal_schedule_vectors.jsonl",
+    "sha256": "e2d56d9850fb5b396e43016962a5fc2e6a20200b08213ce3c1d212306e7da43d",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/margin_map_quirks.tsv",
+    "sha256": "01ab38d4ccc23d3108ffab874b706cb7dd0299945fed080f5806b57124ccb8ca",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/margin_map_vectors.tsv",
+    "sha256": "d27ef061e844b158a5d0e66f360afe7dc28ce6a22aff4096dd7e3f1bae4f694f",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/mark_basis_quirks.tsv",
+    "sha256": "818a947e874411f9952cbbd6a35483c95fe0893a75a20347e840abf3089a2724",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/mark_basis_vectors.tsv",
+    "sha256": "9fe1ce4931c79a3b869a2e53ac0a6d4b393259d4e71051cc344a9ac2d53d7dd2",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/native_entitlement_owner_vectors.json",
+    "sha256": "59d3a145cd71635e617565ffe2c3c3af940ff12b729e98bd592feb31d9fe1bff",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/native_genesis/entitlement-pins.json",
+    "sha256": "b723b32d62ca7e218e1bc2bbaf3338980def24262ae34bc9ded929871a00f677",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/native_genesis/evidence.json",
+    "sha256": "7187cdf7a1cfdce9114ba70cc3af5d9cfaff148b7fef10540da8ac10862a5808",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/native_genesis/source-entitlement-evidence.json",
+    "sha256": "292868cd22d081b5628e84dcae37cf9e6369286676e35db7f13cccb80f7dbc4d",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/native_genesis/source-pins.json",
+    "sha256": "fdbc142e2ed0c27cfe65d4557911d69b68a5aa6e9347ddc1ffdeb0ac717653cd",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/native_genesis/source/activation.js",
+    "sha256": "268f08438eb80765587b8ce24d719f41de573648e108ef64df557faad870ea0e",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/native_genesis/source/db.js",
+    "sha256": "b92a05fee6652494b72bf6893d9633850c697be773e88b24d62798a8bc8f5e38",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/native_genesis/source/logic.js",
+    "sha256": "f09d476e581d38cf7278f1424aadba7266f25e0fbc23763ceba4afa79c5b3e1d",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/native_genesis/source/main.js",
+    "sha256": "006d59ba3d28d802b0e0c5be2d9d661b58caf1c919a704b3f0d40bc9613c4009",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/native_genesis/source/property.js",
+    "sha256": "ef0ee7ba5c362227a8bfd44192e351c107871a93a3dc93b04ce6d1a5ebfc70b1",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/native_genesis/source/tally.js",
+    "sha256": "cfde9e5845f810bf62d9f1a07d4db4ea011b11d3d2bb63f041d39bea557cddef",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/native_genesis/source/vesting.js",
+    "sha256": "4c134b6871f450d3190a0958b629731d960540069d0c8c37a6da33d6e1f70d2b",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/native_genesis/supply-reconciliation.json",
+    "sha256": "9f517f0efef112defef4ee496d81c1aec4f1029e40356ef720c509d27b61d27f",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/options_calculations.tsv",
+    "sha256": "9923afae12791201397e718356a854522285b161f327fb7ca3d982eb93beef4b",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/options_portfolios.tsv",
+    "sha256": "fb181d3b5b6908b319dda3e0906c86d10704dd8de3f2bd6b1dfdd96653abd5f0",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/options_tickers.tsv",
+    "sha256": "ccbeaf9515f2c890fcb2ed8793f1b9f27776f54812c8d860d7b5d395e6559495",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/oracle_quirks.tsv",
+    "sha256": "f837c5b1a0622412bd413203f1275db2217edd8a974f6b2db941905554409915",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/oracle_source_owner_vectors.tsv",
+    "sha256": "3061ee40f3329d807a4a0c2e520d7faefe6d068e56b07abf6550b0d9bcc70ab9",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/oracle_vectors.tsv",
+    "sha256": "b988643bbb07a9a467d396a1184231eddd31ecfe43a39135d4a268ba4009f6dd",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/orderbook_quirks.tsv",
+    "sha256": "fcf916d1b24c448b0c3bb4b693efbfcabf1aa4a09204115bce998536d0c1654a",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/orderbook_vectors.tsv",
+    "sha256": "420c6dd0ed246dfc8d5d37d8e47097fb70b55c82a7e096a8f8b5cd617a63c3b8",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/persistence_vectors.tsv",
+    "sha256": "5baad192fbd5ef373dd9e6cb0f0aeebe6d07ca624af91786be94e5330e4f2ed4",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/pooled_panic_parity.patch",
+    "sha256": "843c1e815cefd5ee7f00c2081bff9c3f03f76b164fa753da9bb8ab42411dcd8a",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/procedural_vectors.tsv",
+    "sha256": "faf2a91d3c3f6550ab8c322a4707aad0d77675758dc0a064627d2b5fd89ba864",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/property_catalog_vectors.tsv",
+    "sha256": "686c9a8b80762652ae571d11fabeb35801e39b0ecb6e78e74e0f3ce8c170f2b1",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/raw_block_ingest_synthetic.hex",
+    "sha256": "7b7bdf7e1ef63be3e3537d92cbd85f8882ce4ea39a2e50560a75d55cd825e6f9",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/real_transactions.tsv",
+    "sha256": "dcf9b97b480503f021eb9e59b8662a0b1cd3a3fc29491152c8f0a18e6111c7b3",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/reference_fidelity/clearlist-execution-manifest.json",
+    "sha256": "bb72c973790cff108aabd1f9a12f5b137e7828439d5039a72dd97ef26037b8c3",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/reference_fidelity/clearlist-findings.json",
+    "sha256": "5ac4b62487c8870b99aff23b5bcd8eca5f18f26b09dd504c0a0533a4b4d47d34",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/reference_fidelity/clearlist-source-manifest.json",
+    "sha256": "94a3cb4b1167270a043fea7ad11444603a4988972351706f45831f630cd0140e",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/reference_fidelity/property-execution-manifest.json",
+    "sha256": "eb7eab6c3c8e4ce713dc9219602b81ef6029307b511b78bf880d83f259b8543d",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/reference_fidelity/property-findings.json",
+    "sha256": "f0e242c56730ebee999b5a0e07ef8eda2464583c7cef2aca1927b3eee636204d",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/reference_fidelity/property-review-hashes.json",
+    "sha256": "4dc2f290f16710d612daf3a3f414fd3125696e9c106fdfb2faefd3345d505d2c",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/reference_fidelity/property-source-checks.tap",
+    "sha256": "39ff217c0bd5d7dee6345655bfbebed5019db550091ed4a33a0d9b7825fc9f67",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/reference_fidelity/property.js",
+    "sha256": "ef0ee7ba5c362227a8bfd44192e351c107871a93a3dc93b04ce6d1a5ebfc70b1",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/reference_fidelity/source-catalog-execution.json",
+    "sha256": "faa3c511fb68b01877ee15c6eb358e687af518e9ef060ef80de51090d6667efb",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/reference_fidelity/source-contract-execution.json",
+    "sha256": "e515be592103a82716262353127ba699d82f82d8e1876948a4725d7332a70f67",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/reference_fidelity/source-contract-settlement.json",
+    "sha256": "bd701a6ff8bb86487cfffcd8cc73cec68406cad865a5f8c62e400cf00fa8cae8",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/reference_fidelity/source-global-clearing.json",
+    "sha256": "ffaef150a4b3c0355a6916393e2347c8ac9f1dd53a29e71995bb4b1ad14d1aab",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/reference_fidelity/source-index-distribution.json",
+    "sha256": "64e0c9c20ff07597fcf4cc2563208aea693cd1c90305daa031d76796732ab75f",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/reference_fidelity/source-lifecycle.json",
+    "sha256": "c1666d1908629323190b805a0848c3493853bac7d0d663294391891743353be3",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/reference_fidelity/source-lower-lifecycle.json",
+    "sha256": "52f6790cd71941853365e1fd1044812f2dc9b67e92c6ef12370092696b02b192",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/reference_fidelity/source-main-callable.json",
+    "sha256": "d52302228f08a5449d0f185a1db0ba83ed99192d42c8a68aac7f406a49218347",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/reference_fidelity/source-option-lifecycle.json",
+    "sha256": "d5bdb83b8e0d37f9a6c4b09fab20c9c1f329d75fe2de9349bd3a73fb2be56157",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/reference_fidelity/source-oracle-execution.json",
+    "sha256": "5af250ff12508dca097d0ede57c9764e7699014fb582636440a5aae7657aee6d",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/reference_fidelity/source-proof-candidate.json",
+    "sha256": "e0bac9d656af007c0f365fa5028351f921eaea851be7235c32a0e4a6898cdb5e",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/reference_fidelity/source-spot-main.json",
+    "sha256": "fdd97cfb70ed75099b6f3d7c76e06bc266d8d343de6052a478dfa9b28a6e65b5",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/reference_fidelity/type9-mapper-execution.json",
+    "sha256": "4865c166c33a92a843980a5a83d02410d07a487ac3a90ab6c513ef6011272db3",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/reorg_vectors.tsv",
+    "sha256": "9f07c8fbd682db6b450011429407751549a32196a4164ea6e63fa7b8ca1d7952",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/scaling_vectors.tsv",
+    "sha256": "62f5c50d620c761f60f4d7530dd51e1e7ba8c8d2644a0948ebed260e24beb604",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/secp256k1_vectors.tsv",
+    "sha256": "053a176f1da0b1a347cbd201326aa68cd3792b46e224a94144463d4a1d50143c",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/service_client_vectors.tsv",
+    "sha256": "0ecb9452a371d8a89fd137fab8fa5ce9cb024bd0306e7d61657723eab9def96a",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/service_routes_vectors.tsv",
+    "sha256": "0b6972f2311fc0cee72072fb1e1d78fc898057ab701acf108186ceac4245f386",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/service_view_vectors.tsv",
+    "sha256": "489b93ad08de389af56038e62eb4edcb63dc768a57574897c023900e430714ef",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/source_channel_txutils_reference.txt",
+    "sha256": "38fbc7b5c1dc4d187867238b5ea00bc165c855e9ccfbc20c48141cd4796ac8a3",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/source_contract_execution_vectors.tsv",
+    "sha256": "fd1f5fd95c9fa02ba729e344e632f77e75a324d2f195b0a77ef61279fc0113fe",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/source_contract_replay_v1.bin",
+    "sha256": "b52bb0d8669daf51ef10c98ef374243baf72ae1ef815f8e770225b6db0ce0288",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/source_contract_replay_v1.txt",
+    "sha256": "134ffda654a09255bde747b7899d14003b917fd4eac594b908c4a5e0f4bb834d",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/source_contract_replay_v2.bin",
+    "sha256": "80b58aa7133016ad99e2680ad5040272b6ccbc1437072041603f0323fa337810",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/source_contract_replay_v2.txt",
+    "sha256": "d575c64aaa424c4d75b9cf58712a1c0eeef306ba975a3528eb9727fa0a841e6c",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/source_contract_replay_v3.bin",
+    "sha256": "3cf903cdfea2e3bc03e68558e6a2c13026479d2dd133cbcab2ac55f8be4a582b",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/source_contract_replay_v3.txt",
+    "sha256": "9fdb65573ea4e9703cc405a58556e91a14fe0c3bf5b71a9f6d81c152fd0c2ac6",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/source_contract_replay_v4.bin",
+    "sha256": "1af493eac866c75bf73ca57c275c03672e048537d44eb76c539812baff105f18",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/source_contract_replay_v4.txt",
+    "sha256": "22ff370c001f911ff84979f984e8606ab8b367906b6a7e4e474fcfcb6a6a58d7",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/source_contract_replay_v5.bin",
+    "sha256": "f7858f2994a79378de58c210faf9de5a843daf3be1bccc47e2b81e0991d72e7a",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/source_contract_replay_v5.provenance.json",
+    "sha256": "441fcb5f5fc9c82fc41e5891ebcf2d330ea091f0d3f3557c7cfc628ead167959",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/source_contract_replay_v6.bin",
+    "sha256": "a98e40b3ca747b852b7979fa8b15bec9188a00169861b16ef066782f646a07ad",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/source_contract_replay_v6.provenance.json",
+    "sha256": "51d816a6c141d9538cd4632fbc752156c7e0ccfa3bdc7d657e40ed1ffc6f2503",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/source_contract_replay_v7.bin",
+    "sha256": "55e364a0f2bfa7626bd58d08347695f77a08478b5ccace9ee6f69ff9c95ecf54",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/source_contract_replay_v7.provenance.json",
+    "sha256": "733017fbe750d5b4b8bd52c4dc24924c7687d203d92fe7cc185105c45f6ade9f",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/source_contract_replay_v8.bin",
+    "sha256": "6ca8de111e3f3bfd90d3234ebc7cd28b654b3db755a5d0462908ad2e94ecb408",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/source_contract_replay_v8.provenance.json",
+    "sha256": "3157a97044f8d86c969e526597f6e495309b0c776c06df5e9129e7f3743beafd",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/source_lifecycle_transition_witness_v2.bin",
+    "sha256": "a7a829edb561d46462bfafd98677286b7c38aa0f74a0c73ac68df31d6b80e2f3",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/source_lifecycle_transition_witness_v2.txt",
+    "sha256": "af196dce178cea989c9dbcfb2bf618ae45b83731f987475a9308a1f12a1a404c",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/source_send_vectors.tsv",
+    "sha256": "58de56982a1c50b3efc99ac77f96860b77bb0f3af6fdea7384e8961e4569c871",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/source_transition_witness_v1_compat.bin",
+    "sha256": "55fb2bab30af832996cd20f0d37a6119654a4d619abf29a2c0dd726ef5da86cc",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/spot_rational_vectors.tsv",
+    "sha256": "d52c9cee375069fea70c45c82522b84827e7175481bbc4e99c1a681a07f5a535",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/stage25m_bip141_vectors.tsv",
+    "sha256": "7976f256a1790caa446b295ac7777d8e2529fe1d1772a76acb72b7d9551f47b0",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/state_oracle_vectors.tsv",
+    "sha256": "def031ec7cfd22e1f3fb97705c0c63f97b5623baed1b9dbbfc270708484aa859",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/storage_layout_vectors.tsv",
+    "sha256": "f1e40916161917bb7e48f99500724b0183260527a4dcd1a3935bfd54a3de11b1",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/synthetic_transactions.tsv",
+    "sha256": "d99e482b9c0e1f0a48f72097190e0c3658915f21095992244fb51a01be29fc42",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/tally_quirks.tsv",
+    "sha256": "04ae267fb0c0017e4f401219751444a6268d68d50577ad4664cd5c5f6b85da2a",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/tally_vectors.tsv",
+    "sha256": "3bc38fef7bf0cc17c5da5ee75580687de9ec83d283e2adb3b64c2245e755d2cc",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/tlpt_v1_vectors.tsv",
+    "sha256": "e219884525719f3f624c15c7eb718f3eb6f41af5fea855129af52724f36f6991",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/trade_history_method_vectors.tsv",
+    "sha256": "d9799f3e59a03ce5ccad277d45eb0e875d1122f4f71b3efa2cffc6d25f92ceea",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/trade_history_quirks.tsv",
+    "sha256": "fb62fc03ce1be9aad70f8d2a6a2c1ca6bd95aa041012566a9996f097c93e99b9",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/trade_history_vectors.tsv",
+    "sha256": "c9f471d12ef9536b6c45f37f16148df4ee21bd32749973b7064222c22e87e36c",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/tx_parser_review.tsv",
+    "sha256": "50594056df30c3416687c5d0fd6c9aeeb622753eecc3c28d66f45e27895c9dbd",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/tx_parser_review_block.hex",
+    "sha256": "08a2783289afb4f69355aad4aa6796bf673c1ca437c3055313c274c4d189fc24",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/txencoder_quirks.tsv",
+    "sha256": "a6585dc577a809c9de51bd2943cf61332bcb96ac022abed566af3bef7338e509",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/txencoder_vectors.tsv",
+    "sha256": "75a659cb245cfa9da20bfd828cb18422ac3c48ae848e82ed028b022d65a5a293",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/txindex_nedb_boundary.json",
+    "sha256": "533f2e18f26e3b806304b8ea1d05e68dff5bb9f20d51a06f118c34471a0ba11c",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/txindex_scheduler_fault_harness.rs.txt",
+    "sha256": "5d8fe54c13efc4daa0ce41eb63e979aaf89af5ce05a50817d193e021094fba5b",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/txindex_segwit_hash_vectors.tsv",
+    "sha256": "236a8765c7c5e0e96a6369619ff898a7372caf63e993dfe0f822452ee8e9014a",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/txindex_source_method_inventory.json",
+    "sha256": "aa2ea1e3a0ac734b49f86994a666786f170bae6587208ada7578ba915ee7988f",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/txindex_source_proof10.jsonl",
+    "sha256": "25613775515f2408a54c66719eed20b8c91447f5a47eaa4d5e2a46749f87989d",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/txindex_source_vectors.jsonl",
+    "sha256": "94dc759fbe6925d72c4400b11869658d6776e947e86c46f16b6b921dde34801b",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/types_vectors.tsv",
+    "sha256": "52a0241ccaf5cba6f5361d04a6a79378e6cda9f29b0d06734d745d8ef383810d",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/v1_vectors.tsv",
+    "sha256": "e5cf2a000b6be65bb946a1b0cb8594b9f09a3e5082d4aafd74a8ce85bbf43f3f",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/validity_vectors.tsv",
+    "sha256": "90e58e0f8a1dad7d4fb50779e4b13ddd2020446578c4fdd8d36ab6b358f56caa",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/vault_vectors.tsv",
+    "sha256": "39eff73f741da3698960a5e73e9ca9dd1b82db1c26ee861d1433fa55523a9a47",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/vesting_vectors.tsv",
+    "sha256": "b5b76a3b23e96f951f2d1dc530225a05906506e7f6acb09363a4fc1a79e10425",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/volume_index_fee.tsv",
+    "sha256": "6c8607913ba17d83a7e65a1d5e052d0dbd097429e10430d9502600aacc628d4f",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/volume_index_methods.tsv",
+    "sha256": "b000c4c859bcb66ebae358143d9170f8ff02d731919d53232d566ef8d30570bf",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/volume_index_quirks.tsv",
+    "sha256": "3ce61ccdf695165f5be3ffb4b07e076b5bef0714db75fa723d2e83a5315a6e0a",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/volume_index_vwap.tsv",
+    "sha256": "bc9d0209a36c20cdd3f9c974e903fa5431eac1e4ce98d2a3086b5ad6a7fde1a1",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/wire_roundtrip_vectors.tsv",
+    "sha256": "f1965b57bc058b1dd683722c39a8e86ae50b39b96d70f379d469bfa040269915",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/wire_vectors.tsv",
+    "sha256": "18812474e209a11168b59cd2e99d0473fbf01120e73ba92bdd8563d5bf6372b5",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/withdrawal_codec_vectors.tsv",
+    "sha256": "753ffa6ccc996e193b36b90338829a045e3bca2fac86bd6b1737ff3ec9903696",
+    "lfNormalized": false
+  },
+  {
+    "path": "fixtures/zkTL_sample_batch.tsv",
+    "sha256": "cc4568237c5f6b75964e5679407ab19e7dca54f808caf9f284427144b10ba1c6",
+    "lfNormalized": false
+  },
+  {
+    "path": "rust-toolchain.toml",
+    "sha256": "8fc82c187e2fdc44b41f62f98211f7fc4c4b4537438984d8fa9ddfba345eedae",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/activation_vectors.cjs",
+    "sha256": "6017f730ec2c1c6355fb677d6d235a54e25a7f3362e740ed79bfed8f85083ef0",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/adjuster_vectors.cjs",
+    "sha256": "ddda70c6ad87a614e1c4adbacfe0316b49e6db5dffb784eb5c8704e6a53f0835",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/amm_liquidation_vectors.cjs",
+    "sha256": "2203dbb5e6687a98a78685364d2bcf354e7d65c6dd95d8926d6b8157a87ff791",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/amm_vectors.cjs",
+    "sha256": "4ba4213d18c81ca4cdee3b2388f614049a2849f4473e78679ee150f550dd8122",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_bip141_witness_fixture.py",
+    "sha256": "1f31fd7371f36a850da7702b38577cee5b395bc6b544dadf879539277414064f",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_bip143_channel_fixture.py",
+    "sha256": "3596dc034400e234d9d8c64a66b653bdd0f07d674b14ea6e7b16594d9ac08c89",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_bitcoin_chainwork.py",
+    "sha256": "3db1846d2128c538184529f1f0a91fef77486a11715b1434812d431ec4f8eacf",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_bitcoin_channel_merkle_fixture.py",
+    "sha256": "e555d30be3f7d7a21c0be372f8da27e9c30023a726ebcea4b3a2456d64ee0805",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_bitcoin_forks.py",
+    "sha256": "ebd4da0885b276b361500e3b154b0acdb576c17af1b51ad21a8030d536e98e6c",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_bitcoin_spv_vectors.py",
+    "sha256": "b83f7617a7f2eb025b55d016abf8bbe7863d6adc10c88f0aad6f58497cc8836a",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_channel_ecdsa_openssl.py",
+    "sha256": "1d3cad738c0722004cabbc932b0ad88ed88d4f9308516e137e19357f9726cbab",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_clearing_cadence.cjs",
+    "sha256": "77bfefa88009523125b01b3400e9a96f9ac9dcecb5325a729378e3841878ac38",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_clearing_math.cjs",
+    "sha256": "9df14e8a74aa2b703c8ea531580553da9b664c51f9ad963e7f52583a976fe563",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_clearing_pnl.cjs",
+    "sha256": "c7b29b9f4297bcba3d522c5afd06943cd599938a142513dfe203be70237d00a5",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_funding_vectors.cjs",
+    "sha256": "dd8b45db4d4df30bceca3b52153eda67c43f54c255dce664945aef9fbc4656cd",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_historical_channel_lists.cjs",
+    "sha256": "9c8fcd97c49a0dfb0439d90028193de1d57ef267c6255b0b093ed5131008354d",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_legacy_activation_parity.cjs",
+    "sha256": "f1b25262a1676a2b4548885e582cc866d75107889673451fd30740b48a5881f0",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_legacy_channel_column_guard.cjs",
+    "sha256": "f777fe357939e3095eb4e8af7ef7a588e9c4b3328354e5e823ae181374cd49b8",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_legacy_channels_source.cjs",
+    "sha256": "eb9d3393a256e0d5c50fb7e0531cedc988995a8c929fb8e40d302c6a5daa37e1",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_legacy_clearlist_reference.cjs",
+    "sha256": "c9e85c5f93fc9facf9d2f31c6b9eba80d800b88df7e5edc38febc5e8535d7554",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_legacy_clearlist_source.cjs",
+    "sha256": "f539be064564f3f7ee46c2ebf9fe4ef41614b5839518e092771d2c90d0c99f8b",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_legacy_txdecoder_source.cjs",
+    "sha256": "47d5bba5f3e62676f084460a936be2fdbf4c3ce12dd111e4ac5c4e0e64a7a5a9",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_legacy_txencoder_source.cjs",
+    "sha256": "20cb655f91f06ac9e1c64c6a0674bf368688ceb4636fba1842caf64bfdb80834",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_legacy_txindex_source.cjs",
+    "sha256": "12fefceb8992500f4a98e2330990c88cb049c377b63c146bf2b38855d4486c61",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_legacy_types_dispatch.cjs",
+    "sha256": "cc6e938a430d38fde6f893f3e47f0d7b24130e85e18b971b11445968ebd1cd9b",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_legacy_validity_0789.cjs",
+    "sha256": "0bff04ce814f3499ef5e425b92048bedfe2460ae7c5962d3d6c2205e6d7beaa4",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_legacy_validity_activation.cjs",
+    "sha256": "b517a963843b42e978126f518cd84727fcd694b4073e6c6edecb2d39e27f139c",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_legacy_withdrawal_codec.cjs",
+    "sha256": "baa98de151cb9ffc648e815e333e172ed8c40d25134ad0b2a002bca4263f3a47",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_liquidation_loss_budget.cjs",
+    "sha256": "e355b931ba2e04b64ade6717ea6bd1d0e21bac4d2d9e07d27a8b61b2d00d0069",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_network_profiles.py",
+    "sha256": "5c80604872494095f4df642fc1108015eaa24ede6d6e0ac9e0b069c5acdb3f21",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_p2sh_hash160.py",
+    "sha256": "08187eddabca8783aa2fb8a0973fb83e49385d7d3ee89e0a05c6a3a4d9ede1e5",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_p2sh_legacy_ecdsa_openssl.py",
+    "sha256": "df5e11e5124023ca2106cf83fd656e2fa626238a4dc0369aea1c94355a9ee8d1",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_property_reference.cjs",
+    "sha256": "f251269a6ada5c9ce8a48ce99f6e2b94707d6cecaaaad8f1fc598a0c8101d587",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_raw_block_ingest_vectors.py",
+    "sha256": "ab5fe5be1ce88c9dd00fc761d1a6cb3e63427b91424e4082dfcb4625d20358ae",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_spot_vectors.cjs",
+    "sha256": "ad82fba67afd4406685fc5c39184227cd92038e71dc14c48f86a3e4581ae4018",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_stage8d_dependency_waves.py",
+    "sha256": "f92a9399b3ac7f9c02bb41ce30743293fea4a2e0214cc59bbf23828dae0db7e2",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_tx_parser_review.py",
+    "sha256": "7e0fa1b426dceb8b5f085f7e2eb4722f79bc97cbdc55570658bca58bb7d9ac6e",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_txindex_hash_vectors.py",
+    "sha256": "5ac151717b6aa7ad104b49f2d825564126b6de9de4c1c67bbe0be0aefa940008",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_type9_merkle_vectors.py",
+    "sha256": "7bd6d2f94726dc2ca3f19cef5e8531afd92725b6c3680898b0e397068a8384e9",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_type9_p2wpkh_openssl.py",
+    "sha256": "5b164c30a51f60bebb3a175c93b16886a5c93b36da827b129b80a0efb31be7dc",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/audit_type9_source_paths.cjs",
+    "sha256": "9c05722e4cf7604427bf539e4426dbeffc19ca9b12058f2baf9dba28c270950c",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/bignumber_lock_reference.cjs",
+    "sha256": "9956f60715bd2e57eea8333f63c1e90ba3765b85af6fc46b4b11a2071f6bbb90",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/bip32_public_vectors.cjs",
+    "sha256": "896a712dc7ee2d64c7e8c289b07a59f65355079b33d8568d2a87d72bd6db1138",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/bitcoin_core_rpc_stream.py",
+    "sha256": "368ba3aef1ae95c59e5e088d2d70140e51b368701b4fd2a5e1eae188e9016276",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/bitvm_bundle_vectors.cjs",
+    "sha256": "4a1b17f19599601bbce544f0193a7ab06d8ba71805c8364ab50272d3fb2e78cf",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/bitvm_cache_vectors.cjs",
+    "sha256": "c6c2f7baf6c7ee3f0031b68c0bf98b48853e55ad9a58a49c234c72f0bc9684ca",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/bitvm_risk_vectors.cjs",
+    "sha256": "5a9e740ebd5e8b741cc90faf9f4f6413dbce00a719c1969f684cc1bb09c86b72",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/bootstrap_vectors.cjs",
+    "sha256": "0cdd17cf3514bca062372f496bd0a0e6d2da319041cd4373f4caa646cc5bef72",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/channel_owner_vectors.cjs",
+    "sha256": "6c8bd0f84144f06f6201cd3194c811b787fee7138b5c4055cad6f5ac8fcf935b",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/channel_revision_vectors.cjs",
+    "sha256": "c49e3ed8ba982ba8acb153545e956674c08a1a2ef5c62d39aa67327be4048fc5",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/channels_vectors.cjs",
+    "sha256": "82ee2891ae95ccb6a0d0ea41d0edd295187534ce0c6e2ba7ac298852532de527",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/check_barrier_faults.py",
+    "sha256": "ca98ee270c0ee5500483ab5b34c34f527e0163d9f56f1639ef2f1e7383de2fab",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/check_barrier_startup_fix.py",
+    "sha256": "e139a69d2d73e27427ce5da87dd730b343ff81a84b8643fbb17e63344fbf03ec",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/check_legacy_funding_runtime.cjs",
+    "sha256": "28df8317ce1d2cc7ee930a0e24089cba09c8a4c9a4379f5580e28804ec27e466",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/check_logic_inventory.py",
+    "sha256": "72a51d65f959db48cc6da147d511201663545e3de1abecf90a21af7559412c43",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/check_rust_supply_chain.py",
+    "sha256": "deb8f247ef303475864992eaa15ec9b0eb856b7b843daeea96a8bc864aac87e3",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/check_scheduler_faults.py",
+    "sha256": "6d67b2cd80d6c20918883848edba0381b146a60802ba93b7d7fe72247091bdb2",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/ci-preflight.sh",
+    "sha256": "efd4b32519d7dd23d3ca5088be48169ea67e2b03fbabfb428df19706cbe02532",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/clearing_vectors.cjs",
+    "sha256": "312ced61cbe75d87f9848606ec4b43f790d83ae07fde23e27786d2f280cef45e",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/clearlist_source_owner_vectors.cjs",
+    "sha256": "60addbae36f5d1463eb35a0ec922e025af18e44591ee9b7b971a3fee388ed108",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/client_vectors.cjs",
+    "sha256": "418164e98a550d406f79d5f9f560c10fc516795e0176689e42aadbf14988fb47",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/collect_litecoin_rpc.py",
+    "sha256": "b69a6a11b354fb6bbda17277c9825de2fe1600698b903c20ab1132bbf2eb99e7",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/compare_legacy_js.cjs",
+    "sha256": "ced2e65d2ac1995fb83506018f52cd7f38dbef205da8860e932b0c4002e43ecb",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/consensus_vectors.cjs",
+    "sha256": "176811de7ae1a20323c89b486d0ed14c7d56fee893d23f0b44437f997f2a4d23",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/contract_binding_vectors.cjs",
+    "sha256": "43f0c8bbd0c7308d14e7b7f7f40c7be5da3958d353efdb7eb5dbfe9402be49f0",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/contract_registry_vectors.cjs",
+    "sha256": "10f4d61b1d7b54464231cc584381d472d7c928f1c8cec29884a7b3faef4e5e94",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/count_synthetic_ingest_hash_work.py",
+    "sha256": "5765528481c6f203ef314464ce57491a8707713deac5cfc88517ebf8fdb0487b",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/daemon_vectors.cjs",
+    "sha256": "7a2deb80704cd604553e81fc0714f86f929cc30573ab28feffe16c6c024adab9",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/decimal_vectors.cjs",
+    "sha256": "6122ca3446c1810e900c755f4ba5f80463b822c0ee8b426d776d62e7d91fd3ca",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/dlc_oracle_bridge_vectors.cjs",
+    "sha256": "0483dd0b7c925c9d4a3672c7bfac48ec92d286612c0c6a441dedda343d7259d8",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/export_tlzk_batch.py",
+    "sha256": "776b4efe5150a802d3cef95fca0e6ffe4885ad213184ffa1911478ebe9d848db",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/generate_tlpt_vectors.py",
+    "sha256": "19a2a5437ec1df111ebfff8d7b22c1ba7ffced0e554b054c77b09287ef91c88d",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/generate_v1_vectors.mjs",
+    "sha256": "00d1fa7440c5e63127cab4689520cdf96d923f8731ab90f21be9777761fe66a9",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/generate_vectors.mjs",
+    "sha256": "dacfefe3e7eb58e6ab8fa592b6605dd8517216987992e269fec75fda6fc5d9c2",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/iou_vectors.cjs",
+    "sha256": "206bc11e23d5bfbf8eb72e32eaef119c8d5e390015abd0b83b92ac397c1bcbf0",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/issuance_intent_vectors.cjs",
+    "sha256": "f46356d334633ad5c6c5e763c326847d9bc83571e7b0bf563781d759594d218d",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/legacy_base_vectors.cjs",
+    "sha256": "e595afaa3a1a2cf81675a27fd0ef4348e9915aa03baf0796701f0836f66376eb",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/legacy_numeric_oracle.cjs",
+    "sha256": "e570de41173962d5013c3eb289b86903c3d6bd070be068e6f20c6372d86a7a15",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/litecoin_source_trace.py",
+    "sha256": "2fbcac61abfc328a2cc06a9882fb01d825e07b61fe9490d715e1f9bfd77c88e1",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/lower_spot_vectors.cjs",
+    "sha256": "56794645ed4113da5f27451c5eb8696f283f2f39edcc3f57adb476023238b8e2",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/lower_utxo_trade_vectors.cjs",
+    "sha256": "f5d7c44b9c74ad8642de4e3fb1d7aa7438478d29b635d0bf171210946fb5617a",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/main_lower_vectors.cjs",
+    "sha256": "11db5ce26623724faca2bee59ec44c2eaaeb1b446e1e0a73cdf2730472bbfda7",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/main_phase_vectors.cjs",
+    "sha256": "7e3d551a4e2f6504ba5d1927af894ee6fa5de3c6fc4bc0b7ebf38407fc4b3133",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/main_spot_vectors.cjs",
+    "sha256": "b7ae683474707928e9367a04ccf23323eb3a1c0544600cca95c999a939cba653",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/main_token_threshold_vectors.cjs",
+    "sha256": "4c2889451f4892b039b365f815f2e5d1ea72fe422411f13c826976fb5a0ffe1f",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/main_transfer_continuations_vectors.cjs",
+    "sha256": "fdf2b68b624dbb57f05d648fe41eb36a3fbca83c7b4c71ff0b9ca18aaeefb768",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/main_transfer_schedule_vectors.cjs",
+    "sha256": "edb9f3477efef524210d9baeea086dfffd1ecf09b25b97fee1aafeff1d25f2f7",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/main_upper_vectors.cjs",
+    "sha256": "aaf85893ced89a0e026eff40fd1b8f23fabf4d3de87fdaeae86d2f29e7f6dc72",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/main_withdrawal_schedule_vectors.cjs",
+    "sha256": "2bc3f74dadeb2e83b90ec371b58e964cc41565476ec00b4682f8d37f8e35c99e",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/make_synthetic_tlpt_bridge.py",
+    "sha256": "8862f7de493428362af605749e2db6f7c6584950384a2424192dd6de5931eadf",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/margin_map_vectors.cjs",
+    "sha256": "415a30dc60229fcbaddc7b070eb1c393e46a21c67713cbe2eea87ffa5e6b5243",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/mark_basis_vectors.cjs",
+    "sha256": "58acb6e55bbf508aa5793b2ad77f4772b7e9d092fbbbc1e3ead9df77afe71902",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/native_entitlement_owner_vectors.cjs",
+    "sha256": "4cbfe7fb9effd22daad7037b4270e36e3a49209947cee6f8190ed1f13115d98f",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/native_entitlement_vectors.cjs",
+    "sha256": "d303379d3fda14694513ab1ed8a9c868c8902a86f51375666440619edd998f7f",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/native_genesis_vectors.cjs",
+    "sha256": "a54cec13c0b57e16178553a90db331e56ac978e50f50393af817327fbaa1a72e",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/native_source_oracle.cjs",
+    "sha256": "bcc7fdafe46a8f8f9cde1cbcae77c523159d17363d23cb584135877160fabf53",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/options_vectors.cjs",
+    "sha256": "7c4886cc8655660a707a9e525467fc4ce1410b8ad683bdd13ff71755629991c0",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/oracle_source_owner_vectors.cjs",
+    "sha256": "0e05f8aa7ad2693ca17b02ddb8d1d387152eff215418c4f49eafdc2eafee7269",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/oracle_vectors.cjs",
+    "sha256": "ed8bd044f17420c542cc4a7414a7957581e194e1acffe1e191e0930546a40bcf",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/orderbook_vectors.cjs",
+    "sha256": "daca3a18563a0c8919294b43d9d29b62a6fca6cf65a758bd85b38aaf885177f6",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/persistence_vectors.cjs",
+    "sha256": "b764ae93f22161c833ee7f6aeaed0f52e5b26a718faf191e51ca54cc360e78cb",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/procedural_vectors.cjs",
+    "sha256": "1978e3c8810f754534f82e4d4dc78bc06e6511fd76bd45d59656f335e4e43f31",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/property_catalog_vectors.cjs",
+    "sha256": "eb013a7812d9b3933d972da9e0acaf9c91bda67d3d9851709e0dac6058149ae5",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/recent_lifecycle_witness_command_pins.cjs",
+    "sha256": "86d3c8e599126087af0b4111c22f4cf3ae973f3c04d7998cd12eff6b02fc80b3",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/reorg_vectors.cjs",
+    "sha256": "1ff4e5e26db56ed90a147e54293a6c1eab116b47ba3fd62b0af115caa9db9a71",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/scaling_vectors.cjs",
+    "sha256": "a43a5fcca5894f900d37703574b297ef088eedfa6131935dc90c0805bc8a6498",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/secp256k1_vectors.cjs",
+    "sha256": "89dfe56c2f4c335f2cf892636636c8dec378359d81c0f29b94ce95229473b66b",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/service_client_vectors.cjs",
+    "sha256": "c96f2e20d6c86133e259ee7dabc6b805efb0f00774a97fa3aaec0f265b9bf40a",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/service_routes_vectors.cjs",
+    "sha256": "fbe04d89b0c40efaef28f1779024d83ed5a8df24a9fddfd8ba2aed8771f9db5b",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/service_view_vectors.cjs",
+    "sha256": "884c9d3ae751a120cff43879a465a53de7cbc45097658789aebdf1631d77b400",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/source_contract_execution_vectors.cjs",
+    "sha256": "cb7af611bc3224057036fcbdb3ec6f13d1984b8402c306b99c5a1f55fb144c64",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/source_send_vectors.cjs",
+    "sha256": "f41c1452108e7b5ac77cd34ea72fa7b2ba315fd95144e8c773b193633f947568",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/state_oracle_vectors.cjs",
+    "sha256": "ce43f82bfb814ad9f2231d7905b5417f7c3ea1b252dc164acbe415cbceece100",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/storage_layout_vectors.cjs",
+    "sha256": "f5aaf129d22a471444cc5daea467765c6dd6e820b577038895f78c21b4aba2dc",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/tally_vectors.cjs",
+    "sha256": "caad646037d5dc0cc554ca9f593f07d5b1744297fa70020fc6904b08d4d4ed62",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/trade_history_vectors.cjs",
+    "sha256": "8037cee8c78962854823ce6b49b1a5495bc8fe1e973dbcf61fa7219a11c946c7",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/txencoder_vectors.cjs",
+    "sha256": "18a1dde87327c4e3326ed4bcda019ff6af14ce3e35b1ef5345d87f2ab81ed533",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/txindex_source_vectors.cjs",
+    "sha256": "d803bf9dc4aaa916377704a6184c52b3a9e4157cfaf7e7e5eec83a7984e3224a",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/types_vectors.cjs",
+    "sha256": "13357004b985a51fc0db58e89c9ff63a1a7fb867d17817378098a6d385d36658",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/validity_vectors.cjs",
+    "sha256": "6d916833d220473ad6f9c6a06c04fcefbec9d337a106bf382bc80ebdb7289bee",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/vault_vectors.cjs",
+    "sha256": "b14f6f05df34301b7730d581902de8bd60e028495e9e63d3a4d92156c7d21d79",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/vesting_vectors.cjs",
+    "sha256": "68d4f41cbd9c772693870146fdc356ffa2d850047b5e6e75f882dbcc699946c7",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/volume_index_vectors.cjs",
+    "sha256": "517a2d30607ca1e1c68954cb0bcf208d5709033b1ed07906ffa0ba42242816ee",
+    "lfNormalized": false
+  },
+  {
+    "path": "scripts/wire_roundtrip_vectors.cjs",
+    "sha256": "5418a5e2b34f4a98403707dfc5c64633885cb6c87a61a4f52881a612cca3b5cf",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/activation.rs",
+    "sha256": "1fa41c312aaa46d4bf978175949c829a91d4d05882c52fff610cd5ee7b2f2339",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/activation_history.rs",
+    "sha256": "8eaf9ad30eba940602c5e80dab94187317d0a90cd916b9197660c2d16471f9c1",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/adjuster.rs",
+    "sha256": "d960b190348da68eb3efd8788c6f359a358c00c2141bce68a153433f26793143",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/amm.rs",
+    "sha256": "0b459d6e254f878811d8e050359c660d647fe0a8a1788a2ee43c528ce3801c19",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/bankruptcy_source_audit.rs",
+    "sha256": "712c8b58d55bc36d73bfe092fc5c521d625f66e1fbeb92cdb6efea4e48e5f05b",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/bin/tl_observe.rs",
+    "sha256": "06c233a1c0f6f3c068d2580acf12cba1cd56ccd92045c5d89efed433b9348bdf",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/bin/tradelayer-bitcoin-work.rs",
+    "sha256": "98a8a3de425a20c7ae5030794877211491cab6751e03e7020c23769535e8e146",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/bin/tradelayer-block-ingest-bench.rs",
+    "sha256": "7277b5f44b817c85425467748aa56fbff30c896b0cc3cf1b86f771ab07e38032",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/bin/tradelayer-core-index-ingest.rs",
+    "sha256": "62d13533d4ee49156be53bb010a61aaa3574c93b7eb33daad83efca2c2a77769",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/bin/tradelayer-index-bench.rs",
+    "sha256": "1693d0a313d31ca5de5db320eefe8b4cf6484f5bbee45ae9b8177a33907cfdde",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/bin/tradelayer-legacy-fields.rs",
+    "sha256": "01b62426e59df7d84eff7a18ad0fd301cf116d4026e0424acbb94f252effb980",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/bin/tradelayer-root-reconcile.rs",
+    "sha256": "fbace510a603e911afc5f19c2ef2659ded36de00f9e380e8d5380673ba6563f4",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/bin/tradelayer-scan.rs",
+    "sha256": "9ef86aa07d88842ed5fe9dd19a1fc1603cb645feac251eae2d7519b3c4f8fd61",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/bin/tradelayer-zk-inspect.rs",
+    "sha256": "5e644b8d43ef790b0bb4efd708175ae33bfaba4f3a844828437e2f9d4bcf5442",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/bip32_public.rs",
+    "sha256": "a4c7750dbf91cda4b6a9dbb333356706218816c0176c5cd7d2efdaf42fa774dd",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/bitcoin_chainwork.rs",
+    "sha256": "b3eced866123c979dfe99dcc9b90b81ae680d55d55565fa9daff507fe99a145f",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/bitcoin_forks.rs",
+    "sha256": "b1bbb7a661833a0c11fecdd2aabef599bd6f3ab2084d0e81cf296d4ed04c5525",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/bitcoin_inclusion.rs",
+    "sha256": "fc7a23d8d9e47a586df9d8be0c34c0cbd39ab07bad51f176ce8d76172839f44d",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/bitcoin_witness_commitment.rs",
+    "sha256": "d3f0e3903bb5472de6bf1939209dab510438922945cfeb55c6e7363cc38fc008",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/bitvm_bundle.rs",
+    "sha256": "c8eecd7ab730e8d43c698796c0d8359b69905249fdaf4fa59a1de4858d49cacc",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/bitvm_cache.rs",
+    "sha256": "0e6b224c35858d52cb053b59a5cc7f14ea8fdb30e6d4ecb1be05ea4c2fe19002",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/bitvm_risk.rs",
+    "sha256": "9d79caa1f2d028e11d52ead5596240ac6a98fdac01e949de6572589b61e76773",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/bootstrap.rs",
+    "sha256": "6ef173833918218f8b0a12cb2c045a8db274e91869776707e598188b752d22ca",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/bootstrap_storage.rs",
+    "sha256": "e5c53502503ed35706d0f71bd838a322689018a2fc913f30a844586e3508593b",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/candidate_evidence.rs",
+    "sha256": "1da10eecf622e1e6e130492faf607433a8892537a79cd2cb1dee25182fa1f53f",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/chain.rs",
+    "sha256": "73822db5ba15e4eaac078670e1ef5acb8593974daa2cc70d5ec41e682b9cba76",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/channel_admission_audit.rs",
+    "sha256": "f2a4379f91bba91764579d10e997b0bedbf04a0056a5cfaa9be2ef90a3576804",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/channel_bip143_audit.rs",
+    "sha256": "88971ba8b223bb9351c2f46ffe41b8223babab2bf12997abd997caed6bc63f61",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/channel_inclusion_audit.rs",
+    "sha256": "11bf7783823ab431828cc82ad9ec33ef4cedc6e73c1bd20ec165486f5dfd7c38",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/channel_p2sh_audit.rs",
+    "sha256": "b599fce58866b9a33356e0c2d9e6746c7c55b306b07b9414da057bfd4a6e6c24",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/channel_p2sh_sighash_audit.rs",
+    "sha256": "2a364d98d14887e2ff01cc837ed89046d009e883329611afb12913dc08641a0e",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/channel_revision.rs",
+    "sha256": "524b6ba281cfe9b1794d3e3f79cdf877c896688a7616ef75375bdb592722e53b",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/channel_type9_inclusion_audit.rs",
+    "sha256": "025ffaae392c613fa36fba22a8218b6dbdff071b7f61219eef96afd8bdf97617",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/channel_type9_sender_audit.rs",
+    "sha256": "242ba08be0a12932d7ea0d6bdf89bfdfd63c56756e92aff5835808e449653a5f",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/channel_witness_audit.rs",
+    "sha256": "9986093a330859dd860e208bce5116fd6f8429e78ef49c3670432539944e15fe",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/channels_source.rs",
+    "sha256": "e71c64011bead56666b3d9d0b977e391ac4296a692748f31db6641b579196691",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/clearing_cadence.rs",
+    "sha256": "fd82fcb389cc1da1ed6fdd75f2ac88cd8b816814787a40849e382002852ae2a7",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/clearing_chain.rs",
+    "sha256": "af8d0f24fb4a32203443695381daff4a79d43a8ec76842c1c3959f13db551ef1",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/clearing_distress_impl.rs",
+    "sha256": "83b69210b0a65105569d0eb5792425c8258a33dcdbab7b95721f05f11a743f33",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/clearing_math.rs",
+    "sha256": "e556794bdf36c6b4abda68624799f7389e98bd18950ee35c081b5e560ad4feea",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/clearing_partial_impl.rs",
+    "sha256": "9a2f07e8154d1d6d6179b6dc049d7499a11391b68880cd768e5edf9bde809dd3",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/clearing_pnl.rs",
+    "sha256": "6806b73952c6ab5eccc56310493c7c12a5f09ddbfec9266e38197d00a7191779",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/clearing_sandbox.rs",
+    "sha256": "f6862a35c994038c0c6cca3605f78fc131d9175c52602306dda220ebc59cd917",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/clearing_snapshot_impl.rs",
+    "sha256": "b47f169559ad64020083f6397786635ba2e39a764a67539987725e45d6521764",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/clearlist_source_owner.rs",
+    "sha256": "7422a9491212e31acab3da0e5d807ca3fb54d2fa6b0423e9f280632b5ac69fd6",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/clearlist_source_owner_values.rs",
+    "sha256": "f75dfff34db2916bd3b00343fe1705c0b6000329948f799dcdb2674f6e496495",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/client.rs",
+    "sha256": "62135ff7d892e14bda8bf7f42840984e8c465dcb978b0f4df0c4ed204e4a1040",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/codec.rs",
+    "sha256": "e05d5cdcb5efe1dc8e0150cd955000de91ad9adc502973e7e398c202fc3931f1",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/consensus_source.rs",
+    "sha256": "b40ced0f9f707f0c6c13b7d9450f249f3a67034f74749b9ac5524efece772912",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/contract_channel_queue_source_impl.rs",
+    "sha256": "61649fb4f4aec1991437d8e64a64d356367ec0d4dadbb06bfc70fa4ba943255f",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/contract_orderbook.rs",
+    "sha256": "1ccb887540ef9c33eaebd3f397a4a0c1a46b47d0c540426d2eee0be1b8ee43d5",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/contract_orderbook_liquidation_impl.rs",
+    "sha256": "e4d97b9e2610729902e6321a75f61abeabf1c1172f6a385e5b5c555c6101731e",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/contract_placement_source.rs",
+    "sha256": "8eed43b51abf5c047626bf747abe94cd81f75a4bd238547e1ba49fdb645b70e5",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/contract_queue_source_owner.rs",
+    "sha256": "af5985ff3d36c7af2972409c87a4fa6ce3da33b8c33c1d8e069f5c56cf30727a",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/contract_registry.rs",
+    "sha256": "b7ecfbde7fe7c88df65c1ef47ef85ae837decfbdd4b4518aa4bfaf356ee0cd1e",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/contract_settlement_source.rs",
+    "sha256": "d10fb05aa5a75ad879826ef559351574ce7399fe4f2bda4cde15ada028c8fd81",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/daemon.rs",
+    "sha256": "48c4b8600d470fa3745819bf0c14691a239a4aa9cd6db4ae50ba49fa064af5f5",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/decimal.rs",
+    "sha256": "200725caafec1bcb6b5002b9ee4626c201eb61e970f740c7a058b70cc0cc881c",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/dlc_oracle_bridge.rs",
+    "sha256": "63ce668f02b049898873258c53286e86c4e2ccf2f79ade1af15e4fbd7173b423",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/durable_iou.rs",
+    "sha256": "fde0205e6ad49d79c55275dfb604522365506b3cf7e43fad912cbe35340c7ace",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/durable_signed_channels.rs",
+    "sha256": "2ebe2dd0040f524f0aea94013983c78d67ec0936066a3e43d890fa4f0760410b",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic.rs",
+    "sha256": "badf29e9667c99293bde13e7f18507be900e1c40e7eb0fd70dc603259dca2963",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic_amm_impl.rs",
+    "sha256": "0ede05d3d481c832212b9511b8f99d41198a726146d2c986dab1dff70c4f296e",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic_amm_replay_impl.rs",
+    "sha256": "5e80bdfe7b974ee47c22cb21c2852c677d153b52ae23900b292b907d6d30a418",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic_block_stage_impl.rs",
+    "sha256": "b03635a8b9ccb67a99e4e7e54e24d1f16b24e42896ff80bbaafe3371140065e0",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic_chain.rs",
+    "sha256": "06665bda6c29d7e43023677f96921cc27c2efeeb8e928197eef16369f9567170",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic_consensus_impl.rs",
+    "sha256": "495911e9bd3adc4b1e69ec199b49dcef7209f9ff724e96f81b44dce09d68d4d3",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic_contract_impl.rs",
+    "sha256": "603ffa53c777c0b76d8036c0768beb368b71e34b22f0f51f16f8b6e50e1f09d3",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic_funding_impl.rs",
+    "sha256": "5384b5d5d55a7a76ccd9500a54ce9d0afd9004af1296eba8d2b725b43cb37be4",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic_insurance_impl.rs",
+    "sha256": "0dc5e28de23ec72c503c1d79225aabd1ffe5ddc6acc6fd5eefb8869adf7c44a4",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic_insurance_poison_tests.rs",
+    "sha256": "84f5d321cb061787e0c6db16020c99c46881799876fe2351b901b3589df0dea9",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic_insurance_snapshot_impl.rs",
+    "sha256": "f1cca1df99e48ad85e6685e804f7b0f329afa0dee87a9d120bfba5564e904c51",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic_liquidation_impl.rs",
+    "sha256": "3378de8d8831ef5453fdca81bff11d56d81bf00c3c41e8e6251b9e8d33ffe3d4",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic_liquidation_replay_impl.rs",
+    "sha256": "b856b4575a1b7ab024fe133ce46410f1dca5a0ca35384c3a5538eb02d41faebb",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic_mark_impl.rs",
+    "sha256": "12f231d15fe856cd2652d50b07667ae393c43d5f9c60f4556f7a4688d1636d2e",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic_native_impl.rs",
+    "sha256": "223772dd7168666086692f9e3f9a20e669505b53cc6a06e35e5da141f41dfab0",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic_reporting.rs",
+    "sha256": "9bc12cf2202cd3fe2d377798e7ac4fc0452f69303cfde5e857ef16b4053db6a0",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic_snapshot_impl.rs",
+    "sha256": "4fa31ae98b72394db0b0fe46b2f1342fe2d0c9bfbda20092deb66bd5a5a149b4",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic_source_catalog_impl.rs",
+    "sha256": "64beec9b7e48e1ecee9181257ebed80ddc735ff47068ebd2b764d862e81e4332",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic_source_catalog_snapshot_impl.rs",
+    "sha256": "2a434550d3b662c58cf563d6b64b92b602d5763ba2836b5ef9c2bdb3d411a708",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic_source_oracle_impl.rs",
+    "sha256": "1bb3514d4570f799fdb35263b4991005821a8e8a003e9565f49a71f2fe5632ca",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic_source_send_impl.rs",
+    "sha256": "9c0545ba96c8271adee1b6c11c99714fdf25b6c1d91498ce9b88d4a6a9ee7f8c",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic_spot_prices.rs",
+    "sha256": "be10c12d360d630cc4bae369f22bfde650d6896380b433c6fb6d40d200b8f357",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic_state_oracle.rs",
+    "sha256": "3e05d6a94b8d33285f1f69a26e8315cfbbf05af5ad2500263e810b1c1e8e35a5",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/economic_validity.rs",
+    "sha256": "83dfbcf683ae993678f75462557d1e753dbb9c01ca347ed2b97cf490c4ae7a44",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/execution.rs",
+    "sha256": "8b3f7622b57cb75ebbae2bdfb5ac5113a14a940d45d85fdbac4ea32298cfb3a1",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/execution_channel_revisions_impl.rs",
+    "sha256": "32eb655e16d5024cda6c71d53f0817b54da715b22b2ea4e579e927aa9745d2b5",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/execution_snapshot_impl.rs",
+    "sha256": "ec9008fe00f82a26f576569959748c2a48b10f4742a720363b92d5ddfeea464a",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/funding.rs",
+    "sha256": "51bc72610bc6352ea3d0f02db3d20316f0d5bf355da530cc290bd8f2d58aa714",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/funding_audit.rs",
+    "sha256": "763142a56464d6a0d00e15733b70d7b720d1d3d7b211a58003d474365a554164",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/hash160.rs",
+    "sha256": "90ea63df69e55755aa4b0033062f85327d2e6a453a8fc0cca1f7d7680037504e",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/hash256.rs",
+    "sha256": "35ffc6d3c496d883da50eaade330be61356302d84f39d497ace7a6699df64599",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/http_service.rs",
+    "sha256": "3e0a3c2d1e7f9d51207fbd0541fce53c4217451794f970c02a88c86d13abe744",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/iou.rs",
+    "sha256": "65785c36a4930efbdb662000c9732f9f77872e113fbb795d3d4c45228bfcaafd",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/iou_ledger.rs",
+    "sha256": "ed45dfd5f922c8fbcceca14bd9f50e00de2becc8a97e804f3730cc6293c5df68",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/iou_ledger_snapshot_impl.rs",
+    "sha256": "ca014b66446b258de34703439c9275bc46afa5f22e45ea63df733e3a1c155a3f",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/iou_snapshot_impl.rs",
+    "sha256": "1ccb81013fc673e319961e34ae876e6412e482eb75b2efb7e6e0304923e8b739",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/issuance_intent.rs",
+    "sha256": "d612505b9ce72c49fbbfa9b8004219cb9a4c66d62a4c29377fc5ab7162d4933b",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/joint.rs",
+    "sha256": "67f4fc182e1defe9d8ea4cda2b6780a6aa922932e2921c0a159eb14377f55ab4",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/joint_chain.rs",
+    "sha256": "5ff8cb7856ce8feb5fd0988545f6b9f5fb73e0b67c346d071f72d3f73d413e3f",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/joint_chain_native_impl.rs",
+    "sha256": "67a04178d06de4153fda3ead5648b29fa19954b9e373481764643bc3816c5e14",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/joint_economic_impl.rs",
+    "sha256": "17bf6343590305da0387ba23f23bc8323593758c1b46fcdc731cebfcec163573",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/joint_native_impl.rs",
+    "sha256": "ad925eeb31933e83cc26e58a12f211518f855eb0e8bbac785d71273b4e6b8de8",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/joint_snapshot_impl.rs",
+    "sha256": "6067cdeab74e4ffa4e4493f92827281287d693b9f72e0dd971bb84b5a7fbca6d",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/ledger.rs",
+    "sha256": "a5253b9f947d9d67c11b311492c32a4350b29657cf5a2995617f7b28d169d728",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/ledger_channel_revisions_impl.rs",
+    "sha256": "eccd13f58b277d5b00e95cf613aed689ef6993ecb4f2c92f25ec51811d90bc44",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/ledger_channels_impl.rs",
+    "sha256": "43697cf96497c681c80c20a5eb6199eca5b9f2b56f6dc13ee1125974c88e31b2",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/ledger_native_impl.rs",
+    "sha256": "e138f20cc5047b33bef67bebc69f4b619e2d79263978863576b2191be47bbe34",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/ledger_settlement_impl.rs",
+    "sha256": "8196e1ac87e6e1b3fb267ff28efa1fe86ff4e5de30061c2d9afdf6b685629a0b",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/legacy_activation_audit.rs",
+    "sha256": "da54edf9bbeba89219163d63aa56b4ae21485e81cc858dd74268685f666e0482",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/legacy_base.rs",
+    "sha256": "8fd5f38f574e8e9b219bc6efe8798c8f55be4b55a2bac26e3b7ff997d728a4df",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/legacy_channel_audit.rs",
+    "sha256": "053bbe8279dbd86528b494005bc8994d8ca9ab23237576dfc876ae2a573d5f25",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/legacy_clearlist_audit.rs",
+    "sha256": "37ffdbadcbf6f0182a69466652ae787c94a07948c5b14bc6fddaa72c5cacb16c",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/legacy_txdecoder_audit.rs",
+    "sha256": "1ef2f63045a73d47cbb22fc7dddeb732c1ac694809112c976cdfaee1c20b2dfb",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/legacy_txencoder_audit.rs",
+    "sha256": "c35f56c7b10c7d21915bc26e216508583cf80553c76e763dfcfe93b18189f39b",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/legacy_txindex_audit.rs",
+    "sha256": "6efed597ec8e4239b84bc4e6d5876bd83f12fdd4704d2347f5085773cfdc581a",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/legacy_types_audit.rs",
+    "sha256": "87f50e21993992b8a2e9abafdeb793a9238ebd11410bff540f23f9a618ee52ca",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/legacy_validity_audit.rs",
+    "sha256": "75d4e0656aa62dc50c7a10197e48ef924c2cdc32ac50930679e4eb369959a6e9",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/lib.rs",
+    "sha256": "17c58a18d1cef7156602061f5eba2c414b7f064043ffc5ab8bed8de918f7f650",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/liquidation_audit.rs",
+    "sha256": "9552df057ee1f00b1a976d76538be685a275c64822c72d81636e2bbe6b420d89",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/liquidation_input_gate.rs",
+    "sha256": "be34c4707870f022ba7246d47bfa114a34e30a281b9de293b9fd285c83fcd8d8",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/liquidation_source_characterization.rs",
+    "sha256": "fb963c9cabbafad54e971482903501da5c13851b6f9f27167c0fa1ba44baf628",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/margin_map.rs",
+    "sha256": "f821598d43c24b4d1abd20a3035d38baf8289bb7a93fefa644321eeabd043de0",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/margin_map_source_owner.rs",
+    "sha256": "6a977edf8b3fb3abbd049a276dd2401f6954321975a83fb0129db81a93e8fbf8",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/margin_option_index_source_impl.rs",
+    "sha256": "e59e97a10a66f441513905a6b583bb9f848750d8bf5b7d3e9e3692e8f90202c3",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/mark_basis.rs",
+    "sha256": "8ea8addda23bac70d536644aabb1d44167d64d239ad581eb44a94d523addad70",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/native_entitlement.rs",
+    "sha256": "906bcadbc19892c8e47801aa55a00636fa6a86343e00589dea665f4e126e3def",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/network_bound.rs",
+    "sha256": "ad80473aaa5d78ff7a1e6f25c1d109f80bc1b1f712d31137c26325e31faac777",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/network_profile.rs",
+    "sha256": "812f8078761c23a8606a742507fe00f20f47448a91ed9cba13b856850e094973",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/options.rs",
+    "sha256": "b386c9c63a9da0ddcfedb10195a10b13b39d425aaffec5f934c361fc487b4767",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/oracle.rs",
+    "sha256": "a3d3ae9fe71b30bc331ac4744bff4229a3ec044faf36ed8413e8cfb139a28329",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/oracle_source_owner.rs",
+    "sha256": "012a3a3eb8802c27110bc5a7e4cbdd3909b3d2050f1e8b952b011316c4d2e96b",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/parallel_txindex.rs",
+    "sha256": "c6fd36844c80b237581695462def9af11882c86242b1af293f845cd6352b28e1",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/persistence.rs",
+    "sha256": "961ccad5e6f39f03801eac1a4c350a4af77d1233fb48c4b453567d50c4cab872",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/procedural.rs",
+    "sha256": "359d4a1f7caead650a60fad6c0eac452807f74fd94b8dde6260c276aa3a54039",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/property_catalog.rs",
+    "sha256": "e8d8922228b95e700c489dcb87cf823c8294fc98def5864bf22ead3812764953",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/property_catalog_codec.rs",
+    "sha256": "162c7c0463451d1dd6a20030cf9665cfebe9fd69933a305ea3fa16a1acacb67e",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/property_catalog_numeric.rs",
+    "sha256": "071beceae8a7800e65276341b6f98018a5ee63eeb79634e54ac705daecd13438",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/protocol.rs",
+    "sha256": "85bf8ca9c56202389544b8a4ad3aee20ae6e5e22ea84a7424daa2f0215e6857b",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/raw_block_ingest.rs",
+    "sha256": "2a2eb77e340e6048b44caebd5bc7fbba072202c3d39f55664d4912ebbe4de106",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/read_only.rs",
+    "sha256": "3a71ca25db0c9944775c30473a0abfee77dd85a7d2e8a73efffb11bb263c4d4d",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/registry.rs",
+    "sha256": "f4214229bcbd4e62f6a4e6a54d0db68af48e93653c38766de836d7dd9caf2e29",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/registry_snapshot_impl.rs",
+    "sha256": "4b5a08f562b8e534c80e48a9e0140cfcd76efd23264b9af91cbc224bdf8ef430",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/reorg.rs",
+    "sha256": "48242af30a1c0e08b7070a91c9192f39470eaa9544e6bfeefa6ea31b4b9802d8",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/reporting.rs",
+    "sha256": "4ae6528e64a20bc475612410a3fd8a3af30989e8ef67ffdc633ba2072436a827",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/root_reconciliation.rs",
+    "sha256": "11a3e20e1df8fd1a2f921f77523643598c46e61c3aafc83ce1d7d1aab8957773",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/rpc_http_impl.rs",
+    "sha256": "8f89c32c48d142806e63a0db47459922bf6d6553671c820183801caa5222ee0e",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/rpc_json_impl.rs",
+    "sha256": "13b06b757031723225a5710cd339d51a0bea85a5cc4eae9449b966de4eb338c1",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/runtime.rs",
+    "sha256": "42baab409649454bf2ea96cd6524db967cbe5384626cc6e193d1d52a2d4ffb61",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/scaling.rs",
+    "sha256": "10e9eaafe3eb163c99a4ce81a65208bb1029e72893d8b9cc51062ec577949133",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/secp256k1.rs",
+    "sha256": "3875f166d6079e3c5f9028740d101d866803f86ee3e27082bdb74917053a0f96",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/service.rs",
+    "sha256": "792228b84cd5964e60b5e8b5164d3011ac095ac7a324a176e5c8e5e42fb32bd1",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/service_client.rs",
+    "sha256": "000fd51a4d2822ee3cfde4fd60734e758c055619aa127f2277e69ef1ab308d8d",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/service_routes.rs",
+    "sha256": "fe600ef8bb4d98b1520635dd3fec4f8012dcfb63c101424cad27a26e548655eb",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/service_runtime.rs",
+    "sha256": "4f3a9b7f5970a7534328f22bcbccfa545d1fa63a2c02c4392fa8869bb4ea33ba",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/service_view.rs",
+    "sha256": "c0058c31c1f0277b59c382669f2bb507186505b88b7447536eb90e74035f385d",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_catalogs.rs",
+    "sha256": "091c65eaf29fc3ae3ff76edcb628670a50256914309ebdf35b4d948d9d10de72",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_channel_financial_impl.rs",
+    "sha256": "af020893e281dff86809982e77a66ab9b8f26fbde12a81c93a4144af1de670aa",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_channel_logic_impl.rs",
+    "sha256": "46f57664064961a05f64fb51c298be82f2b81f65e688f24244bffe1f50fb6dd5",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_channel_volume_impl.rs",
+    "sha256": "bf43c071f8b75a72d56626eeceb66c16d4947bb419d8daaedbf2b02d456830ff",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_clearing_expiry_impl.rs",
+    "sha256": "fbdd7f658918be116bb35a196f57e13a8b2e601edc850d0f61f383a8e21ecfee",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_clearing_funding_impl.rs",
+    "sha256": "2f79010bd663beb694f3de5b90b8071a131244ed9bcb2b9b219cbe14db829cfd",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_clearing_global_impl.rs",
+    "sha256": "4e178d88bccda459e9b5a3b4fa138f3f03a5c036f131fcf3332bec6feea6b60a",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_clearing_liquidation_impl.rs",
+    "sha256": "55620a27798afb7eefcf762b268bf626e637451dcc741560cb61008e0ea589bf",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_clearing_mark_settlement_impl.rs",
+    "sha256": "85674ba9b612dfa7b998b491b979e9b94e4cf4c49a4d96adbb80f1ef5638064f",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_clearing_supply_impl.rs",
+    "sha256": "e3558af846951e61e9a9e2ca74aed91af675059626ad382826bea455420b17f4",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_contract_accounting_impl.rs",
+    "sha256": "0ec159bc2614770ccd4a1e38df6aeec6014f47d5c0fa79c9b3fc57e33b93dbc1",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_contract_aux_impl.rs",
+    "sha256": "4b422f033cd4e068475fde7065b3bcb5672f19556f9926238047ef780f490975",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_contract_fee_impl.rs",
+    "sha256": "58ccefb5fe84480a294ae4ce9f575116893b5027c0367a4bb5185a7a53f426b8",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_contract_history_schedule_impl.rs",
+    "sha256": "9a602ac9defa01eb2064f10ee83450135d5503cda04a423ee16a1f7434ae0793",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_contract_oracle_impl.rs",
+    "sha256": "e72b52087fa94999f4589722ea1c6ce1988d3932928584cb3d56f5cfa07c4b39",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_contract_position_identity_impl.rs",
+    "sha256": "81eff22ad54eabaea801ec343bc781eec5652a41f4f2822ec9091612cd8fa542",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_contract_registry_lifecycle_impl.rs",
+    "sha256": "84a6927525f75ff5f585be2c92d46c774bb7beedf9dcc6e59e227f0b407440dc",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_contract_replay.rs",
+    "sha256": "71bbea6552955933891a9723f1e8977bc7374caf137eaab35faa68e16e02c826",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_contract_runtime.rs",
+    "sha256": "13103da940be225747c2df52f5fa51d124c256de1e7264aa261f8bb107c7cc02",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_contract_values.rs",
+    "sha256": "8c03323f0ea851a2d5097a9c487c974f058f3239c310d9aa730e31ecd362d573",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_derivative_exercise_impl.rs",
+    "sha256": "b87e429eb2f4b0ef663192aebb42d999916222ea63034a66ce869a3ceb5313f6",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_distribution_lifecycle_impl.rs",
+    "sha256": "66598516e7628f204e4b6e6e450a3e1fe4cf20fe25ee1e59c562c15c82242db8",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_insurance_legacy_v1_impl.rs",
+    "sha256": "f9a101b49056023acebaba6360ed15398c1573644993458a190226ec266675fe",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_insurance_lifecycle_impl.rs",
+    "sha256": "025a0f83af40fafa828dd8d377df6884bad4dd61130be616c881c4ec3a2d95dc",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_iou_settlement_impl.rs",
+    "sha256": "12976b0212ca1f34ba0757eb4adff06024370f13049452d610172293ffb113b9",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_lifecycle_transition_witness_impl.rs",
+    "sha256": "908c9bc27953c42006eff5c24dca71fb778d11cb5b388f418fbdb7cbb4ea46fd",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_liquidity_rewards_impl.rs",
+    "sha256": "ccebe0a9b100ede7520fc3d7b0866fefa831d439c9a454328dd37b59493d9e66",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_lower_clearlist_impl.rs",
+    "sha256": "2c3ff4cfdddd105fe984f5214d3f42fe8980885571d9e72906e187f008ec51ad",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_lower_oracle_lifecycle_impl.rs",
+    "sha256": "3a2199d95619e73ec9bbf35afd250b638f43520a7aa14a8df8ded704a60d6dd9",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_lower_property_lifecycle_impl.rs",
+    "sha256": "19a474442371eb4e040afaa9c2605a79f74a1035c29e39e152eb2a45e6cc2974",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_lower_send_commit_impl.rs",
+    "sha256": "1aa88022f1c920db4a347336444d2844b3b1039cb32a0be351206ed02fc73907",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_lower_utxo_trade_impl.rs",
+    "sha256": "f491ba871cdddcd6a3756f89cb02e9968ff22da092054b14d416fc14ae6650ce",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_main_callable_impl.rs",
+    "sha256": "2f66665a11ac89c655abaaba2fa8a13e4556ffddc6b7c1768a5161b9af35204c",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_option_trade_impl.rs",
+    "sha256": "f860e377879ec7841b8cfc9bfcc9c56eb59b485e3fa19beaf97b643732c8f486",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_procedural_bitvm_impl.rs",
+    "sha256": "d1a07ec73f2bf234607fb14a995795a6d9452b46bc3576662560ceef7baecc53",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_proof_lifecycle_impl.rs",
+    "sha256": "5253802cb690a71bbc5c7d2649c9b0ee7f3a5d3e17bc296f0109d48edba907ea",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_proof_settlement_impl.rs",
+    "sha256": "a40e8c1e6fe76c433d992e7684d22974f7111fd5f7326fb65e91ea3c71e6cf33",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_recent_lifecycle_transition_witness_impl.rs",
+    "sha256": "6a4e2b02d2aeaee6988472b56b96802775acc87bdbd16062c101d6822305e53e",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_spot_lifecycle_impl.rs",
+    "sha256": "a2c1974c830fb434b865d58062f40c46af4450b22a7cc209c93acc084d37123e",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_spot_matching_impl.rs",
+    "sha256": "58bd4f61eefad693d9c1820740302048a6501b078267da03d0a92cef9c07f1c4",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_spot_queue_fragments_impl.rs",
+    "sha256": "b28bc1f0db65a2567afcc7bcd0fe19773f24d2521a2483d82a292623d15855e4",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_spot_schedule_impl.rs",
+    "sha256": "f56cf908953fb73d673037adce38cdb2f2e6dba464445616850be4e44f326169",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_synthetic_lifecycle_impl.rs",
+    "sha256": "4f8d095a01f26e57c7252f6c78c232896e4972777ad7f0f994d346d9576c1871",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_tail_lifecycle_impl.rs",
+    "sha256": "49bdfc1f480d36d7dd57f3cc9564944992605f853eab19b82c65afe187c0b6ea",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_token_channel_schedule_impl.rs",
+    "sha256": "df69970b3318fa2636ac7a6b24f40c004e2792f661fe4c9f75d115181208b001",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_transfer_schedule_impl.rs",
+    "sha256": "faa444e148ba08024fc9f837183859235451e511f112453a82f128465ad32496",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_transition_witness_impl.rs",
+    "sha256": "f5d0dcd4a60d66f974bace90c0113b881278b86f1b263b9dbb428e6acb813be5",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/source_withdrawal_schedule_impl.rs",
+    "sha256": "791bd4d1081a539c8ebcbc1592b6620f69845981b9da6f17b54d69373f6e114c",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/spot.rs",
+    "sha256": "60aca77a807df4d1ea127184bd00d761e2cd0092c4812bc768e83b38a29faecc",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/spot_chain.rs",
+    "sha256": "34a5291085472002487797d0fdf775f3c7f51592600fc60a1a46c0be88a489c2",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/spot_native_impl.rs",
+    "sha256": "3cd54480ab6747b1673df14d1f3acf97db0aa16261854404ccbc98d5b42690cc",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/spot_snapshot_impl.rs",
+    "sha256": "9252d287608f286330b8945c9d5225006f25e569c51e84ab1c91e6b1e2bb6fc6",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/state_commitment.rs",
+    "sha256": "dfc06c572144213cd17b0078c8ca4823a75faead47abfea4aef5ffce7eaa1db2",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/state_oracle.rs",
+    "sha256": "17d1ed62d1b57c6b0550ba74a619a536cc4804abc7690dea822ce229504d7e7c",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/storage.rs",
+    "sha256": "4032c8633196b5b5f0f457a41da04ff203cdfeb6f523c86ca82e58ba91d894c2",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/tally.rs",
+    "sha256": "0379c64e8ff9538ef329c92e94f32562a176cc5054854b33a9228414947b75dc",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/token_settlement_source.rs",
+    "sha256": "21224bef9b254ecdff47e5a2f9928db17d7c9b7c0dbda6386f19ec1d3cc4c49d",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/trade_history.rs",
+    "sha256": "13bad43d6cce9f429713d95b7e460f8d54f099be3ee4c248bc13abd24dcba8f8",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/trade_history_position_impl.rs",
+    "sha256": "a5307f948ac7feacb2d6eab424b877138f073bbace29b97ca99324f347049496",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/txindex_source_owner.rs",
+    "sha256": "3012cb0e8e575ccca9d46fa4ce5e6ce66f4b57805ef2349e3a27195b5192a5d4",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/types_economic.rs",
+    "sha256": "59fdc48349b43dc5add66314caa52a89e50600d6aa413dbe1cc53c9eb442d11b",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/types_source.rs",
+    "sha256": "c535ad9ede6e25d08aef7e123c330b80400f48fe3cbc64a4b3cfebe6989de765",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/unified_chain.rs",
+    "sha256": "562127fe2114b78e97023807f83a929e9bb8037f1063a8592ef32b1782472f62",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/validity_source.rs",
+    "sha256": "ecc4caa23e93aaf433d2bdab981c78e285ede863efeb6d1e129d90718322f593",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/vaults.rs",
+    "sha256": "f7bfe0b2b1e6b4d411ec04834ce643dfd4d70bcb125a50dcf249ee2a4c5996d8",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/vesting.rs",
+    "sha256": "80948c761cb19b44e7407196195791540bc213cf9a5187157c6ac9138056f46a",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/volume_index.rs",
+    "sha256": "12df67cd14ef783b289fc483e6a64f017ab157734b0222c1796c35833d4116a3",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/volume_index_source_impl.rs",
+    "sha256": "e56c6b46fa7846ad6853e1a87b4cca764788b397b61b69aefe909902e73cf39e",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/wire.rs",
+    "sha256": "695f03a28e018a961317470468730db2ddee880026ee6e68d188f2a085633142",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/wire_v1.rs",
+    "sha256": "7dba632daf63ba03764ba10cfb03ec930c81df60ad746f7d85ab759485f94a1a",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/withdrawal_parity.rs",
+    "sha256": "7361a1047d8b5896d60fce1a49360ccc0644f829fe8c00f8041eb0fa19d7121f",
+    "lfNormalized": false
+  },
+  {
+    "path": "src/zk_batch.rs",
+    "sha256": "c192693fafc8370bcfc25a471ce9c2f7eb9f33a307c54215d902458eb87c2ce3",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/activation.rs",
+    "sha256": "e9e641da7cfa616f31025a4ffc17e67e33d5526ae323ed7cddd03667b7e2c7bf",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/activation_history.rs",
+    "sha256": "5ea3264d47d5f28d16220114f0efaaa38bab220e1ed5b4d2712e7b895e3bc463",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/adjuster.rs",
+    "sha256": "6c6a1e499e697c799c45d4750e63b3d7c0b22944ae94bc44a8b52a427429491a",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/amm.rs",
+    "sha256": "4ca350cbfc387a41d814b2f85d542b24ed2bb0350210f6c48d8bd12db2c70f79",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/bankruptcy_source_audit.rs",
+    "sha256": "ab5732892df03d6a36683c5cc6f77865b10409222196b43d18b3f22adc45f737",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/bip32_public.rs",
+    "sha256": "200fd89a178bc49ccaa7346dc35df01b2001e77cb9c5e6bc1fcaa8b308b24db1",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/bitcoin_chainwork.rs",
+    "sha256": "887e9aa298583eff94c865fe777d1dae3bca29ea78836a83bbe80da37f101241",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/bitcoin_core_index_ingest.rs",
+    "sha256": "63d95c39da7a1c7de7334e3692d52bb203cac0b5be546deccbb5e48683a4d95d",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/bitcoin_forks.rs",
+    "sha256": "6255d7ded2f89f4869442d045d448b5c8de77b4c3b4b5883cdd1e3ce73db71c1",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/bitcoin_inclusion.rs",
+    "sha256": "2be995767d8d6ac9d7a8acff1ad1b68baa5d6d0a2ba1d3b252e0ed0c48c14d4a",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/bitcoin_witness_commitment.rs",
+    "sha256": "17ef667bb2f046aee617a79895ec93c061c34b92dad6c9921317a5594e89f8c8",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/bitvm_bundle.rs",
+    "sha256": "73d1a824d124a4412cbe181bf1bcce4c59d01986a782373128f55878fc63fd71",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/bitvm_cache.rs",
+    "sha256": "f190efb5169e896ce331f28f70bd89ff62a2cd9cf7ed469e28377f9b53b2e5cf",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/bitvm_risk.rs",
+    "sha256": "b85f2b57a8247d694a77900916b3ce1bea67eb25fc359e047310950d308c57dc",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/bootstrap.rs",
+    "sha256": "ccc25db50d1bf3e9580f1f8b69c9becfe0e581db62e56a7ab2dff100ae5bff9e",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/bootstrap_storage.rs",
+    "sha256": "869e2d6825aecb0838496bea2f5fc96e1a24cddf140dbc99c46cc3846a44095a",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/candidate_evidence.rs",
+    "sha256": "c269d1de28d106c8ad69dfe4f674dcaaf1e52c7d4cec337d69da1c5e83b051a9",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/chain_progression.rs",
+    "sha256": "54a173130c6f5ba07d07448da5e61571fae89e154e90ab9789696cc2eb8c1d41",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/channel_admission_audit.rs",
+    "sha256": "e278400ec71aee7d5585384fdae3a85f5691be88843af346e8de88d3c6ed7193",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/channel_escrow.rs",
+    "sha256": "d0119bf6264e922b064635d3b3702d06dd25f2af5d4def4a2c52675da21c0a67",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/channel_inclusion_audit.rs",
+    "sha256": "b6d773b5924e13b6883215598ed12a79b85eced37abcc3ca4efcf536e7321d2a",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/channel_p2sh_audit.rs",
+    "sha256": "e3b06a029a5ba0ce7039ccc79688e1aeed407dfbf2d1124ef0149223e9526bb8",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/channel_p2sh_signed_evidence.rs",
+    "sha256": "ac89a252d43adc867d4d28046d7bae1d04956d4609d7febb721a44873f2f142a",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/channel_revision.rs",
+    "sha256": "e53ab675d8fb8dd7d4a8f79068357721f16b67b0840b397e7dd7644759f65075",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/channel_settlement.rs",
+    "sha256": "53268fe8cbe895e1386bb854b1dfd0ec1286499a2530a4902ce41ce6283bc163",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/channel_signed_evidence.rs",
+    "sha256": "c6c4de4a8954a172f8e9558d0cbb9ea97c4b947d8227944995563e48a5445361",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/channel_type9_inclusion_audit.rs",
+    "sha256": "9c5d266489a8861452c11d22d78431de66807489e9a90d56bac56e5b50c8ca3a",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/channel_type9_sender_audit.rs",
+    "sha256": "ebcdf8875d37a39b2930073a208175e565ff06c369f7a614017c21b54ee3174c",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/channel_witness_audit.rs",
+    "sha256": "7fe8d11571ee3f4abf8bd18304d247ded4dce2b2654faeb5283d58293f7f0bc4",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/channels_source.rs",
+    "sha256": "04cea7bd4efe92813640de69b3f5447cf7307480772a250d31a8c21935533c86",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/clearing_cadence.rs",
+    "sha256": "fabed5e0cc00f2bcdf7676a66bea95a9f739d891d3cf36a89bc8fe89b8999ea6",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/clearing_chain.rs",
+    "sha256": "31223e69159386cfe2003ffb6d5f0c3e155924f4823e4fa39fb468be9bb116a9",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/clearing_checkpoint_fence.rs",
+    "sha256": "fb64693db25bcbcdf0c6cfd40cdf80d42db8f691c1b85ab5dab572f8aa588164",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/clearing_collateral_policy.rs",
+    "sha256": "a39991d65d927c0e1baeb88900d61f6e38df6ff5b73bbac75fcdb89e7e60c055",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/clearing_mark_to_market.rs",
+    "sha256": "92f5ac09cbec4ed7370a5ebe0c2160b7c91ae533a0e6d665974803692f714c31",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/clearing_math.rs",
+    "sha256": "a7fb08aab5fa75e4c2bde15a24b713b60a304c7795e547ac5784bc4a9c95867e",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/clearing_partial_closeout.rs",
+    "sha256": "c77479c9919cde611a4069044145b16b9ee7e9475de39215b694bb3086556485",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/clearing_sandbox.rs",
+    "sha256": "5164da3ad8f61f566e1b8a18b0fbcf03a959523cfeabd62e586d2b22a7931dfc",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/clearing_snapshot.rs",
+    "sha256": "9bff4a79cc9686170e0c5eda27974574bef253b68fba3680a405ddad850c7a4b",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/clearlist_source_owner.rs",
+    "sha256": "4a69f21a45d246f8852e5b722123fe31e199dbf9bd4656a53a41ae00f7c15aa0",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/client.rs",
+    "sha256": "f56985c18a54bd7879e7515cd425e17a943436928d05ee3f0ed95192004e6caf",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/consensus_source.rs",
+    "sha256": "e31b894a8a9bc96ac7ceb21db68452bc19e684e75e41033caefb3244eaa8319c",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/contract_orderbook.rs",
+    "sha256": "8ab12dc3a563b6ea134afd4fb916f7ea062461d4d7dce243b3bf8c5765c0cd21",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/contract_placement_source.rs",
+    "sha256": "3fc12f692f5a72e52a61381ac6e34c833e017726f24eae7f2aea66dddb6dd270",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/contract_queue_source_owner.rs",
+    "sha256": "6a85cd4e69b864809853af95f9c4078ec59f213fcdc63fdaf7c698677d35e612",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/contract_registry.rs",
+    "sha256": "7a4fc7128c5ba549a71af7f1ee803bc19b76ad00374342a481bb74f298a25c4d",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/contract_settlement_source.rs",
+    "sha256": "1a5bf267dd9a8ede332fae69f04c9df0a02b64366d3fe5c41d55a2a930b3bfb0",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/daemon.rs",
+    "sha256": "1575a1cdb059eccee75d41330a2efd2f045295d8e35438ed22c2aa09a255e739",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/decimal.rs",
+    "sha256": "ef7f1175617ac1433d554772ce587d1034853ae3367671ca98adea9a8a67758b",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/decimal_adversarial.rs",
+    "sha256": "187c351fd407c161658abded53b0cdab76cfe4c23903e9ad374141d35cb9b65b",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/dlc_oracle_bridge.rs",
+    "sha256": "abf1e07274e63988317e3908406dea50fd016eccbc8a25e462c429513de0d5db",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/durable_iou.rs",
+    "sha256": "c270a1727a20412dc7e78aae7d3b776c899aa0cdeb286db5d5378ae2e6b1b71d",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/durable_iou_capacity.rs",
+    "sha256": "063772cc1ff3a333a7e5bb1a939ae6ce51df50709b756282d9d6b72cd4bb55ff",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/durable_signed_channels.rs",
+    "sha256": "00ee93dbdfda34963448cd87bf4002597228be6da799221f2c87df13c01d481a",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic.rs",
+    "sha256": "e0e1da4096647282a2cb509bcd2572a445e1de1ca9014eb2c8cad5cbd2dcca73",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_amm.rs",
+    "sha256": "6042a93a4b67c437f4b992345b7b9d2389b1f803899d07a10acfd89aace9a999",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_amm_snapshot.rs",
+    "sha256": "226fd82b8c36b7f50b434c098eedf8b9221dc4fcf5d8712ecdf0be3cd24fb32c",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_chain.rs",
+    "sha256": "b2700861629098a14bfb2371af7f71e8b344719d65e32026bc56e19c57352281",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_contract.rs",
+    "sha256": "06c051d8e2e7bfc368e2e323ea04f3e8abfb2a2c8e6a9ea7a01dc75137587db2",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_contract_snapshot.rs",
+    "sha256": "ef62596accde28febbc044f5516272c7f8ecd779eebe6f23417d929ea7f9dfbd",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_funding.rs",
+    "sha256": "b87831f1316b51cbe494d5fa1011e9a30b0ccaf26b38b9129e0d01bda0f5c72c",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_funding_snapshot.rs",
+    "sha256": "d4dd004b1a18235f16fc0bf8ae4401677ae154289242cfec198b8e8169c682f6",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_insurance.rs",
+    "sha256": "4f2cf1682358224507772af17cc00b1a5c0b5def28f8919b6a50fad30fa1cb53",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_liquidation_review.rs",
+    "sha256": "649ed415c9eb10aeb48491806742633e8ce88b129a72bcda8475257313f201f7",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_liquidation_snapshot.rs",
+    "sha256": "211dcd6ff7b519134494d50c0eea1dba2479c1543e00ccf9114ecdb254f3a823",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_mark_review.rs",
+    "sha256": "908eeedf34003f3495cb6ba9b2cf0e828011fc8d093f496a843dc232e8e6c4a7",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_mark_snapshot.rs",
+    "sha256": "78f61edcd01ec5ef0635cf7990bc8823351de303f50362abb970de984e32c9b4",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_review.rs",
+    "sha256": "a5bcaa52897412005b0bdfe8f2ba2a158b16a3c45b6c5799dce2cedf70b4dc7a",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_snapshot.rs",
+    "sha256": "7757411eb00eb29977b04c7eca1bc42cb6af82f0fcd65610753348788a0c72c9",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_source_catalog_chain.rs",
+    "sha256": "336820ba947e84b12d3cceb0c2c8cf3685de36237a348a2243bc5464837dd7c4",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_source_catalog_execution.rs",
+    "sha256": "40cd53f1f55888ee3398015054dee9ed382c3d838aa07cb922f2a603dabe8656",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_source_catalog_oracle_snapshot.rs",
+    "sha256": "f279a44ee4af70537f1328da03aa62aeab1f362b6ba664d610ec302986d78e4a",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_source_catalog_snapshot.rs",
+    "sha256": "bd4aac78ab08bb8173476caee7142c64afbec468d50262bd1e9a7d3f0494ecc6",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_source_oracle.rs",
+    "sha256": "a98e959fb359d4adea4c01cda011874add3e58bf4792e896aa166b7b88d850e5",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_source_oracle_contracts.rs",
+    "sha256": "a40c06539fa22a614cbf3f20e5b5c7e41fa7e3b2272803c5edbdf4005d21274c",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_source_send.rs",
+    "sha256": "6f1b48bf81515ef7204e12b3d4753ca2b8d0c4fcc55e7b41fd901d64bd55375f",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_source_spot.rs",
+    "sha256": "61a555d4e635d2c29cfa9fcb65c7bbf9483f0c4c47cd58630bb956e767ef4807",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_spot_prices.rs",
+    "sha256": "6e18ef400f9bbd55385751ddfde36ed0d2554615bd01018af64a065b24f40b6c",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_state_oracle.rs",
+    "sha256": "0d392bd0641e9318fbb65ff8e12b6ad0bf1580f427076f3918dba71abcef33cc",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_validity.rs",
+    "sha256": "831007e11d19f4f08361093dd6e049ef9beb00d0e9605ac56be94139d22acffb",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/economic_validity_contracts.rs",
+    "sha256": "c0ca005f9aaa7f0c3d1ee7a7f2aabb78da0c62e4d8c71f260feece46e50e29c4",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/fixtures/minimal_decoder.cjs",
+    "sha256": "9f48e13bccbf9f47196e30dc26aae922b1662611454acb7ded96818918bc2447",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/funding.rs",
+    "sha256": "efdb75b558b0a0feb09f4fa13f58f59dcb645a213859efe58f5086c5ffc9d102",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/funding_audit.rs",
+    "sha256": "36fcaa0646f93dbe80bd3e13c2bbbe7d30653b8b78e4ecddc97f21a3cccdc5cf",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/http_service.rs",
+    "sha256": "0c76fdfeeca1d509bbe3b140c12a18a97456c1aa3457de0ea29a392762f1d619",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/insurance_ledger_v2.rs",
+    "sha256": "adedb8cc3ae29942337f1609b5ce6b9dec6886fd5e896ff46824757cbdac549b",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/insured_distressed_closeout.rs",
+    "sha256": "375d2e540cf8d09bed43c1ce071f218b9f53a4abfbf30e25970278cff43e68c4",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/iou.rs",
+    "sha256": "d3c952a442fac09d33bcef749fff0ead6f9caa90ebca46d2c58097eb2597f70e",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/iou_checkpoint_review.rs",
+    "sha256": "0178b7ac7cf9c089f21b8bcd2637919e4e87f04199e66cc8e6aa072c79965022",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/iou_ledger.rs",
+    "sha256": "c12555e4e96684f1e97dab1496da22cf9904e0078b1bf3a38a4845cb16405fed",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/iou_snapshot.rs",
+    "sha256": "5ffadd6ed7b515f17e345a8c0671c190145d7a3c29965a9f06e15a20f7cba07a",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/issuance_intent.rs",
+    "sha256": "d19537543e11bc5f408e3656c9ccc8edcf8fe872d4fd6c6e0b6ed94ef69025af",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/joint_chain.rs",
+    "sha256": "a650dde2d996e2f7cc4c99a88f799b23f2c106dc0057bf83f86e5f9cc4994d95",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/joint_channel_restore_fence.rs",
+    "sha256": "dcb59be37000e4fcc58d7f7b17c35c8990f30e88fd6837230966c6e9ff0f8889",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/joint_economic_fence.rs",
+    "sha256": "8c26f7989a3f8159bd61ed5e453589a463c5d692a28d6f6e0edb07b67e8dbe7a",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/joint_history_floor.rs",
+    "sha256": "c4087ea62026f1de6db06340f1589f29840d1948da64c3327b4a515fbe9c857b",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/ledger_invariants.rs",
+    "sha256": "ba9dfe213aed6674337b0aec15fc8a55ac7180e2b0355e8923fe67e9549f9832",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/legacy_activation_audit.rs",
+    "sha256": "9d071a7c7331d58bdc346a957bbaed8242e13485c1c4c5dd05615819f48c3707",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/legacy_base.rs",
+    "sha256": "dd66b50d709d05fb600382fa67057ceefb3174af50b4ff51a2392e3a4c39d621",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/legacy_channel_audit.rs",
+    "sha256": "4f30685a4e32e1aa273492120a0d9bfbda44ec7d34d369ad0fec98837c8d66a2",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/legacy_clearlist_audit.rs",
+    "sha256": "6b7da50cea9a68b63f6f687cb1b23612bae38fa714f0474282fc74127a7a6bfe",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/legacy_txdecoder_audit.rs",
+    "sha256": "872d69a8d26ad16d19b4cbe9c3ac2e2c8dfa5f276a0f35cf2c67b7181568b074",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/legacy_txencoder_audit.rs",
+    "sha256": "04f7ba1499220f6d6e82b0e9bf1d7d3d48b8f03496de7ab3d76f4c090ac267ca",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/legacy_txindex_audit.rs",
+    "sha256": "245ac7ba02ab1f50adc8650e00047ea28a88dd27119e81d45907d805ef2dbd0d",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/legacy_types_audit.rs",
+    "sha256": "d3bc7cb4e5d81e6067cf18315021bb60e3bc5d03e79f2163c5211945458b5040",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/legacy_validity_audit.rs",
+    "sha256": "546f86ceb76fd156f9f36f446293e55c028202f77220a8cf8fca9a9687df80c9",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/liquidation_input_gate.rs",
+    "sha256": "f336881b42435999a61d76730849bd7eb9d2f2b91a648f502846e49ca4f9ac31",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/liquidation_preflight.rs",
+    "sha256": "9d8a74a4039e133ac6d9c94198103c368ec5cafc24f26644dacbe7caf297b09d",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/liquidation_source_characterization.rs",
+    "sha256": "2ece2e063f7acaadbfe8296a6aa1a64dc8a394c610aac2e3d5d89ce4c1359814",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/margin_map.rs",
+    "sha256": "2087763803986f96cddca364c7363a6c72bf8ab54e6ba44df0991e77c6bed6fe",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/margin_map_source_clearing.rs",
+    "sha256": "97f183144421ae0f4e92448098fd1e4fca4ce6baa7acf5c19d1fa42ca242b48a",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/margin_map_source_owner.rs",
+    "sha256": "4f75a925fbf435d0232e50a508ee091848d7f1333e08ea4d82202af24e4f6894",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/mark_basis.rs",
+    "sha256": "617b46c4431990eea717ca75aee23bcc3f56b4546aad21197a8f83a9253544de",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/native_economic.rs",
+    "sha256": "14db37691cf35116a55229652032e29c6af7ac41d722fb120646b10b16cec0a5",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/native_insurance_composition.rs",
+    "sha256": "9862ba7c91e4be45079d5a44b5ac90d29c506cfb552f96b46d813b98f0c90406",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/native_joint.rs",
+    "sha256": "cd7f2cbb475320175f8742c28f4187e7975c7c323071e74ccfef37a06e0c5e4d",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/native_ledger.rs",
+    "sha256": "f547ea57a583483c98631aa695f6eab69caf13c9c31e51f1feb9628dee6ef3b6",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/network_profiles.rs",
+    "sha256": "e0ce53683aa1dbb799d1f6121ad70c3b12a7addefdecee8b3c034512c63a11e6",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/options.rs",
+    "sha256": "abc47b979cc69bbc0101ee7bdce4f820967e69122841e7e91dc38c560cb6acc3",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/oracle.rs",
+    "sha256": "53517ee7e23f3fa8fdf095712830e111997666678e8f58ed7bd7fea6c75acff3",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/oracle_source_owner.rs",
+    "sha256": "041d27608766e6a7dd9922b26a807aa576443b1fdbf404bd6f62e299919ae742",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/parallel_txindex.rs",
+    "sha256": "5b54ede4f2d8c3db4927a36c8d177c059682736c42202d86a581e0f7790d355e",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/persistence.rs",
+    "sha256": "e028f09eb0cd6e37617bda1007ba094658aea69aec6295fb4f008f9d5319737f",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/procedural.rs",
+    "sha256": "61992cbdeadf3d82097266ed2b730d48e3d0691489434b0e66e3759eccf64c5b",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/property_catalog.rs",
+    "sha256": "080da79e9076448a27aaa68f79953489d945dd99a5329f12ea04d15718fcfdb7",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/protocol_execution.rs",
+    "sha256": "2fb72cfd671b3f34f16ac2293535c58d2e16fd4f5b94932b8ae75f342a63b75f",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/raw_block_ingest.rs",
+    "sha256": "8faf1d01790ff0a096c166f101fd15e1b11ba90878adc9b22044d1feb87e1c2f",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/read_only_replay.rs",
+    "sha256": "82ac253c10d0f02c65b80040fdeaee8a7f452007cb9bc163b9ccffdbe12829c1",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/registry_transitions.rs",
+    "sha256": "f38675b92bb74214a3c8f9ec787097c830799ffcccfdd24aa6d0bd4e765729ef",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/reorg.rs",
+    "sha256": "c9e48c3c2c107a55c0a6071d4fd38da6f2b468ee0e8c8d1e68c1eb9c1b8aa772",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/reporting.rs",
+    "sha256": "c59493bf144abfd45c725a136c02f21a6264735374a7bfeca65b3f143faa87e4",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/root_reconciliation.rs",
+    "sha256": "4f95a6465d6c722a9e5cb79102f3c48e8ecbe858053ae5cc302e8eca92ee32f8",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/runtime.rs",
+    "sha256": "1832cb66d9d939a564d6caafe9f6a76a859dffdfbafae46fd4c88e70e6bd2643",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/scaling.rs",
+    "sha256": "ce880a9a933ff7f941723d2c64649a1a266e418b7f6ab0b1f82476c4a2b3ecca",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/secp256k1.rs",
+    "sha256": "adf03d09054467ef61478e7170f314b51c4e09c7638cc031a94341ffc66efc4d",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/service_client.rs",
+    "sha256": "fdcf7f231d328c4b9052d802742dae23c03baedce7a245b290b296839af8112f",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/service_routes.rs",
+    "sha256": "8776386c2d33711d918606847109b79cc82d4bf7e50e29b398e162d1f525b685",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/service_view.rs",
+    "sha256": "e5f4571b0c2fe1e8e3e9bcef918828978a0c54b2e14545c1deda9e653b295b72",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/signed_channel_owner.rs",
+    "sha256": "324456172202846cec6388bf29f96485afdcd1445cadb739969630d989e90705",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_channel_financial.rs",
+    "sha256": "71e415326b79989fd99019a96c0f54d5807110c4480b9724fcb9a2fb5c27f4d3",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_channel_logic.rs",
+    "sha256": "f6ebf4d50ba0d1a4bacd681d309ad389b7700657e6167869df9793d3ee81a0dc",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_clearing_expiry.rs",
+    "sha256": "43d09c991c7ef224b95a1bfdc53899aa39dee5c0968e91bc876d3ab94820081c",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_clearing_funding.rs",
+    "sha256": "eb17531ca1772812a684f628658d3715c22ad9ee71395d6ac1784095670fd884",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_clearing_global.rs",
+    "sha256": "17ce23d4d4d4acc0baded7ac5e93b7542837cbd2c52e9e1f840d6886a5a94cb9",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_clearing_liquidation.rs",
+    "sha256": "2f150a2e8b25f83315b076316fef5b743dc8270eaecd272ffcee0333b26e49b6",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_clearing_supply.rs",
+    "sha256": "a2f38b6e20a620a3cc6c75a1580ae1008297c0f61538fb63af1ea50725c1dee6",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_contract_adapters.rs",
+    "sha256": "9df4949816f931880adc07d037cbb04823e269e3ce15d61eed27fc0d1d660bfa",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_contract_clearing.rs",
+    "sha256": "4727584a6ab7ff2a581f15b58fa3b48012f5175b725ce834927c608beb9c9050",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_contract_fees.rs",
+    "sha256": "55c928ff616b33e005c49a8c238a6b7777ef5d77b3cdcfe772d7a9f6ac96d402",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_contract_lifecycle_versions.rs",
+    "sha256": "b52e93cdfcdafcc7e507d1aafbb0df20c555dc75b961181081004ea38314ef23",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_contract_oracle.rs",
+    "sha256": "4d44b405295c9289792d2ed972eba99f9f334689627eb6829171d4806196360a",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_contract_registry_lifecycle.rs",
+    "sha256": "77df1bf86fc98c47c913bed61b6415f34902e98fc8c2839761c61290836f9fc8",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_contract_replay.rs",
+    "sha256": "ed916bc4a6757ce5bf26ddca0ed95b970f0346bf0a815a8d35fc1a77c5ac64b8",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_contract_replay_versions.rs",
+    "sha256": "264afa874fd28d991fa0d9ddba5c5145091ff413f3e7bf298bf035af8439c68b",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_contract_runtime.rs",
+    "sha256": "6b2dd9fa444e440ec1689a54c6493e99b19cdc8cc9edf84f90f6790b13e472e7",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_contract_runtime_signatures.rs",
+    "sha256": "bc8a4da915d240848c7a1d8617ae42a780246a2e92a1f1b5d2a23f6739bb7415",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_derivative_exercise.rs",
+    "sha256": "e224504b768cf30c46e9dfd7f7c9de048b0df7edf47b1d0ed1aa206c74ca3d6c",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_distribution_lifecycle.rs",
+    "sha256": "86bd4df3c68c6a0e0559077d0d9179eb394fa425c7ef7234180f3cee68055cd9",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_insurance_lifecycle.rs",
+    "sha256": "5b9f205d83b97b7915c74748b38a8912632f4ae9e4943cbf62bddbe4a10c3e0e",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_iou_settlement.rs",
+    "sha256": "b7a3d6091640afff408dd495de78765c5f48200e58611a89f30d15472f7a9457",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_lifecycle_transition_witness.rs",
+    "sha256": "77a907e67f3004be76c0c4ed852b1e297e870d2345243a65cc369cf1dcce88f3",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_liquidity_rewards.rs",
+    "sha256": "51a7dae539fcda9897eeca600de3b0be5abba9cb83f06dfa13b9e51be2749724",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_lower_clearlist.rs",
+    "sha256": "40c0a08e9ca1d0466f962a8835c85e8406bc8c9b2c2b81d265f08d8183dd654a",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_lower_lifecycle_versions.rs",
+    "sha256": "4f80bd1f34217dd1e0e5b9b0f33d35cdb82fc882086a6113af05f1efba56b514",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_lower_oracle_lifecycle.rs",
+    "sha256": "3e46516ec1741041fc8e588ee6b9e6a06b7ec176ea52b963eedebee6a23cc070",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_lower_property_lifecycle.rs",
+    "sha256": "c15365a2deeaf4446c04b51e1761d223c26913752c43fca6b7933445e7823f69",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_lower_send_commit.rs",
+    "sha256": "9fcc23d99bdfed1fa95c5ffa2ba11e195d3203b57aa9fc5eee116c6f1b8bc601",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_lower_spot.rs",
+    "sha256": "3563c2af4f4ddb814cf0aa13837f50d35e7ba20de8d8efed491e698735630295",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_lower_utxo_trade.rs",
+    "sha256": "3a828c6c392e3665b1e3aab95ac371e98b396ecede4cf381a6d52e698e411788",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_main_callable.rs",
+    "sha256": "62b1c1e12b0965d0e28504701003dbd966f1913a8981005fdd31c5064a83f920",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_main_callable_versions.rs",
+    "sha256": "5e6ffa3f647c8108cb5eb65a92100a8bae19a32b54eff78ea85ee3d0b8511375",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_main_lower_callable.rs",
+    "sha256": "9ec1e3e37245f268b39a3d5fe4bafd670ec36042c1c53048a963c07d76dc92e4",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_main_spot_callable.rs",
+    "sha256": "b98ed526da4b9d73a103f94ca16774e645bc7c6a529df72c13b4519883020fbf",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_main_token_threshold.rs",
+    "sha256": "c083f123cfce829dc6a9161ad35ea78edf25f8fed1ef993ffb29798631ce8056",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_main_transfer_continuations.rs",
+    "sha256": "8df826b2736d4f85fa50497603fb43fe6cb184225f335197b0478b6b6377f2a2",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_main_transfer_schedule.rs",
+    "sha256": "700d5493af0d6697951bc29186dcaa664603db6d39ad29128e64cf191755191d",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_main_upper_callable.rs",
+    "sha256": "5066b9dc6dd71e6c31132cb374fbb3eefe385d39205386ce28554a7c6dacd8ee",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_main_withdrawal_schedule.rs",
+    "sha256": "affcdad578d04310aa8a095c61242571b076f591e9a9777048f72d90201f04af",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_option_adjustment_failures.rs",
+    "sha256": "a476e389e3b7f2e5abb7b151d3ddb2ab11486f987019b0b277ebcadc5dbb97d1",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_option_indexes.rs",
+    "sha256": "a7219d9065961e30a9fd4054255e88d224a32668c1daf01a9ce074d6d48258ef",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_option_lifecycle_versions.rs",
+    "sha256": "add008520187c69cfd496a3b2d17ed635e18a060e677472fb6f5b25b2ee05dfd",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_option_trade.rs",
+    "sha256": "ab1d1794f0a4dc5351caf70a690b7ec778a4b79353f23a67298d95460b0b9d2e",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_procedural_bitvm.rs",
+    "sha256": "299dd9d0725730ff09efb439b4b4fb452b87ce44e6abec2efd282db1ab47a7d1",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_proof_lifecycle.rs",
+    "sha256": "2317cf98cc39fd93a788382ebb8092c2aff4e378d858ddc9a157fdf0f4e4dcde",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_proof_lifecycle_versions.rs",
+    "sha256": "d71135490c4c3ba8ce4df0bdde88227d82c86b344c7135c8aaa4c9b27db668c9",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_recent_lifecycle_transition_witness.rs",
+    "sha256": "9e5138674533b2eed31981e00c14945a773d851e8fd8ec6122fdb4b7ca65cbdc",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_spot_lifecycle_versions.rs",
+    "sha256": "3725ed2fc1bc69777070798a5e7d9aaf1eb9f23275df82af980653dff674ce73",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_synthetic_lifecycle.rs",
+    "sha256": "9d2fb8ebd39491eafed3ffc83a13ba6f873f32ab64e685cab530568f8c25b6df",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_tail_lifecycle.rs",
+    "sha256": "d637a59169e8f82562a5be6c38d1e2143fbc5a8be563b9c751798315b18775d2",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_transition_witness.rs",
+    "sha256": "265589ebef46dc6e13f2e8c06b3cd5e49e8dd5090c89c72744b0cafd6fc94039",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/source_txindex_owner.rs",
+    "sha256": "4067b78bb075b27670e9f8fdcf0e18c9e4c6413876c1a228d4ad69f9b9b0e719",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/spot_chain.rs",
+    "sha256": "bd6aee20f10ff0e784c37d1914479ad71833ba2b91e6cc00ac6beb7a9ea23177",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/spot_clearing_one_ledger.rs",
+    "sha256": "bd003f648ca4ea6c6e800ea21fbb76a1d0f4cda6918847387374ae058399c2b4",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/spot_exchange.rs",
+    "sha256": "025158094d9bfa62cba471cbb4b6159a78eb931472e232d74e79eceaffa661ab",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/stage8d_fused_dependency.rs",
+    "sha256": "9ed25b22e48d3641085e2f4167a68dc46ca3d3fa73fd9ec44ec726deacb5efa3",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/stage8d_one_team.rs",
+    "sha256": "9bd8ca32dd7d606e177f7b865c6ef2cde93e03dce7e5da2fea5ac5f84473c680",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/state_commitment.rs",
+    "sha256": "7135289a2d276370b7fab8cecfa077d5a7f1ca8bc7dca6a87f3399ca2e271d87",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/state_oracle.rs",
+    "sha256": "9059e9b2274fcef78df8f90862aca7337786923b3a235637b85a1dcbcce47fd3",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/storage.rs",
+    "sha256": "ec9d2b1619b2eca3f64640f39185be76f8e9bb0964bf1d2015fd009ee3ad25db",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/storage_adversarial.rs",
+    "sha256": "08599c08b2ff94229e35ff9e175dbfb0916621f9f5e6c6aa6a88a04dcb04745b",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/support/native_fixture.rs",
+    "sha256": "49b93c9392260d30e3c327964b32f1f2185f211a864f2a9a9be6d1af27ca3dee",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/support/signed_channel_fixture.rs",
+    "sha256": "2ab59aff82a13d9207910d946672071f527772f600563e98cde6be2ef076149d",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/tally.rs",
+    "sha256": "5cc48cff6e6a06aee6bd7da71bf8da31d61af6f571310063b45fff5f9e8ec404",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/test_bitcoin_core_rpc_stream.py",
+    "sha256": "ce820b96c4d237ee76221f5f8b9980e96a2fed4d8e00282eb0f90b9716f1637c",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/test_collect_litecoin_rpc.py",
+    "sha256": "058fe554721faeb0fed1e7507c5b6bcca541497381773d3b9fcbe33fee7ed02d",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/test_compare_legacy.cjs",
+    "sha256": "d9bf094373bb150f12d72c9d7ef1d2d628585a39f77243acc8a80fdb92988b8a",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/test_litecoin_source_trace.py",
+    "sha256": "5241340b7842a5381b8e07d45c8eaaf5d7603dc6164b3951cf5ee16c881c5d1f",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/test_rust_supply_chain.py",
+    "sha256": "aaab673496a81c6507b5245d6687a5ff877d1bddcd94bc62fd9e7059eb1a542d",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/test_tlzk_export.py",
+    "sha256": "fb2db303375fdb5dab2e10de5a1b27ad4cfe0edbc887075c6ab848991e74da3e",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/trade_history.rs",
+    "sha256": "eab890fccde6f28047241362395fb3c70bd6b99a50325e6831f13c81a771cf2d",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/tx_parser_review.rs",
+    "sha256": "0819f3dab4ccb9dbca2ea2f53161ea1c0a81387b1512cd045b67641365937ae7",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/txindex_hash_fastpath.rs",
+    "sha256": "b516f667004d489316af9f8aa995c0863a5b6861b2f57ffd4bc2fe62413fb823",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/txindex_scheduler_review.rs",
+    "sha256": "4ca9b963c07ae62b77611f85111b3b1fd52a7a27b2464bd08647e29d264de89e",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/types_economic.rs",
+    "sha256": "d44917855ef95b265cccef1640c0cd85df83fa73fc4137fab7effd397822fb67",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/types_source.rs",
+    "sha256": "4211e825a2ca7f9c40e1eec04ab39ebea5d92701be606b6f66de6e1aa4e28b19",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/unified_chain.rs",
+    "sha256": "e896bd5f5a5fa908e88dbc633f8096a260851afb05151d5c18714b07d048a081",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/v1_vectors.rs",
+    "sha256": "5669ff98f1008fc5262541cce46d72e73a14cf5e85dead63ed1284f2a16e2de7",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/validity_source.rs",
+    "sha256": "fc21a89e5fe78f69c9a89966fff501a4f32b238746de6b52b57b8b525e96d46f",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/vaults.rs",
+    "sha256": "d0e26b50152ae8c999e918de9d775c404b02af16ef9660bec10b621cfcff0085",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/vesting.rs",
+    "sha256": "88fe7e884308db677554f32e1dd12ac33ddc0557110c21fee44104c4f60d627c",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/volume_index.rs",
+    "sha256": "487c7c1ce769ba306a6bea82d677a8414b59be6d597a54ec2d3ad8a9152628d3",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/wire_fixtures.rs",
+    "sha256": "9c6555925c435a2c83dd54a4f6358e60e846bf7137c398d4d593e5fab1487ddb",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/wire_roundtrip.rs",
+    "sha256": "f08faf736060b433430118417c9b3160b9f71e54e98b2031694fed3671676f34",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/withdrawal_parity.rs",
+    "sha256": "5f71a53acb8bb6df57d0248f6ce8d07825a0a786dab81b132781ded3f65b0da4",
+    "lfNormalized": false
+  },
+  {
+    "path": "tests/zk_batch.rs",
+    "sha256": "857b2f7fcff68f18d9352a50b7de3fed50cea9dfaf027621e9f09d750555d453",
+    "lfNormalized": false
+  }
+]

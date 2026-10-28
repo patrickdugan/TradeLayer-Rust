@@ -1,0 +1,17 @@
+{
+  "policy": "SpotLifecycleV9",
+  "compiledCommit": "b02a0454e4da34c4c167b50f93dc579bda9e75ec",
+  "compiler": "Rust1.90.0 MSVC",
+  "profile": "release",
+  "commands": 25,
+  "bytes": 213311,
+  "head": "e24ea3920f53c6ca574ba683c9adf6f0e8c57166dcc23e8a663ce6b66db07966",
+  "fixtureSha256": "c2f53b7215b0b723aebdd912f7b1769ad04dd194ad554387efd81a35ace2ebd8",
+  "releaseLibrarySha256": "511750970f9c3c95a35c4ebe30f38bdc1a2dcbb73abafd4b6bb29475abde8b60",
+  "generatorSha256": "5404dc3f596e146b3a505034c8417efde4e3ff5b044959f4c1acc169a47d92f6",
+  "implementationInputs": 831,
+  "frozenInputHash": "3aba1dffa1623a59898f4fdaa33e1c588f093ab1f31d246c6b4a42b8398129fe",
+  "capturedAtUtc": "2026-10-28T12:22:57.0728282Z",
+  "exhaustivePolicyCeiling": 9,
+  "scope": "First ten actual Main spot source-comparison calls over declared constructor inputs, followed by future raw0/raw10 and Logic activation/AMM capability refusals. Canonical restoration was checked using this actual independently copied V9 release library before V10 edits. Inputs are not authenticated."
+}

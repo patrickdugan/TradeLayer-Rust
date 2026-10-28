@@ -1,0 +1,175 @@
+{
+  "schema": "source-spot-main-validation-v1",
+  "verifiedAtUtc": "2026-10-28T12:28:29Z",
+  "compiledCommit": "b02a0454e4da34c4c167b50f93dc579bda9e75ec",
+  "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "runtimePolicy": "SpotLifecycleV9",
+  "defaultRuntimePolicy": "GlobalClearingV2",
+  "rustVersion": "1.90.0 MSVC",
+  "nodeVersion": "24.22.1",
+  "passedTestExecutions": 1502,
+  "topLevelTests": 1501,
+  "subprocessTestPasses": 1,
+  "executableTargets": 226,
+  "newRustTests": 26,
+  "releaseAllTargetsBuiltAndTested": true,
+  "allTargetClippyPassed": true,
+  "numericReference": {
+    "archived": "genuine9.3.1",
+    "locked": "genuine9.1.2 SHA-verified source constructor",
+    "lockedRustTests": 151,
+    "lockedTargets": 56
+  },
+  "mainKinds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35
+  ],
+  "newSourceEvidence": {
+    "upperAvailableCalls": 109,
+    "upperLocalRefusals": 2,
+    "transferContinuationCalls": 68,
+    "thresholdFailureCalls": 20,
+    "withdrawalFailureCalls": 12,
+    "sourceRegenerationChecks": 29
+  },
+  "conditionalWitness": {
+    "profile": "TLSW3",
+    "policies": [
+      7,
+      8
+    ],
+    "sourceSlices": 314,
+    "mainEvidenceKinds": [
+      18,
+      32
+    ],
+    "V9Admitted": false,
+    "oldTLSW1TLSW2Unchanged": true
+  },
+  "replay": {
+    "version": 9,
+    "independentV8ReleaseBytesVerified": true,
+    "newV9Fixture": {
+      "policy": "SpotLifecycleV9",
+      "compiledCommit": "b02a0454e4da34c4c167b50f93dc579bda9e75ec",
+      "compiler": "Rust1.90.0 MSVC",
+      "profile": "release",
+      "commands": 25,
+      "bytes": 213311,
+      "head": "e24ea3920f53c6ca574ba683c9adf6f0e8c57166dcc23e8a663ce6b66db07966",
+      "fixtureSha256": "c2f53b7215b0b723aebdd912f7b1769ad04dd194ad554387efd81a35ace2ebd8",
+      "releaseLibrarySha256": "511750970f9c3c95a35c4ebe30f38bdc1a2dcbb73abafd4b6bb29475abde8b60",
+      "generatorSha256": "5404dc3f596e146b3a505034c8417efde4e3ff5b044959f4c1acc169a47d92f6",
+      "implementationInputs": 831,
+      "frozenInputHash": "3aba1dffa1623a59898f4fdaa33e1c588f093ab1f31d246c6b4a42b8398129fe",
+      "capturedAtUtc": "2026-10-28T12:22:57.0728282Z",
+      "exhaustivePolicyCeiling": 9,
+      "scope": "First ten actual Main spot source-comparison calls over declared constructor inputs, followed by future raw0/raw10 and Logic activation/AMM capability refusals. Canonical restoration was checked using this actual independently copied V9 release library before V10 edits. Inputs are not authenticated."
+    }
+  },
+  "implementationInputsAtBuild": 831,
+  "frozenInputHash": "3aba1dffa1623a59898f4fdaa33e1c588f093ab1f31d246c6b4a42b8398129fe",
+  "frozenInputScope": "Exact build/test working files at compiledCommit; subsequent evidence/inventory metadata commits are separate from the verified source implementation.",
+  "thirdPartyRustCrates": 0,
+  "supplyMutationTests": 11,
+  "bitcoinCoreBridgePythonTests": 10,
+  "fullReferenceParityEstablished": false,
+  "completeBlockFraudProof": false,
+  "authenticationEstablished": false,
+  "remainingGates": [
+    "activation raw0/bootstrap and mixed native schedules",
+    "raw10 AMM capital/quotes and combined Main graph",
+    "full startup/block begin/end/persistence/index catchup/reorg composition",
+    "continuous source replay and compact production indexing integration",
+    "representative block CPU/RSS benchmarks and production publication limits",
+    "authenticated actor/chain/UTXO/script admission and historical evidence",
+    "V9/newer conditional witness profiles and complete per-type/block fraud proofs",
+    "deferred oracle-abuse exercise with the separate UTXORef consumer"
+  ],
+  "logs": {
+    "v9-release-full.log": {
+      "bytes": 186494,
+      "sha256": "5dcf820a5ad2910d2568a7c04ee93d5ca5172c62cf8fa007ceb501f72d26a684"
+    },
+    "v9-locked-reference.log": {
+      "bytes": 29588,
+      "sha256": "89e5ca2435113683bb728a2384c8256fb8040737fcd28ca0d9557404d16627a3"
+    },
+    "v9-release-doctest.log": {
+      "bytes": 211,
+      "sha256": "90bc8f6e614f37096fe989cd5da48e5fae4b81c0db63540bf2e9114bbd3d713f"
+    },
+    "v9-locked-preloader.log": {
+      "bytes": 95,
+      "sha256": "45dcbbe6dce81aa39447f73ca189ff78101e648a464e75319f31fd91293e6aad"
+    },
+    "v9-final-clippy.log": {
+      "bytes": 170,
+      "sha256": "05a500d16444ed484428498aee4258e2389856222909e17ab5e3930d935d73ae"
+    },
+    "v9-final-format.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "v9-final-includes-format.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "v9-upper-and-witness-compatibility.log": {
+      "bytes": 9717,
+      "sha256": "7b775b72bdf6b5e52d453377abd5874535135ebf3ef6d1b3fe83c4da2f57b049"
+    },
+    "v9-final-failure-prefix-gates.log": {
+      "bytes": 8612,
+      "sha256": "60b1a4560741c0b50efb9eec5b11352ef1704ac191af759c806e62f4a515749f"
+    },
+    "v9-node-final-evidence.json": {
+      "bytes": 9085,
+      "sha256": "89b7fc9201b45ede2c321653ac32b7c8d1d34c9dbb1cc8ebf83fd54004201c97"
+    },
+    "v9-supply-policy.log": {
+      "bytes": 89,
+      "sha256": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01"
+    },
+    "v9-supply-mutations.log": {
+      "bytes": 1650,
+      "sha256": "924e451b8bc0dc07077e96e44d8f9008eb4e62c6b3034ffc4641b3fb274c606b"
+    },
+    "v9-bitcoin-core-bridge.log": {
+      "bytes": 1498,
+      "sha256": "6d7b9fbf07b1bcf9efd6b5e18994450ad1ea00d66a5f264dd310f31bc84cf285"
+    }
+  }
+}
