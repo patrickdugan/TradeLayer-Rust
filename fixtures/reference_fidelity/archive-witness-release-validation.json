@@ -4,7 +4,7 @@
   "sha256": "a82936bdfc6e63ae7d5a3cc86fb04e2f40ef8728e0ebf5a5f6a4285175f4f9f5",
   "bytes": 60372154,
   "inputFiles": 1247,
-  "inputManifestSHA256": "f961f0df122ba73c46bbe5c4421ec6ebcd1757d7d910869f42377a447cb206f9",
+  "inputManifestSHA256": "41a6b4c97c7cd1c24c14415776fe2a236e14c7a2002d0f9929950744fafcff9d",
   "scope": "actual complete release/locked suites passed; not broad historical parity or chain/actor authentication",
   "schema": "tl-full-release-verification-v1",
   "releaseExecutions": 1641,
@@ -83,5 +83,7 @@
   "retainedFailedAttempt": {
     "sha256": "74e770c0610ad434e6200c0e65c489b537096295227352a6a5ec006e863fa835",
     "reason": "Loopback connections blocked. Same frozen code passed all11 client tests and full rerun with local test access."
-  }
+  },
+  "frozenExecutionManifestSHA256": "f961f0df122ba73c46bbe5c4421ec6ebcd1757d7d910869f42377a447cb206f9",
+  "inputManifestEncoding": "Canonical LF JSON; per-file hashes retain exact tested Windows worktree bytes. Frozen execution digest separately records the original manifest framing."
 }
