@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-28T09:43:36Z",
-  "inspectedCheckoutCommit": "d24478e5dc6e40d413aa5ff5257ff686d2e8e41d",
+  "verifiedAtUtc": "2026-10-28T12:00:56Z",
+  "inspectedCheckoutCommit": "b02a0454e4da34c4c167b50f93dc579bda9e75ec",
   "verifiedImplementationCommit": "7e5d5eac05a15f682b9f258080cede44ab9f7a18",
   "verifiedReleaseTests": 1476,
   "topLevelTests": 1475,
@@ -14,21 +14,22 @@
   "completeBlockFraudProofEstablished": false,
   "authenticationEstablished": false,
   "candidateChecks": {
-    "spotV9": {
-      "status": "focused-checks-passed-uncommitted",
-      "tests": 7,
+    "spotAndUpperV9": {
+      "status": "committed-focused-checks-passed-release-running",
+      "newRustTests": 26,
+      "mainKinds": 34,
+      "sourceRegenerationChecks": 29,
       "fullSuitePromotion": false
     },
     "recentLifecycleWitnessTLSW3": {
-      "status": "focused-checks-passed-before-upper-candidate",
+      "status": "focused-checks-passed",
       "tests": 12,
-      "fullSuitePromotion": false
-    },
-    "upperMain": {
-      "status": "one-failing-differential-test",
-      "passed": 6,
-      "failed": 1,
-      "failure": "type22 asynchronous DB ordering mismatch, observed as effect kind db versus database"
+      "policies": [
+        7,
+        8
+      ],
+      "sourceSlices": 314,
+      "V9Admitted": false
     },
     "activationV10": {
       "status": "staged-not-executed-in-root"
@@ -41,24 +42,28 @@
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
-      "bytes": 181638,
-      "sha256": "3735a15d8530c9bf7ac99ef6e43c0465858b32587a18f58537ac550b3365ff4e"
+      "sha256": "3735a15d8530c9bf7ac99ef6e43c0465858b32587a18f58537ac550b3365ff4e",
+      "bytes": 181638
     },
     "v8-main-lower-locked-reference.log": {
-      "bytes": 21365,
-      "sha256": "b2f2199cc509142e5c23e0d9602d8d4f063ab557db228e00dc89f07f30569eb9"
+      "sha256": "b2f2199cc509142e5c23e0d9602d8d4f063ab557db228e00dc89f07f30569eb9",
+      "bytes": 21365
     },
-    "v9-spot-lf-rerun.log": {
-      "bytes": 1506,
-      "sha256": "f94b73b8c90b1a1ae32d2f2ed0afb64c6bda529b49d6b6cb7632bd464abb35a2"
+    "v9-upper-and-witness-compatibility.log": {
+      "sha256": "7b775b72bdf6b5e52d453377abd5874535135ebf3ef6d1b3fe83c4da2f57b049",
+      "bytes": 9717
     },
-    "v9-recent-focused.log": {
-      "bytes": 5989,
-      "sha256": "9a5775c688b17fb84f33a9381bf39df12e68bfb1d815f362a09c83711e522705"
+    "v9-final-failure-prefix-gates.log": {
+      "sha256": "60b1a4560741c0b50efb9eec5b11352ef1704ac191af759c806e62f4a515749f",
+      "bytes": 8612
     },
-    "v9-main-upper-focused.log": {
-      "bytes": 2323,
-      "sha256": "f041bf39dfa29b502eb0402029fc309f6ec05ae344c8b663cd742fac906bbed9"
+    "v9-final-clippy.log": {
+      "sha256": "05a500d16444ed484428498aee4258e2389856222909e17ab5e3930d935d73ae",
+      "bytes": 170
+    },
+    "v9-node-final-evidence.json": {
+      "sha256": "89b7fc9201b45ede2c321653ac32b7c8d1d34c9dbb1cc8ebf83fd54004201c97",
+      "bytes": 9085
     }
   },
   "workerArtifacts": {
@@ -71,7 +76,7 @@
       "sha256": "6c60fc765b2cad389bbd4481f1fc0eb0932d50b70823446e5646179d923bae00"
     }
   },
-  "workbookNote": "V8 full baseline: 1,476 release tests and 111 locked-reference tests. V9 spot: 7 focused tests passed. TLSW3: 12 focused tests passed before upper candidate. Upper Main: 6/7 passed; type22 asynchronous DB ordering mismatch under review. Activation and AMM: staged, Rust checks pending. Oracle-abuse/UTXORef mock deferred. Authentication and full-block proofs remain open.",
+  "workbookNote": "V8 baseline: 1,476 release tests and 111 locked-reference tests. Committed V9 b02a045 admits 34/36 Main kinds; 26 new focused Rust tests, 29 original-source regeneration checks and all-target Clippy passed. Full V9 release/locked checks are running. TLSW3 covers selected V7/V8 slices and refuses V9. Activation/AMM remain staged. Authentication, production continuation and complete block proofs remain open.",
   "savedWorkbook": {
     "path": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\outputs\\completeness-6b9c6c5f\\TradeLayer-completeness.xlsx",
     "sha256": "d79b54333495d41ea00fdde5b25015e781003bff85cf4782d46dede2c4271ffd"
