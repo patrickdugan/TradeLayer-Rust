@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
   "verifiedAtUtc": "2026-10-28T16:17:14Z",
-  "inspectedCheckoutCommit": "31ee8f4a3fc8996f410282028b4150a3cff01003",
+  "inspectedCheckoutCommit": "ec85c79dd646564dad024f8d8c0c35ad5eb3035e",
   "verifiedImplementationCommit": "31ee8f4a3fc8996f410282028b4150a3cff01003",
   "verifiedReleaseTests": 1597,
   "topLevelTests": 1596,
@@ -95,28 +95,42 @@
       "coveredByReleaseCommit": "31ee8f4a3fc8996f410282028b4150a3cff01003"
     },
     "TLSW4Staged": {
-      "status": "work-only-not-Root-integrated",
+      "status": "Root-integrated-focused-validation-passed",
       "manifestSHA256": "5e2b5c7fc43b8e9ddb19ce30f034792bac240a9947913122ef8a97d2388bd379",
       "fullSuitePromotion": false,
-      "authenticationEstablished": false
+      "authenticationEstablished": false,
+      "RootTests": 10
     },
     "TLSW4StrictGuardStaged": {
-      "status": "work-only-not-Root-integrated",
+      "status": "Root-integrated-focused-validation-passed",
       "manifestSHA256": "65c84799fc235494c509723a08e10bc971c9881e0d04a23b0d8235749f4fb6f2",
       "fullSuitePromotion": false,
-      "authenticationEstablished": false
+      "authenticationEstablished": false,
+      "RootTests": 3
     },
     "BIP141Staged": {
-      "status": "work-only-not-Root-integrated",
+      "status": "Root-integrated-focused-validation-passed",
       "manifestSHA256": "bcac039400ccc5076d71acb5d36bdfae22618e9207faaae54f1bc6b178f0b539",
       "fullSuitePromotion": false,
-      "authenticationEstablished": false
+      "authenticationEstablished": false,
+      "RootTests": 3
     },
     "P2WSHStaged": {
-      "status": "work-only-not-Root-integrated",
+      "status": "Root-integrated-focused-validation-passed",
       "manifestSHA256": "fd355397049e648b0a5da5eb5041327331c62603291c9b8fe402f3d724fcb279",
       "fullSuitePromotion": false,
-      "authenticationEstablished": false
+      "authenticationEstablished": false,
+      "RootTests": 3
+    },
+    "sharedOwnerV11": {
+      "status": "Root-focused-validation-passed",
+      "focusedExecutions": 67,
+      "newRegressionTests": 26,
+      "mixedFrames": 80,
+      "mixedMainCalls": 64,
+      "mixedTypes": 23,
+      "fullSuitePromotion": false,
+      "record": "fixtures/reference_fidelity/shared-owner-witness-focused.json"
     }
   },
   "scope": "Existing release suites passed at31ee8f4. The known mixed-history state/Consensus defect, historical parity, production integration, complete block proofs and authentication remain open.",
@@ -280,11 +294,12 @@
   "workbookVerification": "Exact sidebar/saved table hashes agree; metadata-only edits; cached formulas, table filters, row and column layout, panes and zero-error checks passed.",
   "validationRecord": "fixtures/reference_fidelity/source-spot-main-validation.json",
   "knownReferenceGaps": [
-    "Mixed Main history can leave Core.tables/Core.rows orderBooks stale while Queue has the authoritative rows; Consensus.stateConsensusHash is affected. Correction is staged outside Root and not included in this release."
+    "The31ee8f4 full release retains the mixed Queue/Core/Consensus defect. Its current correction passes focused integration including the complete23-type mixed corpus, but has not passed the new full release suite. Broader source/historical parity remains open."
   ],
   "previousFullSuiteBaseline": {
     "commit": "b02a0454e4da34c4c167b50f93dc579bda9e75ec",
     "releaseExecutions": 1502,
     "exactNumericReferenceTests": 151
-  }
+  },
+  "focusedValidationRecord": "fixtures/reference_fidelity/shared-owner-witness-focused.json"
 }

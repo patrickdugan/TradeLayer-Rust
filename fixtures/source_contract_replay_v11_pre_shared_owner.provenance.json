@@ -1,0 +1,11 @@
+{
+  "kind": "UNPROMOTED actual pre-owner V11 debug checkpoint; REJECTION fixture",
+  "providerSHA256": "60ec139e80f8991ab1c065c55f7244f6b38c8f54d849d68ebd5a684e7f9d7c8a",
+  "commands": 2,
+  "bytes": 1081,
+  "head": "580de1a03edf5b96799428f661b496ae557edd5542e41c155eb4103ef5ca0834",
+  "sha256": "0d80de1b3548a576745d1ecca75b175c3a3c65fe1c174a81ceb682dcc38777b4",
+  "oldOutcome": "generic DB read returned[] despite one Queue row",
+  "correctedExpectation": "ReplayMismatch; no relabel or silent expected-head replacement",
+  "releaseClaim": false
+}

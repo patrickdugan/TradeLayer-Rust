@@ -1,0 +1,571 @@
+{
+  "schema": "tl-shared-owner-witness-focused-v1",
+  "recordedAtUtc": "2026-10-28T17:32:11Z",
+  "codeParent": "ec85c79dd646564dad024f8d8c0c35ad5eb3035e",
+  "status": "focused-validation-passed-full-release-pending",
+  "fullSuiteBaseline": {
+    "commit": "31ee8f4a3fc8996f410282028b4150a3cff01003",
+    "releaseExecutions": 1597,
+    "topLevelTests": 1596,
+    "subprocessChecks": 1,
+    "lockedNumericReferenceTests": 198
+  },
+  "focusedExecutions": 67,
+  "newRegressionTests": 26,
+  "compatibilityRun": {
+    "sha256": "15f388494cc8e0590108ea5bc2b1bddc9e9084d5b2d7aff65d5756459fae3b12",
+    "bytes": 11807,
+    "executions": 66,
+    "targets": 19
+  },
+  "mixedRootRun": {
+    "sha256": "3bf689564b15caf3efab20fd35a7ef32291c88e8c2a23c040f76ed3295973a0e",
+    "bytes": 317,
+    "executions": 1,
+    "targets": 1,
+    "providerSHA256": "a19118368cf9ccd4ee6e14b36df0f775b4cc0c6ba345eafa9bfcb5f3ecc55c7a",
+    "seconds": 393.69,
+    "scope": "80 frames, 64 Main calls, 23 types; outcomes, ordered effects, exact table inventory/rows, receiver/alias state and replay every accepted boundary",
+    "provenance": "This statically linked run predates the equivalent pure Boolean Clippy simplification. The later 66-test compatibility run uses the final code."
+  },
+  "sourceRegenerationAndPins": {
+    "schema": "tl-shared-proof-source-checks-v1",
+    "includeFormatFiles": 96,
+    "checks": [
+      {
+        "name": "shared-0",
+        "command": [
+          "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+          "scripts/shared_orderbook_vectors.cjs",
+          "--check"
+        ],
+        "exitCode": 0,
+        "seconds": 0.297,
+        "log": "shared-proof-source-final-shared-0.log",
+        "sha256": "244189d796afc7a709618367c3a8432acdf5934d9960c1432520e6f45e601a5d",
+        "bytes": 269
+      },
+      {
+        "name": "shared-1",
+        "command": [
+          "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+          "scripts/shared_orderbook_vectors.cjs",
+          "--lock",
+          "--check"
+        ],
+        "exitCode": 0,
+        "seconds": 0.297,
+        "log": "shared-proof-source-final-shared-1.log",
+        "sha256": "244189d796afc7a709618367c3a8432acdf5934d9960c1432520e6f45e601a5d",
+        "bytes": 269
+      },
+      {
+        "name": "mixed-0",
+        "command": [
+          "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+          "scripts/main_mixed_vectors.cjs",
+          "--check"
+        ],
+        "exitCode": 0,
+        "seconds": 4.031,
+        "log": "shared-proof-source-final-mixed-0.log",
+        "sha256": "c436d935869968d739be6a1035af3401e0418c419933cc82834c231801fe394b",
+        "bytes": 232449
+      },
+      {
+        "name": "mixed-1",
+        "command": [
+          "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+          "scripts/main_mixed_vectors.cjs",
+          "--lock",
+          "--check"
+        ],
+        "exitCode": 0,
+        "seconds": 4.031,
+        "log": "shared-proof-source-final-mixed-1.log",
+        "sha256": "c436d935869968d739be6a1035af3401e0418c419933cc82834c231801fe394b",
+        "bytes": 232449
+      },
+      {
+        "name": "mixed-2",
+        "command": [
+          "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+          "scripts/main_mixed_vectors.cjs",
+          "--proof10",
+          "--check"
+        ],
+        "exitCode": 0,
+        "seconds": 0.625,
+        "log": "shared-proof-source-final-mixed-2.log",
+        "sha256": "026b5e1dd87593690e1ff21a33af02e54ac98954930dc913168d32ee7d85e2b0",
+        "bytes": 28732
+      },
+      {
+        "name": "mixed-3",
+        "command": [
+          "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+          "scripts/main_mixed_vectors.cjs",
+          "--proof10",
+          "--lock",
+          "--check"
+        ],
+        "exitCode": 0,
+        "seconds": 0.625,
+        "log": "shared-proof-source-final-mixed-3.log",
+        "sha256": "026b5e1dd87593690e1ff21a33af02e54ac98954930dc913168d32ee7d85e2b0",
+        "bytes": 28732
+      },
+      {
+        "name": "project-inputs",
+        "command": [
+          "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "scripts/source_full_dispatch_main_inputs.py",
+          "--check"
+        ],
+        "exitCode": 0,
+        "seconds": 0.516,
+        "log": "shared-proof-source-final-project-inputs.log",
+        "sha256": "3ac249be4be3c9b1f547ffd44105b68b03391b947a5c5291f57716a644c58270",
+        "bytes": 1374
+      },
+      {
+        "name": "command-pins",
+        "command": [
+          "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+          "scripts/full_dispatch_witness_command_pins.cjs"
+        ],
+        "exitCode": 0,
+        "seconds": 0.047,
+        "log": "shared-proof-source-final-command-pins.log",
+        "sha256": "fcf02f5b8d9fcf8d09b367b7314bd43bf2fe06e5a645d6cd8cc348c085860543",
+        "bytes": 598
+      },
+      {
+        "name": "supply-chain",
+        "command": [
+          "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "scripts/check_rust_supply_chain.py"
+        ],
+        "exitCode": 0,
+        "seconds": 1.61,
+        "log": "shared-proof-source-final-supply-chain.log",
+        "sha256": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01",
+        "bytes": 89
+      },
+      {
+        "name": "supply-chain-tests",
+        "command": [
+          "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-p",
+          "test_rust_supply_chain.py",
+          "-v"
+        ],
+        "exitCode": 0,
+        "seconds": 0.469,
+        "log": "shared-proof-source-final-supply-chain-tests.log",
+        "sha256": "e645f3e5800edc0931a5e37d9b47a90eabc44ce0e323e1472804a50077a135d7",
+        "bytes": 1650
+      },
+      {
+        "name": "cargo-fmt",
+        "command": [
+          "C:\\Users\\patri\\.rustup\\toolchains\\1.90.0-x86_64-pc-windows-msvc\\bin\\cargo.exe",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "exitCode": 0,
+        "seconds": 3.125,
+        "log": "shared-proof-source-final-cargo-fmt.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "name": "include-fmt",
+        "command": [
+          "C:\\Users\\patri\\.rustup\\toolchains\\1.90.0-x86_64-pc-windows-msvc\\bin\\rustfmt.exe",
+          "--check",
+          "--edition",
+          "2021",
+          "src/clearing_distress_impl.rs",
+          "src/clearing_partial_impl.rs",
+          "src/clearing_snapshot_impl.rs",
+          "src/contract_channel_queue_source_impl.rs",
+          "src/contract_orderbook_liquidation_impl.rs",
+          "src/economic_amm_impl.rs",
+          "src/economic_amm_replay_impl.rs",
+          "src/economic_block_stage_impl.rs",
+          "src/economic_consensus_impl.rs",
+          "src/economic_contract_impl.rs",
+          "src/economic_funding_impl.rs",
+          "src/economic_insurance_impl.rs",
+          "src/economic_insurance_snapshot_impl.rs",
+          "src/economic_liquidation_impl.rs",
+          "src/economic_liquidation_replay_impl.rs",
+          "src/economic_mark_impl.rs",
+          "src/economic_native_impl.rs",
+          "src/economic_snapshot_impl.rs",
+          "src/economic_source_catalog_impl.rs",
+          "src/economic_source_catalog_snapshot_impl.rs",
+          "src/economic_source_oracle_impl.rs",
+          "src/economic_source_send_impl.rs",
+          "src/execution_channel_revisions_impl.rs",
+          "src/execution_snapshot_impl.rs",
+          "src/iou_ledger_snapshot_impl.rs",
+          "src/iou_snapshot_impl.rs",
+          "src/joint_chain_native_impl.rs",
+          "src/joint_economic_impl.rs",
+          "src/joint_native_impl.rs",
+          "src/joint_snapshot_impl.rs",
+          "src/ledger_channel_revisions_impl.rs",
+          "src/ledger_channels_impl.rs",
+          "src/ledger_native_impl.rs",
+          "src/ledger_settlement_impl.rs",
+          "src/litecoin_mweb_structure_impl.rs",
+          "src/litecoin_transparent_impl.rs",
+          "src/margin_option_index_source_impl.rs",
+          "src/registry_snapshot_impl.rs",
+          "src/rpc_http_impl.rs",
+          "src/rpc_json_impl.rs",
+          "src/source_activation_hash_impl.rs",
+          "src/source_activation_lifecycle_impl.rs",
+          "src/source_amm_lifecycle_impl.rs",
+          "src/source_amm_quote_impl.rs",
+          "src/source_amm_remaining_impl.rs",
+          "src/source_channel_financial_impl.rs",
+          "src/source_channel_logic_impl.rs",
+          "src/source_channel_volume_impl.rs",
+          "src/source_clearing_expiry_impl.rs",
+          "src/source_clearing_funding_impl.rs",
+          "src/source_clearing_global_impl.rs",
+          "src/source_clearing_liquidation_impl.rs",
+          "src/source_clearing_mark_settlement_impl.rs",
+          "src/source_clearing_supply_impl.rs",
+          "src/source_contract_accounting_impl.rs",
+          "src/source_contract_aux_impl.rs",
+          "src/source_contract_fee_impl.rs",
+          "src/source_contract_history_schedule_impl.rs",
+          "src/source_contract_oracle_impl.rs",
+          "src/source_contract_position_identity_impl.rs",
+          "src/source_contract_registry_lifecycle_impl.rs",
+          "src/source_derivative_exercise_impl.rs",
+          "src/source_distribution_lifecycle_impl.rs",
+          "src/source_durable_replay_impl.rs",
+          "src/source_durable_replay_tests.rs",
+          "src/source_full_dispatch_transition_witness_impl.rs",
+          "src/source_insurance_legacy_v1_impl.rs",
+          "src/source_insurance_lifecycle_impl.rs",
+          "src/source_iou_settlement_impl.rs",
+          "src/source_lifecycle_transition_witness_impl.rs",
+          "src/source_liquidity_rewards_impl.rs",
+          "src/source_lower_clearlist_impl.rs",
+          "src/source_lower_oracle_lifecycle_impl.rs",
+          "src/source_lower_property_lifecycle_impl.rs",
+          "src/source_lower_send_commit_impl.rs",
+          "src/source_lower_utxo_trade_impl.rs",
+          "src/source_main_callable_impl.rs",
+          "src/source_option_trade_impl.rs",
+          "src/source_procedural_bitvm_impl.rs",
+          "src/source_proof_lifecycle_impl.rs",
+          "src/source_proof_settlement_impl.rs",
+          "src/source_recent_lifecycle_transition_witness_impl.rs",
+          "src/source_spot_lifecycle_impl.rs",
+          "src/source_spot_matching_impl.rs",
+          "src/source_spot_queue_fragments_impl.rs",
+          "src/source_spot_schedule_impl.rs",
+          "src/source_synthetic_lifecycle_impl.rs",
+          "src/source_tail_lifecycle_impl.rs",
+          "src/source_token_channel_schedule_impl.rs",
+          "src/source_transfer_schedule_impl.rs",
+          "src/source_transition_witness_impl.rs",
+          "src/source_withdrawal_schedule_impl.rs",
+          "src/spot_native_impl.rs",
+          "src/spot_snapshot_impl.rs",
+          "src/trade_history_position_impl.rs",
+          "src/volume_index_source_impl.rs"
+        ],
+        "exitCode": 0,
+        "seconds": 0.937,
+        "log": "shared-proof-source-final-include-fmt.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    ]
+  },
+  "resolvedCheckFailures": [
+    {
+      "log": "shared-proof-bitcoin-clippy.log",
+      "sha256": "2da2b3c35a953d93c6581fa0008ecbf3b53649469abb37c1df3ca7e880f80116",
+      "bytes": 2208,
+      "resolution": "Equivalent pure Boolean simplification; all-target Clippy rerun passes."
+    },
+    {
+      "log": "shared-proof-source-supply-chain-tests.log",
+      "sha256": "72c4b9b46591f1ec03c6bb99d81b296359f10fcd402adb78772cb73bd24d95a2",
+      "bytes": 36928,
+      "resolution": "Use a writable task-local TEMP/TMP directory. No repository test or policy changed; all 11 supply-chain tests pass."
+    }
+  ],
+  "finalClippy": {
+    "sha256": "2174b95f45f35e28c798c7914e2135aec1196026193cb8cc586bd4776c1b2f34",
+    "bytes": 182
+  },
+  "finalSupplyChainTests": {
+    "sha256": "a6136d1f3486ff3eb44ef99f323a9316f4bb611e9bafdadc29f2adfb1d4f76ee",
+    "bytes": 1650
+  },
+  "sharedOwner": {
+    "policy": 11,
+    "soleOrderBooksRowOwner": "Queue",
+    "coreSlot": "insertion-order metadata only",
+    "nativeThrownPrefixesValidated": true,
+    "oldUnpromotedV11Checkpoint": "explicit-ReplayMismatch-rejection",
+    "olderPolicies": "V1-V10 preserved in targeted compatibility checks"
+  },
+  "TLSW4": {
+    "rootTests": 10,
+    "projectionGuardTests": 3,
+    "selectedWitnesses": 38,
+    "routedKinds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35
+    ],
+    "policies": [
+      9,
+      10,
+      11
+    ],
+    "mainCalls": 240,
+    "propertySupportCalls": 32,
+    "historyLimit": 4096,
+    "durableSegmentedHistory": false,
+    "tableEnumerationCompletenessEstablished": false
+  },
+  "BIP141": {
+    "rootTests": 3,
+    "referenceCases": 23,
+    "binding": "raw supplied block witness commitment; independent expected header/context remain required"
+  },
+  "P2WSH": {
+    "rootTests": 3,
+    "genuineCoreCases": 57,
+    "template": "native 2-of-2, SIGHASH_ALL, exact pre-Taproot profile",
+    "wholeTransactionValidation": false
+  },
+  "remainingGates": [
+    "New batch full release and exact numeric-reference promotion",
+    "Broader historical/coercion/event-loop source parity",
+    "Segmented durable-history witnesses",
+    "Complete block coverage and independent authenticated chain/actor/UTXO inputs",
+    "Production services, catchup/reorg and scale/throughput/RSS evidence"
+  ],
+  "fullReferenceParityEstablished": false,
+  "authenticationEstablished": false,
+  "completeBlockFraudProofEstablished": false,
+  "changedInputPins": {
+    ".gitattributes": {
+      "sha256": "ddcce10085d64836f0a92b3f36411b3daade8c3da9cd46d176716a3a8b1e4459",
+      "bytes": 12381
+    },
+    ".github/workflows/ci.yml": {
+      "sha256": "74dda4d6f2ef2b4fadc571267d7132158abb90a3e3aac048872c6a7fb82789fb",
+      "bytes": 37711
+    },
+    "docs/BITCOIN_P2WSH_VERIFY.md": {
+      "sha256": "3b41c7af749eccca44cb1f7798271d019ef68d88c534c45aca6215a1deaa3388",
+      "bytes": 8337
+    },
+    "docs/BITCOIN_WITNESS_BINDING.md": {
+      "sha256": "ce819de5578229b88bdb0a54fffb803ec53eec39fc7d356287d690afa7dfc111",
+      "bytes": 6460
+    },
+    "docs/SOURCE_FULL_DISPATCH_TRANSITION_WITNESS.md": {
+      "sha256": "d49b501deb02324fe04f991cbe843a9f0fb56922c56818272fdc252e4bc82e62",
+      "bytes": 5413
+    },
+    "docs/SOURCE_MAIN_MIXED_INTEGRATION.md": {
+      "sha256": "bbd40787fec6491cabd3cd285fe812706c8c93c9105c77ba561e43801fa696d2",
+      "bytes": 2496
+    },
+    "docs/SOURCE_SHARED_ORDERBOOK_V11.md": {
+      "sha256": "807368c25626313c3f73436cc5d3ffe00520756821bbe669f1cb1517e6cd0c3a",
+      "bytes": 3126
+    },
+    "docs/SOURCE_WITNESS_PROJECTION_GUARD.md": {
+      "sha256": "ddb184aa9f8459d573ea66dc67a4e3be6efd8da6c3c23fa94be0459c710faee4",
+      "bytes": 3312
+    },
+    "fixtures/bitcoin_p2wsh_verify.tsv": {
+      "sha256": "e9f04203bd394e143eb751a1f0634240b8bae8e15da9823c29ab52651e8c057d",
+      "bytes": 49841
+    },
+    "fixtures/bitcoin_witness_binding.tsv": {
+      "sha256": "aafe688452c2a6b013344eceb396c93bc91a63181cae21a00c64f1fa317ca9f9",
+      "bytes": 20128
+    },
+    "fixtures/main_mixed_inventory.json": {
+      "sha256": "4a75cfd06bca3f15640d9a01252adfc263e2ce7ccca091605c1cd7fb8ad99cfb",
+      "bytes": 324193
+    },
+    "fixtures/main_mixed_proof10.jsonl": {
+      "sha256": "14c54893447b9b94f4b90e9b08092fe2aae6b6809f2a531ea27afbf60694a0f3",
+      "bytes": 2088685
+    },
+    "fixtures/main_mixed_vectors.jsonl": {
+      "sha256": "352f423294c3da7c1a28aaa5fb76de86a79b16c4ac79c8937135280ceb272dfa",
+      "bytes": 28736112
+    },
+    "fixtures/mixed04_initial_tlsw4.bin": {
+      "sha256": "f1d2e47f66556d779a3f496971c4e48fa6c495970608e480cb54978eec2f9894",
+      "bytes": 1004721
+    },
+    "fixtures/shared_orderbook_vectors.jsonl": {
+      "sha256": "c08325f43f1553d5140ccfb7a5732306a2dd663fa57de6b933f2b1f04c3fb444",
+      "bytes": 47041
+    },
+    "fixtures/source_contract_replay_v11_pre_shared_owner.bin": {
+      "sha256": "0d80de1b3548a576745d1ecca75b175c3a3c65fe1c174a81ceb682dcc38777b4",
+      "bytes": 1081
+    },
+    "fixtures/source_contract_replay_v11_pre_shared_owner.provenance.json": {
+      "sha256": "eddd30a7a80d263bf841e21e06b1e962f34402567de89b689a44fc2eedc9babf",
+      "bytes": 560
+    },
+    "fixtures/source_full_dispatch_main_inputs.jsonl": {
+      "sha256": "cd07c1940a986bc83bcc20040e4c1622023bd76a128a57ce480db95faedfdf58",
+      "bytes": 891216
+    },
+    "fixtures/source_full_dispatch_main_inventory.json": {
+      "sha256": "c49aad693ad3a0bddee242910dad11566584f26b44f65b78ce3914d88b26aded",
+      "bytes": 1715
+    },
+    "fixtures/source_full_dispatch_mixed_prefix.jsonl": {
+      "sha256": "04ac71886fb1957102ef5d293a0bea4c479ed6f830b15d8f855ab865cc700448",
+      "bytes": 26053
+    },
+    "fixtures/source_witness_projection_provenance.json": {
+      "sha256": "b04fccee97f5a1d9950fb7eebd4f819f7750ada08fea4a306662b288b374841b",
+      "bytes": 1476
+    },
+    "scripts/ci-preflight.sh": {
+      "sha256": "df9daa4f6838e97f7b94655443cf9a01e98164f2c0fec5fe875e425a13dfaa61",
+      "bytes": 4250
+    },
+    "scripts/full_dispatch_witness_command_pins.cjs": {
+      "sha256": "644dd0c6d09b088efd8944061094aa83904aa669c30525ecdd8d95a15b674118",
+      "bytes": 1193
+    },
+    "scripts/main_mixed_observer.cjs": {
+      "sha256": "55ee16287d13b14ff2f96954101c00f38c113ba71b23619c5509435603edcc23",
+      "bytes": 4984
+    },
+    "scripts/main_mixed_vectors.cjs": {
+      "sha256": "7e3d41d44a9b074eb58f3f31100cc1f866b541c447b6bda4be5e74c525dd1d3f",
+      "bytes": 39816
+    },
+    "scripts/shared_orderbook_vectors.cjs": {
+      "sha256": "995abb3e27f2f28e60f92292f356ebb85dac4a6ea3e6edb93f2944509fd53755",
+      "bytes": 13280
+    },
+    "scripts/source_full_dispatch_main_inputs.py": {
+      "sha256": "5fe6f433c73ddf218da86f401d196f0d39ccd2969eb7a2f06e7d44e5e647427b",
+      "bytes": 9045
+    },
+    "src/bitcoin_p2wsh_verify.rs": {
+      "sha256": "c8493be83bbf26c66038ec0c37307125c3b8cd5b2e198051afa2fc8e58b246ca",
+      "bytes": 8357
+    },
+    "src/bitcoin_witness_binding.rs": {
+      "sha256": "b328b584e1b9811e3ee655c1adef6e49f4aeb670b22759a0c75b13be6ccb2a7f",
+      "bytes": 8952
+    },
+    "src/contract_queue_source_owner.rs": {
+      "sha256": "6b5e9b5e26d71ec632f73ce2ff0345cab8a9ff0bb327532bf950a932380dee81",
+      "bytes": 60831
+    },
+    "src/lib.rs": {
+      "sha256": "a2e6d2ce7b71cf038e40a77dbf2d6e79034c70fa59259a12fc301478d7408dd8",
+      "bytes": 13211
+    },
+    "src/source_contract_replay.rs": {
+      "sha256": "128fdae25b5728735190332475463e0f64125e1f624a9b9c43e7406bfd32111f",
+      "bytes": 30848
+    },
+    "src/source_contract_runtime.rs": {
+      "sha256": "90b55ea0faaa4f01d95dc9109278a7cb827a3e74d363a5622e146f67a0acba3a",
+      "bytes": 108989
+    },
+    "src/source_full_dispatch_transition_witness_impl.rs": {
+      "sha256": "92ee6151c233ee8c268c59fd40582e020ac0eb75b37a9f978f5600e964c6b2d2",
+      "bytes": 31848
+    },
+    "tests/bitcoin_p2wsh_verify.rs": {
+      "sha256": "72d8100f71666e1893b817af1759d43168c930a3a8ad26a4b1bc2bb35bc6484b",
+      "bytes": 6945
+    },
+    "tests/bitcoin_witness_binding.rs": {
+      "sha256": "c44026da0bdd90f854d48c856992dfd8502e17c5262a402df352f57712828906",
+      "bytes": 7382
+    },
+    "tests/source_full_dispatch_transition_witness.rs": {
+      "sha256": "db978f7e0393f733f43c8fbb1f98a68d8026c409b5be13cb9cb6024dc0609660",
+      "bytes": 27344
+    },
+    "tests/source_main_mixed_blocks.rs": {
+      "sha256": "b5f4a67b9dbd28f547f131f38ecfda1cf77f98fc4e0a2e46cd6c68743c250617",
+      "bytes": 26889
+    },
+    "tests/source_shared_orderbook.rs": {
+      "sha256": "4026b770761d9574729310d422eaa16708c3277a1d405e7439cfa7eb08844a42",
+      "bytes": 11013
+    },
+    "tests/source_shared_orderbook_versions.rs": {
+      "sha256": "671349335ea21577de64248f0805e0d7784f91adc53abf5faca86886af400a21",
+      "bytes": 1036
+    },
+    "tests/source_witness_projection_guard.rs": {
+      "sha256": "44744f720f8e7862ec33f9d3365fdeac882f6ba81af43a79b7be997b9734e9c0",
+      "bytes": 7358
+    }
+  }
+}

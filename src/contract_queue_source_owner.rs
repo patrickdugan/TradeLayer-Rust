@@ -812,6 +812,27 @@ impl ContractQueueSourceOwner {
     pub fn rows(&self) -> &[V] {
         &self.rows
     }
+    // Internal V11 shared-storage bridge. No new fields, codec, public method
+    // admission or legacy Queue execution path is changed.
+    pub(crate) fn source_storage_rows_mut(&mut self) -> &mut Vec<V> {
+        &mut self.rows
+    }
+    pub(crate) fn source_storage_failure(&mut self, operation: &str) -> Option<SourceException> {
+        let index = self
+            .failures
+            .iter()
+            .position(|f| f.operation == operation)?;
+        if self.failures[index].skip == 0 {
+            Some(self.failures.remove(index).exception)
+        } else {
+            self.failures[index].skip -= 1;
+            None
+        }
+    }
+    pub(crate) fn source_storage_validate(&self) -> Result<(), SourceRuleError> {
+        self.checkpoint().map(|_| ())
+    }
+
     pub fn import_rows(&mut self, rows: Vec<V>) -> Result<(), SourceRuleError> {
         validate_rows(&rows)?;
         let mut next = self.clone();

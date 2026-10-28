@@ -162,7 +162,17 @@ impl SourceContractRuntime {
     /// Import complete persisted source collections, not supplied rule outcomes.
     pub fn import_collection(&mut self, name: &str, rows: Vec<V>) -> Result<(), SourceRuleError> {
         if name == "orderBooks" {
-            self.queue.import_rows(rows)
+            if self.core.amm_lifecycle_enabled()
+                && self.core.tables.len() >= MAX_TABLES
+                && !self.core.tables.iter().any(|table| table.name == name)
+            {
+                return Err(SourceRuleError::Capacity);
+            }
+            self.queue.import_rows(rows)?;
+            if self.core.amm_lifecycle_enabled() {
+                self.core.source_shared_orderbook_slot()?;
+            }
+            Ok(())
         } else {
             self.core.import(name, rows)
         }
@@ -217,7 +227,13 @@ impl SourceContractRuntime {
         ) {
             return Err(SourceRuleError::InvalidInput);
         }
-        if failure.collection == "orderBooks" {
+        if failure.collection == "orderBooks"
+            && (!self.core.amm_lifecycle_enabled()
+                || matches!(
+                    failure.operation.as_str(),
+                    "getDatabase" | "findOneAsync" | "updateAsync" | "loadDatabase"
+                ))
+        {
             self.queue.fail_database_call(QueueDbFailure {
                 operation: failure.operation,
                 skip: failure.skip,
@@ -257,7 +273,18 @@ impl SourceContractRuntime {
                     self.core
                         .tables
                         .iter()
-                        .map(|t| obj(&[("name", s(&t.name)), ("rows", V::Array(t.rows.clone()))]))
+                        .map(|t| {
+                            let rows =
+                                if self.core.amm_lifecycle_enabled() && t.name == "orderBooks" {
+                                    self.core
+                                        .queue_context
+                                        .as_ref()
+                                        .map_or(self.queue.rows(), |queue| queue.rows())
+                                } else {
+                                    &t.rows
+                                };
+                            obj(&[("name", s(&t.name)), ("rows", V::Array(rows.to_vec()))])
+                        })
                         .collect(),
                 ),
             ),
@@ -870,13 +897,40 @@ impl ContractCore {
                 | SourceContractRuntimePolicy::ActivationLifecycleV10
         )) || self.amm_lifecycle_enabled()
     }
+    fn source_shared_orderbook_slot(&mut self) -> Result<(), SourceRuleError> {
+        if !self.tables.iter().any(|table| table.name == "orderBooks") {
+            if self.tables.len() >= MAX_TABLES {
+                return Err(SourceRuleError::Capacity);
+            }
+            // Insertion-order metadata only. The Queue is the sole row store.
+            self.tables.push(Table {
+                name: "orderBooks".into(),
+                rows: vec![],
+            });
+        }
+        Ok(())
+    }
     fn rows(&self, name: &str) -> &[V] {
+        if self.amm_lifecycle_enabled() && name == "orderBooks" {
+            return self
+                .queue_context
+                .as_ref()
+                .map_or(&[], |queue| queue.rows());
+        }
         self.tables
             .iter()
             .find(|t| t.name == name)
             .map_or(&[], |t| t.rows.as_slice())
     }
     fn table(&mut self, name: &str) -> R<&mut Vec<V>> {
+        if self.amm_lifecycle_enabled() && name == "orderBooks" {
+            self.source_shared_orderbook_slot()?;
+            return Ok(self
+                .queue_context
+                .as_mut()
+                .ok_or(SourceRuleError::UnknownDependency)?
+                .source_storage_rows_mut());
+        }
         if let Some(i) = self.tables.iter().position(|t| t.name == name) {
             return Ok(&mut self.tables[i].rows);
         };
@@ -912,6 +966,16 @@ impl ContractCore {
         }
     }
     fn check_failure(&mut self, collection: &str, operation: &str) -> R<()> {
+        if self.amm_lifecycle_enabled() && collection == "orderBooks" {
+            if let Some(error) = self
+                .queue_context
+                .as_mut()
+                .ok_or(SourceRuleError::UnknownDependency)?
+                .source_storage_failure(operation)
+            {
+                return Err(Fault::Thrown(error));
+            }
+        }
         if let Some(i) = self
             .failures
             .iter()
@@ -1232,6 +1296,18 @@ impl ContractCore {
                 _ => Err(SourceRuleError::UnknownDependency.into()),
             }
         })();
+        let result = if self.amm_lifecycle_enabled()
+            && name == "orderBooks"
+            && matches!(&result, Ok(_) | Err(Fault::Thrown(_)))
+        {
+            self.queue_context
+                .as_ref()
+                .ok_or(SourceRuleError::UnknownDependency)?
+                .source_storage_validate()?;
+            result
+        } else {
+            result
+        };
         let result = result.and_then(|v| self.storage_clone(&v));
         let short = op.strip_suffix("Async").unwrap_or(op);
         let mut event = obj(&[
@@ -2287,6 +2363,15 @@ impl ContractCore {
             match detailed {
                 Ok(events) => {
                     for event in events {
+                        if self.amm_lifecycle_enabled()
+                            && event.get("kind") == s("db")
+                            && event.get("collection") == s("orderBooks")
+                            && matches!(event.get("method"),V::String(method)if ["findOneAsync","updateAsync"].contains(&method.as_str()))
+                            && matches!(&event,V::Object(fields)if fields.iter().any(|(key,_)|key=="returned"))
+                            && self.source_shared_orderbook_slot().is_err()
+                        {
+                            self.effects_exhausted = true;
+                        }
                         self.emit(event);
                     }
                 }

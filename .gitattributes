@@ -211,3 +211,20 @@ fixtures/witness_hybrid_block_453.json text eol=lf
 fixtures/witness_hybrid_envelope.hex text eol=lf
 fixtures/witness_hybrid_envelope.json text eol=lf
 fixtures/litecoin_kernel_hash_vectors.json text eol=lf
+
+# Source-owner, conditional-witness and Bitcoin input verification fixtures.
+fixtures/shared_orderbook_vectors.jsonl text eol=lf
+fixtures/source_contract_replay_v11_pre_shared_owner.bin -text
+fixtures/source_contract_replay_v11_pre_shared_owner.provenance.json text eol=lf
+fixtures/source_full_dispatch_main_inputs.jsonl text eol=lf
+fixtures/source_full_dispatch_main_inventory.json text eol=lf
+fixtures/source_full_dispatch_mixed_prefix.jsonl text eol=lf
+fixtures/mixed04_initial_tlsw4.bin -text
+fixtures/source_witness_projection_provenance.json text eol=lf
+fixtures/bitcoin_witness_binding.tsv text eol=lf
+fixtures/bitcoin_p2wsh_verify.tsv text eol=lf
+
+# Exact shared-state Main corpus.
+fixtures/main_mixed_vectors.jsonl text eol=lf
+fixtures/main_mixed_proof10.jsonl text eol=lf
+fixtures/main_mixed_inventory.json text eol=lf

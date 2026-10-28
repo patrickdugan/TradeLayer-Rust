@@ -204,3 +204,7 @@ pub mod blake3;
 pub mod compact_candidate_snapshot;
 pub mod litecoin_scrypt;
 pub mod native_entitlement;
+
+pub mod bitcoin_witness_binding;
+
+pub mod bitcoin_p2wsh_verify;

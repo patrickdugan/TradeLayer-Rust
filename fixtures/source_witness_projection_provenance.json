@@ -1,0 +1,24 @@
+{
+  "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "providerSha256": "60ec139e80f8991ab1c065c55f7244f6b38c8f54d849d68ebd5a684e7f9d7c8a",
+  "initialManifestSha256": "5e2b5c7fc43b8e9ddb19ce30f034792bac240a9947913122ef8a97d2388bd379",
+  "initialWitnessSha256": "f1d2e47f66556d779a3f496971c4e48fa6c495970608e480cb54978eec2f9894",
+  "mixedSource": {
+    "sourcePath": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\next-main-mixed-integration\\fixtures\\main_mixed_vectors.jsonl",
+    "sourceSha256": "352f423294c3da7c1a28aaa5fb76de86a79b16c4ac79c8937135280ceb272dfa",
+    "projectedSha256": "04ac71886fb1957102ef5d293a0bea4c479ed6f830b15d8f855ab865cc700448",
+    "MainCalls": 4,
+    "rule": "initial reset tables and explicit profiles only; source poststate orderBooks is expected comparison, never supplied input"
+  },
+  "baselineWitness": "actually produced and verified by frozen initial TLSW4 on same provider, then rejected by strict guard with all pins/checksums matching",
+  "scope": "each enumerated table only; not completeness of table enumeration",
+  "sourceExpectedPoststateUsage": "comparison only, never financial seed input",
+  "audit": {
+    "actualMainCalls": 240,
+    "actualPropertySeedCalls": 32,
+    "selectedWitnessesAccepted": 38,
+    "selectedWitnessesRefused": 0,
+    "mixedFourthCall": "refused InconsistentStateProjection(orderBooks)",
+    "correctedProviderPositiveBranch": "unexecuted; pending Main worker engine fix"
+  }
+}

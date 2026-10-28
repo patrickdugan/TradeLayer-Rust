@@ -752,6 +752,7 @@ fn encoded_entry_size(command: &[u8], outcome: &[u8], effects: &[V]) -> Result<u
 include!("source_transition_witness_impl.rs");
 include!("source_lifecycle_transition_witness_impl.rs");
 include!("source_recent_lifecycle_transition_witness_impl.rs");
+include!("source_full_dispatch_transition_witness_impl.rs");
 
 /// Bounded archive segments over the same live source owner.
 pub mod source_durable {

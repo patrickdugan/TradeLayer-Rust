@@ -1,0 +1,32 @@
+# Complete-block Bitcoin witness relation
+
+The existing block reader verifies canonical transaction boundaries, the requested SHA256d header identifier and the header's TXID Merkle root. Those checks leave witness bytes unbound: changing a witness does not change the transaction's TXID. This module adds the missing BIP141 relation over the same complete, immutable borrowed block.
+
+The caller supplies an expected display-order header identifier, parent identifier and declared witness rule. The checker reverses identifiers only when comparing to wire bytes, performs a fresh existing block preindex and TXID Merkle check, requires one first-position coinbase, and recomputes all actual wtxids. With `SegwitActive`, it selects the highest matching coinbase commitment output, accepts optional trailing script bytes, requires one 32-byte coinbase witness reserved value and compares SHA256d(witness-root || reserved-value). The coinbase witness-tree leaf is zero. With no commitment, witness data is rejected. `NoWitness` corresponds to Core's `expect_witness_commitment=false`: commitment-like legacy outputs are ignored and witnesses are rejected.
+
+The returned relation borrows the original block and exposes its exact transaction slices. There is no supplied preindex, actor, Script verdict or financial result. All four authority checks continue to refuse. This module adds no trusted adapter, follower capability, Ledger owner, policy version, replay format or state mutation. Default V2 and V1–V11 behavior are untouched.
+
+## Independently pinned source evidence
+
+- [BIP141 commitment structure](https://github.com/bitcoin/bips/blob/5aadddb511a5dcfe4599531bd8ae5e5b96d0f793/bip-0141.mediawiki), Git blob `442d9dd8bfc9816414ebc129dacd7e462f5d8c8a`.
+- [Bitcoin Core v29.0 CheckWitnessMalleation](https://github.com/bitcoin/bitcoin/blob/f490f5562d4b20857ef8d042c050763795fd43da/src/validation.cpp#L3998), Git blob `a1ac4e1e145f68f45adc9f1e814cedb609623888`.
+- [Core witness Merkle implementation](https://github.com/bitcoin/bitcoin/blob/f490f5562d4b20857ef8d042c050763795fd43da/src/consensus/merkle.cpp), Git blob `7dd24e1868f257417e265f697d33d8a270018afa`.
+- [Core published complete blocks](https://github.com/bitcoin/bitcoin/blob/f490f5562d4b20857ef8d042c050763795fd43da/src/test/data/blockfilters.json), Git blob `8945296a079b984d65b0aeb4a3e9b0798df075e0`.
+
+The genuine witness block is **testnet** height 1263442, display ID `000000006f27ddfe1dd680044a34548f41bed47eba9e6f0b310da21423bc5f33`. The genuine legacy block is testnet height 2, display ID `000000006c02c8ea6e4ff69651f7fcde348fb9d557a06e6957b65552002a7820`. These identifiers and parents are frozen from the original official fixture before constructing adversaries. They establish reproducible byte relationships; this test does not validate their historical difficulty, chain inclusion or activation.
+
+The independent Python stdlib oracle executes 23 deterministic cases, with 7 accepted and 16 rejected. It covers both official blocks, witness-only mutations, wrong retained header/parent, highest commitment selection, trailing bytes, coinbase-only zero leaf, malformed reserved stacks, absent/short/lookalike commitments, an additional coinbase, missing first coinbase and inactive-rule handling. Two mutations preserve the official block's complete header and every TXID, pass the existing raw block reader and fail the new witness relation. Removing only the commitment equality check causes that genuine-adversary test to fail. Three new Rust tests cover this corpus, immutable borrowing, malformed block boundaries and every authority refusal. The isolated harness also runs the two unchanged SHA tests.
+
+## Admission gates already present and still missing
+
+The existing `plan_dependency_waves` already rejects same-block ordering and double-spend inconsistencies. It explicitly counts external prevouts as unknown. Existing Stage25Q verifies both real strict ECDSA signatures over canonical revision transcripts; its current eight tests passed again against the immutable `60ec139e80f8991ab1c065c55f7244f6b38c8f54d849d68ebd5a684e7f9d7c8a` library. Stage25R already applies enrolled revisions through the sole Ledger owner with context checks and journaling. No second owner is introduced here.
+
+The read-only audit also inspected actual code from [PR137 at ab42b6c](https://github.com/patrickdugan/TradeLayer-Rust/blob/ab42b6c42075b70bd2f6cf215843a3b2747d6312/src/parent_utxo_snapshot.rs) and [PR138 at fe50d0c](https://github.com/patrickdugan/TradeLayer-Rust/blob/fe50d0cd71bfd99ff38b494a30e7b3224e0580c2/src/parent_funding_evidence.rs). They check exact external-prevout coverage and actual funding transaction output bytes respectively, while preserving explicit unauthenticated-state and unverified-Script refusals. Their code blobs are `910e9022592661382313d3269e2b2d83f5dfde7d` and `8ed63cadc729e4c733b92ffd265419ccda8db5f0`. Neither module converts a claimant-chosen checksum into a UTXO proof.
+
+Completing this byte relation does **not** complete Stage25Q/25R transaction admission. Remaining independently bound inputs are the actual active-chain/rule context, authenticated parent-UTXO inclusion and current unspentness, real transaction Script execution and all consensus conditions, and the exact authenticated L1-to-TradeLayer actor/funding mapping. A caller choosing its own expected header, parent or activation rule has supplied claims. Height is retained for context and is not proved. A matching hash does not grant authorization. Litecoin MWEB, Dogecoin AuxPoW and other chain-specific validation are outside this Bitcoin relation.
+
+## Integration and validation scope
+
+Add `pub mod bitcoin_witness_binding;` to the crate root and copy this module, its integration test and TSV fixture. The module reuses the existing private bounded transaction cursor and SHA256d implementation. No existing admission call site is enabled. Parent integration must run the actual current Core checks; isolated compilation linked the unchanged public reader from the immutable library above and copied only the existing private cursor module and SHA implementation for visibility. It did not rebuild Core.
+
+The frozen work-stage oracle, exact official source snapshots, remote audit snapshots, provenance, command logs and mutation control are retained alongside the root-ready payload. They are evidence of the stated scope, not a production chainstate or Script verifier.
