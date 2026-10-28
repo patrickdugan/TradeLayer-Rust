@@ -1,0 +1,347 @@
+{
+  "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "pins": {
+    "main": [
+      "native_genesis/source/main.js",
+      "006d59ba3d28d802b0e0c5be2d9d661b58caf1c919a704b3f0d40bc9613c4009"
+    ],
+    "txIndex": [
+      "legacy_txindex_source_txIndex.txt",
+      "095449d90f511df44aff7b316105f57d4c0508ea8fb0b6f9c4a5f358edf6ca51"
+    ],
+    "activation": [
+      "native_genesis/source/activation.js",
+      "268f08438eb80765587b8ce24d719f41de573648e108ef64df557faad870ea0e"
+    ],
+    "vaults": [
+      "legacy_vaults_source.txt",
+      "3dcf0554923864729bedcfc8244a06e4235d10a3241256eb3ba0a9d3d1534983"
+    ]
+  },
+  "referenceDriverSha256": "cb7af611bc3224057036fcbdb3ec6f13d1984b8402c306b99c5a1f55fb144c64",
+  "classes": {
+    "TxIndex": {
+      "sha256": "01dcd57e943046f5bb1dc7bc01efe6ea98e456be593ff91ddb5b4799072b257e",
+      "bytes": 19533,
+      "fullClass": true
+    },
+    "Main": {
+      "sha256": "cadcab37cf95dcc78d2258d12817c88fc6a01b9220c6cf18a25ddf68b43a7ea2",
+      "bytes": 39938,
+      "fullClass": true
+    }
+  },
+  "methods": {
+    "Main.constructor": {
+      "sha256": "cadcab37cf95dcc78d2258d12817c88fc6a01b9220c6cf18a25ddf68b43a7ea2",
+      "async": false
+    },
+    "Main.delay": {
+      "sha256": "60e77b8ed582884001ba86ebf7d0bf4893eb837b32eb765d24a15be04227ece4",
+      "async": true
+    },
+    "Main.initialize": {
+      "sha256": "ce51e848b36cdd96637983c04b10360815c5de418af0f13bb543b14c4b308cd1",
+      "async": true
+    },
+    "Main.getCurrentBlockHeight": {
+      "sha256": "372108cf7a8457fc6b3f3d3a178c61bdd2981b8858cc3cc4bbc11eac2418a39e",
+      "async": true
+    },
+    "Main.initOrLoadTxIndex": {
+      "sha256": "947398d773058ab8c0b5726e16d6823bfcda8d634a2a674d61b69c23f95b1090",
+      "async": true
+    },
+    "Main.syncIndex": {
+      "sha256": "090dd06b6b7e161a88b3ef8a2efe451c645f2d8db7684355f5a2cdf327af1be3",
+      "async": true
+    },
+    "Main.constructOrLoadConsensus": {
+      "sha256": "cf15a255b4f8ea5a166ff9c6818d8ebc4eca52dda7cf76fcb0904ab5024310bc",
+      "async": true
+    },
+    "Main.constructConsensusFromIndex": {
+      "sha256": "49d765706d2959d0d134b13951b4f8b56f5a21f0442c567a5e20add572272d2a",
+      "async": true
+    },
+    "Main.checkSync": {
+      "sha256": "3512685ad5c4cc7aa03866465ac0d9edac28b1a374e0960b7e31ef4eb1aadaa3",
+      "async": true
+    },
+    "Main.processTxSet": {
+      "sha256": "8e5b8f262824b636cbcef8c304d00304e363a447d309bc09a1f3386117a95e7c",
+      "async": true
+    },
+    "Main.processTx": {
+      "sha256": "3b0a52813e06d82cf6f8419abab9e15c91f287deb5a67873d67ca932f627a091",
+      "async": true
+    },
+    "Main.syncIfNecessary": {
+      "sha256": "4a357c68024399bd614c742b86efe13dd49f060c3dd87cf3529a6c9d54d413cd",
+      "async": true
+    },
+    "Main.setPause": {
+      "sha256": "bebb46d92bc138cdc8531842e040f07e4931845916b521de79f8c1786719741d",
+      "async": false
+    },
+    "Main.checkBlockLag": {
+      "sha256": "b8373bf562ab79fad7465f2ad98705e70630a729426b902646c3c336094aec8b",
+      "async": true
+    },
+    "Main.processIncomingBlocks": {
+      "sha256": "f23856d8da14a9978ccd4a7f181ace6c7e6582d216f429b5b9e9959522c682b8",
+      "async": true
+    },
+    "Main.checkNetworkStatus": {
+      "sha256": "d444b0b40fa4a678916373e0786735f85b364aaee9a361f0bcb26ccce672f0a5",
+      "async": true
+    },
+    "Main.enterRecoveryMode": {
+      "sha256": "af7c2dae860cb211c64190fca6093c3ee6270e22c166e763ca59ef1b69f966d1",
+      "async": true
+    },
+    "Main.processBlock": {
+      "sha256": "ca6d11798c366f4813bb60d7b397a25a195e8b3bf0f36efe6009dba59ec64753",
+      "async": true
+    },
+    "Main.shutdown": {
+      "sha256": "9ba4172df4ea0d835679614d05f70b6508fcdd3cdcb8e4595974f5b9953bfe6e",
+      "async": true
+    },
+    "Main.fetchWithRetry": {
+      "sha256": "ad1fac04da14f2ef6674f02cb5f55b9dfe746eef374bd4342fe80316dec3d038",
+      "async": true
+    },
+    "Main.blockHandlerBegin": {
+      "sha256": "9f66235294e7d1b6c5da544f6c3f41ac33d47fa21a313dbf31549f6de5247f94",
+      "async": true
+    },
+    "Main.blockHandlerMid": {
+      "sha256": "9f72101ef4ddbbaa01c440ae0819b23aeddcb25549c6eddf855706bc696b3a76",
+      "async": true
+    },
+    "Main.blockHandlerEnd": {
+      "sha256": "f2c702d9ac824378eea19b972cf7f752a8aa99c1904e9155de0152502bcf26ec",
+      "async": true
+    },
+    "Main.handleReorg": {
+      "sha256": "a2e53358b4f5d59eed38692420b041cd28811c8c6b7813681a4ae34d1ecb0aa9",
+      "async": true
+    },
+    "Main.saveMaxProcessedHeight": {
+      "sha256": "6b859c8cee024dc8aa8fbdfcadcd35a2a2867dd85a0f0e9d699df0990daec5f7",
+      "async": true
+    },
+    "Main.saveTrackHeight": {
+      "sha256": "23976327f45d1eb4042b814a140074b296a8a5654dfc78350ffce771842ee0cb",
+      "async": true
+    },
+    "Main.loadMaxProcessedHeight": {
+      "sha256": "c30d11ad7b86a173704393cb88b5144d9b925d223f198432b762d0f75cd0d318",
+      "async": true
+    },
+    "Main.loadTrackHeight": {
+      "sha256": "4716d92073f910a5c99b138ef8bf7bf02232364857238d6b592bcc8dec8f9d7f",
+      "async": true
+    },
+    "TxIndex.init": {
+      "sha256": "300af4e92958d36e68f3bd2c296b91060f73c6b4528e5ed024e91c4052b87c13",
+      "async": true
+    },
+    "TxIndex.getInstance": {
+      "sha256": "8bf6990696716776aaa563a231f212084d043c670af14550e16223eedf3bf86b",
+      "async": true
+    },
+    "TxIndex.initializeIndex": {
+      "sha256": "31aa6a45214f3c7000970afa2b1bbebb35b4be62dbb64c7b5a6c3d3487c170fb",
+      "async": true
+    },
+    "TxIndex.extractBlockData": {
+      "sha256": "a74199e2f25f00669202c134ed80450efd88d272fb6f220d2ad2d0f22f2a49f7",
+      "async": true
+    },
+    "TxIndex.saveMaxHeight": {
+      "sha256": "20f79f464df5c06747e4fccd33532fa1afa915704626fb5c57b139d079875efa",
+      "async": true
+    },
+    "TxIndex.fetchChainTip": {
+      "sha256": "83b57c4c32c0adbb6e4ad6ee7a70d606b0edbe473c630563cd0b87a7784ba650",
+      "async": true
+    },
+    "TxIndex.fetchBlockData": {
+      "sha256": "599dd160d0dfa97ca27bfc50e88bb5047d8ffc88a3c69371d834f51d1f76b508",
+      "async": true
+    },
+    "TxIndex.processBlockData": {
+      "sha256": "2351be6360c3bd5ee8aced6c10c30fd305241bcd1e8af45559cc90187f30e7e2",
+      "async": true
+    },
+    "TxIndex.fetchTransactionData": {
+      "sha256": "43a419526b96623969859c8b3d7ec05664c173def23329514baf86421197c8c8",
+      "async": true
+    },
+    "TxIndex.DecodeRawTransaction": {
+      "sha256": "e8b064a0661e965cb43cebed9a83711daf7ad5fe31919d20a1ea49427d8e3cf0",
+      "async": true
+    },
+    "TxIndex.isPrintableASCII": {
+      "sha256": "de13f6a968cd16829a303cdfd472addf3b2a31fe4950f78a88373e2f9974e726",
+      "async": false
+    },
+    "TxIndex.processTransaction": {
+      "sha256": "de6567f559bbe6762c0a8d560a26605928a4ddd04088b5a052913ffe09040456",
+      "async": true
+    },
+    "TxIndex.upsertTxValidityAndReason": {
+      "sha256": "7f84fa341dbbc091118ad3500cd90c8fb6c74c4b1906a8399d9d8fc9695fbcc9",
+      "async": true
+    },
+    "TxIndex.clearTxIndex": {
+      "sha256": "afe7f4f7e4b52a48585f817c7cf310cc23ffae45141e43233f47967b1f0decc9",
+      "async": true
+    },
+    "TxIndex.resetIndexFlag": {
+      "sha256": "e846a29ef748e3b4c95118b51eb30d8a82e9af0ea2466d2d11e71079df1e8752",
+      "async": true
+    },
+    "TxIndex.findMaxIndexedBlock": {
+      "sha256": "f7e34a4f2eecf3215982471c85776443f16ffbbca3057acecab11e10d8cfb1a9",
+      "async": true
+    },
+    "TxIndex.getTransactionData": {
+      "sha256": "1c8ce385297a956df69386e7ad4982f60899c6db838a695ab846e0abebfd4036",
+      "async": true
+    },
+    "TxIndex.checkForIndex": {
+      "sha256": "52bba21bf3743c70e70590f0e739347ba191252e22b24ac49e0dfed87fd48fd5",
+      "async": true
+    },
+    "Tally.flushQueuedFeeAccruals": {
+      "sha256": "9cef155e3ae687676fcd150ef963ba4dc5ffc186ce8277363b8bcbb73ab865c3",
+      "async": true
+    },
+    "Logic.settleLiquidityRewards": {
+      "sha256": "b817d692609213f5be57357d59c7e5acf853a58ccf2e2cc8c59806f08a9e1e1d",
+      "async": true
+    },
+    "Orderbook.processQueuedOnChainOrdersForBlock": {
+      "sha256": "07626f4f7cfe03dedb1baf18dcdb5e7f2bc5d40bf7eb69cac744bc8e56e62240",
+      "async": true
+    },
+    "Orderbook.processQueuedChannelTradesForBlock": {
+      "sha256": "37103ecf670b33a8f35364c00b40fa84e26cfe6e6169c91f08da9c79179bff15",
+      "async": true
+    },
+    "Channels.processWithdrawals": {
+      "sha256": "76dcb950acf3d0d5e7900cfee167ebb3b8dcc37e62197802e0ca8982c1340881",
+      "async": true
+    },
+    "Clearing.clearingFunction": {
+      "sha256": "3bad2ac9a12e0b147790410f383a7d321f615655b8d53e72bed9cceb170eca42",
+      "async": true
+    },
+    "Types.decodePayload": {
+      "sha256": "4eba9326414db0e41bdb71d053a182512dc575fc89ded011f1e6b3eb09c2ac38",
+      "async": true
+    }
+  },
+  "boundary": {
+    "fullMainImport": "declared unavailable ./reOrg.js; no imported module success supplied",
+    "callable": "byte-exact full Main and TxIndex classes; real constructors/prototypes; module startup IIFEs not executed",
+    "activation": "unchanged original Activation registry loaded from persisted rows; raw5/6 active at block1; no supplied Main validity answer",
+    "storage": "shared explicit source fixture DB adapter; anchored /^tx/ RegExp is genuine JS test; production NeDB equivalence not claimed",
+    "rpc": "explicit document capability executes unchanged original TxUtils getRawTransaction/getBlockHeight over input RPC transaction/block documents; no authentication or financial verdict; original constructor startup client boundary remains unavailable",
+    "observation": "original return plus finite drained turns; no generic event-loop equivalence",
+    "console": "ordinary console methods return undefined; source log argument evaluation remains original"
+  },
+  "inputLabels": {
+    "0d293a8c84d966c923401f61a6e66880b7c1635cfad93e6d37c2e80d4b6c7cf9": {
+      "label": "vanilla-buy",
+      "type": 5
+    },
+    "375c3747eb08a077d8776110a3bf34d0931b959c776d642e0352de8375d77e0b": {
+      "label": "vanilla-sell",
+      "type": 5
+    },
+    "106fae5e26a4ba42a6dc5070acbf24a465eb247a0f61b2718e0d7526b6ffe74e": {
+      "label": "cancel-plural",
+      "type": 6
+    },
+    "a26083c3da2adea248d9adb1678c223d61b38f7f8cfe4564dfc645ef611cf269": {
+      "label": "cancel-noop-trigger",
+      "type": 6
+    },
+    "83bbb86d209d6abf4f5377aec7d7a8953a5ba87aa58dd37ec89b8fbd6e5ebf18": {
+      "label": "cancel-all",
+      "type": 6
+    },
+    "c564f45dd659d4fec0d7a788936f6931dfaba41c9025d1a553cc10ddd63a5854": {
+      "label": "zero",
+      "type": 5
+    },
+    "b646cae7c9f36e81f232be4bf6d8e2991c84615cce720fa0b3c85d4fc2a22e10": {
+      "label": "stop-post",
+      "type": 5
+    },
+    "361ee4275ae8e3b5aa796203702d682b99e038146105ccb0028390761587afcf": {
+      "label": "same-property",
+      "type": 5
+    },
+    "7b354345e9d44e37f5dfb55c7ca27a9c986798cd075906292e16403e109af346": {
+      "label": "unmatched-live-order",
+      "type": 5
+    },
+    "5e32c0aba09307c97cdfa9015639dc66651cdaa67318a2f9b4520f4fcc493ea7": {
+      "label": "unmatched-live-cancel-all",
+      "type": 6
+    },
+    "0619af6998e7f6dfd6271f7599ce955a658a58ce8416871dc6ae7cca58f9c873": {
+      "label": "bound-vanilla-retry-trigger",
+      "type": 6
+    },
+    "1bb36e5c2c4230e64480c3a16d84217fc13a4059928cdb59691d411afa55bdda": {
+      "label": "historical-order-trigger",
+      "type": 6
+    },
+    "8d001417900bb9e751d1e98a6c39a5802fe3db3adae340fd45a2f46a27aa61b1": {
+      "label": "historical-fee-flush-trigger",
+      "type": 6
+    },
+    "3d7e57757c737de340b168b03df94b45bf21f65021fd1a06ff7566f1999cc286": {
+      "label": "cancel-book-write-failure",
+      "type": 6
+    },
+    "e8bb5f80db64669f10567a13f5ecc5961a6132d740cd083d3b724ea2b6011296": {
+      "label": "unbound-original-rpc",
+      "type": 5
+    }
+  },
+  "feeScene": {
+    "result": {
+      "transport": "PendingThrow",
+      "outcome": {
+        "thrown": {
+          "name": "TypeError",
+          "message": "ContractRegistry.isNativeContract is not a function"
+        }
+      }
+    },
+    "remainingBlocks": [
+      "10"
+    ],
+    "feeRows": [],
+    "phases": [
+      "Tally.flushQueuedFeeAccruals"
+    ]
+  },
+  "observations": 27,
+  "calls": 21,
+  "fixtureSha256": "fdd45a6e35a8935f75e5f9f98d7cfc0b06da467b8257463e820fb410baf007e2",
+  "proof10Sha256": "1773f9de772f390fdc0005ee35d60f2230ebcf8b4aaf87485dcdd1490aea9225",
+  "domains": {
+    "source-call": 20,
+    "unavailable-capability": 1,
+    "constructor-and-input": 6,
+    "explicit-input": 0
+  }
+}

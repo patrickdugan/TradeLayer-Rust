@@ -1314,6 +1314,14 @@ impl ContractQueueSourceOwner {
     fn load_book_status(&mut self, instance: u64, key: V, parsed_alias: &mut bool) -> Eval<V> {
         let key = text(&key)?;
         self.database()?;
+        self.source_load_book_after_factory(instance, key, parsed_alias)
+    }
+    fn source_load_book_after_factory(
+        &mut self,
+        instance: u64,
+        key: String,
+        parsed_alias: &mut bool,
+    ) -> Eval<V> {
         let result = (|| -> Eval<V> {
             let row = self.find(s(&key))?;
             let value = if truth(&row) {
@@ -1719,3 +1727,5 @@ fn sort_ready(rows: &mut [V]) -> Eval<()> {
     }
     Ok(())
 }
+
+include!("source_spot_queue_fragments_impl.rs");

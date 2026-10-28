@@ -106,6 +106,9 @@ impl ContractCore {
         if amount <= FeeDecimal::zero() {
             return Ok(V::Undefined);
         }
+        if self.spot_lifecycle_enabled() {
+            self.source_spot_fee_buffer_initialized = true;
+        }
         let bi = if let Some(i) = self
             .fee_buffer
             .iter()
@@ -145,6 +148,9 @@ impl ContractCore {
     fn source_flush_fees(&mut self, a: &[V]) -> R<V> {
         let resolved = self.source_fee_resolve_block(arg(a, 0))?;
         let key = text(&resolved)?;
+        if self.spot_lifecycle_enabled() {
+            self.source_spot_fee_buffer_initialized = true;
+        }
         let Some(i) = self
             .fee_buffer
             .iter()
@@ -167,6 +173,9 @@ impl ContractCore {
         Ok(V::Undefined)
     }
     fn source_flush_all_fees(&mut self) -> R<V> {
+        if self.spot_lifecycle_enabled() {
+            self.source_spot_fee_buffer_initialized = true;
+        }
         let mut keys = self
             .fee_buffer
             .iter()

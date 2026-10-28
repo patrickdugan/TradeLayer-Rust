@@ -1,4 +1,4 @@
-// MainCallableV8 only. One Core owns the actual collections, Tally and queues.
+// Callable Main source policies. One Core owns collections, Tally and queues.
 // This is a callable transaction/mid-phase profile, not daemon startup.
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct SourceMainHeightJob {
@@ -45,6 +45,9 @@ impl ContractCore {
         Ok(V::Undefined)
     }
     fn source_main_activation(&mut self, method: &str, a: &[V]) -> R<V> {
+        if self.source_token_threshold_enabled() && method == "areActivationsAboveThreshold" {
+            return self.source_token_threshold_begin(a);
+        }
         if ![
             "getAdmin",
             "getActivationBlock",
@@ -241,7 +244,20 @@ impl SourceContractRuntime {
         }
         self.core.main_activation_locked = true;
         let rejected_before = self.core.main_height_rejections.len();
+        let transfer_rejected_before = self.core.source_unhandled_rejections.len();
+        let spot_main = self.core.spot_lifecycle_enabled();
+        if spot_main {
+            self.source_spot_main_enter()?;
+        }
         let result = self.source_main_dispatch(call);
+        let result = if spot_main {
+            match self.source_spot_main_leave() {
+                Ok(()) => result,
+                Err(e) => Err(e),
+            }
+        } else {
+            result
+        };
         let result = match self.core.source_main_drain_height_job() {
             Ok(()) => result,
             Err(e) => Err(e),
@@ -255,6 +271,19 @@ impl SourceContractRuntime {
                     obj(&[("name", s(e.name)), ("message", s(e.message))]),
                 ),
             ]));
+        }
+        // Source un-awaited raw22 rejection notifications occur after Main's
+        // awaited work. Their exceptions already live in replay-bound source
+        // diagnostics; no suspended transfer job crosses this boundary.
+        if self.core.policy == SourceContractRuntimePolicy::SpotLifecycleV9 {
+            let new_rejections =
+                self.core.source_unhandled_rejections[transfer_rejected_before..].to_vec();
+            for error in new_rejections {
+                self.core.emit(obj(&[
+                    ("kind", s("unhandled-rejection")),
+                    ("thrown", error),
+                ]));
+            }
         }
         let result = if self.core.effects_exhausted {
             Err(SourceRuleError::Capacity.into())
@@ -386,10 +415,35 @@ impl SourceContractRuntime {
         // These kinds are exercised through actual-registry Main corpora,
         // including source-thrown prefixes; no success is inferred from a
         // standalone handler or a missing dependency.
-        if !matches!(
+        let inherited_kind = matches!(
             ty,
             Some(1 | 2 | 3 | 4 | 7 | 8 | 9 | 11 | 12 | 13 | 14 | 15 | 18 | 32)
-        ) {
+        );
+        let upper_kind = self.core.policy == SourceContractRuntimePolicy::SpotLifecycleV9
+            && matches!(
+                ty,
+                Some(
+                    16 | 17
+                        | 19
+                        | 20
+                        | 21
+                        | 22
+                        | 23
+                        | 24
+                        | 25
+                        | 26
+                        | 27
+                        | 28
+                        | 29
+                        | 30
+                        | 31
+                        | 33
+                        | 34
+                        | 35
+                )
+            );
+        let spot_kind = self.core.spot_lifecycle_enabled() && matches!(ty, Some(5 | 6));
+        if !(inherited_kind || upper_kind || spot_kind) {
             return Err(SourceRuleError::InvalidInput.into());
         }
         let sender = funding_prop(&value, "sender")?;
@@ -477,7 +531,7 @@ impl SourceContractRuntime {
             return Err(SourceRuleError::InvalidInput.into());
         }
         let reward_queue = self.core.source_liquidity_rewards_state().get("queue");
-        if !self.core.fee_buffer.is_empty()
+        if (!self.core.spot_lifecycle_enabled() && !self.core.fee_buffer.is_empty())
             || !matches!(reward_queue,V::Array(ref v)if v.is_empty())
         {
             return Err(SourceRuleError::UnknownDependency.into());

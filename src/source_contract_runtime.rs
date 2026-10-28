@@ -24,6 +24,7 @@ pub enum SourceContractRuntimePolicy {
     ProofLifecycleV6,
     LowerLifecycleV7,
     MainCallableV8,
+    SpotLifecycleV9,
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StorageFailure {
@@ -58,6 +59,8 @@ pub(crate) struct ContractCore {
     channel_balance_stage: u8,
     channel_save_writes: usize,
     channel_token_validation: bool,
+    source_token_threshold_reads: Vec<SourceTokenThresholdRead>,
+    source_main_withdrawal_save: Option<SourceMainWithdrawalSave>,
     channel_sufficiency_reads: Vec<bool>,
     channel_token_price_job: Option<SourceChannelTokenPriceJob>,
     tally_mod: V,
@@ -113,6 +116,9 @@ pub(crate) struct ContractCore {
     main_activation_locked: bool,
     main_height_job: Option<SourceMainHeightJob>,
     main_height_rejections: Vec<crate::validity_source::SourceException>,
+    source_spot_main_active: bool,
+    source_spot_orders_read: Option<SourceSpotOrdersReadJob>,
+    source_spot_fee_buffer_initialized: bool,
 }
 impl Default for SourceContractRuntime {
     fn default() -> Self {
@@ -366,7 +372,9 @@ impl SourceContractRuntime {
             set(
                 &mut value,
                 "runtimePolicy",
-                s(if self.core.main_callable_enabled() {
+                s(if self.core.spot_lifecycle_enabled() {
+                    "SpotLifecycleV9"
+                } else if self.core.main_callable_enabled() {
                     "MainCallableV8"
                 } else if self.core.lower_lifecycle_enabled() {
                     "LowerLifecycleV7"
@@ -458,6 +466,14 @@ impl SourceContractRuntime {
             )
             .map_err(|_| SourceRuleError::InvalidInput)?;
         }
+        if self.core.spot_lifecycle_enabled() {
+            set(
+                &mut value,
+                "spotLifecycle",
+                self.core.source_spot_schedule_state(),
+            )
+            .map_err(|_| SourceRuleError::InvalidInput)?;
+        }
         Ok(value)
     }
     pub fn invoke_dependency(
@@ -471,10 +487,15 @@ impl SourceContractRuntime {
             return self.source_main_invoke(call);
         }
         let before = self.clone();
-        self.core.queue_context = Some(std::mem::replace(
-            &mut self.queue,
-            ContractQueueSourceOwner::new(),
-        ));
+        let borrowed_spot_main = self.core.spot_lifecycle_enabled()
+            && self.core.source_spot_main_active
+            && self.core.queue_context.is_some();
+        if !borrowed_spot_main {
+            self.core.queue_context = Some(std::mem::replace(
+                &mut self.queue,
+                ContractQueueSourceOwner::new(),
+            ));
+        }
         let result = self.core.invoke(call);
         let result = if result.is_ok() && self.core.global_clearing_enabled() {
             self.core
@@ -487,11 +508,13 @@ impl SourceContractRuntime {
         } else {
             result
         };
-        self.queue = self
-            .core
-            .queue_context
-            .take()
-            .ok_or(SourceRuleError::Backend)?;
+        if !borrowed_spot_main {
+            self.queue = self
+                .core
+                .queue_context
+                .take()
+                .ok_or(SourceRuleError::Backend)?;
+        }
         let result = if self.core.effects_exhausted {
             Err(SourceRuleError::Capacity)
         } else {
@@ -505,7 +528,10 @@ impl SourceContractRuntime {
         };
         result
     }
-    pub fn evaluate_queue(&mut self, call: &SourceCall) -> Result<SourceOutcome, SourceRuleError> {
+    fn source_spot_evaluate_queue_inner(
+        &mut self,
+        call: &SourceCall,
+    ) -> Result<SourceOutcome, SourceRuleError> {
         let before = self.clone();
         let core = &mut self.core;
         let channel = core.lifecycle_enabled()
@@ -515,7 +541,9 @@ impl SourceContractRuntime {
             );
         let mut capability = |queue: &mut ContractQueueSourceOwner, call: &DependencyCall| {
             core.harvest_queue(queue);
-            if call.target == "Orderbook.addContractOrder" {
+            if core.spot_lifecycle_enabled() && call.target == "Orderbook.addTokenOrder" {
+                core.source_spot_add_token_in_queue(queue, &call.arguments)
+            } else if call.target == "Orderbook.addContractOrder" {
                 let mut backend = PlacementBackend { core };
                 match crate::contract_placement_source::add_contract_order(
                     queue,
@@ -640,6 +668,8 @@ impl ContractCore {
             channel_balance_stage: 0,
             channel_save_writes: 0,
             channel_token_validation: false,
+            source_token_threshold_reads: vec![],
+            source_main_withdrawal_save: None,
             channel_sufficiency_reads: vec![],
             channel_token_price_job: None,
             tally_mod: V::Undefined,
@@ -700,6 +730,9 @@ impl ContractCore {
             main_activation_locked: false,
             main_height_job: None,
             main_height_rejections: vec![],
+            source_spot_main_active: false,
+            source_spot_orders_read: None,
+            source_spot_fee_buffer_initialized: false,
         }
     }
     fn global_clearing_enabled(&self) -> bool {
@@ -712,6 +745,7 @@ impl ContractCore {
                 | SourceContractRuntimePolicy::ProofLifecycleV6
                 | SourceContractRuntimePolicy::LowerLifecycleV7
                 | SourceContractRuntimePolicy::MainCallableV8
+                | SourceContractRuntimePolicy::SpotLifecycleV9
         )
     }
     fn lifecycle_enabled(&self) -> bool {
@@ -723,6 +757,7 @@ impl ContractCore {
                 | SourceContractRuntimePolicy::ProofLifecycleV6
                 | SourceContractRuntimePolicy::LowerLifecycleV7
                 | SourceContractRuntimePolicy::MainCallableV8
+                | SourceContractRuntimePolicy::SpotLifecycleV9
         )
     }
     fn option_lifecycle_enabled(&self) -> bool {
@@ -733,6 +768,7 @@ impl ContractCore {
                 | SourceContractRuntimePolicy::ProofLifecycleV6
                 | SourceContractRuntimePolicy::LowerLifecycleV7
                 | SourceContractRuntimePolicy::MainCallableV8
+                | SourceContractRuntimePolicy::SpotLifecycleV9
         )
     }
     fn distribution_lifecycle_enabled(&self) -> bool {
@@ -742,6 +778,7 @@ impl ContractCore {
                 | SourceContractRuntimePolicy::ProofLifecycleV6
                 | SourceContractRuntimePolicy::LowerLifecycleV7
                 | SourceContractRuntimePolicy::MainCallableV8
+                | SourceContractRuntimePolicy::SpotLifecycleV9
         )
     }
     fn proof_lifecycle_enabled(&self) -> bool {
@@ -750,6 +787,7 @@ impl ContractCore {
             SourceContractRuntimePolicy::ProofLifecycleV6
                 | SourceContractRuntimePolicy::LowerLifecycleV7
                 | SourceContractRuntimePolicy::MainCallableV8
+                | SourceContractRuntimePolicy::SpotLifecycleV9
         )
     }
     fn lower_lifecycle_enabled(&self) -> bool {
@@ -757,10 +795,18 @@ impl ContractCore {
             self.policy,
             SourceContractRuntimePolicy::LowerLifecycleV7
                 | SourceContractRuntimePolicy::MainCallableV8
+                | SourceContractRuntimePolicy::SpotLifecycleV9
         )
     }
     fn main_callable_enabled(&self) -> bool {
-        self.policy == SourceContractRuntimePolicy::MainCallableV8
+        matches!(
+            self.policy,
+            SourceContractRuntimePolicy::MainCallableV8
+                | SourceContractRuntimePolicy::SpotLifecycleV9
+        )
+    }
+    fn spot_lifecycle_enabled(&self) -> bool {
+        self.policy == SourceContractRuntimePolicy::SpotLifecycleV9
     }
     fn rows(&self, name: &str) -> &[V] {
         self.tables
@@ -838,6 +884,12 @@ impl ContractCore {
             _ => (),
         };
         self.emit(event);
+        self.source_main_withdrawal_after_database(name)?;
+        self.source_token_threshold_after_database(name)?;
+        self.source_transfer_balance_after_await(name)?;
+        if self.spot_lifecycle_enabled() && self.source_spot_main_active {
+            self.source_spot_orders_read_after_database()?;
+        }
         if self.main_callable_enabled() && name == "tallyMap" {
             self.source_send_read_after_database()?;
         }
@@ -1115,6 +1167,8 @@ impl ContractCore {
             _ => (),
         };
         self.emit(event);
+        self.source_token_threshold_after_read(name)?;
+        self.source_transfer_balance_after_await(name)?;
         if self.global_clearing_enabled() {
             self.source_supply_after_db(name, op)?;
         }
@@ -1122,7 +1176,12 @@ impl ContractCore {
             && name == "channels"
             && op == "updateAsync"
             && !self.channel_balance_jobs.is_empty()
-            && result.is_ok()
+            // Main's un-awaited Tally jobs progress across the awaited channel
+            // write even when that write rejects. Older profiles stay exact.
+            && (result.is_ok()
+                || (self.policy == SourceContractRuntimePolicy::SpotLifecycleV9
+                    && self.source_spot_main_active
+                    && matches!(&result, Err(Fault::Thrown(_)))))
         {
             self.channel_save_writes += 1;
             if self.channel_save_writes == 1 {
@@ -1272,6 +1331,50 @@ impl ContractCore {
     fn dispatch(&mut self, call: &DependencyCall) -> R<V> {
         let a = &call.arguments;
         let target = call.target.as_str();
+        if self.spot_lifecycle_enabled() {
+            if target == "SourceGlobal.bindSpotRpcDocuments" {
+                if !a.is_empty() {
+                    return Err(SourceRuleError::InvalidInput.into());
+                }
+                self.globals
+                    .insert("sourceSpotRpcDocuments", V::Bool(true))?;
+                return Ok(V::Undefined);
+            }
+            if matches!(
+                target,
+                "TxUtils.getRawTransaction" | "TxUtils.getBlockHeight"
+            ) && self.globals.get("sourceSpotRpcDocuments") == V::Bool(true)
+            {
+                return self.source_spot_rpc(target.strip_prefix("TxUtils.").unwrap(), a);
+            }
+            if let Some(method) = target.strip_prefix("Logic.") {
+                if ["onChainTokenToToken", "cancelOrder"].contains(&method) {
+                    return self.source_spot_logic(method, a);
+                }
+            }
+            if let Some(method) = target.strip_prefix("Orderbook.") {
+                if [
+                    "saveOrderBook",
+                    "addTokenOrder",
+                    "calculatePrice",
+                    "normalizeOrderBookKey",
+                    "matchTokenOrders",
+                    "getOrdersForAddress",
+                    "cancelOrdersByCriteria",
+                    "cancelAllContractOrders",
+                    "cancelContractOrderByTxid",
+                    "cancelContractBuyOrdersByPrice",
+                    "cancelAllTokenOrders",
+                    "cancelTokenOrderByTxid",
+                    "cancelTokenBuyOrdersByPrice",
+                    "cancelTokenSellOrdersByPrice",
+                ]
+                .contains(&method)
+                {
+                    return self.source_spot_orderbook(method, a);
+                }
+            }
+        }
         if self.main_callable_enabled() {
             if ["Tally.getTotalForProperty", "Tally.getTotalTally"].contains(&target) {
                 self.source_send_tally_instance_initialized = true;
@@ -1802,6 +1905,18 @@ impl SourceBackend for ContractCore {
                 Err(Fault::Local(e)) => Err(e),
             };
         }
+        if self.spot_lifecycle_enabled()
+            && matches!(
+                call.target.as_str(),
+                "Orderbook.calculatePrice" | "Orderbook.normalizeOrderBookKey"
+            )
+        {
+            return match result {
+                Ok(v) => Ok(DependencyReturn::Immediate(v)),
+                Err(Fault::Thrown(e)) => Ok(DependencyReturn::Throw(e)),
+                Err(Fault::Local(e)) => Err(e),
+            };
+        }
         if matches!(
             call.target.as_str(),
             "uuid.v4"
@@ -2034,6 +2149,10 @@ impl SourceContractRuntime {
     ) -> Result<crate::types_source::TypesOutcome, SourceRuleError> {
         self.last_parameters = None;
         if arguments.get(1) != Some(&n(18.0))
+            && !(self.core.spot_lifecycle_enabled()
+                && [5., 6.]
+                    .iter()
+                    .any(|kind| arguments.get(1) == Some(&n(*kind))))
             && !(self.core.main_callable_enabled() && arguments.get(1) == Some(&n(3.0)))
             && !(self.core.main_callable_enabled()
                 && [2., 4.]
@@ -2072,12 +2191,50 @@ impl SourceContractRuntime {
         };
         self.core.channel_token_validation =
             self.core.lifecycle_enabled() && arguments.get(1) == Some(&n(20.));
-        let result = if self.core.option_lifecycle_enabled() && arguments.get(1) == Some(&n(27.0)) {
+        let spot_lend_queue = self.core.spot_lifecycle_enabled()
+            && self.core.queue_context.is_none()
+            && [5., 6.]
+                .iter()
+                .any(|kind| arguments.get(1) == Some(&n(*kind)));
+        if spot_lend_queue {
+            if self.core.queue_context.is_some() {
+                return Err(SourceRuleError::Backend);
+            }
+            self.core.queue_context = Some(std::mem::replace(
+                &mut self.queue,
+                ContractQueueSourceOwner::new(),
+            ));
+        }
+        let result = if self.core.spot_lifecycle_enabled() && arguments.get(1) == Some(&n(6.0)) {
+            let mut backend = SourceSpotValidityBackend::new(&mut self.core);
+            crate::types_source::decode_payload_unverified(arguments, &mut backend)
+        } else if self.core.policy == SourceContractRuntimePolicy::SpotLifecycleV9
+            && self.core.source_spot_main_active
+            && arguments.get(1) == Some(&n(22.0))
+        {
+            let mut backend = SourceTransferValidityBackend::new(&mut self.core);
+            let result = crate::types_source::decode_payload_unverified(arguments, &mut backend);
+            backend.finish()?;
+            result
+        } else if self.core.option_lifecycle_enabled() && arguments.get(1) == Some(&n(27.0)) {
             let mut backend = SourceOptionValidityBackend::new(&mut self.core);
             crate::types_source::decode_payload_unverified(arguments, &mut backend)
         } else {
             crate::types_source::decode_payload_unverified(arguments, &mut self.core)
         };
+        if spot_lend_queue {
+            self.queue = self
+                .core
+                .queue_context
+                .take()
+                .ok_or(SourceRuleError::Backend)?;
+        }
+        self.core
+            .source_token_threshold_drain()
+            .map_err(|e| match e {
+                Fault::Local(e) => e,
+                Fault::Thrown(_) => SourceRuleError::Backend,
+            })?;
         self.core.channel_token_validation = false;
         if self.core.lifecycle_enabled() {
             self.core
@@ -2087,7 +2244,17 @@ impl SourceContractRuntime {
                     Fault::Thrown(_) => SourceRuleError::Backend,
                 })?;
         }
-        let result = result.map_err(|_| SourceRuleError::Backend)?;
+        let result = result.map_err(|error| match error {
+            // Preserve the actual unavailable dependency at the new Main
+            // boundary. Older policies retain their historical error receipt.
+            crate::types_source::TypesError::Validity(SourceRuleError::UnknownDependency)
+                if self.core.policy == SourceContractRuntimePolicy::SpotLifecycleV9
+                    && self.core.source_spot_main_active =>
+            {
+                SourceRuleError::UnknownDependency
+            }
+            _ => SourceRuleError::Backend,
+        })?;
         if let Some(validity) = &result.validity {
             for (key, value) in &validity.settlement.evaluation.global_writes {
                 self.core.globals.insert(key, value.clone())?
@@ -2107,6 +2274,13 @@ impl SourceContractRuntime {
             return self.source_lower_utxo_trade_raw_logic(params);
         }
         let logic = if params.get("valid") == V::Bool(true)
+            && self.core.spot_lifecycle_enabled()
+            && [5., 6.]
+                .iter()
+                .any(|kind| arguments.get(1) == Some(&n(*kind)))
+        {
+            self.source_spot_raw_logic(&arguments[1], params)?
+        } else if params.get("valid") == V::Bool(true)
             && self.core.main_callable_enabled()
             && [2., 4.]
                 .iter()
@@ -2198,3 +2372,14 @@ include!("source_lower_clearlist_impl.rs");
 include!("source_lower_send_commit_impl.rs");
 
 include!("source_lower_utxo_trade_impl.rs");
+
+include!("source_spot_matching_impl.rs");
+include!("source_spot_lifecycle_impl.rs");
+
+include!("source_spot_schedule_impl.rs");
+
+include!("source_transfer_schedule_impl.rs");
+
+include!("source_token_channel_schedule_impl.rs");
+
+include!("source_withdrawal_schedule_impl.rs");

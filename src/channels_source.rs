@@ -921,10 +921,39 @@ impl SourceChannels {
         self.state.validate()?;
         Ok(row)
     }
+
+    // Used only by the exact V9 Main transfer continuation. Lookup uses the
+    // same JavaScript Map key relation as the literal owner methods.
+    pub(crate) fn cached_channel_read(&self, key: &V) -> V {
+        self.state
+            .registry
+            .iter()
+            .find(|(k, _)| same_key(k, key))
+            .map(|(_, value)| value.clone())
+            .unwrap_or(V::Undefined)
+    }
+    pub(crate) fn resume_channel_read_unverified<B: SourceBackend>(
+        &mut self,
+        call: &SourceCall,
+        backend: &mut B,
+    ) -> Result<ChannelsEvaluation> {
+        if !matches!(call.method.as_str(), "isValidChannel" | "getChannel") {
+            return Err(SourceRuleError::InvalidInput);
+        }
+        self.execute_channel_read_inner(call, backend, true)
+    }
     pub fn execute_unverified<B: SourceBackend>(
         &mut self,
         call: &SourceCall,
         backend: &mut B,
+    ) -> Result<ChannelsEvaluation> {
+        self.execute_channel_read_inner(call, backend, false)
+    }
+    fn execute_channel_read_inner<B: SourceBackend>(
+        &mut self,
+        call: &SourceCall,
+        backend: &mut B,
+        force_channel_load: bool,
     ) -> Result<ChannelsEvaluation> {
         if self.actions >= MAX_ACTIONS || call.arguments.len() > 16 {
             return Err(SourceRuleError::Capacity);
@@ -955,7 +984,26 @@ impl SourceChannels {
             trace_nodes: 0,
             trace_bytes: 0,
         };
-        let result = context.run(&call.method, &mut args);
+        let result = if force_channel_load {
+            // Both async callers already observed a missing cache. Reuse the
+            // original load body even when the first continuation filled it.
+            context.load().map(|()| {
+                let value = context.lookup(args.first().unwrap_or(&V::Undefined));
+                if call.method == "isValidChannel" {
+                    if truth(&value) {
+                        V::Undefined
+                    } else {
+                        V::Bool(false)
+                    }
+                } else if truth(&value) {
+                    value
+                } else {
+                    V::Null
+                }
+            })
+        } else {
+            context.run(&call.method, &mut args)
+        };
         let outcome = match result {
             Ok(v) => {
                 v.validate()?;

@@ -23,6 +23,32 @@ fn proof_canonical_artifact_path(path: &str) -> bool {
             .any(|part| matches!(part, "." | ".."))
         && value.components().collect::<std::path::PathBuf>().to_str() == Some(path)
 }
+
+// V9's source-only artifact namespace is an input-map key, never a host file.
+// Exact policy gating preserves every older host-path admission/refusal.
+fn proof_canonical_artifact_path_for_policy(
+    policy: SourceContractRuntimePolicy,
+    path: &str,
+) -> bool {
+    if policy == SourceContractRuntimePolicy::SpotLifecycleV9
+        && (path.starts_with('/') || path.starts_with('\\'))
+        && path.split(['/', '\\']).find(|part| !part.is_empty()) == Some("tl-source-artifacts")
+    {
+        let Some(tail) = path.strip_prefix("/tl-source-artifacts/") else {
+            return false;
+        };
+        return !tail.is_empty()
+            && tail.split('/').all(|part| {
+                !part.is_empty()
+                    && !matches!(part, "." | "..")
+                    && part
+                        .bytes()
+                        .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'.' | b'-' | b'_'))
+            });
+    }
+    proof_canonical_artifact_path(path)
+}
+
 fn proof_base64(raw: &str) -> R<Vec<u8>> {
     let (mut acc, mut bits) = (0u32, 0u32);
     let mut bytes = Vec::new();
@@ -61,7 +87,7 @@ impl ContractCore {
             return Err(SourceRuleError::Capacity.into());
         }
         for (path, raw) in fields {
-            if !proof_canonical_artifact_path(path) {
+            if !proof_canonical_artifact_path_for_policy(self.policy, path) {
                 return Err(SourceRuleError::InvalidInput.into());
             }
             let V::String(raw) = raw else {
@@ -842,7 +868,7 @@ impl ContractCore {
                     s(crate::bitvm_bundle::DEFAULT_BUNDLE_PATH),
                 ),
             ))?;
-            if !proof_canonical_artifact_path(&path) {
+            if !proof_canonical_artifact_path_for_policy(self.policy, &path) {
                 return Err(SourceRuleError::UnknownDependency.into());
             }
             let raw = self.source_proof_artifacts.get(&path);

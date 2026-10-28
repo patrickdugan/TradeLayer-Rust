@@ -400,6 +400,11 @@ impl ContractCore {
         }
     }
     fn source_channel_withdrawal_logic(&mut self, a: &[V]) -> R<V> {
+        if self.policy == SourceContractRuntimePolicy::SpotLifecycleV9
+            && self.source_spot_main_active
+        {
+            return self.source_main_withdrawal_begin(a);
+        }
         let cached = self
             .channels
             .state()
@@ -666,7 +671,13 @@ impl ContractCore {
         // channelsRegistry.set is a synchronous map write, without setChannel's save.
         self.source_channel_mutate(&from, source)?;
         let saved = self.call("Channels.saveChannelsRegistry", vec![]);
-        self.source_channel_balance_drain()?;
+        if self.policy == SourceContractRuntimePolicy::SpotLifecycleV9
+            && self.source_spot_main_active
+        {
+            self.source_transfer_balance_return()?;
+        } else {
+            self.source_channel_balance_drain()?;
+        }
         saved?;
         Ok(V::Undefined)
     }

@@ -29,7 +29,32 @@ rustfmt --check --edition 2021 \
   src/joint_economic_impl.rs src/economic_snapshot_impl.rs src/economic_funding_impl.rs src/economic_mark_impl.rs src/economic_contract_impl.rs \
   src/economic_liquidation_impl.rs src/economic_liquidation_replay_impl.rs src/contract_orderbook_liquidation_impl.rs src/economic_amm_impl.rs src/economic_amm_replay_impl.rs \
   src/iou_snapshot_impl.rs src/iou_ledger_snapshot_impl.rs \
-  src/source_clearing_funding_impl.rs src/source_insurance_lifecycle_impl.rs src/source_insurance_legacy_v1_impl.rs src/source_iou_settlement_impl.rs src/source_clearing_liquidation_impl.rs src/source_clearing_expiry_impl.rs src/source_clearing_global_impl.rs src/source_clearing_mark_settlement_impl.rs src/source_clearing_supply_impl.rs src/source_contract_history_schedule_impl.rs src/source_contract_registry_lifecycle_impl.rs src/source_channel_financial_impl.rs src/contract_channel_queue_source_impl.rs src/source_channel_logic_impl.rs src/source_transition_witness_impl.rs src/source_contract_position_identity_impl.rs src/source_channel_volume_impl.rs src/source_option_trade_impl.rs src/source_synthetic_lifecycle_impl.rs src/source_derivative_exercise_impl.rs src/source_distribution_lifecycle_impl.rs src/margin_option_index_source_impl.rs
+  src/source_clearing_funding_impl.rs src/source_insurance_lifecycle_impl.rs src/source_insurance_legacy_v1_impl.rs src/source_iou_settlement_impl.rs src/source_clearing_liquidation_impl.rs src/source_clearing_expiry_impl.rs src/source_clearing_global_impl.rs src/source_clearing_mark_settlement_impl.rs src/source_clearing_supply_impl.rs src/source_contract_history_schedule_impl.rs src/source_contract_registry_lifecycle_impl.rs src/source_channel_financial_impl.rs src/contract_channel_queue_source_impl.rs src/source_channel_logic_impl.rs src/source_transition_witness_impl.rs src/source_contract_position_identity_impl.rs src/source_channel_volume_impl.rs src/source_option_trade_impl.rs src/source_synthetic_lifecycle_impl.rs src/source_derivative_exercise_impl.rs src/source_distribution_lifecycle_impl.rs src/margin_option_index_source_impl.rs \
+  src/clearing_distress_impl.rs \
+  src/clearing_partial_impl.rs \
+  src/clearing_snapshot_impl.rs \
+  src/rpc_http_impl.rs \
+  src/rpc_json_impl.rs \
+  src/source_lifecycle_transition_witness_impl.rs \
+  src/source_liquidity_rewards_impl.rs \
+  src/source_lower_clearlist_impl.rs \
+  src/source_lower_oracle_lifecycle_impl.rs \
+  src/source_lower_property_lifecycle_impl.rs \
+  src/source_lower_send_commit_impl.rs \
+  src/source_lower_utxo_trade_impl.rs \
+  src/source_main_callable_impl.rs \
+  src/source_procedural_bitvm_impl.rs \
+  src/source_proof_lifecycle_impl.rs \
+  src/source_proof_settlement_impl.rs \
+  src/source_recent_lifecycle_transition_witness_impl.rs \
+  src/source_spot_lifecycle_impl.rs \
+  src/source_spot_matching_impl.rs \
+  src/source_spot_queue_fragments_impl.rs \
+  src/source_spot_schedule_impl.rs \
+  src/source_tail_lifecycle_impl.rs \
+  src/source_transfer_schedule_impl.rs \
+  src/source_token_channel_schedule_impl.rs \
+  src/source_withdrawal_schedule_impl.rs
 
 cargo clippy --all-targets --locked -- -D warnings
 if [[ "$mode" == "--full" ]]; then

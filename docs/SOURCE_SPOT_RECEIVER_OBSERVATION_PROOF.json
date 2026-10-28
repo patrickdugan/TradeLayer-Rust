@@ -1,0 +1,23 @@
+{
+  "sourceBodiesChanged": false,
+  "receiverAssertionsWeakened": false,
+  "economicStateOrResultsInjected": false,
+  "records": {
+    "lower_spot_source": {
+      "frames": 64,
+      "frozenSha256": "05ca901528b286368d2b1c40db40ed0107eb92015907d7f338d32190979fae3b",
+      "allReceiverV2Sha256": "fee82c52b82c32b2bcd08e34f2150ea3dd6f25784c494e0a3cffb46368e2ba8e",
+      "resultAndInputEquality": true,
+      "completeFinancialStateEquality": true,
+      "orderedEffectsEqualityIgnoringReceiverIdentity": true
+    },
+    "main_spot_vectors": {
+      "frames": 27,
+      "frozenSha256": "9ecf7c8876f33f8c8607799f4be0d03a1cb5917658d15942f6523afea88b801b",
+      "allReceiverV2Sha256": "fdd45a6e35a8935f75e5f9f98d7cfc0b06da467b8257463e820fb410baf007e2",
+      "resultAndInputEquality": true,
+      "completeFinancialStateEquality": true,
+      "orderedEffectsEqualityIgnoringReceiverIdentity": true
+    }
+  }
+}

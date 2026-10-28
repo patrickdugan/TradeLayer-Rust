@@ -24,6 +24,7 @@ const MAGIC_V5: &[u8; 5] = b"TLCR\x05";
 const MAGIC_V6: &[u8; 5] = b"TLCR\x06";
 const MAGIC_V7: &[u8; 5] = b"TLCR\x07";
 const MAGIC_V8: &[u8; 5] = b"TLCR\x08";
+const MAGIC_V9: &[u8; 5] = b"TLCR\x09";
 const SOURCE_PIN: &[u8] = b"dca0888b827c5bc28fa9189bc9e1d507f5c5670c";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -464,6 +465,9 @@ impl SourceContractReplay {
             SourceContractRuntimePolicy::MainCallableV8 => {
                 b"TradeLayer/SourceContractBootstrap/v8/".to_vec()
             }
+            SourceContractRuntimePolicy::SpotLifecycleV9 => {
+                b"TradeLayer/SourceContractBootstrap/v9/".to_vec()
+            }
         };
         seed.extend_from_slice(SOURCE_PIN);
         seed.extend_from_slice(&initial);
@@ -598,6 +602,7 @@ impl SourceContractReplay {
             SourceContractRuntimePolicy::ProofLifecycleV6 => MAGIC_V6.to_vec(),
             SourceContractRuntimePolicy::LowerLifecycleV7 => MAGIC_V7.to_vec(),
             SourceContractRuntimePolicy::MainCallableV8 => MAGIC_V8.to_vec(),
+            SourceContractRuntimePolicy::SpotLifecycleV9 => MAGIC_V9.to_vec(),
         };
         bytes.extend_from_slice(&self.initial);
         bytes.extend_from_slice(&(self.journal.len() as u32).to_be_bytes());
@@ -646,6 +651,7 @@ impl SourceContractReplay {
             magic if magic == MAGIC_V6 => SourceContractRuntimePolicy::ProofLifecycleV6,
             magic if magic == MAGIC_V7 => SourceContractRuntimePolicy::LowerLifecycleV7,
             magic if magic == MAGIC_V8 => SourceContractRuntimePolicy::MainCallableV8,
+            magic if magic == MAGIC_V9 => SourceContractRuntimePolicy::SpotLifecycleV9,
             _ => return Err(SourceContractReplayError::InvalidCheckpoint),
         };
         let initial = c
@@ -733,3 +739,4 @@ fn encoded_entry_size(command: &[u8], outcome: &[u8], effects: &[V]) -> Result<u
 
 include!("source_transition_witness_impl.rs");
 include!("source_lifecycle_transition_witness_impl.rs");
+include!("source_recent_lifecycle_transition_witness_impl.rs");

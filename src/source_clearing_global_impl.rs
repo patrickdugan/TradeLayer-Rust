@@ -252,6 +252,12 @@ impl ContractCore {
                 })
             } else if let Some(id) = id {
                 queue.evaluate_instance(id, &call)
+            } else if self.spot_lifecycle_enabled()
+                && call.method == "processQueuedOnChainOrdersForBlock"
+            {
+                queue.evaluate_with_capability(&call, &mut |queue, dep| {
+                    self.source_spot_queue_capability(queue, dep)
+                })
             } else {
                 queue.evaluate_with_backend(&call, self)
             };

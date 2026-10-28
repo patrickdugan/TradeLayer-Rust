@@ -133,3 +133,18 @@ fixtures/txindex_source_proof10.jsonl text eol=lf
 fixtures/txindex_source_vectors.jsonl text eol=lf
 fixtures/txindex_source_method_inventory.json text eol=lf
 fixtures/txindex_nedb_boundary.json text eol=lf
+
+# Literal spot/Main source observations compare canonical LF records.
+fixtures/lower_spot_*.jsonl text eol=lf
+fixtures/main_spot_*.jsonl text eol=lf
+fixtures/main_spot_*.json text eol=lf
+fixtures/main_upper_*.jsonl text eol=lf
+fixtures/main_upper_*.json text eol=lf
+fixtures/main_transfer_schedule_*.jsonl text eol=lf
+fixtures/main_transfer_schedule_*.json text eol=lf
+fixtures/main_transfer_continuations_*.jsonl text eol=lf
+fixtures/main_transfer_continuations_*.json text eol=lf
+fixtures/main_token_threshold_*.jsonl text eol=lf
+fixtures/main_token_threshold_*.json text eol=lf
+fixtures/main_withdrawal_schedule_*.jsonl text eol=lf
+fixtures/main_withdrawal_schedule_*.json text eol=lf
