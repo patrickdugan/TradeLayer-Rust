@@ -1078,6 +1078,24 @@
       "livePermitFromDecodedPins": false,
       "fullSuitePromotion": false,
       "commit": "cc405ad512923b9e404c7498aa75bdbb1277a2eb"
+    },
+    "retainedMainCallerComponent": {
+      "status": "current-Core-scoped-checks-pass",
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/retained-main-caller-core-integration.json",
+      "newCoreCallerControls": 4,
+      "newExtractorControls": 4,
+      "combinedLibraryBeforeTestOnlyCleanup": 504,
+      "publicCompatibilityPassed": 44,
+      "finalTreeFocusedControlsPassed": 8,
+      "allTargetClippyWarningsDenied": true,
+      "oneMovedActualOwner": true,
+      "callerResultSeparateFromDetachedChild": true,
+      "exactPendingSelector": true,
+      "fullInitializeConsensusEstablished": false,
+      "durableCallerWalOrRecoveryEstablished": false,
+      "Mode4CallerAdmissionWidened": false,
+      "fullSuitePromotion": false
     }
   },
   "scope": "Verified release: implementation 53e6a24, tested 306d418; 2,142 Rust executions (2,141 top-level plus one storage child), 239 locked numeric checks, 282 targets and 1,822 unchanged inputs. Includes 491 library tests, same-owner inline WAL/native recovery, cold HISTORY actions and large-channel financial source cases. Later cc405ad adds five tested copied-history reader controls (19 combined escrow cases), outside this full release. Retained Main callers, historical inline/Mode4 closure, cross-publication/process-loss finance, host evidence and authenticated complete-block proofs remain open.",

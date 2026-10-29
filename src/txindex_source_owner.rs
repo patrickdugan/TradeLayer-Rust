@@ -1355,6 +1355,7 @@ impl TxIndexSourceOwner {
 
 include!("txindex_startup_continuation_impl.rs");
 include!("txindex_inline_continuation_impl.rs");
+include!("txindex_extract_continuation_impl.rs");
 #[cfg(test)]
 #[path = "txindex_inline_continuation_tests.rs"]
 mod inline_source_tests;

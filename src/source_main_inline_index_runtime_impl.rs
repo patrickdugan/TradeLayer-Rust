@@ -127,7 +127,6 @@ impl ContractCore {
         frame: &mut NativeMainInlineIndexFrameV1,
         documents: &V,
     ) -> NativeMainRowStopV1 {
-        use crate::txindex_source_owner::TxIndexInlineStopV1 as Stop;
         if let Some(error) = &frame.storage_stop {
             return NativeMainRowStopV1::StorageStopped(error.clone());
         }
@@ -137,88 +136,32 @@ impl ContractCore {
         if frame.result.is_some() {
             return NativeMainRowStopV1::Complete;
         }
-        if frame.write.is_some() {
-            return NativeMainRowStopV1::AwaitNativeWrite;
-        }
-        let Some(production) = self.main_production.as_mut() else {
-            return NativeMainRowStopV1::SourceStopped(SourceRuleError::InvalidInput);
-        };
-        let mut owner = std::mem::take(&mut production.index);
-        let result = (|| loop {
-            match owner.advance_inline_source(
-                frame.scope,
-                &mut frame.source,
-                &mut NativeMainServiceIndexBackend {
-                    base: NativeMainIndexBackend { core: self, index },
-                    documents,
-                },
-            )? {
-                Stop::Complete => {
-                    let evaluation = frame.source.take_evaluation()?;
+        let stop = self.native_main_inline_source_advance(
+            index,
+            NativeMainInlineIoBorrowV1 {
+                scope: frame.scope,
+                source: &mut frame.source,
+                write: &mut frame.write,
+                attempted: &mut frame.attempted,
+                storage_stop: &mut frame.storage_stop,
+                local_stop: &mut frame.local_stop,
+            },
+            documents,
+        );
+        if stop == NativeMainRowStopV1::Complete {
+            match frame.source.take_evaluation() {
+                Ok(evaluation) => {
                     self.main_height_rejections
                         .extend(evaluation.deferred_rejections);
                     frame.result = Some(outcome(evaluation.outcome));
-                    return Ok(NativeMainRowStopV1::Complete);
                 }
-                Stop::AwaitDatabase => {
-                    if self.effects_exhausted {
-                        return Err(SourceRuleError::Capacity);
-                    }
-                    let call = frame
-                        .source
-                        .pending_call()
-                        .ok_or(SourceRuleError::InvalidInput)?
-                        .clone();
-                    let method = call
-                        .target
-                        .strip_prefix("db.")
-                        .ok_or(SourceRuleError::InvalidInput)?;
-                    match self.check_failure("txIndex", method) {
-                        Err(Fault::Thrown(error)) => {
-                            let returned = DependencyReturn::PendingThrow(error);
-                            native_main_inline_emit(self, &call, &returned);
-                            owner.resolve_inline_source(
-                                frame.scope,
-                                &mut frame.source,
-                                returned,
-                            )?;
-                        }
-                        Err(Fault::Local(error)) => return Err(error),
-                        Ok(()) => {
-                            let prepared = index.snapshot().and_then(|before| {
-                                index.prepare_inline_database(
-                                    &before,
-                                    method,
-                                    call.arguments[1..].to_vec(),
-                                )
-                            });
-                            match prepared {
-                                Ok(plan) => {
-                                    frame.write = Some(Box::new(plan));
-                                    return Ok(NativeMainRowStopV1::AwaitNativeWrite);
-                                }
-                                Err(error) => {
-                                    let error = error.to_string();
-                                    frame.storage_stop = Some(error.clone());
-                                    return Ok(NativeMainRowStopV1::StorageStopped(error));
-                                }
-                            }
-                        }
-                    }
+                Err(error) => {
+                    frame.local_stop = Some(error.clone());
+                    return NativeMainRowStopV1::SourceStopped(error);
                 }
-            }
-        })();
-        self.main_production
-            .as_mut()
-            .expect("same actual production owner")
-            .index = owner;
-        match result {
-            Ok(stop) => stop,
-            Err(error) => {
-                frame.local_stop = Some(error.clone());
-                NativeMainRowStopV1::SourceStopped(error)
             }
         }
+        stop
     }
     fn native_main_inline_index_append(
         &mut self,
@@ -226,57 +169,34 @@ impl ContractCore {
         frame: &mut NativeMainInlineIndexFrameV1,
         permit: Option<&crate::source_compact_index_v2::SourceIndexGenerationEscrowPermitV1>,
     ) -> NativeMainRowStopV1 {
-        if let Some(error) = &frame.storage_stop {
-            return NativeMainRowStopV1::StorageStopped(error.clone());
-        }
-        if frame.attempted {
-            return NativeMainRowStopV1::SourceStopped(SourceRuleError::InvalidInput);
-        }
-        let Some(write) = frame.write.as_deref() else {
-            return NativeMainRowStopV1::SourceStopped(SourceRuleError::InvalidInput);
-        };
-        frame.attempted = true; // Actual attempt is retained even when return is lost.
-        match index.append_inline_database(write, permit) {
-            Ok(()) => NativeMainRowStopV1::AwaitNativeWrite,
-            Err(error) => {
-                let error = error.to_string();
-                frame.storage_stop = Some(error.clone());
-                NativeMainRowStopV1::StorageStopped(error)
-            }
-        }
+        self.native_main_inline_source_append(
+            index,
+            NativeMainInlineIoBorrowV1 {
+                scope: frame.scope,
+                source: &mut frame.source,
+                write: &mut frame.write,
+                attempted: &mut frame.attempted,
+                storage_stop: &mut frame.storage_stop,
+                local_stop: &mut frame.local_stop,
+            },
+            permit,
+        )
     }
     fn native_main_inline_index_resolve(
         &mut self,
         index: &SourceCompactIndex,
         frame: &mut NativeMainInlineIndexFrameV1,
     ) -> NativeMainRowStopV1 {
-        if !frame.attempted {
-            return NativeMainRowStopV1::SourceStopped(SourceRuleError::InvalidInput);
-        }
-        let Some(write) = frame.write.as_deref() else {
-            return NativeMainRowStopV1::SourceStopped(SourceRuleError::InvalidInput);
-        };
-        let returned = match index.resolve_inline_database_post(write) {
-            Ok(v) => v,
-            Err(e) => return NativeMainRowStopV1::StorageStopped(e.to_string()),
-        };
-        let Some(production) = self.main_production.as_ref() else {
-            return NativeMainRowStopV1::SourceStopped(SourceRuleError::InvalidInput);
-        };
-        let Some(call) = frame.source.pending_call().cloned() else {
-            return NativeMainRowStopV1::SourceStopped(SourceRuleError::InvalidInput);
-        };
-        if let Err(e) =
-            production
-                .index
-                .resolve_inline_source(frame.scope, &mut frame.source, returned.clone())
-        {
-            return NativeMainRowStopV1::SourceStopped(e);
-        }
-        native_main_inline_emit(self, &call, &returned);
-        frame.write = None;
-        frame.attempted = false;
-        frame.storage_stop = None;
-        NativeMainRowStopV1::Complete
+        self.native_main_inline_source_resolve(
+            index,
+            NativeMainInlineIoBorrowV1 {
+                scope: frame.scope,
+                source: &mut frame.source,
+                write: &mut frame.write,
+                attempted: &mut frame.attempted,
+                storage_stop: &mut frame.storage_stop,
+                local_stop: &mut frame.local_stop,
+            },
+        )
     }
 }

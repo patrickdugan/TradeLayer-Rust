@@ -38,6 +38,8 @@ jobs:
         run: python3 -m unittest discover -s tests -p test_rust_supply_chain.py -v
       - name: Check formatting
         run: cargo fmt --all -- --check
+      - name: Check retained Main caller formatting
+        run: rustfmt --check --edition 2021 src/source_main_retained_caller_runtime_impl.rs src/source_main_retained_caller_session_impl.rs src/source_main_retained_caller_tests.rs src/source_main_retained_caller_test_transport.rs src/source_main_retained_inline_io_impl.rs src/txindex_extract_continuation_impl.rs src/txindex_extract_continuation_tests.rs
       - name: Check copied-generation metadata reader formatting
         run: rustfmt --check --edition 2021 src/compact_escrow_descriptor_codec_impl.rs src/compact_escrow_descriptor_codec_tests.rs src/source_index_escrow_descriptor_codec_impl.rs src/source_index_verified_old_view_impl.rs src/source_index_verified_old_view_tests.rs
       - name: Check independent inline recovery tests

@@ -409,3 +409,6 @@ fn inline_pending_write_cannot_redecode_or_change_scope_before_resolution() {
         1
     );
 }
+
+#[path = "txindex_extract_continuation_tests.rs"]
+mod retained_extract_tests;

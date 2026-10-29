@@ -85,6 +85,7 @@ rustfmt --check --edition 2021 \
   src/channel_queue_v8_sort_tests.rs \
   src/source_index_inline_review_tests.rs \
   src/compact_escrow_descriptor_codec_impl.rs src/compact_escrow_descriptor_codec_tests.rs src/source_index_escrow_descriptor_codec_impl.rs src/source_index_verified_old_view_impl.rs src/source_index_verified_old_view_tests.rs \
+  src/source_main_retained_caller_runtime_impl.rs src/source_main_retained_caller_session_impl.rs src/source_main_retained_caller_tests.rs src/source_main_retained_caller_test_transport.rs src/source_main_retained_inline_io_impl.rs src/txindex_extract_continuation_impl.rs src/txindex_extract_continuation_tests.rs \
   src/source_main_bootstrap_core_impl.rs src/source_main_bootstrap_runtime_impl.rs src/source_main_bootstrap_state_impl.rs src/source_main_bootstrap_tests.rs src/txindex_startup_continuation_impl.rs src/source_main_bootstrap_old_dispatch_tests.rs \
   src/source_index_historical_validity_impl.rs src/source_index_historical_validity_tests.rs src/source_main_native_historical_replay_impl.rs src/source_main_native_historical_replay_tests.rs src/source_main_native_historical_rows_impl.rs \
   src/source_main_active_service_recovery_impl.rs src/source_main_active_service_recovery_runtime_impl.rs src/source_main_active_service_recovery_tests.rs src/source_main_active_wal_exit_tests.rs \

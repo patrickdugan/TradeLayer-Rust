@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-29T21:52:15Z. Maintained after every tested integration cycle.
+Updated: 2026-10-29T22:09:27Z. Maintained after every tested integration cycle.
 
 ## Goal and boundaries
 
@@ -14,7 +14,7 @@ Keep one actual financial owner, actual native index and borrowed queue. Never i
 
 Full all-target release: implementation `53e6a245d58265aa1a428f30c567aa67e610464c`, tested checkout `306d4186327a8d43d0fdf4c23c89563d3c0bb111`. **2,142 Rust executions** (2,141 top-level plus one successful storage child), **239 locked numeric checks**,282targets and1,822 frozen inputs unchanged before/after. Library491/fourignored. Evidence: `fixtures/reference_fidelity/inline-channel-release-validation.json`. Previous2,120/238 release remains immutable historical evidence.
 
-Current later cycle: strict escrow expectation readers and distinct verified original/copied metadata views. Five new actual Core metadata controls and19 combined escrow cases pass; Clippy warnings denied, Cargo fmt,272 included files and inventory pass. Actual1,100 old rows survive original-generation pruning. No runtime/financial/WAL body or cold admission changed. Record: `copied-history-view-core-integration.json`. This later scoped work is outside the2,142/239 all-target baseline.
+Current later cycle: first retained Main caller/extractor component,4+4 new actual Core controls,7 legacy inline/6Mode4 and44 public checks pass. Library504 passed before removal of two unused test-only helpers; all8 new controls and strict Clippy/fmt279/inventory reran on the final tree. Same actual owner/index/borrowed invocation and explicit caller/job/method/ordinal/role remain held. ConsensusReady is still unfulfilled; no complete Initialize or caller WAL claim. Record: `retained-main-caller-core-integration.json`. Full baseline remains2,142/239.
 
 The test-only temp-folder fix `567f6b8` respects TL_NATIVE_MAIN_TMP when set and otherwise uses the standard temp directory, preserving canonical-parent/guarded cleanup. Seven actual native release tests pass without the override; no production source changed. Evidence: `fixtures/reference_fidelity/native-main-test-temp-default.json`.
 
@@ -37,7 +37,7 @@ All record names above are under `fixtures/reference_fidelity/`. Source results/
 ## Active workers and next concrete gates
 
 1. `v8_main`: Mode4 and copied-history package45a42cf8 are now integrated/tested. Next is actual historical inline DB preparation against the verified original pages/directory, using a separate opaque historical plan; no fake live index or append permit from pins. Coordinate caller selectors with row. Wider coldMode4 admission remains closed.
-2. `row_continuation_impl`: retained Main caller PCs using genuine caller corpus `a1d05d41…`,12 calls/35 records per numeric profile. Root has now reproduced and committed the additive source corpus and CI checks; record: `retained-main-caller-source-characterization.json`. This is source characterization, not Rust caller completion. Crucial source fact: extractBlockData's final saveMaxHeight is DETACHED. Main sync/init/initialize can fulfill and continue consensus while that same save is unresolved; its rejection is an unhandled notification. Awaited per-transaction height rejection has a different catch boundary. Keep caller completion separate from operation completion and no early financial drain/head escape.
+2. `row_continuation_impl`: firstaf213b component is now integrated/tested. Next stage `work/native-main-retained-consensus-v13` connects ConsensusReady to actual catchup/service on the SAME borrowed invocation, keeping detached save independent through actual caller fulfillment. Unresolved competing native plans must remain explicitly fenced until real historical/concurrent resolver support exists. No old Session/head release. Original12-call source corpus remains source evidence.
 3. Both lanes must bind an explicit stable job/scope/operation ordinal plus Awaited/Detached selector. Identical method/args/Before may represent different concurrent saves; AppendPending must not silently choose the first frame. Main owns the WAL/frame selector; row owns caller PCs. Stage-only until Root checks.
 4. `v8_clearlist`: channel sort packagea05a13d2 is now integrated/tested, including real64 settlement/65 late-error retained Tally writes, exact comparator schedule and four prior checkpoints. The same sharedV8 helper/MainIO remain unchanged. Mode4 independent review is complete; two additional Root negative controls pass. Worker now audits current admission/UTXO gates and recent external-worker PRs before proposing any disjoint implementation.
 5. Broaden cold execution to inline/Mode4, recovery/supersession, cross-publication retained views, unresolved terminal work and actual killed-process financial recovery. Current cold success must not be relabeled as those broader gates or as mutable hot resume.
@@ -95,3 +95,7 @@ The exact original metadata facts and actual copied-file identity remain separat
 ## Full-release workbook promotion
 
 Saved workbook and existing sidebar now show **2,142 Rust executions /239 locked numeric checks**, implementation53e6a24/tested306d418,282targets/1,822unchanged inputs. Latercc405ad is shown separately as5new/19combined copied-history metadata checks. Sixteen intentional edits preserved all48TL modules/one external reference/37transaction rows, formulas, effective styles, filters, panes, geometry and proof gates. Zero formula errors; saved/sidebar row hashes match. Verification: `fixtures/reference_fidelity/inline-channel-release-completeness.json`. Full source parity, authenticated history and complete-block fraud proofs remain unestablished.
+
+## Latest retained-caller integration
+
+Source helpers and actual Core caller controls now preserve the detached final save rather than forcing a synchronous caller wait. Exact selectors fence wrong/stale job or operation actions. The first component intentionally leaves ConsensusReady unfulfilled; the next same-invocation consensus composition is still active work. Historical-inline990 and Bitcoin-composition41dd packages are frozen but not Root-integrated yet. Independent caller review is running separately. All current tested source is committed locally; no push/PR is authorized.
