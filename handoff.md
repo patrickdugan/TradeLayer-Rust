@@ -1,6 +1,6 @@
 # TradeLayer-Rust release handoff
 
-Updated: 2026-10-29T20:19:23Z. This file is maintained after every integration/PR cycle.
+Updated: 2026-10-29T20:21:08Z. This file is maintained after every integration/PR cycle.
 
 Latest full release: **2,120 Rust executions /238 locked numeric checks**, implementation `239c340`, tested `216377f`;470library/44scoped public checks. Evidence:`fixtures/reference_fidelity/native-inline-release-validation.json`. Full reference parity, authentication and complete-block fraud proofs remain open.
 
@@ -178,3 +178,7 @@ All281release targets, doc checks and exact86-target locked numeric list pass. C
 Covered bounded scopes: actual active-service WAL/history/explicit validity native recovery, completed historical rows and sealed earlier prefix, strict ACK/pin readers, guarded generation escrow, ordered Promise continuations and explicit retained inline live source service. This does not establish inline durable recovery/new WAL mode, full acknowledged action or startup/catchup/historical inline, cross-publication financial replay, killed-process finance, Windows directory/power-loss or authentication/complete-block proofs. Fee/reward economic and matcher/payout wiring stays separate.
 
 New e0cee8 cold-action candidate and forthcoming inline-WAL binding were kept OUTSIDE this frozen checkout; they still require actual Core gates and later promotion. The saved workbook/sidebar must separately update the full-release baseline from1,977 to2,120 while preserving all transaction/proof rows.
+
+## Full-release workbook promotion
+
+The saved workbook and existing sidebar now show implementation `239c340`, tested `216377f`: **2,120 Rust executions /238 locked numeric checks**,281targets and1,776unchanged frozen inputs. Sixteen intentional cells updated the release header/count and bounded source/storage descriptions. All37 transaction rows, formulas, effective styles, filters, panes, geometry and parity/proof gates are preserved, with zero formula errors. Verification:`fixtures/reference_fidelity/native-inline-release-completeness.json`. The e0 cold-action and inline-WAL follow-ons remain outside this release.

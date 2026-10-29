@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-29T20:19:23Z",
-  "inspectedCheckoutCommit": "216377fe9fb0ce89c92a47776e71e2c73a4b03d4",
+  "verifiedAtUtc": "2026-10-29T20:21:08Z",
+  "inspectedCheckoutCommit": "5105f95d2b568b43f3f740f5f8ca59123be0a8a4",
   "verifiedImplementationCommit": "239c3403f05a4b4edef391d40145ed09052ee672",
   "verifiedReleaseTests": 2120,
   "topLevelTests": 2119,
@@ -976,7 +976,7 @@
       "releaseValidationRecord": "fixtures/reference_fidelity/native-inline-release-validation.json"
     }
   },
-  "scope": "Full frozen release of implementation239c340/tested216377f passes2,120 Rust executions (2,119top-level +one successful storage child),238 locked numeric checks across281targets; all1,776inputs unchanged. Actual WAL/history/validity recovery, bounded cold rows/prefix, Promise continuations and explicit inline live service are covered. Inline durable WAL/recovery, full acknowledged action/startup/catchup/historical inline and cross-publication finance, host validation and authenticated complete-block proofs remain open.",
+  "scope": "Verified implementation239c340/tested216377f: 2,120 Rust executions (2,119 top-level +one successful storage subprocess),238 locked numeric checks across281 targets and1,776 unchanged frozen inputs.470library cases include actual WAL/history/native validity recovery, completed cold rows/sealed prefix, bounded Promise continuations and explicit retained inline live service. Inline durable WAL/recovery, full startup/catchup/historical inline and acknowledged financial action replay, cross-publication views, host/process-loss validation and authenticated complete-block proofs remain open. New e0 cold actions and inline-WAL follow-on are outside this release.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -1268,32 +1268,36 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Promote saved/sidebar full release baseline to239c340/tested216377f:2,120 Rust/238 locked numeric checks;470library/44scoped public passes. Transaction/parity/proof classifications remain unchanged. Saved workbook still contains the previous1,977full-release baseline until that separate verified edit.",
+  "workbookNote": "Verified implementation239c340/tested216377f: 2,120 Rust executions (2,119 top-level +one successful storage subprocess),238 locked numeric checks across281 targets and1,776 unchanged frozen inputs.470library cases include actual WAL/history/native validity recovery, completed cold rows/sealed prefix, bounded Promise continuations and explicit retained inline live service. Inline durable WAL/recovery, full startup/catchup/historical inline and acknowledged financial action replay, cross-publication views, host/process-loss validation and authenticated complete-block proofs remain open. New e0 cold actions and inline-WAL follow-on are outside this release.",
   "savedWorkbook": {
-    "sha256": "0c3f1b01c59e31094eb51c59b82115561c31910b70bebedbb3d7e31691641725",
-    "bytes": 48323,
+    "sha256": "1bc7a14af3e5d62c70dc4887e27e1fa40d94c5a58d10ca710456f4a96d87d8ee",
+    "bytes": 47993,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-29T19:44:31Z",
+    "asOfUtc": "2026-10-29T20:21:08Z",
     "rowHashes": {
-      "modules": 459338276,
+      "modules": 2827172181,
       "logic": 1151758449
     },
-    "verifiedEdits": 12,
+    "verifiedEdits": 16,
     "layoutAndFormulaPreservationVerified": true
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-29T19:44:31Z",
-    "sha256": "0c3f1b01c59e31094eb51c59b82115561c31910b70bebedbb3d7e31691641725",
+    "verifiedAtUtc": "2026-10-29T20:21:08Z",
+    "sha256": "1bc7a14af3e5d62c70dc4887e27e1fa40d94c5a58d10ca710456f4a96d87d8ee",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 459338276,
+    "moduleRowsFNV": 2827172181,
     "logicRowsFNV": 1151758449,
-    "intentionalCellChanges": 12,
+    "intentionalCellChanges": 16,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,
-    "releasePromotionPending": true,
-    "lastFocusedCodeCommit": "239c3403f05a4b4edef391d40145ed09052ee672"
+    "releasePromotionPending": false,
+    "lastFocusedCodeCommit": "239c3403f05a4b4edef391d40145ed09052ee672",
+    "releaseBaselinePromoted": true,
+    "releaseExecutions": 2120,
+    "lockedReferenceExecutions": 238,
+    "releaseValidationRecord": "fixtures/reference_fidelity/native-inline-release-validation.json"
   },
   "validationRecord": "fixtures/reference_fidelity/native-inline-release-validation.json",
   "knownReferenceGaps": [

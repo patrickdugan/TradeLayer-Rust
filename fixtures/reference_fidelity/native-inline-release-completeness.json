@@ -1,0 +1,32 @@
+{
+  "schema": "tl-native-inline-release-completeness-v1",
+  "verifiedAtUtc": "2026-10-29T20:21:08Z",
+  "checkoutCommit": "5105f95d2b568b43f3f740f5f8ca59123be0a8a4",
+  "implementationCommit": "239c3403f05a4b4edef391d40145ed09052ee672",
+  "testedCheckoutCommit": "216377fe9fb0ce89c92a47776e71e2c73a4b03d4",
+  "beforeWorkbookSHA256": "0c3f1b01c59e31094eb51c59b82115561c31910b70bebedbb3d7e31691641725",
+  "releaseRecord": "fixtures/reference_fidelity/native-inline-release-validation.json",
+  "releaseRecordSHA256": "7940900dc778cd22661746e280b23dbacf56bebe8fd603e1d364fd74c9854a28",
+  "releaseExecutions": 2120,
+  "lockedReferenceExecutions": 238,
+  "topLevelTests": 2119,
+  "successfulStorageSubprocess": 1,
+  "targets": 281,
+  "frozenInputs": 1776,
+  "scopedLibraryPassed": 470,
+  "scopedPublicCompatibilityPassed": 44,
+  "fullSuitePromotion": true,
+  "trackedTransactionRowsChanged": false,
+  "authenticationEstablished": false,
+  "completeBlockFraudProofEstablished": false,
+  "savedWorkbookSHA256": "1bc7a14af3e5d62c70dc4887e27e1fa40d94c5a58d10ca710456f4a96d87d8ee",
+  "savedAndSidebarRowsMatch": true,
+  "rowHashes": {
+    "modules": 2827172181,
+    "logic": 1151758449
+  },
+  "intentionalCellChanges": 16,
+  "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
+  "visualReviewPassed": true,
+  "errors": 0
+}
