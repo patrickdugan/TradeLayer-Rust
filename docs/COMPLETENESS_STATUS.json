@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-29T02:45:59Z",
-  "inspectedCheckoutCommit": "61282d39e69db4fff45544f28b2e86f3e4ff7dfe",
+  "verifiedAtUtc": "2026-10-29T03:41:34Z",
+  "inspectedCheckoutCommit": "afccd367d9654f7254174e8ee70d682a4ca0be2e",
   "verifiedImplementationCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
   "verifiedReleaseTests": 1714,
   "topLevelTests": 1713,
@@ -477,11 +477,56 @@
       "commandOnlyDecoderReexecutionPassed": true
     },
     "nativeFileRetryProfile": {
-      "status": "frozen-source-candidate-actual-core-validation-pending",
+      "status": "isolated-actual-core-nine-tests-pass-root-integration-pending",
       "RootIntegrated": false,
       "fullSuitePromotion": false,
-      "actualCoreTestsPassed": 0,
-      "manifestSHA256": "4f4c49177b6df7b28aad556d953e00778bfd5d0c3ce0dd3050d570ac97d3979f"
+      "actualCoreTestsPassed": 9,
+      "manifestSHA256": "4f4c49177b6df7b28aad556d953e00778bfd5d0c3ce0dd3050d570ac97d3979f",
+      "log": {
+        "path": "native-step-binding-file-profile-first.log",
+        "sha256": "bcddccd1ea6e41e6b415c565062ee8b5eb8011e2c32b10f063bfdbf657adf2d0",
+        "executions": 9,
+        "targets": 1
+      }
+    },
+    "nativeSegmentHistory": {
+      "status": "nominal-core-sixteen-pass-independent-publication-capacity-review-fails",
+      "RootIntegrated": false,
+      "fullSuitePromotion": false,
+      "actualCoreTestsPassed": 16,
+      "logicalCommands": 4353,
+      "segments": 18,
+      "promotionHeld": true,
+      "directCoreCapacityRegressionPending": true,
+      "record": "fixtures/reference_fidelity/native-segment-history-core-review.json",
+      "remaining": [
+        "Fix accepted-window byte-budget publication progress",
+        "Execute direct Core capacity regression and compatibility/Clippy gates",
+        "Root integration",
+        "Synced intent/ack, exact row recovery and host crash validation"
+      ]
+    },
+    "richOwnerPrefixFollowOn": {
+      "status": "isolated-core-partial-write-and-prior-rpc-tests-pass",
+      "RootIntegrated": false,
+      "fullSuitePromotion": false,
+      "manifestSHA256": "bbd2015ec018dbb9fa3d0d026be12d1a272d9e4c3af08a180dda411a9dd6dbc7",
+      "executions": 3,
+      "newOwnerPrefixTest": 1,
+      "priorCarrierTests": 2,
+      "sourceCases": 10,
+      "log": {
+        "path": "rich-owner-prefix-core-first.log",
+        "sha256": "6298d7ccb0eccd2c2c8ce94b3b98e4d4113fe35dce76f297a865f6777e0f5753",
+        "executions": 3,
+        "targets": 2
+      },
+      "remaining": [
+        "Legacy compatibility and all-target Clippy",
+        "Source regeneration review",
+        "Root integration",
+        "Broader DB/financial error provenance and deferred continuations"
+      ]
     }
   },
   "scope": "Full release963aae7 remains at1714 Rust executions across270 targets and238 pinned numeric-reference checks across86 targets. Subsequent explicit RichThrownV14 initial RPC/catch carriers and command replay are integrated with18 Root Core tests,28 matching-input compatibility executions and9 source-check commands; full-suite promotion is pending. Native timer/file controllers and recovery primitives pass separate isolated checks. Broader financial catches, daemon/continuation/durable integration, authenticated history and complete-block proofs remain open.",
@@ -776,7 +821,7 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Full release 963aae7 remains at 1,714 Rust executions and 238 numeric checks. New code 61282d3 passes 18 Root Core tests, 28 compatibility executions, 9 source checks, formatting and all-target Clippy. Separately, six native controller/replay tests and five scheduler/file controls pass; 59 complete parent source observations match. Two rich partial-write owner cases, broader catches, durable native recovery, authenticated history and complete-block proofs remain open.",
+  "workbookNote": "Full release 963aae7 remains at 1,714 Rust executions and 238 numeric checks. Root code 61282d3 passes 18 Core tests, 28 compatibility executions and 9 source checks. The native history candidate passes 16 Core tests, including 4,353 commands/18 segments, but independent review reproduced a publication-capacity stall after 35 valid commands. State/proofs remain retained. Correction, direct Core reproduction, Root promotion, synced intent/ack, exact row recovery and broader rich/authentication/proof gates remain open.",
   "savedWorkbook": {
     "sha256": "d5971ddc83546910e19f76290fa12a169eee4e486873d8232ca6349ec07d0796",
     "bytes": 48140,
@@ -791,12 +836,12 @@
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-29T02:53:42Z",
-    "sha256": "e3bb0621973220f79f7d9c4a2cb8d83874bad52a7f4a56bc8381e8cb5e14dadb",
+    "verifiedAtUtc": "2026-10-29T03:49:17Z",
+    "sha256": "36b7ffac424d0ca575d1228445da9742aaa62f95717a93510244693fedc99861",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 505387714,
+    "moduleRowsFNV": 411104092,
     "logicRowsFNV": 1151758449,
-    "intentionalCellChanges": 8,
+    "intentionalCellChanges": 6,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,

@@ -1,0 +1,78 @@
+{
+  "schema": "tl-native-segment-history-core-review-v1",
+  "verifiedAtUtc": "2026-10-29T03:41:34Z",
+  "RootIntegrated": false,
+  "fullSuitePromotion": false,
+  "nominalCoreExecutions": 16,
+  "logicalCommandGate": 4353,
+  "segmentGate": 18,
+  "coreLog": {
+    "path": "native-step-binding-segment-history-first.log",
+    "sha256": "0b30eef73433c215547223d181eaf9d4465cc3263b23ca17b297c5147cb6ab08",
+    "executions": 16,
+    "targets": 1
+  },
+  "mountedSources": {
+    "manifestSHA256": "f5651bedb501c400f7a59c0e5981212600295d8fda66a7500329e7807aeb9256",
+    "RootEdited": false,
+    "CoreCompiled": false,
+    "pureTransformsPreserveRuntimeKernel": true,
+    "files": {
+      "src/source_main_native_session.rs": "8a15e1184980d9a5fe9cafb5dbb148b92672f4f85b424290da8608430d4f27c4",
+      "src/source_main_native_step_checkpoint_impl.rs": "ad173f77ea67289b2a153fd10d4513115de91b9ae4d3bd136b1d7bc3b78c2abb",
+      "src/source_main_native_step_decode_impl.rs": "f1d548503af42c9e9a2e696255a1eebd698a9951725f2ced83ea53cc3fc80ae9",
+      "src/source_main_native_step_segment_impl.rs": "859805c6eeb075a6b31786afd16dffeefc0c35f8dbf23537b020b0896959eaa4",
+      "src/source_main_native_step_session_impl.rs": "8cdf541e7750fceaf9a815c9d7e2d6a2146287567770bc565ed5bc393497867d",
+      "tests/source_main_native_step_session.rs": "ef2b9df7e77d5fd4fb47dc09f20bd8794bb3375cc0a65994b6d1e402af032c3a"
+    }
+  },
+  "independentReviewManifestSHA256": "e0eb809db3551058951bf45d390b4b9365c371a20b1c40e41ddba69354ba13b0",
+  "independentReviewFindings": {
+    "kind": "independent segmented Native13 review; concrete accepted-prefix byte-budget progress defect",
+    "reviewedManifestSHA256": "f5651bedb501c400f7a59c0e5981212600295d8fda66a7500329e7807aeb9256",
+    "providerSHA256": "8bccb17410d3fa4d6065e975e6456b78e0b6d3ff767781dd9b1e916568c238c2",
+    "baselineStandalonePassed": 19,
+    "additionalActualOwnerPassed": 2,
+    "reproducedProgressFailure": {
+      "acceptedCommands": 35,
+      "activeSourceCalls": 34,
+      "restoreStringBytes": 60000,
+      "lastKernelFrameBytes": 4119204,
+      "publication": "Capacity",
+      "recordsRetained": 35,
+      "sinkInvoked": false,
+      "expectationChanged": false
+    },
+    "genuineSourceChecks": 4,
+    "genuineSourceCorpusSHA256": "f3215f8776c9fa8d68a6e3455f38a2b769eea64ca50cc35b15b5fab000d030e7",
+    "wholeCoreBuildByReviewer": false,
+    "rootEdits": false,
+    "fileProfilePositiveExecutionByReviewer": false,
+    "reviewedProduction": {
+      "src/source_main_native_step_checkpoint_impl.rs": "ad173f77ea67289b2a153fd10d4513115de91b9ae4d3bd136b1d7bc3b78c2abb",
+      "src/source_main_native_step_decode_impl.rs": "f1d548503af42c9e9a2e696255a1eebd698a9951725f2ced83ea53cc3fc80ae9",
+      "src/source_main_native_step_segment_impl.rs": "859805c6eeb075a6b31786afd16dffeefc0c35f8dbf23537b020b0896959eaa4",
+      "src/source_main_native_step_session_impl.rs": "8cdf541e7750fceaf9a815c9d7e2d6a2146287567770bc565ed5bc393497867d"
+    },
+    "files": {
+      "capacity_probe.rs": "46a55f7e0d49104384708848aae9273119c122037fb6dd900c95f9b457f239b3",
+      "EXTRA_CHECKS.json": "e20233ae71aa442e0be487b01326dcd596caef9bd440d2b1d9dd1e2a419ac31b",
+      "extra_tests.rs": "fd0e6d82930b93f717e92cec920fb168802fda293c866b74691d65ce6afd4c31",
+      "fixtures/segment_capacity_original_source.json": "f3215f8776c9fa8d68a6e3455f38a2b769eea64ca50cc35b15b5fab000d030e7",
+      "review-capacity-fifth.log": "41030def06dca85b194ac94fa0c44c23f817c706d6875656ca689f224a97101b",
+      "review-capacity-first-input-limit.log": "5a193772458edb4c32e9eb61e61436dbb0274a682f73378835acc22721f944a0",
+      "review-capacity-fourth.log": "89441748986528797faf5afbff45d3ec74d28a81aea890620d563e86a41a9c50",
+      "review-capacity-second.log": "ac4c606499737f9f3f5390f9d335bfa952ca97b9339d0960a01e6f765654acea",
+      "review-capacity-third.log": "64012cbe955378fe9359e1dd9e9ffabd35d6b73ce2df8e1a277471f7eedc0f70",
+      "REVIEW.md": "94a5e96d55130024bcb4c1d081289c97a6b4333be65509cc83157b9a42be5b0c",
+      "REVIEWED_MANIFEST.json": "f5651bedb501c400f7a59c0e5981212600295d8fda66a7500329e7807aeb9256",
+      "scripts/segment_capacity_source.cjs": "d9658b580b4ee94da8f4a16a5100e8a65963c12123af17f0f5fec50851ff3c4b",
+      "SOURCE_CHECKS.json": "200ab08f37c79b343209f5ef04865075d8a6babe1de254e909a40f76e3b7aa4b"
+    }
+  },
+  "promotionHeld": true,
+  "publicationCapacityDefect": "35 valid accepted commands remain retained but cannot publish through the current whole-window byte cap. Exact helper/actual-owner reproduction; direct production-Core regression and correction remain pending.",
+  "stateOrProofLossReproduced": false,
+  "WALOrCrashRecoveryEstablished": false,
+  "authenticationEstablished": false
+}
