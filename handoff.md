@@ -1,6 +1,6 @@
 # TradeLayer-Rust release handoff
 
-Updated: 2026-10-29T16:06:50Z. This file is maintained after every integration/PR cycle.
+Updated: 2026-10-29T16:32:02Z. This file is maintained after every integration/PR cycle.
 
 ## Objective and operating rules
 
@@ -85,4 +85,12 @@ The saved workbook and sidebar were refreshed against `21016cd` with 12 intentio
 
 All 281 release targets and the exact 86-target locked numeric-reference list pass. Counts are 1,976 top-level passes plus one successful storage child, not 1,977 unique source behaviors. The first restricted-network attempt stopped on eight client loopback PermissionDenied errors; all 11 client checks then passed with loopback access, and the complete frozen rerun passed without source changes. Failure and rerun hashes are preserved in the release record.
 
-Next immutable candidates awaiting Core integration: active-service WAL5696ac37 with temporary-prefix overlay175770a4 (19 proposed controls), and actual-file historical metadata views277a0fa9 (eight focused copied-source controls). Neither establishes native-index recovery or cold financial replay.
+Those two immutable candidates are integrated in the WAL/history cycle below. Their original worker checks remain provenance; actual Core results supersede their uncompiled status.
+
+## Active-service WAL and historical metadata integration cycle
+
+Implemented and checked:19 actual-Core WAL/codec/controller controls and8 actual-file history controls; the combined parallel library passes354 tests (three ignored), all-target Clippy, Cargo fmt,191 include formatting checks, transaction inventory and supply-chain checks. Evidence: `fixtures/reference_fidelity/native-main-wal-history-core-integration.json`.
+
+The actual owner/frame remains held through ambiguous control writes. Exact Before retries only sealed WAL bytes. Historical metadata is read from actual files under the retained current lock; missing compacted history refuses. No old financial state is imported. Native-index ambiguity recovery, cold financial replay and global startup ordering remain open. The last all-target release is1977 Rust/238 numeric checks and does not include this later scoped cycle.
+
+Root corrections to the immutable worker proposal: two Core API call signatures, an allowed test namespace, unique test-directory prefix, and direct shared raw-input parser use to satisfy warnings-denied. Original compile/setup failures and the clean final run remain recorded. Next uncompiled freezes: native recovery b1afc804, historical raw-source rows c05aa394, ordered-bootstrap work in progress.

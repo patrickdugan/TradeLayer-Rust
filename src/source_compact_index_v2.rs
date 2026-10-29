@@ -874,6 +874,7 @@ impl SourceCompactBlock {
 }
 
 include!("source_compact_stream_impl.rs");
+include!("source_index_history_read_impl.rs");
 
 include!("source_main_index_stream_impl.rs");
 
@@ -892,3 +893,7 @@ mod prepared_validity_tests;
 #[cfg(test)]
 #[path = "source_index_verified_reopen_tests.rs"]
 mod verified_reopen_tests;
+
+#[cfg(test)]
+#[path = "source_index_history_read_tests.rs"]
+mod history_read_tests;

@@ -1,0 +1,9 @@
+# Native Main active-service WAL
+
+The explicit TL-MAIN-ACTIVE-SERVICE-WAL-13-1 profile now composes the actual moved Main session, index, financial owner and pending source frame. Raw actions and complete actual Before observations are synced before execution. Real source/native APIs execute once; actual Post observations, Accepted and ACK are synced before a later API action is allowed. A held incoming Promise can coexist with separately acknowledged Pause/Shutdown.
+
+A sealed complete-KV Before/Post plan resolves ambiguous control-WAL writes. At exact Before only the same WAL bytes may be retried; source/action execution is never repeated for that recovery. Missing/corrupt referenced blobs, foreign plans and unknown suffixes refuse. The separate TLMASA1 codec preserves bounded ordered raw values and rejects malformed/noncanonical/oversized fields. Existing native archives and legacy readers remain separate.
+
+Parent-executed validation: 19 WAL/codec/controller controls pass; the combined library passes354 tests (three child entries ignored), all-target Clippy denies warnings, Cargo fmt and191 included-file formatting checks pass. Current transaction inventory and supply-chain checks pass. Evidence: fixtures/reference_fidelity/native-main-wal-history-core-integration.json.
+
+Actual native-index ambiguity still retains the owner/plan in NativeRecoveryRequired. It has no recovery escape in this milestone. Same-process raw replay on independently recreated inputs is a comparison control, not proof of cold process-loss replay or identical physical heads. Native recovery, enhanced historical-pin capture, generation escrow, cold catchup/service replay, global startup ordering, intended-host power loss, authenticated inputs and complete-block proof coverage remain open. No financial state importer or owner-release API is added.

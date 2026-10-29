@@ -38,6 +38,10 @@ jobs:
         run: python3 -m unittest discover -s tests -p test_rust_supply_chain.py -v
       - name: Check formatting
         run: cargo fmt --all -- --check
+      - name: Check historical metadata include formatting
+        run: rustfmt --check --edition 2021 src/compact_history_prefix_impl.rs src/source_index_history_read_impl.rs src/source_index_history_read_tests.rs src/storage_history_prefix_impl.rs src/storage_history_prefix_tests.rs
+      - name: Check active-service WAL include formatting
+        run: rustfmt --check --edition 2021 src/source_main_active_service_action_codec_impl.rs src/source_main_active_service_action_codec_tests.rs src/source_main_active_service_durable_impl.rs src/source_main_active_service_durable_tests.rs src/source_main_active_service_wal.rs src/source_main_active_service_wal_tests.rs
       - name: Check included snapshot file formatting
         run: rustfmt --check --edition 2021 src/registry_snapshot_impl.rs src/execution_snapshot_impl.rs src/execution_channel_revisions_impl.rs src/ledger_channels_impl.rs src/ledger_settlement_impl.rs src/ledger_channel_revisions_impl.rs
       - name: Check included bounded RPC parser formatting

@@ -225,6 +225,7 @@ mod source_compact_index_v2_tests;
 pub mod source_main_native_intent_store;
 pub mod source_main_native_owners;
 
+pub mod source_main_active_service_wal;
 pub mod source_main_native_session;
 pub mod source_main_step_kernel;
 

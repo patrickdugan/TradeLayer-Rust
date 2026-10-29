@@ -76,6 +76,8 @@ rustfmt --check --edition 2021 \
   src/source_main_native_completed_guard_test_impl.rs \
   src/source_main_native_completed_empty_tests.rs src/source_main_native_completed_controller_impl.rs src/source_main_native_completed_recovery_tests.rs \
   src/source_main_native_service_client_scope_tests.rs \
+  src/compact_history_prefix_impl.rs src/source_index_history_read_impl.rs src/source_index_history_read_tests.rs src/storage_history_prefix_impl.rs src/storage_history_prefix_tests.rs \
+  src/source_main_active_service_action_codec_impl.rs src/source_main_active_service_action_codec_tests.rs src/source_main_active_service_durable_impl.rs src/source_main_active_service_durable_tests.rs src/source_main_active_service_wal.rs src/source_main_active_service_wal_tests.rs \
   src/source_main_native_step_checkpoint_impl.rs src/source_main_native_step_decode_impl.rs \
   src/source_main_native_step_session_impl.rs src/source_main_native_step_segment_impl.rs \
   src/source_main_step_block_impl.rs src/source_main_step_runtime_impl.rs src/source_main_step_fields_impl.rs \

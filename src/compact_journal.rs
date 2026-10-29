@@ -18,6 +18,7 @@ include!("source_native_append_plan_impl.rs");
 include!("compact_native_supersession_binding_impl.rs");
 include!("compact_native_main_owner_access_impl.rs");
 include!("compact_verified_prefix_impl.rs");
+include!("compact_history_prefix_impl.rs");
 const MAX_GENERATIONS: usize = 64;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct CatalogPublication {

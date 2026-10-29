@@ -803,6 +803,18 @@
       "coveredByReleaseCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
       "testedCheckoutCommit": "e99ef482d0f258d19a7a10aa776e6923d1c22532",
       "releaseValidationRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json"
+    },
+    "activeServiceWALAndHistoricalViews": {
+      "status": "current-Core-scoped-checks-pass",
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/native-main-wal-history-core-integration.json",
+      "newControlsPassed": 27,
+      "parallelLibraryPassed": 354,
+      "ignoredChildEntries": 3,
+      "countsOverlap": true,
+      "fullSuitePromotion": false,
+      "nativeIndexAmbiguityRecoveryEstablished": false,
+      "coldFinancialReplayEstablished": false
     }
   },
   "scope": "Full release of Main publication/service plus fee and reward accounting passes 1,977 Rust executions across 281 targets and 238 locked numeric-reference checks. All 1,646 tracked inputs were verified unchanged. Active-service WAL/native ambiguity, cold source replay, global initialization ordering, broader source domains and authenticated proof coverage remain open.",
@@ -1126,13 +1138,12 @@
   },
   "validationRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json",
   "knownReferenceGaps": [
-    "Actual-owner active-service WAL and native-index ambiguity recovery",
-    "Cold source reexecution from independently verified historical metadata",
-    "Global import/static initialization failures and notification ordering",
-    "Broader receiver/cache/value/history domains and intended-host power-loss validation",
-    "Fee/reward matcher and Ledger wiring; economic/consensus decisions remain separate",
-    "Intended-host representative real-block CPU/RSS",
-    "Full-suite promotion, chain/UTXO/actor evidence, authenticated history and complete-block proofs"
+    "Retained native-index Before/Intermediate/Post recovery in durable active service",
+    "Cold raw-source row/catchup/service reexecution and durable generation escrow",
+    "Global import/static initialization failure and notification ordering",
+    "Broader receiver/cache/value/history domains; intended-host power loss and real-block CPU/RSS",
+    "Fee/reward matcher/Ledger wiring and economic/consensus choices",
+    "Authenticated chain/UTXO/actor inputs and complete-block proof coverage"
   ],
   "previousFullSuiteBaseline": {
     "implementationCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",

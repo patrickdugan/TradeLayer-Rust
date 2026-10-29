@@ -762,3 +762,8 @@ include!("storage_verified_prefix_impl.rs");
 #[cfg(test)]
 #[path = "storage_verified_prefix_tests.rs"]
 mod verified_prefix_tests;
+
+include!("storage_history_prefix_impl.rs");
+#[cfg(test)]
+#[path = "storage_history_prefix_tests.rs"]
+mod history_prefix_tests;
