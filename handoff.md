@@ -1,6 +1,6 @@
 # TradeLayer-Rust release handoff
 
-Updated: 2026-10-29T16:32:02Z. This file is maintained after every integration/PR cycle.
+Updated: 2026-10-29T17:25:16Z. This file is maintained after every integration/PR cycle.
 
 ## Objective and operating rules
 
@@ -98,3 +98,13 @@ Root corrections to the immutable worker proposal: two Core API call signatures,
 ## Tracker checkpoint after WAL/history integration
 
 Saved workbook and sidebar now match code8ce6ad0. The visible release baseline is1,977 Rust/238 numeric checks; the later scoped library result is354. Fourteen intentional cell changes preserve all37 transaction rows, formulas, styles, filters, layout and open proof/parity gates. Evidence: `fixtures/reference_fidelity/wal-history-completeness.json`.
+
+## Native recovery, real exits and cold raw-row cycle
+
+Actual same-owner Before/Intermediate/Post recovery and durable supersession now pass six Core controls. Completed raw ProcessRows historical reexecution passes five source-owner and four metadata controls; independent review found no actionable defect in that bounded scope. One parent matrix runs four actual child exits and validates stored prefixes/blobs. No source action is rerun to recover a same-process write.
+
+Final combined library:370passed/fourignored; public compatibility:25passed; Clippy warnings denied, Cargo fmt,200include formatting, inventory and supply-chain pass. Evidence: `fixtures/reference_fidelity/native-recovery-cold-rows-core-integration.json`. Last all-target release stays1,977 Rust/238 numeric checks.
+
+Root corrections preserve strict assertions: four Err checks avoid a Debug bound on a private financial owner, one unused test mut removed, all four metadata sidecar tests mounted, and the compaction case stops at the first actual primed catchup write instead of consuming its compaction while driving to live. A logically equivalent guard simplification satisfies Clippy. Earlier failures are retained.
+
+Next queued uncompiled candidates: ordered-bootstrap238947 plus source-loadera1f334; cold ACK reader7b839; read-only cold capability4e5bd; generation escrow1869. Native action/catchup/timer and partial-command financial cold replay, escrow wiring and global startup ordering remain open. The three agents continue those actual composition gates.

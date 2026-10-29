@@ -883,6 +883,7 @@ include!("source_main_native_owner_access_impl.rs");
 include!("source_main_native_validity_impl.rs");
 include!("source_index_prepared_put_impl.rs");
 include!("source_index_prepared_validity_impl.rs");
+include!("source_index_historical_validity_impl.rs");
 include!("source_index_row_binding_impl.rs");
 include!("source_main_native_no_index_index_tests_impl.rs");
 include!("source_index_verified_reopen_impl.rs");
@@ -897,3 +898,7 @@ mod verified_reopen_tests;
 #[cfg(test)]
 #[path = "source_index_history_read_tests.rs"]
 mod history_read_tests;
+
+#[cfg(test)]
+#[path = "source_index_historical_validity_tests.rs"]
+mod historical_validity_tests;

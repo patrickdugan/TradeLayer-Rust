@@ -551,6 +551,7 @@ impl SourceMainNativeSessionV13 {
     }
 }
 include!("source_main_native_checkpoint_impl.rs");
+include!("source_main_native_historical_replay_impl.rs");
 include!("source_main_native_step_session_impl.rs");
 include!("source_main_native_step_segment_impl.rs");
 
@@ -568,6 +569,7 @@ include!("source_main_native_no_control_store_impl.rs");
 include!("source_main_native_service_session_impl.rs");
 include!("source_main_active_service_action_codec_impl.rs");
 include!("source_main_active_service_durable_impl.rs");
+include!("source_main_active_service_recovery_impl.rs");
 #[cfg(test)]
 #[path = "source_main_active_service_action_codec_tests.rs"]
 mod native_active_service_action_codec_tests;
@@ -605,3 +607,7 @@ include!("source_main_native_completed_controller_impl.rs");
 #[cfg(test)]
 #[path = "source_main_native_completed_recovery_tests.rs"]
 mod completed_recovery_tests;
+
+#[cfg(test)]
+#[path = "source_main_native_historical_replay_tests.rs"]
+mod native_historical_replay_tests;

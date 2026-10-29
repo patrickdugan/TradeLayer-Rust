@@ -108,6 +108,8 @@ pub struct ActiveServiceWalV1 {
     ambiguous: bool,
     #[cfg(test)]
     fault: Option<TestFault>,
+    #[cfg(test)]
+    commit_probe: Option<fn(&PreparedActiveServiceWalWriteV1, bool)>,
 }
 #[cfg(test)]
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -215,6 +217,14 @@ impl ActiveServiceWalBlobV1 {
 }
 impl ActiveServiceWalV1 {
     #[cfg(test)]
+    pub(crate) fn set_test_commit_probe(
+        &mut self,
+        probe: fn(&PreparedActiveServiceWalWriteV1, bool),
+    ) {
+        self.commit_probe = Some(probe);
+    }
+
+    #[cfg(test)]
     pub(crate) fn set_test_fault(&mut self, fault: TestFault) {
         self.fault = Some(fault);
     }
@@ -288,6 +298,8 @@ impl ActiveServiceWalV1 {
             ambiguous: false,
             #[cfg(test)]
             fault: None,
+            #[cfg(test)]
+            commit_probe: None,
         })
     }
     fn healthy(&self) -> Result<&Journal> {
@@ -399,6 +411,10 @@ impl ActiveServiceWalV1 {
             self.fault = None;
             return Err(std::io::Error::other("actual WAL before commit").into());
         }
+        #[cfg(test)]
+        if let Some(probe) = self.commit_probe {
+            probe(plan, false);
+        }
         self.journal
             .as_mut()
             .ok_or(ActiveServiceWalErrorV1::Ambiguous)?
@@ -406,6 +422,10 @@ impl ActiveServiceWalV1 {
                 key: RECORD.into(),
                 value: plan.record.clone(),
             }])?;
+        #[cfg(test)]
+        if let Some(probe) = self.commit_probe {
+            probe(plan, true);
+        }
         #[cfg(test)]
         if self.fault == Some(TestFault::AfterCommit) {
             self.fault = None;

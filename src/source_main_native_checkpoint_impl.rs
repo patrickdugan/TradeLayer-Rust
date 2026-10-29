@@ -126,6 +126,7 @@ struct NativeArchiveInput {
     binding: V,
     origin_rows: V,
     entries: Vec<(NativeMainSessionCommand, Vec<u8>)>,
+    physical_entries: Vec<(V, V)>,
 }
 fn inspect_archive(
     bytes: &[u8],
@@ -167,6 +168,7 @@ fn inspect_archive(
         return Err(NativeMainSessionError::WrongHead);
     }
     let mut entries = Vec::with_capacity(count);
+    let mut physical_entries = Vec::with_capacity(count);
     let mut previous_physical = physical_value(&expected.origin);
     for _ in 0..count {
         let command = decode_command(read_value(&mut cursor)?)?;
@@ -180,6 +182,7 @@ fn inspect_archive(
         if !matches!(after, V::Object(_)) {
             return Err(NativeMainSessionError::WrongPhysicalBinding);
         }
+        physical_entries.push((previous_physical.clone(), after.clone()));
         previous_physical = after;
         entries.push((command, logical_receipt));
     }
@@ -198,6 +201,7 @@ fn inspect_archive(
         binding,
         origin_rows,
         entries,
+        physical_entries,
     })
 }
 impl SourceMainNativeSessionV13 {

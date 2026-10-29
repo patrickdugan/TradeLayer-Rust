@@ -2,8 +2,8 @@
   "schema": "tl-logic-reference-review-v1",
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
   "rustCommit": "70f568ad703bef189c01c989631692fdf75235bb",
-  "rustCommitScope": "Full release of implementation21016cd at tested checkout e99ef48 passes1,977 Rust executions and238 locked numeric checks with1,646 unchanged inputs. Main completed publication/running-service and standalone fees/rewards are covered. Active-service WAL/native recovery, cold financial replay, global startup ordering, authenticated history and complete-block proofs remain open. Per-type parity/proof classifications are unchanged. Additional scoped integration adds actual-owner active-service WAL and same-publication verified disk history views:27new controls,354 combined library passes. Native-index ambiguity recovery and cold financial replay remain open; last full release remains1977/238.",
-  "reviewedAtUtc": "2026-10-29T16:32:02Z",
+  "rustCommitScope": "Full release of implementation21016cd at tested checkout e99ef48 passes1,977 Rust executions and238 locked numeric checks with1,646 unchanged inputs. Main completed publication/running-service and standalone fees/rewards are covered. Active-service WAL/native recovery, cold financial replay, global startup ordering, authenticated history and complete-block proofs remain open. Per-type parity/proof classifications are unchanged. Additional scoped integration adds actual-owner active-service WAL and same-publication verified disk history views:27new controls,354 combined library passes. Native-index ambiguity recovery and cold financial replay remain open; last full release remains1977/238. Additional same-owner active native Before/Intermediate/Post recovery, four real storage process exits and completed raw ProcessRows historical source replay pass16new Core controls,370combined library tests and25public compatibility checks. Active/catchup/partial financial cold recovery and pruned-generation availability remain open; full-release baseline stays1977/238.",
+  "reviewedAtUtc": "2026-10-29T17:25:16Z",
   "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
     {
@@ -166,7 +166,7 @@
     {
       "path": "src/source_contract_runtime.rs",
       "lfNormalized": true,
-      "sha256": "63ec5da88540dc64ffe5e0520dc34b97ec5052715d8d1eb6e35ed1d69555ff3e"
+      "sha256": "96333fd99312396f7a0dc5147191f93a96f6458f6506836fcd3d54552027b321"
     },
     {
       "path": "src/source_contract_values.rs",
@@ -535,22 +535,22 @@
     },
     {
       "path": "src/source_compact_index_v2.rs",
-      "sha256": "4abd011bd34a54230d2648b02eeacd423dc6ecdb205717b04532d37251e7f185",
+      "sha256": "d4b9a14a4ddd96a8a3f578ad9f1ace091697f6d5c59fe59c220b3c67d9aa5789",
       "lfNormalized": true
     },
     {
       "path": "src/source_main_native_session.rs",
-      "sha256": "955600b91c0827b72f690a065b0cf498a9272e14cd302a24120d60471883aea3",
+      "sha256": "5e416d5df986f96f10487f2cce44b1a6b06b2df3cb2b0341286cfcc7c2593057",
       "lfNormalized": true
     },
     {
       "path": "src/source_index_prepared_put_impl.rs",
-      "sha256": "ad3cc76681602193a18f452f7c2a18e6b12b39e643aa0b990447de6994a04c8f",
+      "sha256": "58491150bb313cdcf6c65e29fb27cf62b3d1b9322beb4af8121712cb20f5df5b",
       "lfNormalized": true
     },
     {
       "path": "src/source_index_prepared_validity_impl.rs",
-      "sha256": "3d93875ada99472104ac2fc050e89fa894dd51e72ccc848f6b6c6ffc6ce5f882",
+      "sha256": "2166b010ed336b4954cf26462e9dabc8690796b8b5907a66304c199e0d120c9f",
       "lfNormalized": true
     },
     {
@@ -935,17 +935,17 @@
     },
     {
       "path": "src/source_main_active_service_durable_impl.rs",
-      "sha256": "ed4d8f229fcee2189d5cfc93bca63c9e7c47439b373d9203725282298c466fad",
+      "sha256": "2f57e44adf17aa5db83584fe66b183cac671f38ea644ee5d363c060d414ea491",
       "lfNormalized": true
     },
     {
       "path": "src/source_main_active_service_durable_tests.rs",
-      "sha256": "17c4da7654b09a87baa7556e4ae155cb7b998505a85f9efa06fff01d05f8f11b",
+      "sha256": "de7c573bc4676b27e64cc13176ddf85cb767a78f93a41b52412e6fdf004c0eb7",
       "lfNormalized": true
     },
     {
       "path": "src/source_main_active_service_wal.rs",
-      "sha256": "27e63b41ac7b1a4060b157ee95c59dd41896b6ec0ea0061110b09f700666dfb1",
+      "sha256": "519690e3a038ef08dd7dc8663a71b19bba2502354ee3efa6868768ab0cac7ae5",
       "lfNormalized": true
     },
     {
@@ -976,6 +976,56 @@
     {
       "path": "src/storage_history_prefix_tests.rs",
       "sha256": "7ea88bf40e34ab6c3dbc234f8614f85215b0edbe6ba63eac4c6af5d7c78008b2",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_active_service_recovery_impl.rs",
+      "sha256": "37559eec68ce7e40e2832a953316f9c55b4ba2d5e260b8ccb68b86564fc174f5",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_active_service_recovery_runtime_impl.rs",
+      "sha256": "7d5ac7b6162a985f01d0cd8e19bfc3841db1da753f134fd7355e79fb39c11b55",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_active_service_recovery_tests.rs",
+      "sha256": "936357a3ffa05ecd70e4d3fda79d0b8f8ab846019a15980c0897b4f5a999fe55",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_active_wal_exit_tests.rs",
+      "sha256": "1c3c6796f0a7c4eb6377eff4908e00299a06ed01763990c8207f038dd585b945",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_checkpoint_impl.rs",
+      "sha256": "217d33ff59d560cb1c8e8d453e884b1c7599327f35bf3cf89a56d2940d01c526",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_index_historical_validity_impl.rs",
+      "sha256": "a4976c2150915e77d72bab7fcada5495117d56f03c2641cfa7ccc7c00c9cf724",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_index_historical_validity_tests.rs",
+      "sha256": "8698d048f1d4c37b84495d466635af62e4d3d68a3bb6dcc6cce4618b4189ff41",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_historical_replay_impl.rs",
+      "sha256": "50514951f8fe65d1df383ce1a22765d510832fa76575d01c3e2ea4a2d7f4959b",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_historical_replay_tests.rs",
+      "sha256": "d0f5bff9f64d32f9df8131cf733e6e1a9ec089d839495f4c8fd187a6232b05bc",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_historical_rows_impl.rs",
+      "sha256": "a2a1ceca62d21b37cb19142e3ffb833c2655f55483e758695baf0a47e433b0ce",
       "lfNormalized": true
     }
   ],

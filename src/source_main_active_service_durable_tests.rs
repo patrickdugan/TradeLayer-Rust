@@ -592,3 +592,9 @@ fn oversized_action_decode_never_mutates_the_retained_real_owner() {
     assert_eq!(owner.index().snapshot().unwrap(), physical);
     assert!(owner.history().is_empty());
 }
+
+#[path = "source_main_active_service_recovery_tests.rs"]
+mod native_recovery_tests;
+
+#[path = "source_main_active_wal_exit_tests.rs"]
+mod active_wal_exit_tests;

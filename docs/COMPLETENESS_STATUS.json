@@ -816,6 +816,21 @@
       "nativeIndexAmbiguityRecoveryEstablished": false,
       "coldFinancialReplayEstablished": false,
       "commit": "8ce6ad0ac031289e77e48c78ea6b0dd110af39bf"
+    },
+    "nativeRecoveryAndColdRows": {
+      "status": "current-Core-scoped-checks-pass",
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/native-recovery-cold-rows-core-integration.json",
+      "newCurrentCoreControls": 16,
+      "parallelLibraryPassed": 370,
+      "ignoredChildEntries": 4,
+      "publicCompatibilityPassed": 25,
+      "actualStorageProcessExits": 4,
+      "countsOverlap": true,
+      "sameProcessBeforeIntermediatePostRecoveryEstablished": true,
+      "completedProcessRowsReexecutionEstablished": true,
+      "fullSuitePromotion": false,
+      "fullActiveColdFinancialRecoveryEstablished": false
     }
   },
   "scope": "Full release code21016cd, tested e99ef48:1,977 Rust executions across281 targets plus238 locked numeric checks;1,646 frozen inputs unchanged. Later recovery8ce6ad0 adds19 actual-owner WAL/codec/controller and8 actual-file history controls; combined library354 passes (3 ignored), Clippy/format/inventory/supply-chain pass. Counts overlap; this later scope is not yet a new all-target release. Native-index ambiguity recovery, cold source replay/generation escrow, global startup promise ordering, broader source domains, host validation and authenticated complete-block proofs remain open. handoff.md is current.",
@@ -1141,9 +1156,9 @@
   },
   "validationRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json",
   "knownReferenceGaps": [
-    "Retained native-index Before/Intermediate/Post recovery in durable active service",
-    "Cold raw-source row/catchup/service reexecution and durable generation escrow",
-    "Global import/static initialization failure and notification ordering",
+    "Active/catchup/timer and partial-command financial process-loss replay",
+    "Durable retained-generation escrow and guarded active-service wiring across pruning",
+    "Global import/static initialization rejection and notification ordering",
     "Broader receiver/cache/value/history domains; intended-host power loss and real-block CPU/RSS",
     "Fee/reward matcher/Ledger wiring and economic/consensus choices",
     "Authenticated chain/UTXO/actor inputs and complete-block proof coverage"

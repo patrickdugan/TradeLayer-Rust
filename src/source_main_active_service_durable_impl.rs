@@ -43,6 +43,8 @@ pub enum NativeMainActiveWalPhaseV1 {
     Accepted,
     Ack,
     NativeRecoveryRequired,
+    NativeSupersessionIntent,
+    NativeSupersessionAppend,
 }
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct NativeMainActiveWalReceiptV1 {
@@ -61,6 +63,9 @@ enum ActiveWalOwner {
     Active(Box<SourceMainNativeActiveServiceV1>),
 }
 struct ActiveWalPending {
+    native_recovery: Option<ActiveWalNativeRecovery>,
+    history_before: Option<Vec<u8>>,
+    history_post: Option<Vec<u8>>,
     action: NativeMainActiveServiceActionV1,
     raw: Vec<u8>,
     before: Vec<u8>,
@@ -99,10 +104,12 @@ pub struct SourceMainNativeDurableActiveServiceV1 {
     pending: Option<ActiveWalPending>,
     origin_archive: Vec<u8>,
     origin_pin: ActiveServiceWalBlobV1,
+    origin_history: Option<Vec<u8>>,
     history: Vec<NativeMainActiveWalReceiptV1>,
     head: [u8; 32],
     acknowledged_append: Option<V>,
     observation_limit: usize,
+    history_enabled: bool,
     #[cfg(test)]
     barrier_fault: Option<(
         NativeMainActiveWalPhaseV1,
@@ -122,12 +129,13 @@ fn active_wal_pin(pin: &ActiveServiceWalBlobV1) -> V {
     pin.value()
 }
 impl SourceMainNativeDurableActiveServiceV1 {
-    pub fn create(
+    fn create_internal(
         owner: SourceMainNativeSessionV13,
         root: impl AsRef<std::path::Path>,
         namespace: crate::storage::Namespace,
         filesystem: crate::source_contract_replay::source_durable::SourceDurableFilesystem,
         observation_limit: usize,
+        history_enabled: bool,
     ) -> Result<Self, Box<RejectedNativeMainActiveWalV1>> {
         let checked = (|| {
             if observation_limit == 0 || observation_limit > ACTIVE_WAL_OBSERVATION_LIMIT {
@@ -138,7 +146,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
                 .map_err(|e| active_wal_backend(format!("{e:?}")))?;
             let origin_pin = ActiveServiceWalBlobV1::of(&archive)?;
             let observation = Self::ready_observation(&owner, observation_limit)?;
-            let origin = obj(&[
+            let mut origin = obj(&[
                 ("profile", s(NATIVE_MAIN_DURABLE_ACTIVE_SERVICE_PROFILE)),
                 ("archive", origin_pin.value()),
                 (
@@ -146,22 +154,39 @@ impl SourceMainNativeDurableActiveServiceV1 {
                     ActiveServiceWalBlobV1::of(&observation)?.value(),
                 ),
             ]);
+            let origin_history = if history_enabled {
+                let raw = Self::history_pin_bytes(&owner.index)?;
+                origin
+                    .insert("profile", s("TL-MAIN-ACTIVE-SERVICE-HISTORY-WAL-13-1"))
+                    .map_err(active_wal_backend)?;
+                origin
+                    .insert(
+                        "requiredVerifiedHistory",
+                        ActiveServiceWalBlobV1::of(&raw)?.value(),
+                    )
+                    .map_err(active_wal_backend)?;
+                Some(raw)
+            } else {
+                None
+            };
             let head = sha256(&active_wal_bytes(&origin)?);
             let wal = ActiveServiceWalV1::create(root.as_ref(), namespace, origin, filesystem)?;
-            Ok((archive, origin_pin, head, wal))
+            Ok((archive, origin_pin, origin_history, head, wal))
         })();
         match checked {
-            Ok((origin_archive, origin_pin, head, wal)) => Ok(Self {
+            Ok((origin_archive, origin_pin, origin_history, head, wal)) => Ok(Self {
                 owner: Some(ActiveWalOwner::Ready(Box::new(owner))),
                 wal,
                 phase: NativeMainActiveWalPhaseV1::Idle,
                 pending: None,
                 origin_archive,
                 origin_pin,
+                origin_history,
                 history: vec![],
                 head,
                 acknowledged_append: None,
                 observation_limit,
+                history_enabled,
                 #[cfg(test)]
                 barrier_fault: None,
             }),
@@ -169,7 +194,11 @@ impl SourceMainNativeDurableActiveServiceV1 {
         }
     }
     pub fn profile(&self) -> &'static str {
-        NATIVE_MAIN_DURABLE_ACTIVE_SERVICE_PROFILE
+        if self.history_enabled {
+            "TL-MAIN-ACTIVE-SERVICE-HISTORY-WAL-13-1"
+        } else {
+            NATIVE_MAIN_DURABLE_ACTIVE_SERVICE_PROFILE
+        }
     }
     pub fn phase(&self) -> NativeMainActiveWalPhaseV1 {
         self.phase
@@ -296,6 +325,11 @@ impl SourceMainNativeDurableActiveServiceV1 {
             return Err(NativeMainActiveWalErrorV1::WrongAction);
         }
         let before = self.owner_observation()?;
+        let history_before = if self.history_enabled {
+            Some(self.capture_history_bytes()?)
+        } else {
+            None
+        };
         let mut candidates = None;
         let mut mutations = None;
         let mut append_context = None;
@@ -325,6 +359,9 @@ impl SourceMainNativeDurableActiveServiceV1 {
             }
         }
         self.pending = Some(ActiveWalPending {
+            native_recovery: None,
+            history_before,
+            history_post: None,
             action,
             raw,
             before,
@@ -357,6 +394,18 @@ impl SourceMainNativeDurableActiveServiceV1 {
         {
             refs.push(ActiveServiceWalBlobV1::of(raw)?)
         }
+        for raw in [&p.history_before, &p.history_post].into_iter().flatten() {
+            refs.push(ActiveServiceWalBlobV1::of(raw)?);
+        }
+        if let Some(recovery) = &p.native_recovery {
+            refs.push(ActiveServiceWalBlobV1::of(&recovery.raw)?);
+            if let Some(prior) = &recovery.prior {
+                refs.push(prior.clone());
+            }
+        }
+        if let Some(raw) = &self.origin_history {
+            refs.push(ActiveServiceWalBlobV1::of(raw)?);
+        }
         if let Some(previous) = self.history.last() {
             refs.push(previous.entry.clone())
         }
@@ -367,7 +416,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
             .pending
             .as_ref()
             .ok_or(NativeMainActiveWalErrorV1::NoAction)?;
-        Ok(obj(&[
+        let mut record = obj(&[
             ("profile", s(self.profile())),
             ("stage", s(stage)),
             ("sequence", s(&(self.history.len() + 1).to_string())),
@@ -411,7 +460,26 @@ impl SourceMainNativeDurableActiveServiceV1 {
                     .transpose()?
                     .unwrap_or(V::Null),
             ),
-        ]))
+        ]);
+        if let Some(recovery) = &p.native_recovery {
+            record
+                .insert(
+                    "nativeRecovery",
+                    ActiveServiceWalBlobV1::of(&recovery.raw)?.value(),
+                )
+                .map_err(active_wal_backend)?;
+        }
+        for (name, raw) in [
+            ("verifiedHistoryBefore", &p.history_before),
+            ("verifiedHistoryPost", &p.history_post),
+        ] {
+            if let Some(raw) = raw {
+                record
+                    .insert(name, ActiveServiceWalBlobV1::of(raw)?.value())
+                    .map_err(active_wal_backend)?;
+            }
+        }
+        Ok(record)
     }
     fn write_barrier(&mut self, stage: &str) -> ActiveWalResult<()> {
         #[cfg(test)]
@@ -433,6 +501,15 @@ impl SourceMainNativeDurableActiveServiceV1 {
         {
             let p = self.pending.as_ref().expect("pending");
             let mut blobs = vec![p.raw.clone(), p.before.clone(), self.origin_archive.clone()];
+            if let Some(raw) = &self.origin_history {
+                blobs.push(raw.clone());
+            }
+            if let Some(recovery) = &p.native_recovery {
+                blobs.push(recovery.raw.clone());
+            }
+            for raw in [&p.history_before, &p.history_post].into_iter().flatten() {
+                blobs.push(raw.clone());
+            }
             for raw in [&p.candidates, &p.mutations, &p.post, &p.entry]
                 .into_iter()
                 .flatten()
@@ -467,6 +544,10 @@ impl SourceMainNativeDurableActiveServiceV1 {
                 NativeMainActiveWalPhaseV1::NativeRecoveryRequired => {
                     return Err(NativeMainActiveWalErrorV1::NativeRecoveryRequired)
                 }
+                NativeMainActiveWalPhaseV1::NativeSupersessionIntent
+                | NativeMainActiveWalPhaseV1::NativeSupersessionAppend => {
+                    self.advance_native_recovery()?;
+                }
                 NativeMainActiveWalPhaseV1::Intent => {
                     self.write_barrier("Intent")?;
                     self.execute_once()?;
@@ -488,9 +569,24 @@ impl SourceMainNativeDurableActiveServiceV1 {
                         .source_error
                         .as_ref()
                         .map_or(V::Null, |e| s(&format!("{e:?}")));
-                    let suffix = active_wal_bytes(&obj(&[("apiRejection", rejected)]))?;
+                    let mut diagnostic = obj(&[("apiRejection", rejected)]);
+                    if let Some(recovery) = &p.native_recovery {
+                        diagnostic
+                            .insert(
+                                "nativeRecovery",
+                                ActiveServiceWalBlobV1::of(&recovery.raw)?.value(),
+                            )
+                            .map_err(active_wal_backend)?;
+                    }
+                    let suffix = active_wal_bytes(&diagnostic)?;
                     bytes.extend_from_slice(&(suffix.len() as u64).to_be_bytes());
                     bytes.extend_from_slice(&suffix);
+                    let history_post = if self.history_enabled {
+                        Some(self.capture_history_bytes()?)
+                    } else {
+                        None
+                    };
+                    self.pending.as_mut().expect("pending").history_post = history_post;
                     self.pending.as_mut().expect("pending").post = Some(bytes);
                     self.seal_entry()?;
                     self.phase = NativeMainActiveWalPhaseV1::Accepted;
@@ -602,7 +698,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
             .transpose()?;
         let sequence = self.history.len() as u64 + 1;
         let previous = self.history.last().map_or(V::Null, |r| r.entry.value());
-        let raw = active_wal_bytes(&obj(&[
+        let mut entry_value = obj(&[
             ("profile", s(self.profile())),
             ("sequence", s(&sequence.to_string())),
             ("previousEntry", previous),
@@ -618,7 +714,26 @@ impl SourceMainNativeDurableActiveServiceV1 {
                 native_mutations.as_ref().map_or(V::Null, active_wal_pin),
             ),
             ("accepted", accepted.value()),
-        ]))?;
+        ]);
+        if let Some(recovery) = &p.native_recovery {
+            entry_value
+                .insert(
+                    "nativeRecovery",
+                    ActiveServiceWalBlobV1::of(&recovery.raw)?.value(),
+                )
+                .map_err(active_wal_backend)?;
+        }
+        for (name, raw) in [
+            ("verifiedHistoryBefore", &p.history_before),
+            ("verifiedHistoryPost", &p.history_post),
+        ] {
+            if let Some(raw) = raw {
+                entry_value
+                    .insert(name, ActiveServiceWalBlobV1::of(raw)?.value())
+                    .map_err(active_wal_backend)?;
+            }
+        }
+        let raw = active_wal_bytes(&entry_value)?;
         let entry = ActiveServiceWalBlobV1::of(&raw)?;
         let mut chain = b"Native13/ActiveWalPhysicalAck/v1".to_vec();
         chain.extend_from_slice(&self.head);
@@ -679,6 +794,10 @@ impl SourceMainNativeDurableActiveServiceV1 {
             ActiveServiceWalResolvedV1::Post => {
                 p.plan = None;
                 match self.phase {
+                    NativeMainActiveWalPhaseV1::NativeSupersessionIntent => {
+                        self.install_native_replacement()?;
+                        self.phase = NativeMainActiveWalPhaseV1::NativeSupersessionAppend;
+                    }
                     NativeMainActiveWalPhaseV1::Intent => {
                         self.execute_once()?;
                         self.phase = NativeMainActiveWalPhaseV1::Observe;

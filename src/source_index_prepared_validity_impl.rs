@@ -338,90 +338,16 @@ impl SourceCompactIndex {
             value.validate()?;
         }
         self.require_snapshot(expected)?;
-        let snapshot = self.read_generation(expected)?;
-        let mut cursor = snapshot.cursor();
-        let mut matched = 0u64;
-        let mut chain = crate::hash256::double_sha256(VALIDITY_STREAM_PROFILE.as_bytes());
-        while let Some(row) = cursor.next_row()? {
-            if row_id(&row)?.starts_with("tx") {
-                let body = row.diagnostic_json()?;
-                let mut raw = chain.to_vec();
-                raw.extend_from_slice(&matched.to_be_bytes());
-                raw.extend_from_slice(&(body.len() as u32).to_be_bytes());
-                raw.extend_from_slice(body.as_bytes());
-                chain = crate::hash256::double_sha256(&raw);
-                matched += 1;
-            }
-        }
-        let read = cursor.receipt();
-        let query = PrefixQueryReceipt {
-            profile: VALIDITY_STREAM_PROFILE.into(),
-            predicate: "^tx".into(),
-            snapshot: expected.clone(),
-            visited_rows: read.rows,
-            matched_rows: matched,
-            chain_sha256d: chain,
-            complete: read.complete,
-        };
-        coercion_domain(&txid)?;
-        let suffix = match source_text(&txid) {
-            Ok(t) => format!("-{t}"),
-            Err(error) => {
-                return Ok(NativePreparedValidityQueryV1::Complete(Box::new(
-                    StreamedValidityEvaluation {
-                        profile: VALIDITY_STREAM_PROFILE.into(),
-                        query,
-                        outcome: crate::validity_source::SourceOutcome::Thrown(error),
-                        update: None,
-                        post_state: self.snapshot()?,
-                    },
-                )))
-            }
-        };
-        let mut selected = None;
-        let mut find = snapshot.cursor();
-        while let Some(row) = find.next_row()? {
-            let id = row_id(&row)?;
-            if id.starts_with("tx") && id.ends_with(&suffix) {
-                selected = Some((id, row));
-                break;
-            }
-        }
-        let Some((id, row)) = selected else {
-            return Ok(NativePreparedValidityQueryV1::Complete(Box::new(
-                StreamedValidityEvaluation {
-                    profile: VALIDITY_STREAM_PROFILE.into(),
-                    query,
-                    outcome: crate::validity_source::SourceOutcome::Returned(V::Undefined),
-                    update: None,
-                    post_state: self.snapshot()?,
-                },
-            )));
-        };
-        let arguments = vec![
-            V::Object(vec![("_id".into(), V::String(id))]),
-            V::Object(vec![(
-                "$set".into(),
-                V::Object(vec![
-                    ("type".into(), ty),
-                    ("valid".into(), valid),
-                    ("reason".into(), reason),
-                ]),
-            )]),
-            V::Object(vec![("upsert".into(), V::Bool(true))]),
-        ];
-        let before_state = prepared_metadata_state(&snapshot.data, &[])?;
-        Ok(NativePreparedValidityQueryV1::Selected(Box::new(
-            NativePreparedValiditySelectionV1 {
-                read: snapshot,
-                query,
-                selected: row,
-                arguments,
-                context: self.native_store_context()?,
-                before_state,
-            },
-        )))
+        prepared_validity_read_snapshot(
+            self.read_generation(expected)?,
+            || self.native_store_context(),
+            txid,
+            ty,
+            valid,
+            reason,
+        )
     }
+
     pub fn commit_prepared_validity(
         &mut self,
         plan: &NativePreparedValidityWriteV1,
@@ -470,4 +396,99 @@ impl SourceCompactIndex {
             current,
         ))
     }
+}
+
+fn prepared_validity_read_snapshot(
+    snapshot: SourceIndexReadSnapshot,
+    context: impl FnOnce() -> Result<(String, std::path::PathBuf)>,
+    txid: V,
+    ty: V,
+    valid: V,
+    reason: V,
+) -> Result<NativePreparedValidityQueryV1> {
+    for value in [&txid, &ty, &valid, &reason] {
+        value.validate()?;
+    }
+    let mut cursor = snapshot.cursor();
+    let mut matched = 0u64;
+    let mut chain = crate::hash256::double_sha256(VALIDITY_STREAM_PROFILE.as_bytes());
+    while let Some(row) = cursor.next_row()? {
+        if row_id(&row)?.starts_with("tx") {
+            let body = row.diagnostic_json()?;
+            let mut raw = chain.to_vec();
+            raw.extend_from_slice(&matched.to_be_bytes());
+            raw.extend_from_slice(&(body.len() as u32).to_be_bytes());
+            raw.extend_from_slice(body.as_bytes());
+            chain = crate::hash256::double_sha256(&raw);
+            matched += 1;
+        }
+    }
+    let read = cursor.receipt();
+    let query = PrefixQueryReceipt {
+        profile: VALIDITY_STREAM_PROFILE.into(),
+        predicate: "^tx".into(),
+        snapshot: snapshot.pin().clone(),
+        visited_rows: read.rows,
+        matched_rows: matched,
+        chain_sha256d: chain,
+        complete: read.complete,
+    };
+    coercion_domain(&txid)?;
+    let suffix = match source_text(&txid) {
+        Ok(t) => format!("-{t}"),
+        Err(error) => {
+            return Ok(NativePreparedValidityQueryV1::Complete(Box::new(
+                StreamedValidityEvaluation {
+                    profile: VALIDITY_STREAM_PROFILE.into(),
+                    query,
+                    outcome: crate::validity_source::SourceOutcome::Thrown(error),
+                    update: None,
+                    post_state: snapshot.pin().clone(),
+                },
+            )))
+        }
+    };
+    let mut selected = None;
+    let mut find = snapshot.cursor();
+    while let Some(row) = find.next_row()? {
+        let id = row_id(&row)?;
+        if id.starts_with("tx") && id.ends_with(&suffix) {
+            selected = Some((id, row));
+            break;
+        }
+    }
+    let Some((id, row)) = selected else {
+        return Ok(NativePreparedValidityQueryV1::Complete(Box::new(
+            StreamedValidityEvaluation {
+                profile: VALIDITY_STREAM_PROFILE.into(),
+                query,
+                outcome: crate::validity_source::SourceOutcome::Returned(V::Undefined),
+                update: None,
+                post_state: snapshot.pin().clone(),
+            },
+        )));
+    };
+    let arguments = vec![
+        V::Object(vec![("_id".into(), V::String(id))]),
+        V::Object(vec![(
+            "$set".into(),
+            V::Object(vec![
+                ("type".into(), ty),
+                ("valid".into(), valid),
+                ("reason".into(), reason),
+            ]),
+        )]),
+        V::Object(vec![("upsert".into(), V::Bool(true))]),
+    ];
+    let before_state = prepared_metadata_state(&snapshot.data, &[])?;
+    Ok(NativePreparedValidityQueryV1::Selected(Box::new(
+        NativePreparedValiditySelectionV1 {
+            read: snapshot,
+            query,
+            selected: row,
+            arguments,
+            context: context()?,
+            before_state,
+        },
+    )))
 }

@@ -1,0 +1,9 @@
+# Actual historical ProcessRows reexecution
+
+SourceMainNativeSessionV13::reexecute_historical_rows consumes one actual current Post index and an independently expected original TLCR13 archive/history. It rebuilds one financial Replay from raw foundation commands, then runs the actual source ProcessRows iterator, decode/Logic/mark and recorded source failure facts. Computed validity arguments flow into a verifier that reads actual historical pages, recomputes the original page/directory mutation and compares complete Before→Post KV; it never appends or imports supplied financial answers. Every original physical pair, ordered logical receipt and final head is checked separately.
+
+Success returns the same current index with the actually reconstructed source owner. Refusal retains that locked index and any computed financial prefix in a distinct rejected type with read-only diagnostics; it cannot expose an accepted Session/head or retry the whole action. Nine actual-Core checks cover first-suffix/no-match/extra-write boundaries, wrong computed fields, actual Main0/processed skip/live results, empty foundation and actual primary/fatal storage rejection paths. Independent review found no actionable defect within this scope.
+
+The shared put calculation preserves the old live row-id validation and selected-page-only path. Root independently compared the original mutation body after named parameter substitution; no extra full-KV snapshot is added to ordinary live puts.
+
+This profile currently admits completed ProcessRows commands in one retained available publication. Active/catchup/timer replay, partial-command process-loss recovery and durable generation escrow across pruning remain separate gates. Four process-exit storage controls do not establish cold financial recovery. Integrity expectations do not authenticate chain, UTXO or actor inputs.

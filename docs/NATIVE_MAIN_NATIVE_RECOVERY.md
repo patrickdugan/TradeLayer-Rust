@@ -1,0 +1,9 @@
+# Same-owner active-service native recovery
+
+The durable active-service controller now retains its actual source frame, financial owner, WAL barriers and prepared write through native-file errors. A consuming no-index type drops only the uncertain writer. Reopen requires independently sealed actual complete-KV Before, compaction Intermediate or Post facts. Foreign/stale/corrupt candidates refuse while the actual owner remains private.
+
+Actual Post resumes observation and Accepted/ACK without another append or source call. Before/Intermediate creates a real replacement native plan: its candidates, exact mutations and supersession mapping sync under the original pending action before installing the replacement and retrying only native IO. The original StorageStopped result remains in history. Pause/Shutdown cannot escape an unresolved recovery. Enhanced history mode is sealed in origin/context and retains actual Before/Post pin blobs; missing blobs cannot downgrade the mode. Old create-mode record fields/readers stay separate.
+
+Six actual-Core recovery controls pass. A real compaction midpoint is selected at the first genuine catchup validity await; live writes have separate Before/Post controls. A parent test also runs four actual child-process exits at Intent, native synced lost-return, Accepted and ACK, then verifies existing independently expected WAL/native prefixes and referenced blobs. These four exits are storage evidence, not cold financial restoration.
+
+The combined library passes370 tests (four child entries ignored),25 public compatibility checks pass, all-target Clippy denies warnings, Cargo fmt and200 include checks pass. Full all-target release remains code21016cd:1,977 Rust/238 numeric checks until a later frozen promotion. Evidence: fixtures/reference_fidelity/native-recovery-cold-rows-core-integration.json.

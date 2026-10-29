@@ -7,3 +7,5 @@ CompactingJournal supports historical physical/logical mapping only within its v
 Eight actual-Core controls cover cold drop/reopen, empty sequence0, restored non-EOF cursor, wrong pins, valid-CRC rewritten history, malformed batch/CRC/footer/partial frame, held views across later writes/compaction, unavailable publication and retained-lock corruption refusal. Combined library354, all-target Clippy, Cargo fmt,191 included-format files, inventory and supply-chain checks pass. Evidence: fixtures/reference_fidelity/native-main-wal-history-core-integration.json.
 
 This milestone is metadata-only. Cold financial/source replay, catchup/service scheduling, cross-publication durable retention, actual killed-process and host power-loss exercises remain separate gates. Integrity receipts do not authenticate chain, UTXO or actor inputs.
+
+The subsequent completed ProcessRows integration executes actual source against these historical views; see NATIVE_MAIN_COLD_ROWS.md. Its nine Core controls do not close full active/catchup/cold-partial or pruned-generation recovery.
