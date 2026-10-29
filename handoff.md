@@ -1,143 +1,79 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-29T23:46:29Z. Maintained after every tested integration cycle.
+Updated: 2026-10-29T23:47:05Z. Refresh after every tested integration cycle.
 
-## Goal and boundaries
+## Current checkpoint
 
-Finish the pinned JavaScript port and remaining roadmap. The inventory has 48 TL modules plus one external Binohash reference; file/function counts do not prove parity. JavaScript reference commit: `dca0888b827c5bc28fa9189bc9e1d507f5c5670c`. TL produces checkable state-oracle data. UTXORef is a separate consumer; optional Binohash work belongs there.
+The tested implementation is `a94ea4c7cdf4677d7d48455d65363edd263a16c1`. Release evidence was committed as `4a85b00e8a5365e018e5b1f50fb347058e4af473`.
 
-Root owns tracked edits, one whole-Core Cargo process at a time, checks and commits. Subagents work in isolated stages and return immutable manifests. Commit completed tested work on the current branch. Do not push, publish, open a PR or merge without explicit authorization; preserve unrelated changes. AGENTS.md requires the full repository preflight before any authorized Rust push.
+- **2,204 Rust executions:** 2,203 top-level tests plus one successful storage child, across 283 targets.
+- **239 genuine BigNumber 9.1.2 checks:** the exact 87-target numeric CI list.
+- Library: **549 passed, four ignored**. Doc tests completed with zero cases.
+- All **1,888 tracked inputs** matched their frozen hashes before and after the run.
+- Pinned Rust 1.90.0; release tests used offline/frozen dependencies. The latest code also passed all-target Clippy with warnings denied, Cargo formatting, formatting of 304 included Rust files, inventory and supply-policy checks.
 
-Keep one actual financial owner, actual native index and borrowed queue. Never install a dummy index, import expected financial/results state, or recover an uncertain same-process write by repeating a Main/source action. Retry only retained exact native/control operations through their sealed proofs. Integrity hashes are not authentication.
+Evidence: [release validation](fixtures/reference_fidelity/retained-callers-mode4-release-validation.json). Its adjacent input manifest preserves the frozen file list. The previous 2,142/239 release remains historical evidence.
 
-## Verified current state
+The saved completeness workbook and existing sidebar agree on this release. Sixteen intentional cell edits preserved the 48 TL module rows, one external reference, all 37 transaction rows, formulas, styles, filters, panes and geometry. Zero formula errors. Evidence: `fixtures/reference_fidelity/retained-callers-mode4-release-completeness.json`.
 
-Full all-target release: implementation/tested checkout `a94ea4c7cdf4677d7d48455d65363edd263a16c1`. **2,204Rust executions** (2,203top-level plusone successful storage child), **239locked genuine9.1.2 numeric checks**,283targets and1,888frozen tracked inputs unchanged before/after. Library549/fourignored. Evidence:`fixtures/reference_fidelity/retained-callers-mode4-release-validation.json`. Previous2,142/239 release remains immutable historical evidence.
+**This is a passing development checkpoint, not a completed RC.** The source-composition and operational gates below remain open.
 
-Current later cycle: Mode4 physicalACK/native metadata closure and retained callerStartOnly WAL.25new controls,545library/fourignored,44public,Clippy/fmt303/inventory/supply pass. Root fixed actual Mode4 initial scope/first-Before blob mismatch without relaxing the reader. The same source/financial/index owner and source await remain held. Caller Start syncs Intent before the actual constructor and rebinds uncertain WAL outcomes without repeating it. Full raw-source Mode4 replay/selectedcaller native recovery remain active. Record: `mode4-caller-start-core-integration.json`. Fullbaseline2,142/239.
+## Rules and ownership
 
-The test-only temp-folder fix `567f6b8` respects TL_NATIVE_MAIN_TMP when set and otherwise uses the standard temp directory, preserving canonical-parent/guarded cleanup. Seven actual native release tests pass without the override; no production source changed. Evidence: `fixtures/reference_fidelity/native-main-test-temp-default.json`.
+Reference JavaScript: `dca0888b827c5bc28fa9189bc9e1d507f5c5670c`. Preserve literal source behavior, including named source bugs and throws. A repaired protocol needs an explicit policy; do not silently substitute successful behavior.
 
-Saved workbook and sidebar promote the2,142Rust/239numeric release at53e6a24/tested306d418. Their latest later scope is e3a7245/511library; refresh is pending for c5/520 and this new545library batch. All48TL/oneexternal/37transaction rows and proof gates remain. Do not add overlapping scoped test executions to the full release count.
+Keep one actual financial owner, native index and borrowed queue. Expected financial tables, results, validity verdicts, Before/Accepted observations and receipts are comparisons, never execution inputs. Uncertain IO must retain that owner and retry only the exact native/control operation; never repeat the source constructor, Main action, decoder or financial prefix.
 
-## Integrated pieces — do not reapply old packages
+Root owns repository edits, checks and commits. Run only one whole-Core Cargo process at a time. Agents use isolated stages and return immutable manifests; apply pure transforms to current files rather than stale whole-file overlays. Commit tested work on the current branch. Never push, publish, open a PR or merge without an explicit request. Preserve unrelated changes. Before any authorized Rust push, run the full preflight required by `AGENTS.md`; Lean/Kani/GitHub-only checks are separate.
 
-- Actual completed-command publication/service, native/control recovery and WAL/history with guarded generation retention. Native recovery covers explicit validity plans; cold metadata/page/history checks retain actual owner locks. Records: `native-main-service-publication-core-integration.json`, `native-main-wal-history-core-integration.json`, `native-recovery-cold-rows-core-integration.json`.
-- Historical RowPC prepare → recorded native verification → same source-Promise resolve; same-index cold capability blocks mutations, including discard and escrow paths. Record: `historical-native-await-core-integration.json`.
-- Guarded escrow binding sync precedes cross-publication native IO; strict read-only HISTORY-WAL ACK reader and exact existing scalar pin codec. Record: `native-escrow-ack-codec-core-integration.json`. The old reader does not admit Mode4/ESCROW-WAL cold closure.
-- Sealed earlier financial prefix with actual later native Post/capability retained, no stale ordinary Session/Replay/checkpoint release; five Core controls include two independent negative cases. Record: `cold-prefix-promises-core-integration.json` and `sealed-cold-prefix-independent-review.json`.
-- Ordered callable initialization and Promise v2: 37 Core controls. Both genuine numeric profiles reproduce original14 scenes/99 observations and new12 scenes/143 observations. Core compares98+142 cutoffs; the explicit unavailable full-module boundary observations are not global-IIFE successes. Pending jobs/notifications fence checkpoint/adoption and old witnesses. Arbitrary callbacks/thenables and wider startup remain open.
-- Explicit retained inline live entry: actual processBlockData transaction write and separate MaxHeight/indexExists append/return awaits, same Core/index/queue, decoder runs once. Seven live-service Core controls plus owner/database tests pass. Original13 calls/38 records reproduce both numeric versions; this is not13 full Rust Main caller matches. Save/genesis owner PCs exist, but complete startup/catchup callers remain work. Record: `retained-inline-service-core-integration.json`.
-- Current cold acknowledged action entry consumes the sealed prefix plus real checked ACK reader, moves the one financial owner, executes strict raw actions with actual historical metadata, recomputes every complete Before/Accepted field stream and original physical receipt, and verifies/resolves the same native await without appending. Both success/failure retain actual index/capability and WAL locks; no hot owner escape. Domain: HISTORY-WAL, one available original publication, ordinary fulfilled validity writes, resolved terminal await. Record: `cold-acknowledged-actions-core-integration.json`.
+TL produces checkable state-oracle data. **UTXORef is a separate consumer repository.** Optional Binohash work belongs there. Hashes, copied history and claimed actors do not establish authentication.
 
-All record names above are under `fixtures/reference_fidelity/`. Source results/validity/scheduling/financial tables are comparison data, never execution inputs.
+## Integrated scope
 
-- Explicit Mode4 inline WAL and same-process native Before/Intermediate/Post recovery are integrated. The raw intent and any compaction escrow are synced before native IO; replacement mappings sync before native-only retry. The actual financial owner/source PC survive ambiguous writes; no action/decoder retry. Six actual Core and four metadata controls pass. Old readers still refuse Mode4; detached callers/coldMode4/killed-process finance remain open. Record: `inline-native-recovery-wal-core-integration.json`.
+All record names below are under `fixtures/reference_fidelity/` and are included by the full release record. Counts overlap; never add focused runs to the release total.
 
-## Active workers and next concrete gates
+| Component | What the tested code establishes | Evidence |
+| --- | --- | --- |
+| Native rows and catchup | Actual awaited metadata PCs, financial prefixes, ordered settlement, Before/Intermediate/Post recovery and completed-command publication | Existing native row/catchup/recovery records and release manifest |
+| Retained Main callers and consensus | Initialize/InitOrLoad/Sync in the named admitted branches; actual TxIndex extraction; catchup borrows the same invocation. Initialize may fulfill while its detached final save remains held. The original owner/header stays retained. | `retained-main-caller-core-integration.json`, `retained-main-consensus-core-integration.json` |
+| Caller Start WAL | Intent is synced before the actual constructor. Ambiguous Accepted/ACK writes retain the executed owner and never repeat construction. StartAcknowledged is distinct from Initialize fulfillment. | `mode4-caller-start-core-integration.json` |
+| Mode4 recovery and physical closure | Same-process native-only recovery, synced escrow/supersession, independently retained commit traces, strict Intent/Accepted/ACK ordering, original/copied metadata preparation and exact final Post. The metadata reader leaves the source await unresolved. | `inline-native-recovery-wal-core-integration.json`, `mode4-caller-start-core-integration.json`, `mode4-ack-independent-review.json` |
+| Historical metadata | Strict original/copy identities and full KV checks, copied views after actual pruning, recomputed historical inline results/read contexts/TLNM. No live writer permit comes from a decoded pin. | `copied-history-view-core-integration.json`, `historical-inline-database-core-integration.json`, `historical-inline-database-independent-review.json` |
+| Ordinary cold source actions | Actual raw-action reexecution on one retained financial/index owner in the older HISTORY/current-original-publication domain. Mode4/caller/recovery domains remain separate. | `cold-acknowledged-actions-core-integration.json` |
+| Bitcoin supported transactions | Selected transaction/block/witness binding, six supported input templates, complete supplied funding collection, admitted CheckTransaction rules and value conservation. Parent unspentness, chain validity and TL actor/economic authority remain unestablished. | `bitcoin-supported-transaction-core-integration.json` |
 
-1. `v8_main`: Mode4 and copied-history package45a42cf8 are now integrated/tested. Next is actual historical inline DB preparation against the verified original pages/directory, using a separate opaque historical plan; no fake live index or append permit from pins. Coordinate caller selectors with row. Wider coldMode4 admission remains closed.
-2. `row_continuation_impl`: af/3a caller+consensus components are now integrated/tested, including actual Initialize fulfillment and source-job lifetime. NEW Start-only WAL packagebbcd706b is frozen but awaits Root Core gates; raw TLMACA1 codec6/actualStore3new tests pass in helper. Active follow-on wraps selected caller/consensus/detached/native/timer actions with exact origin-route keys and executed-once WAL barriers. No source constructor/action retry after uncertain IO.
-3. Both lanes must bind an explicit stable job/scope/operation ordinal plus Awaited/Detached selector. Identical method/args/Before may represent different concurrent saves; AppendPending must not silently choose the first frame. Main owns the WAL/frame selector; row owns caller PCs. Stage-only until Root checks.
-4. `v8_clearlist`: channel sort packagea05a13d2 is now integrated/tested, including real64 settlement/65 late-error retained Tally writes, exact comparator schedule and four prior checkpoints. The same sharedV8 helper/MainIO remain unchanged. Mode4 independent review is complete; two additional Root negative controls pass. Worker now audits current admission/UTXO gates and recent external-worker PRs before proposing any disjoint implementation.
-5. Broaden cold execution to inline/Mode4, recovery/supersession, cross-publication retained views, unresolved terminal work and actual killed-process financial recovery. Current cold success must not be relabeled as those broader gates or as mutable hot resume.
+Root fixed a real Mode4 writer mismatch: its initial observation omitted the escrow-scope frame present in the first Before observation, leaving the referenced blob absent. Creation now uses the identical scope encoder. Strict reader checks, existing per-action observation bytes and non-inline initial bytes remain unchanged. Old affected histories stay refused. The failed gates and narrow correction are retained in `mode4-caller-start-core-integration.json`.
 
-The e0cee8/0a94 cold-action package is now integrated in this cycle. Older4a/6fa/546690/3b459/8c062/7b839/b2ae/6db packages are already integrated; use new pure transforms against current text rather than old whole-file overlays.
+## Active workers
 
-## Non-Main and release requirements
+| Agent | Current isolated work | Boundary |
+| --- | --- | --- |
+| `row_continuation_impl` | Selected caller/consensus/detached/timer actions, exact routed native selection and native-only recovery with durable mapping | Owns new selected-controller leaves and pure include/profile overlays. Does not own existing caller runtime/frame or the consensus factory. |
+| `v8_main` | Ordinary concrete Mode4 raw-action/financial reexecution through actual original/copied historical views | Four new read-adapter metadata controls are a prerequisite, not financial replay. Old missing IO/plan facts remain explicit refusals. |
+| `v8_clearlist` | Genuine JavaScript coercive SyncIndex characterization, then a narrow explicit caller profile | Owns existing caller runtime/frame branch changes plus new helper leaves. Preserve the old numeric profile and its visitor bytes. Null's detached initOrLoad path is broader and must not become synchronous success. |
 
-All36 literal routed kinds execute in bounded profiles; only13 are in the separate conserving mapper. Do not mistake that mapper count for missing literal types3/4. Preserve source placeholder failures for17/25/26/28/29/32–35; successful repairs need a named protocol, not invented success.
+The worker's first ten coercive Sync calls passed generation and check under genuine 9.3.1 and 9.1.2. This is source evidence only; the new Rust profile has not passed Root integration. Include the non-obvious primitive `"[object Object]" == {}` branch in characterization.
 
-PR152 fee and PR153 reward standalone accounting are integrated/tested (`pr152-fees-core-integration.json`, `pr153-rewards-core-integration.json`). Literal JS fees/insurance/rewards already run through actual source settlement. New standalone APIs have no implicit matcher/Ledger/payout/consensus wiring: require an explicit opted-in economic policy and real fill/fee/eligibility provenance before wiring.
+## RC closure checklist
 
-Remaining real boundaries: parent UTXO/all-input/chain and TradeLayer actor/economic/proof-verifier admission; genuine type23/31 trade/participant/root/claim evidence; complete per-type/block proof composition beyond conditional TLSW4/5; broader source domains; collaborator fuzz results; intended-host/Core interoperability, representative real-block CPU/RSS and directory/power-loss evidence. Do not infer authentication or complete fraud proofs from a checksum, valid flag, claimed actor, green tests or source inventory. Full parity and complete-block proof gates remain false.
+The independent static audit pins 58 read inputs and 23 source citation targets: `main-rc-gap-audit.json`, worker manifest `084726a002202b8e1622472baf600f2f257bc0a1103fa560bee7b62990258d6b`. It confirms row/catchup/recovery/publication and same-invocation consensus as implemented within their named domains. It adds no runtime coverage claim.
 
-Unavailable external insurance/property/clearlist/wire patches are redundant/unverified handoffs, not proof those independently implemented local modules are missing. Verify actual bytes/ownership before importing anything.
+1. **Durable controls beyond Start.** Journal actual caller advance, delay, consensus, detached and timer actions with executed-once retention. Keep caller fulfillment separate from its child.
+2. **Selected native recovery.** Bind exact origin, operation kind, job, method scope, ordinal, role and context. Reopen/supersede only that native operation, sync the mapping, then resolve Post once. Never choose the first pending operation implicitly.
+3. **Remaining literal source branches.** Global/module initialization and notifications; uninitialized/no-chain Initialize and its 300 ms wait; coercive/null SyncIndex branches and genuine detached jobs.
+4. **File retry composition.** The separate file continuation already models five attempts and the final 50 ms wait. Compose it with the active native service on the same Core/index/queue, including EBUSY/EPERM, ENOENT, partial file work, pause/height/shutdown interleavings and reorg behavior. Do not invent a financial rollback absent from the source.
+5. **Mode4/caller cold source replay.** Reexecute raw actions against verified original/copied metadata and compare all observations. Characterize repeated AppendPending API rejection. New explicit producers may retain actual-stop IO facts or never-appended native-plan metadata before source observation; old Before/Accepted data must not supply those inputs.
+6. **Fresh factual live input.** Start currently captures fixed RPC/documents facts. Add an explicit bounded recorded input action for fresh raw tip/block/transaction facts; preserve counters, active frames and financial state. The existing strict `source_main_step_update_io` is a useful primitive, not current active-service admission.
+7. **Active-history continuation.** Rotate/publish acknowledged history past the actual 4,096-action limit while retaining the same owner and source/physical head. Native index paging alone does not remove this separate limit.
 
-## Local validation
+Then run the integrated RC path, consume collaborator fuzz results and perform the planned oracle-abuse fraud-proof exercise with UTXORef. Intended-host real-block CPU/RSS, directory/power-loss and actual killed-process financial recovery remain separate evidence gates. New standalone fee/reward matcher/payout wiring needs its named economic policy. The externally owned HashMap reducer candidate still needs representative host measurements.
 
-Rust1.90 MSVC, no external Rust crates or unsafe. Work scripts set MSVC/SDK paths via `../../work/cargo-check.ps1`. Use named CargoArguments arrays. Debug target: `../../work/main-v12-target`; release target: `../../work/source-settlement-target`. Set TMP/TEMP and native/Main test temp variables to `../../work/cargo-gate-tmp`; genuine JS checkout is `C:/Users/patri/Documents/Codex/tradelayer.js`. Clear source-lock variables for ordinary tests; exact source-lock tests use genuine BigNumber9.1.2. Loopback RPC tests need local test-server access.
+## Resume details
 
-Preserve failed logs and immutable packages. Latest e0 scoped runner: `../../work/check-cold-active-actions-second.ps1`; exact log hashes and Root typed-borrow correction are in its integration record. A full release requires a clean committed checkout, frozen tracked-byte manifest, all targets/doc/exact numeric list and before/after verification. Keep source unchanged during that run and distinguish raw execution-manifest versus canonical LF manifest hashes.
-
-## Latest tracker check
-
-Thirteen intentional cells now show code146984e/475 library/44 public scoped checks and the concrete channel64+ gap, preserving all37 transaction rows, formulas, effective styles, filters, panes, geometry and proof gates. The full baseline remains2,120 Rust/238 locked numeric checks. Zero formula errors. Saved workbook and sidebar rows match; source coverage is not promoted beyond the declared domains.
-
-## Latest source-caller check
-
-Twelve unchanged Main/TxIndex calls and35 complete input/observation records reproduce under each genuine numeric profile. Existing13 calls/38 records reproduce byte-identically. New CI checks retain this oracle. No Rust implementation or release count changed; the detached final save still needs actual retained caller/job integration.
-
-## Latest tested integration
-
-Mode4 preserves one actual owner and exact pending native operation across lost-control/lost-native returns, partial writes and real compaction. The new485/44 scoped counts include prior controls and must not be added to the2,120/238 full release. Source caller characterization075aba4 remains source-only evidence until the retained Main wrappers pass actual Core controls. Workbook/sidebar now show the tested inline/channel/review progress through53e6a24; the full release baseline remains2,120/238. Verification: `fixtures/reference_fidelity/inline-channel-completeness.json`.
-
-## Latest channel integration
-
-The reproduced64+ ready-queue refusal is fixed through the existing1,024-row source domain using the original comparator and shared safe V8 sort. Source outcomes, callback/error effects and partial financial writes remain faithful. Source placeholder errors are not repaired into success. No new fee/reward policy, owner, network adapter or authentication is selected. Keep the remaining caller/cold-view and host/proof requirements open.
-
-## Latest independent recovery review
-
-Two added native controls pass inside the actual Root crate, alongside all four prior inline metadata controls. Valid-CRC altered/extra native state is rejected before repair; foreign/stale/duplicate/Post mappings cannot authorize a retry. Production code is unchanged; warnings-denied Clippy/fmt267/inventory pass. The previous full library remains489 until the next all-target run. Record: `fixtures/reference_fidelity/inline-native-recovery-independent-review.json`.
-
-## Latest completeness refresh
-
-Fifteen cells now reflect the tested channel fix, same-process inline recovery and two independent controls, with48 TL modules/one external reference/all37 transaction rows preserved. Full parity/authentication/complete-block proof flags remain false. Saved workbook and sidebar row hashes match; styles/formulas/filters/panes/geometry and unrelated cells are unchanged, with zero formula errors.
-
-## Latest complete release gate
-
-All282 Rust targets, doc tests and the exact87-target genuine9.1.2 list pass on the same frozen checkout. The new channel financial target is included in both full and locked lists. Every1,822 tracked input was checked before/after; raw versus canonical input-manifest digests remain separate. This promotes the tested inline/channel/review code, while retained Main callers, coldMode4/cross-publication/killed-process finance and host/authenticated complete-block proof gates remain open. Saved/sidebar headline promotion is the next metadata step.
-
-## Latest copied-view integration
-
-The exact original metadata facts and actual copied-file identity remain separate. Strict decoding gives expected facts only; real copy/manifest/full-KV/row receipt verification is still required. Five new Root tests plus19combined escrow checks pass. Next work is genuine historical inline preparation and complete source/WAL composition, not a broad reader flag. Full release remains2,142/239; update the workbook with this later scoped work separately.
-
-## Full-release workbook promotion
-
-Saved workbook and existing sidebar now show **2,142 Rust executions /239 locked numeric checks**, implementation53e6a24/tested306d418,282targets/1,822unchanged inputs. Latercc405ad is shown separately as5new/19combined copied-history metadata checks. Sixteen intentional edits preserved all48TL modules/one external reference/37transaction rows, formulas, effective styles, filters, panes, geometry and proof gates. Zero formula errors; saved/sidebar row hashes match. Verification: `fixtures/reference_fidelity/inline-channel-release-completeness.json`. Full source parity, authenticated history and complete-block fraud proofs remain unestablished.
-
-## Latest retained-caller integration
-
-Source helpers and actual Core caller controls now preserve the detached final save rather than forcing a synchronous caller wait. Exact selectors fence wrong/stale job or operation actions. The first component intentionally leaves ConsensusReady unfulfilled; the next same-invocation consensus composition is still active work. Historical-inline990/review049 and Bitcoin-composition41dd are now Root-integrated/tested. Independent caller review is running separately. All current tested source is committed locally; no push/PR is authorized.
-
-## Latest historical/Bitcoin integration
-
-Historical plans compute old-view outcomes and exact native mutation bytes, verify actual Post and resolve once; they cannot create a writer permit or resume a source PC. Bitcoin relation checks every supported input and basic money/duplicate/order rules but keeps authenticated parent/chain/TL gates denied. Root regenerated genuine reference fixtures; neither API widens economic or cold service admission. Caller review679 and same-invocation consensus3a8211 remain queued for Root gates; new Mode4 commit-trace/physical closure and durable caller composition are active worker lanes.
-
-## Latest scoped workbook refresh
-
-Saved/sidebar now showe3a7245/511library and tested historical/Bitcoin/Main-caller scope, while the complete release stays2,142Rust/239numeric. Thirteen intentional edits preserve all48TL modules/one external reference/37transaction rows, formulas/styles/filters/panes/geometry and proof gates, with zero formula errors. Verification:`fixtures/reference_fidelity/historical-bitcoin-completeness.json`. No queued consensus/WAL/trace-reader work is promoted.
-
-## Latest consensus integration
-
-The actual parent invocation is now shared with catchup/service; original normal constructors/visitor bytes remain. Source caller outcome may precede its detached child, but the original header/owner cannot escape before both finish. Existing335 selectors remain receiver-local routing values; new origin-bound profile rejects accidental cross-owner equal-key selection without pretending hashes confer authority. Root fixed the genuine readiness guard and an incorrect test-only absent-field expectation; no reference data was relaxed. Mode4 physical closure3cc and callerStartbbcd remain queued for actual Core gates.
-
-## Latest Mode4 and caller Start integration
-
-Mode4 now verifies independently retained actual ordered CRC commit traces and physical Intent/escrow/supersession/Accepted/ACK closure, exact native historical preparation and final Post without granting a writer permit or resolving the financial source await. Caller Start is separately journaled before actual construction, with executed-once retention across ambiguous Accepted/ACK writes. The initial Mode4 scope commitment mismatch and compiler borrow fixes are recorded alongside retained failures. Old affected histories stay refused. Independent reader review remains a separate gate; full raw-action financial replay and selected caller WAL/native recovery are active next. New source/cold profiles are not admitted by old HISTORY/e0 executors. Nothing was pushed or published.
-
-## Latest scoped workbook refresh
-
-Saved/sidebar now show3337bea/545library and tested Mode4/callerStart/consensus scope, while the complete release stays2,142Rust/239numeric. Thirteen intentional edits preserve all48TL modules/one external reference/37transaction rows, formulas/styles/filters/panes/geometry and proof gates, with zero formula errors. Verification:`fixtures/reference_fidelity/mode4-caller-start-completeness.json`. No pending selected-caller/native-recovery or raw-sourceMode4 replay work is promoted.
-
-## Independent Mode4 review addendum
-
-Exact3cc author freeze is independently bound by reviewer2e3f4a71. Four new Root controls/eight verifier scenarios and all10combined metadata tests pass, with Clippy/Cargo fmt/304includedformat/inventory clean. The controls preserve finalKV while repairing sequence/CRC around reordered barriers, exercise real Before/Intermediate recovery with omitted/duplicate/late barriers and alternative mutations, and reject a sameKV/sequence/generation foreign copy at the configured root. The reviewer passed161copied tests/oneignored; its administrative observations are opaque, not actual financial replay. Root initial observation correction and its3actualsource controls remain separately recorded in3337bea. No production bodies changed. The last wholelibrary run remains545; these4additional tests await the next full release. Record:`fixtures/reference_fidelity/mode4-ack-independent-review.json`.
-
-## Latest complete retained-caller/Mode4 release
-
-All283Rust targets, doc tests and the exact87-target genuine9.1.2 list passed on one frozena94ea4c checkout. All1,888tracked inputs verified before/after. This promotes the already tested caller/consensus/StartOnly/Mode4 metadata/historical/Bitcoin batch into the full release baseline without expanding their named domains. Remaining source composition includes uninitialized/no-chain startup and300ms delay, null/coercive SyncIndex branches, fileEBUSY/EPERM50ms retry composition, selectedcaller WAL/native recovery and full raw-action Mode4 replay. Mode4 duplicate-AppendPending API-rejection histories, pending-only plan facts and actual-stop IO facts remain explicit coverage gates. Process loss, host/fuzz, authenticated inputs and complete-block proof composition remain open. Saved/sidebar promotion follows this record.
-
-## Source-cited RC closure checklist
-
-Independent static audit084726a0 pins58 read inputs and23 citation targets. It confirms native rows/catchup/recovery/publication and retained same-invocation consensus as implemented within their documented domains. It adds no test or parity claim. Full audit: `fixtures/reference_fidelity/main-rc-gap-audit.json`.
-
-1. Journal retained caller controls beyond Start on the same owner. Owner: row_continuation_impl, selected-action WAL stage.
-2. Recover the exact selected caller/native operation with native-only reopen and synced supersession. Owner: row_continuation_impl.
-3. Finish literal global/startup and coercive/null caller branches. Owner: v8_clearlist, genuine source characterization followed by a narrow caller-stage implementation.
-4. Compose the existing 50ms EBUSY/EPERM file-retry continuation with the active native service on the same Core/index/queue. Separate file profile exists; composition remains open.
-5. Complete distinct Mode4 and caller cold source replay against actual historical views. Owner: v8_main, ordinary first-append milestone first.
-6. Feed fresh raw factual RPC/tip/documents through an explicit bounded input action. Current Start captures fixed input facts; no open-ended live feed is established.
-7. Rotate acknowledged active history beyond the actual4096-action bound while retaining the same owner and source/physical head. Index paging alone does not close this separate bound.
-
-No node/chain/UTXO/actor authority follows from these integrity or source-fidelity checks. The planned oracle-abuse fraud-proof exercise remains a later end-to-end gate with UTXORef as a separate consumer.
+- Repository: `C:/Users/patri/Documents/Codex/2026-10-26/go/outputs/TradeLayer-Rust`.
+- Work area: `C:/Users/patri/Documents/Codex/2026-10-26/go/work`.
+- Saved workbook: `outputs/completeness-6b9c6c5f/TradeLayer-completeness.xlsx` relative to the task root. Existing sidebar artifact: `artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU`.
+- Exact current runner/log/provider pointers are in `work/root-resume-current.json`. Refresh the workbook/sidebar every 30 minutes when state changes, preserving layout and proof gates.
+- Finished public-support provider: `work/providers/retained-callers-mode4-a94ea4c/libtradelayer_core.rlib`, SHA-256 `7f9b78d5169202225dee1aed5a03f8eeff6c189e6ea5ae98be062633c1de5560`; immutable provenance is adjacent. Candidate private Core tests still require Root execution.
+- Root gates use `work/cargo-check.ps1 -CargoArguments @(...)`, the pinned 1.90 toolchain and one Cargo process. Debug target: `work/main-v12-target`; release target: `work/source-settlement-target`. Use the existing runners' temp and genuine numeric settings.
+- Next action: validate the first frozen worker milestone against current source, record exact checks, commit it and refresh this handoff. No pending worker result is complete merely because its files or helper tests exist.

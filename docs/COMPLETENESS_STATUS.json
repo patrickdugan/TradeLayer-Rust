@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-29T23:46:29Z",
-  "inspectedCheckoutCommit": "a94ea4c7cdf4677d7d48455d65363edd263a16c1",
+  "verifiedAtUtc": "2026-10-29T23:47:05Z",
+  "inspectedCheckoutCommit": "4a85b00e8a5365e018e5b1f50fb347058e4af473",
   "verifiedImplementationCommit": "a94ea4c7cdf4677d7d48455d65363edd263a16c1",
   "verifiedReleaseTests": 2204,
   "topLevelTests": 2203,
@@ -1186,7 +1186,7 @@
       "fullSuiteRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json"
     }
   },
-  "scope": "Frozen all-target release a94ea4c passes2204Rust executions (2203top-level plusone successful storage child),239genuine9.1.2 numeric checks across283targets and1,888unchanged inputs.549library includes retained Main callers/consensus, StartOnly WAL, physicalMode4/native metadata closure, strict copied/historical metadata and Bitcoin supported-transaction composition. Full Main startup/file-retry/native composition, selectedcaller WAL/native recovery, rawsourceMode4 cold replay, process loss/host/fuzz and authenticated complete-block proofs remain open.",
+  "scope": "Frozen release a94ea4c: 2,204 Rust executions (2,203 top-level plus one storage child), 239 genuine9.1.2 numeric checks, 283 targets and 1,888 unchanged tracked inputs. Includes549 library cases, retained Main callers/consensus, StartOnly WAL, strict Mode4 physicalACK/native metadata closure, historical/copied views and Bitcoin supported-transaction checks. Startup/file-retry composition, selected-caller recovery, raw-source Mode4 replay, host/fuzz and authenticated complete-block proofs remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -1478,37 +1478,37 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "New complete retained-caller/Mode4 release verified; saved/sidebar promotion pending.",
+  "workbookNote": "Frozen release a94ea4c: 2,204 Rust executions (2,203 top-level plus one storage child), 239 genuine9.1.2 numeric checks, 283 targets and 1,888 unchanged tracked inputs. Includes549 library cases, retained Main callers/consensus, StartOnly WAL, strict Mode4 physicalACK/native metadata closure, historical/copied views and Bitcoin supported-transaction checks. Startup/file-retry composition, selected-caller recovery, raw-source Mode4 replay, host/fuzz and authenticated complete-block proofs remain open.",
   "savedWorkbook": {
-    "sha256": "9bca5817739f67ee385e762e18c785dbe0013e71cabdfbeefa2777232001e1e7",
-    "bytes": 47964,
+    "sha256": "e107409ccc7b64155feac2131fb0c2f7f1c692ba0963b1b20dbf3ade24d8ddb1",
+    "bytes": 47969,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-29T23:23:20Z",
+    "asOfUtc": "2026-10-29T23:47:05Z",
     "rowHashes": {
-      "modules": 379202434,
+      "modules": 3412027638,
       "logic": 1151758449
     },
-    "verifiedEdits": 13,
+    "verifiedEdits": 16,
     "layoutAndFormulaPreservationVerified": true
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-29T23:23:20Z",
-    "sha256": "9bca5817739f67ee385e762e18c785dbe0013e71cabdfbeefa2777232001e1e7",
+    "verifiedAtUtc": "2026-10-29T23:47:05Z",
+    "sha256": "e107409ccc7b64155feac2131fb0c2f7f1c692ba0963b1b20dbf3ade24d8ddb1",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 379202434,
+    "moduleRowsFNV": 3412027638,
     "logicRowsFNV": 1151758449,
-    "intentionalCellChanges": 13,
+    "intentionalCellChanges": 16,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,
-    "releasePromotionPending": true,
-    "laterScopedFullReleasePromotionPending": true,
-    "lastFocusedCodeCommit": "3337beaa192c611e5245547b36e583f2f85e821b",
+    "releasePromotionPending": false,
+    "laterScopedFullReleasePromotionPending": false,
+    "lastFocusedCodeCommit": "a94ea4c7cdf4677d7d48455d65363edd263a16c1",
     "releaseBaselinePromoted": true,
-    "releaseExecutions": 2142,
+    "releaseExecutions": 2204,
     "lockedReferenceExecutions": 239,
-    "releaseValidationRecord": "fixtures/reference_fidelity/inline-channel-release-validation.json"
+    "releaseValidationRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json"
   },
   "validationRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json",
   "knownReferenceGaps": [
@@ -1526,10 +1526,10 @@
     "lockedReferenceExecutions": 239,
     "record": "fixtures/reference_fidelity/inline-channel-release-validation.json"
   },
-  "focusedValidationRecord": "fixtures/reference_fidelity/mode4-caller-start-core-integration.json",
-  "focusedImplementationCommit": "3337beaa192c611e5245547b36e583f2f85e821b",
-  "focusedVerifiedAtUtc": "2026-10-29T23:22:49Z",
-  "lastFocusedCodeCommit": "3337beaa192c611e5245547b36e583f2f85e821b",
+  "focusedValidationRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json",
+  "focusedImplementationCommit": "a94ea4c7cdf4677d7d48455d65363edd263a16c1",
+  "focusedVerifiedAtUtc": "2026-10-29T23:46:29Z",
+  "lastFocusedCodeCommit": "a94ea4c7cdf4677d7d48455d65363edd263a16c1",
   "recoveryPackage": {
     "commit": "9e2baa234a487c47f5a5160440b801347a668f30",
     "archiveSHA256": "acce9e5db7c65adef0246cf01581b4c06db0fd3cf356d1cdfa6528b47fff992f",
