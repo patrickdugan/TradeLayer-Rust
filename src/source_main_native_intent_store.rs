@@ -710,3 +710,8 @@ include!("source_main_native_superseding_intent_impl.rs");
 #[cfg(test)]
 #[path = "source_main_native_superseding_intent_tests.rs"]
 mod superseding_intent_tests;
+
+include!("source_main_native_prepared_prefix_ack_impl.rs");
+#[cfg(test)]
+#[path = "source_main_native_prepared_prefix_ack_tests.rs"]
+mod prepared_prefix_ack_tests;

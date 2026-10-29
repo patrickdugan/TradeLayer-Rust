@@ -6,7 +6,7 @@ use crate::source_contract_runtime::{
 };
 use crate::source_main_native_intent_store::{
     NativeCommandIntentPermitV1, NativeIntentStorePinV1, NativeIntentStoreV1,
-    NativeWriteIntentCandidatesV1,
+    NativePreparedSupersedingIntentV1, NativeWriteIntentCandidatesV1,
 };
 
 pub struct RejectedNativeMainRowSessionV1 {
@@ -32,6 +32,8 @@ enum NativeMainRowControllerPcV1 {
     NativeAppendAttempted,
     NativePost,
     RecoveryBefore,
+    SupersessionPrepared,
+    SupersessionStoreAttempted,
     Accepted,
     Complete,
     Blocked(String),
@@ -125,6 +127,8 @@ pub struct SourceMainNativeRowSessionV1 {
     receipt_budget: usize,
     command: NativeMainSessionCommand,
     reopened: Option<crate::source_compact_index_v2::NativePreparedValidityRecoveryObservationV1>,
+    supersession: Option<NativeMainPreparedRowSupersessionV1>,
+    superseding_active: bool,
 }
 impl SourceMainNativeSessionV13 {
     pub fn into_row_session(
@@ -213,6 +217,8 @@ impl SourceMainNativeSessionV13 {
             receipt_budget,
             command,
             reopened: None,
+            supersession: None,
+            superseding_active: false,
         })
     }
 }
@@ -262,6 +268,10 @@ impl SourceMainNativeRowSessionV1 {
                 NativeMainRowControllerPcV1::NativeAppendAttempted => "NativeAppendAttempted",
                 NativeMainRowControllerPcV1::NativePost => "NativePost",
                 NativeMainRowControllerPcV1::RecoveryBefore => "RecoveryBefore",
+                NativeMainRowControllerPcV1::SupersessionPrepared => "SupersessionPrepared",
+                NativeMainRowControllerPcV1::SupersessionStoreAttempted => {
+                    "SupersessionStoreAttempted"
+                }
                 NativeMainRowControllerPcV1::Accepted => "Accepted",
                 NativeMainRowControllerPcV1::Complete => "Complete",
                 NativeMainRowControllerPcV1::Blocked(_) => "Blocked",
@@ -275,6 +285,13 @@ impl SourceMainNativeRowSessionV1 {
         }
         if self.reopened.is_some() {
             native_main_reopen_fields(self.reopened.as_ref(), visitor)?;
+        }
+        if self.supersession.is_some() || self.superseding_active {
+            native_main_supersession_fields(
+                self.supersession.as_ref(),
+                self.superseding_active,
+                visitor,
+            )?;
         }
         match &self.command {
             NativeMainSessionCommand::ProcessRows { rows, height, live } => {
@@ -415,6 +432,18 @@ impl SourceMainNativeRowSessionV1 {
         NativeMainRowStopV1::AwaitNativeWrite
     }
     pub fn commit_pending(&mut self) -> NativeMainRowStopV1 {
+        if matches!(self.pc, NativeMainRowControllerPcV1::RecoveryBefore) {
+            let stop = self.prepare_superseding();
+            if stop != NativeMainRowStopV1::AwaitNativeWrite {
+                return stop;
+            }
+        }
+        if matches!(self.pc, NativeMainRowControllerPcV1::SupersessionPrepared) {
+            let stop = self.sync_prepared_superseding();
+            if stop != NativeMainRowStopV1::AwaitNativeWrite {
+                return stop;
+            }
+        }
         if matches!(self.pc, NativeMainRowControllerPcV1::Source) {
             let stop = self.prepare_pending();
             if stop != NativeMainRowStopV1::AwaitNativeWrite {
@@ -452,16 +481,28 @@ impl SourceMainNativeRowSessionV1 {
         if let Err(error) = self.owner.index.resolve_prepared_validity_post(write) {
             return NativeMainRowStopV1::StorageStopped(error.to_string());
         }
-        let observed = match self.owner.index.native_observed_append_binding() {
-            Ok(observed) => observed,
-            Err(error) => return NativeMainRowStopV1::StorageStopped(error.to_string()),
+        let ack = if self.superseding_active {
+            self.store.sync_superseding_native_prefix_ack(
+                &mut self.permit,
+                &self.owner.index,
+                self.frame
+                    .as_ref()
+                    .expect("source frame")
+                    .pending_write()
+                    .expect("actual replacement"),
+            )
+        } else {
+            let observed = match self.owner.index.native_observed_append_binding() {
+                Ok(observed) => observed,
+                Err(error) => return NativeMainRowStopV1::StorageStopped(error.to_string()),
+            };
+            self.store
+                .sync_native_prefix_ack(&mut self.permit, &observed)
         };
-        if let Err(error) = self
-            .store
-            .sync_native_prefix_ack(&mut self.permit, &observed)
-        {
+        if let Err(error) = ack {
             return self.block(error.to_string());
         }
+        self.superseding_active = false;
         self.pc = NativeMainRowControllerPcV1::Source;
         let stop = self
             .frame

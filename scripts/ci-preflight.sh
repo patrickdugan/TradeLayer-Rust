@@ -63,10 +63,12 @@ rustfmt --check --edition 2021 \
   src/source_main_native_row_continuation_impl.rs src/source_main_native_row_session_impl.rs src/source_index_row_binding_impl.rs \
   src/source_main_native_catchup_prepare_impl.rs src/source_main_native_catchup_continuation_impl.rs \
   src/source_main_native_no_index_impl.rs src/source_main_native_no_index_runtime_tests_impl.rs \
+  src/source_main_native_supersession_controller_impl.rs src/source_main_native_supersession_runtime_impl.rs src/source_main_native_no_index_index_tests_impl.rs \
   src/source_native_append_plan_impl.rs \
   src/source_index_prepared_put_impl.rs src/source_index_prepared_validity_impl.rs \
   src/source_index_verified_reopen_impl.rs src/source_index_supersession_binding_impl.rs \
   src/compact_native_supersession_binding_impl.rs src/source_main_native_superseding_intent_impl.rs \
+  src/source_main_native_prepared_prefix_ack_impl.rs \
   src/source_main_native_step_checkpoint_impl.rs src/source_main_native_step_decode_impl.rs \
   src/source_main_native_step_session_impl.rs src/source_main_native_step_segment_impl.rs \
   src/source_main_step_block_impl.rs src/source_main_step_runtime_impl.rs src/source_main_step_fields_impl.rs \

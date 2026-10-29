@@ -27,6 +27,8 @@ pub struct SourceMainNativeRowNoIndexV1 {
     receipt_budget: usize,
     command: NativeMainSessionCommand,
     reopened: Option<NativePreparedValidityRecoveryObservationV1>,
+    supersession: Option<NativeMainPreparedRowSupersessionV1>,
+    superseding_active: bool,
 }
 pub struct RejectedNativeMainNoIndexLoanV1 {
     pub cause: String,
@@ -89,6 +91,8 @@ impl SourceMainNativeRowSessionV1 {
             receipt_budget,
             command,
             reopened,
+            supersession,
+            superseding_active,
         } = self;
         let SourceMainNativeSessionV13 {
             financial,
@@ -127,6 +131,8 @@ impl SourceMainNativeRowSessionV1 {
             receipt_budget,
             command,
             reopened,
+            supersession,
+            superseding_active,
         })
     }
     pub fn reopened_observation(&self) -> Option<&NativePreparedValidityRecoveryObservationV1> {
@@ -184,6 +190,8 @@ impl SourceMainNativeRowNoIndexV1 {
             source_start_error,
             receipt_budget,
             command,
+            supersession,
+            superseding_active,
             ..
         } = self;
         let NativeMainFinancialWithoutIndexV1 {
@@ -222,6 +230,8 @@ impl SourceMainNativeRowNoIndexV1 {
             receipt_budget,
             command,
             reopened: Some(observation),
+            supersession,
+            superseding_active,
         })
     }
     pub fn visit_canonical_fields(
@@ -282,6 +292,13 @@ impl SourceMainNativeRowNoIndexV1 {
             })?;
         }
         native_main_reopen_fields(self.reopened.as_ref(), visitor)?;
+        if self.supersession.is_some() || self.superseding_active {
+            native_main_supersession_fields(
+                self.supersession.as_ref(),
+                self.superseding_active,
+                visitor,
+            )?;
+        }
         let pin = self.permit.independently_retained_pin();
         visitor("controlPin/root", &s(&pin.canonical_root.to_string_lossy()))?;
         visitor("controlPin/context", &s(&hex(&pin.context)))?;

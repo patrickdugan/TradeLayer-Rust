@@ -67,7 +67,7 @@ fn row() -> V {
         ),
     ])
 }
-fn owner_with_service(temp: &Temp, service: bool) -> SourceMainNativeSessionV13 {
+fn owner_with_fixture(temp: &Temp, service: bool, compacting: bool) -> SourceMainNativeSessionV13 {
     let mut financial =
         SourceContractReplay::with_policy(SourceContractRuntimePolicy::MainOrchestrationV12)
             .unwrap();
@@ -132,6 +132,9 @@ fn owner_with_service(temp: &Temp, service: bool) -> SourceMainNativeSessionV13 
     let mut index =
         SourceCompactIndex::create(&temp.0, namespace.clone(), "moved raw row command").unwrap();
     index.import_row(&index.snapshot().unwrap(), row()).unwrap();
+    if compacting {
+        index.native_main_test_compaction_fixture().unwrap();
+    }
     let expected = NativeMainExpectation {
         financial_head: financial.head(),
         namespace,
@@ -144,12 +147,22 @@ fn owner_with_service(temp: &Temp, service: bool) -> SourceMainNativeSessionV13 
 fn owner(temp: &Temp) -> SourceMainNativeSessionV13 {
     owner_with_service(temp, false)
 }
+
+fn owner_with_service(temp: &Temp, service: bool) -> SourceMainNativeSessionV13 {
+    owner_with_fixture(temp, service, false)
+}
 fn controller(
     financial_temp: &Temp,
     control_temp: &Temp,
     catchup: bool,
 ) -> SourceMainNativeRowSessionV1 {
-    let owner = owner(financial_temp);
+    controller_from_owner(owner(financial_temp), control_temp, catchup)
+}
+fn controller_from_owner(
+    owner: SourceMainNativeSessionV13,
+    control_temp: &Temp,
+    catchup: bool,
+) -> SourceMainNativeRowSessionV1 {
     let expected = owner.expectation().unwrap();
     let store = NativeIntentStoreV1::create(
         &control_temp.0,
@@ -375,10 +388,11 @@ fn failed_candidate_open_returns_same_no_index_owner_and_does_not_repair_unknown
             > 0
     );
     assert!(
-        matches!(
-            recovered.commit_pending(),
-            NativeMainRowStopV1::StorageStopped(_)
-        ),
+        recovered
+            .owner
+            .index
+            .commit_prepared_validity(recovered.frame.as_ref().unwrap().pending_write().unwrap())
+            .is_err(),
         "Before cannot reuse old Journal owner-token append"
     );
     assert_eq!(
@@ -396,6 +410,59 @@ fn failed_candidate_open_returns_same_no_index_owner_and_does_not_repair_unknown
         decoded
     );
     assert!(recovered.result().is_none());
+    let old_write = recovered.pending_write().unwrap().durable_read_context();
+    let metadata_before = recovered.index().snapshot().unwrap();
+    let control_before = recovered.store_pin().unwrap();
+    assert_eq!(
+        recovered.prepare_superseding(),
+        NativeMainRowStopV1::AwaitNativeWrite
+    );
+    assert_eq!(recovered.index().snapshot().unwrap(), metadata_before);
+    assert_eq!(
+        recovered.store_pin().unwrap(),
+        control_before,
+        "preparing fresh intent performs no IO"
+    );
+    let expected_after = recovered
+        .retained_superseding_intent()
+        .unwrap()
+        .independently_expected_after()
+        .clone();
+    assert_eq!(
+        recovered.pending_write().unwrap().durable_read_context(),
+        old_write,
+        "source still holds original plan before durable sync"
+    );
+    assert_eq!(
+        recovered.sync_prepared_superseding(),
+        NativeMainRowStopV1::AwaitNativeWrite
+    );
+    assert_eq!(recovered.store_pin().unwrap(), expected_after);
+    assert_eq!(
+        recovered.store.state().unwrap().get("kind"),
+        s("NativeSupersessionIntentV1")
+    );
+    assert_eq!(recovered.index().snapshot().unwrap(), metadata_before);
+    assert_eq!(
+        recovered
+            .financial_runtime()
+            .native_main_state_value()
+            .unwrap(),
+        financial
+    );
+    assert_eq!(recovered.commit_pending(), NativeMainRowStopV1::Complete);
+    assert_eq!(
+        recovered.result(),
+        Some(&Ok(DependencyReturn::Pending(V::number(0.))))
+    );
+    assert_eq!(recovered.effects(), effects);
+    assert_eq!(
+        recovered
+            .financial_runtime()
+            .native_main_test_row_decode_count(),
+        decoded
+    );
+    assert_eq!(marks(recovered.effects()), 1);
 }
 #[test]
 fn actual_catchup_after_sync_ambiguity_keeps_cursor_and_runs_six_suffix_calls_once() {
@@ -487,4 +554,176 @@ fn loan_refusal_before_native_intent_retains_whole_live_controller() {
     assert_eq!(retained.store_pin().unwrap(), pin);
     assert_eq!(retained.advance(), NativeMainRowStopV1::AwaitNativeWrite);
     assert_eq!(retained.effects(), effects);
+}
+#[test]
+fn second_actual_partial_native_error_requires_second_superseding_intent_without_source_reentry() {
+    let financial_temp = Temp::new();
+    let control_temp = Temp::new();
+    let mut controller = controller(&financial_temp, &control_temp, false);
+    assert_eq!(controller.advance(), NativeMainRowStopV1::AwaitNativeWrite);
+    let financial = controller
+        .financial_runtime()
+        .native_main_state_value()
+        .unwrap();
+    let effects = controller.effects().to_vec();
+    let decoded = controller
+        .financial_runtime()
+        .native_main_test_row_decode_count();
+    assert_eq!(
+        controller.prepare_pending(),
+        NativeMainRowStopV1::AwaitNativeWrite
+    );
+    controller.owner.index.test_fail_after_partial_write();
+    assert!(matches!(
+        controller.commit_pending(),
+        NativeMainRowStopV1::StorageStopped(_)
+    ));
+    let mut recovered = controller
+        .into_no_index()
+        .unwrap()
+        .try_reopen(
+            &financial_temp.0,
+            NativePreparedValidityCandidateV1::Before,
+            Recovery::DiscardIncompleteTail,
+        )
+        .unwrap();
+    assert_eq!(
+        recovered.prepare_superseding(),
+        NativeMainRowStopV1::AwaitNativeWrite
+    );
+    assert_eq!(
+        recovered.sync_prepared_superseding(),
+        NativeMainRowStopV1::AwaitNativeWrite
+    );
+    let first_control = recovered.store_pin().unwrap();
+    recovered.owner.index.test_fail_after_partial_write();
+    assert!(matches!(
+        recovered.commit_pending(),
+        NativeMainRowStopV1::StorageStopped(_)
+    ));
+    let mut twice = recovered
+        .into_no_index()
+        .unwrap()
+        .try_reopen(
+            &financial_temp.0,
+            NativePreparedValidityCandidateV1::Before,
+            Recovery::DiscardIncompleteTail,
+        )
+        .unwrap();
+    assert_eq!(
+        twice.prepare_superseding(),
+        NativeMainRowStopV1::AwaitNativeWrite
+    );
+    assert_eq!(
+        twice
+            .retained_superseding_intent()
+            .unwrap()
+            .independently_expected_before(),
+        &first_control
+    );
+    assert_eq!(
+        twice.sync_prepared_superseding(),
+        NativeMainRowStopV1::AwaitNativeWrite
+    );
+    assert_eq!(
+        twice.financial_runtime().native_main_state_value().unwrap(),
+        financial
+    );
+    assert_eq!(twice.commit_pending(), NativeMainRowStopV1::Complete);
+    assert_eq!(
+        twice.result(),
+        Some(&Ok(DependencyReturn::Pending(V::number(0.))))
+    );
+    assert_eq!(twice.effects(), effects);
+    assert_eq!(marks(twice.effects()), 1);
+    assert_eq!(
+        twice
+            .financial_runtime()
+            .native_main_test_row_decode_count(),
+        decoded
+    );
+    assert_eq!(twice.store.state().unwrap().get("kind"), s("Idle"));
+}
+#[test]
+fn actual_compaction_midpoint_supersedes_same_source_await() {
+    let financial_temp = Temp::new();
+    let control_temp = Temp::new();
+    let mut controller = controller_from_owner(
+        owner_with_fixture(&financial_temp, false, true),
+        &control_temp,
+        false,
+    );
+    let decoded = controller
+        .financial_runtime()
+        .native_main_test_row_decode_count();
+    assert_eq!(controller.advance(), NativeMainRowStopV1::AwaitNativeWrite);
+    let financial = controller
+        .financial_runtime()
+        .native_main_state_value()
+        .unwrap();
+    let effects = controller.effects().to_vec();
+    let read = controller.pending_write().unwrap().pinned_read().clone();
+    let query = controller.pending_write().unwrap().query().clone();
+    let intermediate = controller
+        .pending_write()
+        .unwrap()
+        .append_plan()
+        .intermediate()
+        .expect("actual source write requires compaction");
+    assert_eq!(
+        controller.prepare_pending(),
+        NativeMainRowStopV1::AwaitNativeWrite
+    );
+    controller
+        .owner
+        .index
+        .native_main_test_compaction_fault("after-current-sync");
+    assert!(matches!(
+        controller.commit_pending(),
+        NativeMainRowStopV1::StorageStopped(_)
+    ));
+    let mut recovered = controller
+        .into_no_index()
+        .unwrap()
+        .try_reopen(
+            &financial_temp.0,
+            NativePreparedValidityCandidateV1::Intermediate,
+            Recovery::RejectIncompleteTail,
+        )
+        .unwrap();
+    assert_eq!(
+        recovered.index().snapshot().unwrap().publication,
+        intermediate.publication
+    );
+    assert_eq!(
+        recovered
+            .financial_runtime()
+            .native_main_state_value()
+            .unwrap(),
+        financial
+    );
+    assert_eq!(
+        recovered.prepare_superseding(),
+        NativeMainRowStopV1::AwaitNativeWrite
+    );
+    assert_eq!(
+        recovered.sync_prepared_superseding(),
+        NativeMainRowStopV1::AwaitNativeWrite
+    );
+    assert_eq!(recovered.pending_write().unwrap().pinned_read(), &read);
+    assert_eq!(recovered.pending_write().unwrap().query(), &query);
+    assert_eq!(recovered.commit_pending(), NativeMainRowStopV1::Complete);
+    assert_eq!(
+        recovered.result(),
+        Some(&Ok(DependencyReturn::Pending(V::number(0.))))
+    );
+    assert_eq!(recovered.effects(), effects);
+    assert_eq!(marks(recovered.effects()), 1);
+    assert_eq!(
+        recovered
+            .financial_runtime()
+            .native_main_test_row_decode_count(),
+        decoded + 1
+    );
+    assert_eq!(recovered.validity()[0].query.snapshot, read);
 }

@@ -2933,6 +2933,7 @@ include!("source_main_native_row_continuation_impl.rs");
 include!("source_main_native_no_index_runtime_tests_impl.rs");
 include!("source_main_native_catchup_prepare_impl.rs");
 include!("source_main_native_catchup_continuation_impl.rs");
+include!("source_main_native_supersession_runtime_impl.rs");
 include!("source_main_step_block_impl.rs");
 include!("source_main_step_runtime_impl.rs");
 include!("source_main_step_file_core_impl.rs");
