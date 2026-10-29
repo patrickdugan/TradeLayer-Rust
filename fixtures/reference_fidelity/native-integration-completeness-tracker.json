@@ -1,0 +1,170 @@
+{
+  "schema": "tl-native-integration-completeness-refresh-v1",
+  "verifiedAtUtc": "2026-10-29T11:10:50Z",
+  "checkoutCommit": "fc0a176c6c858e1d48f068ce4c713e2faae18306",
+  "integrated": {
+    "sharedMetadata": {
+      "status": "committed-focused-checks-pass",
+      "RootIntegrated": true,
+      "commit": "99e17220fdd36ddc1536f9a48f2b0b90a8ffebc7",
+      "record": "fixtures/reference_fidelity/rich-shared-metadata-core-integration.json",
+      "recordSHA256": "2c7431f626e05e84532af2a88c0a6caf24fdf2659b52567105bc5df4c37268d9",
+      "focusedExecutions": 15,
+      "fullSuitePromotion": false,
+      "allTargetClippyWarningsDenied": true
+    },
+    "nativeFoundation": {
+      "status": "committed-focused-checks-pass",
+      "RootIntegrated": true,
+      "commit": "db077807bea26af2e73dac7b88e868c5b8da88f4",
+      "record": "fixtures/reference_fidelity/native-foundation-core-integration.json",
+      "recordSHA256": "949ba1ef0a3bba48a643a3ba51d08bd230e7fdcfa1a16480067d5b04fe2e20fd",
+      "focusedExecutions": 88,
+      "fullSuitePromotion": false,
+      "allTargetClippyWarningsDenied": true
+    },
+    "verifiedNativePrefix": {
+      "status": "committed-focused-checks-pass",
+      "RootIntegrated": true,
+      "commit": "5df963b8ee0a2475d32c70d9c4ddaa1817f919d9",
+      "record": "fixtures/reference_fidelity/verified-native-prefix-core-integration.json",
+      "recordSHA256": "86827902f6c3f8e226896e2b3549083fd1bf259cafa4a9dbb41bf45c520ed891",
+      "focusedExecutions": 102,
+      "fullSuitePromotion": false,
+      "allTargetClippyWarningsDenied": true
+    },
+    "nativeRowContinuation": {
+      "status": "committed-focused-checks-pass",
+      "RootIntegrated": true,
+      "commit": "fc0a176c6c858e1d48f068ce4c713e2faae18306",
+      "record": "fixtures/reference_fidelity/native-row-first-core-integration.json",
+      "recordSHA256": "15e392a2706b5b6e1528df1cc8651cf733c9271748906ce5a96cefdc9d3f0949",
+      "focusedExecutions": 68,
+      "fullSuitePromotion": false,
+      "allTargetClippyWarningsDenied": true
+    }
+  },
+  "logsRehashed": {
+    "root-rich-metadata-tests-first.log": "74d82e4b229bd2b728edafbda1f3163e06a0d5b3dd25be7047c9bf2b8f7b9bdb",
+    "root-rich-metadata-tests-catch-fixed.log": "315b4f894549407e1b56d87489fcba1880d70442025bfc5712532bd0c4485b09",
+    "root-rich-metadata-format-catch-fixed.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "root-rich-metadata-clippy-catch-fixed.log": "3a3436a302f68af0bd8a3306829ff26657b279502bb0380ac0239ca81b56c232",
+    "root-rich-metadata-supply-catch-fixed.log": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01",
+    "root-rich-metadata-inventory-catch-fixed.log": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393",
+    "root-rich-metadata-included-format-first.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "root-rich-metadata-source-catch-observations.log": "c2e5f99c21215b9b31e465fd2e4fdc58396308e92d5cde07abc8a2e6fbd6c90b",
+    "metadata-original-catch-regression.log": "a34302bb7b4cbb1eed18f13e36febb70592577b2a7346a19ab22877a6df066cc",
+    "root-rich-metadata-inventory-first.log": "3f743720a881c0e2cc513b9d61e572138e067933b99e3dfd5e3cfd34f3f34478",
+    "root-native-foundation-source_native_append_plan_tests-first.log": "e60780742a2d01f65764eab0e27192d182b3b2f85cac918b4b12d5c24680e829",
+    "root-native-foundation-prepared_validity_tests-first.log": "a310eebbbc64a02be249caab707eba26efd3591983016ae3a98459b6842af104",
+    "root-native-foundation-main_step_runtime_tests-first.log": "d21d6d0bc6bd8a49cba987717ad3c22a56b395f6756a077356c2cd2d3bb4b905",
+    "root-native-foundation-main_step_file_runtime_tests-first.log": "92dfebdb28fed951b87b046ef428cba59e70c5eaf86b09aca61580a0f6afb86b",
+    "root-native-foundation-public-first.log": "9bc30cace56a2555fd240158e17f203e2c2d4bec92d5dda6def193a835eb3b39",
+    "root-native-foundation-format-first.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "root-native-foundation-included-format-first.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "root-native-foundation-clippy-first.log": "c6f74d98acc1d5056f2c4ceb3ac13c67206507ac4ed431199cbb9dc4a69244c8",
+    "root-native-foundation-supply-first.log": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01",
+    "root-native-foundation-inventory-first.log": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393",
+    "root-verified-prefix-verified_prefix_tests-fixture-fixed.log": "88b0116d4e17833db7158d346406a2a6c2f133d22d6c607a2004a02f26719d0e",
+    "root-verified-prefix-source_native_append_plan_tests-fixture-fixed.log": "2684c1f75dd6f8fc9babbe1549b7875baa2bc50adfa4f199620dd379d9d21ac5",
+    "root-verified-prefix-prepared_validity_tests-fixture-fixed.log": "e166c077d194b22be821cecd569628dae800d7d7bc55549e31b5346f18613efc",
+    "root-verified-prefix-compact_journal_tests-fixture-fixed.log": "f2736e66a0b8a0eedaf0d859ed4669bdb9afdf5ac06eaffee3e16ca3c4e3bd27",
+    "root-verified-prefix-source_compact_index_v2_tests-fixture-fixed.log": "82d55625236d62ee3d5f88ee33758a38aae5dd7e334525ef1c477ea86a9bc129",
+    "root-verified-prefix-public-env-fixed.log": "562538e10d30d3baa2eb6af3cb29361d2cbe070d8173f4fb5b6438f86a50f7ca",
+    "root-verified-prefix-format-first.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "root-verified-prefix-included-format-first.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "root-verified-prefix-clippy-first.log": "0496f4e64e3fa9d39db2074af825c9e03c499b28f5a2b1bcf63954e72bd2c7f4",
+    "root-verified-prefix-supply-first.log": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01",
+    "root-verified-prefix-inventory-first.log": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393",
+    "root-verified-prefix-verified_prefix_tests-first.log": "440f22baaef99800e3996b1bd86324e7d7807d122eb036d5267a4d651de2c4e8",
+    "root-verified-prefix-public-fixture-fixed.log": "0c789af3fd68157dace9e91e98203e8bef313c522da8096c0207b58ec4b88359",
+    "root-native-row-first-compile.log": "62b0c8446da19c65f91bfdc2c3b30e069577bc174cd44538127b7a9c790f7f20",
+    "root-native-row-capacity-corrected.log": "f20d8d39991a72fe9af197b5bc9670aa6ef9d54f5dffc2e5ae1757d6402e27df",
+    "root-native-row-adversarial-first.log": "e32d12d7de385e8b44d67b78ed1bc271fd99ca8c917281d4131246c998c06c1d",
+    "root-native-row-source-backed-first.log": "a12e36e16704b33eab7c69a18c929e752bf2eae50c80c260c864adf70a0ac093",
+    "root-native-row-compat-first.log": "39e1f6f04544eae1b152c29c97eca4da67a42a2f98e9f774fd7e7447c87aaecc",
+    "root-native-row-format-first.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "root-native-row-included-format-first.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "root-native-row-supply-first.log": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01",
+    "root-native-row-inventory-first.log": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393",
+    "root-native-row-final-format.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "root-native-row-final-included-format.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "root-native-row-final-clippy.log": "036f468ac7df46bdaf5dbc5f6bbb34bc2b47471f2c6f4d5a90d319bf3d5201a0",
+    "root-native-row-original-live-default-check.log": "46ad7272b598f285f4b1d97dee57485ff4bf24ec867148fdbe2887aca11252f5",
+    "root-native-row-original-live-locked-check.log": "397a47f11346704504394a8952b98370e09d0196309596a886c399f553a3fdc2"
+  },
+  "uncommittedCatchupChecks": {
+    "catchup": {
+      "passed": 9,
+      "resultRecords": 1,
+      "logSHA256": "dbabf08cae923c15917686d163479e2dd1596bebe947671981b40cd2350d1b4f",
+      "committed": false,
+      "fullSuitePromotion": false
+    },
+    "rowRegressions": {
+      "passed": 13,
+      "resultRecords": 1,
+      "logSHA256": "ce9d64cc6850739ab8944b5d394e9c70f703b6579def6f8fe268fb0548c23270",
+      "committed": false,
+      "fullSuitePromotion": false
+    },
+    "compatibility": {
+      "passed": 23,
+      "resultRecords": 7,
+      "logSHA256": "ff8b59c9c5322701e3fd44bfea2205f72f06238359f5c2514aa253403c30f0c5",
+      "committed": false,
+      "fullSuitePromotion": false
+    }
+  },
+  "releaseCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
+  "releaseExecutions": 1714,
+  "lockedReferenceExecutions": 238,
+  "fullSuitePromotion": false,
+  "authenticationEstablished": false,
+  "fullReferenceParityEstablished": false,
+  "completeBlockFraudProofEstablished": false,
+  "beforeWorkbookSHA256": "6efbd3a0ba4fa6a122ee4190e3ed0d40ed19b8a6b7f5f02345b8699018bf8c9a",
+  "unrelatedWorkingChanges": [
+    " M docs/LOGIC_BY_TX_TYPE.json",
+    " M scripts/ci-preflight.sh",
+    " M src/source_contract_runtime.rs",
+    " M src/source_index_row_binding_impl.rs",
+    " M src/source_main_native_row_continuation_impl.rs",
+    " M src/source_main_native_row_session_impl.rs",
+    " M src/source_main_native_session.rs",
+    " M src/source_main_production_impl.rs",
+    "?? fixtures/native_main_catchup_controls.jsonl",
+    "?? fixtures/native_main_catchup_controls_locked.jsonl",
+    "?? scripts/native_main_catchup_controls.cjs",
+    "?? src/source_main_native_catchup_continuation_impl.rs",
+    "?? src/source_main_native_catchup_continuation_tests.rs",
+    "?? src/source_main_native_catchup_prepare_impl.rs",
+    "?? src/source_main_native_catchup_session_tests.rs"
+  ],
+  "unpromotedWorkerResults": {
+    "awaitTerminalSourceOracle": {
+      "manifest": "review-native-main-await-terminal/root-ready-await-terminal-controls-1/MANIFEST.json",
+      "manifestSHA256": "28ce4ba8e5a452b91571f56e8bbabae37a8620aa5ad73f2e90529887597cd4bd",
+      "status": "source-only-no-rust-parity",
+      "RootIntegrated": false,
+      "fullSuitePromotion": false
+    },
+    "noIndexController": {
+      "manifest": "native-main-no-index-controller-v13/root-ready-no-index-controller-1/MANIFEST.json",
+      "manifestSHA256": "28191764c2cd9c95f78e01e133515c32b5722494527faded8f930a1620085176",
+      "status": "implementation-frozen-parent-core-checks-pending",
+      "RootIntegrated": false,
+      "fullSuitePromotion": false
+    }
+  },
+  "savedWorkbookSHA256": "4e63ebe7b6d1b54f61d2857b90956bfc14d526f6f874cb5f54fc6c5d104c4ab0",
+  "savedAndSidebarRowsMatch": true,
+  "intentionalCellChanges": 14,
+  "rowHashes": {
+    "modules": 3550588870,
+    "logic": 1151758449
+  },
+  "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
+  "visualReviewPassed": true,
+  "errors": 0
+}

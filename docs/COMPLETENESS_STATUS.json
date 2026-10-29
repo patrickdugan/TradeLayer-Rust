@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-29T08:25:39Z",
-  "inspectedCheckoutCommit": "5d44d77632016393c87977b1525091fea680d560",
+  "verifiedAtUtc": "2026-10-29T11:10:50Z",
+  "inspectedCheckoutCommit": "fc0a176c6c858e1d48f068ce4c713e2faae18306",
   "verifiedImplementationCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
   "verifiedReleaseTests": 1714,
   "topLevelTests": 1713,
@@ -364,8 +364,8 @@
       ]
     },
     "nativeRecoveryPrimitives": {
-      "status": "isolated-core-components-pass-production-binding-pending",
-      "RootIntegrated": false,
+      "status": "integrated-focused-checks-pass",
+      "RootIntegrated": true,
       "fullSuitePromotion": false,
       "newCoreTests": 9,
       "existingRegressionTests": 27,
@@ -388,11 +388,13 @@
           "resultRecords": 11
         }
       ],
-      "remainingChecks": [
-        "Production apply_step and two-phase row continuation",
-        "Durable intent-and-ack protocol",
-        "Root integration and compatibility gates",
-        "Full-suite promotion and host power-loss validation"
+      "integrationCommit": "db077807bea26af2e73dac7b88e868c5b8da88f4",
+      "integrationRecord": "fixtures/reference_fidelity/native-foundation-core-integration.json",
+      "remaining": [
+        "Full-suite promotion",
+        "Catchup/index-reopen/durable-supersession composition",
+        "Process-loss and host power-loss validation",
+        "Authenticated history"
       ]
     },
     "suspendedFileRetryProbe": {
@@ -454,8 +456,8 @@
       "record": "fixtures/reference_fidelity/rich-runtime14-core-integration.json"
     },
     "nativeStepProductionBinding": {
-      "status": "isolated-production-controller-and-command-reexecution-pass",
-      "RootIntegrated": false,
+      "status": "integrated-focused-checks-pass",
+      "RootIntegrated": true,
       "fullSuitePromotion": false,
       "CoreTests": 6,
       "sameFinancialAndIndexOwners": true,
@@ -469,16 +471,18 @@
       },
       "providerSHA256": "8bccb17410d3fa4d6065e975e6456b78e0b6d3ff767781dd9b1e916568c238c2",
       "remaining": [
-        "Explicit file-retry profile Core validation",
-        "Root integration and compatibility gates",
-        "Segmented durable intent-and-ack writer",
-        "Exact native row/catchup recovery and host validation"
+        "Full-suite promotion",
+        "Catchup/index-reopen/durable-supersession composition",
+        "Process-loss and host power-loss validation",
+        "Authenticated history"
       ],
-      "commandOnlyDecoderReexecutionPassed": true
+      "commandOnlyDecoderReexecutionPassed": true,
+      "integrationCommit": "db077807bea26af2e73dac7b88e868c5b8da88f4",
+      "integrationRecord": "fixtures/reference_fidelity/native-foundation-core-integration.json"
     },
     "nativeFileRetryProfile": {
-      "status": "isolated-actual-core-nine-tests-pass-root-integration-pending",
-      "RootIntegrated": false,
+      "status": "integrated-focused-checks-pass",
+      "RootIntegrated": true,
       "fullSuitePromotion": false,
       "actualCoreTestsPassed": 9,
       "manifestSHA256": "4f4c49177b6df7b28aad556d953e00778bfd5d0c3ce0dd3050d570ac97d3979f",
@@ -487,26 +491,35 @@
         "sha256": "bcddccd1ea6e41e6b415c565062ee8b5eb8011e2c32b10f063bfdbf657adf2d0",
         "executions": 9,
         "targets": 1
-      }
+      },
+      "integrationCommit": "db077807bea26af2e73dac7b88e868c5b8da88f4",
+      "integrationRecord": "fixtures/reference_fidelity/native-foundation-core-integration.json",
+      "remaining": [
+        "Full-suite promotion",
+        "Catchup/index-reopen/durable-supersession composition",
+        "Process-loss and host power-loss validation",
+        "Authenticated history"
+      ]
     },
     "nativeSegmentHistory": {
-      "status": "publication-correction-and-full-candidate-core-eighteen-pass",
-      "RootIntegrated": false,
+      "status": "integrated-focused-checks-pass",
+      "RootIntegrated": true,
       "fullSuitePromotion": false,
       "actualCoreTestsPassed": 18,
       "logicalCommands": 4353,
       "segments": 18,
-      "promotionHeld": true,
       "directCoreCapacityRegressionPending": false,
       "record": "fixtures/reference_fidelity/native-segment-capacity-core.json",
       "remaining": [
-        "Root integration and compatibility/Clippy gates",
-        "Synced native intent/ack and exact row recovery",
-        "Host crash validation and broader resource domains"
+        "Full-suite promotion",
+        "Catchup/index-reopen/durable-supersession composition",
+        "Process-loss and host power-loss validation",
+        "Authenticated history"
       ],
-      "promotionHoldReason": "Root integration, compatibility, all-target Clippy and durable recovery remain pending.",
       "directCoreCapacityRegressionPassed": true,
-      "originalFailureRetained": true
+      "originalFailureRetained": true,
+      "integrationCommit": "db077807bea26af2e73dac7b88e868c5b8da88f4",
+      "integrationRecord": "fixtures/reference_fidelity/native-foundation-core-integration.json"
     },
     "richOwnerPrefixFollowOn": {
       "status": "same-owner-partial-write-error-continuations-integrated-focused-gates-pass",
@@ -540,8 +553,8 @@
       "commit": "ed74e1693a5db9ad03fb35d1eeb79955387d6bc2"
     },
     "nativeDurableIntentStore": {
-      "status": "isolated-actual-core-store-components-pass",
-      "RootIntegrated": false,
+      "status": "integrated-focused-checks-pass",
+      "RootIntegrated": true,
       "fullSuitePromotion": false,
       "actualCoreTestsPassed": 16,
       "manifestSHA256": "da24d343c2f7906189a52bd325733b5c0e77eb7fb2b0dc487ac70fd46b647662",
@@ -550,37 +563,133 @@
       "actualChildExits": 8,
       "ignoredChildRunner": 1,
       "financialRowRecoveryEstablished": false,
-      "record": "fixtures/reference_fidelity/native-intent-prepared-core.json"
+      "record": "fixtures/reference_fidelity/native-intent-prepared-core.json",
+      "integrationCommit": "db077807bea26af2e73dac7b88e868c5b8da88f4",
+      "integrationRecord": "fixtures/reference_fidelity/native-foundation-core-integration.json",
+      "remaining": [
+        "Full-suite promotion",
+        "Catchup/index-reopen/durable-supersession composition",
+        "Process-loss and host power-loss validation",
+        "Authenticated history"
+      ]
     },
     "nativePreparedValidity": {
-      "status": "isolated-actual-core-prepared-source-index-operation-pass",
-      "RootIntegrated": false,
+      "status": "integrated-focused-checks-pass",
+      "RootIntegrated": true,
       "fullSuitePromotion": false,
       "actualCoreTestsPassed": 7,
       "manifestSHA256": "82558c5109839a2873fc6c5f45527583403ffc9de2111bebff8162f28ff043e3",
       "completeQueryRows": 1100,
       "financialRowRecoveryEstablished": false,
-      "record": "fixtures/reference_fidelity/native-intent-prepared-core.json"
+      "record": "fixtures/reference_fidelity/native-intent-prepared-core.json",
+      "integrationCommit": "db077807bea26af2e73dac7b88e868c5b8da88f4",
+      "integrationRecord": "fixtures/reference_fidelity/native-foundation-core-integration.json",
+      "remaining": [
+        "Full-suite promotion",
+        "Catchup/index-reopen/durable-supersession composition",
+        "Process-loss and host power-loss validation",
+        "Authenticated history"
+      ]
     },
     "richMetadataIoSeam": {
-      "status": "frozen-worker-standalone-evidence-actual-core-pending",
-      "RootIntegrated": false,
+      "status": "shared-algorithms-integrated-broader-rich-wrapper-pending",
+      "RootIntegrated": true,
       "fullSuitePromotion": false,
-      "actualCoreTestsPassed": 0,
-      "manifestSHA256": "1963d0331496874ed5d2f37799b753fb601b6bce5408a69c4ffbb5685caff073"
+      "actualCoreTestsPassed": 15,
+      "manifestSHA256": "1963d0331496874ed5d2f37799b753fb601b6bce5408a69c4ffbb5685caff073",
+      "integrationRecord": "fixtures/reference_fidelity/rich-shared-metadata-core-integration.json"
     },
     "richSharedMetadata": {
-      "RootIntegrated": false,
+      "status": "committed-focused-checks-pass",
+      "RootIntegrated": true,
+      "commit": "99e17220fdd36ddc1536f9a48f2b0b90a8ffebc7",
+      "record": "fixtures/reference_fidelity/rich-shared-metadata-core-integration.json",
+      "recordSHA256": "2c7431f626e05e84532af2a88c0a6caf24fdf2659b52567105bc5df4c37268d9",
+      "focusedExecutions": 15,
       "fullSuitePromotion": false,
-      "actualCoreExecutions": 14,
-      "targets": 4,
-      "logSHA256": "98afbd4220e88d558653ac2824c1ba4421905c2d523139dcf24d7558821c8526",
-      "sourceManifestSHA256": "1963d0331496874ed5d2f37799b753fb601b6bce5408a69c4ffbb5685caff073",
-      "status": "isolated-actual-core-checks-pass",
-      "record": "fixtures/reference_fidelity/packaged-recovery-tracker.json"
+      "allTargetClippyWarningsDenied": true
+    },
+    "sharedMetadata": {
+      "status": "committed-focused-checks-pass",
+      "RootIntegrated": true,
+      "commit": "99e17220fdd36ddc1536f9a48f2b0b90a8ffebc7",
+      "record": "fixtures/reference_fidelity/rich-shared-metadata-core-integration.json",
+      "recordSHA256": "2c7431f626e05e84532af2a88c0a6caf24fdf2659b52567105bc5df4c37268d9",
+      "focusedExecutions": 15,
+      "fullSuitePromotion": false,
+      "allTargetClippyWarningsDenied": true
+    },
+    "nativeFoundation": {
+      "status": "committed-focused-checks-pass",
+      "RootIntegrated": true,
+      "commit": "db077807bea26af2e73dac7b88e868c5b8da88f4",
+      "record": "fixtures/reference_fidelity/native-foundation-core-integration.json",
+      "recordSHA256": "949ba1ef0a3bba48a643a3ba51d08bd230e7fdcfa1a16480067d5b04fe2e20fd",
+      "focusedExecutions": 88,
+      "fullSuitePromotion": false,
+      "allTargetClippyWarningsDenied": true
+    },
+    "verifiedNativePrefix": {
+      "status": "committed-focused-checks-pass",
+      "RootIntegrated": true,
+      "commit": "5df963b8ee0a2475d32c70d9c4ddaa1817f919d9",
+      "record": "fixtures/reference_fidelity/verified-native-prefix-core-integration.json",
+      "recordSHA256": "86827902f6c3f8e226896e2b3549083fd1bf259cafa4a9dbb41bf45c520ed891",
+      "focusedExecutions": 102,
+      "fullSuitePromotion": false,
+      "allTargetClippyWarningsDenied": true
+    },
+    "nativeRowContinuation": {
+      "status": "committed-focused-checks-pass",
+      "RootIntegrated": true,
+      "commit": "fc0a176c6c858e1d48f068ce4c713e2faae18306",
+      "record": "fixtures/reference_fidelity/native-row-first-core-integration.json",
+      "recordSHA256": "15e392a2706b5b6e1528df1cc8651cf733c9271748906ce5a96cefdc9d3f0949",
+      "focusedExecutions": 68,
+      "fullSuitePromotion": false,
+      "allTargetClippyWarningsDenied": true
+    },
+    "nativeCatchupWorkingTree": {
+      "catchup": {
+        "passed": 9,
+        "resultRecords": 1,
+        "logSHA256": "dbabf08cae923c15917686d163479e2dd1596bebe947671981b40cd2350d1b4f",
+        "committed": false,
+        "fullSuitePromotion": false
+      },
+      "rowRegressions": {
+        "passed": 13,
+        "resultRecords": 1,
+        "logSHA256": "ce9d64cc6850739ab8944b5d394e9c70f703b6579def6f8fe268fb0548c23270",
+        "committed": false,
+        "fullSuitePromotion": false
+      },
+      "compatibility": {
+        "passed": 23,
+        "resultRecords": 7,
+        "logSHA256": "ff8b59c9c5322701e3fd44bfea2205f72f06238359f5c2514aa253403c30f0c5",
+        "committed": false,
+        "fullSuitePromotion": false
+      }
+    },
+    "unpromotedWorkerResults": {
+      "awaitTerminalSourceOracle": {
+        "manifest": "review-native-main-await-terminal/root-ready-await-terminal-controls-1/MANIFEST.json",
+        "manifestSHA256": "28ce4ba8e5a452b91571f56e8bbabae37a8620aa5ad73f2e90529887597cd4bd",
+        "status": "source-only-no-rust-parity",
+        "RootIntegrated": false,
+        "fullSuitePromotion": false
+      },
+      "noIndexController": {
+        "manifest": "native-main-no-index-controller-v13/root-ready-no-index-controller-1/MANIFEST.json",
+        "manifestSHA256": "28191764c2cd9c95f78e01e133515c32b5722494527faded8f930a1620085176",
+        "status": "implementation-frozen-parent-core-checks-pending",
+        "RootIntegrated": false,
+        "fullSuitePromotion": false
+      }
     }
   },
-  "scope": "Full release963aae7 remains1714 Rust executions and238 numeric checks. Subsequent RichThrownV14 RPC/catch carriers and same-owner partial-write error continuations are integrated with focused checks; the newest follow-on passes3 Root Core and29 compatibility executions,4 source checks and all-target Clippy. Native segmented replay/capacity passes18 isolated Core tests but remains unintegrated. Full-suite promotion, broader DB/financial/deferred domains, synced durable native recovery, authenticated history and complete-block proofs remain open.",
+  "scope": "Committed focused checks: shared metadata 15 (99e1722), native foundation 88 (db07780), verified recovery-open 102 (5df963b), row continuation 68 including 13 row tests and 55 compatibility checks (fc0a176). Counts overlap and are excluded from the 1,714 Rust / 238 numeric full-release baseline at 963aae7. Catchup remains uncommitted. Index reopen, durable supersession, head/history/next-command composition, process-loss recovery, host power-loss, broader rich domains, authenticated history and complete-block proofs remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -872,40 +981,41 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Full release 963aae7 remains at 1,714 Rust executions and 238 numeric checks. Latest focused Root code ed74e16 passes 3 Core tests, 29 compatibility executions and 4 source checks. Isolated candidates: history/capacity 18, intent-store 16, prepared-validity 7, shared metadata 14 Core executions. These candidate counts overlap reused controls and are excluded from the release total. Checkpoint 9e2baa2 packages source, logs and resume notes. Main financial row/catchup recovery is not implemented. Root promotion, compatibility/Clippy, host power-loss validation, broader rich domains, authenticated history and complete-block proofs remain open.",
+  "workbookNote": "Committed focused checks: shared metadata 15 (99e1722), native foundation 88 (db07780), verified recovery-open 102 (5df963b), row continuation 68 including 13 row tests and 55 compatibility checks (fc0a176). Counts overlap and are excluded from the 1,714 Rust / 238 numeric full-release baseline at 963aae7. Catchup remains uncommitted. Index reopen, durable supersession, head/history/next-command composition, process-loss recovery, host power-loss, broader rich domains, authenticated history and complete-block proofs remain open.",
   "savedWorkbook": {
-    "sha256": "d5971ddc83546910e19f76290fa12a169eee4e486873d8232ca6349ec07d0796",
-    "bytes": 48140,
+    "sha256": "4e63ebe7b6d1b54f61d2857b90956bfc14d526f6f874cb5f54fc6c5d104c4ab0",
+    "bytes": 48122,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-28T21:24:00Z",
+    "asOfUtc": "2026-10-29T11:10:50Z",
     "rowHashes": {
-      "modules": 1716524427,
+      "modules": 3550588870,
       "logic": 1151758449
     },
-    "verifiedEdits": 13,
+    "verifiedEdits": 14,
     "layoutAndFormulaPreservationVerified": true
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-29T08:25:39Z",
-    "sha256": "6efbd3a0ba4fa6a122ee4190e3ed0d40ed19b8a6b7f5f02345b8699018bf8c9a",
+    "verifiedAtUtc": "2026-10-29T11:10:50Z",
+    "sha256": "4e63ebe7b6d1b54f61d2857b90956bfc14d526f6f874cb5f54fc6c5d104c4ab0",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 3225426248,
+    "moduleRowsFNV": 3550588870,
     "logicRowsFNV": 1151758449,
-    "intentionalCellChanges": 1,
+    "intentionalCellChanges": 14,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,
     "releasePromotionPending": true,
-    "lastFocusedCodeCommit": "ed74e1693a5db9ad03fb35d1eeb79955387d6bc2"
+    "lastFocusedCodeCommit": "fc0a176c6c858e1d48f068ce4c713e2faae18306"
   },
   "validationRecord": "fixtures/reference_fidelity/native-main-release-validation.json",
   "knownReferenceGaps": [
-    "Full module/IIFE startup domains outside the verified V12 cold-start controls and native daemon startup",
-    "Native scanner/store service composition, full-history capacity, exact suspended source continuations and cross-file intent/ack recovery",
-    "Rich thrown-value Runtime14 owner/catch integration and broader historical/value/event-loop domains",
-    "Intended-host real-block CPU/RSS and hardware power-loss validation",
-    "Chain/UTXO/actor evidence and complete-block proofs"
+    "Broader original Main startup/service domains",
+    "Catchup, index reopen, durable supersession and head/history/next-command composition",
+    "Process-loss recovery and host power-loss validation",
+    "Broader rich DB/type-error, historical/value/event-loop and financial/deferred domains",
+    "Intended-host real-block CPU/RSS",
+    "Chain/UTXO/actor evidence, authenticated history and complete-block proofs"
   ],
   "previousFullSuiteBaseline": {
     "implementationCommit": "9ff4aabcd7805562ec49550db91202ff999a13b4",
@@ -913,10 +1023,10 @@
     "lockedReferenceExecutions": 238,
     "record": "fixtures/reference_fidelity/main-io-sort-release-validation.json"
   },
-  "focusedValidationRecord": "fixtures/reference_fidelity/native-main-core-integration.json",
-  "focusedImplementationCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
-  "focusedVerifiedAtUtc": "2026-10-29T00:32:15Z",
-  "lastFocusedCodeCommit": "ed74e1693a5db9ad03fb35d1eeb79955387d6bc2",
+  "focusedValidationRecord": "fixtures/reference_fidelity/native-row-first-core-integration.json",
+  "focusedImplementationCommit": "fc0a176c6c858e1d48f068ce4c713e2faae18306",
+  "focusedVerifiedAtUtc": "2026-10-29T10:13:21Z",
+  "lastFocusedCodeCommit": "fc0a176c6c858e1d48f068ce4c713e2faae18306",
   "recoveryPackage": {
     "commit": "9e2baa234a487c47f5a5160440b801347a668f30",
     "archiveSHA256": "acce9e5db7c65adef0246cf01581b4c06db0fd3cf356d1cdfa6528b47fff992f",
