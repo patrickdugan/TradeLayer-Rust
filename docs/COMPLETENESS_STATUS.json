@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-29T01:15:15Z",
-  "inspectedCheckoutCommit": "2aa4782879bd41c014a9cf22914c4c90dcb7b948",
+  "verifiedAtUtc": "2026-10-29T02:03:31Z",
+  "inspectedCheckoutCommit": "2ae5abfbc46a11d1e65d717f52438344e792c828",
   "verifiedImplementationCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
   "verifiedReleaseTests": 1714,
   "topLevelTests": 1713,
@@ -346,7 +346,96 @@
         "main-step-core-empty-trace.log": "02ddce26ab6571df4bc713d009f97e79907530f0812587f69e43558c96d07f50",
         "main-step-core-caller-first.log": "f154a0e8b8dcbaaa500b7ab45d2e5cd306d9d5e9ea2ee53237a2878c8df33c98",
         "main-step-core-caller-canonical.log": "4e868aa931e385e472b1cea298804ac5544db2c0c13b6f441c9aab0199d5fff4"
-      }
+      },
+      "verifiedLogs": [
+        {
+          "path": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\main-step-core-caller-first.log",
+          "sha256": "f154a0e8b8dcbaaa500b7ab45d2e5cd306d9d5e9ea2ee53237a2878c8df33c98",
+          "passed": 4,
+          "resultRecords": 1
+        },
+        {
+          "path": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\main-step-core-caller-canonical.log",
+          "sha256": "4e868aa931e385e472b1cea298804ac5544db2c0c13b6f441c9aab0199d5fff4",
+          "passed": 2,
+          "resultRecords": 1
+        }
+      ]
+    },
+    "nativeRecoveryPrimitives": {
+      "status": "isolated-core-components-pass-production-binding-pending",
+      "RootIntegrated": false,
+      "fullSuitePromotion": false,
+      "newCoreTests": 9,
+      "existingRegressionTests": 27,
+      "realChildCrashExits": 5,
+      "manifest": {
+        "path": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\native-main-continuation-recovery-v13\\root-ready-primitives-1\\MANIFEST.json",
+        "sha256": "ea85fa543b077c9f405360c16382ce88379af3b3a4bc173450b19b2e190733e3"
+      },
+      "logs": [
+        {
+          "path": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\native-recovery-primitives-core.log",
+          "sha256": "010f4dd55bce71b20970448bfb5accfe7911a282f3052d194fac5884af70c9e8",
+          "passed": 9,
+          "resultRecords": 1
+        },
+        {
+          "path": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\native-recovery-primitives-main.log",
+          "sha256": "6865ceb224be513a006bb36b1784533765a8f1346b1877016c847ef50aea1669",
+          "passed": 27,
+          "resultRecords": 11
+        }
+      ],
+      "remainingChecks": [
+        "Production apply_step and two-phase row continuation",
+        "Durable intent-and-ack protocol",
+        "Root integration and compatibility gates",
+        "Full-suite promotion and host power-loss validation"
+      ]
+    },
+    "suspendedFileRetryProbe": {
+      "status": "first-core-compile-failed-test-repair-frozen-rerun-pending",
+      "RootIntegrated": false,
+      "fullSuitePromotion": false,
+      "actualCoreTestsPassed": 0,
+      "failureLog": {
+        "path": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\main-file-retry-core-first.log",
+        "sha256": "4fea8e5c64d400adbf890a55253b0061fc21c43b660cbaa0aa4729039939d3b5"
+      },
+      "testOnlyCompileFix": {
+        "path": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\next-main-suspended-file-retries\\root-ready-file-test-compile-fix\\MANIFEST.json",
+        "sha256": "65d08211433eec07ce5bd62a0bde2c633062ad8a739c76f22eacba16f2d66f29"
+      },
+      "sourceOnlyPortabilityAddendum": {
+        "path": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\next-main-file-retry-portability\\root-ready\\MANIFEST.json",
+        "sha256": "e6a08ffdd4c713ab19fe01b7c4ea6607067c41bd24cbf5a4ccf70d60381b80fe"
+      },
+      "sourceObservations": 60,
+      "completeParentDifferentialObservations": 59,
+      "sourceChecksWorkerReported": 4,
+      "sourceChecksAreNotCoreExecution": true
+    },
+    "richRuntime14": {
+      "status": "frozen-proposal-and-delta-uncompiled-in-actual-core",
+      "RootIntegrated": false,
+      "fullSuitePromotion": false,
+      "actualCoreTestsPassed": 0,
+      "manifest": {
+        "path": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\next-rich-runtime-v14\\root-ready\\MANIFEST.json",
+        "sha256": "509a75643ebbacb036798369a23e113763e7956961f801f5269553f186364f15"
+      },
+      "selfCycleDelta": {
+        "path": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\next-rich-self-cycle-v14\\root-ready\\MANIFEST.json",
+        "sha256": "f157a6af80f70054739676ed2aa7be2054f26cc460e7d2d92b5e198de7b57630"
+      },
+      "workerReportedHelperTests": 19,
+      "workerReportedGraphOperations": 225,
+      "workerReportedNativeControls": 320,
+      "workerReportedDeltaSourceCalls": 50,
+      "workerReportedDeltaCarrierComparisons": 48,
+      "pendingPartialWriteOwnerCalls": 2,
+      "countsExcludedFromReleaseTotal": true
     }
   },
   "scope": "Full release963aae7 passes1714 Rust executions across270 targets and238 exact pinned numeric-reference checks across86 targets; all1422 tracked inputs are unchanged. Native Main/index sessions and the bounded graph foundation are included. Full source parity, native daemon startup, timer/row continuations, cross-file recovery, Runtime14, authenticated history and complete-block proofs remain open.",
@@ -641,7 +730,7 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Saved/sidebar trackers are synchronized to full release963aae7:1714 Rust executions and238 numeric checks. Per-type parity/proof classifications remain unchanged. Native daemon startup, suspended continuations, durable intent/ack recovery, Runtime14, authenticated history and complete-block proofs remain open.",
+  "workbookNote": "Release 963aae7 remains at 1,714 Rust executions and 238 pinned numeric checks. Separately, recovery primitives pass nine Core tests plus 27 existing regressions, and scheduler components pass six Core tests. These are excluded from the release total. The file-retry Core rerun is pending after test-only compile fixes. Runtime14 is uncompiled. Full reference parity, authenticated history and complete-block proofs remain open.",
   "savedWorkbook": {
     "sha256": "d5971ddc83546910e19f76290fa12a169eee4e486873d8232ca6349ec07d0796",
     "bytes": 48140,
@@ -656,12 +745,12 @@
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-29T01:24:28Z",
-    "sha256": "dbc0998aa5f447775f75c8397c546166996ceef96f33f0e77c4afe66fa5bf43f",
+    "verifiedAtUtc": "2026-10-29T02:05:18Z",
+    "sha256": "983807e7a1148fa99deb52d6e9cabe8a26fed7133797d0035a2d7d49b78c293e",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 699720603,
+    "moduleRowsFNV": 2561336260,
     "logicRowsFNV": 1151758449,
-    "intentionalCellChanges": 11,
+    "intentionalCellChanges": 6,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,
