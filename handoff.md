@@ -1,6 +1,6 @@
 # TradeLayer-Rust release handoff
 
-Updated: 2026-10-29T18:37:05Z. This file is maintained after every integration/PR cycle.
+Updated: 2026-10-29T18:39:31Z. This file is maintained after every integration/PR cycle.
 
 ## Objective and operating rules
 
@@ -122,3 +122,7 @@ Combined library392passed/fourignored,44public compatibility passes, all-target 
 Scope clarification for77c1b3c: completed same-process native recovery covers explicit VALIDITY AppendPending plans. Inline processBlockData/save-height/startup puts during Advance still need a retained operation PC, per-operation durable intent and source-faithful success/error handling. Guarded refusal is not final parity and Advance/source prefixes must never be rerun as write recovery. Row/source worker has genuine inline caught-rejection/applied-write/lost-return cases; v8_main is implementing that seam.
 
 Next queued packages:6db historical native-await bridge,4e5 cold capability plus confirmed-discard guard739025,1869 actual generation escrow,8c062 guarded escrow wiring,7b839 readonly ACK history,b2ae typed history codec and3b459 Promise v2. Full acknowledged active/catchup/timer/partial financial cold replay, inline native IO recovery, guarded retention, host validation and authenticated complete-block proofs remain required. Last full all-target release stays1,977 Rust/238 numeric checks.
+
+## Tracker checkpoint after ordered bootstrap
+
+The saved workbook and existing sidebar now match tested code `fdfa8ea`: 392 combined library tests, 44 public compatibility checks and 22 ordered-startup Core controls. Both genuine numeric profiles reproduce 14 source scenes/99 observations; Core compares the 98 initializer/caller/notification cutoffs. All 37 transaction rows, proof/parity gates, formulas, effective styles, filters, panes and geometry were preserved in 12 intentional cell changes. Verification: `fixtures/reference_fidelity/ordered-bootstrap-completeness.json`. Full release remains 1,977 Rust/238 locked numeric checks at implementation `21016cd`, tested `e99ef48`; later scoped integration is not full-suite promotion.
