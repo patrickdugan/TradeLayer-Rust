@@ -568,6 +568,10 @@ include!("source_main_native_supersession_controller_impl.rs");
 include!("source_main_native_prefix_ack_controller_impl.rs");
 include!("source_main_native_no_control_store_impl.rs");
 include!("source_main_native_service_session_impl.rs");
+include!("source_main_inline_service_session_impl.rs");
+#[cfg(test)]
+#[path = "source_main_inline_service_tests.rs"]
+mod native_inline_service_tests;
 include!("source_main_active_service_action_codec_impl.rs");
 include!("source_main_active_service_durable_impl.rs");
 include!("source_main_active_service_recovery_impl.rs");

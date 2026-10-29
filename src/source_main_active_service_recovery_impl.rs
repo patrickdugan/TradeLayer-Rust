@@ -17,6 +17,7 @@ struct ActiveServiceWithoutNativeIndex {
     pending_observation: Option<NativeMainActiveServicePendingV1>,
     attempted_write: Option<V>,
     observation_limit: usize,
+    inline_profile: bool,
 }
 pub struct SourceMainNativeDurableServiceNoIndexV1 {
     // Private controller retains actual WAL plan/intent/history; it is never
@@ -187,6 +188,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
             pending_observation,
             attempted_write,
             observation_limit,
+            inline_profile,
         } = *service;
         let SourceMainNativeSessionV13 {
             financial,
@@ -225,6 +227,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
                 pending_observation,
                 attempted_write,
                 observation_limit,
+                inline_profile,
             },
         })
     }
@@ -474,6 +477,7 @@ impl SourceMainNativeDurableServiceNoIndexV1 {
             pending_observation,
             attempted_write,
             observation_limit,
+            inline_profile,
         } = service;
         let NativeMainFinancialWithoutIndexV1 {
             financial,
@@ -507,6 +511,7 @@ impl SourceMainNativeDurableServiceNoIndexV1 {
             pending_observation,
             attempted_write,
             observation_limit,
+            inline_profile,
         };
         controller.owner = Some(ActiveWalOwner::Active(Box::new(service)));
         controller

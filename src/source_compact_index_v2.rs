@@ -898,6 +898,10 @@ include!("source_index_validity_stream_impl.rs");
 include!("source_main_native_owner_access_impl.rs");
 include!("source_main_native_validity_impl.rs");
 include!("source_index_prepared_put_impl.rs");
+include!("source_index_inline_database_impl.rs");
+#[cfg(test)]
+#[path = "source_index_inline_database_tests.rs"]
+mod inline_database_tests;
 include!("source_index_prepared_validity_impl.rs");
 include!("source_index_cold_execution_impl.rs");
 include!("source_index_historical_validity_impl.rs");

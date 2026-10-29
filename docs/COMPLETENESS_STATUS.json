@@ -902,7 +902,10 @@
       "publicExactCurrentAPIUnchanged": true,
       "staleSessionReleaseAvailable": false,
       "fullAcknowledgedFinancialReplayEstablished": false,
-      "fullSuitePromotion": false
+      "fullSuitePromotion": false,
+      "independentReview": "fixtures/reference_fidelity/sealed-cold-prefix-independent-review.json",
+      "additionalCoreReviewControls": 2,
+      "totalCoreControls": 5
     },
     "orderedCallableBootstrapV2": {
       "status": "current-Core-scoped-checks-pass",
@@ -923,6 +926,30 @@
       "broaderGlobalStartupEstablished": false,
       "arbitraryCallbacksThenablesEstablished": false,
       "fullSuitePromotion": false
+    },
+    "retainedInlineService": {
+      "status": "current-Core-scoped-checks-pass",
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/retained-inline-service-core-integration.json",
+      "newDistinctControls": 16,
+      "ownerControls": 4,
+      "metadataControls": 3,
+      "actualLiveServiceCoreControls": 7,
+      "additionalColdPrefixCoreControls": 2,
+      "parallelLibraryPassed": 470,
+      "publicCompatibilityPassed": 44,
+      "sourceCasesPerNumericProfile": 13,
+      "sourceInputObservationRecordsPerNumericProfile": 38,
+      "allThirteenSourceCallsVerifiedInRust": false,
+      "explicitNewEntry": true,
+      "oldEntryBytesPreserved": true,
+      "threeNativeWritesAndSourceResolvesSeparate": true,
+      "sameDecoderRunsOnce": true,
+      "inlineDurableWALModeEstablished": false,
+      "inlineAmbiguityRecoveryEstablished": false,
+      "fullStartupCatchupInlineIntegrationEstablished": false,
+      "fullSuitePromotion": false,
+      "independentReview": "fixtures/reference_fidelity/retained-inline-service-independent-review.json"
     }
   },
   "scope": "Full release remains code 21016cd: 1,977 Rust executions and 238 locked numeric checks. Latest bad3892 integrates the same-row historical native await, same-index cold guards, durable generation escrow with guarded service WAL wiring, actual read-only acknowledged history and exact history-pin codec. Combined library436/public44 pass. Ordered callable bootstrap remains22 controls/14source scenes/99observations per genuine numeric profile. Full financial active/catchup/timer/partial cold replay, retained inline source IO success/recovery, broader startup/Promise domains, cross-publication source views, host power-loss/performance and authenticated complete-block proofs remain open.",

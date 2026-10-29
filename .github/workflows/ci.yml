@@ -38,6 +38,8 @@ jobs:
         run: python3 -m unittest discover -s tests -p test_rust_supply_chain.py -v
       - name: Check formatting
         run: cargo fmt --all -- --check
+      - name: Check retained inline continuation formatting
+        run: rustfmt --check --edition 2021 src/source_index_inline_database_impl.rs src/source_index_inline_database_tests.rs src/source_main_inline_index_runtime_impl.rs src/source_main_inline_service_runtime_impl.rs src/source_main_inline_service_session_impl.rs src/source_main_inline_service_tests.rs src/txindex_inline_continuation_impl.rs src/txindex_inline_continuation_tests.rs src/txindex_inline_raw_inputs.rs src/source_main_native_cold_prefix_review_tests.rs
       - name: Check cold-prefix and Promise formatting
         run: rustfmt --check --edition 2021 src/source_main_native_cold_prefix_impl.rs src/source_main_native_cold_prefix_tests.rs src/source_main_bootstrap_promises_state_impl.rs src/source_main_bootstrap_promises_core_impl.rs src/source_main_bootstrap_promises_runtime_impl.rs src/source_main_bootstrap_promises_tests.rs
       - name: Check native escrow and ACK history formatting
@@ -215,6 +217,12 @@ jobs:
           node scripts/native_main_bootstrap_microtask_controls.cjs --check
           node scripts/native_main_bootstrap_microtask_controls.cjs --lock --check
           python3 scripts/derive_ordered_bootstrap_promises.py --check
+      - name: Original inline native-await source observations
+        env:
+          TRADELAYER_JS_ROOT: ${{ runner.temp }}/tl-secp-reference
+        run: |
+          node scripts/native_main_inline_await_controls.cjs --check
+          node scripts/native_main_inline_await_controls.cjs --lock --check
       - name: Install exact source-lock numeric reference
         run: npm install --prefix "$RUNNER_TEMP/tl-bignumber-lock" --ignore-scripts --no-audit --no-fund --save-exact bignumber.js@9.1.2
       - name: Compare unchanged corpus with source-lock BigNumber

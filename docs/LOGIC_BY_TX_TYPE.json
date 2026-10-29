@@ -2,8 +2,8 @@
   "schema": "tl-logic-reference-review-v1",
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
   "rustCommit": "70f568ad703bef189c01c989631692fdf75235bb",
-  "rustCommitScope": "Full release of implementation21016cd at tested checkout e99ef48 passes1,977 Rust executions and238 locked numeric checks with1,646 unchanged inputs. Main completed publication/running-service and standalone fees/rewards are covered. Active-service WAL/native recovery, cold financial replay, global startup ordering, authenticated history and complete-block proofs remain open. Per-type parity/proof classifications are unchanged. Additional scoped integration adds actual-owner active-service WAL and same-publication verified disk history views:27new controls,354 combined library passes. Native-index ambiguity recovery and cold financial replay remain open; last full release remains1977/238. Additional same-owner active native Before/Intermediate/Post recovery, four real storage process exits and completed raw ProcessRows historical source replay pass16new Core controls,370combined library tests and25public compatibility checks. Active/catchup/partial financial cold recovery and pruned-generation availability remain open; full-release baseline stays1977/238. Ordered callable Main bootstrap source ordering is integrated:22Core tests,14scenes/98Rust comparisons and99original-source observations in each numeric profile,392combined library/44public passes. Pending/notification startup cannot checkpoint/adopt; old witness scope refuses the new domain. Full global IIFEs and v2 Promise follow-on remain open. Historical native-await bridge and same-index cold guards/escrow primitive now pass21 new controls,413 combined library and44 public checks. Live source order/default bytes preserved. Full acknowledged action replay, inline IO, service escrow wiring and host power loss remain open. Guarded generation escrow WAL wiring, readonly real-file ACK history and strict existing history-pin codec now pass23 new controls,436 combined library/44public checks. Inline safety refusal is not source parity; full cold action replay/authentication/power loss remain open. Sealed cold-prefix carrier and bounded original Promise-v2 continuation integrated:18 new controls,454 combined library/44 public passes.37 startup controls preserve240 total compared source cutoffs across prior/new corpora;3cold-prefix controls retain same final Post and no stale Session escape. Full action/inline recovery and broad startup domains remain open.",
-  "reviewedAtUtc": "2026-10-29T19:21:11Z",
+  "rustCommitScope": "Full release of implementation21016cd at tested checkout e99ef48 passes1,977 Rust executions and238 locked numeric checks with1,646 unchanged inputs. Main completed publication/running-service and standalone fees/rewards are covered. Active-service WAL/native recovery, cold financial replay, global startup ordering, authenticated history and complete-block proofs remain open. Per-type parity/proof classifications are unchanged. Additional scoped integration adds actual-owner active-service WAL and same-publication verified disk history views:27new controls,354 combined library passes. Native-index ambiguity recovery and cold financial replay remain open; last full release remains1977/238. Additional same-owner active native Before/Intermediate/Post recovery, four real storage process exits and completed raw ProcessRows historical source replay pass16new Core controls,370combined library tests and25public compatibility checks. Active/catchup/partial financial cold recovery and pruned-generation availability remain open; full-release baseline stays1977/238. Ordered callable Main bootstrap source ordering is integrated:22Core tests,14scenes/98Rust comparisons and99original-source observations in each numeric profile,392combined library/44public passes. Pending/notification startup cannot checkpoint/adopt; old witness scope refuses the new domain. Full global IIFEs and v2 Promise follow-on remain open. Historical native-await bridge and same-index cold guards/escrow primitive now pass21 new controls,413 combined library and44 public checks. Live source order/default bytes preserved. Full acknowledged action replay, inline IO, service escrow wiring and host power loss remain open. Guarded generation escrow WAL wiring, readonly real-file ACK history and strict existing history-pin codec now pass23 new controls,436 combined library/44public checks. Inline safety refusal is not source parity; full cold action replay/authentication/power loss remain open. Sealed cold-prefix carrier and bounded original Promise-v2 continuation integrated:18 new controls,454 combined library/44 public passes.37 startup controls preserve240 total compared source cutoffs across prior/new corpora;3cold-prefix controls retain same final Post and no stale Session escape. Full action/inline recovery and broad startup domains remain open. Explicit retained inline live-service entry integrated:7actual Core service controls,4owner+3metadata controls and2independent prefix controls;470combined library/44public pass.13original-JS calls/38records reproduce per numeric profile, not13full Rust Main matches. Durable inline recovery/startup/catchup remain open.",
+  "reviewedAtUtc": "2026-10-29T19:42:16Z",
   "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
     {
@@ -166,7 +166,7 @@
     {
       "path": "src/source_contract_runtime.rs",
       "lfNormalized": true,
-      "sha256": "6f70cf2b4cfaab608141e7b4b4270e3544aed376c1ad8afe599363a50959fffa"
+      "sha256": "10d38fb27b9b44bd578aafad672e4ffa506ce603cfbacc98cce1b0b3ca95e1b2"
     },
     {
       "path": "src/source_contract_values.rs",
@@ -295,7 +295,7 @@
     },
     {
       "path": "src/txindex_source_owner.rs",
-      "sha256": "a8d2d5c0b584fdf7b513f4dc3fa58a99a96d3306c69157309dcae6ac9c0659ab",
+      "sha256": "5960c51a0e78a7c4eb1fd36abcf506c363a7754b419969ed369de6d370a098c1",
       "lfNormalized": true
     },
     {
@@ -535,12 +535,12 @@
     },
     {
       "path": "src/source_compact_index_v2.rs",
-      "sha256": "88359847550f79962c713015ae4191a34ea06d0c5a0d400331ddb783c3a555d6",
+      "sha256": "a073b2c2fdc41cc15313353eb6e539fcc22d4132fc85bab941cf2344648bdcd2",
       "lfNormalized": true
     },
     {
       "path": "src/source_main_native_session.rs",
-      "sha256": "5c0de5c2139a00a9e6d3e3b8e72b920f426d0a23bfb1a73e6c173793853ab93d",
+      "sha256": "9f31015febed283d99f03d1291582182aadffbdd6b9e0e04a0d545a598c4b607",
       "lfNormalized": true
     },
     {
@@ -780,12 +780,12 @@
     },
     {
       "path": "src/source_main_native_service_block_impl.rs",
-      "sha256": "b38d961067a8f79f7229f60aba2cfb5240fc2bb4d80b71494960d4c486a12a7f",
+      "sha256": "7721b3cd97d47402759c224f64b41c73be7bea7331910b8705553957496a4d52",
       "lfNormalized": true
     },
     {
       "path": "src/source_main_native_service_fields_impl.rs",
-      "sha256": "f1736e6a7f9bebeced8e1ab7eeff326f39dce2904a45e9b311da1f7d4e35f70f",
+      "sha256": "aae37bb75345dfee44523ff06bde47e6c032f4e0ccb1e28d87fae18e5b1b9e90",
       "lfNormalized": true
     },
     {
@@ -795,12 +795,12 @@
     },
     {
       "path": "src/source_main_native_service_runtime_impl.rs",
-      "sha256": "fc5edbc24c7e64a89ffca4462b1be49a7a9309826a53029e64193b52eaeb269f",
+      "sha256": "7f0489e15f18c3804587c5e979fb56a082782257d4c1798f1327ea3560db2e4f",
       "lfNormalized": true
     },
     {
       "path": "src/source_main_native_service_session_impl.rs",
-      "sha256": "d52e63b35086be8e3327db2ec51219026fa503da8336b9f37681a9d8afc6c338",
+      "sha256": "12a6e6f78f5db5ff8deb952437120fc52ef722f2ff217a69b5ce019156f789ec",
       "lfNormalized": true
     },
     {
@@ -980,7 +980,7 @@
     },
     {
       "path": "src/source_main_active_service_recovery_impl.rs",
-      "sha256": "d6c19ad60052f9cd6acf60f793d40293523af7390e60f4cf3be784751fb3718b",
+      "sha256": "1663d27a67ad094adb370ba9fba970d0bee6bb8d2b30160b106a865f188260ac",
       "lfNormalized": true
     },
     {
@@ -1175,7 +1175,7 @@
     },
     {
       "path": "src/source_main_service_escrow_runtime_impl.rs",
-      "sha256": "7bcfd652add360acf41456bddebc022c6666abaf83428df1bcf0670eea25fb31",
+      "sha256": "a5638fe0eb5fd9bede4b2445ec2fea42780c7db4b677ce04e104939c215764b7",
       "lfNormalized": true
     },
     {
@@ -1215,7 +1215,7 @@
     },
     {
       "path": "src/source_main_native_cold_prefix_tests.rs",
-      "sha256": "67b7f6d51e3e2ca232989fc0ba7d06e2bc045266244ed06dde8a87e840491e12",
+      "sha256": "81ee67b0e007ae4167b8ff6b0446ce4c8400eda957931af41c556e8a2f7433a6",
       "lfNormalized": true
     },
     {
@@ -1236,6 +1236,56 @@
     {
       "path": "src/source_main_bootstrap_promises_tests.rs",
       "sha256": "6ebc367a1a2f0bc12e20febd0ca6f074e7abd38c0380a08b9e9dad1988afe667",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_index_inline_database_impl.rs",
+      "sha256": "cf48f493e3bd17bd2655ccc0c7c10ea6f062b29a0696f34bbbdc9213fc5b8b95",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_index_inline_database_tests.rs",
+      "sha256": "a8c42b992dfae93e9880140f35815aa8bba955779f976e36e604adac7e0f3fe8",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_inline_index_runtime_impl.rs",
+      "sha256": "66afb77cf3e179d3e6ce611aba75e65648e602d58cc548470cab96ca34e78f45",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_inline_service_runtime_impl.rs",
+      "sha256": "8dcfd5523bd8c973344e957c32fc9477732550b32dfefb45519c09a3f860a78d",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_inline_service_session_impl.rs",
+      "sha256": "9a136c2ac722921167fed73a61d8c118b761965f724055135d01844d08c2c28e",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_inline_service_tests.rs",
+      "sha256": "1438543504b3df44943d73347865bb68e86acbb02dc547be1432c134ce946df4",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/txindex_inline_continuation_impl.rs",
+      "sha256": "f4a1e155d3540c986b31cbd1c50414ec8d804ad740dd9fee6bdd1cf7568e6aa7",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/txindex_inline_continuation_tests.rs",
+      "sha256": "4323aa31636689aa703885005e741a48bbb1a1b9e8925e564328c8842afd7058",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/txindex_inline_raw_inputs.rs",
+      "sha256": "c1262edd05ce8b5a95fbc884222bbcc875442338fad5a31ef8f9d72580563b0c",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_cold_prefix_review_tests.rs",
+      "sha256": "fe0f588abea5d2c0fdf53ad53a56afc2535ea09d2eab417281c46b4b3a895266",
       "lfNormalized": true
     }
   ],

@@ -192,3 +192,6 @@ fn cold_prefix_refuses_wrong_historical_expectation_and_retains_final_owner_guar
     )
     .is_err());
 }
+
+#[path = "source_main_native_cold_prefix_review_tests.rs"]
+mod independent_prefix_review_tests;

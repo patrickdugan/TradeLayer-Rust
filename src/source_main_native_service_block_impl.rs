@@ -1,6 +1,7 @@
 // Actual live block locals; no Runtime, balance map or decoded result importer.
 enum NativeMainServiceBlockPc {
     Prelude,
+    InlineIndex,
     Funding,
     Trade,
     Flush,
@@ -21,6 +22,8 @@ struct NativeMainServiceBlockFrame {
     request: crate::source_main_step_kernel::MainServiceBlockRequest,
     invocation: Option<SourceMainInvocationV1>,
     pc: NativeMainServiceBlockPc,
+    inline_profile: bool,
+    inline_index: Option<NativeMainInlineIndexFrameV1>,
     funding: Vec<V>,
     other: Vec<V>,
     row: Option<NativeMainRowContinuationV1>,
@@ -46,6 +49,8 @@ impl SourceContractRuntime {
             request,
             invocation: Some(invocation),
             pc: NativeMainServiceBlockPc::Prelude,
+            inline_profile: false,
+            inline_index: None,
             funding: vec![],
             other: vec![],
             row: None,
@@ -114,6 +119,15 @@ impl SourceContractRuntime {
             }
             let height = frame.request.height.clone();
             match frame.pc {
+                NativeMainServiceBlockPc::Prelude if frame.inline_profile => {
+                    frame.pc = NativeMainServiceBlockPc::InlineIndex;
+                }
+                NativeMainServiceBlockPc::InlineIndex => {
+                    let stop = self.native_main_inline_block_advance(index, frame, documents);
+                    if stop != NativeMainRowStopV1::Complete {
+                        return stop;
+                    }
+                }
                 NativeMainServiceBlockPc::Prelude => {
                     match self.source_main_service_block_prelude(
                         index,
@@ -303,6 +317,13 @@ impl NativeMainServiceBlockFrame {
         visitor: &mut impl FnMut(&str, &V) -> Result<(), SourceRuleError>,
     ) -> Result<(), SourceRuleError> {
         visitor("profile", &s("TL-MAIN-ACTUAL-LIVE-BLOCK-13-1"))?;
+        if self.inline_profile {
+            visitor("inlineProfile", &s("TL-MAIN-RETAINED-INLINE-INDEX-13-1"))?;
+            visitor("inlineIndex/present", &V::Bool(self.inline_index.is_some()))?;
+            if let Some(inline) = &self.inline_index {
+                inline.visit_fields(&mut |p, v| visitor(&format!("inlineIndex/{p}"), v))?;
+            }
+        }
         visitor("request/job", &s(self.request.job.to_string()))?;
         native_main_row_visit_value("request/block", &self.request.block, visitor)?;
         native_main_row_visit_value("request/height", &self.request.height, visitor)?;
@@ -310,6 +331,7 @@ impl NativeMainServiceBlockFrame {
             "pc",
             &s(match self.pc {
                 NativeMainServiceBlockPc::Prelude => "Prelude",
+                NativeMainServiceBlockPc::InlineIndex => "InlineIndex",
                 NativeMainServiceBlockPc::Funding => "Funding",
                 NativeMainServiceBlockPc::Trade => "Trade",
                 NativeMainServiceBlockPc::Flush => "Flush",

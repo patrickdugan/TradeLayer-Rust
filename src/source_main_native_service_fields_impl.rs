@@ -5,6 +5,12 @@ impl NativeMainServiceContinuationV1 {
         visitor: &mut impl FnMut(&str, &V) -> Result<(), SourceRuleError>,
     ) -> Result<(), SourceRuleError> {
         visitor("profile", &s(NATIVE_MAIN_ACTIVE_SERVICE_PROFILE))?;
+        if self.inline_profile {
+            visitor(
+                "inlineProfile",
+                &s(NATIVE_MAIN_INLINE_ACTIVE_SERVICE_PROFILE),
+            )?;
+        }
         visitor("clientBinding", &s(self.client_binding))?;
         visitor("bootstrapStart", &s(self.bootstrap_start.to_string()))?;
         visitor(

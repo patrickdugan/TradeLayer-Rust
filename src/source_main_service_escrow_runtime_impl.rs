@@ -10,6 +10,15 @@ impl SourceContractRuntime {
             if let Some(code) = frame.terminal {
                 return NativeMainServiceStopV1::ProcessExited(code);
             }
+            if let Some(inline) = frame.block.as_mut().and_then(|b| b.inline_index.as_mut()) {
+                if inline.write.is_some() {
+                    return native_main_service_row_stop(
+                        runtime
+                            .core
+                            .native_main_inline_index_append(index, inline, permit),
+                    );
+                }
+            }
             let row = if let Some(block) = &mut frame.block {
                 block.row.as_mut()
             } else {

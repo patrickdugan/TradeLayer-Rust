@@ -1,8 +1,8 @@
 # TradeLayer-Rust release handoff
 
-Updated: 2026-10-29T19:21:11Z. This file is maintained after every integration/PR cycle.
+Updated: 2026-10-29T19:42:16Z. This file is maintained after every integration/PR cycle.
 
-Latest checked cycle: **454 library tests /44 public compatibility checks**, with 37 startup and three sealed-prefix scoped checks. Evidence: `fixtures/reference_fidelity/cold-prefix-promises-core-integration.json`. This is scoped integration; the full all-target baseline remains 1,977 Rust/238 locked numeric checks.
+Latest checked cycle: **470 library tests /44 public compatibility checks**, including seven retained inline live-service controls and five sealed-prefix controls. Evidence: `fixtures/reference_fidelity/retained-inline-service-core-integration.json`. The full all-target baseline remains 1,977 Rust/238 locked numeric checks until the next frozen release run.
 
 ## Objective and operating rules
 
@@ -158,3 +158,11 @@ All 18 new controls pass: 454 combined library/four ignored; 44 public compatibi
 Root corrections are test-only: exact metadata-error matches without adding PartialEq to production; inherited UnknownDependency reconfiguration fence; and separate existing-row conflict/fresh-ID guarded-write inputs. Financial/pin/lock/IO assertions remain. All three initial failure logs are retained. No source projection/result was changed.
 
 Next: row full acknowledged-action driver and historical catchup/service backend; v8_main retained inline processBlockData/save-height/startup source PCs and service/WAL recovery. Cross-publication source views, full ESCROW-WAL cold proof closure, killed-process financial recovery, broader startup/callback domains, host validation and later full-suite promotion remain open. Spreadsheet last verified `bad3892`/436 library and is separately maintained; no claim that this newer cycle was already exported. No push/PR/merge.
+
+## Retained inline source/live-service cycle
+
+Integrated6faada source owner/database/service PCs +546690 owner-move preservation +two independent fb9e8a prefix controls. Explicit into_inline_active_service keeps the same financial owner/index/queue while actual processBlockData transaction upsert, MaxHeight and indexExists writes each remain separate native Append/SourceResolve awaits. Decoder/RPC/source prefixes are not repeated. The original entry defaults false and retains old bytes/domains. Save-height/genesis PCs are implemented and helper-tested; their complete Main startup/catchup integration remains open.
+
+All16 new controls pass within470library/fourignored:four owner,three metadata,seven actual inline service andtwo independent prefix regressions.44public compatibility, all-target Clippy, Cargo fmt,250include format files, inventory and supply-chain pass. Both genuine numeric versions execute13original source calls/38records with d492fdfc bytes. Source evidence is not13fullMain Rust parity claims. Current shared service loader/observer remain unchanged; new observer filename plumbing reuses the exact pinned old loader. Evidence:`fixtures/reference_fidelity/retained-inline-service-core-integration.json`; cold-prefix review:`fixtures/reference_fidelity/sealed-cold-prefix-independent-review.json`; inline independent review:`fixtures/reference_fidelity/retained-inline-service-independent-review.json` (123 metadata/owner plusfour independent controls, separate from Root count).
+
+Root test correction was matches! for two independent metadata-error assertions, preserving exact ColdWriteRefused variants. A redundant string-format closure was equivalently replaced with its function for Clippy; final suites were rerun. Initial compile/lint failures are retained. No source behavior, expected fixture or production error type changed. Next: v8_main new immutable inline WAL origin/history binding and actual native ambiguity recovery; row full acknowledged action/catchup source backend and later historical inline playback. Full startup/catchup callers, cross-publication views, killed-process financial recovery, host validation and authenticated complete-block proofs remain open. Spreadsheet last verified bad3892/436library and remains a separately recorded checkpoint. No push/PR/merge.

@@ -166,6 +166,7 @@ pub struct SourceMainNativeActiveServiceV1 {
     pending_observation: Option<NativeMainActiveServicePendingV1>,
     attempted_write: Option<V>,
     observation_limit: usize,
+    inline_profile: bool,
 }
 impl core::fmt::Debug for SourceMainNativeActiveServiceV1 {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -178,13 +179,30 @@ impl core::fmt::Debug for SourceMainNativeActiveServiceV1 {
 }
 impl SourceMainNativeSessionV13 {
     pub fn into_active_service(
-        mut self,
+        self,
         expected: &NativeMainSessionExpectation,
         start: V,
         generation: u64,
         documents: V,
         observation_limit: usize,
     ) -> Result<SourceMainNativeActiveServiceV1, Box<RejectedNativeMainActiveServiceV1>> {
+        self.into_active_service_internal(
+            expected,
+            start,
+            generation,
+            documents,
+            (observation_limit, false),
+        )
+    }
+    fn into_active_service_internal(
+        mut self,
+        expected: &NativeMainSessionExpectation,
+        start: V,
+        generation: u64,
+        documents: V,
+        entry: (usize, bool),
+    ) -> Result<SourceMainNativeActiveServiceV1, Box<RejectedNativeMainActiveServiceV1>> {
+        let (observation_limit, inline_profile) = entry;
         let checked = (|| {
             if self.halted
                 || self
@@ -219,7 +237,13 @@ impl SourceMainNativeSessionV13 {
                 }))
             }
         };
-        let mut origin_bytes = NATIVE_ACTIVE_SERVICE_SESSION_PROFILE.as_bytes().to_vec();
+        let mut origin_bytes = (if inline_profile {
+            crate::source_contract_runtime::NATIVE_MAIN_INLINE_ACTIVE_SERVICE_PROFILE
+        } else {
+            NATIVE_ACTIVE_SERVICE_SESSION_PROFILE
+        })
+        .as_bytes()
+        .to_vec();
         origin_bytes.extend_from_slice(&expected.session.commands.to_be_bytes());
         origin_bytes.extend_from_slice(&expected.session.commitment);
         let action = NativeMainActiveServiceActionV1::Start {
@@ -232,11 +256,16 @@ impl SourceMainNativeSessionV13 {
             .native_main_runtime_mut()
             .native_main_service_begin(&mut self.index, start, generation, documents);
         let (frame, source_start_error, result) = match begun {
-            Ok(frame) => (
-                Some(Box::new(frame)),
-                None,
-                NativeMainActiveServiceActionResultV1::Started(Ok(())),
-            ),
+            Ok(mut frame) => {
+                if inline_profile {
+                    frame.enable_inline_profile();
+                }
+                (
+                    Some(Box::new(frame)),
+                    None,
+                    NativeMainActiveServiceActionResultV1::Started(Ok(())),
+                )
+            }
             Err(error) => (
                 None,
                 Some(error.clone()),
@@ -260,6 +289,7 @@ impl SourceMainNativeSessionV13 {
             }),
             attempted_write: None,
             observation_limit,
+            inline_profile,
         };
         // A post-execution observation refusal retains the actual changed
         // owner/result. Only observation may retry, never this source entry.
@@ -269,7 +299,11 @@ impl SourceMainNativeSessionV13 {
 }
 impl SourceMainNativeActiveServiceV1 {
     pub fn profile(&self) -> &'static str {
-        NATIVE_ACTIVE_SERVICE_SESSION_PROFILE
+        if self.inline_profile {
+            crate::source_contract_runtime::NATIVE_MAIN_INLINE_ACTIVE_SERVICE_PROFILE
+        } else {
+            NATIVE_ACTIVE_SERVICE_SESSION_PROFILE
+        }
     }
     pub fn head(&self) -> NativeMainActiveServiceHeadV1 {
         self.head.clone()
@@ -304,6 +338,9 @@ impl SourceMainNativeActiveServiceV1 {
     }
     pub fn caller_result(&self) -> Option<&Result<DependencyReturn, SourceRuleError>> {
         self.frame.as_ref()?.caller_result()
+    }
+    pub fn pending_native_context(&self) -> Option<V> {
+        self.frame.as_ref()?.pending_native_context()
     }
     pub fn pending_write(
         &self,
@@ -494,18 +531,18 @@ impl SourceMainNativeActiveServiceV1 {
                 }
             }
             NativeMainActiveServiceActionV1::AppendPending => {
-                let write = frame
-                    .pending_write()
+                let context = frame
+                    .pending_native_context()
                     .ok_or(NativeMainActiveServiceErrorV1::NoAttemptedWrite)?;
-                if self.attempted_write.as_ref() == Some(&write.durable_read_context()) {
+                if self.attempted_write.as_ref() == Some(&context) {
                     return Err(NativeMainActiveServiceErrorV1::WriteAlreadyAttempted);
                 }
             }
             NativeMainActiveServiceActionV1::ResolvePost => {
-                let write = frame
-                    .pending_write()
+                let context = frame
+                    .pending_native_context()
                     .ok_or(NativeMainActiveServiceErrorV1::NoAttemptedWrite)?;
-                if self.attempted_write.as_ref() != Some(&write.durable_read_context()) {
+                if self.attempted_write.as_ref() != Some(&context) {
                     return Err(NativeMainActiveServiceErrorV1::NoAttemptedWrite);
                 }
             }
@@ -527,9 +564,8 @@ impl SourceMainNativeActiveServiceV1 {
             NativeMainActiveServiceActionV1::AppendPending => {
                 self.attempted_write = Some(
                     frame
-                        .pending_write()
-                        .expect("checked pending write")
-                        .durable_read_context(),
+                        .pending_native_context()
+                        .expect("checked pending write"),
                 );
                 NativeMainActiveServiceActionResultV1::Stop(
                     runtime.native_main_service_append(&mut self.owner.index, frame),
@@ -571,12 +607,7 @@ impl SourceMainNativeActiveServiceV1 {
                 unreachable!("Start is constructor only")
             }
         };
-        if frame
-            .pending_write()
-            .map(|write| write.durable_read_context())
-            .as_ref()
-            != self.attempted_write.as_ref()
-        {
+        if frame.pending_native_context().as_ref() != self.attempted_write.as_ref() {
             self.attempted_write = None;
         }
         self.pending_observation = Some(NativeMainActiveServicePendingV1 {

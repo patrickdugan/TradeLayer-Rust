@@ -13,6 +13,7 @@ pub enum NativeMainServiceStopV1 {
 pub(crate) struct NativeMainServiceContinuationV1 {
     catchup: NativeMainCatchupContinuationV1,
     client_binding: &'static str,
+    inline_profile: bool,
     bootstrap_start: usize,
     invocation_effect_start: usize,
     kernel: crate::source_main_step_kernel::MainStepKernelV1,
@@ -138,6 +139,7 @@ impl SourceContractRuntime {
             client_binding: NATIVE_MAIN_ACTIVE_SERVICE_CLIENT_BINDING,
             bootstrap_start,
             invocation_effect_start,
+            inline_profile: false,
             kernel: crate::source_main_step_kernel::MainStepKernelV1::new(generation),
             documents,
             tail_started: false,
@@ -311,7 +313,10 @@ impl SourceContractRuntime {
                     continue;
                 }
                 match self.native_main_service_block_begin(request) {
-                    Ok(block) => frame.block = Some(block),
+                    Ok(mut block) => {
+                        block.inline_profile = frame.inline_profile;
+                        frame.block = Some(block);
+                    }
                     Err(e) => frame.stopped = Some(e),
                 }
                 continue;
@@ -395,6 +400,14 @@ impl SourceContractRuntime {
         if frame.terminal.is_some() {
             return NativeMainServiceStopV1::ProcessExited(frame.terminal.unwrap());
         }
+        if let Some(inline) = frame.block.as_mut().and_then(|b| b.inline_index.as_mut()) {
+            if inline.write.is_some() {
+                return native_main_service_row_stop(
+                    self.core
+                        .native_main_inline_index_append(index, inline, None),
+                );
+            }
+        }
         let row = if let Some(block) = &mut frame.block {
             block.row.as_mut()
         } else {
@@ -424,6 +437,16 @@ impl SourceContractRuntime {
     ) -> NativeMainServiceStopV1 {
         if frame.terminal.is_some() {
             return NativeMainServiceStopV1::ProcessExited(frame.terminal.unwrap());
+        }
+        if let Some(inline) = frame.block.as_mut().and_then(|b| b.inline_index.as_mut()) {
+            if inline.write.is_some() {
+                let stop = self.core.native_main_inline_index_resolve(index, inline);
+                return if stop == NativeMainRowStopV1::Complete {
+                    self.native_main_service_advance_inner(index, frame, 4096)
+                } else {
+                    native_main_service_row_stop(stop)
+                };
+            }
         }
         let row = if let Some(block) = &mut frame.block {
             block.row.as_mut()

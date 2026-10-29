@@ -265,3 +265,8 @@ scripts/native_main_bootstrap_microtask_controls.cjs -text -whitespace
 fixtures/native_main_bootstrap_microtasks*.jsonl text eol=lf
 fixtures/ordered_bootstrap_promises*.json text eol=lf
 fixtures/ordered_bootstrap_promises_controls.jsonl text eol=lf
+
+# Isolated original inline-await observers; shared current service loader is unchanged.
+scripts/inline_await_original_observer.cjs -text -whitespace
+scripts/native_main_inline_await_controls.cjs -text -whitespace
+fixtures/native_main_inline_await*.jsonl text eol=lf
