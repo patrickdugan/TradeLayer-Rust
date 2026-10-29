@@ -343,6 +343,9 @@ impl ContractCore {
                 0.
             };
             let vesting = fraction * number(&property.get("totalInCirculation"))?;
+            #[cfg(test)]
+            NATIVE_MAIN_ACTUAL_VESTING_OBSERVATIONS
+                .with(|observed| observed.borrow_mut().push((id, vesting, height.clone())));
             if vesting < 1e-8 {
                 continue;
             }

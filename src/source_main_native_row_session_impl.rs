@@ -1,7 +1,9 @@
 // Moved-owner production entry. A private frame never escapes its actual
 // financial/index owner. Every actual write is preceded by durable intent;
 // its exact-post prefix ack precedes resolving the stored source await.
-use crate::source_contract_runtime::{NativeMainRowContinuationV1, NativeMainRowStopV1};
+use crate::source_contract_runtime::{
+    NativeMainCatchupContinuationV1, NativeMainRowContinuationV1, NativeMainRowStopV1,
+};
 use crate::source_main_native_intent_store::{
     NativeCommandIntentPermitV1, NativeIntentStorePinV1, NativeIntentStoreV1,
     NativeWriteIntentCandidatesV1,
@@ -33,13 +35,90 @@ enum NativeMainRowControllerPcV1 {
     Complete,
     Blocked(String),
 }
+enum NativeMainOwnedFrameV1 {
+    Rows(Box<NativeMainRowContinuationV1>),
+    Catchup(Box<NativeMainCatchupContinuationV1>),
+}
+impl NativeMainOwnedFrameV1 {
+    fn result(&self) -> Option<&Result<DependencyReturn, SourceRuleError>> {
+        match self {
+            Self::Rows(frame) => frame.result(),
+            Self::Catchup(frame) => frame.result(),
+        }
+    }
+    fn pending_write(
+        &self,
+    ) -> Option<&crate::source_compact_index_v2::NativePreparedValidityWriteV1> {
+        match self {
+            Self::Rows(frame) => frame.pending_write(),
+            Self::Catchup(frame) => frame.pending_write(),
+        }
+    }
+    fn validity(&self) -> &[StreamedValidityEvaluation] {
+        match self {
+            Self::Rows(frame) => frame.validity(),
+            Self::Catchup(frame) => frame.validity(),
+        }
+    }
+    fn consumed_rows(&self) -> u64 {
+        match self {
+            Self::Rows(frame) => frame.consumed_rows(),
+            Self::Catchup(frame) => frame.consumed_rows(),
+        }
+    }
+    fn grouping(&self) -> Option<&RowStreamReceipt> {
+        match self {
+            Self::Rows(_) => None,
+            Self::Catchup(frame) => frame.grouping(),
+        }
+    }
+    fn visit_canonical_fields(
+        &self,
+        visitor: &mut impl FnMut(&str, &V) -> Result<(), SourceRuleError>,
+    ) -> Result<(), SourceRuleError> {
+        match self {
+            Self::Rows(frame) => frame.visit_canonical_fields(visitor),
+            Self::Catchup(frame) => frame.visit_canonical_fields(visitor),
+        }
+    }
+    fn advance(
+        &mut self,
+        runtime: &mut SourceContractRuntime,
+        index: &mut SourceCompactIndex,
+    ) -> NativeMainRowStopV1 {
+        match self {
+            Self::Rows(frame) => runtime.native_main_rows_advance(index, frame),
+            Self::Catchup(frame) => runtime.native_main_catchup_advance(index, frame),
+        }
+    }
+    fn append(
+        &mut self,
+        runtime: &mut SourceContractRuntime,
+        index: &mut SourceCompactIndex,
+    ) -> NativeMainRowStopV1 {
+        match self {
+            Self::Rows(frame) => runtime.native_main_rows_append(index, frame),
+            Self::Catchup(frame) => runtime.native_main_catchup_append(index, frame),
+        }
+    }
+    fn resolve_post(
+        &mut self,
+        runtime: &mut SourceContractRuntime,
+        index: &mut SourceCompactIndex,
+    ) -> NativeMainRowStopV1 {
+        match self {
+            Self::Rows(frame) => runtime.native_main_rows_resolve_post(index, frame),
+            Self::Catchup(frame) => runtime.native_main_catchup_resolve_post(index, frame),
+        }
+    }
+}
 /// No Clone, no mutable runtime/index accessor, no return to a frozen head.
 /// This profile retains the original owner and source await on every failure.
 pub struct SourceMainNativeRowSessionV1 {
     owner: SourceMainNativeSessionV13,
     store: NativeIntentStoreV1,
     permit: NativeCommandIntentPermitV1,
-    frame: Option<NativeMainRowContinuationV1>,
+    frame: Option<NativeMainOwnedFrameV1>,
     source_start_error: Option<SourceRuleError>,
     pc: NativeMainRowControllerPcV1,
     receipt_budget: usize,
@@ -58,14 +137,23 @@ impl SourceMainNativeSessionV13 {
             if self.halted || self.expectation().map_err(|e| format!("{e:?}"))? != *expected {
                 return Err("halted or mismatched moved native owner".to_owned());
             }
-            let NativeMainSessionCommand::ProcessRows { rows, height, .. } = &command else {
-                return Err("row session requires actual ProcessRows command".into());
-            };
-            rows.validate().map_err(|e| e.to_string())?;
-            height.validate().map_err(|e| e.to_string())?;
-            if !matches!(rows, V::Array(rows) if rows.len() <= crate::source_contract_runtime::MAX_TABLE_ROWS)
-            {
-                return Err("bounded raw row input required".into());
+            match &command {
+                NativeMainSessionCommand::ProcessRows { rows, height, .. } => {
+                    rows.validate().map_err(|e| e.to_string())?;
+                    height.validate().map_err(|e| e.to_string())?;
+                    if !matches!(rows, V::Array(rows) if rows.len() <= crate::source_contract_runtime::MAX_TABLE_ROWS)
+                    {
+                        return Err("bounded raw row input required".into());
+                    }
+                }
+                NativeMainSessionCommand::ConstructConsensusFromIndex { start } => {
+                    start.validate().map_err(|e| e.to_string())?;
+                    self.financial
+                        .runtime()
+                        .native_main_catchup_continuation_preflight()
+                        .map_err(|e| e.to_string())?;
+                }
+                _ => return Err("actual row/catchup command required".into()),
             }
             let raw = command
                 .value()
@@ -94,16 +182,22 @@ impl SourceMainNativeSessionV13 {
                 }))
             }
         };
-        let NativeMainSessionCommand::ProcessRows { rows, height, live } = &command else {
-            unreachable!("checked raw command")
-        };
         // Raw intent is already synced. Even a header refusal retains its
         // owner/store/permit in this controller, never silently abandons intent.
-        let (frame, source_start_error) = match self
-            .financial
-            .native_main_runtime_mut()
-            .native_main_rows_begin(rows.clone(), height.clone(), *live)
-        {
+        let begun = match &command {
+            NativeMainSessionCommand::ProcessRows { rows, height, live } => self
+                .financial
+                .native_main_runtime_mut()
+                .native_main_rows_begin(rows.clone(), height.clone(), *live)
+                .map(|frame| NativeMainOwnedFrameV1::Rows(Box::new(frame))),
+            NativeMainSessionCommand::ConstructConsensusFromIndex { start } => self
+                .financial
+                .native_main_runtime_mut()
+                .native_main_catchup_begin(start.clone())
+                .map(|frame| NativeMainOwnedFrameV1::Catchup(Box::new(frame))),
+            _ => unreachable!("checked raw source command"),
+        };
+        let (frame, source_start_error) = match begun {
             Ok(frame) => (Some(frame), None),
             Err(error) => (None, Some(error)),
         };
@@ -141,6 +235,9 @@ impl SourceMainNativeRowSessionV1 {
     pub fn consumed_rows(&self) -> u64 {
         self.frame.as_ref().map_or(0, |frame| frame.consumed_rows())
     }
+    pub fn grouping(&self) -> Option<&RowStreamReceipt> {
+        self.frame.as_ref()?.grouping()
+    }
     pub fn effects(&self) -> &[V] {
         self.owner.financial.runtime().native_main_row_effects()
     }
@@ -172,17 +269,31 @@ impl SourceMainNativeRowSessionV1 {
         if let Some(error) = &self.source_start_error {
             visitor("sourceStartError", &s(&format!("{error:?}")))?;
         }
-        let NativeMainSessionCommand::ProcessRows { rows, height, live } = &self.command else {
-            unreachable!("actual checked row command")
-        };
-        visitor("command/kind", &s("ProcessRows"))?;
-        crate::source_contract_runtime::native_main_row_visit_value("command/rows", rows, visitor)?;
-        crate::source_contract_runtime::native_main_row_visit_value(
-            "command/height",
-            height,
-            visitor,
-        )?;
-        visitor("command/live", &V::Bool(*live))?;
+        match &self.command {
+            NativeMainSessionCommand::ProcessRows { rows, height, live } => {
+                visitor("command/kind", &s("ProcessRows"))?;
+                crate::source_contract_runtime::native_main_row_visit_value(
+                    "command/rows",
+                    rows,
+                    visitor,
+                )?;
+                crate::source_contract_runtime::native_main_row_visit_value(
+                    "command/height",
+                    height,
+                    visitor,
+                )?;
+                visitor("command/live", &V::Bool(*live))?;
+            }
+            NativeMainSessionCommand::ConstructConsensusFromIndex { start } => {
+                visitor("command/kind", &s("ConstructConsensusFromIndex"))?;
+                crate::source_contract_runtime::native_main_row_visit_value(
+                    "command/start",
+                    start,
+                    visitor,
+                )?;
+            }
+            _ => unreachable!("actual checked source command"),
+        }
         if let Some(frame) = &self.frame {
             frame.visit_canonical_fields(&mut |path, value| {
                 visitor(&format!("frame/{path}"), value)
@@ -226,11 +337,10 @@ impl SourceMainNativeRowSessionV1 {
             return NativeMainRowStopV1::SourceStopped(error.clone());
         }
         let frame = self.frame.as_mut().expect("actual source frame");
-        let stop = self
-            .owner
-            .financial
-            .native_main_runtime_mut()
-            .native_main_rows_advance(&self.owner.index, frame);
+        let stop = frame.advance(
+            self.owner.financial.native_main_runtime_mut(),
+            &mut self.owner.index,
+        );
         if stop != NativeMainRowStopV1::Complete {
             return stop;
         }
@@ -309,14 +419,10 @@ impl SourceMainNativeRowSessionV1 {
         }
         // Even an ambiguous native result must never reexecute this append.
         self.pc = NativeMainRowControllerPcV1::NativeAppendAttempted;
-        let stop = self
-            .owner
-            .financial
-            .native_main_runtime_mut()
-            .native_main_rows_append(
-                &mut self.owner.index,
-                self.frame.as_mut().expect("actual source frame"),
-            );
+        let stop = self.frame.as_mut().expect("actual source frame").append(
+            self.owner.financial.native_main_runtime_mut(),
+            &mut self.owner.index,
+        );
         if stop != NativeMainRowStopV1::AwaitNativeWrite {
             return stop;
         }
@@ -351,12 +457,12 @@ impl SourceMainNativeRowSessionV1 {
         }
         self.pc = NativeMainRowControllerPcV1::Source;
         let stop = self
-            .owner
-            .financial
-            .native_main_runtime_mut()
-            .native_main_rows_resolve_post(
-                &self.owner.index,
-                self.frame.as_mut().expect("actual source frame"),
+            .frame
+            .as_mut()
+            .expect("actual source frame")
+            .resolve_post(
+                self.owner.financial.native_main_runtime_mut(),
+                &mut self.owner.index,
             );
         if stop == NativeMainRowStopV1::Complete {
             self.advance()

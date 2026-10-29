@@ -273,6 +273,20 @@ fn native_main_row_visit_return(
     }
 }
 impl SourceContractRuntime {
+    fn native_main_row_inside(row: V, height: V) -> NativeMainRowContinuationV1 {
+        NativeMainRowContinuationV1 {
+            invocation: None,
+            rows: std::collections::VecDeque::from([row]),
+            height,
+            live: false,
+            skips: 0,
+            processed_any: false,
+            consumed_rows: 0,
+            current: None,
+            validity: vec![],
+            result: None,
+        }
+    }
     pub(crate) fn native_main_rows_begin(
         &mut self,
         rows: V,
@@ -328,10 +342,16 @@ impl SourceContractRuntime {
         row.pc = NativeMainRowPcV1::FatalMark;
     }
     fn native_main_rows_finish(&mut self, frame: &mut NativeMainRowContinuationV1, result: R<V>) {
-        frame.result = Some(self.source_main_invocation_finish(
-            frame.invocation.take().expect("linear invocation"),
-            result,
-        ));
+        frame.result = Some(if let Some(invocation) = frame.invocation.take() {
+            self.source_main_invocation_finish(invocation, result)
+        } else {
+            // Funding/trade rows stay inside the single catchup invocation.
+            match result {
+                Ok(value) => Ok(DependencyReturn::Pending(value)),
+                Err(Fault::Thrown(error)) => Ok(DependencyReturn::PendingThrow(error)),
+                Err(Fault::Local(error)) => Err(error),
+            }
+        });
     }
     fn native_main_row_validity_result(
         &mut self,

@@ -2930,6 +2930,8 @@ include!("source_main_startup_impl.rs");
 
 include!("source_main_native_runtime_impl.rs");
 include!("source_main_native_row_continuation_impl.rs");
+include!("source_main_native_catchup_prepare_impl.rs");
+include!("source_main_native_catchup_continuation_impl.rs");
 include!("source_main_step_block_impl.rs");
 include!("source_main_step_runtime_impl.rs");
 include!("source_main_step_file_core_impl.rs");
@@ -2977,3 +2979,7 @@ mod main_production_parse_int_tests {
 #[cfg(test)]
 #[path = "source_main_native_row_continuation_tests.rs"]
 mod native_row_continuation_tests;
+
+#[cfg(test)]
+#[path = "source_main_native_catchup_continuation_tests.rs"]
+mod native_catchup_continuation_tests;

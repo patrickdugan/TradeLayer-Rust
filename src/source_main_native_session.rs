@@ -558,3 +558,7 @@ include!("source_main_native_row_session_impl.rs");
 #[cfg(test)]
 #[path = "source_main_native_row_session_tests.rs"]
 mod native_row_session_tests;
+
+#[cfg(test)]
+#[path = "source_main_native_catchup_session_tests.rs"]
+mod native_catchup_session_tests;
