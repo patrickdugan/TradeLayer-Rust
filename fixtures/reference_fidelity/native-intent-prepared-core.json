@@ -1,0 +1,43 @@
+{
+  "schema": "tl-native-intent-prepared-core-components-v1",
+  "verifiedAtUtc": "2026-10-29T05:32:07Z",
+  "RootIntegrated": false,
+  "fullSuitePromotion": false,
+  "storeParentExecutions": 16,
+  "storeNewTests": 7,
+  "storeExistingPublicControls": 9,
+  "ignoredChildRunner": 1,
+  "actualChildProcessExits": 8,
+  "preparedValidityExecutions": 7,
+  "completeQueryRows": 1100,
+  "wholeFinancialCrashResumeEstablished": false,
+  "directoryPowerLossEstablished": false,
+  "authenticationEstablished": false,
+  "logs": {
+    "native-intent-store-core-first.log": {
+      "sha256": "3043ff8b23205ea07ff3f01f0055f76e78b7223d49e870bd34289b48b158e198",
+      "executions": 16
+    },
+    "native-prepared-validity-core-first.log": {
+      "sha256": "9a9e798867832b9cb51e8f92bf70a073e30c39d06c313a0a3d566a87fa67299b",
+      "executions": 7
+    }
+  },
+  "sources": {
+    "RootEdited": false,
+    "CoreCompiled": false,
+    "stageManifests": [
+      "da24d343c2f7906189a52bd325733b5c0e77eb7fb2b0dc487ac70fd46b647662",
+      "82558c5109839a2873fc6c5f45527583403ffc9de2111bebff8162f28ff043e3"
+    ],
+    "files": {
+      "src/source_main_native_intent_store.rs": "082e9e13621add9bbf819f038bfb737ecad2a7c027d4b8737d6d34e4be51391f",
+      "tests/source_main_native_intent_store.rs": "63c787ab9554a21e7d1f753c003953d5d86775c16a0da6c9357365f6e8d84f4a",
+      "src/source_index_prepared_put_impl.rs": "ad3cc76681602193a18f452f7c2a18e6b12b39e643aa0b990447de6994a04c8f",
+      "src/source_index_prepared_validity_impl.rs": "ea6155362a249ee2ce68c021633bfbc94b81760fe757a7919b07971ad04bda03",
+      "src/source_index_prepared_validity_tests.rs": "f239d2d4302329cb205bc58bb0b68d86803a991afc40296752dd0ad17755733f",
+      "src/lib.rs": "4a5ec717b5f6a3690af93cecb162a2efc0e605c02fcec739723e22e0818b1a6d",
+      "src/source_compact_index_v2.rs": "6547047774656fd6f605cffcfbee148058400ff78ce004910730ed65fd5d273b"
+    }
+  }
+}

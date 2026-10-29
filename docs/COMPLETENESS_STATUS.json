@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-29T05:05:17Z",
-  "inspectedCheckoutCommit": "ed74e1693a5db9ad03fb35d1eeb79955387d6bc2",
+  "verifiedAtUtc": "2026-10-29T05:32:07Z",
+  "inspectedCheckoutCommit": "9e6df4cc5e015a3a0ec94bda485ac7577a86cd98",
   "verifiedImplementationCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
   "verifiedReleaseTests": 1714,
   "topLevelTests": 1713,
@@ -540,18 +540,27 @@
       "commit": "ed74e1693a5db9ad03fb35d1eeb79955387d6bc2"
     },
     "nativeDurableIntentStore": {
-      "status": "frozen-worker-standalone-evidence-actual-core-pending",
+      "status": "isolated-actual-core-store-components-pass",
       "RootIntegrated": false,
       "fullSuitePromotion": false,
-      "actualCoreTestsPassed": 0,
-      "manifestSHA256": "da24d343c2f7906189a52bd325733b5c0e77eb7fb2b0dc487ac70fd46b647662"
+      "actualCoreTestsPassed": 16,
+      "manifestSHA256": "da24d343c2f7906189a52bd325733b5c0e77eb7fb2b0dc487ac70fd46b647662",
+      "newStoreTests": 7,
+      "existingPublicControls": 9,
+      "actualChildExits": 8,
+      "ignoredChildRunner": 1,
+      "financialRowRecoveryEstablished": false,
+      "record": "fixtures/reference_fidelity/native-intent-prepared-core.json"
     },
     "nativePreparedValidity": {
-      "status": "frozen-worker-standalone-evidence-actual-core-pending",
+      "status": "isolated-actual-core-prepared-source-index-operation-pass",
       "RootIntegrated": false,
       "fullSuitePromotion": false,
-      "actualCoreTestsPassed": 0,
-      "manifestSHA256": "82558c5109839a2873fc6c5f45527583403ffc9de2111bebff8162f28ff043e3"
+      "actualCoreTestsPassed": 7,
+      "manifestSHA256": "82558c5109839a2873fc6c5f45527583403ffc9de2111bebff8162f28ff043e3",
+      "completeQueryRows": 1100,
+      "financialRowRecoveryEstablished": false,
+      "record": "fixtures/reference_fidelity/native-intent-prepared-core.json"
     },
     "richMetadataIoSeam": {
       "status": "frozen-worker-standalone-evidence-actual-core-pending",
@@ -853,7 +862,7 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Last full release 963aae7 remains at 1,714 Rust executions and 238 numeric checks. New Root commit ed74e16 integrates same-owner Main saved-height/genesis error continuations: 10 complete source cases, 3 Root Core tests, 29 compatibility executions, 4 source checks, formatting and all-target Clippy pass. The corrected native history candidate passes 18 separate Core tests. Full-suite promotion, native Root integration, synced intent/ack, exact row recovery, broader rich provenance/continuations, authenticated history and complete-block proofs remain open.",
+  "workbookNote": "Full release 963aae7 remains at 1,714 Rust executions and 238 numeric checks. Latest focused Root code ed74e16 passes 3 Core tests, 29 compatibility executions and 4 source checks. Native intent-store and prepared-validity components separately pass 16 and 7 Core checks, including eight real process exits and complete 1,100-row queries. The native history/capacity candidate passes 18 other checks. All component counts are excluded from the release total. Root integration, whole-Main financial crash-resume, host power-loss validation, broader rich domains, authenticated history and complete-block proofs remain open.",
   "savedWorkbook": {
     "sha256": "d5971ddc83546910e19f76290fa12a169eee4e486873d8232ca6349ec07d0796",
     "bytes": 48140,
@@ -868,12 +877,12 @@
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-29T05:07:06Z",
-    "sha256": "8db39180823b7ad0ef5aed14a28cd366bd30c8f66323cf38b339ad7a7771a241",
+    "verifiedAtUtc": "2026-10-29T05:33:47Z",
+    "sha256": "090cf1267301278ebd6e4dab628ed9500bb46628a1160f2e63d45b11cac8c28e",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 1919326876,
+    "moduleRowsFNV": 3225426248,
     "logicRowsFNV": 1151758449,
-    "intentionalCellChanges": 7,
+    "intentionalCellChanges": 5,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,
