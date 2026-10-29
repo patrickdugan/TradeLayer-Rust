@@ -1,6 +1,6 @@
 # TradeLayer-Rust release handoff
 
-Updated: 2026-10-29T19:04:46Z. This file is maintained after every integration/PR cycle.
+Updated: 2026-10-29T19:05:52Z. This file is maintained after every integration/PR cycle.
 
 ## Objective and operating rules
 
@@ -142,3 +142,7 @@ Integrated frozen 8c062 guarded service escrow, 7b839 read-only acknowledged-his
 All 23 new controls pass in the actual Core suite: 436 library/four ignored, 44 public compatibility, Clippy warnings denied, Cargo fmt, 234 include format files, inventory and supply-chain pass. Evidence: `fixtures/reference_fidelity/native-escrow-ack-codec-core-integration.json`. Root corrected one missing cfg(test) commit_probe: None initializer in the composed read-only WAL owner; no production semantics or expected result changed. Initial failure log retained.
 
 Boundaries: the ACK reader admits HISTORY-WAL, not an unproven ESCROW-WAL cold closure. The escrow mode blocks inline compaction until actual retained inline PC success/recovery is integrated; guard-only refusal is not final JS parity. Financial cold reexecution, cross-publication source views, process-loss finance and Windows directory/power-loss validation remain open. Current next queue: 4a0900 sealed cold-prefix carrier, row full action scheduler, v8_main inline source continuations, 3b459 Promise v2. Last full release remains 1,977 Rust/238 locked numeric checks. The workbook was last synchronized to fdfa8ea/392 library and must be refreshed separately. No push, PR or merge.
+
+## Tracker checkpoint after native escrow / ACK integration
+
+The saved workbook and existing sidebar match tested code `bad3892`: 436 library tests and 44 public compatibility checks. Both recent cycles are covered, with 21 historical-await/cold-guard controls and 23 escrow/ACK/codec controls counted within the suite. Twelve intentional cells changed; all 37 transaction rows, formulas, effective styles, filters, panes, layout and proof gates are unchanged. Verification: `fixtures/reference_fidelity/escrow-ack-completeness.json`. The independent historical-await review passed 108 metadata tests and two separate controls, with strict Clippy; those counts are not added to the Root library. Review: `fixtures/reference_fidelity/historical-native-await-independent-review.json`. The full all-target release baseline remains 1,977 Rust/238 locked numeric checks.

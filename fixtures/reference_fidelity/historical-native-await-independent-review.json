@@ -1,0 +1,54 @@
+{
+  "schema": "tl-historical-native-await-independent-review-v1",
+  "workerManifestSHA256": "dce229dd6ab94661f8a60474944c45eca27592e5fee0aad3ba144de5d196e12a",
+  "reviewedManifest": "6db286bcd560a818286a285a0d78cd5a419e119128a319754ec7b5218e731204",
+  "actualMetadataTestsPassed": 108,
+  "ignoredHelper": 1,
+  "extraIndependentControlsPassed": 2,
+  "strictClippy": true,
+  "privateCoreRunByReviewer": false,
+  "countsSeparateFromRootLibrary": true,
+  "review": "# Independent historical-native-await review\n\nReviewed immutable6db286bc composed4e5→739→1869→6db, including the two escrow\nentry guards. INPUTS.json pins every copied metadata/bridge input and the\nimmutable8bcc support provider. Root, author stages and frozen packages were\nnot edited; no whole-Core build was run.\n\nNo new concrete owner/scope, before-IO write escape, held-await double resolve,\nPost substitution or unchanged-live-path defect was found within this domain.\n\nIndependent Rust1.90 strictClippy (warnings denied) compiled the actual metadata\nclosure. All108 tests passed with one ignored child helper. Two additional\nisolated controls passed: reopening playback on the SAME actual index cannot\nuse the earlier opaque await token; and the legacy synchronous comparison path\ncannot clear or resolve another exposed PostVerified await. Logs and the exact\nadditional source are retained. These are metadata execution results, not my\nexecution of the three private Core tests. Parent separately reports the15\nhistorical Core controls and413-library gate passed without corrections.\n\n## Specific checks\n\nThe historical await is non-Clone and constructed from actual query/selected\nrow/update data. It stays outside Clone/Eq Core and carries a fresh playback\nscope, original position, original Post pin and exact source-derived mutations.\nPrepared→PostVerified requires matching scope/position, independently expected\nraw TLNM comparison, and actual historical full-KV plus directory equality.\nPostVerified does not release the source await. Its separate Resolve requires\nthat same active position/Post and can produce one evaluation; duplicate or\nforeign calls refuse. Rejected source updates/no-match do not consume a native\ntransition. The public metadata helper is not a financial verdict constructor.\n\nThe shared row PC body retains Prefix/PrimaryValidity/FatalMark/FatalValidity/\nDone/Stopped and the same real Runtime/queue. The old live preparer still does\nquery first, returns completed/no-match before the update hook, then runs the\nactual update failure hook and original opaque preparation. Historical mode\nuses the same PC and actual computed parameters. On raw append mismatch the\nrow records a sticky storage stop; another Advance cannot decode/mark/reenter\nsource. After verified Post, only the actual validity-result transition clears\nthe held plan and advances that same PC. No bridge method takes financial\neffects. Existing completed-row replay still compares complete receipts, source\nstate and original physical bindings before returning an accepted Session.\n\nI extracted the actual old fdfa8ea context formatter and TLNM encoder. Both\nfactorings are equal after their documented parameter-name substitutions;\nnormalization removed whitespace ONLY outside string/byte-string literals.\nBODY_EQUIVALENCE.json and the captured old sources preserve this check. The\nlegacy synchronous cleanup only clears its own unexposed Prepared reservation;\nthe additional retained-await control verifies it cannot clear an active\nexternally held await.\n\nCold guards cover put/native DB/import, discard including context-only updates,\nprepared commits, compaction/configuration, and the additional escrow retain/\nguarded-commit APIs before their I/O. Scope rejection does not consume a live\nappend token. Foreign/nested/stale capabilities cannot release another owner.\nMetadata constructors create a distinct scoped owner and still require the real\nexclusive lock; they are not an escape from a retained rejected financial owner.\n\n## Interaction with the next small cycle\n\nRead-only inspection of8c062 guarded service escrow found no additional cold\nwrite escape: begin_inline_escrow_guard checks the cold guard first, high-level\nretain/guarded-commit keep their first-statement guards, and private inline\ncommits are reached through guarded put/discard. Clearing an inline token does\nnot clear the separate cold scope. Independent escrow-prefix readers return\nreadonly original/copy-mapped views, not a live index/permit.\n\n7b839 ACK history remains closed to its exact HISTORY-WAL profile and known\norigin/record/entry/Accepted fields. ESCROW-WAL adds a distinct profile and\ngenerationEscrow closure; the existing reader refuses it. No widening is\nrecommended or applied. b2ae22 only decodes canonical typed metadata\nexpectations; actual files still require full verification. Neither read API\nclears a cold capability or constructs/releases financial state.\n\nThese interaction checks are source inspection, not execution of the queued\n8c/7b/b2 controller cycle. Full cold active-action/catchup replay, supersession/\nnative ambiguity, cross-publication escrow playback and killed-process\nfinancial reconstruction remain their stated separate gates. Same-process\nuncertain actions must not be recovered by rerunning source.\n",
+  "bodyEquivalence": {
+    "actualOldCommit": "fdfa8ea",
+    "durableContextBodyEqualAfterOnlyNamedInputSubstitution": true,
+    "TLNMEncoderBodyEqualAfterOnlyNamedInputSubstitution": true,
+    "normalization": "whitespace outside quoted strings only; byte string/string contents preserved",
+    "oldInputSHA256": {
+      "source_index_prepared_validity_impl.rs": "2166b010ed336b4954cf26462e9dabc8690796b8b5907a66304c199e0d120c9f",
+      "source_main_native_intent_store.rs": "f969247a3f4e1ab695ca50736a0386daa53f0331077cfa17041ac1ce90eea00e",
+      "source_main_native_row_continuation_impl.rs": "a17e4cc5d0fd2bfefa3a825a1a743ec210d65a2e8a17dbc3b8d54a84d690c019"
+    }
+  },
+  "interactions": {
+    "8c062": {
+      "manifestSHA256": "8c06216c5273446ef8abe121371143a8bbc353a73922d3c60615536fe975635c",
+      "selectedReadOnlySource": {
+        "source_index_inline_escrow_guard_impl.rs": "462ca80c924cd4055753be1070ac9818d1e31d4794c3f54114546775b8e304d7",
+        "source_main_service_escrow_runtime_impl.rs": "7bcfd652add360acf41456bddebc022c6666abaf83428df1bcf0670eea25fb31",
+        "source_main_active_escrow_controller_impl.rs": "68fd25dbc3bc65b093ebd11aefdfb3b4ec95e4d7f7968b89f6b052fe435ba036",
+        "compact_generation_independent_prefix_impl.rs": "19fcb1a0c3969c10885f4b3f3110cec57145ccc0fb0a0321dd76413155bb1543",
+        "source_index_independent_escrow_impl.rs": "57d8029e2105d7236549ab9c804f20b44617c9029d2ef51eb9608d2636fafac4"
+      }
+    },
+    "7b839": {
+      "manifestSHA256": "7b8391f074d5819d6e53167d5105b66690eb2d6d7ca6b74749516a666e798465",
+      "selectedReadOnlySource": {
+        "source_main_active_service_cold_history_impl.rs": "3b9ec7abb1b0453ec9b6deca6baf812d0e5293a00086a3f17e2b84fbd12706e6"
+      }
+    },
+    "b2ae22": {
+      "manifestSHA256": "b2ae22d369c66423f735258bd057b45f563ca82873dc99b6e32770cdc3f7ee40",
+      "selectedReadOnlySource": {
+        "source_index_history_pin_codec_impl.rs": "7ec7af068f72bdf6dc65af11c5e84d951545f55d9b853c045b42161e5b911046"
+      }
+    }
+  },
+  "evidence": {
+    "INPUTS.json": "9ad64ccb873fc03c321c8ffa20f25dc17515876d29106fce16623ca22a8a96bf",
+    "all-metadata-tests.log": "7b7577a1a0e472daa3a59d8f12498906023b804bb76fe5c1f8f489f928886142",
+    "compile-clippy.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviewer-tests.log": "92579bbe90da02c12da4c0f61cd1b1c4730a6c49d211c10e86236cf99f102d94",
+    "reviewer-compile-clippy.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

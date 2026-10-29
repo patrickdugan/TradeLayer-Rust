@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-29T18:39:31Z",
-  "inspectedCheckoutCommit": "fdfa8ea5cea5e3b2f1834c2c27a4102b33c97777",
+  "verifiedAtUtc": "2026-10-29T19:05:52Z",
+  "inspectedCheckoutCommit": "bad3892c433556911784fd40a6ab92693cb7705e",
   "verifiedImplementationCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
   "verifiedReleaseTests": 1977,
   "topLevelTests": 1976,
@@ -867,7 +867,9 @@
       "activeServiceEscrowWiringEstablished": false,
       "fullAcknowledgedActionReplayEstablished": false,
       "windowsDirectoryDurabilityEstablished": false,
-      "fullSuitePromotion": false
+      "fullSuitePromotion": false,
+      "commit": "13c8954c41e079a3bfbe8ba4df6312728fe77767",
+      "independentReview": "fixtures/reference_fidelity/historical-native-await-independent-review.json"
     },
     "nativeEscrowAckAndCodec": {
       "status": "current-Core-scoped-checks-pass",
@@ -887,10 +889,11 @@
       "inlineGuardIsNotFinalParity": true,
       "inlineNativeIORecoveryEstablished": false,
       "fullAcknowledgedFinancialReplayEstablished": false,
-      "fullSuitePromotion": false
+      "fullSuitePromotion": false,
+      "commit": "bad3892c433556911784fd40a6ab92693cb7705e"
     }
   },
-  "scope": "Full release remains code 21016cd: 1,977 Rust executions and 238 locked numeric checks. Latest fdfa8ea integrates ordered callable startup: 22 Core controls, 392 combined library and 44 public compatibility passes. Both genuine numeric versions reproduce 14 scenes/99 observations; Core compares 98 initializer/caller/notification cutoffs and preserves old default/refusal boundaries. Global Main/IIFEs, richer Promise v2, inline native put recovery, full acknowledged active/catchup/timer/partial financial cold replay, durable retention wiring, host validation and authenticated complete-block proofs remain open.",
+  "scope": "Full release remains code 21016cd: 1,977 Rust executions and 238 locked numeric checks. Latest bad3892 integrates the same-row historical native await, same-index cold guards, durable generation escrow with guarded service WAL wiring, actual read-only acknowledged history and exact history-pin codec. Combined library436/public44 pass. Ordered callable bootstrap remains22 controls/14source scenes/99observations per genuine numeric profile. Full financial active/catchup/timer/partial cold replay, retained inline source IO success/recovery, broader startup/Promise domains, cross-publication source views, host power-loss/performance and authenticated complete-block proofs remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -1182,14 +1185,14 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Full release remains code 21016cd: 1,977 Rust executions and 238 locked numeric checks. Latest fdfa8ea integrates ordered callable startup: 22 Core controls, 392 combined library and 44 public compatibility passes. Both genuine numeric versions reproduce 14 scenes/99 observations; Core compares 98 initializer/caller/notification cutoffs and preserves old default/refusal boundaries. Global Main/IIFEs, richer Promise v2, inline native put recovery, full acknowledged active/catchup/timer/partial financial cold replay, durable retention wiring, host validation and authenticated complete-block proofs remain open.",
+  "workbookNote": "Full release remains code 21016cd: 1,977 Rust executions and 238 locked numeric checks. Latest bad3892 integrates the same-row historical native await, same-index cold guards, durable generation escrow with guarded service WAL wiring, actual read-only acknowledged history and exact history-pin codec. Combined library436/public44 pass. Ordered callable bootstrap remains22 controls/14source scenes/99observations per genuine numeric profile. Full financial active/catchup/timer/partial cold replay, retained inline source IO success/recovery, broader startup/Promise domains, cross-publication source views, host power-loss/performance and authenticated complete-block proofs remain open.",
   "savedWorkbook": {
-    "sha256": "b10392161d4a2e6fcdb992b43a8a3232b129589857ec9dea99ae040fb12fcf1a",
-    "bytes": 48211,
+    "sha256": "89d589ff8da380878b3ae947e382b65fb7adcf0d71e0792a97ea696a77d310e1",
+    "bytes": 48237,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-29T18:39:31Z",
+    "asOfUtc": "2026-10-29T19:05:52Z",
     "rowHashes": {
-      "modules": 2178900058,
+      "modules": 56229240,
       "logic": 1151758449
     },
     "verifiedEdits": 12,
@@ -1197,26 +1200,27 @@
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-29T18:39:31Z",
-    "sha256": "b10392161d4a2e6fcdb992b43a8a3232b129589857ec9dea99ae040fb12fcf1a",
+    "verifiedAtUtc": "2026-10-29T19:05:52Z",
+    "sha256": "89d589ff8da380878b3ae947e382b65fb7adcf0d71e0792a97ea696a77d310e1",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 2178900058,
+    "moduleRowsFNV": 56229240,
     "logicRowsFNV": 1151758449,
     "intentionalCellChanges": 12,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,
     "releasePromotionPending": true,
-    "lastFocusedCodeCommit": "fdfa8ea5cea5e3b2f1834c2c27a4102b33c97777"
+    "lastFocusedCodeCommit": "bad3892c433556911784fd40a6ab92693cb7705e"
   },
   "validationRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json",
   "knownReferenceGaps": [
-    "Inline processBlockData/save-height/startup native IO retained operation intents/recovery",
+    "Retained inline processBlockData/save-height/startup native IO source PCs and success/error/recovery",
     "Full acknowledged active/catchup/timer/partial-command financial cold replay",
-    "Durable generation escrow and guarded service wiring across pruning",
-    "Global Main module/IIFEs, richer Promise/callback/thenable domains and startup process loss",
-    "Broader receiver/cache/value/history domains; intended-host IO/power loss and real-block CPU/RSS",
-    "Fee/reward matcher/Ledger wiring and economic/consensus choices",
+    "Cross-publication historical source-view adapter and full ESCROW-WAL cold proof closure",
+    "Broader global startup/Promise/callback/receiver/value/history domains",
+    "Intended-host directory/power-loss and representative real-block CPU/RSS validation",
+    "Fee/reward matcher and Ledger wiring; economic/consensus choices",
+    "Later full-release promotion and collaborator fuzz review",
     "Authenticated chain/UTXO/actor inputs and complete-block proof coverage"
   ],
   "previousFullSuiteBaseline": {
@@ -1225,10 +1229,10 @@
     "lockedReferenceExecutions": 238,
     "record": "fixtures/reference_fidelity/native-main-release-validation.json"
   },
-  "focusedValidationRecord": "fixtures/reference_fidelity/ordered-bootstrap-core-integration.json",
-  "focusedImplementationCommit": "fdfa8ea5cea5e3b2f1834c2c27a4102b33c97777",
-  "focusedVerifiedAtUtc": "2026-10-29T18:37:05Z",
-  "lastFocusedCodeCommit": "fdfa8ea5cea5e3b2f1834c2c27a4102b33c97777",
+  "focusedValidationRecord": "fixtures/reference_fidelity/native-escrow-ack-codec-core-integration.json",
+  "focusedImplementationCommit": "bad3892c433556911784fd40a6ab92693cb7705e",
+  "focusedVerifiedAtUtc": "2026-10-29T19:04:46Z",
+  "lastFocusedCodeCommit": "bad3892c433556911784fd40a6ab92693cb7705e",
   "recoveryPackage": {
     "commit": "9e2baa234a487c47f5a5160440b801347a668f30",
     "archiveSHA256": "acce9e5db7c65adef0246cf01581b4c06db0fd3cf356d1cdfa6528b47fff992f",

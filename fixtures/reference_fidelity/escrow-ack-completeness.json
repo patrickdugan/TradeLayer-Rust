@@ -1,0 +1,33 @@
+{
+  "schema": "tl-escrow-ack-completeness-v1",
+  "verifiedAtUtc": "2026-10-29T19:05:52Z",
+  "checkoutCommit": "bad3892c433556911784fd40a6ab92693cb7705e",
+  "beforeWorkbookSHA256": "b10392161d4a2e6fcdb992b43a8a3232b129589857ec9dea99ae040fb12fcf1a",
+  "releaseRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json",
+  "releaseRecordSHA256": "2a69f7805c1406927ab83274befbff6013ef7ce148f71ca8e402f541cbe782dc",
+  "scopedRecord": "fixtures/reference_fidelity/native-escrow-ack-codec-core-integration.json",
+  "scopedRecordSHA256": "73fc192ddb747c0bf07c68f368e023a769ca4d6a1c5e626801e4938476a78ae0",
+  "priorHistoricalRecord": "fixtures/reference_fidelity/historical-native-await-core-integration.json",
+  "priorHistoricalRecordSHA256": "67606c4a8ebd4defc2de3491b1db7e90b464f3def075bb608b776bb12e0948cf",
+  "releaseExecutions": 1977,
+  "lockedReferenceExecutions": 238,
+  "scopedLibraryPassed": 436,
+  "publicCompatibilityPassed": 44,
+  "newCurrentCycleControls": 23,
+  "priorHistoricalCycleControls": 21,
+  "laterRecoveryFullSuitePromotion": false,
+  "trackedTransactionRowsChanged": false,
+  "authenticationEstablished": false,
+  "completeBlockFraudProofEstablished": false,
+  "savedWorkbookSHA256": "89d589ff8da380878b3ae947e382b65fb7adcf0d71e0792a97ea696a77d310e1",
+  "savedAndSidebarRowsMatch": true,
+  "rowHashes": {
+    "modules": 56229240,
+    "logic": 1151758449
+  },
+  "intentionalCellChanges": 12,
+  "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
+  "visualReviewPassed": true,
+  "errors": 0,
+  "independentHistoricalReviewRecord": "fixtures/reference_fidelity/historical-native-await-independent-review.json"
+}
