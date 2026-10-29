@@ -1,0 +1,36 @@
+{
+  "verifiedAtUtc": "2026-10-29T06:29:07Z",
+  "checkoutCommit": "9e2baa234a487c47f5a5160440b801347a668f30",
+  "sharedMetadata": {
+    "RootIntegrated": false,
+    "fullSuitePromotion": false,
+    "actualCoreExecutions": 14,
+    "targets": 4,
+    "logSHA256": "98afbd4220e88d558653ac2824c1ba4421905c2d523139dcf24d7558821c8526",
+    "sourceManifestSHA256": "1963d0331496874ed5d2f37799b753fb601b6bce5408a69c4ffbb5685caff073"
+  },
+  "sourceFiles": {
+    "docs/SHARED_METADATA.md": "12c4742373e00949877aa563932c84111f302a14b16a9f9bd846d4746d0c84fd",
+    "src/source_index_metadata_algorithms.rs": "d239fa44af70f0f07449138fd983bb38d301e23ce0901f9ccba84d97ffdd5e2b",
+    "src/txindex_source_owner.rs": "df2d3a5fa7a54590674bcae2d1882945a8342ef5be354029c7c47ef03ce098b4",
+    "src/lib.rs": "6bbc62a748363ff6ea9996d12c6febd53c8af269308245f4a8116bbb592a5f51",
+    "tests/source_index_metadata_shared.rs": "a345743f5b7ae224545aa9b7d7501a451bca5d079c0529ee6413a8ffeea2e302",
+    "tests/support/source_native_throw.rs": "46899cf0b188a7f0901dbe0162b3ad580531a9c538d859a1680dc57018191ce1"
+  },
+  "workerFinancialRowRecoveryImplemented": false,
+  "recoveryPackage": {
+    "commit": "9e2baa234a487c47f5a5160440b801347a668f30",
+    "archiveSHA256": "acce9e5db7c65adef0246cf01581b4c06db0fd3cf356d1cdfa6528b47fff992f",
+    "sourceFiles": 5864,
+    "bundleSHA256": "adf178b1c0235014874748246059ba4514f638eb96daefb9e3f8d8428ff7e3a8",
+    "bundleBytes": 10715818,
+    "workingTreeClean": true,
+    "pushed": false,
+    "bundleFile": "TradeLayer-Rust-final.bundle",
+    "finalWorkerNote": "handoffs/recovery-checkpoint-20261029/ROW_PACKAGING_STATE.md"
+  },
+  "workbookSHA256": "31c206d47040bb88dcba1ba47396478b14fee3fd322943a3fa0ee5bcb2a956c1",
+  "savedAndSidebarRowsMatch": true,
+  "onlyFourMetadataCellsChanged": true,
+  "fullSuitePromotion": false
+}

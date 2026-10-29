@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-29T05:32:07Z",
-  "inspectedCheckoutCommit": "9e6df4cc5e015a3a0ec94bda485ac7577a86cd98",
+  "verifiedAtUtc": "2026-10-29T06:29:07Z",
+  "inspectedCheckoutCommit": "9e2baa234a487c47f5a5160440b801347a668f30",
   "verifiedImplementationCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
   "verifiedReleaseTests": 1714,
   "topLevelTests": 1713,
@@ -568,6 +568,16 @@
       "fullSuitePromotion": false,
       "actualCoreTestsPassed": 0,
       "manifestSHA256": "1963d0331496874ed5d2f37799b753fb601b6bce5408a69c4ffbb5685caff073"
+    },
+    "richSharedMetadata": {
+      "RootIntegrated": false,
+      "fullSuitePromotion": false,
+      "actualCoreExecutions": 14,
+      "targets": 4,
+      "logSHA256": "98afbd4220e88d558653ac2824c1ba4421905c2d523139dcf24d7558821c8526",
+      "sourceManifestSHA256": "1963d0331496874ed5d2f37799b753fb601b6bce5408a69c4ffbb5685caff073",
+      "status": "isolated-actual-core-checks-pass",
+      "record": "fixtures/reference_fidelity/packaged-recovery-tracker.json"
     }
   },
   "scope": "Full release963aae7 remains1714 Rust executions and238 numeric checks. Subsequent RichThrownV14 RPC/catch carriers and same-owner partial-write error continuations are integrated with focused checks; the newest follow-on passes3 Root Core and29 compatibility executions,4 source checks and all-target Clippy. Native segmented replay/capacity passes18 isolated Core tests but remains unintegrated. Full-suite promotion, broader DB/financial/deferred domains, synced durable native recovery, authenticated history and complete-block proofs remain open.",
@@ -862,7 +872,7 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Full release 963aae7 remains at 1,714 Rust executions and 238 numeric checks. Latest focused Root code ed74e16 passes 3 Core tests, 29 compatibility executions and 4 source checks. Native intent-store and prepared-validity components separately pass 16 and 7 Core checks, including eight real process exits and complete 1,100-row queries. The native history/capacity candidate passes 18 other checks. All component counts are excluded from the release total. Root integration, whole-Main financial crash-resume, host power-loss validation, broader rich domains, authenticated history and complete-block proofs remain open.",
+  "workbookNote": "Full release 963aae7 remains at 1,714 Rust executions and 238 numeric checks. Latest focused Root code ed74e16 passes 3 Core tests, 29 compatibility executions and 4 source checks. Isolated candidates: history/capacity 18, intent-store 16, prepared-validity 7, shared metadata 14 Core executions. These candidate counts overlap reused controls and are excluded from the release total. Checkpoint 9e2baa2 packages source, logs and resume notes. Main financial row/catchup recovery is not implemented. Root promotion, compatibility/Clippy, host power-loss validation, broader rich domains, authenticated history and complete-block proofs remain open.",
   "savedWorkbook": {
     "sha256": "d5971ddc83546910e19f76290fa12a169eee4e486873d8232ca6349ec07d0796",
     "bytes": 48140,
@@ -877,12 +887,12 @@
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-29T05:33:47Z",
-    "sha256": "090cf1267301278ebd6e4dab628ed9500bb46628a1160f2e63d45b11cac8c28e",
+    "verifiedAtUtc": "2026-10-29T06:29:07Z",
+    "sha256": "31c206d47040bb88dcba1ba47396478b14fee3fd322943a3fa0ee5bcb2a956c1",
     "savedAndSidebarRowsMatch": true,
     "moduleRowsFNV": 3225426248,
     "logicRowsFNV": 1151758449,
-    "intentionalCellChanges": 5,
+    "intentionalCellChanges": 4,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,
@@ -906,5 +916,16 @@
   "focusedValidationRecord": "fixtures/reference_fidelity/native-main-core-integration.json",
   "focusedImplementationCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
   "focusedVerifiedAtUtc": "2026-10-29T00:32:15Z",
-  "lastFocusedCodeCommit": "ed74e1693a5db9ad03fb35d1eeb79955387d6bc2"
+  "lastFocusedCodeCommit": "ed74e1693a5db9ad03fb35d1eeb79955387d6bc2",
+  "recoveryPackage": {
+    "commit": "9e2baa234a487c47f5a5160440b801347a668f30",
+    "archiveSHA256": "acce9e5db7c65adef0246cf01581b4c06db0fd3cf356d1cdfa6528b47fff992f",
+    "sourceFiles": 5864,
+    "bundleSHA256": "adf178b1c0235014874748246059ba4514f638eb96daefb9e3f8d8428ff7e3a8",
+    "bundleBytes": 10715818,
+    "workingTreeClean": true,
+    "pushed": false,
+    "bundleFile": "TradeLayer-Rust-final.bundle",
+    "finalWorkerNote": "handoffs/recovery-checkpoint-20261029/ROW_PACKAGING_STATE.md"
+  }
 }
