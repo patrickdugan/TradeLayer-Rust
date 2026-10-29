@@ -1,0 +1,21 @@
+{
+  "schema": "tl-recovery-checkpoint-package-v1",
+  "createdAtUtc": "2026-10-29T06:12:56Z",
+  "committedHeadBeforePackaging": "fb89e2af6bcf6f470fee3e3bd69d1dba526aa3d2",
+  "lastIntegratedCode": "ed74e1693a5db9ad03fb35d1eeb79955387d6bc2",
+  "releaseCode": "963aae732a1274bb4dafacd24e9d6666451ac51c",
+  "releaseExecutions": 1714,
+  "numericChecks": 238,
+  "nativeHistoryCoreTests": 18,
+  "nativeIntentStoreCoreTests": 16,
+  "nativePreparedValidityCoreTests": 7,
+  "metadataFactoringCoreExecutions": 14,
+  "nativeRootIntegrated": false,
+  "wholeMainCrashRecoveryComplete": false,
+  "authenticationEstablished": false,
+  "archiveSHA256": "acce9e5db7c65adef0246cf01581b4c06db0fd3cf356d1cdfa6528b47fff992f",
+  "archiveBytes": 76117312,
+  "fileCount": 5864,
+  "archivePath": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\outputs\\recovery-checkpoint-20261029\\native-recovery-source-and-evidence.zip",
+  "bundlePath": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\outputs\\recovery-checkpoint-20261029\\TradeLayer-Rust-committed.bundle"
+}
