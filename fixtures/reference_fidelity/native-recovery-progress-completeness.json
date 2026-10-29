@@ -1,0 +1,73 @@
+{
+  "schema": "tl-recovery-progress-completeness-v1",
+  "verifiedAtUtc": "2026-10-29T11:54:07Z",
+  "checkoutCommit": "c1735b0cfc55a30c061271dc33cd1794e3b53b5a",
+  "integrated": {
+    "nativeCatchup": {
+      "status": "committed-focused-checks-pass",
+      "RootIntegrated": true,
+      "commit": "f6a31f1abd3d26f2b17d7469211db684c9fa6dfd",
+      "record": "fixtures/reference_fidelity/native-catchup-first-core-integration.json",
+      "recordSHA256": "f394df83107dfc2cbf127e1bc84fbd1e97b8c62b7840f634f9467ffc21b70a3d",
+      "focusedExecutions": 45,
+      "fullSuitePromotion": false
+    },
+    "nativeSupersedingIntent": {
+      "status": "committed-focused-checks-pass",
+      "RootIntegrated": true,
+      "commit": "6cf2e222a1b354e457ab68dd26de39e2d985767b",
+      "record": "fixtures/reference_fidelity/native-superseding-intent-core-integration.json",
+      "recordSHA256": "7ab6840b01362f09fe48e041a16fdb698573df58f460609ea9a077bb17d2b8ad",
+      "focusedExecutions": 128,
+      "fullSuitePromotion": false
+    },
+    "nativeNoIndexPost": {
+      "status": "committed-focused-checks-pass",
+      "RootIntegrated": true,
+      "commit": "31bbb57d077fa441f57957fc66939905633ae34f",
+      "record": "fixtures/reference_fidelity/native-no-index-post-core-integration.json",
+      "recordSHA256": "54d12bd1d43f59af276d6d1235730dd50825410e4f4a9ebb011d44359638e2c0",
+      "focusedExecutions": 51,
+      "fullSuitePromotion": false
+    },
+    "nativeSupersessionController": {
+      "status": "committed-focused-checks-pass",
+      "RootIntegrated": true,
+      "commit": "c1735b0cfc55a30c061271dc33cd1794e3b53b5a",
+      "record": "fixtures/reference_fidelity/native-supersession-controller-core-integration.json",
+      "recordSHA256": "6568e1714bded1bbc5ef69ab89a6b98af40bb6c28bdebe5871e793647b695767",
+      "focusedExecutions": 74,
+      "fullSuitePromotion": false
+    }
+  },
+  "fullSuitePromotion": false,
+  "releaseExecutions": 1714,
+  "lockedReferenceExecutions": 238,
+  "beforeWorkbookSHA256": "4e63ebe7b6d1b54f61d2857b90956bfc14d526f6f874cb5f54fc6c5d104c4ab0",
+  "savedWorkbookSHA256": "4b181c817c3ce757ece6264a147c840a285491b497ffa184c6461be8293ea391",
+  "savedAndSidebarRowsMatch": true,
+  "rowHashes": {
+    "modules": 2618946991,
+    "logic": 1151758449
+  },
+  "intentionalCellChanges": 12,
+  "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
+  "visualReviewPassed": true,
+  "errors": 0,
+  "sourceOnlyWorkerResults": {
+    "multiheightSourceControls": {
+      "manifest": "review-native-main-multiheight/root-ready-multiheight-controls-1/MANIFEST.json",
+      "manifestSHA256": "623fec9b9077e0e016bd585ec65b20f5678cbbc14ea8e5f8548955cec326c8d5",
+      "RootIntegrated": false,
+      "rustParityEstablished": false,
+      "fullSuitePromotion": false
+    },
+    "configuredServiceSourceControls": {
+      "manifest": "review-main-configured-service-tail/root-ready-service-tail-controls-1/MANIFEST.json",
+      "manifestSHA256": "cfa26d406a3bbec364e58490b50fd144cf1c3e4d8bb179e835e749661f63762b",
+      "RootIntegrated": false,
+      "rustParityEstablished": false,
+      "fullSuitePromotion": false
+    }
+  }
+}
