@@ -1,10 +1,10 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-29T19:44:31Z",
-  "inspectedCheckoutCommit": "239c3403f05a4b4edef391d40145ed09052ee672",
-  "verifiedImplementationCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
-  "verifiedReleaseTests": 1977,
-  "topLevelTests": 1976,
+  "verifiedAtUtc": "2026-10-29T20:19:23Z",
+  "inspectedCheckoutCommit": "216377fe9fb0ce89c92a47776e71e2c73a4b03d4",
+  "verifiedImplementationCommit": "239c3403f05a4b4edef391d40145ed09052ee672",
+  "verifiedReleaseTests": 2120,
+  "topLevelTests": 2119,
   "subprocessChecks": 1,
   "verifiedLockedReferenceTests": 238,
   "moduleRows": 48,
@@ -772,9 +772,9 @@
       "activeServiceRunningComponentIntegrated": true,
       "activeServiceWALIntegrated": false,
       "coldProcessLossReplayEstablished": false,
-      "coveredByReleaseCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
-      "testedCheckoutCommit": "e99ef482d0f258d19a7a10aa776e6923d1c22532",
-      "releaseValidationRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json"
+      "coveredByReleaseCommit": "239c3403f05a4b4edef391d40145ed09052ee672",
+      "testedCheckoutCommit": "216377fe9fb0ce89c92a47776e71e2c73a4b03d4",
+      "releaseValidationRecord": "fixtures/reference_fidelity/native-inline-release-validation.json"
     },
     "feeEngine": {
       "status": "committed-scoped-checks-pass",
@@ -785,9 +785,9 @@
       "fullSuitePromotion": true,
       "actualIntegrationTestsPassed": 30,
       "matcherOrConsensusChanged": false,
-      "coveredByReleaseCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
-      "testedCheckoutCommit": "e99ef482d0f258d19a7a10aa776e6923d1c22532",
-      "releaseValidationRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json"
+      "coveredByReleaseCommit": "239c3403f05a4b4edef391d40145ed09052ee672",
+      "testedCheckoutCommit": "216377fe9fb0ce89c92a47776e71e2c73a4b03d4",
+      "releaseValidationRecord": "fixtures/reference_fidelity/native-inline-release-validation.json"
     },
     "rewardAccounting": {
       "status": "committed-scoped-checks-pass",
@@ -800,9 +800,9 @@
       "actualPublicApiTestsPassed": 21,
       "independentFullWidthVectors": 1072,
       "payoutOrConsensusChanged": false,
-      "coveredByReleaseCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
-      "testedCheckoutCommit": "e99ef482d0f258d19a7a10aa776e6923d1c22532",
-      "releaseValidationRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json"
+      "coveredByReleaseCommit": "239c3403f05a4b4edef391d40145ed09052ee672",
+      "testedCheckoutCommit": "216377fe9fb0ce89c92a47776e71e2c73a4b03d4",
+      "releaseValidationRecord": "fixtures/reference_fidelity/native-inline-release-validation.json"
     },
     "activeServiceWALAndHistoricalViews": {
       "status": "current-Core-scoped-checks-pass",
@@ -829,10 +829,13 @@
       "countsOverlap": true,
       "sameProcessBeforeIntermediatePostRecoveryEstablished": true,
       "completedProcessRowsReexecutionEstablished": true,
-      "fullSuitePromotion": false,
+      "fullSuitePromotion": true,
       "fullActiveColdFinancialRecoveryEstablished": false,
       "commit": "77c1b3cc1929803406776f1c8eaa3fe811a1f87c",
-      "nativeRecoveryScope": "Explicit validity AppendPending plans; inline native put IO remains open"
+      "nativeRecoveryScope": "Explicit validity AppendPending plans; inline native put IO remains open",
+      "coveredByReleaseCommit": "239c3403f05a4b4edef391d40145ed09052ee672",
+      "testedCheckoutCommit": "216377fe9fb0ce89c92a47776e71e2c73a4b03d4",
+      "releaseValidationRecord": "fixtures/reference_fidelity/native-inline-release-validation.json"
     },
     "orderedCallableBootstrap": {
       "status": "current-Core-scoped-checks-pass",
@@ -845,10 +848,13 @@
       "sourceObservationsPerNumericProfile": 99,
       "CoreProjectionComparisons": 98,
       "oldProviderStepCases": 7,
-      "fullSuitePromotion": false,
+      "fullSuitePromotion": true,
       "globalMainIIFEEstablished": false,
       "newPromiseV2Integrated": true,
-      "commit": "fdfa8ea5cea5e3b2f1834c2c27a4102b33c97777"
+      "commit": "fdfa8ea5cea5e3b2f1834c2c27a4102b33c97777",
+      "coveredByReleaseCommit": "239c3403f05a4b4edef391d40145ed09052ee672",
+      "testedCheckoutCommit": "216377fe9fb0ce89c92a47776e71e2c73a4b03d4",
+      "releaseValidationRecord": "fixtures/reference_fidelity/native-inline-release-validation.json"
     },
     "historicalNativeAwait": {
       "status": "current-Core-scoped-checks-pass",
@@ -867,9 +873,12 @@
       "activeServiceEscrowWiringEstablished": false,
       "fullAcknowledgedActionReplayEstablished": false,
       "windowsDirectoryDurabilityEstablished": false,
-      "fullSuitePromotion": false,
+      "fullSuitePromotion": true,
       "commit": "13c8954c41e079a3bfbe8ba4df6312728fe77767",
-      "independentReview": "fixtures/reference_fidelity/historical-native-await-independent-review.json"
+      "independentReview": "fixtures/reference_fidelity/historical-native-await-independent-review.json",
+      "coveredByReleaseCommit": "239c3403f05a4b4edef391d40145ed09052ee672",
+      "testedCheckoutCommit": "216377fe9fb0ce89c92a47776e71e2c73a4b03d4",
+      "releaseValidationRecord": "fixtures/reference_fidelity/native-inline-release-validation.json"
     },
     "nativeEscrowAckAndCodec": {
       "status": "current-Core-scoped-checks-pass",
@@ -889,8 +898,11 @@
       "inlineGuardIsNotFinalParity": true,
       "inlineNativeIORecoveryEstablished": false,
       "fullAcknowledgedFinancialReplayEstablished": false,
-      "fullSuitePromotion": false,
-      "commit": "bad3892c433556911784fd40a6ab92693cb7705e"
+      "fullSuitePromotion": true,
+      "commit": "bad3892c433556911784fd40a6ab92693cb7705e",
+      "coveredByReleaseCommit": "239c3403f05a4b4edef391d40145ed09052ee672",
+      "testedCheckoutCommit": "216377fe9fb0ce89c92a47776e71e2c73a4b03d4",
+      "releaseValidationRecord": "fixtures/reference_fidelity/native-inline-release-validation.json"
     },
     "sealedColdPrefix": {
       "status": "current-Core-scoped-checks-pass",
@@ -902,11 +914,14 @@
       "publicExactCurrentAPIUnchanged": true,
       "staleSessionReleaseAvailable": false,
       "fullAcknowledgedFinancialReplayEstablished": false,
-      "fullSuitePromotion": false,
+      "fullSuitePromotion": true,
       "independentReview": "fixtures/reference_fidelity/sealed-cold-prefix-independent-review.json",
       "additionalCoreReviewControls": 2,
       "totalCoreControls": 5,
-      "commit": "e9b7cb95322b443b12e53fae305c1b578eddcffb"
+      "commit": "e9b7cb95322b443b12e53fae305c1b578eddcffb",
+      "coveredByReleaseCommit": "239c3403f05a4b4edef391d40145ed09052ee672",
+      "testedCheckoutCommit": "216377fe9fb0ce89c92a47776e71e2c73a4b03d4",
+      "releaseValidationRecord": "fixtures/reference_fidelity/native-inline-release-validation.json"
     },
     "orderedCallableBootstrapV2": {
       "status": "current-Core-scoped-checks-pass",
@@ -926,8 +941,11 @@
       "oldDefaultAndWitnessFencesPreserved": true,
       "broaderGlobalStartupEstablished": false,
       "arbitraryCallbacksThenablesEstablished": false,
-      "fullSuitePromotion": false,
-      "commit": "e9b7cb95322b443b12e53fae305c1b578eddcffb"
+      "fullSuitePromotion": true,
+      "commit": "e9b7cb95322b443b12e53fae305c1b578eddcffb",
+      "coveredByReleaseCommit": "239c3403f05a4b4edef391d40145ed09052ee672",
+      "testedCheckoutCommit": "216377fe9fb0ce89c92a47776e71e2c73a4b03d4",
+      "releaseValidationRecord": "fixtures/reference_fidelity/native-inline-release-validation.json"
     },
     "retainedInlineService": {
       "status": "current-Core-scoped-checks-pass",
@@ -950,12 +968,15 @@
       "inlineDurableWALModeEstablished": false,
       "inlineAmbiguityRecoveryEstablished": false,
       "fullStartupCatchupInlineIntegrationEstablished": false,
-      "fullSuitePromotion": false,
+      "fullSuitePromotion": true,
       "independentReview": "fixtures/reference_fidelity/retained-inline-service-independent-review.json",
-      "commit": "239c3403f05a4b4edef391d40145ed09052ee672"
+      "commit": "239c3403f05a4b4edef391d40145ed09052ee672",
+      "coveredByReleaseCommit": "239c3403f05a4b4edef391d40145ed09052ee672",
+      "testedCheckoutCommit": "216377fe9fb0ce89c92a47776e71e2c73a4b03d4",
+      "releaseValidationRecord": "fixtures/reference_fidelity/native-inline-release-validation.json"
     }
   },
-  "scope": "Full release remains implementation 21016cd /tested e99ef48: 1,977 Rust executions and 238 locked numeric checks. Latest 239c340 passes 470 library /44 public, including 7 retained inline live-service controls and 5 sealed-prefix controls. The new entry holds transaction/MaxHeight/indexExists append and source-return boundaries separately on one actual owner; old entry bytes stay unchanged. Both genuine numeric versions reproduce 13 source calls /38 records; those are not 13 full Rust Main caller matches.37 bounded startup controls, guarded escrow WAL, read-only ACK history and exact pin codec remain checked. Durable inline WAL/ambiguity recovery, full startup/catchup/historical inline and acknowledged financial action replay, cross-publication views, process-loss/host validation and authenticated complete-block proofs remain open.",
+  "scope": "Full frozen release of implementation239c340/tested216377f passes2,120 Rust executions (2,119top-level +one successful storage child),238 locked numeric checks across281targets; all1,776inputs unchanged. Actual WAL/history/validity recovery, bounded cold rows/prefix, Promise continuations and explicit inline live service are covered. Inline durable WAL/recovery, full acknowledged action/startup/catchup/historical inline and cross-publication finance, host validation and authenticated complete-block proofs remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -1247,7 +1268,7 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Full release remains implementation 21016cd /tested e99ef48: 1,977 Rust executions and 238 locked numeric checks. Latest 239c340 passes 470 library /44 public, including 7 retained inline live-service controls and 5 sealed-prefix controls. The new entry holds transaction/MaxHeight/indexExists append and source-return boundaries separately on one actual owner; old entry bytes stay unchanged. Both genuine numeric versions reproduce 13 source calls /38 records; those are not 13 full Rust Main caller matches.37 bounded startup controls, guarded escrow WAL, read-only ACK history and exact pin codec remain checked. Durable inline WAL/ambiguity recovery, full startup/catchup/historical inline and acknowledged financial action replay, cross-publication views, process-loss/host validation and authenticated complete-block proofs remain open.",
+  "workbookNote": "Promote saved/sidebar full release baseline to239c340/tested216377f:2,120 Rust/238 locked numeric checks;470library/44scoped public passes. Transaction/parity/proof classifications remain unchanged. Saved workbook still contains the previous1,977full-release baseline until that separate verified edit.",
   "savedWorkbook": {
     "sha256": "0c3f1b01c59e31094eb51c59b82115561c31910b70bebedbb3d7e31691641725",
     "bytes": 48323,
@@ -1274,7 +1295,7 @@
     "releasePromotionPending": true,
     "lastFocusedCodeCommit": "239c3403f05a4b4edef391d40145ed09052ee672"
   },
-  "validationRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json",
+  "validationRecord": "fixtures/reference_fidelity/native-inline-release-validation.json",
   "knownReferenceGaps": [
     "New immutable retained-inline WAL origin/history mode and native ambiguity recovery",
     "Full Main startup/catchup/historical inline callers",
@@ -1287,10 +1308,10 @@
     "Authenticated chain/UTXO/actor inputs and complete-block proof coverage"
   ],
   "previousFullSuiteBaseline": {
-    "implementationCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
-    "releaseExecutions": 1714,
+    "implementationCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
+    "releaseExecutions": 1977,
     "lockedReferenceExecutions": 238,
-    "record": "fixtures/reference_fidelity/native-main-release-validation.json"
+    "record": "fixtures/reference_fidelity/rc-cycle-release-validation.json"
   },
   "focusedValidationRecord": "fixtures/reference_fidelity/retained-inline-service-core-integration.json",
   "focusedImplementationCommit": "239c3403f05a4b4edef391d40145ed09052ee672",

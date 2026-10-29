@@ -1,8 +1,8 @@
 # TradeLayer-Rust release handoff
 
-Updated: 2026-10-29T19:44:31Z. This file is maintained after every integration/PR cycle.
+Updated: 2026-10-29T20:19:23Z. This file is maintained after every integration/PR cycle.
 
-Latest checked cycle: **470 library tests /44 public compatibility checks**, including seven retained inline live-service controls and five sealed-prefix controls. Evidence: `fixtures/reference_fidelity/retained-inline-service-core-integration.json`. The full all-target baseline remains 1,977 Rust/238 locked numeric checks until the next frozen release run.
+Latest full release: **2,120 Rust executions /238 locked numeric checks**, implementation `239c340`, tested `216377f`;470library/44scoped public checks. Evidence:`fixtures/reference_fidelity/native-inline-release-validation.json`. Full reference parity, authentication and complete-block fraud proofs remain open.
 
 ## Objective and operating rules
 
@@ -14,7 +14,7 @@ Commit completed, checked local work. Do not push, publish, create a PR or merge
 
 - Cycle parent commit: `0edb092dc4814ae24724130a726410400a886b23` (completeness refresh).
 - Previous committed implementation: `eff87dd817dc3ec7ac3403ecb020b0156ccbedef` (typed control-Store recovery).
-- Current full release: implementation `21016cd777906cc8dc9ce8fc6fa7ec8e33aac351`, tested checkout `e99ef482d0f258d19a7a10aa776e6923d1c22532`: **1,977 Rust executions and 238 locked numeric-reference checks**, 281 targets, all 1,646 frozen inputs unchanged. Evidence: `fixtures/reference_fidelity/rc-cycle-release-validation.json`. Prior `963aae7` baseline remains preserved.
+- Current full release: implementation `239c3403f05a4b4edef391d40145ed09052ee672`, tested `216377fe9fb0ce89c92a47776e71e2c73a4b03d4`: **2,120 Rust executions and238 locked numeric-reference checks**,281targets and1,776unchanged frozen inputs. Evidence:`fixtures/reference_fidelity/native-inline-release-validation.json`. Prior21016cd/e99ef48 and963aae7 baselines remain preserved.
 - The Main cycle is **committed at `bbe36ddc953d6a2fb78964127a4562cba805c808`**. Its exact source/check provenance is `fixtures/reference_fidelity/native-main-service-publication-core-integration.json`. Inspect `git log -1` for the integration tip; the workspace mount ledger is `../../work/root-native-service-publication-mounted.json`.
 
 ## Current Main cycle
@@ -170,3 +170,11 @@ Root test correction was matches! for two independent metadata-error assertions,
 ## Tracker checkpoint after retained inline service
 
 Saved workbook and existing sidebar now match tested code `239c340`:470 library/44 public checks,7 actual inline live-service and5 sealed-prefix scoped checks. Original JS13 calls/38 records per genuine numeric profile are source evidence, not13 full Rust Main caller matches. Twelve original cell addresses changed, with a text readability refinement inside those same cells; all37 transaction rows, formulas, effective styles, filters, panes, geometry and proof gates are preserved. Verification:`fixtures/reference_fidelity/retained-inline-completeness.json`. Full all-target baseline remains1,977 Rust/238 locked numeric checks; later full-suite promotion remains separate.
+
+## Frozen full-release promotion after native inline integration
+
+All281release targets, doc checks and exact86-target locked numeric list pass. Counts:2,119top-level +one successful storage subprocess =2,120 Rust executions;238 numeric checks. These are executions, not2,120 unique source behaviors. All1,776input bytes and checkout216377f were unchanged before/after. Raw execution-manifest SHA and canonical LF checked-in manifest SHA are recorded separately with identical parsed rows. No source change was needed for this full run.
+
+Covered bounded scopes: actual active-service WAL/history/explicit validity native recovery, completed historical rows and sealed earlier prefix, strict ACK/pin readers, guarded generation escrow, ordered Promise continuations and explicit retained inline live source service. This does not establish inline durable recovery/new WAL mode, full acknowledged action or startup/catchup/historical inline, cross-publication financial replay, killed-process finance, Windows directory/power-loss or authentication/complete-block proofs. Fee/reward economic and matcher/payout wiring stays separate.
+
+New e0cee8 cold-action candidate and forthcoming inline-WAL binding were kept OUTSIDE this frozen checkout; they still require actual Core gates and later promotion. The saved workbook/sidebar must separately update the full-release baseline from1,977 to2,120 while preserving all transaction/proof rows.
