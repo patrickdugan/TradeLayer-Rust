@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-29T21:42:24Z",
-  "inspectedCheckoutCommit": "306d4186327a8d43d0fdf4c23c89563d3c0bb111",
+  "verifiedAtUtc": "2026-10-29T21:52:15Z",
+  "inspectedCheckoutCommit": "cc405ad512923b9e404c7498aa75bdbb1277a2eb",
   "verifiedImplementationCommit": "53e6a245d58265aa1a428f30c567aa67e610464c",
   "verifiedReleaseTests": 2142,
   "topLevelTests": 2141,
@@ -1076,10 +1076,11 @@
       "coldMode4AdmissionWidened": false,
       "historicalInlinePreparationImplemented": false,
       "livePermitFromDecodedPins": false,
-      "fullSuitePromotion": false
+      "fullSuitePromotion": false,
+      "commit": "cc405ad512923b9e404c7498aa75bdbb1277a2eb"
     }
   },
-  "scope": "Frozen release of implementation53e6a24/tested306d418 passes2,142 Rust executions (2,141top-level plusone successful storage child),239 locked numeric checks across282targets and1,822 unchanged inputs.491library includes same-owner cold HISTORY actions, explicit single-inline Mode4 WAL/native recovery,1024-row V8 channel sorting and actual64/65 financial source scenes. Retained Main startup/catchup/detached callers, coldMode4/cross-publication/process-loss finance, host evidence and authenticated complete-block proofs remain open.",
+  "scope": "Verified release: implementation 53e6a24, tested 306d418; 2,142 Rust executions (2,141 top-level plus one storage child), 239 locked numeric checks, 282 targets and 1,822 unchanged inputs. Includes 491 library tests, same-owner inline WAL/native recovery, cold HISTORY actions and large-channel financial source cases. Later cc405ad adds five tested copied-history reader controls (19 combined escrow cases), outside this full release. Retained Main callers, historical inline/Mode4 closure, cross-publication/process-loss finance, host evidence and authenticated complete-block proofs remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -1371,36 +1372,37 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "New full release2,142/239 verified; saved/sidebar headline promotion pending.",
+  "workbookNote": "Verified release: implementation 53e6a24, tested 306d418; 2,142 Rust executions (2,141 top-level plus one storage child), 239 locked numeric checks, 282 targets and 1,822 unchanged inputs. Includes 491 library tests, same-owner inline WAL/native recovery, cold HISTORY actions and large-channel financial source cases. Later cc405ad adds five tested copied-history reader controls (19 combined escrow cases), outside this full release. Retained Main callers, historical inline/Mode4 closure, cross-publication/process-loss finance, host evidence and authenticated complete-block proofs remain open.",
   "savedWorkbook": {
-    "sha256": "0bb319d8d482ef9840476a4be194eadefc4bc6375621640f5e3863e09b0fe3f9",
-    "bytes": 48136,
+    "sha256": "28471d2722d4d31ecb8bc142f94095b2373ef183fbf99c47cb909ff09a9a5f60",
+    "bytes": 48044,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-29T21:18:47Z",
+    "asOfUtc": "2026-10-29T21:52:15Z",
     "rowHashes": {
-      "modules": 1891525304,
+      "modules": 1856421961,
       "logic": 1151758449
     },
-    "verifiedEdits": 15,
+    "verifiedEdits": 16,
     "layoutAndFormulaPreservationVerified": true
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-29T21:18:47Z",
-    "sha256": "0bb319d8d482ef9840476a4be194eadefc4bc6375621640f5e3863e09b0fe3f9",
+    "verifiedAtUtc": "2026-10-29T21:52:15Z",
+    "sha256": "28471d2722d4d31ecb8bc142f94095b2373ef183fbf99c47cb909ff09a9a5f60",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 1891525304,
+    "moduleRowsFNV": 1856421961,
     "logicRowsFNV": 1151758449,
-    "intentionalCellChanges": 15,
+    "intentionalCellChanges": 16,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,
-    "releasePromotionPending": true,
-    "lastFocusedCodeCommit": "53e6a245d58265aa1a428f30c567aa67e610464c",
+    "releasePromotionPending": false,
+    "laterScopedFullReleasePromotionPending": true,
+    "lastFocusedCodeCommit": "cc405ad512923b9e404c7498aa75bdbb1277a2eb",
     "releaseBaselinePromoted": true,
-    "releaseExecutions": 2120,
-    "lockedReferenceExecutions": 238,
-    "releaseValidationRecord": "fixtures/reference_fidelity/native-inline-release-validation.json"
+    "releaseExecutions": 2142,
+    "lockedReferenceExecutions": 239,
+    "releaseValidationRecord": "fixtures/reference_fidelity/inline-channel-release-validation.json"
   },
   "validationRecord": "fixtures/reference_fidelity/inline-channel-release-validation.json",
   "knownReferenceGaps": [
@@ -1418,10 +1420,10 @@
     "lockedReferenceExecutions": 238,
     "record": "fixtures/reference_fidelity/native-inline-release-validation.json"
   },
-  "focusedValidationRecord": "fixtures/reference_fidelity/channel-queue-v8-sort-core-integration.json",
-  "focusedImplementationCommit": "53e6a245d58265aa1a428f30c567aa67e610464c",
-  "focusedVerifiedAtUtc": "2026-10-29T21:16:47Z",
-  "lastFocusedCodeCommit": "53e6a245d58265aa1a428f30c567aa67e610464c",
+  "focusedValidationRecord": "fixtures/reference_fidelity/copied-history-view-core-integration.json",
+  "focusedImplementationCommit": "cc405ad512923b9e404c7498aa75bdbb1277a2eb",
+  "focusedVerifiedAtUtc": "2026-10-29T21:46:05Z",
+  "lastFocusedCodeCommit": "cc405ad512923b9e404c7498aa75bdbb1277a2eb",
   "recoveryPackage": {
     "commit": "9e2baa234a487c47f5a5160440b801347a668f30",
     "archiveSHA256": "acce9e5db7c65adef0246cf01581b4c06db0fd3cf356d1cdfa6528b47fff992f",

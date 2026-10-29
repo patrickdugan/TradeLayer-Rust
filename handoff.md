@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-29T21:46:05Z. Maintained after every tested integration cycle.
+Updated: 2026-10-29T21:52:15Z. Maintained after every tested integration cycle.
 
 ## Goal and boundaries
 
@@ -91,3 +91,7 @@ All282 Rust targets, doc tests and the exact87-target genuine9.1.2 list pass on 
 ## Latest copied-view integration
 
 The exact original metadata facts and actual copied-file identity remain separate. Strict decoding gives expected facts only; real copy/manifest/full-KV/row receipt verification is still required. Five new Root tests plus19combined escrow checks pass. Next work is genuine historical inline preparation and complete source/WAL composition, not a broad reader flag. Full release remains2,142/239; update the workbook with this later scoped work separately.
+
+## Full-release workbook promotion
+
+Saved workbook and existing sidebar now show **2,142 Rust executions /239 locked numeric checks**, implementation53e6a24/tested306d418,282targets/1,822unchanged inputs. Latercc405ad is shown separately as5new/19combined copied-history metadata checks. Sixteen intentional edits preserved all48TL modules/one external reference/37transaction rows, formulas, effective styles, filters, panes, geometry and proof gates. Zero formula errors; saved/sidebar row hashes match. Verification: `fixtures/reference_fidelity/inline-channel-release-completeness.json`. Full source parity, authenticated history and complete-block fraud proofs remain unestablished.
