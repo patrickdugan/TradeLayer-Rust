@@ -177,3 +177,6 @@ fn inline_cross_publication_requires_actual_synced_escrow_and_cold_scope_refuses
     assert_eq!(escrow.parent(), Some(temp.parent.as_path()));
     let _ = std::fs::remove_dir_all(escrow);
 }
+
+#[path = "source_index_historical_inline_database_tests.rs"]
+mod historical_inline_tests;

@@ -1,0 +1,72 @@
+p2pkh-mode-1	true	
+p2pkh-mode-2	true	
+p2pkh-mode-3	true	
+p2pkh-mode-129	true	
+p2pkh-mode-130	true	
+p2pkh-mode-131	true	
+p2wpkh-mode-1	true	
+p2wpkh-mode-2	true	
+p2wpkh-mode-3	true	
+p2wpkh-mode-129	true	
+p2wpkh-mode-130	true	
+p2wpkh-mode-131	true	
+p2sh-mode-1	true	
+p2sh-mode-2	true	
+p2sh-mode-3	true	
+p2sh-mode-129	true	
+p2sh-mode-130	true	
+p2sh-mode-131	true	
+p2wsh-mode-1	true	
+p2wsh-mode-2	true	
+p2wsh-mode-3	true	
+p2wsh-mode-129	true	
+p2wsh-mode-130	true	
+p2wsh-mode-131	true	
+wrapped-p2wpkh-mode-1	true	
+wrapped-p2wpkh-mode-2	true	
+wrapped-p2wpkh-mode-3	true	
+wrapped-p2wpkh-mode-129	true	
+wrapped-p2wpkh-mode-130	true	
+wrapped-p2wpkh-mode-131	true	
+wrapped-p2wsh-mode-1	true	
+wrapped-p2wsh-mode-2	true	
+wrapped-p2wsh-mode-3	true	
+wrapped-p2wsh-mode-129	true	
+wrapped-p2wsh-mode-130	true	
+wrapped-p2wsh-mode-131	true	
+mixed-three-shapes	true	
+nonzero-funding-vouts	true	
+p2pkh-single-last-output-missing	true	
+p2wpkh-single-last-output-missing	true	
+p2sh-single-last-output-missing	true	
+p2wsh-single-last-output-missing	true	
+wrapped-p2wpkh-single-last-output-missing	true	
+wrapped-p2wsh-single-last-output-missing	true	
+later-invalid-signature	true	
+negative-fee	true	
+output-max-plus-one	false	bad-txns-vout-toolarge
+negative-output	false	bad-txns-vout-negative
+output-total-too-large	false	bad-txns-txouttotal-toolarge
+funding-max-plus-one	true	
+funding-negative	true	
+input-total-too-large	true	
+max-money-positive	true	
+duplicate-prevout	false	bad-txns-inputs-duplicate
+missing-funding	true	
+duplicate-funding	true	
+extra-funding	true	
+same-block-earlier	true	
+same-block-forward	true	
+same-block-redundant-external	true	
+later-unsupported-script	true	
+same-block-coinbase	true	
+two-vouts-one-funding	true	
+nonexistent-funding-vout	true	
+wrong-funding-txid	true	
+complete-value-preflight-before-script	true	
+zero-value-consensus-no-dust-policy	true	
+coinbase-script-1	false	bad-cb-length
+coinbase-script-2	true	
+coinbase-script-100	true	
+coinbase-script-101	false	bad-cb-length
+ordinary-null-prevout	false	bad-txns-prevout-null

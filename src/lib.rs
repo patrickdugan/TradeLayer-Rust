@@ -214,6 +214,7 @@ pub mod bitcoin_p2wsh_verify;
 
 pub mod bitcoin_block_input;
 pub mod bitcoin_standard_input;
+pub mod bitcoin_supported_transaction;
 
 pub mod compact_journal;
 #[cfg(test)]

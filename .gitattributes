@@ -275,3 +275,10 @@ fixtures/native_main_inline_await*.jsonl text eol=lf
 fixtures/channel_queue_v8_vectors*.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/channel_queue_prior_checkpoints.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/channel_queue_large_financial*.jsonl text eol=lf
+
+# Exact Bitcoin reference TSV records retain empty result/reason columns.
+fixtures/bitcoin_context_free_core_outcomes.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/bitcoin_context_free_raw.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/bitcoin_supported_input_core.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/bitcoin_supported_input_core_outcomes.tsv text eol=lf whitespace=-blank-at-eol
+fixtures/bitcoin_supported_transaction.tsv text eol=lf whitespace=-blank-at-eol

@@ -141,78 +141,8 @@ impl SourceCompactIndex {
         }
         let snapshot = self.read_generation(expected)?;
         let before_state = prepared_metadata_state(&snapshot.data, &[])?;
-        let query = arguments.first().cloned().unwrap_or(V::Undefined);
-        let mut row_to_put = None;
-        let returned = match method {
-            "insertAsync" => {
-                profile_value(&query)?;
-                match memory_copy(&query) {
-                    Err(e) => DependencyReturn::PendingThrow(e),
-                    Ok(row) => {
-                        let id = row_id(&row)?;
-                        if self.get(&id)?.is_some() {
-                            source_error(format!(
-                                "Can't insert key {id}, it violates the unique constraint"
-                            ))
-                        } else {
-                            row_to_put = Some(row.clone());
-                            DependencyReturn::Pending(row)
-                        }
-                    }
-                }
-            }
-            "updateAsync" => {
-                let Query::Id(id) = Query::parse(&query)? else {
-                    return Err(SourceRuleError::UnknownDependency.into());
-                };
-                let old = self.get(&id)?;
-                let upsert = arguments
-                    .get(2)
-                    .is_some_and(|v| v.get("upsert") == V::Bool(true));
-                if old.is_none() && !upsert {
-                    DependencyReturn::Pending(V::number(0.))
-                } else {
-                    let update = arguments.get(1).ok_or(SourceRuleError::InvalidInput)?;
-                    let mut row = old
-                        .unwrap_or_else(|| V::Object(vec![("_id".into(), V::String(id.clone()))]));
-                    if let V::Object(fields) = update {
-                        if fields.len() == 1 && fields[0].0 == "$set" {
-                            let V::Object(sets) = &fields[0].1 else {
-                                return Err(SourceRuleError::UnknownDependency.into());
-                            };
-                            for (k, v) in sets {
-                                if k == "_id" || k.starts_with('$') || k.contains('.') {
-                                    return Err(SourceRuleError::UnknownDependency.into());
-                                }
-                                row.insert(k, v.clone())?;
-                            }
-                        } else if fields.iter().all(|(k, _)| !k.starts_with('$')) {
-                            row = update.clone();
-                        } else {
-                            return Err(SourceRuleError::UnknownDependency.into());
-                        }
-                    } else {
-                        return Err(SourceRuleError::InvalidInput.into());
-                    }
-                    if row.get("_id") == V::Undefined {
-                        row.insert("_id", V::String(id.clone()))?;
-                    }
-                    if row_id(&row)? != id {
-                        source_error("You cannot change a document's _id")
-                    } else {
-                        profile_value(&row)?;
-                        match memory_copy(&row) {
-                            Err(e) => DependencyReturn::PendingThrow(e),
-                            Ok(row) => {
-                                row_to_put = Some(row);
-                                DependencyReturn::Pending(V::number(1.))
-                            }
-                        }
-                    }
-                }
-            }
-            _ => return Err(SourceRuleError::UnknownDependency.into()),
-        };
+        let (row_to_put, returned) =
+            inline_database_source_outcome(method, &arguments, |id| self.get(id))?;
         let put = row_to_put
             .map(|row| self.native_prepare_metadata_put(expected, row))
             .transpose()?;

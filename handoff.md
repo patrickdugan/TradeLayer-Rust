@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-29T22:09:27Z. Maintained after every tested integration cycle.
+Updated: 2026-10-29T22:35:07Z. Maintained after every tested integration cycle.
 
 ## Goal and boundaries
 
@@ -14,7 +14,7 @@ Keep one actual financial owner, actual native index and borrowed queue. Never i
 
 Full all-target release: implementation `53e6a245d58265aa1a428f30c567aa67e610464c`, tested checkout `306d4186327a8d43d0fdf4c23c89563d3c0bb111`. **2,142 Rust executions** (2,141 top-level plus one successful storage child), **239 locked numeric checks**,282targets and1,822 frozen inputs unchanged before/after. Library491/fourignored. Evidence: `fixtures/reference_fidelity/inline-channel-release-validation.json`. Previous2,120/238 release remains immutable historical evidence.
 
-Current later cycle: first retained Main caller/extractor component,4+4 new actual Core controls,7 legacy inline/6Mode4 and44 public checks pass. Library504 passed before removal of two unused test-only helpers; all8 new controls and strict Clippy/fmt279/inventory reran on the final tree. Same actual owner/index/borrowed invocation and explicit caller/job/method/ordinal/role remain held. ConsensusReady is still unfulfilled; no complete Initialize or caller WAL claim. Record: `retained-main-caller-core-integration.json`. Full baseline remains2,142/239.
+Current later cycle: historical inline metadata5+2independent controls and complete-supported Bitcoin transaction4public controls. Library511/fourignored,18Bitcoinpublic,6SourceOwner,7oldinline/6Mode4 pass; Clippy warnings denied, Cargo fmt,285 included files, inventory/supply-chain pass. Genuine133Script/72Corebasic calls regenerate5fixtures exactly. Records: `historical-inline-database-core-integration.json`, `bitcoin-supported-transaction-core-integration.json`. No parent/chain/TL authority or cold/caller admission is added. Full baseline remains2,142/239.
 
 The test-only temp-folder fix `567f6b8` respects TL_NATIVE_MAIN_TMP when set and otherwise uses the standard temp directory, preserving canonical-parent/guarded cleanup. Seven actual native release tests pass without the override; no production source changed. Evidence: `fixtures/reference_fidelity/native-main-test-temp-default.json`.
 
@@ -98,4 +98,8 @@ Saved workbook and existing sidebar now show **2,142 Rust executions /239 locked
 
 ## Latest retained-caller integration
 
-Source helpers and actual Core caller controls now preserve the detached final save rather than forcing a synchronous caller wait. Exact selectors fence wrong/stale job or operation actions. The first component intentionally leaves ConsensusReady unfulfilled; the next same-invocation consensus composition is still active work. Historical-inline990 and Bitcoin-composition41dd packages are frozen but not Root-integrated yet. Independent caller review is running separately. All current tested source is committed locally; no push/PR is authorized.
+Source helpers and actual Core caller controls now preserve the detached final save rather than forcing a synchronous caller wait. Exact selectors fence wrong/stale job or operation actions. The first component intentionally leaves ConsensusReady unfulfilled; the next same-invocation consensus composition is still active work. Historical-inline990/review049 and Bitcoin-composition41dd are now Root-integrated/tested. Independent caller review is running separately. All current tested source is committed locally; no push/PR is authorized.
+
+## Latest historical/Bitcoin integration
+
+Historical plans compute old-view outcomes and exact native mutation bytes, verify actual Post and resolve once; they cannot create a writer permit or resume a source PC. Bitcoin relation checks every supported input and basic money/duplicate/order rules but keeps authenticated parent/chain/TL gates denied. Root regenerated genuine reference fixtures; neither API widens economic or cold service admission. Caller review679 and same-invocation consensus3a8211 remain queued for Root gates; new Mode4 commit-trace/physical closure and durable caller composition are active worker lanes.
