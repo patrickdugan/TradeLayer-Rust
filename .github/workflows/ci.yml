@@ -225,6 +225,8 @@ jobs:
         run: |
           node scripts/native_main_inline_await_controls.cjs --check
           node scripts/native_main_inline_await_controls.cjs --lock --check
+          node scripts/native_main_inline_caller_controls.cjs --check
+          node scripts/native_main_inline_caller_controls.cjs --lock --check
       - name: Install exact source-lock numeric reference
         run: npm install --prefix "$RUNNER_TEMP/tl-bignumber-lock" --ignore-scripts --no-audit --no-fund --save-exact bignumber.js@9.1.2
       - name: Compare unchanged corpus with source-lock BigNumber

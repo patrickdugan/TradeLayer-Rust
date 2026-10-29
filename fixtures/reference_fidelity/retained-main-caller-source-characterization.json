@@ -1,0 +1,86 @@
+{
+  "schema": "tl-retained-main-caller-source-v1",
+  "verifiedAtUtc": "2026-10-29T20:59:10Z",
+  "inputCommit": "d3f5e27610e777fd2ad7cb0db16087de8fc3609c",
+  "manifestSHA256": "a1d05d41b2d7a5e01db4912fee865b2b43bb0431881f451793a49dd6453de79c",
+  "before": {
+    "scripts/native_main_inline_caller_controls.cjs": null,
+    "fixtures/native_main_inline_callers.jsonl": null,
+    "fixtures/native_main_inline_callers_locked.jsonl": null,
+    "docs/MAIN_INLINE_CALLER_SOURCE.md": null,
+    ".github/workflows/ci.yml": "5cfea3ccc5b029464ecce550546b15a649b9eddd8065da63aec767513d14010d"
+  },
+  "after": {
+    "scripts/native_main_inline_caller_controls.cjs": "38eacc10e5cccaac69f05df108121a96a10910a353253c0d2ce6cff171dbeb7f",
+    "fixtures/native_main_inline_callers.jsonl": "1fb433a85917abd76bf7b2f63e2b6c7c6b121b506740affb4a545a27b32c3422",
+    "fixtures/native_main_inline_callers_locked.jsonl": "1fb433a85917abd76bf7b2f63e2b6c7c6b121b506740affb4a545a27b32c3422",
+    "docs/MAIN_INLINE_CALLER_SOURCE.md": "32eab2e9b3d76669ad790ff06070529be9479b71fa636024807a839c2aedda23",
+    ".github/workflows/ci.yml": "41561be9e25a74e342e5854b884e3cdc16c0c5db8694f9f3a28106e48e60921a"
+  },
+  "driverOnlyPlumbingEdits": [
+    [
+      "process.env.PROOF_REPO||path.join(stage,'../../outputs/TradeLayer-Rust')",
+      "process.env.PROOF_REPO||stage"
+    ],
+    [
+      "scripts/native_main_service_tail_observer2_controls.cjs",
+      "scripts/inline_await_original_observer.cjs"
+    ],
+    [
+      "d26931a51b1a54533d32bc9224160d5442894a336ab4b92832331d80ad7bc7aa",
+      "215f551d1f9372676cf5f6c6d6f711b2d9ef0e41612a22e684c66519515e391d"
+    ]
+  ],
+  "actualRustCallerImplemented": false,
+  "sourceCalls": 12,
+  "sourceRecords": 35,
+  "original13FilesChanged": false,
+  "rootChecks": [
+    {
+      "check": "caller-default",
+      "cases": 12,
+      "inputAndObservationRecords": 35,
+      "numeric": "genuine9.3.1",
+      "node": "v24.22.1",
+      "fixtureSHA256": "1fb433a85917abd76bf7b2f63e2b6c7c6b121b506740affb4a545a27b32c3422",
+      "logSHA256": "c6e59b7f42c7d41d1779857eb588dcb7dd88e8d18aa7b465c7f08bb6b7877916"
+    },
+    {
+      "check": "caller-locked",
+      "cases": 12,
+      "inputAndObservationRecords": 35,
+      "numeric": "genuine9.1.2",
+      "node": "v24.22.1",
+      "fixtureSHA256": "1fb433a85917abd76bf7b2f63e2b6c7c6b121b506740affb4a545a27b32c3422",
+      "logSHA256": "9d9adb0027dc0b9df90c1c44d16c495c2526c779e44df62f28ded9270eadab9c"
+    },
+    {
+      "check": "old13-default",
+      "cases": 13,
+      "inputAndObservationRecords": 38,
+      "numeric": "genuine9.3.1",
+      "node": "v24.22.1",
+      "fixtureSHA256": "d492fdfcb2731f46417556903d7d024e74eb9c7682d4b115795f74f0561bdff9",
+      "logSHA256": "0cdd7b7fd9343c535348e20f4d3234f1521accfbe1be5e057a9411f706f2ca20"
+    },
+    {
+      "check": "old13-locked",
+      "cases": 13,
+      "inputAndObservationRecords": 38,
+      "numeric": "genuine9.1.2",
+      "node": "v24.22.1",
+      "fixtureSHA256": "d492fdfcb2731f46417556903d7d024e74eb9c7682d4b115795f74f0561bdff9",
+      "logSHA256": "138f9902f64a965121509f5c6fd79bb87b01a18958d624817af25b7e3c9abe5e"
+    }
+  ],
+  "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "sourceBusinessBodiesChanged": false,
+  "sameActualOriginalPromiseObserved": true,
+  "detachedFinalSaveObserved": true,
+  "appliedWriteAndSourceReturnKeptSeparate": true,
+  "rustCallerPCImplemented": false,
+  "coldOrProcessLossRecoveryEstablished": false,
+  "fullStartupParityEstablished": false,
+  "authenticationEstablished": false,
+  "completeBlockFraudProofEstablished": false
+}
