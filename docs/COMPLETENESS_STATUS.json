@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-29T04:05:54Z",
-  "inspectedCheckoutCommit": "c03f46b74f140f5fe9bd00588999fddddbe829d2",
+  "verifiedAtUtc": "2026-10-29T05:05:17Z",
+  "inspectedCheckoutCommit": "ed74e1693a5db9ad03fb35d1eeb79955387d6bc2",
   "verifiedImplementationCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
   "verifiedReleaseTests": 1714,
   "topLevelTests": 1713,
@@ -536,7 +536,29 @@
       "compatibilityTargets": 13,
       "sourceRegenerationChecks": 4,
       "formattingPassed": true,
-      "record": "fixtures/reference_fidelity/rich-owner-prefix-core-integration.json"
+      "record": "fixtures/reference_fidelity/rich-owner-prefix-core-integration.json",
+      "commit": "ed74e1693a5db9ad03fb35d1eeb79955387d6bc2"
+    },
+    "nativeDurableIntentStore": {
+      "status": "frozen-worker-standalone-evidence-actual-core-pending",
+      "RootIntegrated": false,
+      "fullSuitePromotion": false,
+      "actualCoreTestsPassed": 0,
+      "manifestSHA256": "da24d343c2f7906189a52bd325733b5c0e77eb7fb2b0dc487ac70fd46b647662"
+    },
+    "nativePreparedValidity": {
+      "status": "frozen-worker-standalone-evidence-actual-core-pending",
+      "RootIntegrated": false,
+      "fullSuitePromotion": false,
+      "actualCoreTestsPassed": 0,
+      "manifestSHA256": "82558c5109839a2873fc6c5f45527583403ffc9de2111bebff8162f28ff043e3"
+    },
+    "richMetadataIoSeam": {
+      "status": "frozen-worker-standalone-evidence-actual-core-pending",
+      "RootIntegrated": false,
+      "fullSuitePromotion": false,
+      "actualCoreTestsPassed": 0,
+      "manifestSHA256": "1963d0331496874ed5d2f37799b753fb601b6bce5408a69c4ffbb5685caff073"
     }
   },
   "scope": "Full release963aae7 remains1714 Rust executions and238 numeric checks. Subsequent RichThrownV14 RPC/catch carriers and same-owner partial-write error continuations are integrated with focused checks; the newest follow-on passes3 Root Core and29 compatibility executions,4 source checks and all-target Clippy. Native segmented replay/capacity passes18 isolated Core tests but remains unintegrated. Full-suite promotion, broader DB/financial/deferred domains, synced durable native recovery, authenticated history and complete-block proofs remain open.",
@@ -831,7 +853,7 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Full release 963aae7 remains at 1,714 Rust executions and 238 numeric checks. Root code 61282d3 passes 18 Core tests, 28 compatibility executions and 9 source checks. Separately, the native publication correction passes 18 candidate Core tests, including the unchanged 35-command regression and 4,353-command segmented replay. The original failure is retained. Root integration, compatibility/Clippy, synced intent/ack, exact row recovery and broader rich/authentication/proof gates remain open.",
+  "workbookNote": "Last full release 963aae7 remains at 1,714 Rust executions and 238 numeric checks. New Root commit ed74e16 integrates same-owner Main saved-height/genesis error continuations: 10 complete source cases, 3 Root Core tests, 29 compatibility executions, 4 source checks, formatting and all-target Clippy pass. The corrected native history candidate passes 18 separate Core tests. Full-suite promotion, native Root integration, synced intent/ack, exact row recovery, broader rich provenance/continuations, authenticated history and complete-block proofs remain open.",
   "savedWorkbook": {
     "sha256": "d5971ddc83546910e19f76290fa12a169eee4e486873d8232ca6349ec07d0796",
     "bytes": 48140,
@@ -846,17 +868,17 @@
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-29T04:12:16Z",
-    "sha256": "1e140db7af5c9f905ea455b4c29a9c11febd4e4ae06edd95a725e56e3fdb17ec",
+    "verifiedAtUtc": "2026-10-29T05:07:06Z",
+    "sha256": "8db39180823b7ad0ef5aed14a28cd366bd30c8f66323cf38b339ad7a7771a241",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 4182285034,
+    "moduleRowsFNV": 1919326876,
     "logicRowsFNV": 1151758449,
-    "intentionalCellChanges": 6,
+    "intentionalCellChanges": 7,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,
     "releasePromotionPending": true,
-    "lastFocusedCodeCommit": "61282d39e69db4fff45544f28b2e86f3e4ff7dfe"
+    "lastFocusedCodeCommit": "ed74e1693a5db9ad03fb35d1eeb79955387d6bc2"
   },
   "validationRecord": "fixtures/reference_fidelity/native-main-release-validation.json",
   "knownReferenceGaps": [
@@ -875,5 +897,5 @@
   "focusedValidationRecord": "fixtures/reference_fidelity/native-main-core-integration.json",
   "focusedImplementationCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
   "focusedVerifiedAtUtc": "2026-10-29T00:32:15Z",
-  "lastFocusedCodeCommit": "61282d39e69db4fff45544f28b2e86f3e4ff7dfe"
+  "lastFocusedCodeCommit": "ed74e1693a5db9ad03fb35d1eeb79955387d6bc2"
 }
