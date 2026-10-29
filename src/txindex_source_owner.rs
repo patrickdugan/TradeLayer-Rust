@@ -7,6 +7,8 @@ use crate::validity_source::{
     SourceEvaluation, SourceException, SourceOutcome, SourceRuleError, SourceValue as V,
 };
 
+use crate::source_index_metadata_algorithms::{SourceIndexMetadataIo, SourceIndexMetadataMethod};
+
 pub const SOURCE_COMMIT: &str = "dca0888b827c5bc28fa9189bc9e1d507f5c5670c";
 pub const SOURCE_SHA256: &str = "095449d90f511df44aff7b316105f57d4c0508ea8fb0b6f9c4a5f358edf6ca51";
 pub const MAX_BLOCKS: usize = 1024;
@@ -380,6 +382,33 @@ impl Frame {
         self.call(b, &format!("client.{method}"), a, true)
     }
 }
+struct FrameMetadata<'f, 'b, B>(&'f mut Frame, &'b mut B);
+impl<B: SourceBackend> SourceIndexMetadataIo for FrameMetadata<'_, '_, B> {
+    type Error = Fault;
+    fn database(&mut self) -> R<V> {
+        self.0.database(self.1)
+    }
+    fn find_one(&mut self, h: &V, id: &str) -> R<V> {
+        self.0
+            .db(self.1, h, "findOneAsync", vec![obj(&[("_id", s(id))])])
+    }
+    fn insert_genesis(&mut self, h: &V, height: V) -> R<V> {
+        self.0.db(
+            self.1,
+            h,
+            "insertAsync",
+            vec![obj(&[("_id", s("genesisBlock")), ("value", height)])],
+        )
+    }
+    // Old SourceEvaluation does not expose console calls. No new dependency,
+    // trace bytes, outcome or stored row is introduced under the old APIs.
+    fn log_values(&mut self, _: &str, _: V) -> R<()> {
+        Ok(())
+    }
+    fn log_throw(&mut self, _: &str, _: &Fault) -> R<()> {
+        Ok(())
+    }
+}
 impl TxIndexSourceOwner {
     pub fn new() -> Self {
         Self::default()
@@ -524,24 +553,11 @@ impl TxIndexSourceOwner {
                 self.init(f, b)?;
                 Ok(handle())
             }
-            "initializeIndex" | "initializeOrLoadDB" => {
-                let h = f.database(b)?;
-                let existing = f.db(
-                    b,
-                    &h,
-                    "findOneAsync",
-                    vec![obj(&[("_id", s("genesisBlock"))])],
-                )?;
-                if !truth(&existing) {
-                    f.db(
-                        b,
-                        &h,
-                        "insertAsync",
-                        vec![obj(&[("_id", s("genesisBlock")), ("value", arg(a, 0))])],
-                    )?;
-                }
-                Ok(V::Undefined)
-            }
+            "initializeIndex" | "initializeOrLoadDB" => self.metadata_with(
+                SourceIndexMetadataMethod::Initialize,
+                arg(a, 0),
+                &mut FrameMetadata(f, b),
+            ),
             "saveMaxHeight" => self.save_height(arg(a, 0), f, b),
             "fetchChainTip" => self.tip(f, b),
             "fetchBlockData" => self.block(arg(a, 0), f, b),
@@ -726,12 +742,25 @@ impl TxIndexSourceOwner {
         Ok(V::Undefined)
     }
     fn max_height<B: SourceBackend>(&mut self, f: &mut Frame, b: &mut B) -> R<V> {
-        let h = f.database(b)?;
-        let doc = f.db(b, &h, "findOneAsync", vec![obj(&[("_id", s("MaxHeight"))])])?;
-        if truth(&doc) {
-            prop(&doc, "value")
-        } else {
-            Ok(V::Null)
+        self.metadata_with(
+            SourceIndexMetadataMethod::FindMax,
+            V::Undefined,
+            &mut FrameMetadata(f, b),
+        )
+    }
+    pub(crate) fn metadata_with<I: SourceIndexMetadataIo>(
+        &mut self,
+        method: SourceIndexMetadataMethod,
+        height: V,
+        io: &mut I,
+    ) -> Result<V, I::Error> {
+        match method {
+            SourceIndexMetadataMethod::FindMax => {
+                crate::source_index_metadata_algorithms::source_find_max(io)
+            }
+            SourceIndexMetadataMethod::Initialize => {
+                crate::source_index_metadata_algorithms::source_initialize_genesis(io, height)
+            }
         }
     }
     fn decode<B: SourceBackend>(&mut self, raw: V, f: &mut Frame, b: &mut B) -> R<V> {

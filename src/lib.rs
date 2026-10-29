@@ -113,6 +113,7 @@ pub mod source_catalogs; // Actual property/clearlist and optional oracle metada
 pub mod source_contract_replay; // Literal source contract owners; alternative to conserving settlement.
 pub mod source_contract_runtime;
 mod source_contract_values;
+mod source_index_metadata_algorithms;
 pub mod source_main_control; // Explicit terminal control around the existing source replay.
 pub mod spot; // Stage 19 isolated type-5/6 rational matching experiment; unverified.
 pub mod spot_chain; // Stage 20 typed unverified spot block replay and complete TLSP/TLSC checkpoints.

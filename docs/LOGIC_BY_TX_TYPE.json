@@ -2,8 +2,8 @@
   "schema": "tl-logic-reference-review-v1",
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
   "rustCommit": "70f568ad703bef189c01c989631692fdf75235bb",
-  "rustCommitScope": "Inventory parent is historical. Full release963aae7 covers V12 startup/snapshot/IO/sort, native session13 and bounded graphs:1714 executions and238 numeric checks. Subsequent explicit RichThrownV14 RPC/catch carriers, same-owner partial-write error continuations and command replay pass focused Core/compatibility/source checks; full-suite promotion and broader DB/financial/deferred provenance remain pending. Native durable continuations, authenticated history and complete-block proofs remain open. All per-type full-parity/proof classifications stay unchanged and incomplete.",
-  "reviewedAtUtc": "2026-10-29T05:03:18Z",
+  "rustCommitScope": "Inventory parent is historical. Full release963aae7 covers V12 startup/snapshot/IO/sort, native session13 and bounded graphs:1714 executions and238 numeric checks. Subsequent explicit RichThrownV14 RPC/catch carriers, same-owner partial-write error continuations and command replay pass focused Core/compatibility/source checks; full-suite promotion and broader DB/financial/deferred provenance remain pending. Native durable continuations, authenticated history and complete-block proofs remain open. All per-type full-parity/proof classifications stay unchanged and incomplete. Shared TxIndex metadata algorithms now retain the same owner and legacy dependency ordering; the original-source regression corpus passed. This factoring does not widen rich-error admission or any per-type parity/proof classification.",
+  "reviewedAtUtc": "2026-10-29T08:51:22Z",
   "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
     {
@@ -295,7 +295,7 @@
     },
     {
       "path": "src/txindex_source_owner.rs",
-      "sha256": "283efe64086fdb1fafadfcdc26d5e602d905d3a7ac4b47befbb9e2e04c6a5dbe",
+      "sha256": "df2d3a5fa7a54590674bcae2d1882945a8342ef5be354029c7c47ef03ce098b4",
       "lfNormalized": true
     },
     {
@@ -516,6 +516,11 @@
     {
       "path": "src/source_v8_sort_impl.rs",
       "sha256": "af2a5787df75e48b0fee6f689ddf1fac5c3ae44e0aa1ac81570216ca40df77ef",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_index_metadata_algorithms.rs",
+      "sha256": "d233da6e4575b076462c952e2b2efbd7524093aa5e4eae334fbc42d8bfaef6ee",
       "lfNormalized": true
     }
   ],
