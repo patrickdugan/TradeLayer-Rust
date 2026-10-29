@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-29T21:16:47Z. Maintained after every tested integration cycle.
+Updated: 2026-10-29T21:18:47Z. Maintained after every tested integration cycle.
 
 ## Goal and boundaries
 
@@ -70,7 +70,7 @@ Twelve unchanged Main/TxIndex calls and35 complete input/observation records rep
 
 ## Latest tested integration
 
-Mode4 preserves one actual owner and exact pending native operation across lost-control/lost-native returns, partial writes and real compaction. The new485/44 scoped counts include prior controls and must not be added to the2,120/238 full release. Source caller characterization075aba4 remains source-only evidence until the retained Main wrappers pass actual Core controls. Workbook still reports the prior146984e/475 focused cut; refresh after this tested channel batch.
+Mode4 preserves one actual owner and exact pending native operation across lost-control/lost-native returns, partial writes and real compaction. The new485/44 scoped counts include prior controls and must not be added to the2,120/238 full release. Source caller characterization075aba4 remains source-only evidence until the retained Main wrappers pass actual Core controls. Workbook/sidebar now show the tested inline/channel/review progress through53e6a24; the full release baseline remains2,120/238. Verification: `fixtures/reference_fidelity/inline-channel-completeness.json`.
 
 ## Latest channel integration
 
@@ -79,3 +79,7 @@ The reproduced64+ ready-queue refusal is fixed through the existing1,024-row sou
 ## Latest independent recovery review
 
 Two added native controls pass inside the actual Root crate, alongside all four prior inline metadata controls. Valid-CRC altered/extra native state is rejected before repair; foreign/stale/duplicate/Post mappings cannot authorize a retry. Production code is unchanged; warnings-denied Clippy/fmt267/inventory pass. The previous full library remains489 until the next all-target run. Record: `fixtures/reference_fidelity/inline-native-recovery-independent-review.json`.
+
+## Latest completeness refresh
+
+Fifteen cells now reflect the tested channel fix, same-process inline recovery and two independent controls, with48 TL modules/one external reference/all37 transaction rows preserved. Full parity/authentication/complete-block proof flags remain false. Saved workbook and sidebar row hashes match; styles/formulas/filters/panes/geometry and unrelated cells are unchanged, with zero formula errors.

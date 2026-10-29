@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-29T20:51:48Z",
-  "inspectedCheckoutCommit": "146984e5e5a2760b78a362ccb8d74b09f3d17502",
+  "verifiedAtUtc": "2026-10-29T21:18:47Z",
+  "inspectedCheckoutCommit": "53e6a245d58265aa1a428f30c567aa67e610464c",
   "verifiedImplementationCommit": "239c3403f05a4b4edef391d40145ed09052ee672",
   "verifiedReleaseTests": 2120,
   "topLevelTests": 2119,
@@ -1027,7 +1027,8 @@
       "oldHistoryReaderRefusesMode4": true,
       "coldMode4OrDetachedCallersImplemented": false,
       "processLossFinancialRecoveryEstablished": false,
-      "fullSuitePromotion": false
+      "fullSuitePromotion": false,
+      "commit": "3c1dc47781334aebbc8ac4731b60c3e33f30b3ab"
     },
     "channelQueueV8Sort": {
       "status": "current-Core-scoped-checks-pass",
@@ -1044,7 +1045,8 @@
       "sharedV8HelperAndMainIoUnchanged": true,
       "priorCheckpointGoldens": 4,
       "queueSortBound": 1024,
-      "fullSuitePromotion": false
+      "fullSuitePromotion": false,
+      "commit": "60fc80d1b3fc1522eb6aea6d5177dec7955557c1"
     },
     "inlineNativeRecoveryIndependentReview": {
       "record": "fixtures/reference_fidelity/inline-native-recovery-independent-review.json",
@@ -1054,10 +1056,11 @@
       "independentCopiedMetadataPassed": 125,
       "productionDefectFound": false,
       "newWholeLibraryRun": false,
-      "fullSuitePromotion": false
+      "fullSuitePromotion": false,
+      "commit": "53e6a245d58265aa1a428f30c567aa67e610464c"
     }
   },
-  "scope": "Full release remains code 239c340/tested216377f: 2,120 Rust executions and238 locked numeric checks. Latest 146984e adds actual cold source execution of complete acknowledged HISTORY-WAL transcripts on one moved financial owner and the same final Post index/capability/WAL locks. Strict raw actions drive execution; all original physical receipts and opaque Before/Accepted observations are recomputed and compared. Three new Core +two metadata controls,475 library/44 public pass. Inline/Mode4, recovery/supersession, cross-publication, unresolved terminal work, hot resume and killed-process finance remain open. Channel64+ sort gap is reproduced and assigned; later candidates stay unverified.",
+  "scope": "Full release remains239c340/216377f:2,120 Rust/238 locked numeric. New3c1dc47 adds same-owner inline WAL/native Before/Intermediate/Post recovery:6 Core+4metadata,485library/44public. Channel60fc80d fixes64+ sorting through1024 with exact sharedV8/comparator and actual64 settlement/65 later-error Tally prefix:489library/17public/5locked financial pass. Review53e6a24 adds2 tested metadata negatives; no new full-library count yet. Original12Main callers/35records reproduce both numeric profiles. Retained Main callers, coldMode4/cross-publication/process-loss finance, host validation and authenticated complete-block proofs remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -1349,32 +1352,32 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Full release remains code 239c340/tested216377f: 2,120 Rust executions and238 locked numeric checks. Latest 146984e adds actual cold source execution of complete acknowledged HISTORY-WAL transcripts on one moved financial owner and the same final Post index/capability/WAL locks. Strict raw actions drive execution; all original physical receipts and opaque Before/Accepted observations are recomputed and compared. Three new Core +two metadata controls,475 library/44 public pass. Inline/Mode4, recovery/supersession, cross-publication, unresolved terminal work, hot resume and killed-process finance remain open. Channel64+ sort gap is reproduced and assigned; later candidates stay unverified.",
+  "workbookNote": "Full release remains239c340/216377f:2,120 Rust/238 locked numeric. New3c1dc47 adds same-owner inline WAL/native Before/Intermediate/Post recovery:6 Core+4metadata,485library/44public. Channel60fc80d fixes64+ sorting through1024 with exact sharedV8/comparator and actual64 settlement/65 later-error Tally prefix:489library/17public/5locked financial pass. Review53e6a24 adds2 tested metadata negatives; no new full-library count yet. Original12Main callers/35records reproduce both numeric profiles. Retained Main callers, coldMode4/cross-publication/process-loss finance, host validation and authenticated complete-block proofs remain open.",
   "savedWorkbook": {
-    "sha256": "880dde985235d401083fc35812f30eabf9853a5654f10b24faef9db015b2d244",
-    "bytes": 48171,
+    "sha256": "0bb319d8d482ef9840476a4be194eadefc4bc6375621640f5e3863e09b0fe3f9",
+    "bytes": 48136,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-29T20:51:48Z",
+    "asOfUtc": "2026-10-29T21:18:47Z",
     "rowHashes": {
-      "modules": 3416345550,
+      "modules": 1891525304,
       "logic": 1151758449
     },
-    "verifiedEdits": 13,
+    "verifiedEdits": 15,
     "layoutAndFormulaPreservationVerified": true
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-29T20:51:48Z",
-    "sha256": "880dde985235d401083fc35812f30eabf9853a5654f10b24faef9db015b2d244",
+    "verifiedAtUtc": "2026-10-29T21:18:47Z",
+    "sha256": "0bb319d8d482ef9840476a4be194eadefc4bc6375621640f5e3863e09b0fe3f9",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 3416345550,
+    "moduleRowsFNV": 1891525304,
     "logicRowsFNV": 1151758449,
-    "intentionalCellChanges": 13,
+    "intentionalCellChanges": 15,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,
     "releasePromotionPending": true,
-    "lastFocusedCodeCommit": "146984e5e5a2760b78a362ccb8d74b09f3d17502",
+    "lastFocusedCodeCommit": "53e6a245d58265aa1a428f30c567aa67e610464c",
     "releaseBaselinePromoted": true,
     "releaseExecutions": 2120,
     "lockedReferenceExecutions": 238,
@@ -1396,10 +1399,10 @@
     "lockedReferenceExecutions": 238,
     "record": "fixtures/reference_fidelity/rc-cycle-release-validation.json"
   },
-  "focusedValidationRecord": "fixtures/reference_fidelity/cold-acknowledged-actions-core-integration.json",
-  "focusedImplementationCommit": "146984e5e5a2760b78a362ccb8d74b09f3d17502",
-  "focusedVerifiedAtUtc": "2026-10-29T20:47:13Z",
-  "lastFocusedCodeCommit": "146984e5e5a2760b78a362ccb8d74b09f3d17502",
+  "focusedValidationRecord": "fixtures/reference_fidelity/channel-queue-v8-sort-core-integration.json",
+  "focusedImplementationCommit": "53e6a245d58265aa1a428f30c567aa67e610464c",
+  "focusedVerifiedAtUtc": "2026-10-29T21:16:47Z",
+  "lastFocusedCodeCommit": "53e6a245d58265aa1a428f30c567aa67e610464c",
   "recoveryPackage": {
     "commit": "9e2baa234a487c47f5a5160440b801347a668f30",
     "archiveSHA256": "acce9e5db7c65adef0246cf01581b4c06db0fd3cf356d1cdfa6528b47fff992f",
