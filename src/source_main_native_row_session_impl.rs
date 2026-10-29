@@ -1,0 +1,367 @@
+// Moved-owner production entry. A private frame never escapes its actual
+// financial/index owner. Every actual write is preceded by durable intent;
+// its exact-post prefix ack precedes resolving the stored source await.
+use crate::source_contract_runtime::{NativeMainRowContinuationV1, NativeMainRowStopV1};
+use crate::source_main_native_intent_store::{
+    NativeCommandIntentPermitV1, NativeIntentStorePinV1, NativeIntentStoreV1,
+    NativeWriteIntentCandidatesV1,
+};
+
+pub struct RejectedNativeMainRowSessionV1 {
+    pub cause: String,
+    owner: SourceMainNativeSessionV13,
+    store: NativeIntentStoreV1,
+}
+impl RejectedNativeMainRowSessionV1 {
+    pub fn into_owners(self) -> (SourceMainNativeSessionV13, NativeIntentStoreV1) {
+        (self.owner, self.store)
+    }
+}
+impl core::fmt::Debug for RejectedNativeMainRowSessionV1 {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("RejectedNativeMainRowSessionV1")
+            .field("cause", &self.cause)
+            .finish_non_exhaustive()
+    }
+}
+enum NativeMainRowControllerPcV1 {
+    Source,
+    NativeIntent,
+    NativeAppendAttempted,
+    NativePost,
+    Accepted,
+    Complete,
+    Blocked(String),
+}
+/// No Clone, no mutable runtime/index accessor, no return to a frozen head.
+/// This profile retains the original owner and source await on every failure.
+pub struct SourceMainNativeRowSessionV1 {
+    owner: SourceMainNativeSessionV13,
+    store: NativeIntentStoreV1,
+    permit: NativeCommandIntentPermitV1,
+    frame: Option<NativeMainRowContinuationV1>,
+    source_start_error: Option<SourceRuleError>,
+    pc: NativeMainRowControllerPcV1,
+    receipt_budget: usize,
+    command: NativeMainSessionCommand,
+}
+impl SourceMainNativeSessionV13 {
+    pub fn into_row_session(
+        mut self,
+        mut store: NativeIntentStoreV1,
+        expected: &NativeMainSessionExpectation,
+        store_pin: &NativeIntentStorePinV1,
+        command: NativeMainSessionCommand,
+        receipt_budget: usize,
+    ) -> Result<SourceMainNativeRowSessionV1, Box<RejectedNativeMainRowSessionV1>> {
+        let checked = (|| {
+            if self.halted || self.expectation().map_err(|e| format!("{e:?}"))? != *expected {
+                return Err("halted or mismatched moved native owner".to_owned());
+            }
+            let NativeMainSessionCommand::ProcessRows { rows, height, .. } = &command else {
+                return Err("row session requires actual ProcessRows command".into());
+            };
+            rows.validate().map_err(|e| e.to_string())?;
+            height.validate().map_err(|e| e.to_string())?;
+            if !matches!(rows, V::Array(rows) if rows.len() <= crate::source_contract_runtime::MAX_TABLE_ROWS)
+            {
+                return Err("bounded raw row input required".into());
+            }
+            let raw = command
+                .value()
+                .diagnostic_json()
+                .map_err(|e| e.to_string())?;
+            let financial = self
+                .financial
+                .native_main_financial_commitment()
+                .map_err(|e| e.to_string())?;
+            let before = obj(&[
+                ("profile", s("TL-MAIN-ACTUAL-ROW-CONTROL-13-1")),
+                ("financial", s(&hex(&financial))),
+                ("physical", physical_value(&expected.physical)),
+            ]);
+            store
+                .sync_command_intent(store_pin, raw.as_bytes(), before, receipt_budget)
+                .map_err(|e| e.to_string())
+        })();
+        let permit = match checked {
+            Ok(permit) => permit,
+            Err(cause) => {
+                return Err(Box::new(RejectedNativeMainRowSessionV1 {
+                    cause,
+                    owner: self,
+                    store,
+                }))
+            }
+        };
+        let NativeMainSessionCommand::ProcessRows { rows, height, live } = &command else {
+            unreachable!("checked raw command")
+        };
+        // Raw intent is already synced. Even a header refusal retains its
+        // owner/store/permit in this controller, never silently abandons intent.
+        let (frame, source_start_error) = match self
+            .financial
+            .native_main_runtime_mut()
+            .native_main_rows_begin(rows.clone(), height.clone(), *live)
+        {
+            Ok(frame) => (Some(frame), None),
+            Err(error) => (None, Some(error)),
+        };
+        Ok(SourceMainNativeRowSessionV1 {
+            owner: self,
+            store,
+            permit,
+            frame,
+            source_start_error,
+            pc: NativeMainRowControllerPcV1::Source,
+            receipt_budget,
+            command,
+        })
+    }
+}
+impl SourceMainNativeRowSessionV1 {
+    pub fn financial_runtime(&self) -> &SourceContractRuntime {
+        self.owner.financial.runtime()
+    }
+    pub fn index(&self) -> &SourceCompactIndex {
+        &self.owner.index
+    }
+    pub fn store_pin(&self) -> Result<NativeIntentStorePinV1, String> {
+        self.store.pin().map_err(|e| e.to_string())
+    }
+    pub fn result(&self) -> Option<&Result<DependencyReturn, SourceRuleError>> {
+        if !matches!(self.pc, NativeMainRowControllerPcV1::Complete) {
+            return None;
+        }
+        self.frame.as_ref()?.result()
+    }
+    pub fn validity(&self) -> &[StreamedValidityEvaluation] {
+        self.frame.as_ref().map_or(&[], |frame| frame.validity())
+    }
+    pub fn consumed_rows(&self) -> u64 {
+        self.frame.as_ref().map_or(0, |frame| frame.consumed_rows())
+    }
+    pub fn effects(&self) -> &[V] {
+        self.owner.financial.runtime().native_main_row_effects()
+    }
+    pub fn pending_write(
+        &self,
+    ) -> Option<&crate::source_compact_index_v2::NativePreparedValidityWriteV1> {
+        self.frame.as_ref()?.pending_write()
+    }
+    pub fn visit_canonical_fields(
+        &self,
+        visitor: &mut impl FnMut(&str, &V) -> Result<(), SourceRuleError>,
+    ) -> Result<(), SourceRuleError> {
+        visitor("profile", &s("TL-MAIN-ACTUAL-ROW-CONTROL-13-1"))?;
+        visitor(
+            "controllerPc",
+            &s(match self.pc {
+                NativeMainRowControllerPcV1::Source => "Source",
+                NativeMainRowControllerPcV1::NativeIntent => "NativeIntent",
+                NativeMainRowControllerPcV1::NativeAppendAttempted => "NativeAppendAttempted",
+                NativeMainRowControllerPcV1::NativePost => "NativePost",
+                NativeMainRowControllerPcV1::Accepted => "Accepted",
+                NativeMainRowControllerPcV1::Complete => "Complete",
+                NativeMainRowControllerPcV1::Blocked(_) => "Blocked",
+            }),
+        )?;
+        if let NativeMainRowControllerPcV1::Blocked(error) = &self.pc {
+            visitor("controllerError", &s(error))?;
+        }
+        if let Some(error) = &self.source_start_error {
+            visitor("sourceStartError", &s(&format!("{error:?}")))?;
+        }
+        let NativeMainSessionCommand::ProcessRows { rows, height, live } = &self.command else {
+            unreachable!("actual checked row command")
+        };
+        visitor("command/kind", &s("ProcessRows"))?;
+        crate::source_contract_runtime::native_main_row_visit_value("command/rows", rows, visitor)?;
+        crate::source_contract_runtime::native_main_row_visit_value(
+            "command/height",
+            height,
+            visitor,
+        )?;
+        visitor("command/live", &V::Bool(*live))?;
+        if let Some(frame) = &self.frame {
+            frame.visit_canonical_fields(&mut |path, value| {
+                visitor(&format!("frame/{path}"), value)
+            })?;
+        }
+        visitor("effects/count", &s(&self.effects().len().to_string()))?;
+        for (at, effect) in self.effects().iter().enumerate() {
+            crate::source_contract_runtime::native_main_row_visit_value(
+                &format!("effects/{at}"),
+                effect,
+                visitor,
+            )?;
+        }
+        Ok(())
+    }
+    fn observe_control(&self, retain: bool) -> Result<NativeFieldCollector, String> {
+        let mut collector =
+            NativeFieldCollector::new("Native13/ActualRowControl/v1", retain, self.receipt_budget);
+        self.visit_canonical_fields(&mut |path, value| collector.emit(path, value))
+            .map_err(|e| e.to_string())?;
+        Ok(collector)
+    }
+    fn block(&mut self, error: String) -> NativeMainRowStopV1 {
+        self.pc = NativeMainRowControllerPcV1::Blocked(error.clone());
+        NativeMainRowStopV1::StorageStopped(error)
+    }
+    pub fn advance(&mut self) -> NativeMainRowStopV1 {
+        match &self.pc {
+            NativeMainRowControllerPcV1::Complete => return NativeMainRowStopV1::Complete,
+            NativeMainRowControllerPcV1::Blocked(error) => {
+                return NativeMainRowStopV1::StorageStopped(error.clone())
+            }
+            NativeMainRowControllerPcV1::Source => (),
+            _ => {
+                return NativeMainRowStopV1::StorageStopped(
+                    "native intent await requires exact post acknowledgement".into(),
+                )
+            }
+        }
+        if let Some(error) = &self.source_start_error {
+            return NativeMainRowStopV1::SourceStopped(error.clone());
+        }
+        let frame = self.frame.as_mut().expect("actual source frame");
+        let stop = self
+            .owner
+            .financial
+            .native_main_runtime_mut()
+            .native_main_rows_advance(&self.owner.index, frame);
+        if stop != NativeMainRowStopV1::Complete {
+            return stop;
+        }
+        let collected = match self.observe_control(true) {
+            Ok(collected) => collected,
+            Err(error) => return self.block(error),
+        };
+        let financial = match self.owner.financial.native_main_financial_commitment() {
+            Ok(financial) => financial,
+            Err(error) => return self.block(error.to_string()),
+        };
+        let after = obj(&[
+            ("profile", s("TL-MAIN-ACTUAL-ROW-CONTROL-13-1")),
+            ("financial", s(&hex(&financial))),
+            ("controlFields", s(&collected.summary.fields.to_string())),
+            ("controlBytes", s(&collected.summary.bytes.to_string())),
+            ("controlCommitment", s(&hex(&collected.summary.commitment))),
+        ]);
+        if let Err(error) = self.store.sync_accepted(
+            &mut self.permit,
+            collected.frames.as_ref().expect("retained scalar frames"),
+            after,
+        ) {
+            return self.block(error.to_string());
+        }
+        self.pc = NativeMainRowControllerPcV1::Accepted;
+        if let Err(error) = self.store.sync_ack(&mut self.permit) {
+            return self.block(error.to_string());
+        }
+        self.pc = NativeMainRowControllerPcV1::Complete;
+        NativeMainRowStopV1::Complete
+    }
+    pub fn prepare_pending(&mut self) -> NativeMainRowStopV1 {
+        if !matches!(self.pc, NativeMainRowControllerPcV1::Source) {
+            return self.advance();
+        }
+        let collected = match self.observe_control(false) {
+            Ok(collected) => collected,
+            Err(error) => return self.block(error),
+        };
+        let financial = match self.owner.financial.native_main_financial_commitment() {
+            Ok(financial) => financial,
+            Err(error) => return self.block(error.to_string()),
+        };
+        let Some(write) = self.pending_write() else {
+            return NativeMainRowStopV1::SourceStopped(SourceRuleError::InvalidInput);
+        };
+        let context = obj(&[
+            ("actualRead", write.durable_read_context()),
+            ("financial", s(&hex(&financial))),
+            ("controlFields", s(&collected.summary.fields.to_string())),
+            ("controlBytes", s(&collected.summary.bytes.to_string())),
+            ("controlCommitment", s(&hex(&collected.summary.commitment))),
+        ]);
+        let candidates =
+            match NativeWriteIntentCandidatesV1::from_prepared_append(write.append_plan(), context)
+            {
+                Ok(candidates) => candidates,
+                Err(error) => return self.block(error.to_string()),
+            };
+        if let Err(error) = self.store.sync_native_intent(&mut self.permit, &candidates) {
+            return self.block(error.to_string());
+        }
+        self.pc = NativeMainRowControllerPcV1::NativeIntent;
+        NativeMainRowStopV1::AwaitNativeWrite
+    }
+    pub fn commit_pending(&mut self) -> NativeMainRowStopV1 {
+        if matches!(self.pc, NativeMainRowControllerPcV1::Source) {
+            let stop = self.prepare_pending();
+            if stop != NativeMainRowStopV1::AwaitNativeWrite {
+                return stop;
+            }
+        }
+        if !matches!(self.pc, NativeMainRowControllerPcV1::NativeIntent) {
+            return self.resolve_pending_post();
+        }
+        // Even an ambiguous native result must never reexecute this append.
+        self.pc = NativeMainRowControllerPcV1::NativeAppendAttempted;
+        let stop = self
+            .owner
+            .financial
+            .native_main_runtime_mut()
+            .native_main_rows_append(
+                &mut self.owner.index,
+                self.frame.as_mut().expect("actual source frame"),
+            );
+        if stop != NativeMainRowStopV1::AwaitNativeWrite {
+            return stop;
+        }
+        self.pc = NativeMainRowControllerPcV1::NativePost;
+        self.resolve_pending_post()
+    }
+    pub fn resolve_pending_post(&mut self) -> NativeMainRowStopV1 {
+        if !matches!(
+            self.pc,
+            NativeMainRowControllerPcV1::NativeIntent
+                | NativeMainRowControllerPcV1::NativeAppendAttempted
+                | NativeMainRowControllerPcV1::NativePost
+        ) {
+            return self.advance();
+        }
+        let Some(write) = self.pending_write() else {
+            return NativeMainRowStopV1::SourceStopped(SourceRuleError::InvalidInput);
+        };
+        // Read-only exact-post/content check occurs before durable prefix ack.
+        if let Err(error) = self.owner.index.resolve_prepared_validity_post(write) {
+            return NativeMainRowStopV1::StorageStopped(error.to_string());
+        }
+        let observed = match self.owner.index.native_observed_append_binding() {
+            Ok(observed) => observed,
+            Err(error) => return NativeMainRowStopV1::StorageStopped(error.to_string()),
+        };
+        if let Err(error) = self
+            .store
+            .sync_native_prefix_ack(&mut self.permit, &observed)
+        {
+            return self.block(error.to_string());
+        }
+        self.pc = NativeMainRowControllerPcV1::Source;
+        let stop = self
+            .owner
+            .financial
+            .native_main_runtime_mut()
+            .native_main_rows_resolve_post(
+                &self.owner.index,
+                self.frame.as_mut().expect("actual source frame"),
+            );
+        if stop == NativeMainRowStopV1::Complete {
+            self.advance()
+        } else {
+            stop
+        }
+    }
+}

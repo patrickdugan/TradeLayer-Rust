@@ -553,3 +553,8 @@ impl SourceMainNativeSessionV13 {
 include!("source_main_native_checkpoint_impl.rs");
 include!("source_main_native_step_session_impl.rs");
 include!("source_main_native_step_segment_impl.rs");
+
+include!("source_main_native_row_session_impl.rs");
+#[cfg(test)]
+#[path = "source_main_native_row_session_tests.rs"]
+mod native_row_session_tests;

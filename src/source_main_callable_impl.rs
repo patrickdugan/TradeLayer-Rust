@@ -1,3 +1,10 @@
+// Linear invocation token. It cannot clone a borrowed financial queue.
+struct SourceMainInvocationV1 {
+    target: String,
+    spot_main: bool,
+    rejected_before: usize,
+    transfer_rejected_before: usize,
+}
 // Actual computed source locals only; no params/state importer.
 enum SourceMainPreparedRowPrefix {
     AlreadyProcessed,
@@ -270,6 +277,26 @@ impl SourceContractRuntime {
         dispatch: &mut impl FnMut(&mut Self, &DependencyCall) -> R<V>,
     ) -> Result<DependencyReturn, SourceRuleError> {
         let before = rollback.then(|| self.clone());
+        let invocation = self.source_main_invocation_begin(call)?;
+        let result = dispatch(self, call);
+        // A native Local stop retains the SAME borrowed queue and source prefix.
+        if !rollback {
+            if let Err(Fault::Local(error)) = &result {
+                return Err(error.clone());
+            }
+        }
+        let result = self.source_main_invocation_finish(invocation, result);
+        if result.is_err() {
+            if let Some(before) = before {
+                *self = before;
+            }
+        }
+        result
+    }
+    fn source_main_invocation_begin(
+        &mut self,
+        call: &DependencyCall,
+    ) -> Result<SourceMainInvocationV1, SourceRuleError> {
         if self.core.main_production_enabled()
             && self.core.source_main_service_enabled()
             && self
@@ -297,14 +324,26 @@ impl SourceContractRuntime {
         if spot_main {
             self.source_spot_main_enter()?;
         }
-        let result = dispatch(self, call);
-        // Native IO/local stops retain the exact accepted source prefix and
-        // borrowed queue continuation. No generic post-call draining may run.
-        if !rollback {
-            if let Err(Fault::Local(error)) = &result {
-                return Err(error.clone());
-            }
-        }
+        Ok(SourceMainInvocationV1 {
+            target: call.target.clone(),
+            spot_main,
+            rejected_before,
+            transfer_rejected_before,
+        })
+    }
+    fn source_main_invocation_finish(
+        &mut self,
+        invocation: SourceMainInvocationV1,
+        result: R<V>,
+    ) -> Result<DependencyReturn, SourceRuleError> {
+        let SourceMainInvocationV1 {
+            spot_main,
+            rejected_before,
+            transfer_rejected_before,
+            ..
+        } = &invocation;
+        let (spot_main, rejected_before, transfer_rejected_before) =
+            (*spot_main, *rejected_before, *transfer_rejected_before);
         let result = if spot_main {
             match self.source_spot_main_leave() {
                 Ok(()) => result,
@@ -352,18 +391,13 @@ impl SourceContractRuntime {
             Ok(v)
                 if self.core.main_production_enabled()
                     && ["Main.setPause", "SourceMain.importStartupModules"]
-                        .contains(&call.target.as_str()) =>
+                        .contains(&invocation.target.as_str()) =>
             {
                 Ok(DependencyReturn::Immediate(v))
             }
             Ok(v) => Ok(DependencyReturn::Pending(v)),
             Err(Fault::Thrown(e)) => Ok(DependencyReturn::PendingThrow(e)),
-            Err(Fault::Local(e)) => {
-                if let Some(before) = before {
-                    *self = before;
-                }
-                Err(e)
-            }
+            Err(Fault::Local(e)) => Err(e),
         }
     }
     fn source_main_dispatch(&mut self, call: &DependencyCall) -> R<V> {
@@ -569,6 +603,8 @@ impl SourceContractRuntime {
             n(number(&funding_prop(&reference, "amount")?)? / 100_000_000.),
             height.clone(),
         ];
+        #[cfg(test)]
+        NATIVE_MAIN_ACTUAL_ROW_DECODE_COUNT.with(|count| count.set(count.get() + 1));
         let evaluation = self.source_main_decode_reused(&args)?;
         let mut params = match evaluation {
             crate::types_source::TypesOutcome::Returned(p) => p,

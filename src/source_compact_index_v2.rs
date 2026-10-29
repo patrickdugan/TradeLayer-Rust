@@ -882,6 +882,7 @@ include!("source_main_native_owner_access_impl.rs");
 include!("source_main_native_validity_impl.rs");
 include!("source_index_prepared_put_impl.rs");
 include!("source_index_prepared_validity_impl.rs");
+include!("source_index_row_binding_impl.rs");
 #[cfg(test)]
 #[path = "source_index_prepared_validity_tests.rs"]
 mod prepared_validity_tests;
