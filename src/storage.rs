@@ -220,12 +220,13 @@ impl Journal {
     ) -> Result<(Self, RecoveryReport), StorageError> {
         Self::open_mode_checked(root, namespace, recovery, create, None)
     }
-    fn open_mode_checked(
+    fn open_mode_verified(
         root: &Path,
         namespace: Namespace,
         recovery: Recovery,
         create: bool,
         expected_sequence: Option<u64>,
+        expected_prefix: Option<&VerifiedJournalPrefixV1>,
     ) -> Result<(Self, RecoveryReport), StorageError> {
         let path = namespace.path(root);
         // Caller owns creation/durability of the root and its ancestors.
@@ -319,6 +320,7 @@ impl Journal {
                         "unexpected independently pinned sequence",
                     ));
                 }
+                journal.require_verified_prefix(expected_prefix)?;
                 report
             }
             Err(StorageError::IncompleteTail { .. }) => {
@@ -327,6 +329,7 @@ impl Journal {
                         "unexpected independently pinned sequence",
                     ));
                 }
+                journal.require_verified_prefix(expected_prefix)?;
                 journal.recover_tail(length, recovery)?
             }
             Err(error) => return Err(error),
@@ -755,3 +758,7 @@ mod tests {
 }
 
 include!("storage_read_snapshot_impl.rs");
+include!("storage_verified_prefix_impl.rs");
+#[cfg(test)]
+#[path = "storage_verified_prefix_tests.rs"]
+mod verified_prefix_tests;

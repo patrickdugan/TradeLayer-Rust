@@ -1,0 +1,58 @@
+{
+  "basePackageManifestSHA256": "fd373d3015a5b8b8a7dcf7366583b567dfdf74c9c41de1d9204a9a596702b734",
+  "oldProviderSHA256": "8bccb17410d3fa4d6065e975e6456b78e0b6d3ff767781dd9b1e916568c238c2",
+  "oldProviderPath": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\native-step-actual-core-provider\\libtradelayer_core.rlib",
+  "oldProviderProvenanceSHA256": "0d565379cb5e88546f9799e36d00456c25eb1f1a749e0382c2976930ede35cac",
+  "captureSourceSHA256": "94c0f9f0da9b67756158e377bd6e3258ece191fb14a1fcfa2f0742bbd125f398",
+  "captureExecutableSHA256": "6157094fefc151018d48032fae4f0687799d1263dfd502c709d96bc33daedeb5",
+  "compiler": "rustc 1.90.0 (1159e78c4 2025-09-14)\nbinary: rustc\ncommit-hash: 1159e78c4747b02ef996e55082b704c09b970588\ncommit-date: 2025-09-14\nhost: x86_64-pc-windows-msvc\nrelease: 1.90.0\nLLVM version: 20.1.8\n",
+  "captureCommand": [
+    "C:\\Users\\patri\\.rustup\\toolchains\\1.90.0-x86_64-pc-windows-msvc\\bin\\rustc.exe",
+    "--edition",
+    "2021",
+    "capture_verified_prefix_old_journal.rs",
+    "--extern",
+    "tradelayer_core=<sha256-pinned-8bcc-provider>",
+    "-o",
+    "capture.exe",
+    "-D",
+    "warnings"
+  ],
+  "sourceMutationSequence": [
+    "Put b=second, Put a=first",
+    "Delete a, Put c=third",
+    "append synced raw TXN1short",
+    "open_existing DiscardIncompleteTail"
+  ],
+  "twoIndependentFilesystemCapturesByteIdentical": true,
+  "fixtureBytes": {
+    "verified_prefix_old_journal_v1.after.bin": {
+      "bytes": 138,
+      "sha256": "9ab692db2d873299ac5bc5266e3896e4d13a3030deae4664f4edea52e2f7e333"
+    },
+    "verified_prefix_old_journal_v1.before.bin": {
+      "bytes": 138,
+      "sha256": "9ab692db2d873299ac5bc5266e3896e4d13a3030deae4664f4edea52e2f7e333"
+    },
+    "verified_prefix_old_journal_v1.damaged.bin": {
+      "bytes": 147,
+      "sha256": "eaae1cd5dac070e13cc87d48933229697aca20da6f96ca4406e00bcb0129200a"
+    },
+    "verified_prefix_old_journal_v1.observations.tsv": {
+      "bytes": 181,
+      "sha256": "3eb570af672fc6a7dbe6a5366b728f8a195574e00f2e2705270d382c3ee1d593"
+    }
+  },
+  "originalUnitTestBytesSHA256": "6eb4055b8345e65e40eccc1b9df1f91d8bbfbe04bb74600bbc289d43bed78a91",
+  "normalizedOriginalTextSHA256": "003f5f3364f6fa607837e6aa7fe589681e92f31d631736b496b97468cb809549",
+  "correctedUnitTestSHA256": "182d36ecc44f7e3d677b1179c27c7d05f72ccd4fb0afe00223b123aadc7a1269",
+  "standaloneGate": {
+    "passed": 25,
+    "ignored": 1,
+    "newVerifiedPrefixTestsPassed": 12,
+    "clippy": "-D warnings -D clippy::all"
+  },
+  "rootCoreRebuildPerformedByAuthor": false,
+  "productionPayloadChanges": false,
+  "selfAliasOrSelfComparison": false
+}

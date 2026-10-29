@@ -16,6 +16,7 @@ use std::{
 pub const PROFILE: &str = "TL-COMPACT-JOURNAL-GENERATIONS-4";
 include!("source_native_append_plan_impl.rs");
 include!("compact_native_main_owner_access_impl.rs");
+include!("compact_verified_prefix_impl.rs");
 const MAX_GENERATIONS: usize = 64;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct CatalogPublication {
@@ -359,12 +360,13 @@ impl CompactingJournal {
             Some((expected, expected_sequence)),
         )
     }
-    fn open_mode(
+    fn open_mode_verified(
         root: &Path,
         namespace: Namespace,
         recovery: Recovery,
         create: bool,
         expected: Option<(&CatalogPublication, u64)>,
+        expected_prefix: Option<&VerifiedCompactPrefixV1>,
     ) -> Result<(Self, RecoveryReport), StorageError> {
         real_dir(root)?;
         if namespace.path(root).file_name() != Some(std::ffi::OsStr::new("txIndex.tldb")) {
@@ -419,6 +421,16 @@ impl CompactingJournal {
         lease.sync_all()?;
         sync_dir(&catalog)?;
         let catalog_identity = catalog_identity(&catalog, &namespace, create)?;
+        if let Some(pin) = expected_prefix {
+            if pin.namespace != namespace
+                || pin.persistent_identity != catalog_identity
+                || pin.canonical_catalog != catalog.canonicalize()?
+            {
+                return Err(bad(
+                    "unexpected independently pinned compact recovery context",
+                ));
+            }
+        }
         let current = catalog.join("CURRENT");
         if !current.exists() {
             if !create {
@@ -458,7 +470,20 @@ impl CompactingJournal {
                 .physical_creation_sequence
                 .checked_add(delta)
                 .ok_or(StorageError::LimitExceeded)?;
-            Journal::open_existing_at_sequence(&g, namespace.clone(), recovery, physical)?
+            if let Some(pin) = expected_prefix {
+                let expected_generation =
+                    gen_path(&pin.canonical_catalog, pin.publication.generation);
+                let prefix = crate::storage::VerifiedJournalPrefixV1 {
+                    profile: crate::storage::VERIFIED_PREFIX_OPEN_PROFILE.into(),
+                    namespace: namespace.clone(),
+                    canonical_file: namespace.path(&expected_generation),
+                    physical_sequence: physical,
+                    content: pin.content.clone(),
+                };
+                Journal::open_existing_verified_prefix(&g, namespace.clone(), recovery, &prefix)?
+            } else {
+                Journal::open_existing_at_sequence(&g, namespace.clone(), recovery, physical)?
+            }
         } else {
             Journal::open_existing(&g, namespace.clone(), recovery)?
         };
