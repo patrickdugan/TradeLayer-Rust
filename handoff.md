@@ -1,6 +1,6 @@
 # TradeLayer-Rust release handoff
 
-Updated: 2026-10-29T15:10:59Z. This file is maintained after every integration/PR cycle.
+Updated: 2026-10-29T15:25:30Z. This file is maintained after every integration/PR cycle.
 
 ## Objective and operating rules
 
@@ -13,7 +13,7 @@ Commit completed, checked local work. Do not push, publish, create a PR or merge
 - Cycle parent commit: `0edb092dc4814ae24724130a726410400a886b23` (completeness refresh).
 - Previous committed implementation: `eff87dd817dc3ec7ac3403ecb020b0156ccbedef` (typed control-Store recovery).
 - Last full release baseline: `963aae732a1274bb4dafacd24e9d6666451ac51c`: **1,714 Rust executions and 238 locked numeric-reference checks**. Later scoped checks do not replace this baseline.
-- The Main cycle is **validated and ready for its local commit**. Its exact source/check provenance is `fixtures/reference_fidelity/native-main-service-publication-core-integration.json`. Inspect `git log -1` for the integration tip; the workspace mount ledger is `../../work/root-native-service-publication-mounted.json`.
+- The Main cycle is **committed at `bbe36ddc953d6a2fb78964127a4562cba805c808`**. Its exact source/check provenance is `fixtures/reference_fidelity/native-main-service-publication-core-integration.json`. Inspect `git log -1` for the integration tip; the workspace mount ledger is `../../work/root-native-service-publication-mounted.json`.
 
 ## Current Main cycle
 
@@ -37,9 +37,15 @@ The combined library passes **318 tests with eight threads**, with three child e
 - Rewards PR #153: `/root/v8_clearlist`. Preserve intended accounting. Strengthen full-width arithmetic tests with independent results; the original randomized predicate accepts an incorrect zero quotient. The implementation passed 30 independent full-width vectors; no arithmetic implementation bug was reproduced.
 - Parent owns Root edits, whole-Core Cargo, integration and commits. Agents work in separate stages and return immutable manifests. No simultaneous Core builds.
 
+## Fee PR cycle #152
+
+Integrated pinned PR head `6b9e43b00fad76b9810386fbaaf4da3e372f07f9` with the confirmed forged-total defect corrected. `FillFees::new/validate` enforces checked signed accounting identity; accrual rejects inconsistent/negative/overflowed totals before any mutation. All **30 actual current-Core integration tests**, all-target Clippy, formatting and transaction-inventory checks pass. Provenance and logs: `fixtures/reference_fidelity/pr152-fees-core-integration.json`.
+
+This cycle adds the PR's standalone arithmetic/accounting API. Matcher/ledger/consensus wiring and fee-policy choices are separate work, and no payout authority is inferred from a fee record. Reward PR #153 is frozen and next for Root integration.
+
 ## Remaining release gates
 
-1. Commit the validated Main cycle, then run a new full-release promotion after the feature cycles below.
+1. Main cycle is committed; run a new full-release promotion after the feature cycles below.
 2. Integrate corrected fees/rewards modules and their actual tests; record their own check scope.
 3. Durable active-service action/WAL composition and cold process-loss replay. A fulfilled outer promise can still own pending live work and cannot release a frozen head.
 4. Global import/static initialization order and deferred bootstrap rejection handling. New source corpus `ecc021cc` has 14 scenes/99 observations, both numeric profiles checked; Rust parity is pending. It does not prove the full Main module initialization IIFE.

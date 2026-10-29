@@ -1,0 +1,31 @@
+{
+  "schema": "tl-pr152-fees-core-v1",
+  "verifiedAtUtc": "2026-10-29T15:25:30Z",
+  "inputCommit": "bbe36ddc953d6a2fb78964127a4562cba805c808",
+  "upstreamHead": "6b9e43b00fad76b9810386fbaaf4da3e372f07f9",
+  "workerManifestSHA256": "7a0d31c6a87f0ad04cbcbf81335d0fc0de288a07d36c43278ae6b44b0cac2151",
+  "RootIntegrated": true,
+  "actualIntegrationTestsPassed": 30,
+  "originalTests": 25,
+  "newRegressionTests": 5,
+  "allTargetClippyWarningsDenied": true,
+  "formattingPassed": true,
+  "transactionRowsUnchanged": 37,
+  "fullSuitePromotion": false,
+  "matcherOrConsensusChanged": false,
+  "sourceFiles": {
+    "src/lib.rs": "4b4a88096b0ddf3dedc6a1c699acc49be1daef315dde3dfeca9e72bb2dd4dca0",
+    "src/fees.rs": "c16784e75055f62e30582489968f70ea533916ccf4191a9e66d69594d31c5a12",
+    "tests/fees.rs": "8c4f2b4077b4a9fd9d9340bb518050065a62c36645843ccdc4ed73bbc3965246",
+    "docs/FEES.md": "e68d0f5317cc4f6f7f2c113af1220a771b0c63f68ca0fdc35fde86009aebe348",
+    "docs/LOGIC_BY_TX_TYPE.json": "b48526068cf10a1ba3f3714ba09e9106cc57c1422d15b7208cbe7531160838f4",
+    "handoff.md": "53bd1ae2770b5289a26fb0328553263be0fb47d3a19b6851f04a679cd585d76f",
+    "fixtures/reference_fidelity/pr152-fees-provenance.json": "dd64a5e7486586c1263f8358e3bb4d3a0e9676ac024e0eefcd15de4d0c410f37"
+  },
+  "logs": {
+    "root-pr152-fees-tests.log": "242a1f382fea8aafe56e349b0833acf343ae95c9bf803036e4dd9135c412964f",
+    "root-pr152-fees-clippy.log": "fb45d7901ecaf05687be79dde1b600356535d2b833968eb82c6386bf5ca4d46f",
+    "root-pr152-fees-format.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "root-pr152-fees-inventory.log": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393"
+  }
+}

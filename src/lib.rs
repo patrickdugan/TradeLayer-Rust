@@ -228,3 +228,5 @@ pub mod source_main_native_session;
 pub mod source_main_step_kernel;
 
 pub mod source_rich_value;
+
+pub mod fees;

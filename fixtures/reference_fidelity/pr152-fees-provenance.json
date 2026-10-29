@@ -1,0 +1,42 @@
+{
+  "repository": "patrickdugan/TradeLayer-Rust",
+  "pr": 152,
+  "pinnedHead": "6b9e43b00fad76b9810386fbaaf4da3e372f07f9",
+  "headRecheck": {
+    "ref": "refs/pull/152/head",
+    "node_id": "REF_kwDOVTIiZ7JyZWZzL3B1bGwvMTUyL2hlYWQ",
+    "url": "https://api.github.com/repos/patrickdugan/TradeLayer-Rust/git/refs/pull/152/head",
+    "object": {
+      "sha": "6b9e43b00fad76b9810386fbaaf4da3e372f07f9",
+      "type": "commit",
+      "url": "https://api.github.com/repos/patrickdugan/TradeLayer-Rust/git/commits/6b9e43b00fad76b9810386fbaaf4da3e372f07f9"
+    }
+  },
+  "transport": "primary GitHub plugin",
+  "files": [
+    {
+      "encoding": "utf-8",
+      "sha": "1ed99ae3e7052e822b29337760def323b79d7620",
+      "display_url": "https://github.com/patrickdugan/TradeLayer-Rust/blob/6b9e43b00fad76b9810386fbaaf4da3e372f07f9/src/fees.rs",
+      "display_title": "fees.rs"
+    },
+    {
+      "encoding": "utf-8",
+      "sha": "040ca44b6b12bf7ef70978788bf1749e1e92c1fa",
+      "display_url": "https://github.com/patrickdugan/TradeLayer-Rust/blob/6b9e43b00fad76b9810386fbaaf4da3e372f07f9/tests/fees.rs",
+      "display_title": "fees.rs"
+    },
+    {
+      "encoding": "utf-8",
+      "sha": "d287929823d8e2a5e5884035fad07abd5c8109b1",
+      "display_url": "https://github.com/patrickdugan/TradeLayer-Rust/blob/6b9e43b00fad76b9810386fbaaf4da3e372f07f9/docs/FEES.md",
+      "display_title": "FEES.md"
+    }
+  ],
+  "metadataReadFailures": [
+    "get_pr_info Internal error",
+    "fetch pulls/152 Internal error",
+    "fetch_pr Internal error"
+  ],
+  "successfulHeadEndpoint": "https://api.github.com/repos/patrickdugan/TradeLayer-Rust/git/ref/pull/152/head"
+}
