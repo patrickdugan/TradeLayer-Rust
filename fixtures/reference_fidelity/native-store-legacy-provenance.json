@@ -1,0 +1,19 @@
+{
+  "oldReferenceStoreSHA256": "082e9e13621add9bbf819f038bfb737ecad2a7c027d4b8737d6d34e4be51391f",
+  "oldSupportProviderSHA256": "8bccb17410d3fa4d6065e975e6456b78e0b6d3ff767781dd9b1e916568c238c2",
+  "producerSourceSHA256": "dcdfadd77ea35943230e1f88fbcb615ca5ece325535b83ce32e1eb88143c01bd",
+  "producerExecutableSHA256": "bf9e3534033c86891ded2232bb7dfa755de150518ac4d001c378edd6c9874dc7",
+  "hashSupportSourceSHA256": "35ffc6d3c496d883da50eaade330be61356302d84f39d497ace7a6699df64599",
+  "twoActualCapturesByteIdentical": true,
+  "compiler": "rustc 1.90.0 (1159e78c4 2025-09-14)\nbinary: rustc\ncommit-hash: 1159e78c4747b02ef996e55082b704c09b970588\ncommit-date: 2025-09-14\nhost: x86_64-pc-windows-msvc\nrelease: 1.90.0\nLLVM version: 20.1.8\n",
+  "fixtures": {
+    "native_store_13_2_accepted.json": "7849d3da46c8fdc1d1d7a59c5d5e38734fceeaf22c6f0b0df0f6b63dc9f4c5b9",
+    "native_store_13_2_ack.json": "504f1b2694838a99c16912bbab2d3cfadde7adfcef4feffc27ea3497d3dc051a",
+    "native_store_13_2_blobs.tsv": "3d3618c39b61b42af3019f9c3892370a1494d7c4b73422756bf10dad83509bc2",
+    "native_store_13_2_command.json": "79ae648d000b69b6858d6d37c7ff45a8562e3230b72b1456d8ae8a4b6d64d5f2",
+    "native_store_13_2_idle.json": "83b52377cd48959815007328c7505ec108254818c38b8742e239f0b8cd19b914"
+  },
+  "oldSourceModified": false,
+  "productionDependenciesAdded": false,
+  "wholeCoreBuildByAuthor": false
+}

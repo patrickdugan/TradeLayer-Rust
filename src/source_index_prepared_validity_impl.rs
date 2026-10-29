@@ -149,6 +149,7 @@ pub struct NativePreparedValidityWriteV1 {
     put: NativeMetadataPutPlanV1,
     before_state: NativeMetadataStateReceiptV1,
     after_state: NativeMetadataStateReceiptV1,
+    recovery_before: crate::compact_journal::VerifiedCompactPrefixV1,
 }
 impl NativePreparedValiditySelectionV1 {
     pub fn query(&self) -> &PrefixQueryReceipt {
@@ -208,6 +209,8 @@ impl NativePreparedValiditySelectionV1 {
         };
         let put = index.native_prepare_metadata_put(write_expected, row)?;
         let after_state = prepared_metadata_state(&self.read.data, put.append.mutations())?;
+        let recovery_before =
+            index.native_capture_validity_recovery(&put.append, &self.before_state)?;
         Ok(NativePreparedValidityOperationV1::Write(Box::new(
             NativePreparedValidityWriteV1 {
                 read: self.read,
@@ -217,6 +220,7 @@ impl NativePreparedValiditySelectionV1 {
                 put,
                 before_state: self.before_state,
                 after_state,
+                recovery_before,
             },
         )))
     }

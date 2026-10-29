@@ -1,0 +1,1 @@
+["object",[["kind",["string","CommandIntent"]],["command",["object",[["bytes",["string","20"]],["sha256",["string","ded377c33b363942518e1300b4de63f06508b3181c65b873e826eb9e1dcddf77"]]]]],["before",["boolean",false]],["receiptBudget",["string","1024"]],["previousAck",["undefined"]]]]

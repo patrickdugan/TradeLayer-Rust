@@ -190,6 +190,7 @@ pub struct NativeIntentStoreV1 {
     context: Vec<u8>,
     token: u64,
     filesystem: SourceDurableFilesystem,
+    superseding_profile: bool,
     poisoned: bool,
 }
 fn text(v: &str) -> V {
@@ -351,16 +352,18 @@ impl NativeIntentStoreV1 {
             context,
             token: NEXT_TOKEN.fetch_add(1, Ordering::Relaxed),
             filesystem,
+            superseding_profile: false,
             poisoned: false,
         })
     }
     /// Exact independently retained pin only; never truncate/repair or select
     /// a newer prefix merely because its bytes have a valid checksum.
-    pub fn open(
+    fn open_profile(
         root: &Path,
         namespace: Namespace,
         expected: &NativeIntentStorePinV1,
         filesystem: SourceDurableFilesystem,
+        superseding_profile: bool,
     ) -> Result<Self> {
         let root = directory(root)?;
         if root != expected.canonical_root {
@@ -385,7 +388,26 @@ impl NativeIntentStoreV1 {
         let state = journal
             .get(STATE)?
             .ok_or(NativeIntentStoreError::InvalidRecord)?;
-        parse(state)?;
+        let decoded = parse(state)?;
+        if superseding_profile {
+            if decoded.get("operationProfile") != text(NATIVE_SUPERSEDING_INTENT_PROFILE)
+                || ![
+                    "Idle",
+                    "CommandIntent",
+                    "NativeIntent",
+                    "Accepted",
+                    SUPERSEDING_KIND,
+                ]
+                .iter()
+                .any(|kind| decoded.get("kind") == text(kind))
+            {
+                return Err(NativeIntentStoreError::InvalidRecord);
+            }
+        } else if decoded.get("operationProfile") != V::Undefined
+            || decoded.get("kind") == text(SUPERSEDING_KIND)
+        {
+            return Err(NativeIntentStoreError::WrongPhase);
+        }
         if journal.sequence()? != expected.sequence || sha256(state) != expected.state_sha256 {
             return Err(NativeIntentStoreError::WrongPin);
         }
@@ -396,6 +418,7 @@ impl NativeIntentStoreV1 {
             context: expected.context.clone(),
             token: NEXT_TOKEN.fetch_add(1, Ordering::Relaxed),
             filesystem,
+            superseding_profile,
             poisoned: false,
         })
     }
@@ -430,8 +453,11 @@ impl NativeIntentStoreV1 {
     pub fn journal_path(&self) -> &Path {
         self.journal.path()
     }
-    fn write_state(&mut self, state: V) -> Result<()> {
+    fn write_state(&mut self, mut state: V) -> Result<()> {
         self.health()?;
+        if self.superseding_profile {
+            mark_superseding_state(&mut state)?;
+        }
         let raw = bytes(&state)?;
         self.poisoned = true;
         self.journal.commit(vec![Mutation::Put {
@@ -679,3 +705,8 @@ impl NativeIntentStoreV1 {
         Ok(permit.pin.clone())
     }
 }
+
+include!("source_main_native_superseding_intent_impl.rs");
+#[cfg(test)]
+#[path = "source_main_native_superseding_intent_tests.rs"]
+mod superseding_intent_tests;
