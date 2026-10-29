@@ -1028,6 +1028,23 @@
       "coldMode4OrDetachedCallersImplemented": false,
       "processLossFinancialRecoveryEstablished": false,
       "fullSuitePromotion": false
+    },
+    "channelQueueV8Sort": {
+      "status": "current-Core-scoped-checks-pass",
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/channel-queue-v8-sort-core-integration.json",
+      "newDistinctControls": 5,
+      "queueUnitControls": 4,
+      "actualFinancialControl": 1,
+      "financialSourceScenes": 2,
+      "parallelLibraryPassed": 489,
+      "channelPublicCompatibilityPassed": 16,
+      "newFinancialPlusCompatibility": 17,
+      "lockedFinancialChecksPassed": 5,
+      "sharedV8HelperAndMainIoUnchanged": true,
+      "priorCheckpointGoldens": 4,
+      "queueSortBound": 1024,
+      "fullSuitePromotion": false
     }
   },
   "scope": "Full release remains code 239c340/tested216377f: 2,120 Rust executions and238 locked numeric checks. Latest 146984e adds actual cold source execution of complete acknowledged HISTORY-WAL transcripts on one moved financial owner and the same final Post index/capability/WAL locks. Strict raw actions drive execution; all original physical receipts and opaque Before/Accepted observations are recomputed and compared. Three new Core +two metadata controls,475 library/44 public pass. Inline/Mode4, recovery/supersession, cross-publication, unresolved terminal work, hot resume and killed-process finance remain open. Channel64+ sort gap is reproduced and assigned; later candidates stay unverified.",
@@ -1358,7 +1375,6 @@
     "Full Main startup/catchup/historical inline callers, including detached final save lifetime",
     "Mode4/inline/recovery/supersession/cross-publication histories and actual process-loss financial recovery",
     "Broader global startup/Promise/callback/receiver/value/history domains",
-    "Channel queue64+ source sort domain (concrete reproducer; isolated fix pending)",
     "Intended-host directory/power-loss and representative real-block CPU/RSS validation",
     "Explicit opted-in fee/reward matcher/Ledger policy and provenance; literal JS graph already executes",
     "Parent UTXO/all-input/chain and economic/proof-verifier admission; complete-block proof composition",

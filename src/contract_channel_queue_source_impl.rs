@@ -203,43 +203,17 @@ fn channel_queue_compare(a: &V, b: &V) -> Eval<core::cmp::Ordering> {
     };
     Ok(locale_ascii(&txa, &text(&txb)?)?)
 }
+// The shared safe V8 implementation is also included by the Main IO runtime.
+// Including it here changes no Main caller or existing snapshot encoding.
+include!("source_v8_sort_impl.rs");
+
 fn channel_queue_sort(rows: &mut [V]) -> Eval<()> {
-    // Exact V8 small-array natural run and binary insertion order. The explicit
-    // resource bound avoids claiming the same comparator schedule for TimSort.
-    if rows.len() > 63 {
+    if rows.len() > MAX_ROWS {
         return Err(SourceRuleError::Capacity.into());
     }
-    if rows.len() < 2 {
-        return Ok(());
-    }
-    let descending = channel_queue_compare(&rows[1], &rows[0])? == core::cmp::Ordering::Less;
-    let mut run = 2;
-    while run < rows.len() {
-        let c = channel_queue_compare(&rows[run], &rows[run - 1])?;
-        if if descending {
-            c != core::cmp::Ordering::Less
-        } else {
-            c == core::cmp::Ordering::Less
-        } {
-            break;
-        }
-        run += 1;
-    }
-    if descending {
-        rows[..run].reverse();
-    }
-    for at in run..rows.len() {
-        let pivot = rows[at].clone();
-        let (mut low, mut high) = (0, at);
-        while low < high {
-            let mid = low + (high - low) / 2;
-            if channel_queue_compare(&pivot, &rows[mid])? == core::cmp::Ordering::Less {
-                high = mid;
-            } else {
-                low = mid + 1;
-            }
-        }
-        rows[low..=at].rotate_right(1);
-    }
-    Ok(())
+    source_v8_stable_sort(rows, channel_queue_compare)
 }
+
+#[cfg(test)]
+#[path = "channel_queue_v8_sort_tests.rs"]
+mod channel_queue_v8_sort_tests;

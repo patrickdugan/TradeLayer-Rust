@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-29T21:05:49Z. Maintained after every tested integration cycle.
+Updated: 2026-10-29T21:13:03Z. Maintained after every tested integration cycle.
 
 ## Goal and boundaries
 
@@ -14,7 +14,7 @@ Keep one actual financial owner, actual native index and borrowed queue. Never i
 
 Full all-target release: implementation `239c3403f05a4b4edef391d40145ed09052ee672`, tested checkout `216377fe9fb0ce89c92a47776e71e2c73a4b03d4`. **2,120 Rust executions** (2,119 top-level plus one successful storage child), **238 locked numeric checks**, 281 targets and 1,776 inputs verified unchanged before/after. Evidence: `fixtures/reference_fidelity/native-inline-release-validation.json`. Prior release records are preserved.
 
-Current later cycle: explicit Mode4 inline WAL/native recovery, **485 library tests /44 public compatibility checks**, six actual Core plus four new metadata controls. Clippy warnings denied, Cargo fmt,265 included-file formatting, route inventory and supply-chain checks pass. Evidence: `fixtures/reference_fidelity/inline-native-recovery-wal-core-integration.json`. These counts overlap and include the prior cold acknowledged-action controls; this later code is not full all-target promotion yet. Inspect `git log -1` for the current integration commit.
+Current later cycle: channel V8 queue ordering through the existing1,024-entry bound, **489 library tests**, four new queue controls and one actual financial test/two complete source scenes. Sixteen existing public compatibility checks and five locked financial checks pass; all-target Clippy, Cargo fmt,266 included-file formatting, inventory and supply-chain pass. Prior inline recovery has485 library/44 public at3c1dc47. Counts overlap. Records: `channel-queue-v8-sort-core-integration.json`, `inline-native-recovery-wal-core-integration.json`. Full all-target promotion is pending.
 
 The test-only temp-folder fix `567f6b8` respects TL_NATIVE_MAIN_TMP when set and otherwise uses the standard temp directory, preserving canonical-parent/guarded cleanup. Seven actual native release tests pass without the override; no production source changed. Evidence: `fixtures/reference_fidelity/native-main-test-temp-default.json`.
 
@@ -39,7 +39,7 @@ All record names above are under `fixtures/reference_fidelity/`. Source results/
 1. `v8_main`: Mode4 package8fda3a48 is now integrated/tested. Next isolated prerequisite is a strict escrow descriptor and actual copied-generation old-view/closure; keep original versus copied identity separate and never convert a pin to a live permit. Coordinate caller selectors with row. Wider coldMode4 admission remains closed.
 2. `row_continuation_impl`: retained Main caller PCs using genuine caller corpus `a1d05d41…`,12 calls/35 records per numeric profile. Root has now reproduced and committed the additive source corpus and CI checks; record: `retained-main-caller-source-characterization.json`. This is source characterization, not Rust caller completion. Crucial source fact: extractBlockData's final saveMaxHeight is DETACHED. Main sync/init/initialize can fulfill and continue consensus while that same save is unresolved; its rejection is an unhandled notification. Awaited per-transaction height rejection has a different catch boundary. Keep caller completion separate from operation completion and no early financial drain/head escape.
 3. Both lanes must bind an explicit stable job/scope/operation ordinal plus Awaited/Detached selector. Identical method/args/Before may represent different concurrent saves; AppendPending must not silently choose the first frame. Main owns the WAL/frame selector; row owns caller PCs. Stage-only until Root checks.
-4. `v8_clearlist`: fix the reproduced64+ ready channel-queue sort boundary using the existing exact V8 TimSort helper. Preserve comparator/coercion/effect/throw and partial state; check64/65/128/1024, ties and meaningful known-kind paths against unchanged source. Unknown-kind draining alone does not prove settlement. Audit: `fixtures/reference_fidelity/post-main-ordered-gap-audit.json`.
+4. `v8_clearlist`: channel sort packagea05a13d2 is now integrated/tested, including real64 settlement/65 late-error retained Tally writes, exact comparator schedule and four prior checkpoints. The same sharedV8 helper/MainIO remain unchanged. Worker now independently reviews Mode4 native recovery and proposes discriminating negative controls.
 5. Broaden cold execution to inline/Mode4, recovery/supersession, cross-publication retained views, unresolved terminal work and actual killed-process financial recovery. Current cold success must not be relabeled as those broader gates or as mutable hot resume.
 
 The e0cee8/0a94 cold-action package is now integrated in this cycle. Older4a/6fa/546690/3b459/8c062/7b839/b2ae/6db packages are already integrated; use new pure transforms against current text rather than old whole-file overlays.
@@ -70,4 +70,8 @@ Twelve unchanged Main/TxIndex calls and35 complete input/observation records rep
 
 ## Latest tested integration
 
-Mode4 preserves one actual owner and exact pending native operation across lost-control/lost-native returns, partial writes and real compaction. The new485/44 scoped counts include prior controls and must not be added to the2,120/238 full release. Source caller characterization075aba4 remains source-only evidence until the retained Main wrappers pass actual Core controls. Workbook still reports the prior146984e/475 focused cut; refresh after the next channel batch.
+Mode4 preserves one actual owner and exact pending native operation across lost-control/lost-native returns, partial writes and real compaction. The new485/44 scoped counts include prior controls and must not be added to the2,120/238 full release. Source caller characterization075aba4 remains source-only evidence until the retained Main wrappers pass actual Core controls. Workbook still reports the prior146984e/475 focused cut; refresh after this tested channel batch.
+
+## Latest channel integration
+
+The reproduced64+ ready-queue refusal is fixed through the existing1,024-row source domain using the original comparator and shared safe V8 sort. Source outcomes, callback/error effects and partial financial writes remain faithful. Source placeholder errors are not repaired into success. No new fee/reward policy, owner, network adapter or authentication is selected. Keep the remaining caller/cold-view and host/proof requirements open.

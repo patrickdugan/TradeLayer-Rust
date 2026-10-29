@@ -2,8 +2,8 @@
   "schema": "tl-logic-reference-review-v1",
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
   "rustCommit": "70f568ad703bef189c01c989631692fdf75235bb",
-  "rustCommitScope": "Full frozen release of implementation239c340/tested216377f passes2,120 Rust executions (2,119top-level +one successful storage child),238 locked numeric checks across281targets; all1,776inputs unchanged. Actual WAL/history/validity recovery, bounded cold rows/prefix, Promise continuations and explicit inline live service are covered. Inline durable WAL/recovery, full acknowledged action/startup/catchup/historical inline and cross-publication finance, host validation and authenticated complete-block proofs remain open. All37transaction rows retain their source parity and proof gates. Cold acknowledged HISTORY-WAL source actions now execute on one actual retained financial/index owner:3 Core+2metadata newcontrols,475combined library/44public pass. All Before/Accepted comparisons and native Append/Resolve are recomputed. Mode4/inline/recovery/cross-publication/hot-resume/killedfinance remain open; full baseline stays2,120Rust/238numeric. Explicit Mode4 inline WAL/native same-process recovery passes6 Core+4metadata controls,485library/44public checks. Original held source PCs survive exact Before/Intermediate/Post with synced replacement mapping; no source action retry. Detached callers/coldMode4/process-loss finance remain open; full baseline2,120Rust/238numeric unchanged.",
-  "reviewedAtUtc": "2026-10-29T21:05:49Z",
+  "rustCommitScope": "Full frozen release of implementation239c340/tested216377f passes2,120 Rust executions (2,119top-level +one successful storage child),238 locked numeric checks across281targets; all1,776inputs unchanged. Actual WAL/history/validity recovery, bounded cold rows/prefix, Promise continuations and explicit inline live service are covered. Inline durable WAL/recovery, full acknowledged action/startup/catchup/historical inline and cross-publication finance, host validation and authenticated complete-block proofs remain open. All37transaction rows retain their source parity and proof gates. Cold acknowledged HISTORY-WAL source actions now execute on one actual retained financial/index owner:3 Core+2metadata newcontrols,475combined library/44public pass. All Before/Accepted comparisons and native Append/Resolve are recomputed. Mode4/inline/recovery/cross-publication/hot-resume/killedfinance remain open; full baseline stays2,120Rust/238numeric. Explicit Mode4 inline WAL/native same-process recovery passes6 Core+4metadata controls,485library/44public checks. Original held source PCs survive exact Before/Intermediate/Post with synced replacement mapping; no source action retry. Detached callers/coldMode4/process-loss finance remain open; full baseline2,120Rust/238numeric unchanged. Channel64+ sort gap closes within existing1024-row bound using identical sharedV8helper/comparator:4unit+1actualfinancial control,489library/16existingpublic/5lockedfinancial pass. Two complete financial scenes preserve successful settlement and later-error Tally prefix; no MainIO or economics policy change. Full release remains2,120/238.",
+  "reviewedAtUtc": "2026-10-29T21:13:03Z",
   "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
     {
@@ -235,7 +235,7 @@
     },
     {
       "path": "src/contract_channel_queue_source_impl.rs",
-      "sha256": "61649fb4f4aec1991437d8e64a64d356367ec0d4dadbb06bfc70fa4ba943255f",
+      "sha256": "f1a285919f24436e968fcc9d026192d92b0339c27c6467ca5c57bf095249599e",
       "lfNormalized": true
     },
     {
@@ -1361,6 +1361,11 @@
     {
       "path": "src/source_main_inline_wal_tests.rs",
       "sha256": "6494b4473a8e9d9b1ff20beb481662e08578ca50f2e3f514b1443ab5c3e9575d",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/channel_queue_v8_sort_tests.rs",
+      "sha256": "b2418adc8d8b311ade5ece6d4d824e474501300e282f9f99655349226cf62fdf",
       "lfNormalized": true
     }
   ],

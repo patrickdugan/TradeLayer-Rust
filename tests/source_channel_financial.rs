@@ -381,7 +381,7 @@ fn token_price_capability_preserves_legacy_policy_refusal() {
 }
 
 #[test]
-fn channel_ready_sort_capacity_is_explicit_and_rolls_back_local_state() {
+fn channel_ready_sort_accepts_64_without_financial_callbacks() {
     use tradelayer_core::contract_queue_source_owner::ContractQueueSourceOwner;
     use tradelayer_core::validity_source::SourceCall;
     let mut owner = ContractQueueSourceOwner::new();
@@ -408,17 +408,19 @@ fn channel_ready_sort_capacity_is_explicit_and_rolls_back_local_state() {
         ])
         .unwrap();
     let before = owner.checkpoint().unwrap();
-    let error = owner
+    let result = owner
         .evaluate_channel_with_capability(
             &SourceCall {
                 method: "processQueuedChannelTradesForBlock".into(),
                 arguments: vec![V::number(10.0)],
             },
-            &mut |_, _| panic!("sort admission precedes any settlement"),
+            &mut |_, _| panic!("unknown kinds cannot invoke financial settlement"),
         )
-        .unwrap_err();
-    assert_eq!(error, SourceRuleError::Capacity);
-    assert_eq!(owner.checkpoint().unwrap(), before);
-    assert!(owner.take_db_calls().is_empty());
-    assert!(owner.take_detailed_db_calls().unwrap().is_empty());
+        .unwrap();
+    assert_eq!(result, SourceOutcome::Returned(V::Undefined));
+    assert_ne!(owner.checkpoint().unwrap(), before);
+    assert_eq!(owner.rows()[1].get("trades"), V::Array(vec![]));
+    assert_eq!(owner.rows()[0].get("pairs"), V::Array(vec![]));
+    assert!(!owner.take_db_calls().is_empty());
+    assert!(!owner.take_detailed_db_calls().unwrap().is_empty());
 }
