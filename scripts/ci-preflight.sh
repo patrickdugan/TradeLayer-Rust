@@ -59,6 +59,13 @@ rustfmt --check --edition 2021 \
   src/source_main_native_runtime_impl.rs \
   src/source_main_native_catchup_impl.rs \
   src/source_main_native_checkpoint_impl.rs \
+  src/source_native_append_plan_impl.rs \
+  src/source_index_prepared_put_impl.rs src/source_index_prepared_validity_impl.rs \
+  src/source_main_native_step_checkpoint_impl.rs src/source_main_native_step_decode_impl.rs \
+  src/source_main_native_step_session_impl.rs src/source_main_native_step_segment_impl.rs \
+  src/source_main_step_block_impl.rs src/source_main_step_runtime_impl.rs src/source_main_step_fields_impl.rs \
+  src/source_main_step_file_core_impl.rs src/source_main_step_file_block_impl.rs \
+  src/source_main_step_file_runtime_impl.rs src/source_main_step_file_kernel_impl.rs \
   src/source_v8_sort_impl.rs \
   src/source_procedural_bitvm_impl.rs \
   src/source_proof_lifecycle_impl.rs \

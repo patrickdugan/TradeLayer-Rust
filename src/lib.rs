@@ -221,8 +221,10 @@ pub mod source_compact_index_v2;
 #[cfg(test)]
 mod source_compact_index_v2_tests;
 
+pub mod source_main_native_intent_store;
 pub mod source_main_native_owners;
 
 pub mod source_main_native_session;
+pub mod source_main_step_kernel;
 
 pub mod source_rich_value;

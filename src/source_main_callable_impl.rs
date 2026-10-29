@@ -1,3 +1,8 @@
+// Actual computed source locals only; no params/state importer.
+enum SourceMainPreparedRowPrefix {
+    AlreadyProcessed,
+    AwaitValidity(V),
+}
 // Callable Main source policies. One Core owns collections, Tally and queues.
 // This is a callable transaction/mid-phase profile, not daemon startup.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -462,6 +467,28 @@ impl SourceContractRuntime {
         processed_any: &mut bool,
         validity: &mut impl FnMut(&mut ContractCore, &V, V, V, V) -> R<()>,
     ) -> R<bool> {
+        match self.source_main_prepare_row_prefix(row, height_live, id, kind, processed_any)? {
+            SourceMainPreparedRowPrefix::AlreadyProcessed => Ok(true),
+            SourceMainPreparedRowPrefix::AwaitValidity(params) => {
+                validity(
+                    &mut self.core,
+                    id,
+                    kind.clone(),
+                    params.get("valid"),
+                    params.get("reason"),
+                )?;
+                Ok(false)
+            }
+        }
+    }
+    fn source_main_prepare_row_prefix(
+        &mut self,
+        row: &V,
+        height_live: (&V, bool),
+        id: &mut V,
+        kind: &mut V,
+        processed_any: &mut bool,
+    ) -> R<SourceMainPreparedRowPrefix> {
         let (height, live) = height_live;
         let value = if live {
             row.clone()
@@ -476,7 +503,7 @@ impl SourceContractRuntime {
             return Err(SourceRuleError::InvalidInput.into());
         }
         if truth(&self.core.source_main_check_processed(id.clone())?) {
-            return Ok(true);
+            return Ok(SourceMainPreparedRowPrefix::AlreadyProcessed);
         }
         let payload = funding_prop(&value, "payload")?;
         let V::String(payload) = payload else {
@@ -584,14 +611,7 @@ impl SourceContractRuntime {
         self.last_parameters = Some(params.clone());
         self.core
             .source_main_mark_processed(id.clone(), params.clone())?;
-        validity(
-            &mut self.core,
-            id,
-            kind.clone(),
-            params.get("valid"),
-            params.get("reason"),
-        )?;
-        Ok(false)
+        Ok(SourceMainPreparedRowPrefix::AwaitValidity(params))
     }
     fn source_main_phase(&mut self, target: &str, args: Vec<V>) -> R<V> {
         self.core.emit(obj(&[

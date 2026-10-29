@@ -2,8 +2,8 @@
   "schema": "tl-logic-reference-review-v1",
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
   "rustCommit": "70f568ad703bef189c01c989631692fdf75235bb",
-  "rustCommitScope": "Inventory parent is historical. Full release963aae7 covers V12 startup/snapshot/IO/sort, native session13 and bounded graphs:1714 executions and238 numeric checks. Subsequent explicit RichThrownV14 RPC/catch carriers, same-owner partial-write error continuations and command replay pass focused Core/compatibility/source checks; full-suite promotion and broader DB/financial/deferred provenance remain pending. Native durable continuations, authenticated history and complete-block proofs remain open. All per-type full-parity/proof classifications stay unchanged and incomplete. Shared TxIndex metadata algorithms now retain the same owner and legacy dependency ordering; the original-source regression corpus passed. This factoring does not widen rich-error admission or any per-type parity/proof classification.",
-  "reviewedAtUtc": "2026-10-29T08:51:22Z",
+  "rustCommitScope": "Inventory parent is historical. Full release963aae7 covers V12 startup/snapshot/IO/sort, native session13 and bounded graphs:1714 executions and238 numeric checks. Subsequent explicit RichThrownV14 RPC/catch carriers, same-owner partial-write error continuations and command replay pass focused Core/compatibility/source checks; full-suite promotion and broader DB/financial/deferred provenance remain pending. Native durable continuations, authenticated history and complete-block proofs remain open. All per-type full-parity/proof classifications stay unchanged and incomplete. Shared TxIndex metadata algorithms now retain the same owner and legacy dependency ordering; the original-source regression corpus passed. This factoring does not widen rich-error admission or any per-type parity/proof classification. Reviewed native scheduler/file-retry, segmented replay/capacity, prepared native appends, intent store and prepared validity are integrated for focused Core checks. Same-owner row preparation is factored without changing legacy behavior. Financial Main row/catchup continuation and end-to-end crash recovery remain unfinished; all per-type parity/proof classifications are unchanged.",
+  "reviewedAtUtc": "2026-10-29T09:12:03Z",
   "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
     {
@@ -166,7 +166,7 @@
     {
       "path": "src/source_contract_runtime.rs",
       "lfNormalized": true,
-      "sha256": "617a106dc7d414691d1d134aae95494e4c2fa5ecaff334825bc6a973173eaf57"
+      "sha256": "875dec5d66a6384cb334c8c4d0a7459829cfcdda1b312e357592b6885210b610"
     },
     {
       "path": "src/source_contract_values.rs",
@@ -346,7 +346,7 @@
     {
       "path": "src/source_main_callable_impl.rs",
       "lfNormalized": true,
-      "sha256": "db412895e3cb662b796a703ebb5ffecb57aca334630f231e68445c8457efd86a"
+      "sha256": "f5e6f015b775f2454112204057e6976f8c04c20423b357843afe14d7e6e7860e"
     },
     {
       "path": "src/source_lower_clearlist_impl.rs",
@@ -521,6 +521,106 @@
     {
       "path": "src/source_index_metadata_algorithms.rs",
       "sha256": "d233da6e4575b076462c952e2b2efbd7524093aa5e4eae334fbc42d8bfaef6ee",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/lib.rs",
+      "sha256": "7fd42b702e37c6208643c578d7f405d1b37c86051791702098bce617fd717d86",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/compact_journal.rs",
+      "sha256": "78917c0f4c98cbd722e872daf233c376536059bb5b4a9c8b565199063bc469ad",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_compact_index_v2.rs",
+      "sha256": "6547047774656fd6f605cffcfbee148058400ff78ce004910730ed65fd5d273b",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_session.rs",
+      "sha256": "8a15e1184980d9a5fe9cafb5dbb148b92672f4f85b424290da8608430d4f27c4",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_index_prepared_put_impl.rs",
+      "sha256": "ad3cc76681602193a18f452f7c2a18e6b12b39e643aa0b990447de6994a04c8f",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_index_prepared_validity_impl.rs",
+      "sha256": "ea6155362a249ee2ce68c021633bfbc94b81760fe757a7919b07971ad04bda03",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_intent_store.rs",
+      "sha256": "082e9e13621add9bbf819f038bfb737ecad2a7c027d4b8737d6d34e4be51391f",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_step_checkpoint_impl.rs",
+      "sha256": "ad173f77ea67289b2a153fd10d4513115de91b9ae4d3bd136b1d7bc3b78c2abb",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_step_decode_impl.rs",
+      "sha256": "f1d548503af42c9e9a2e696255a1eebd698a9951725f2ced83ea53cc3fc80ae9",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_step_segment_impl.rs",
+      "sha256": "3fae0c9fdc5958f27dcb771e16b3381843f604cab350aacabed26905a8e5a19e",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_step_session_impl.rs",
+      "sha256": "6f6e265372b866d7905cd6387c488c630b5f56cdb7c97ed5b9d425fd1dcb6e67",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_step_block_impl.rs",
+      "sha256": "0525225963ed037caaf52d5b1c58f9a51dd50a14d7053cb9002634934ba956c0",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_step_fields_impl.rs",
+      "sha256": "a1ed91682cd642d4a0273198117c098f4479aab782c7a6c5d4fc24e989ef2ce1",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_step_file_block_impl.rs",
+      "sha256": "1f6351cce7a65407d9a05780b04bfca5118c8242b74fc0f668a30358114cf753",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_step_file_core_impl.rs",
+      "sha256": "17c2de5feda373a176112a9696dd1814b47e9e3a68946bde562e74c295817900",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_step_file_kernel_impl.rs",
+      "sha256": "13f68d2eda64c439867d439586989b1f9e28eb470d57647046da6d4f52f36e4a",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_step_file_runtime_impl.rs",
+      "sha256": "73fbd3840f49c198449254adf2e9fed9cc60de36cabf84bbe0323b8c6572bc71",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_step_kernel.rs",
+      "sha256": "94baa86bf48e167a81315c7effd6e1a0f630e8f993fc99d77cd28c1a2b4f24d8",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_step_runtime_impl.rs",
+      "sha256": "11c67e25669b28b132899508c960dcd8e1080a09d380018da21918359d8e85ae",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_native_append_plan_impl.rs",
+      "sha256": "48a8fee5e33c62e6e0d4c04ded391d799289a70f4989ae724ccc69c9d8ebffbd",
       "lfNormalized": true
     }
   ],

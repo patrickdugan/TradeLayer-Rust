@@ -14,6 +14,7 @@ use std::{
     sync::{Arc, Mutex, Weak},
 };
 pub const PROFILE: &str = "TL-COMPACT-JOURNAL-GENERATIONS-4";
+include!("source_native_append_plan_impl.rs");
 include!("compact_native_main_owner_access_impl.rs");
 const MAX_GENERATIONS: usize = 64;
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -974,3 +975,7 @@ impl CompactingJournal {
         self.fault = Some(CompactionFault { point, exit });
     }
 }
+
+#[cfg(test)]
+#[path = "source_native_append_plan_tests.rs"]
+mod source_native_append_plan_tests;

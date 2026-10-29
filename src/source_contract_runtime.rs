@@ -2929,8 +2929,20 @@ include!("source_main_snapshot_impl.rs");
 include!("source_main_startup_impl.rs");
 
 include!("source_main_native_runtime_impl.rs");
+include!("source_main_step_block_impl.rs");
+include!("source_main_step_runtime_impl.rs");
+include!("source_main_step_file_core_impl.rs");
+include!("source_main_step_file_block_impl.rs");
+include!("source_main_step_file_runtime_impl.rs");
 
 include!("source_rich_runtime_impl.rs");
+
+#[cfg(test)]
+#[path = "source_main_step_file_runtime_tests.rs"]
+mod main_step_file_runtime_tests;
+#[cfg(test)]
+#[path = "source_main_step_runtime_tests.rs"]
+mod main_step_runtime_tests;
 
 #[cfg(test)]
 mod main_production_parse_int_tests {
