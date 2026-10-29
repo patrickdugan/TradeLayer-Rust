@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-29T02:37:59Z",
-  "inspectedCheckoutCommit": "2ae5abfbc46a11d1e65d717f52438344e792c828",
+  "verifiedAtUtc": "2026-10-29T02:45:59Z",
+  "inspectedCheckoutCommit": "61282d39e69db4fff45544f28b2e86f3e4ff7dfe",
   "verifiedImplementationCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
   "verifiedReleaseTests": 1714,
   "topLevelTests": 1713,
@@ -454,26 +454,34 @@
       "record": "fixtures/reference_fidelity/rich-runtime14-core-integration.json"
     },
     "nativeStepProductionBinding": {
-      "status": "isolated-actual-core-production-binding-pass-decoder-and-writer-pending",
+      "status": "isolated-production-controller-and-command-reexecution-pass",
       "RootIntegrated": false,
       "fullSuitePromotion": false,
-      "CoreTests": 3,
+      "CoreTests": 6,
       "sameFinancialAndIndexOwners": true,
       "completeCanonicalFieldStreams": true,
       "profile": "immediate-data-source-timers",
       "fileRetryProfileSelected": false,
-      "recordManifestSHA256": "a882e812c2a9e6a392705fcfae656b2ed69c71c70c8b8970779a33535f16790d",
+      "recordManifestSHA256": "90a04e50dd815381c61fbe3e041e3c72f3b492013efa5aa17447fe9803d6c891",
       "log": {
-        "path": "native-step-binding-first.log",
-        "sha256": "0055664dc4d27c94bb33869a61199f770e2e55c6f31488e4d93978a86b38fca1"
+        "path": "native-step-binding-decoder-first.log",
+        "sha256": "a6fa6274070122a79f2807b38f37b15b173a824e79ec1bce39c15209b26c9b8b"
       },
       "providerSHA256": "8bccb17410d3fa4d6065e975e6456b78e0b6d3ff767781dd9b1e916568c238c2",
       "remaining": [
-        "Command-only streaming decoder and reexecution",
-        "Explicit file-retry profile selection",
+        "Explicit file-retry profile Core validation",
+        "Root integration and compatibility gates",
         "Segmented durable intent-and-ack writer",
         "Exact native row/catchup recovery and host validation"
-      ]
+      ],
+      "commandOnlyDecoderReexecutionPassed": true
+    },
+    "nativeFileRetryProfile": {
+      "status": "frozen-source-candidate-actual-core-validation-pending",
+      "RootIntegrated": false,
+      "fullSuitePromotion": false,
+      "actualCoreTestsPassed": 0,
+      "manifestSHA256": "4f4c49177b6df7b28aad556d953e00778bfd5d0c3ce0dd3050d570ac97d3979f"
     }
   },
   "scope": "Full release963aae7 remains at1714 Rust executions across270 targets and238 pinned numeric-reference checks across86 targets. Subsequent explicit RichThrownV14 initial RPC/catch carriers and command replay are integrated with18 Root Core tests,28 matching-input compatibility executions and9 source-check commands; full-suite promotion is pending. Native timer/file controllers and recovery primitives pass separate isolated checks. Broader financial catches, daemon/continuation/durable integration, authenticated history and complete-block proofs remain open.",
@@ -768,7 +776,7 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Release 963aae7 remains at 1,714 Rust executions and 238 pinned numeric checks. Separately, recovery primitives pass nine Core tests plus 27 existing regressions, and scheduler components pass six Core tests. These are excluded from the release total. The file-retry Core rerun is pending after test-only compile fixes. Runtime14 is uncompiled. Full reference parity, authenticated history and complete-block proofs remain open.",
+  "workbookNote": "Full release 963aae7 remains at 1,714 Rust executions and 238 numeric checks. New code 61282d3 passes 18 Root Core tests, 28 compatibility executions, 9 source checks, formatting and all-target Clippy. Separately, six native controller/replay tests and five scheduler/file controls pass; 59 complete parent source observations match. Two rich partial-write owner cases, broader catches, durable native recovery, authenticated history and complete-block proofs remain open.",
   "savedWorkbook": {
     "sha256": "d5971ddc83546910e19f76290fa12a169eee4e486873d8232ca6349ec07d0796",
     "bytes": 48140,
@@ -783,16 +791,17 @@
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-29T02:05:18Z",
-    "sha256": "983807e7a1148fa99deb52d6e9cabe8a26fed7133797d0035a2d7d49b78c293e",
+    "verifiedAtUtc": "2026-10-29T02:53:42Z",
+    "sha256": "e3bb0621973220f79f7d9c4a2cb8d83874bad52a7f4a56bc8381e8cb5e14dadb",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 2561336260,
+    "moduleRowsFNV": 505387714,
     "logicRowsFNV": 1151758449,
-    "intentionalCellChanges": 6,
+    "intentionalCellChanges": 8,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,
-    "releasePromotionPending": false
+    "releasePromotionPending": true,
+    "lastFocusedCodeCommit": "61282d39e69db4fff45544f28b2e86f3e4ff7dfe"
   },
   "validationRecord": "fixtures/reference_fidelity/native-main-release-validation.json",
   "knownReferenceGaps": [
@@ -810,5 +819,6 @@
   },
   "focusedValidationRecord": "fixtures/reference_fidelity/native-main-core-integration.json",
   "focusedImplementationCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
-  "focusedVerifiedAtUtc": "2026-10-29T00:32:15Z"
+  "focusedVerifiedAtUtc": "2026-10-29T00:32:15Z",
+  "lastFocusedCodeCommit": "61282d39e69db4fff45544f28b2e86f3e4ff7dfe"
 }
