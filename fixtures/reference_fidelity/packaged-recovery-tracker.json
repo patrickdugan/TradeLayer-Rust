@@ -1,6 +1,6 @@
 {
-  "verifiedAtUtc": "2026-10-29T06:57:00Z",
-  "checkoutCommit": "b8cd1608b18d15085eae5758d232d7c7f7da3cd3",
+  "verifiedAtUtc": "2026-10-29T07:25:44Z",
+  "checkoutCommit": "9b5a8a2a410fddf5b84a9797b1573b7fb5be2b76",
   "sharedMetadata": {
     "RootIntegrated": false,
     "fullSuitePromotion": false,
@@ -29,7 +29,7 @@
     "bundleFile": "TradeLayer-Rust-final.bundle",
     "finalWorkerNote": "handoffs/recovery-checkpoint-20261029/ROW_PACKAGING_STATE.md"
   },
-  "workbookSHA256": "a0880bd6ba7c0c237be41463a755901e99b1eaabe192e375b093c60ba11214ac",
+  "workbookSHA256": "1a477fcd28a74aa67edfa77b587a052fe7961d3a7e478247ba4a6954d491d99c",
   "savedAndSidebarRowsMatch": true,
   "fullSuitePromotion": false,
   "onlyIntendedMetadataCellsChanged": true,
