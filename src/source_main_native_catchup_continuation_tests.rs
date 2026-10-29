@@ -69,7 +69,11 @@ fn row() -> V {
         ),
     ])
 }
-fn setup(temp: &Temp) -> (SourceContractRuntime, SourceCompactIndex) {
+fn setup_source_rows(
+    temp: &Temp,
+    rows: Vec<V>,
+    source_height: f64,
+) -> (SourceContractRuntime, SourceCompactIndex) {
     let mut runtime =
         SourceContractRuntime::with_policy(SourceContractRuntimePolicy::MainOrchestrationV12);
     invoke(
@@ -89,7 +93,7 @@ fn setup(temp: &Temp) -> (SourceContractRuntime, SourceCompactIndex) {
             (
                 "io",
                 obj(&[
-                    ("height", n(10.)),
+                    ("height", n(source_height)),
                     (
                         "networkInfo",
                         obj(&[("networkactive", V::Bool(true)), ("connections", n(2.))]),
@@ -100,19 +104,24 @@ fn setup(temp: &Temp) -> (SourceContractRuntime, SourceCompactIndex) {
             ("genesisBlock", n(10.)),
         ])],
     );
-    runtime.set_height(n(10.)).unwrap();
+    runtime.set_height(n(source_height)).unwrap();
     let mut index = SourceCompactIndex::create(
         &temp.0,
         Namespace::new("LTC", false, "txIndex").unwrap(),
         "actual row raw source commands",
     )
     .unwrap();
-    index.import_row(&index.snapshot().unwrap(), row()).unwrap();
+    for raw in rows {
+        index.import_row(&index.snapshot().unwrap(), raw).unwrap();
+    }
     runtime
         .native_main_bind(obj(&[("profile", s("actual-row-test"))]))
         .unwrap();
     NATIVE_MAIN_ACTUAL_ROW_DECODE_COUNT.with(|count| count.set(0));
     (runtime, index)
+}
+fn setup(temp: &Temp) -> (SourceContractRuntime, SourceCompactIndex) {
+    setup_source_rows(temp, vec![row()], 10.)
 }
 fn marks(runtime: &SourceContractRuntime) -> usize {
     runtime
@@ -598,3 +607,5 @@ fn actual_withdrawal_phase_rejection_excludes_clearing_height_save_and_tail() {
     assert_eq!(frame.result(), Some(&expected.result));
     same(&runtime, &legacy);
 }
+
+include!("source_main_native_multiheight_tests.rs");
