@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-29T20:47:13Z. Maintained after every tested integration cycle.
+Updated: 2026-10-29T20:51:48Z. Maintained after every tested integration cycle.
 
 ## Goal and boundaries
 
@@ -18,7 +18,7 @@ Current later cycle: cold acknowledged source actions, **475 library tests /44 p
 
 The test-only temp-folder fix `567f6b8` respects TL_NATIVE_MAIN_TMP when set and otherwise uses the standard temp directory, preserving canonical-parent/guarded cleanup. Seven actual native release tests pass without the override; no production source changed. Evidence: `fixtures/reference_fidelity/native-main-test-temp-default.json`.
 
-Saved workbook and sidebar last promote the 2,120/238 release at code239c340. They preserve all 37 transaction rows, styles/formulas/filters/panes and false full-parity/proof gates. Evidence: `fixtures/reference_fidelity/native-inline-release-completeness.json`. Refresh the later475 scoped description separately; never add scoped executions to the release count.
+Saved workbook and sidebar last promote the 2,120/238 release at code239c340. They preserve all 37 transaction rows, styles/formulas/filters/panes and false full-parity/proof gates. Evidence: `fixtures/reference_fidelity/native-inline-release-completeness.json`. The later475 scoped description is now synchronized to code146984e in both saved workbook and sidebar; never add scoped executions to the release count. Verification: `fixtures/reference_fidelity/cold-acknowledged-actions-completeness.json`.
 
 ## Integrated pieces — do not reapply old packages
 
@@ -57,3 +57,7 @@ Unavailable external insurance/property/clearlist/wire patches are redundant/unv
 Rust1.90 MSVC, no external Rust crates or unsafe. Work scripts set MSVC/SDK paths via `../../work/cargo-check.ps1`. Use named CargoArguments arrays. Debug target: `../../work/main-v12-target`; release target: `../../work/source-settlement-target`. Set TMP/TEMP and native/Main test temp variables to `../../work/cargo-gate-tmp`; genuine JS checkout is `C:/Users/patri/Documents/Codex/tradelayer.js`. Clear source-lock variables for ordinary tests; exact source-lock tests use genuine BigNumber9.1.2. Loopback RPC tests need local test-server access.
 
 Preserve failed logs and immutable packages. Latest e0 scoped runner: `../../work/check-cold-active-actions-second.ps1`; exact log hashes and Root typed-borrow correction are in its integration record. A full release requires a clean committed checkout, frozen tracked-byte manifest, all targets/doc/exact numeric list and before/after verification. Keep source unchanged during that run and distinguish raw execution-manifest versus canonical LF manifest hashes.
+
+## Latest tracker check
+
+Thirteen intentional cells now show code146984e/475 library/44 public scoped checks and the concrete channel64+ gap, preserving all37 transaction rows, formulas, effective styles, filters, panes, geometry and proof gates. The full baseline remains2,120 Rust/238 locked numeric checks. Zero formula errors. Saved workbook and sidebar rows match; source coverage is not promoted beyond the declared domains.
