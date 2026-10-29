@@ -509,8 +509,8 @@
       "originalFailureRetained": true
     },
     "richOwnerPrefixFollowOn": {
-      "status": "isolated-core-partial-write-and-prior-rpc-tests-pass",
-      "RootIntegrated": false,
+      "status": "same-owner-partial-write-error-continuations-integrated-focused-gates-pass",
+      "RootIntegrated": true,
       "fullSuitePromotion": false,
       "manifestSHA256": "bbd2015ec018dbb9fa3d0d026be12d1a272d9e4c3af08a180dda411a9dd6dbc7",
       "executions": 3,
@@ -524,15 +524,22 @@
         "targets": 2
       },
       "remaining": [
-        "Legacy compatibility and source regeneration review",
-        "Root integration",
-        "Broader DB/financial error provenance and deferred continuations"
+        "Full-suite promotion",
+        "Broader DB/type-error constructor provenance",
+        "Successful rich extraction/live and financial/deferred continuations",
+        "Authenticated history and complete-block proofs"
       ],
       "allTargetClippyPassed": true,
-      "clippyLogSHA256": "0f0e1c4cb5bcb8e07f81db70b8d8e56a12aaf7c898b9d23299dbc300011eb4f9"
+      "clippyLogSHA256": "0f0e1c4cb5bcb8e07f81db70b8d8e56a12aaf7c898b9d23299dbc300011eb4f9",
+      "rootCoreExecutions": 3,
+      "compatibilityExecutions": 29,
+      "compatibilityTargets": 13,
+      "sourceRegenerationChecks": 4,
+      "formattingPassed": true,
+      "record": "fixtures/reference_fidelity/rich-owner-prefix-core-integration.json"
     }
   },
-  "scope": "Full release963aae7 remains at1714 Rust executions across270 targets and238 pinned numeric-reference checks across86 targets. Subsequent explicit RichThrownV14 initial RPC/catch carriers and command replay are integrated with18 Root Core tests,28 matching-input compatibility executions and9 source-check commands; full-suite promotion is pending. Native timer/file controllers and recovery primitives pass separate isolated checks. Broader financial catches, daemon/continuation/durable integration, authenticated history and complete-block proofs remain open.",
+  "scope": "Full release963aae7 remains1714 Rust executions and238 numeric checks. Subsequent RichThrownV14 RPC/catch carriers and same-owner partial-write error continuations are integrated with focused checks; the newest follow-on passes3 Root Core and29 compatibility executions,4 source checks and all-target Clippy. Native segmented replay/capacity passes18 isolated Core tests but remains unintegrated. Full-suite promotion, broader DB/financial/deferred domains, synced durable native recovery, authenticated history and complete-block proofs remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {

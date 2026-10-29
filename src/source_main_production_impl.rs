@@ -1,3 +1,22 @@
+enum SourceMainPrefixLog {
+    MaxIndexed(V),
+    AboutToInit(V),
+    GenesisExisting(V),
+    GenesisInserted(V),
+    TallyMissing,
+    ConsensusMissing,
+    NoTransactions,
+    Catchup(V, V),
+    ParseHeight(V),
+    FundingSkips(V),
+    TradingSkips(V),
+    Remaining(V, V, usize, usize),
+    PartialReplay,
+}
+enum SourceMainCatchupTail {
+    Complete,
+    Sync,
+}
 // Explicit MainOrchestrationV12 only. Source metadata never duplicates balances.
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct SourceMainProduction {
@@ -118,6 +137,15 @@ impl ContractCore {
         method: &str,
         args: Vec<V>,
     ) -> R<V> {
+        self.source_main_production_index_trace(instance, method, args)
+            .map(|v| v.0)
+    }
+    fn source_main_production_index_trace(
+        &mut self,
+        instance: Option<u64>,
+        method: &str,
+        args: Vec<V>,
+    ) -> R<(V, Vec<crate::validity_source::DependencyObservation>)> {
         let mut owner = std::mem::take(
             &mut self
                 .main_production
@@ -141,7 +169,7 @@ impl ContractCore {
         for e in result.deferred_rejections {
             self.main_height_rejections.push(e);
         }
-        outcome(result.outcome)
+        Ok((outcome(result.outcome)?, result.dependencies))
     }
     fn source_main_production_io(&mut self, method: &str, args: &[V]) -> R<V> {
         if self.source_main_service_enabled() {
@@ -361,21 +389,7 @@ impl SourceContractRuntime {
                 Ok(V::Undefined)
             }
             "Main.initOrLoadTxIndex" => {
-                let mut max = self
-                    .core
-                    .source_main_production_index("findMaxIndexedBlock", vec![])?;
-                if same(&max, &n(0.)) || max == V::Null {
-                    let g = self
-                        .core
-                        .main_production
-                        .as_ref()
-                        .ok_or(SourceRuleError::InvalidInput)?
-                        .genesis
-                        .clone();
-                    self.core
-                        .source_main_production_index("initializeIndex", vec![g.clone()])?;
-                    max = g;
-                }
+                let max = self.source_main_production_init_prefix()?;
                 self.source_main_production_sync_index(max)
             }
             "Main.syncIndex" => self.source_main_production_sync_index(arg(a, 0)),
@@ -409,6 +423,56 @@ impl SourceContractRuntime {
             ("chainTip", tip),
             ("maxTrack", track),
         ]))
+    }
+    fn source_main_production_init_prefix(&mut self) -> R<V> {
+        self.source_main_production_init_prefix_observed(&mut |_, _| Ok(()))
+    }
+    fn source_main_production_init_prefix_observed<F>(&mut self, log: &mut F) -> R<V>
+    where
+        F: FnMut(&mut Self, SourceMainPrefixLog) -> R<()>,
+    {
+        let mut max = self
+            .core
+            .source_main_production_index("findMaxIndexedBlock", vec![])?;
+        log(self, SourceMainPrefixLog::MaxIndexed(max.clone()))?;
+        if same(&max, &n(0.)) || max == V::Null {
+            let g = self
+                .core
+                .main_production
+                .as_ref()
+                .ok_or(SourceRuleError::InvalidInput)?
+                .genesis
+                .clone();
+            log(self, SourceMainPrefixLog::AboutToInit(g.clone()))?;
+            let (_, dependencies) = self.core.source_main_production_index_trace(
+                None,
+                "initializeIndex",
+                vec![g.clone()],
+            )?;
+            // This branch comes from the actual same-owner dependency receipt,
+            // never another query or a guessed final-state/fixture result.
+            let found = dependencies
+                .iter()
+                .find(|d| d.call.target == "db.findOneAsync");
+            let existing = found
+                .and_then(|d| match &d.returned {
+                    DependencyReturn::Immediate(v) | DependencyReturn::Pending(v) => {
+                        Some(v.clone())
+                    }
+                    _ => None,
+                })
+                .ok_or(SourceRuleError::Backend)?;
+            if truth(&existing) {
+                log(
+                    self,
+                    SourceMainPrefixLog::GenesisExisting(existing.get("value")),
+                )?;
+            } else {
+                log(self, SourceMainPrefixLog::GenesisInserted(g.clone()))?;
+            }
+            max = g;
+        }
+        Ok(max)
     }
     fn source_main_production_sync_index(&mut self, max: V) -> R<V> {
         if max == V::Null {
@@ -481,6 +545,31 @@ impl SourceContractRuntime {
         Ok(V::Undefined)
     }
     fn source_main_production_catchup(&mut self, start: V) -> R<V> {
+        if matches!(
+            self.source_main_production_catchup_prefix(start)?,
+            SourceMainCatchupTail::Complete
+        ) {
+            return Ok(V::Undefined);
+        }
+        if self.core.source_main_service_enabled() {
+            return self.source_main_service_sync(&[]);
+        }
+        self.source_main_production_lag()?;
+        // Actual success here starts processIncomingBlocks without awaiting it.
+        // This finite phase profile has no stable boundary for that live loop.
+        Err(SourceRuleError::UnknownDependency.into())
+    }
+    fn source_main_production_catchup_prefix(&mut self, start: V) -> R<SourceMainCatchupTail> {
+        self.source_main_production_catchup_prefix_observed(start, &mut |_, _| Ok(()))
+    }
+    fn source_main_production_catchup_prefix_observed<F>(
+        &mut self,
+        start: V,
+        log: &mut F,
+    ) -> R<SourceMainCatchupTail>
+    where
+        F: FnMut(&mut Self, SourceMainPrefixLog) -> R<()>,
+    {
         if !matches!(&start,V::Number(bits) if f64::from_bits(*bits).is_finite() && f64::from_bits(*bits)>=0. && f64::from_bits(*bits).fract()==0.)
         {
             return Err(SourceRuleError::UnsupportedNumericDomain.into());
@@ -497,8 +586,12 @@ impl SourceContractRuntime {
             Err(e) => return Err(e),
         };
         let consensus_factory = self.core.database("consensus");
+        let mut tally_missing = false;
         if tally_pending {
             let loaded = self.core.find("tallyMap", obj(&[("_id", s("tallyMap"))]));
+            if let Ok(row) = &loaded {
+                tally_missing = !truth(row) || !truth(&row.get("data"));
+            }
             match loaded.and_then(|row| ContractCore::tally_parsed_entries(&row)) {
                 Ok(entries) => {
                     self.core.tally = entries;
@@ -509,8 +602,17 @@ impl SourceContractRuntime {
             }
         }
         consensus_factory?;
-        self.core
+        let consensus_row = self
+            .core
             .find("consensus", obj(&[("_id", s("MaxProcessedHeight"))]))?;
+        // Unawaited Tally.loadFromDB's log resumes after Main has initiated
+        // its awaited consensus find, as in the original Promise graph.
+        if tally_missing {
+            log(self, SourceMainPrefixLog::TallyMissing)?;
+        }
+        if !truth(&consensus_row) {
+            log(self, SourceMainPrefixLog::ConsensusMissing)?;
+        }
         let all = array(&self.core.db("txIndex", "findAsync", vec![obj(&[])])?)?;
         let mut grouped: Vec<(f64, Vec<V>, Vec<V>)> = vec![];
         for row in all {
@@ -556,8 +658,10 @@ impl SourceContractRuntime {
                 }
             });
         if grouped.is_empty() || last == 0. || last.is_nan() {
-            return Ok(V::Undefined);
+            log(self, SourceMainPrefixLog::NoTransactions)?;
+            return Ok(SourceMainCatchupTail::Complete);
         }
+        log(self, SourceMainPrefixLog::Catchup(n(last), start.clone()))?;
         let mut h = number(&start)?;
         const MAX_FINITE_MAIN_HEIGHT: f64 = 9_007_199_254_740_991.;
         if h > MAX_FINITE_MAIN_HEIGHT || last > MAX_FINITE_MAIN_HEIGHT {
@@ -578,11 +682,30 @@ impl SourceContractRuntime {
                 .as_mut()
                 .ok_or(SourceRuleError::InvalidInput)?
                 .parse_block = n(h);
+            if h % 10000. == 1. {
+                log(self, SourceMainPrefixLog::ParseHeight(n(h)))?;
+            }
             let mut skip = true;
             if let Some((_, funding, trading)) = grouped.iter().find(|(g, _, _)| *g == h) {
                 let one = self.source_main_process_rows(V::Array(funding.clone()), n(h), false)?;
+                log(self, SourceMainPrefixLog::FundingSkips(one.clone()))?;
                 let two = self.source_main_process_rows(V::Array(trading.clone()), n(h), false)?;
+                log(self, SourceMainPrefixLog::TradingSkips(two.clone()))?;
                 skip = number(&one)? + number(&two)? >= (funding.len() + trading.len()) as f64;
+                if !skip {
+                    log(
+                        self,
+                        SourceMainPrefixLog::Remaining(
+                            one.clone(),
+                            two.clone(),
+                            funding.len(),
+                            trading.len(),
+                        ),
+                    )?;
+                    if number(&one)? + number(&two)? > 0. {
+                        log(self, SourceMainPrefixLog::PartialReplay)?;
+                    }
+                }
             }
             if h % 10000. == 0. {
                 skip = false;
@@ -628,13 +751,7 @@ impl SourceContractRuntime {
         }
         self.core
             .source_main_height_write("MaxProcessedHeight", n(max))?;
-        if self.core.source_main_service_enabled() {
-            return self.source_main_service_sync(&[]);
-        }
-        self.source_main_production_lag()?;
-        // Actual success here starts processIncomingBlocks without awaiting it.
-        // This finite phase profile has no stable boundary for that live loop.
-        Err(SourceRuleError::UnknownDependency.into())
+        Ok(SourceMainCatchupTail::Sync)
     }
 }
 fn source_main_parse_int10(value: &str) -> f64 {

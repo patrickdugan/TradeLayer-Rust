@@ -425,7 +425,37 @@ mod rich_runtime_v14 {
                 .ok_or(SourceRuleError::Backend)?;
             let input = state.arena.validate(call.arguments.clone()).map_err(rule)?;
             let args = state.arena.import(input).map_err(rule)?.roots;
-            let (transport, root) = if call.target == "SourceMain.configureRichIO" {
+            let (transport, root) = if call.target == "SourceMain.configureRichOwnerInputs" {
+                if state.io.is_some() || args.len() != 2 {
+                    return Err(SourceRuleError::InvalidInput);
+                }
+                let client = client_metadata(&state.arena, &args[0])?;
+                let Atom::Utf16(network) = &args[1] else {
+                    return Err(SourceRuleError::InvalidInput);
+                };
+                let network =
+                    String::from_utf16(network).map_err(|_| SourceRuleError::InvalidInput)?;
+                self.core
+                    .source_activation_configure(&[client])
+                    .map_err(|e| match e {
+                        Fault::Local(e) => e,
+                        Fault::Thrown(_) => SourceRuleError::Backend,
+                    })?;
+                let value = self
+                    .core
+                    .dispatch(&DependencyCall {
+                        target: "Activation.init".into(),
+                        arguments: vec![s(network)],
+                    })
+                    .map_err(|e| match e {
+                        Fault::Local(e) => e,
+                        Fault::Thrown(_) => SourceRuleError::Backend,
+                    })?;
+                if value != V::Undefined {
+                    return Err(SourceRuleError::Backend);
+                }
+                (rich::protocol::Transport::Immediate, Atom::Undefined)
+            } else if call.target == "SourceMain.configureRichIO" {
                 if state.io.is_some()
                     || args.len() < 2
                     || args.len() > 3
@@ -459,11 +489,16 @@ mod rich_runtime_v14 {
                     .map_err(rule)?;
                 (rich::protocol::Transport::Immediate, Atom::Undefined)
             } else {
-                if !args.is_empty() {
+                if !args.is_empty() && call.target != "Main.constructConsensusFromIndex" {
                     return Err(SourceRuleError::InvalidInput);
                 }
                 let facts = state.io.clone().ok_or(SourceRuleError::InvalidInput)?;
-                let result = {
+                let result = if matches!(
+                    call.target.as_str(),
+                    "Main.constructConsensusFromIndex" | "Main.initOrLoadTxIndex"
+                ) {
+                    self.source_rich_owner_prefix(&call.target, &args, &mut state)
+                } else {
                     let mut context = Context {
                         core: &mut self.core,
                         base: rich::intrinsics::LiteralIntrinsics::new(state.epoch, number),
@@ -506,4 +541,5 @@ mod rich_runtime_v14 {
             Ok(result)
         }
     }
+    include!("source_rich_owner_prefix_impl.rs");
 }

@@ -1,0 +1,71 @@
+{
+  "parentCommit": "33cd43fcf1ea32aac587d0202ff297b1cfb806ef",
+  "manifestSHA256": "bbd2015ec018dbb9fa3d0d026be12d1a272d9e4c3af08a180dda411a9dd6dbc7",
+  "RootIntegrated": true,
+  "fullSuitePromotion": false,
+  "sourceCases": 10,
+  "sourceObservations": 20,
+  "logs": {
+    "rich-owner-prefix-core-first.log": {
+      "sha256": "6298d7ccb0eccd2c2c8ce94b3b98e4d4113fe35dce76f297a865f6777e0f5753",
+      "executions": 3,
+      "targets": 2
+    },
+    "rich-owner-prefix-compatibility-first.log": {
+      "sha256": "aa909e21ea9b81ea3b237b46774c8cd4868180806c5507ebb38a50754ddbba1f",
+      "executions": 29,
+      "targets": 13
+    }
+  },
+  "sourceChecks": [
+    {
+      "name": "rich-owner-source-installed-full",
+      "sha256": "7e16a3c3f1de3ea00a49f68c41191631dfd82731e9dce93a2212535584255f31",
+      "exitCode": 0
+    },
+    {
+      "name": "rich-owner-source-installed-proof10",
+      "sha256": "7e16a3c3f1de3ea00a49f68c41191631dfd82731e9dce93a2212535584255f31",
+      "exitCode": 0
+    },
+    {
+      "name": "rich-owner-source-locked-full",
+      "sha256": "7e16a3c3f1de3ea00a49f68c41191631dfd82731e9dce93a2212535584255f31",
+      "exitCode": 0
+    },
+    {
+      "name": "rich-owner-source-locked-proof10",
+      "sha256": "7e16a3c3f1de3ea00a49f68c41191631dfd82731e9dce93a2212535584255f31",
+      "exitCode": 0
+    }
+  ],
+  "legacyCodecsAndDefaultUnchanged": true,
+  "typedDbErrorProvenanceStillUnsupported": true,
+  "files": {
+    "src/source_main_production_impl.rs": "42e9864828013f2bec1e3d7f8798d5c48eb5b21ab3f39f98c0021553d35c9e93",
+    "src/source_rich_owner_prefix_impl.rs": "eb402758fe1cbc9bb11540fd0db70a7f9de2525a97f86498d3f3deb7cdf10a88",
+    "src/source_rich_runtime_impl.rs": "f10eca8827e3e0517f4683c0c407c289276674eda28e8e46f0373df1073ecc61",
+    "tests/source_rich_owner_prefix.rs": "0efc704b085871065918e23321f246855dba3fc40eb84196a946c50814b37555",
+    "scripts/rich_owner_prefix_observer.cjs": "8d53b7034301aae5612b16ed7b863ca7c8e2f571a4cc9200812e4bccef7fca73",
+    "scripts/rich_owner_prefix_vectors.cjs": "a70c5ff948c469cf54ccaf45d0ce4d6587b5d91ba033e7513a14eb03d0449ef6",
+    "scripts/rich_owner_prefix_wire.cjs": "9e3995dd939fef84ab57496c7ba5282326a38d84de10945d7e22960e9bc17bae",
+    "fixtures/rich_owner_prefix.tsv": "eb2d648264702907f92ed4a8fbf6ceae0e4f9b2e2cf8829d0bf81dfe712cb49c",
+    "fixtures/rich_owner_prefix_proof10.jsonl": "a1eabdaa4c5547942592295f4fa0f03e0e4e30d6a033f62aaf63fb76b79de546",
+    "fixtures/rich_owner_prefix_vectors.jsonl": "a1eabdaa4c5547942592295f4fa0f03e0e4e30d6a033f62aaf63fb76b79de546",
+    "docs/RICH_OWNER_PREFIX.md": "c52353039fb8325f9dc0cdc698baee55ff5a5e471046914e6951b2a5fa614067",
+    "scripts/ci-preflight.sh": "9185b34aa46335d84716bfd61d7121e4ce453f4e5ed0f826f98b82991e3001a5"
+  },
+  "verifiedAtUtc": "2026-10-29T05:03:18Z",
+  "rootFocusedExecutions": 3,
+  "compatibilityExecutions": 29,
+  "compatibilityTargets": 13,
+  "sourceRegenerationChecks": 4,
+  "allTargetClippyPassed": true,
+  "cargoAndIncludedFormattingPassed": true,
+  "fullReferenceParityEstablished": false,
+  "authenticationEstablished": false,
+  "completeBlockFraudProofEstablished": false,
+  "rootLogSHA256": "788fd89cd83b5cb6fe5a724b985efe42cd23f7b9a78fd4269ed56f27b47fb38d",
+  "clippyLogSHA256": "0f0e1c4cb5bcb8e07f81db70b8d8e56a12aaf7c898b9d23299dbc300011eb4f9",
+  "sourceDomain": "Ten complete original-source constructor/partial-write/rethrow/swallow cases; wider DB/error/success/deferred domains remain unsupported."
+}
