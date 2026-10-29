@@ -266,6 +266,9 @@ impl SourceContractRuntime {
         result
     }
     pub fn evaluate_queue(&mut self, call: &SourceCall) -> Result<SourceOutcome, SourceRuleError> {
+        if self.policy() == SourceContractRuntimePolicy::RichThrownV14 {
+            return Err(SourceRuleError::InvalidInput);
+        }
         let borrowed = self.core.spot_lifecycle_enabled()
             && self.core.source_spot_main_active
             && self.core.queue_context.is_some();

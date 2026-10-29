@@ -1,0 +1,141 @@
+{
+  "schema": "tl-rich-runtime14-focused-core-v1",
+  "verifiedAtUtc": "2026-10-29T02:35:20Z",
+  "implementationParent": "ef44a2746ec517a8460184424ebb753e5a37ae01",
+  "RootIntegrated": true,
+  "fullSuitePromotion": false,
+  "fullSourceParityEstablished": false,
+  "authenticationEstablished": false,
+  "completeBlockFraudProofEstablished": false,
+  "policy": "RichThrownV14",
+  "wireTag": 14,
+  "defaultPolicy": "GlobalClearingV2",
+  "native13StillRequiresV12": true,
+  "methods": [
+    "Main.getCurrentBlockHeight",
+    "Main.checkNetworkStatus",
+    "TxIndex.fetchChainTip"
+  ],
+  "sameFinancialAndIndexOwners": true,
+  "rootExecutions": 18,
+  "rootGraphExecutions": 16,
+  "rootCarrierExecutions": 2,
+  "compatibilityExecutions": 28,
+  "compatibilityTargets": 12,
+  "sourceCallsRecorded": 48,
+  "completeSourceCarrierComparisons": 46,
+  "pendingPartialWriteOwnerCalls": 2,
+  "graphOperations": 225,
+  "nativeIntrinsicControls": 320,
+  "sourceRegenerationChecks": 9,
+  "allTargetClippyWarningsDeniedPassed": true,
+  "cargoFormattingPassed": true,
+  "includedFormattingFiles": 116,
+  "executionInputsComparedToActualCompatibilityAndClippyProbe": 1174,
+  "logs": [
+    {
+      "path": "root-rich-graph.log",
+      "sha256": "f2d128b42e587c0296622092a7ab79680a6a97254e96906aac39bbc8b25e9bc3",
+      "executions": 16,
+      "targets": 1
+    },
+    {
+      "path": "root-rich-carrier.log",
+      "sha256": "1b81b17708f053914ef957b1c15ec030ca934e6f2369c3506569566950b226f1",
+      "executions": 2,
+      "targets": 1
+    },
+    {
+      "path": "rich-runtime-compatibility-typed-variants.log",
+      "sha256": "e5d450db40924db02ce89713e52228cb3c1b3121ba1dcb7ed85579a7122989a2",
+      "executions": 28,
+      "targets": 12
+    }
+  ],
+  "otherLogs": {
+    "rich-runtime-core-first.log": "5319113e4abf3a6d57b1e27e35acc398c5d035f8f424d0e15959e4ba3b2042f7",
+    "rich-runtime-clippy-typed-witness.log": "8e679ea39650ebde45bf9082648a6bebd487f8014481f35bb003e27ba3b1d13d",
+    "root-rich-format.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rich-runtime-included-format.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rich-runtime-compatibility-first.log": "f5309fe2694a455a4fae49c0c984a7c62d27b603dcaaea6326ae3267e663cc98",
+    "rich-runtime-clippy-first.log": "738ca9cc4f1a7385465b5f4fb713ed9347e221e38faf85914d74ead970826787",
+    "rich-runtime-clippy-legacy-exhaustive.log": "6313074f26d91e31beb4abe46e8a2d1a5201c301f3417c2db8d281ea4b72a810",
+    "root-rich-logic-inventory-first.log": "35c2f0a6c45480e6ad2de37522651f80c70df4e41fd9f87ace6ef28536fbfd23",
+    "root-rich-logic-inventory.log": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393",
+    "root-rich-supply-chain.log": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01"
+  },
+  "sourceChecks": [
+    {
+      "check": "rich_main_v14_vectors-installed-full",
+      "exitCode": 0,
+      "log": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\rich_main_v14_vectors-installed-full-root-check.log",
+      "sha256": "e91f8983df78538c8ee0493702de6c215c50d2b0e7528fa803f98010de428682"
+    },
+    {
+      "check": "rich_main_v14_vectors-installed-proof10",
+      "exitCode": 0,
+      "log": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\rich_main_v14_vectors-installed-proof10-root-check.log",
+      "sha256": "0325f94471bca3bf387ed035beeb4fcbb3c81cdd36d8251ada8fe44c8cee32ab"
+    },
+    {
+      "check": "rich_main_v14_vectors-locked-full",
+      "exitCode": 0,
+      "log": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\rich_main_v14_vectors-locked-full-root-check.log",
+      "sha256": "e91f8983df78538c8ee0493702de6c215c50d2b0e7528fa803f98010de428682"
+    },
+    {
+      "check": "rich_main_v14_vectors-locked-proof10",
+      "exitCode": 0,
+      "log": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\rich_main_v14_vectors-locked-proof10-root-check.log",
+      "sha256": "0325f94471bca3bf387ed035beeb4fcbb3c81cdd36d8251ada8fe44c8cee32ab"
+    },
+    {
+      "check": "rich_operations_vectors-installed-full",
+      "exitCode": 0,
+      "log": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\rich_operations_vectors-installed-full-root-check.log",
+      "sha256": "dffe642bc3846db711799eb222376500bcc6e7d1fe952507f74ba03b4e988fe1"
+    },
+    {
+      "check": "rich_operations_vectors-installed-proof10",
+      "exitCode": 0,
+      "log": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\rich_operations_vectors-installed-proof10-root-check.log",
+      "sha256": "2cdc719d61b4d134c3b896976b5039e8e6ab059ea8664b655ec3cb41b142d8f4"
+    },
+    {
+      "check": "rich_operations_vectors-locked-full",
+      "exitCode": 0,
+      "log": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\rich_operations_vectors-locked-full-root-check.log",
+      "sha256": "dffe642bc3846db711799eb222376500bcc6e7d1fe952507f74ba03b4e988fe1"
+    },
+    {
+      "check": "rich_operations_vectors-locked-proof10",
+      "exitCode": 0,
+      "log": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\rich_operations_vectors-locked-proof10-root-check.log",
+      "sha256": "2cdc719d61b4d134c3b896976b5039e8e6ab059ea8664b655ec3cb41b142d8f4"
+    },
+    {
+      "check": "rich_intrinsic_controls",
+      "exitCode": 0,
+      "log": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\rich_intrinsic_controls-root-check.log",
+      "sha256": "89091e251af68367b4eb206f6f0a46a097598103899061cfb79b163c05804c80"
+    }
+  ],
+  "remaining": [
+    "Two genuine source partial-write owner/catch paths",
+    "Wider financial and deferred catch graph",
+    "Native Error/DOM/function/symbol structured-clone success and arbitrary callables",
+    "Native stack reads, broader recursion and numeric ToLength domains",
+    "Native13 composition and durable source continuations",
+    "Historical and authenticated inputs and complete-block fraud proofs"
+  ],
+  "logicInventoryPassed": true,
+  "supplyChainPassed": true,
+  "canonicalTsvEmptyFieldReview": {
+    "path": "fixtures/rich_intrinsic_controls.tsv",
+    "sha256": "57e8c67c4cfd293772c3d835f7c47304dd0b690c819a878db7a633c173e3cc5e",
+    "rows": 320,
+    "columns": 6,
+    "emptyFinalFieldTabsPreserved": true,
+    "allOtherFilesPassOrdinaryGitWhitespaceCheck": true
+  }
+}

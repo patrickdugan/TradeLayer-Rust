@@ -362,6 +362,7 @@ fn plain_outcome(outcome: &O) -> V {
             )])
         }
         O::LocalError(e) => panic!("actual source command unavailable {e:?}"),
+        O::RichDependencyV1(_) => panic!("rich outcome outside this typed legacy witness corpus"),
     }
 }
 fn receipt_result(replay: &R, receipt: &SourceContractReceipt, case: &V) -> V {

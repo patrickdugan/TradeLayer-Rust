@@ -107,6 +107,9 @@ fn direct(
         SourceContractCommand::EvaluateQueue(v) => runtime
             .evaluate_queue(v)
             .map(SourceContractCommandOutcome::Source),
+        SourceContractCommand::InvokeRichV1(_) => {
+            panic!("rich command outside this typed legacy durable corpus")
+        }
     };
     let outcome = match result {
         Ok(v) => v,

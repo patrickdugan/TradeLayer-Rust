@@ -28,6 +28,7 @@ const MAGIC_V9: &[u8; 5] = b"TLCR\x09";
 const MAGIC_V10: &[u8; 5] = b"TLCR\x0a";
 const MAGIC_V11: &[u8; 5] = b"TLCR\x0b";
 const MAGIC_V12: &[u8; 5] = b"TLCR\x0c";
+const MAGIC_V14: &[u8; 5] = b"TLCR\x0e";
 const SOURCE_PIN: &[u8] = b"dca0888b827c5bc28fa9189bc9e1d507f5c5670c";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -38,6 +39,7 @@ pub enum SourceContractCommand {
     SetActivation(bool),
     FailStorage(StorageFailure),
     Invoke(DependencyCall),
+    InvokeRichV1(crate::source_rich_value::protocol::InvokeRichV1),
     EvaluateQueue(SourceCall),
     ExecuteContract(Vec<V>),
 }
@@ -45,6 +47,7 @@ pub enum SourceContractCommand {
 pub enum SourceContractCommandOutcome {
     Void,
     Dependency(DependencyReturn),
+    RichDependencyV1(crate::source_rich_value::protocol::RichDependencyV1),
     Source(SourceOutcome),
     LocalError(SourceRuleError),
 }
@@ -173,6 +176,7 @@ impl SourceContractCommand {
                 ("skip", s(&v.skip.to_string())),
                 ("message", s(&v.message)),
             ]),
+            Self::InvokeRichV1(v) => rich_command_view(v),
             Self::Invoke(v) => obj(&[
                 ("kind", s("Invoke")),
                 ("target", s(&v.target)),
@@ -233,6 +237,7 @@ impl SourceContractCommand {
 impl SourceContractCommandOutcome {
     pub fn value(&self) -> V {
         match self {
+            Self::RichDependencyV1(v) => rich_outcome_view(v),
             Self::Void => obj(&[("kind", s("Void"))]),
             Self::LocalError(e) => obj(&[("kind", s("LocalError")), ("error", s(rule_text(e)))]),
             Self::Source(SourceOutcome::Returned(v)) => obj(&[
@@ -480,6 +485,9 @@ impl SourceContractReplay {
             SourceContractRuntimePolicy::MainOrchestrationV12 => {
                 b"TradeLayer/SourceContractBootstrap/v12/".to_vec()
             }
+            SourceContractRuntimePolicy::RichThrownV14 => {
+                b"TradeLayer/SourceContractBootstrap/v14/".to_vec()
+            }
         };
         seed.extend_from_slice(SOURCE_PIN);
         seed.extend_from_slice(&initial);
@@ -510,8 +518,8 @@ impl SourceContractReplay {
         if self.journal.len() >= MAX_COMMANDS {
             return Err(SourceContractReplayError::Capacity);
         }
-        let command_frame = diagnostic(&command.value())?;
-        if SourceContractCommand::from_value(&command.value())? != command {
+        let command_frame = rich_command_frame(self.runtime.policy(), &command)?;
+        if rich_command_decode(self.runtime.policy(), &command_frame)? != command {
             return Err(SourceContractReplayError::InvalidCommand);
         }
         let before = self.runtime.clone();
@@ -536,6 +544,10 @@ impl SourceContractReplay {
                 .runtime
                 .fail_storage(v.clone())
                 .map(|()| SourceContractCommandOutcome::Void),
+            SourceContractCommand::InvokeRichV1(v) => self
+                .runtime
+                .invoke_dependency_rich(v)
+                .map(SourceContractCommandOutcome::RichDependencyV1),
             SourceContractCommand::Invoke(v) => self
                 .runtime
                 .invoke_dependency(v)
@@ -558,7 +570,7 @@ impl SourceContractReplay {
         };
         let effects = self.runtime.take_effects();
         let prepared = (|| {
-            let outcome_frame = diagnostic(&outcome.value())?;
+            let outcome_frame = rich_outcome_frame(self.runtime.policy(), &outcome)?;
             let effects_commitment = effect_commitment(&effects)?;
             let state_commitment = state_commitment(&self.runtime)?;
             let sequence = self.journal.len() as u64;
@@ -618,6 +630,7 @@ impl SourceContractReplay {
             SourceContractRuntimePolicy::ActivationLifecycleV10 => MAGIC_V10.to_vec(),
             SourceContractRuntimePolicy::AmmLifecycleV11 => MAGIC_V11.to_vec(),
             SourceContractRuntimePolicy::MainOrchestrationV12 => MAGIC_V12.to_vec(),
+            SourceContractRuntimePolicy::RichThrownV14 => MAGIC_V14.to_vec(),
         };
         bytes.extend_from_slice(&self.initial);
         bytes.extend_from_slice(&(self.journal.len() as u32).to_be_bytes());
@@ -626,8 +639,14 @@ impl SourceContractReplay {
             let r = &entry.receipt;
             bytes.extend_from_slice(&r.sequence.to_be_bytes());
             bytes.extend_from_slice(&r.previous_head);
-            put_frame(&mut bytes, &diagnostic(&entry.command.value())?)?;
-            put_frame(&mut bytes, &diagnostic(&r.outcome.value())?)?;
+            put_frame(
+                &mut bytes,
+                &rich_command_frame(self.runtime.policy(), &entry.command)?,
+            )?;
+            put_frame(
+                &mut bytes,
+                &rich_outcome_frame(self.runtime.policy(), &r.outcome)?,
+            )?;
             bytes.extend_from_slice(&(r.effects.len() as u32).to_be_bytes());
             for effect in &r.effects {
                 put_frame(&mut bytes, &diagnostic(effect)?)?;
@@ -670,6 +689,7 @@ impl SourceContractReplay {
             magic if magic == MAGIC_V10 => SourceContractRuntimePolicy::ActivationLifecycleV10,
             magic if magic == MAGIC_V11 => SourceContractRuntimePolicy::AmmLifecycleV11,
             magic if magic == MAGIC_V12 => SourceContractRuntimePolicy::MainOrchestrationV12,
+            magic if magic == MAGIC_V14 => SourceContractRuntimePolicy::RichThrownV14,
             _ => return Err(SourceContractReplayError::InvalidCheckpoint),
         };
         let initial = c
@@ -701,8 +721,8 @@ impl SourceContractReplay {
             if sequence != index as u64 || previous != replay.head.commitment {
                 return Err(SourceContractReplayError::InvalidCheckpoint);
             }
-            let command = SourceContractCommand::from_value(&read_frame(&mut c)?)?;
-            let outcome = SourceContractCommandOutcome::from_value(&read_frame(&mut c)?)?;
+            let command = rich_command_decode(policy, &rich_read_blob(&mut c)?)?;
+            let outcome = rich_outcome_decode(policy, &rich_read_blob(&mut c)?)?;
             let effects_len = c
                 .u32()
                 .map_err(|_| SourceContractReplayError::InvalidCheckpoint)?
@@ -781,3 +801,5 @@ impl SourceContractReplay {
         Ok(sha256(&bytes))
     }
 }
+
+include!("source_rich_replay_impl.rs");

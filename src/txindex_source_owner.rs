@@ -1317,3 +1317,9 @@ fn validate_regex(pattern: &str) -> R<()> {
         Err(SourceRuleError::UnsupportedNumericDomain.into())
     }
 }
+
+impl TxIndexSourceOwner {
+    pub(crate) fn source_rich_class_client(&self) -> &V {
+        &self.class_client
+    }
+}

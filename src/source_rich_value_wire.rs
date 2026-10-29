@@ -85,8 +85,107 @@ fn native(kind: &NativeKind) -> u8 {
         NativeKind::AggregateError => 7,
     }
 }
+struct Size(usize);
+impl Size {
+    fn add(&mut self, n: usize) -> Result<(), Error> {
+        self.0 = self.0.checked_add(n).ok_or(Error::Capacity)?;
+        if self.0 > MAX_BYTES {
+            Err(Error::Capacity)
+        } else {
+            Ok(())
+        }
+    }
+    fn count(&mut self, n: usize) -> Result<(), Error> {
+        u32::try_from(n).map_err(|_| Error::Capacity)?;
+        self.add(4)
+    }
+    fn units_len(&mut self, n: usize) -> Result<(), Error> {
+        self.count(n)?;
+        self.add(n.checked_mul(2).ok_or(Error::Capacity)?)
+    }
+    fn atom(&mut self, a: &Atom) -> Result<(), Error> {
+        self.add(1)?;
+        match a {
+            Atom::Undefined | Atom::Null => Ok(()),
+            Atom::Boolean(_) => self.add(1),
+            Atom::Binary64(_) => self.add(8),
+            Atom::Utf16(v) => self.units_len(v.len()),
+            Atom::BigInt(v) => self.units_len(v.encode_utf16().count()),
+            Atom::Symbol(_) | Atom::Reference(_) => self.add(4),
+            Atom::Intrinsic(v) => {
+                self.add(1)?;
+                self.units_len(v.name.len())
+            }
+            Atom::Owner(v) => {
+                self.units_len(v.domain.len())?;
+                self.add(8)
+            }
+        }
+    }
+}
+/// Preflight the full encoded length before allocating the output frame.
+/// This changes no canonical bytes and also bounds malformed trusted callers.
+pub fn encoded_size(graph: &Graph) -> Result<usize, Error> {
+    let mut size = Size(MAGIC.len());
+    size.count(graph.roots.len())?;
+    if graph.roots.len() > MAX_BYTES {
+        return Err(Error::Capacity);
+    }
+    for v in &graph.roots {
+        size.atom(v)?
+    }
+    size.count(graph.symbols.len())?;
+    if graph.symbols.len() > MAX_BYTES {
+        return Err(Error::Capacity);
+    }
+    for v in &graph.symbols {
+        size.add(1)?;
+        match v {
+            Symbol::Unique(None) => (),
+            Symbol::Unique(Some(v)) | Symbol::Registered(v) | Symbol::WellKnown(v) => {
+                size.units_len(v.len())?
+            }
+        }
+    }
+    size.count(graph.objects.len())?;
+    if graph.objects.len() > MAX_BYTES {
+        return Err(Error::Capacity);
+    }
+    for v in &graph.objects {
+        size.add(1)?;
+        match &v.kind {
+            Kind::NativeError { .. } => size.add(2)?,
+            Kind::Callable { binding } => size.units_len(binding.len())?,
+            _ => (),
+        }
+        size.atom(&v.prototype)?;
+        size.count(v.properties.len())?;
+        for p in &v.properties {
+            size.add(1)?;
+            match &p.key {
+                Key::Utf16(v) => size.units_len(v.len())?,
+                Key::Symbol(_) => size.add(4)?,
+            }
+            size.add(2)?;
+            match &p.value {
+                PropertyValue::Data { value, .. } => {
+                    size.add(1)?;
+                    size.atom(value)?
+                }
+                PropertyValue::Accessor { get, set } => {
+                    size.atom(get)?;
+                    size.atom(set)?
+                }
+            }
+        }
+    }
+    Ok(size.0)
+}
 pub fn encode(graph: &Graph) -> Result<Vec<u8>, Error> {
-    let mut w = Writer(MAGIC.to_vec());
+    let size = encoded_size(graph)?;
+    let mut buffer = Vec::with_capacity(size);
+    buffer.extend(MAGIC);
+    let mut w = Writer(buffer);
     w.count(graph.roots.len())?;
     for root in &graph.roots {
         w.atom(root)?;
@@ -155,6 +254,7 @@ pub fn encode(graph: &Graph) -> Result<Vec<u8>, Error> {
     if w.0.len() > MAX_BYTES {
         return Err(Error::Capacity);
     }
+    debug_assert_eq!(w.0.len(), size);
     Ok(w.0)
 }
 struct Reader<'a> {
@@ -421,6 +521,16 @@ mod source_tests {
             count += 1;
         }
         assert_eq!(count, 76);
+    }
+    #[test]
+    fn oversize_output_is_refused_before_building_a_frame() {
+        let graph = Graph {
+            roots: vec![Atom::Utf16(vec![0; MAX_BYTES / 2])],
+            objects: vec![],
+            symbols: vec![],
+        };
+        assert_eq!(encoded_size(&graph), Err(Error::Capacity));
+        assert_eq!(encode(&graph), Err(Error::Capacity));
     }
     #[test]
     fn malformed_wire_does_not_enter_an_existing_namespace() {

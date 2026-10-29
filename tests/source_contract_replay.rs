@@ -57,6 +57,7 @@ fn observed(outcome: &O) -> V {
             (None, Some(e))
         }
         O::LocalError(e) => panic!("actual source path unavailable: {e:?}"),
+        O::RichDependencyV1(_) => panic!("rich outcome outside this typed legacy source corpus"),
     };
     if let Some(v) = returned {
         obj(&[("returned", v)])

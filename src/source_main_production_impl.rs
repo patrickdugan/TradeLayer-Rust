@@ -45,7 +45,11 @@ impl SourceBackend for MainIndexBackend<'_> {
 }
 impl ContractCore {
     fn main_production_enabled(&self) -> bool {
-        self.policy == SourceContractRuntimePolicy::MainOrchestrationV12
+        matches!(
+            self.policy,
+            SourceContractRuntimePolicy::MainOrchestrationV12
+                | SourceContractRuntimePolicy::RichThrownV14
+        )
     }
     fn source_main_production_configure(&mut self, a: &[V]) -> R<V> {
         if a.len() != 1 {

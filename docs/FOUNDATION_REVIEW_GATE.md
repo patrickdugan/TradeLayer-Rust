@@ -1,3 +1,5 @@
+Historical foundation review. The subsequent explicit RichThrownV14 initial RPC/catch carrier and replay are now integrated with focused Core checks; see `RICH_RUNTIME_V14.md`. The original bounded-foundation review below remains preserved.
+
 # Policy14 rich value foundation: standalone review gate
 
 This is the bounded value/import/codec foundation only. No Runtime14, InvokeRichV1 receipt/replay branch, source catch migration, witness admission or financial owner bridge has been integrated. The approved design remains b3f93f40. Parent owns Core edits/builds/commits.

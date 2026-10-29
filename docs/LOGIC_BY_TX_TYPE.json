@@ -2,8 +2,8 @@
   "schema": "tl-logic-reference-review-v1",
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
   "rustCommit": "70f568ad703bef189c01c989631692fdf75235bb",
-  "rustCommitScope": "Inventory parent is historical. Full release963aae7 covers V12 Main startup/snapshot/service/IO/sort, terminal controls, native-index/Main session13 and bounded graph support:1714 executions and238 numeric checks. Runtime14, suspended/durable continuations, authenticated history and complete-block proofs remain open. Every per-type full-parity/proof classification stays unchanged and incomplete.",
-  "reviewedAtUtc": "2026-10-29T01:15:15Z",
+  "rustCommitScope": "Inventory parent is historical. Full release963aae7 covers V12 Main startup/snapshot/service/IO/sort, terminal controls, native-index/Main session13 and bounded graph support:1714 executions and238 numeric checks. The subsequent explicit RichThrownV14 initial RPC/catch carrier and command replay pass focused Core/compatibility checks; full-suite promotion and broader financial catches remain pending. Suspended/durable continuations, authenticated history and complete-block proofs remain open. Every per-type full-parity/proof classification stays unchanged and incomplete.",
+  "reviewedAtUtc": "2026-10-29T02:35:20Z",
   "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
     {
@@ -161,12 +161,12 @@
     {
       "path": "src/source_contract_replay.rs",
       "lfNormalized": true,
-      "sha256": "829726d0c616e5d5094414565cb6b3246f499c6981bd3d53975586de3bad1d3b"
+      "sha256": "c64a81d927f2560228f7ca1024a7523c1b591b5c4bee233c696400bf6150a068"
     },
     {
       "path": "src/source_contract_runtime.rs",
       "lfNormalized": true,
-      "sha256": "1afcd24ae4c8c0c80294fab10caf99d722cbc21471b10b57735ea33f4db0fafd"
+      "sha256": "617a106dc7d414691d1d134aae95494e4c2fa5ecaff334825bc6a973173eaf57"
     },
     {
       "path": "src/source_contract_values.rs",
@@ -295,7 +295,7 @@
     },
     {
       "path": "src/txindex_source_owner.rs",
-      "sha256": "3012cb0e8e575ccca9d46fa4ce5e6ce66f4b57805ef2349e3a27195b5192a5d4",
+      "sha256": "283efe64086fdb1fafadfcdc26d5e602d905d3a7ac4b47befbb9e2e04c6a5dbe",
       "lfNormalized": true
     },
     {
@@ -381,7 +381,7 @@
     {
       "path": "src/source_spot_schedule_impl.rs",
       "lfNormalized": true,
-      "sha256": "f56cf908953fb73d673037adce38cdb2f2e6dba464445616850be4e44f326169"
+      "sha256": "beb53d504aedc2c8bd81f20bed3ba742fd3bc895106de01e815103708fdf44e4"
     },
     {
       "path": "src/source_transfer_schedule_impl.rs",
@@ -415,7 +415,7 @@
     },
     {
       "path": "src/source_amm_lifecycle_impl.rs",
-      "sha256": "2efe518824bbe64083f3bfad195ac8135f8ec1289fe4efb6d876b19f1df7316e",
+      "sha256": "2d97e7ae93d52885b42756357a74692eddcf504d798b883fb28dbd4a140e9b6e",
       "lfNormalized": true
     },
     {
@@ -435,7 +435,7 @@
     },
     {
       "path": "src/source_durable_replay_tests.rs",
-      "sha256": "432dea9bb4ad6033a24158c3343a5f6a70e9b106faff5b33a6a7987478c79c0b",
+      "sha256": "9d541bf2acb53801dff1af37e87d07f0c902ddd6e6384fcddc05035e900ab6f8",
       "lfNormalized": true
     },
     {

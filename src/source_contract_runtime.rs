@@ -28,6 +28,7 @@ pub enum SourceContractRuntimePolicy {
     ActivationLifecycleV10,
     AmmLifecycleV11,
     MainOrchestrationV12,
+    RichThrownV14,
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StorageFailure {
@@ -134,6 +135,7 @@ pub(crate) struct ContractCore {
     main_activation_locked: bool,
     main_height_job: Option<SourceMainHeightJob>,
     main_production: Option<SourceMainProduction>,
+    source_rich: Option<rich_runtime_v14::State>,
     native_main_binding: Option<V>,
     main_height_rejections: Vec<crate::validity_source::SourceException>,
     source_spot_main_active: bool,
@@ -276,6 +278,9 @@ impl std::fmt::Debug for ContractCore {
         }
         if let Some(binding) = &self.native_main_binding {
             view.field("native_main_binding", binding);
+        }
+        if self.policy == SourceContractRuntimePolicy::RichThrownV14 || self.source_rich.is_some() {
+            view.field("source_rich", &self.source_rich);
         }
         view.field("main_height_rejections", &self.main_height_rejections);
         view.field("source_spot_main_active", &self.source_spot_main_active);
@@ -567,29 +572,33 @@ impl SourceContractRuntime {
             set(
                 &mut value,
                 "runtimePolicy",
-                s(if self.core.main_production_enabled() {
-                    "MainOrchestrationV12"
-                } else if self.core.amm_lifecycle_enabled() {
-                    "AmmLifecycleV11"
-                } else if self.core.activation_lifecycle_enabled() {
-                    "ActivationLifecycleV10"
-                } else if self.core.spot_lifecycle_enabled() {
-                    "SpotLifecycleV9"
-                } else if self.core.main_callable_enabled() {
-                    "MainCallableV8"
-                } else if self.core.lower_lifecycle_enabled() {
-                    "LowerLifecycleV7"
-                } else if self.core.proof_lifecycle_enabled() {
-                    "ProofLifecycleV6"
-                } else if self.core.distribution_lifecycle_enabled() {
-                    "DistributionLifecycleV5"
-                } else if self.core.option_lifecycle_enabled() {
-                    "OptionLifecycleV4"
-                } else if self.core.lifecycle_enabled() {
-                    "SourceLifecycleV3"
-                } else {
-                    "GlobalClearingV2"
-                }),
+                s(
+                    if self.core.policy == SourceContractRuntimePolicy::RichThrownV14 {
+                        "RichThrownV14"
+                    } else if self.core.main_production_enabled() {
+                        "MainOrchestrationV12"
+                    } else if self.core.amm_lifecycle_enabled() {
+                        "AmmLifecycleV11"
+                    } else if self.core.activation_lifecycle_enabled() {
+                        "ActivationLifecycleV10"
+                    } else if self.core.spot_lifecycle_enabled() {
+                        "SpotLifecycleV9"
+                    } else if self.core.main_callable_enabled() {
+                        "MainCallableV8"
+                    } else if self.core.lower_lifecycle_enabled() {
+                        "LowerLifecycleV7"
+                    } else if self.core.proof_lifecycle_enabled() {
+                        "ProofLifecycleV6"
+                    } else if self.core.distribution_lifecycle_enabled() {
+                        "DistributionLifecycleV5"
+                    } else if self.core.option_lifecycle_enabled() {
+                        "OptionLifecycleV4"
+                    } else if self.core.lifecycle_enabled() {
+                        "SourceLifecycleV3"
+                    } else {
+                        "GlobalClearingV2"
+                    },
+                ),
             )
             .map_err(|_| SourceRuleError::InvalidInput)?;
             set(
@@ -699,12 +708,25 @@ impl SourceContractRuntime {
             set(&mut value, "nativeMainBinding", binding.clone())
                 .map_err(|_| SourceRuleError::InvalidInput)?;
         }
+        if self.core.policy == SourceContractRuntimePolicy::RichThrownV14
+            || self.core.source_rich.is_some()
+        {
+            set(
+                &mut value,
+                "sourceRich",
+                self.core.source_rich_state_value()?,
+            )
+            .map_err(|_| SourceRuleError::InvalidInput)?;
+        }
         Ok(value)
     }
     pub fn invoke_dependency(
         &mut self,
         call: &DependencyCall,
     ) -> Result<DependencyReturn, SourceRuleError> {
+        if self.policy() == SourceContractRuntimePolicy::RichThrownV14 {
+            return Err(SourceRuleError::InvalidInput);
+        }
         for v in &call.arguments {
             v.validate()?
         }
@@ -840,6 +862,9 @@ impl SourceContractRuntime {
         &mut self,
         arguments: &[V],
     ) -> Result<SourceOutcome, SourceRuleError> {
+        if self.policy() == SourceContractRuntimePolicy::RichThrownV14 {
+            return Err(SourceRuleError::InvalidInput);
+        }
         for v in arguments {
             v.validate()?
         }
@@ -979,6 +1004,11 @@ impl ContractCore {
             main_activation_locked: false,
             main_height_job: None,
             main_production: None,
+            source_rich: if policy == SourceContractRuntimePolicy::RichThrownV14 {
+                Some(rich_runtime_v14::State::new())
+            } else {
+                None
+            },
             native_main_binding: None,
             main_height_rejections: vec![],
             source_spot_main_active: false,
@@ -2899,6 +2929,8 @@ include!("source_main_snapshot_impl.rs");
 include!("source_main_startup_impl.rs");
 
 include!("source_main_native_runtime_impl.rs");
+
+include!("source_rich_runtime_impl.rs");
 
 #[cfg(test)]
 mod main_production_parse_int_tests {

@@ -108,6 +108,9 @@ impl Default for Limits {
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Error {
+    Backend,
+    UnknownDependency,
+    UnsupportedNumericDomain,
     Capacity,
     InvalidReference,
     InvalidProperty,
@@ -222,6 +225,10 @@ pub fn validate_external(
     caps: &Capabilities,
     limits: Limits,
 ) -> Result<ValidatedInput, Error> {
+    validate_ref(&graph, caps, limits)?;
+    Ok(ValidatedInput { graph })
+}
+pub fn validate_ref(graph: &Graph, caps: &Capabilities, limits: Limits) -> Result<(), Error> {
     if graph.roots.len() > limits.properties
         || graph.symbols.len() > limits.objects
         || graph.objects.len() > limits.objects
@@ -231,7 +238,7 @@ pub fn validate_external(
         return Err(Error::Capacity);
     }
     let mut check = Check {
-        graph: &graph,
+        graph,
         caps,
         limits,
         units: 0,
@@ -378,7 +385,7 @@ pub fn validate_external(
             colors[at] = 2;
         }
     }
-    Ok(ValidatedInput { graph })
+    Ok(())
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Import {
@@ -407,6 +414,9 @@ impl Arena {
             limits,
         }
     }
+    pub fn prevalidate(&self, graph: &Graph) -> Result<(), Error> {
+        validate_ref(graph, &self.caps, self.limits)
+    }
     pub fn validate(&self, graph: Graph) -> Result<ValidatedInput, Error> {
         validate_external(graph, &self.caps, self.limits)
     }
@@ -419,8 +429,86 @@ impl Arena {
     pub fn imports(&self) -> &[Import] {
         &self.imports
     }
+    /// Trusted execution allocation. Existing Atom references are internal
+    /// arena IDs, never directly supplied external frame IDs.
+    pub fn allocate(&mut self, object: Object) -> Result<Atom, Error> {
+        let id = u32::try_from(self.objects.len()).map_err(|_| Error::Capacity)?;
+        let mut objects = self.objects.clone();
+        objects.push(object.clone());
+        let mut roots = self
+            .imports
+            .iter()
+            .flat_map(|v| v.roots.iter().cloned())
+            .collect::<Vec<_>>();
+        roots.push(Atom::Reference(id));
+        let graph = Graph {
+            roots,
+            objects,
+            symbols: self.symbols.clone(),
+        };
+        validate_ref(&graph, &self.caps, self.limits)?;
+        self.objects.push(object);
+        Ok(Atom::Reference(id))
+    }
+    /// A descriptor operation for native data construction, not JS assignment
+    /// or a proxy/setter shortcut. Actual property callbacks use RichContext.
+    pub fn define_data(
+        &mut self,
+        receiver: &Atom,
+        key: Key,
+        value: Atom,
+        writable: bool,
+        enumerable: bool,
+        configurable: bool,
+    ) -> Result<(), Error> {
+        let Atom::Reference(id) = receiver else {
+            return Err(Error::InvalidReference);
+        };
+        let mut object = self
+            .objects
+            .get(*id as usize)
+            .ok_or(Error::InvalidReference)?
+            .clone();
+        let property = Property {
+            key,
+            enumerable,
+            configurable,
+            value: PropertyValue::Data { value, writable },
+        };
+        if let Some(old) = object.properties.iter_mut().find(|p| p.key == property.key) {
+            *old = property
+        } else {
+            object.properties.push(property)
+        }
+        let mut objects = self.objects.clone();
+        objects[*id as usize] = object.clone();
+        let mut roots = self
+            .imports
+            .iter()
+            .flat_map(|v| v.roots.iter().cloned())
+            .collect::<Vec<_>>();
+        roots.push(receiver.clone());
+        validate_ref(
+            &Graph {
+                roots,
+                objects,
+                symbols: self.symbols.clone(),
+            },
+            &self.caps,
+            self.limits,
+        )?;
+        self.objects[*id as usize] = object;
+        Ok(())
+    }
     pub fn import(&mut self, input: ValidatedInput) -> Result<Import, Error> {
-        if self.imports.len() >= self.limits.imports {
+        self.absorb(input, true)
+    }
+    pub fn allocate_data_graph(&mut self, graph: Graph) -> Result<Vec<Atom>, Error> {
+        let input = self.validate(graph)?;
+        Ok(self.absorb(input, false)?.roots)
+    }
+    fn absorb(&mut self, input: ValidatedInput, record_namespace: bool) -> Result<Import, Error> {
+        if record_namespace && self.imports.len() >= self.limits.imports {
             return Err(Error::Capacity);
         }
         // Revalidate in this arena's immutable capability/limit context; callers
@@ -516,12 +604,30 @@ impl Arena {
         self.symbols = symbols;
         self.registered = registered;
         self.well_known = well_known;
-        self.imports.push(import.clone());
+        if record_namespace {
+            self.imports.push(import.clone());
+        }
         Ok(import)
     }
 }
 #[path = "source_rich_value_wire.rs"]
 pub mod wire;
+
+#[path = "source_rich_intrinsics.rs"]
+pub mod intrinsics;
+#[path = "source_rich_throw.rs"]
+pub mod thrown;
+
+#[path = "source_rich_protocol.rs"]
+pub mod protocol;
+
+#[path = "source_rich_io.rs"]
+pub mod io;
+#[path = "source_rich_main.rs"]
+pub mod main;
+
+#[path = "source_rich_exposure.rs"]
+pub mod exposure;
 
 #[cfg(test)]
 mod tests {

@@ -1,6 +1,6 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-29T02:03:31Z",
+  "verifiedAtUtc": "2026-10-29T02:37:59Z",
   "inspectedCheckoutCommit": "2ae5abfbc46a11d1e65d717f52438344e792c828",
   "verifiedImplementationCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
   "verifiedReleaseTests": 1714,
@@ -325,11 +325,12 @@
       "originalSourceCalls": 38,
       "graphFrames": 76,
       "nativeArrayLengthControls": 4,
-      "runtime14Integrated": false,
+      "runtime14Integrated": true,
       "fullSuitePromotion": true,
       "record": "fixtures/reference_fidelity/native-main-core-integration.json",
       "coveredByReleaseCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
-      "releaseValidationRecord": "fixtures/reference_fidelity/native-main-release-validation.json"
+      "releaseValidationRecord": "fixtures/reference_fidelity/native-main-release-validation.json",
+      "runtime14Scope": "Initial three RPC/catch carriers only; no broader financial or native13 composition promotion."
     },
     "suspendedMainPrivateProbe": {
       "status": "isolated-private-core-component-tests-pass-not-integrated",
@@ -395,10 +396,10 @@
       ]
     },
     "suspendedFileRetryProbe": {
-      "status": "first-core-compile-failed-test-repair-frozen-rerun-pending",
+      "status": "isolated-core-full-parent-source-differential-pass",
       "RootIntegrated": false,
       "fullSuitePromotion": false,
-      "actualCoreTestsPassed": 0,
+      "actualCoreTestsPassed": 5,
       "failureLog": {
         "path": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\main-file-retry-core-first.log",
         "sha256": "4fea8e5c64d400adbf890a55253b0061fc21c43b660cbaa0aa4729039939d3b5"
@@ -414,13 +415,20 @@
       "sourceObservations": 60,
       "completeParentDifferentialObservations": 59,
       "sourceChecksWorkerReported": 4,
-      "sourceChecksAreNotCoreExecution": true
+      "sourceChecksAreNotCoreExecution": true,
+      "sourceOracleCorrectionManifestSHA256": "fbd6672b59a70c4ec8c80e08a920f2c223409525d6e201ddc69036924af03963",
+      "sourceHostNamingCollisionCorrected": true,
+      "sourceComparisonFieldsDropped": 0,
+      "correctedCoreLog": {
+        "path": "main-file-retry-core-oracle-correction.log",
+        "sha256": "61f16a2501a19e3c4d839a1285be53d96a7779e596b4d7615718054231b77276"
+      }
     },
     "richRuntime14": {
-      "status": "frozen-proposal-and-delta-uncompiled-in-actual-core",
-      "RootIntegrated": false,
+      "status": "initial-rpc-carrier-and-replay-integrated-focused-checks-pass",
+      "RootIntegrated": true,
       "fullSuitePromotion": false,
-      "actualCoreTestsPassed": 0,
+      "actualCoreTestsPassed": 2,
       "manifest": {
         "path": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\next-rich-runtime-v14\\root-ready\\MANIFEST.json",
         "sha256": "509a75643ebbacb036798369a23e113763e7956961f801f5269553f186364f15"
@@ -435,10 +443,40 @@
       "workerReportedDeltaSourceCalls": 50,
       "workerReportedDeltaCarrierComparisons": 48,
       "pendingPartialWriteOwnerCalls": 2,
-      "countsExcludedFromReleaseTotal": true
+      "countsExcludedFromReleaseTotal": true,
+      "coreGraphProtocolTestsPassed": 16,
+      "compatibilityExecutions": 28,
+      "compatibilityTargets": 12,
+      "sourceRegenerationChecks": 9,
+      "allTargetClippyPassed": true,
+      "formattingPassed": true,
+      "sourceCarrierComparisons": 46,
+      "record": "fixtures/reference_fidelity/rich-runtime14-core-integration.json"
+    },
+    "nativeStepProductionBinding": {
+      "status": "isolated-actual-core-production-binding-pass-decoder-and-writer-pending",
+      "RootIntegrated": false,
+      "fullSuitePromotion": false,
+      "CoreTests": 3,
+      "sameFinancialAndIndexOwners": true,
+      "completeCanonicalFieldStreams": true,
+      "profile": "immediate-data-source-timers",
+      "fileRetryProfileSelected": false,
+      "recordManifestSHA256": "a882e812c2a9e6a392705fcfae656b2ed69c71c70c8b8970779a33535f16790d",
+      "log": {
+        "path": "native-step-binding-first.log",
+        "sha256": "0055664dc4d27c94bb33869a61199f770e2e55c6f31488e4d93978a86b38fca1"
+      },
+      "providerSHA256": "8bccb17410d3fa4d6065e975e6456b78e0b6d3ff767781dd9b1e916568c238c2",
+      "remaining": [
+        "Command-only streaming decoder and reexecution",
+        "Explicit file-retry profile selection",
+        "Segmented durable intent-and-ack writer",
+        "Exact native row/catchup recovery and host validation"
+      ]
     }
   },
-  "scope": "Full release963aae7 passes1714 Rust executions across270 targets and238 exact pinned numeric-reference checks across86 targets; all1422 tracked inputs are unchanged. Native Main/index sessions and the bounded graph foundation are included. Full source parity, native daemon startup, timer/row continuations, cross-file recovery, Runtime14, authenticated history and complete-block proofs remain open.",
+  "scope": "Full release963aae7 remains at1714 Rust executions across270 targets and238 pinned numeric-reference checks across86 targets. Subsequent explicit RichThrownV14 initial RPC/catch carriers and command replay are integrated with18 Root Core tests,28 matching-input compatibility executions and9 source-check commands; full-suite promotion is pending. Native timer/file controllers and recovery primitives pass separate isolated checks. Broader financial catches, daemon/continuation/durable integration, authenticated history and complete-block proofs remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {

@@ -54,6 +54,7 @@ impl ContractCore {
             self.policy,
             SourceContractRuntimePolicy::AmmLifecycleV11
                 | SourceContractRuntimePolicy::MainOrchestrationV12
+                | SourceContractRuntimePolicy::RichThrownV14
         )
     }
     fn source_amm_insert(&mut self, value: V) -> R<usize> {

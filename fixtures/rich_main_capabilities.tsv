@@ -1,0 +1,11 @@
+I	0	Object.prototype
+I	0	Array.prototype
+I	0	Error.prototype
+I	0	Error.stack.get
+I	0	Error.stack.set
+I	1	TypeError.prototype
+I	1	Error.stack.get
+I	1	Error.stack.set
+I	1	Object.prototype
+I	1	Error.prototype
+I	0	TypeError.prototype

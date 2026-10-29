@@ -48,6 +48,7 @@ rustfmt --check --edition 2021 \
   src/source_main_snapshot_impl.rs \
   src/source_main_startup_impl.rs \
   src/source_main_file_io_impl.rs \
+  src/source_rich_runtime_impl.rs src/source_rich_replay_impl.rs \
   src/storage_read_snapshot_impl.rs \
   src/source_compact_stream_impl.rs \
   src/source_main_index_stream_impl.rs \
