@@ -1,6 +1,6 @@
 # TradeLayer-Rust release handoff
 
-Updated: 2026-10-29T15:39:31Z. This file is maintained after every integration/PR cycle.
+Updated: 2026-10-29T16:06:50Z. This file is maintained after every integration/PR cycle.
 
 ## Objective and operating rules
 
@@ -12,7 +12,7 @@ Commit completed, checked local work. Do not push, publish, create a PR or merge
 
 - Cycle parent commit: `0edb092dc4814ae24724130a726410400a886b23` (completeness refresh).
 - Previous committed implementation: `eff87dd817dc3ec7ac3403ecb020b0156ccbedef` (typed control-Store recovery).
-- Last full release baseline: `963aae732a1274bb4dafacd24e9d6666451ac51c`: **1,714 Rust executions and 238 locked numeric-reference checks**. Later scoped checks do not replace this baseline.
+- Current full release: implementation `21016cd777906cc8dc9ce8fc6fa7ec8e33aac351`, tested checkout `e99ef482d0f258d19a7a10aa776e6923d1c22532`: **1,977 Rust executions and 238 locked numeric-reference checks**, 281 targets, all 1,646 frozen inputs unchanged. Evidence: `fixtures/reference_fidelity/rc-cycle-release-validation.json`. Prior `963aae7` baseline remains preserved.
 - The Main cycle is **committed at `bbe36ddc953d6a2fb78964127a4562cba805c808`**. Its exact source/check provenance is `fixtures/reference_fidelity/native-main-service-publication-core-integration.json`. Inspect `git log -1` for the integration tip; the workspace mount ledger is `../../work/root-native-service-publication-mounted.json`.
 
 ## Current Main cycle
@@ -30,12 +30,9 @@ The corrected service gate passes **11 controls**: all eight service/block compa
 
 The combined library passes **318 tests with eight threads**, with three child entries ignored. All **25 public compatibility checks**, all-target Clippy, Cargo fmt, **180 included-file formatting checks**, supply-chain and transaction inventory pass. This is 386 successful promotion-gate executions (43 scoped +318 library +25 public), with overlapping tests. The full-release baseline remains unchanged.
 
-## Worker boundaries and pinned proposals
+## Completed proposal provenance
 
-- Main service correction: `/root/v8_main`. `../../work/native-main-service-shared-client-correction/root-ready-shared-client-correction-1/MANIFEST.json`, SHA-256 `eacef4f3e554801054b2c1162cb014d885a18eb748a4a088ad6a89e5004ca42b`. Apply its exact pure hunks to current files; shared whole-file previews are review material.
-- Fees PR #152: `/root/row_continuation_impl`. Correct the public `FillFees` inconsistency before integration; accrual currently accepts zero charged fees with a forged positive net. Preserve atomic rejection and signed arithmetic boundaries.
-- Rewards PR #153: `/root/v8_clearlist`. Preserve intended accounting. Strengthen full-width arithmetic tests with independent results; the original randomized predicate accepts an incorrect zero quotient. The implementation passed 30 independent full-width vectors; no arithmetic implementation bug was reproduced.
-- Parent owns Root edits, whole-Core Cargo, integration and commits. Agents work in separate stages and return immutable manifests. No simultaneous Core builds.
+The Main, fee and reward proposals below have already been integrated and checked. Their original immutable manifests remain provenance; do not apply those proposals again. Parent owns Root edits, whole-Core Cargo, integration and commits. Agents work in isolated stages and return new immutable manifests.
 
 ## Fee PR cycle #152
 
@@ -58,8 +55,8 @@ The accounting bound uses declared fee inputs; maker rebates/refunds can reduce 
 
 ## Remaining release gates
 
-1. Main cycle is committed; run a new full-release promotion after the feature cycles below.
-2. Fee/reward standalone APIs are integrated and scoped checks pass; include them in the next full-release run.
+1. Current Main/fee/reward release gate passes 1,977 Rust executions and238 locked numeric checks. New recovery candidates below are not covered by that run.
+2. Fee/reward matcher/Ledger wiring and economic/consensus choices remain separate from their tested standalone API scope.
 3. Durable active-service action/WAL composition and cold process-loss replay. A fulfilled outer promise can still own pending live work and cannot release a frozen head.
 4. Global import/static initialization order and deferred bootstrap rejection handling. New source corpus `ecc021cc` has 14 scenes/99 observations, both numeric profiles checked; Rust parity is pending. It does not prove the full Main module initialization IIFE.
 5. Broader source receiver/cache/history/value domains, full release promotion, intended-host storage/power-loss checks and representative real-block CPU/RSS.
@@ -83,3 +80,9 @@ The workbook is `../completeness-6b9c6c5f/TradeLayer-completeness.xlsx`; its sid
 ## Tracker checkpoint after fee/reward integration
 
 The saved workbook and sidebar were refreshed against `21016cd` with 12 intentional cell changes. All 37 transaction rows, proof/parity gates, formulas, styles, filters and layout remain unchanged. Verification: `fixtures/reference_fidelity/rc-cycle-completeness.json`. The full release baseline is still 1,714 Rust /238 locked reference checks until the next frozen run completes.
+
+## Release verification cycle
+
+All 281 release targets and the exact 86-target locked numeric-reference list pass. Counts are 1,976 top-level passes plus one successful storage child, not 1,977 unique source behaviors. The first restricted-network attempt stopped on eight client loopback PermissionDenied errors; all 11 client checks then passed with loopback access, and the complete frozen rerun passed without source changes. Failure and rerun hashes are preserved in the release record.
+
+Next immutable candidates awaiting Core integration: active-service WAL5696ac37 with temporary-prefix overlay175770a4 (19 proposed controls), and actual-file historical metadata views277a0fa9 (eight focused copied-source controls). Neither establishes native-index recovery or cold financial replay.

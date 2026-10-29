@@ -1,0 +1,48 @@
+{
+  "schema": "tl-main-fees-rewards-release-validation-v1",
+  "verifiedAtUtc": "2026-10-29T16:06:50Z",
+  "releaseExecutions": 1977,
+  "topLevelTests": 1976,
+  "successfulStorageSubprocess": 1,
+  "targets": 281,
+  "resultRecords": 282,
+  "lockedReferenceExecutions": 238,
+  "lockedTargets": 86,
+  "docTests": 0,
+  "frozenInputs": 1646,
+  "frozenInputManifestSHA256": "2e494dde78decd5c0ee996b3b35c4cba6de6c69bf7529a11d21102a7ac298784",
+  "implementationCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
+  "testedCheckoutCommit": "e99ef482d0f258d19a7a10aa776e6923d1c22532",
+  "logs": {
+    "rc-cycle-loopback-release-full.log": "394738e517c2c5f0559c1fad3f3950332128defb99e21a34e23996eaa13e9fd0",
+    "rc-cycle-loopback-release-doctest.log": "90772499dcc4d8fda5474b845abc465fcf0663e3c8aaf2c119721e3fb6fc47d8",
+    "rc-cycle-loopback-locked-reference.log": "561da89ee799f728da088d600a67f14e1ca470b54dcec6614457481e5042ac29"
+  },
+  "orchestratorSHA256": "6f6bdeb8a6e1c2f27991589f5383b6c89fd44a131c2ab0e586c94f22999a5bf9",
+  "priorRestrictedNetworkAttempt": {
+    "passed": false,
+    "reason": "Eight client loopback tests were blocked with Transport(PermissionDenied).",
+    "fullLogSHA256": "400a098232a7c7316e9eaaf87b5b30500968842d9ab36c7ac5b119d8e0b232ff",
+    "orchestratorSHA256": "40ada50691e93674d68062d8c8a9bbd25750e297b2a146e3d68424a7181a1ce9",
+    "isolatedLoopbackCheckSHA256": "7b305df50adcf9f728e3798e1870b8db464d403010575e04fac05ffe69026929",
+    "isolatedLoopbackTestsPassed": 11,
+    "sourceChangedForRerun": false
+  },
+  "toolchain": "1.90.0-x86_64-pc-windows-msvc",
+  "profile": "offline frozen release all-targets plus exact CI numeric-reference list; local test loopback permitted",
+  "frozenInputsVerifiedBeforeAndAfter": true,
+  "previousFullSuiteRecord": "fixtures/reference_fidelity/native-main-release-validation.json",
+  "integratedRecords": [
+    "fixtures/reference_fidelity/native-main-service-publication-core-integration.json",
+    "fixtures/reference_fidelity/pr152-fees-core-integration.json",
+    "fixtures/reference_fidelity/pr153-rewards-core-integration.json"
+  ],
+  "fullReferenceParityEstablished": false,
+  "authenticatedHistoryEstablished": false,
+  "completeBlockFraudProofEstablished": false,
+  "activeServiceWALCovered": false,
+  "coldProcessLossReplayEstablished": false,
+  "feeMatcherOrPayoutWiringEstablished": false,
+  "runFrozenInputManifestSHA256": "f72cb3dd96ec605aab7198b01c141c9b590f5383c21b6648e5f14464653cdb50",
+  "frozenInputManifestNormalization": "Repository manifest uses UTF-8 LF; all parsed path/hash/byte rows are identical to the raw run manifest."
+}

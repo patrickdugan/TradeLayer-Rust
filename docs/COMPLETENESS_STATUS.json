@@ -1,10 +1,10 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-29T15:39:31Z",
-  "inspectedCheckoutCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
-  "verifiedImplementationCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
-  "verifiedReleaseTests": 1714,
-  "topLevelTests": 1713,
+  "verifiedAtUtc": "2026-10-29T16:06:50Z",
+  "inspectedCheckoutCommit": "e99ef482d0f258d19a7a10aa776e6923d1c22532",
+  "verifiedImplementationCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
+  "verifiedReleaseTests": 1977,
+  "topLevelTests": 1976,
   "subprocessChecks": 1,
   "verifiedLockedReferenceTests": 238,
   "moduleRows": 48,
@@ -652,8 +652,11 @@
       "record": "fixtures/reference_fidelity/native-row-first-core-integration.json",
       "recordSHA256": "15e392a2706b5b6e1528df1cc8651cf733c9271748906ce5a96cefdc9d3f0949",
       "focusedExecutions": 68,
-      "fullSuitePromotion": false,
-      "allTargetClippyWarningsDenied": true
+      "fullSuitePromotion": true,
+      "allTargetClippyWarningsDenied": true,
+      "coveredByReleaseCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
+      "testedCheckoutCommit": "e99ef482d0f258d19a7a10aa776e6923d1c22532",
+      "releaseValidationRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json"
     },
     "unpromotedWorkerResults": {
       "awaitTerminalSourceOracle": {
@@ -671,7 +674,10 @@
       "record": "fixtures/reference_fidelity/native-catchup-first-core-integration.json",
       "recordSHA256": "f394df83107dfc2cbf127e1bc84fbd1e97b8c62b7840f634f9467ffc21b70a3d",
       "focusedExecutions": 45,
-      "fullSuitePromotion": false
+      "fullSuitePromotion": true,
+      "coveredByReleaseCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
+      "testedCheckoutCommit": "e99ef482d0f258d19a7a10aa776e6923d1c22532",
+      "releaseValidationRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json"
     },
     "nativeSupersedingIntent": {
       "status": "committed-focused-checks-pass",
@@ -680,7 +686,10 @@
       "record": "fixtures/reference_fidelity/native-superseding-intent-core-integration.json",
       "recordSHA256": "7ab6840b01362f09fe48e041a16fdb698573df58f460609ea9a077bb17d2b8ad",
       "focusedExecutions": 128,
-      "fullSuitePromotion": false
+      "fullSuitePromotion": true,
+      "coveredByReleaseCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
+      "testedCheckoutCommit": "e99ef482d0f258d19a7a10aa776e6923d1c22532",
+      "releaseValidationRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json"
     },
     "nativeNoIndexPost": {
       "status": "committed-focused-checks-pass",
@@ -689,7 +698,10 @@
       "record": "fixtures/reference_fidelity/native-no-index-post-core-integration.json",
       "recordSHA256": "54d12bd1d43f59af276d6d1235730dd50825410e4f4a9ebb011d44359638e2c0",
       "focusedExecutions": 51,
-      "fullSuitePromotion": false
+      "fullSuitePromotion": true,
+      "coveredByReleaseCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
+      "testedCheckoutCommit": "e99ef482d0f258d19a7a10aa776e6923d1c22532",
+      "releaseValidationRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json"
     },
     "nativeSupersessionController": {
       "status": "committed-focused-checks-pass",
@@ -698,7 +710,10 @@
       "record": "fixtures/reference_fidelity/native-supersession-controller-core-integration.json",
       "recordSHA256": "6568e1714bded1bbc5ef69ab89a6b98af40bb6c28bdebe5871e793647b695767",
       "focusedExecutions": 74,
-      "fullSuitePromotion": false
+      "fullSuitePromotion": true,
+      "coveredByReleaseCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
+      "testedCheckoutCommit": "e99ef482d0f258d19a7a10aa776e6923d1c22532",
+      "releaseValidationRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json"
     },
     "sourceOnlyWorkerResults": {},
     "nativeMultiheightSourceComparisons": {
@@ -709,12 +724,15 @@
       "recordSHA256": "9a8f0665e15e907b723b0ce3c500a474b865d8b0a8683dd7bc4902332c79c933",
       "rustExecutions": 17,
       "countsOverlap": true,
-      "fullSuitePromotion": false,
+      "fullSuitePromotion": true,
       "distinctRustTests": 13,
       "newSourceBoundaryComparisons": 4,
       "sourceMainCallsPerNumericProfile": 4,
       "sourceBootstrapCallsPerNumericProfile": 6,
-      "completeSerializedSourceStateEqualityEstablished": false
+      "completeSerializedSourceStateEqualityEstablished": false,
+      "coveredByReleaseCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
+      "testedCheckoutCommit": "e99ef482d0f258d19a7a10aa776e6923d1c22532",
+      "releaseValidationRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json"
     },
     "nativeNoControlStoreRecovery": {
       "status": "committed-scoped-checks-pass",
@@ -724,7 +742,7 @@
       "recordSHA256": "c96516e8ef5b994a6679a95d03e8812f150932bc344b18b115e243a261ada960",
       "rustExecutions": 306,
       "countsOverlap": true,
-      "fullSuitePromotion": false,
+      "fullSuitePromotion": true,
       "parallelLibraryPassed": 275,
       "parallelLibraryThreads": 8,
       "ignoredLibraryChildEntries": 3,
@@ -733,7 +751,10 @@
       "acceptedAndFinalCommandAckRecoveryEstablished": false,
       "headHistoryPublicationIntegrated": false,
       "serviceTerminalWalIntegrated": false,
-      "coldProcessLossSourceReplayEstablished": false
+      "coldProcessLossSourceReplayEstablished": false,
+      "coveredByReleaseCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
+      "testedCheckoutCommit": "e99ef482d0f258d19a7a10aa776e6923d1c22532",
+      "releaseValidationRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json"
     },
     "nativeServicePublication": {
       "status": "committed-scoped-checks-pass",
@@ -741,7 +762,7 @@
       "commit": "bbe36ddc953d6a2fb78964127a4562cba805c808",
       "record": "fixtures/reference_fidelity/native-main-service-publication-core-integration.json",
       "recordSHA256": "d1f28c18504ecf01036bf3db2e67fd64a21421a4321871d68a3edf5968ac4fb7",
-      "fullSuitePromotion": false,
+      "fullSuitePromotion": true,
       "focusedCurrentCoreControls": 43,
       "parallelLibraryPassed": 318,
       "publicCompatibilityExecutions": 25,
@@ -750,7 +771,10 @@
       "completedPublicationIntegrated": true,
       "activeServiceRunningComponentIntegrated": true,
       "activeServiceWALIntegrated": false,
-      "coldProcessLossReplayEstablished": false
+      "coldProcessLossReplayEstablished": false,
+      "coveredByReleaseCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
+      "testedCheckoutCommit": "e99ef482d0f258d19a7a10aa776e6923d1c22532",
+      "releaseValidationRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json"
     },
     "feeEngine": {
       "status": "committed-scoped-checks-pass",
@@ -758,9 +782,12 @@
       "commit": "a870049138be6500eface34320730ca17b9b22f8",
       "record": "fixtures/reference_fidelity/pr152-fees-core-integration.json",
       "recordSHA256": "49eb9ee2f909b1177563a55b8aa5ea078da57a5710cd6fee786ee81044a70c0f",
-      "fullSuitePromotion": false,
+      "fullSuitePromotion": true,
       "actualIntegrationTestsPassed": 30,
-      "matcherOrConsensusChanged": false
+      "matcherOrConsensusChanged": false,
+      "coveredByReleaseCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
+      "testedCheckoutCommit": "e99ef482d0f258d19a7a10aa776e6923d1c22532",
+      "releaseValidationRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json"
     },
     "rewardAccounting": {
       "status": "committed-scoped-checks-pass",
@@ -768,14 +795,17 @@
       "commit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
       "record": "fixtures/reference_fidelity/pr153-rewards-core-integration.json",
       "recordSHA256": "b9cc7b7edf0fe63cca9cf2e25eff8aa99ef27b5fd6f20e3172af70aced654ee4",
-      "fullSuitePromotion": false,
+      "fullSuitePromotion": true,
       "unitTestsPassed": 9,
       "actualPublicApiTestsPassed": 21,
       "independentFullWidthVectors": 1072,
-      "payoutOrConsensusChanged": false
+      "payoutOrConsensusChanged": false,
+      "coveredByReleaseCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
+      "testedCheckoutCommit": "e99ef482d0f258d19a7a10aa776e6923d1c22532",
+      "releaseValidationRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json"
     }
   },
-  "scope": "Committed Main bbe36dd: 43 new scoped controls, 318 library passes (3 ignored), 25 public compatibility checks. Fee a870049 passes 30 tests; rewards 21016cd passes 30 tests and 1,072 independent vectors. Scoped counts overlap. Last full release 963aae7 remains 1,714 Rust / 238 numeric checks. Active-service WAL/native-index recovery, cold replay, global initialization failure/order, broader source domains, host validation, authenticated inputs and complete-block proofs remain open. Live handoff.md is updated each integration cycle.",
+  "scope": "Full release of Main publication/service plus fee and reward accounting passes 1,977 Rust executions across 281 targets and 238 locked numeric-reference checks. All 1,646 tracked inputs were verified unchanged. Active-service WAL/native ambiguity, cold source replay, global initialization ordering, broader source domains and authenticated proof coverage remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -1067,7 +1097,7 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Committed Main bbe36dd: 43 new scoped controls, 318 library passes (3 ignored), 25 public compatibility checks. Fee a870049 passes 30 tests; rewards 21016cd passes 30 tests and 1,072 independent vectors. Scoped counts overlap. Last full release 963aae7 remains 1,714 Rust / 238 numeric checks. Active-service WAL/native-index recovery, cold replay, global initialization failure/order, broader source domains, host validation, authenticated inputs and complete-block proofs remain open. Live handoff.md is updated each integration cycle.",
+  "workbookNote": "Promote saved/sidebar release baseline to code21016cd/tested e99ef48:1,977 Rust executions (1,976 top-level +one successful storage subprocess),238 locked numeric checks. Transaction rows and proof/parity classifications remain unchanged; active WAL/native recovery and cold replay remain open.",
   "savedWorkbook": {
     "sha256": "7f6b3002c88928131423da5ea3c93b13edec7051ab19d8cd946dedc147ab6abe",
     "bytes": 48055,
@@ -1094,7 +1124,7 @@
     "releasePromotionPending": true,
     "lastFocusedCodeCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351"
   },
-  "validationRecord": "fixtures/reference_fidelity/native-main-release-validation.json",
+  "validationRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json",
   "knownReferenceGaps": [
     "Actual-owner active-service WAL and native-index ambiguity recovery",
     "Cold source reexecution from independently verified historical metadata",
@@ -1105,10 +1135,10 @@
     "Full-suite promotion, chain/UTXO/actor evidence, authenticated history and complete-block proofs"
   ],
   "previousFullSuiteBaseline": {
-    "implementationCommit": "9ff4aabcd7805562ec49550db91202ff999a13b4",
-    "releaseExecutions": 1678,
+    "implementationCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
+    "releaseExecutions": 1714,
     "lockedReferenceExecutions": 238,
-    "record": "fixtures/reference_fidelity/main-io-sort-release-validation.json"
+    "record": "fixtures/reference_fidelity/native-main-release-validation.json"
   },
   "focusedValidationRecord": "fixtures/reference_fidelity/pr153-rewards-core-integration.json",
   "focusedImplementationCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
