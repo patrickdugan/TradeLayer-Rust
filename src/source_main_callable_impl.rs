@@ -254,7 +254,17 @@ impl SourceContractRuntime {
         &mut self,
         call: &DependencyCall,
     ) -> Result<DependencyReturn, SourceRuleError> {
-        let before = self.clone();
+        self.source_main_invoke_with(call, true, &mut |runtime, call| {
+            runtime.source_main_dispatch(call)
+        })
+    }
+    fn source_main_invoke_with(
+        &mut self,
+        call: &DependencyCall,
+        rollback: bool,
+        dispatch: &mut impl FnMut(&mut Self, &DependencyCall) -> R<V>,
+    ) -> Result<DependencyReturn, SourceRuleError> {
+        let before = rollback.then(|| self.clone());
         if self.core.main_production_enabled()
             && self.core.source_main_service_enabled()
             && self
@@ -282,7 +292,14 @@ impl SourceContractRuntime {
         if spot_main {
             self.source_spot_main_enter()?;
         }
-        let result = self.source_main_dispatch(call);
+        let result = dispatch(self, call);
+        // Native IO/local stops retain the exact accepted source prefix and
+        // borrowed queue continuation. No generic post-call draining may run.
+        if !rollback {
+            if let Err(Fault::Local(error)) = &result {
+                return Err(error.clone());
+            }
+        }
         let result = if spot_main {
             match self.source_spot_main_leave() {
                 Ok(()) => result,
@@ -337,7 +354,9 @@ impl SourceContractRuntime {
             Ok(v) => Ok(DependencyReturn::Pending(v)),
             Err(Fault::Thrown(e)) => Ok(DependencyReturn::PendingThrow(e)),
             Err(Fault::Local(e)) => {
-                *self = before;
+                if let Some(before) = before {
+                    *self = before;
+                }
                 Err(e)
             }
         }
@@ -369,18 +388,35 @@ impl SourceContractRuntime {
         if rows.len() > MAX_TABLE_ROWS {
             return Err(SourceRuleError::Capacity.into());
         }
+        self.source_main_process_rows_iter(
+            rows.into_iter().map(Ok),
+            height,
+            live,
+            &mut |core, id, kind, valid, reason| {
+                core.source_main_index_validity(id, kind, valid, reason)
+            },
+        )
+    }
+    fn source_main_process_rows_iter(
+        &mut self,
+        rows: impl Iterator<Item = R<V>>,
+        height: V,
+        live: bool,
+        validity: &mut impl FnMut(&mut ContractCore, &V, V, V, V) -> R<()>,
+    ) -> R<V> {
         let mut skips = 0usize;
         let mut processed_any = false;
         for row in rows {
+            let row = row?;
             let mut id = s("unknown");
             let mut kind = n(-1.);
             match self.source_main_one_row(
                 &row,
-                &height,
-                live,
+                (&height, live),
                 &mut id,
                 &mut kind,
                 &mut processed_any,
+                validity,
             ) {
                 Ok(true) => skips += 1,
                 Ok(false) => (),
@@ -398,7 +434,8 @@ impl SourceContractRuntime {
                         self.core
                             .source_main_mark_processed(id.clone(), params.clone())?;
                         if number(&kind)? >= 0. {
-                            self.core.source_main_index_validity(
+                            validity(
+                                &mut self.core,
                                 &id,
                                 kind,
                                 V::Bool(false),
@@ -419,12 +456,13 @@ impl SourceContractRuntime {
     fn source_main_one_row(
         &mut self,
         row: &V,
-        height: &V,
-        live: bool,
+        height_live: (&V, bool),
         id: &mut V,
         kind: &mut V,
         processed_any: &mut bool,
+        validity: &mut impl FnMut(&mut ContractCore, &V, V, V, V) -> R<()>,
     ) -> R<bool> {
+        let (height, live) = height_live;
         let value = if live {
             row.clone()
         } else {
@@ -546,7 +584,8 @@ impl SourceContractRuntime {
         self.last_parameters = Some(params.clone());
         self.core
             .source_main_mark_processed(id.clone(), params.clone())?;
-        self.core.source_main_index_validity(
+        validity(
+            &mut self.core,
             id,
             kind.clone(),
             params.get("valid"),

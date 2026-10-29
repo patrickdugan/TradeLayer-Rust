@@ -1,0 +1,42 @@
+[
+  {
+    "realm": "HostIO",
+    "mode": "assignment",
+    "bits": "0000000000000000",
+    "negativeZero": false,
+    "positiveZero": true,
+    "writable": true,
+    "enumerable": false,
+    "configurable": false
+  },
+  {
+    "realm": "HostIO",
+    "mode": "defineProperty",
+    "bits": "0000000000000000",
+    "negativeZero": false,
+    "positiveZero": true,
+    "writable": true,
+    "enumerable": false,
+    "configurable": false
+  },
+  {
+    "realm": "SourceVM",
+    "mode": "assignment",
+    "bits": "0000000000000000",
+    "negativeZero": false,
+    "positiveZero": true,
+    "writable": true,
+    "enumerable": false,
+    "configurable": false
+  },
+  {
+    "realm": "SourceVM",
+    "mode": "defineProperty",
+    "bits": "0000000000000000",
+    "negativeZero": false,
+    "positiveZero": true,
+    "writable": true,
+    "enumerable": false,
+    "configurable": false
+  }
+]

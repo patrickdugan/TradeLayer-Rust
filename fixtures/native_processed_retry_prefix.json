@@ -1,0 +1,228 @@
+{
+  "profile": "TL-MAIN-ACTUAL-PROCESSED-RETRY-CONTROL-1",
+  "fresh": {
+    "name": "fresh-catchup-processes-real-main0",
+    "direct": false,
+    "header": {
+      "kind": "case",
+      "name": "fresh-catchup-processes-real-main0",
+      "mainSHA256": "006d59ba3d28d802b0e0c5be2d9d661b58caf1c919a704b3f0d40bc9613c4009",
+      "sourceMethod": {
+        "sha256": "49d765706d2959d0d134b13951b4f8b56f5a21f0442c567a5e20add572272d2a",
+        "async": true
+      },
+      "initialRows": 1101,
+      "initialChain": "ab33943f876b5e062b4e1c9c8e57ea6accffbdfff3d61628d687a9474a6eb37c",
+      "finalRows": 1101,
+      "finalChain": "3712733cc15316c8002576a15fd9ae58e993c1d822990c22a15bbe202fae48ff",
+      "result": {
+        "thrown": {
+          "name": "SourceBoundaryUnavailable",
+          "message": "Native Main control has no live RPC service"
+        }
+      },
+      "phases": [
+        {
+          "height": 10,
+          "rows": 0,
+          "rowChain": "4318d5dec1fb64b2967fcbb534cd4c502b6bea48c85cd85d6c40a59322a000b5"
+        },
+        {
+          "height": 10,
+          "rows": 1,
+          "rowChain": "5f6e941c31fea3c6637922df0427c28cdbaf3b9b4399ced4f88ddfdd2424dcad"
+        }
+      ],
+      "operations": [
+        {
+          "sequence": 0,
+          "method": "findOneAsync",
+          "query": {
+            "id": "MaxHeight"
+          },
+          "returned": {
+            "_id": "MaxHeight",
+            "value": 10
+          }
+        },
+        {
+          "sequence": 1,
+          "method": "findAsync",
+          "query": {
+            "all": true
+          },
+          "rows": 1101,
+          "rowChain": "ab33943f876b5e062b4e1c9c8e57ea6accffbdfff3d61628d687a9474a6eb37c",
+          "complete": true
+        },
+        {
+          "sequence": 2,
+          "method": "findAsync",
+          "query": {
+            "regexp": "^tx"
+          },
+          "rows": 1100,
+          "rowChain": "0d52b94abe71c4f3eb320c42f4a231b0cc5fa3a29b1285c2bfe7cacb646a6cd6",
+          "validityChain": "9a694f65c627178cbd81ff78d0e52c4cd074749c5c5e7ca3d4c515893a472b2d",
+          "complete": true
+        },
+        {
+          "sequence": 3,
+          "method": "updateAsync",
+          "query": {
+            "id": "tx-10-ac51132ae7087eca33d746db2622442dd53e300de4f38aa9b4bc418555d4a2c8"
+          },
+          "args": [
+            {
+              "_id": "tx-10-ac51132ae7087eca33d746db2622442dd53e300de4f38aa9b4bc418555d4a2c8"
+            },
+            {
+              "$set": {
+                "type": 0,
+                "valid": true
+              }
+            },
+            {
+              "upsert": true
+            }
+          ],
+          "returned": 1
+        }
+      ],
+      "financialProcessed": true
+    },
+    "phases": [
+      {
+        "target": "Tally.flushQueuedFeeAccruals",
+        "args": [
+          10
+        ]
+      },
+      {
+        "target": "Logic.settleLiquidityRewards",
+        "args": [
+          10
+        ]
+      },
+      {
+        "target": "Orderbook.processQueuedOnChainOrdersForBlock",
+        "args": [
+          10
+        ]
+      },
+      {
+        "target": "Orderbook.processQueuedChannelTradesForBlock",
+        "args": [
+          10
+        ]
+      },
+      {
+        "target": "Channels.processWithdrawals",
+        "args": [
+          10
+        ]
+      },
+      {
+        "target": "Clearing.clearingFunction",
+        "args": [
+          10,
+          false
+        ]
+      }
+    ]
+  },
+  "retried": {
+    "name": "already-processed-row-changes-catchup-branch",
+    "direct": true,
+    "header": {
+      "kind": "case",
+      "name": "already-processed-row-changes-catchup-branch",
+      "mainSHA256": "006d59ba3d28d802b0e0c5be2d9d661b58caf1c919a704b3f0d40bc9613c4009",
+      "sourceMethod": {
+        "sha256": "49d765706d2959d0d134b13951b4f8b56f5a21f0442c567a5e20add572272d2a",
+        "async": true
+      },
+      "initialRows": 1101,
+      "initialChain": "ab33943f876b5e062b4e1c9c8e57ea6accffbdfff3d61628d687a9474a6eb37c",
+      "finalRows": 1101,
+      "finalChain": "3712733cc15316c8002576a15fd9ae58e993c1d822990c22a15bbe202fae48ff",
+      "result": {
+        "thrown": {
+          "name": "SourceBoundaryUnavailable",
+          "message": "Native Main control has no live RPC service"
+        }
+      },
+      "directResult": 0,
+      "phases": [
+        {
+          "height": 10,
+          "rows": 0,
+          "rowChain": "4318d5dec1fb64b2967fcbb534cd4c502b6bea48c85cd85d6c40a59322a000b5"
+        },
+        {
+          "height": 10,
+          "rows": 1,
+          "rowChain": "1626e5e94dff639dd20ca0632fd6fe89b27e176279ef096d5330e443de843d59"
+        }
+      ],
+      "operations": [
+        {
+          "sequence": 0,
+          "method": "findAsync",
+          "query": {
+            "regexp": "^tx"
+          },
+          "rows": 1100,
+          "rowChain": "0d52b94abe71c4f3eb320c42f4a231b0cc5fa3a29b1285c2bfe7cacb646a6cd6",
+          "validityChain": "9a694f65c627178cbd81ff78d0e52c4cd074749c5c5e7ca3d4c515893a472b2d",
+          "complete": true
+        },
+        {
+          "sequence": 1,
+          "method": "updateAsync",
+          "query": {
+            "id": "tx-10-ac51132ae7087eca33d746db2622442dd53e300de4f38aa9b4bc418555d4a2c8"
+          },
+          "args": [
+            {
+              "_id": "tx-10-ac51132ae7087eca33d746db2622442dd53e300de4f38aa9b4bc418555d4a2c8"
+            },
+            {
+              "$set": {
+                "type": 0,
+                "valid": true
+              }
+            },
+            {
+              "upsert": true
+            }
+          ],
+          "returned": 1
+        },
+        {
+          "sequence": 2,
+          "method": "findOneAsync",
+          "query": {
+            "id": "MaxHeight"
+          },
+          "returned": {
+            "_id": "MaxHeight",
+            "value": 10
+          }
+        },
+        {
+          "sequence": 3,
+          "method": "findAsync",
+          "query": {
+            "all": true
+          },
+          "rows": 1101,
+          "rowChain": "3712733cc15316c8002576a15fd9ae58e993c1d822990c22a15bbe202fae48ff",
+          "complete": true
+        }
+      ],
+      "financialProcessed": true
+    },
+    "phases": []
+  }
+}

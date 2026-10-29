@@ -212,3 +212,16 @@ pub mod bitcoin_p2wsh_verify;
 
 pub mod bitcoin_block_input;
 pub mod bitcoin_standard_input;
+
+pub mod compact_journal;
+#[cfg(test)]
+mod compact_journal_tests;
+pub mod source_compact_index_v2;
+#[cfg(test)]
+mod source_compact_index_v2_tests;
+
+pub mod source_main_native_owners;
+
+pub mod source_main_native_session;
+
+pub mod source_rich_value;

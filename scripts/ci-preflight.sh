@@ -48,6 +48,16 @@ rustfmt --check --edition 2021 \
   src/source_main_snapshot_impl.rs \
   src/source_main_startup_impl.rs \
   src/source_main_file_io_impl.rs \
+  src/storage_read_snapshot_impl.rs \
+  src/source_compact_stream_impl.rs \
+  src/source_main_index_stream_impl.rs \
+  src/source_index_validity_stream_impl.rs \
+  src/compact_native_main_owner_access_impl.rs \
+  src/source_main_native_owner_access_impl.rs \
+  src/source_main_native_validity_impl.rs \
+  src/source_main_native_runtime_impl.rs \
+  src/source_main_native_catchup_impl.rs \
+  src/source_main_native_checkpoint_impl.rs \
   src/source_v8_sort_impl.rs \
   src/source_procedural_bitvm_impl.rs \
   src/source_proof_lifecycle_impl.rs \

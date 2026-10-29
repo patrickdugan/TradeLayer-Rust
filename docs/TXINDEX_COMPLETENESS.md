@@ -8,7 +8,15 @@ gates; neither is a claim of authenticated Bitcoin input.
 | --- | --- | --- |
 | Parallel scanner | Bounded fetch, fused raw parsing and TXID/wTXID checks, TL candidate extraction, deterministic source-order reduction and optional dependency waves | Compose source metadata writes under an explicit execution policy |
 | Literal `txIndex.js` owner | All 21 methods plus constructor/singleton, client and DB initialization, MaxHeight/recovery flags, row insert/update/lookups, validity updates, source clear/reset errors and sequential RPC scans | Broader JS/RegExp domains and production backend integration |
+| Generational native index and explicit Main session | Fixed complete-read streams, same-owner indexed and direct/live processing, native validity writes, pinned fresh-owner command-archive reexecution and retained source-error prefixes | Native startup/block routing, timer continuations, cross-file intent/ack recovery, full-history/resource support and full-release promotion |
 | HashMap reducer candidate | Externally owned draft PR141 and its existing synthetic evidence | Representative real-block CPU and peak-RSS measurements on the intended host |
+
+The native integration passes232 focused Rust executions across16 targets and13
+source-check commands. All seven native integration tests and163 library tests
+pass, as do legacy byte/version checks, formatting and all-target Clippy. This is
+an explicit additional session over the existing financial owner and one native
+metadata authority. It does not automatically replace the default scanner or
+establish full source parity or authentication. See `NATIVE_MAIN_INTEGRATION.md`.
 
 The metadata owner is `TxIndexSourceOwner`. Its unchanged-source oracle covers
 320 observations, of which 319 compare supported Rust execution and one records

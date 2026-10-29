@@ -1,0 +1,36 @@
+{
+  "utc": "2026-10-28T21:46:52.623599+00:00",
+  "checks": [
+    {
+      "name": "main_stream_controls-931",
+      "exit": 0
+    },
+    {
+      "name": "validity_stream_controls-931",
+      "exit": 0
+    },
+    {
+      "name": "main_service_vectors-931",
+      "exit": 0
+    },
+    {
+      "name": "main_stream_controls-912",
+      "exit": 0
+    },
+    {
+      "name": "validity_stream_controls-912",
+      "exit": 0
+    },
+    {
+      "name": "main_service_vectors-912",
+      "exit": 0
+    }
+  ],
+  "scriptSha256": {
+    "main_service_vectors.cjs": "60ba0f9d080dce7732a1e5541332ce75c6aac7c7b320afc8ea7faacf2553358d",
+    "main_stream_controls.cjs": "98ce078193697eed11f0c356feb362af58b58fc2d1d0f198ce9f2a1e2bd826c3",
+    "txindex_source_vectors.cjs": "d803bf9dc4aaa916377704a6184c52b3a9e4157cfaf7e7e5eec83a7984e3224a",
+    "upsert_coercion_probe.cjs": "01c31545c488aa6e8b3484a99b35d3cbf47380fd28eca7eca7a1d3f33365d4b7",
+    "validity_stream_controls.cjs": "89d1d8832f7240a3d9e95e4d76776d21b610c43da9a94dee2498b1c8145ebe5c"
+  }
+}

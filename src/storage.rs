@@ -218,6 +218,15 @@ impl Journal {
         recovery: Recovery,
         create: bool,
     ) -> Result<(Self, RecoveryReport), StorageError> {
+        Self::open_mode_checked(root, namespace, recovery, create, None)
+    }
+    fn open_mode_checked(
+        root: &Path,
+        namespace: Namespace,
+        recovery: Recovery,
+        create: bool,
+        expected_sequence: Option<u64>,
+    ) -> Result<(Self, RecoveryReport), StorageError> {
         let path = namespace.path(root);
         // Caller owns creation/durability of the root and its ancestors.
         if !root.is_dir() {
@@ -300,7 +309,28 @@ impl Journal {
             #[cfg(test)]
             test_fault: None,
         };
-        let report = journal.replay(length, recovery)?;
+        // Inspect the entire committed prefix without truncation. A rejected
+        // caller pin must never authorize recover_tail's filesystem mutation.
+        let replay = journal.replay(length, Recovery::RejectIncompleteTail);
+        let report = match replay {
+            Ok(report) => {
+                if expected_sequence.is_some_and(|n| n != journal.sequence) {
+                    return Err(StorageError::Corrupt(
+                        "unexpected independently pinned sequence",
+                    ));
+                }
+                report
+            }
+            Err(StorageError::IncompleteTail { .. }) => {
+                if expected_sequence.is_some_and(|n| n != journal.sequence) {
+                    return Err(StorageError::Corrupt(
+                        "unexpected independently pinned sequence",
+                    ));
+                }
+                journal.recover_tail(length, recovery)?
+            }
+            Err(error) => return Err(error),
+        };
         // A prior writer may have returned an uncertain sync error after
         // writing a complete frame. Reconcile and sync before serving it.
         journal.file.sync_all()?;
@@ -723,3 +753,5 @@ mod tests {
         std::fs::remove_dir_all(root).unwrap();
     }
 }
+
+include!("storage_read_snapshot_impl.rs");

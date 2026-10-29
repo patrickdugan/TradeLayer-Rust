@@ -1,0 +1,135 @@
+{
+  "schema": "native-main-core-integration-validation-v1",
+  "verifiedAtUtc": "2026-10-29T00:25:05Z",
+  "baselineCommit": "9ea8f846a1ba0b2dfbbbe964d825758fc9ca6b1d",
+  "baselineFullReleaseCode": "9ff4aabcd7805562ec49550db91202ff999a13b4",
+  "scope": "Focused actual main-checkout integration validation, not a replacement full-suite release or full source parity claim.",
+  "rust": {
+    "toolchain": "1.90.0-x86_64-pc-windows-msvc",
+    "executions": 232,
+    "topLevelPassed": 231,
+    "successfulStorageSubprocess": 1,
+    "ignoredRealChildHelpers": 2,
+    "targets": 16,
+    "resultRecords": 17,
+    "libraryPassed": 163,
+    "nativeIntegrationPassed": 7,
+    "newUniqueTests": 36,
+    "allTargetClippyWarningsDenied": true,
+    "cargoFmt": true,
+    "additionalIncludedFormatChecks": 114
+  },
+  "sourceRegenerations": {
+    "scriptExecutions": 13,
+    "mainGroupingControls": 7,
+    "validityControls": 7,
+    "nativeMainCases": 5,
+    "nativeMainFrames": 11051,
+    "richSourceCalls": 38,
+    "richWireFrames": 76,
+    "arrayLengthNativeControls": 4,
+    "bothDefaultAndLockedNumeric": true
+  },
+  "frozenCodeInputManifest": {
+    "sha256": "73d7b2c4adf10f03e09de838728f774b5960e0361774a3bb0463a48f8389d5d8",
+    "files": 1133
+  },
+  "packages": {
+    "next-source-compact-stream/root-ready": "1a0b876af2fa2eb4237046513f942e88941a1211f2155c58c47934be5b5a6227",
+    "next-source-compact-pin-repair/root-ready": "5e635c6b6e56f27f956f5ab12f54816d195ad00495a4ea9fbcef873e788d5079",
+    "next-rich-value-v14-import-bound/root-ready": "87a9d8f59c3e7f8d7ddf3726690f2f29228d7a6d8939813828ed257ec8dcba57",
+    "next-rich-value-v14-portable/root-ready": "3412379b09cfbba84ea851823a9d476a08574ec35b33216055ba3991ada8ee2e",
+    "native-main-compact-v13/build-probe-4": "75a7d7b41a06013f51dbd055324bd75f726b854ca7dc8fb50da3f90b2938088a",
+    "next-rich-value-v14-array-length/root-ready": "6ce9790c564032c2ecda10ea0a895a7f6206ec9c0cfaacae93beeec6cc8fe2dd",
+    "native-main-source-reproduction/root-ready": "6535a8e3e60a37ab7b43f634fca0fcd3443f554e9c981928818c8dc1e4a69aa3"
+  },
+  "logs": {
+    "root-native-v2-core.log": {
+      "sha256": "40f90403c6d3fa72bbbf73bd1c9256fa436a3e4be767a2ad0c44efb21c7b507d",
+      "bytes": 37886
+    },
+    "root-native-v2-clippy.log": {
+      "sha256": "ef1253d23943ff699a82578b0d6b4cd829f1207081f6f79c66364c433bd2941a",
+      "bytes": 170
+    },
+    "root-native-v2-format.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "root-native-v2-supply-chain.log": {
+      "sha256": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01",
+      "bytes": 89
+    },
+    "root-native-v2-logic-inventory.log": {
+      "sha256": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393",
+      "bytes": 115
+    },
+    "root-native-logic-inventory.log": {
+      "sha256": "35c2f0a6c45480e6ad2de37522651f80c70df4e41fd9f87ace6ef28536fbfd23",
+      "bytes": 543
+    },
+    "root-native-main_stream_controls-default.log": {
+      "sha256": "6c5245e0883af4f85b01ec0018cbc8b58040d6ac26beace20e134f30ccc02ac7",
+      "bytes": 1782
+    },
+    "root-native-main_stream_controls-locked.log": {
+      "sha256": "f0cd62e974cdbe3cf2dca5542865c188079829b960e4dc605323a6abc46551a6",
+      "bytes": 1782
+    },
+    "root-native-validity_stream_controls-default.log": {
+      "sha256": "a5058380bf3f41fc2650de76d59eb44d59c60d088931e673a6a56e82a027d70d",
+      "bytes": 1103
+    },
+    "root-native-validity_stream_controls-locked.log": {
+      "sha256": "524e8a115bb61999560e42ef0b26df19d04c34997420babf2c6e3840910ba00a",
+      "bytes": 1103
+    },
+    "root-native-native_main_controls-default.log": {
+      "sha256": "799bba5f339be5d7845a2a068eb67a1972ca1ac2dd61741f012725b0c2295517",
+      "bytes": 374
+    },
+    "root-native-native_main_controls-locked.log": {
+      "sha256": "d8b996d84219ff715c50bb5af68b97084c59d017efa699bd0cbdcfde17bdcbbd",
+      "bytes": 374
+    },
+    "root-native-native_processed_retry_prefix-default.log": {
+      "sha256": "2b4069d0ddd08ef3cdec16bf672bc2f5019b84f1b2d576099b3b33c3c8e74e47",
+      "bytes": 333
+    },
+    "root-native-native_processed_retry_prefix-locked.log": {
+      "sha256": "3ba2be639e675eea37136f2b6ff8c92ee01b4e9679d64d9537c8c78dfe722254",
+      "bytes": 333
+    },
+    "root-native-rich_thrown_vectors-default.log": {
+      "sha256": "5d474295e6c0384c38a90f31d6e5c0d86b9fbc84a412bf354c450ad1a229926f",
+      "bytes": 221
+    },
+    "root-native-rich_thrown_vectors-locked.log": {
+      "sha256": "5d474295e6c0384c38a90f31d6e5c0d86b9fbc84a412bf354c450ad1a229926f",
+      "bytes": 221
+    },
+    "root-native-source_graph_codec_vectors.log": {
+      "sha256": "a25a98e095447c038837586fb8089a2ec7be3836ba62223244b75df61bacfbf1",
+      "bytes": 177
+    },
+    "root-native-rich_array_length_controls.log": {
+      "sha256": "8421849cb3521eace3401e4e823d659ae3d193794816626ffa0ec33987a5848a",
+      "bytes": 68
+    },
+    "root-native-check_main_production_parse_int.log": {
+      "sha256": "84b0587516d5ad30387fe78a77c28caae18a88ae1ae7dc2ee3265533ceb9f223",
+      "bytes": 75
+    }
+  },
+  "remaining": [
+    "native startup and block routing",
+    "source timer suspension and exact continuation recovery",
+    "cross-file intent/ack durability",
+    "broader financial/metadata resource domains and full-history service",
+    "actual rich Runtime14/catch owner integration",
+    "host CPU/RSS and power-loss checks",
+    "authenticated chain/actor history and complete-block proofs"
+  ],
+  "defaultPolicyChanged": false,
+  "perTypeParityOrProofPromotions": 0
+}

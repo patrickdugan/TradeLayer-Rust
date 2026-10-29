@@ -765,3 +765,19 @@ pub mod source_durable {
     use super::*;
     include!("source_durable_replay_impl.rs");
 }
+
+impl SourceContractReplay {
+    pub(crate) fn native_main_runtime_mut(&mut self) -> &mut SourceContractRuntime {
+        &mut self.runtime
+    }
+    pub(crate) fn native_main_financial_commitment(&self) -> Result<[u8; 32]> {
+        let state = self
+            .runtime
+            .native_main_state_value()
+            .map_err(SourceContractReplayError::Runtime)?;
+        let mut bytes = b"TradeLayer/NativeMainFinancialState/v13/".to_vec();
+        let mut nodes = 0;
+        encode_state(&state, 0, &mut nodes, &mut bytes)?;
+        Ok(sha256(&bytes))
+    }
+}

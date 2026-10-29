@@ -134,6 +134,7 @@ pub(crate) struct ContractCore {
     main_activation_locked: bool,
     main_height_job: Option<SourceMainHeightJob>,
     main_production: Option<SourceMainProduction>,
+    native_main_binding: Option<V>,
     main_height_rejections: Vec<crate::validity_source::SourceException>,
     source_spot_main_active: bool,
     source_spot_orders_read: Option<SourceSpotOrdersReadJob>,
@@ -272,6 +273,9 @@ impl std::fmt::Debug for ContractCore {
         // remains visible instead of being hidden by the compatibility view.
         if self.main_production_enabled() || self.main_production.is_some() {
             view.field("main_production", &self.main_production);
+        }
+        if let Some(binding) = &self.native_main_binding {
+            view.field("native_main_binding", binding);
         }
         view.field("main_height_rejections", &self.main_height_rejections);
         view.field("source_spot_main_active", &self.source_spot_main_active);
@@ -691,6 +695,10 @@ impl SourceContractRuntime {
             )
             .map_err(|_| SourceRuleError::InvalidInput)?;
         }
+        if let Some(binding) = &self.core.native_main_binding {
+            set(&mut value, "nativeMainBinding", binding.clone())
+                .map_err(|_| SourceRuleError::InvalidInput)?;
+        }
         Ok(value)
     }
     pub fn invoke_dependency(
@@ -971,6 +979,7 @@ impl ContractCore {
             main_activation_locked: false,
             main_height_job: None,
             main_production: None,
+            native_main_binding: None,
             main_height_rejections: vec![],
             source_spot_main_active: false,
             source_spot_orders_read: None,
@@ -1108,6 +1117,9 @@ impl ContractCore {
         Ok(&mut self.tables.last_mut().unwrap().rows)
     }
     fn import(&mut self, name: &str, rows: Vec<V>) -> Result<(), SourceRuleError> {
+        if name == "txIndex" && self.native_main_binding.is_some() {
+            return Err(SourceRuleError::Backend);
+        }
         if name.len() > 128 || rows.len() > MAX_TABLE_ROWS {
             return Err(SourceRuleError::Capacity);
         };
@@ -1287,6 +1299,9 @@ impl ContractCore {
         }
     }
     fn db(&mut self, name: &str, op: &str, args: Vec<V>) -> R<V> {
+        if name == "txIndex" && self.native_main_binding.is_some() {
+            return Err(SourceRuleError::Backend.into());
+        }
         let result = (|| {
             self.check_failure(name, op)?;
             // The source fixture adapter calls table(name) inside these
@@ -2882,6 +2897,8 @@ include!("source_main_production_impl.rs");
 include!("source_main_service_impl.rs");
 include!("source_main_snapshot_impl.rs");
 include!("source_main_startup_impl.rs");
+
+include!("source_main_native_runtime_impl.rs");
 
 #[cfg(test)]
 mod main_production_parse_int_tests {

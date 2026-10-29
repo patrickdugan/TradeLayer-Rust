@@ -1,0 +1,78 @@
+{
+  "verifiedUtc": "2026-10-28T21:37:12.635901+00:00",
+  "providerSha256": "a82936bdfc6e63ae7d5a3cc86fb04e2f40ef8728e0ebf5a5f6a4285175f4f9f5",
+  "tests": 23,
+  "ignoredChildHelpers": 1,
+  "actualProcessExitCases": 9,
+  "mainSourceControls": 7,
+  "validitySourceControls": 7,
+  "originalMainBaselineCalls": 10,
+  "previousTxIndexProofObservations": 10,
+  "previousNewTxIndexSourceCalls": 50,
+  "previousExplicitProfileRefusals": 1,
+  "checks": [
+    {
+      "name": "format",
+      "exit": 0
+    },
+    {
+      "name": "source-main-931",
+      "exit": 0
+    },
+    {
+      "name": "source-validity-931",
+      "exit": 0
+    },
+    {
+      "name": "source-initial-main-931",
+      "exit": 0
+    },
+    {
+      "name": "source-main-912",
+      "exit": 0
+    },
+    {
+      "name": "source-validity-912",
+      "exit": 0
+    },
+    {
+      "name": "source-initial-main-912",
+      "exit": 0
+    },
+    {
+      "name": "build-debug",
+      "exit": 0
+    },
+    {
+      "name": "tests-debug",
+      "exit": 0
+    },
+    {
+      "name": "clippy-debug",
+      "exit": 0
+    },
+    {
+      "name": "build-release",
+      "exit": 0
+    },
+    {
+      "name": "tests-release",
+      "exit": 0
+    },
+    {
+      "name": "clippy-release",
+      "exit": 0
+    }
+  ],
+  "files": {
+    "src/compact_journal.rs": "e9b692c208c2a3f9adf6a51502946d1769e9f69b23ee4eae823502d151e23c49",
+    "src/source_compact_index_v2.rs": "51f091aae6eb6e217400652d9b413201a390e9d3998f0b8f2fdec00555570086",
+    "src/source_compact_stream_impl.rs": "81bde84634db94db2102df2b7dc2c8790c5a622d28577bf3b3a158db999ca4cd",
+    "src/source_index_validity_stream_impl.rs": "2f4bfedc442a8e32f745831637180eab512a250338bfe028921300c1a0dd9cd7",
+    "src/source_main_index_stream_impl.rs": "cf1fb629bd20b8bcb9e3f97ff795759aea3e31e67c2862ed11c5e1b98b40803b",
+    "src/storage.rs": "3cf4dc0a161d2457da47bc19e0f4ee3faa2d71caef0832fd9f5e00f2274e31e9",
+    "src/storage_read_snapshot_impl.rs": "2a98369db56c848b9badbb4b90679b5359f68b8a5b75d719081258e6b0b66651"
+  },
+  "rootEdited": false,
+  "wholeCoreBuilt": false
+}

@@ -62,6 +62,8 @@ jobs:
         run: rustfmt --check --edition 2021 src/source_clearing_funding_impl.rs src/source_insurance_lifecycle_impl.rs src/source_insurance_legacy_v1_impl.rs src/source_iou_settlement_impl.rs src/source_clearing_liquidation_impl.rs src/source_clearing_expiry_impl.rs src/source_clearing_global_impl.rs src/source_clearing_mark_settlement_impl.rs src/source_clearing_supply_impl.rs src/source_contract_history_schedule_impl.rs src/source_contract_registry_lifecycle_impl.rs src/source_channel_financial_impl.rs src/contract_channel_queue_source_impl.rs src/source_channel_logic_impl.rs src/source_transition_witness_impl.rs src/source_contract_position_identity_impl.rs src/source_channel_volume_impl.rs src/source_option_trade_impl.rs src/source_synthetic_lifecycle_impl.rs src/source_derivative_exercise_impl.rs src/source_distribution_lifecycle_impl.rs src/margin_option_index_source_impl.rs src/source_lifecycle_transition_witness_impl.rs src/source_proof_lifecycle_impl.rs src/source_proof_settlement_impl.rs src/source_procedural_bitvm_impl.rs src/source_liquidity_rewards_impl.rs src/source_tail_lifecycle_impl.rs src/source_lower_oracle_lifecycle_impl.rs src/source_lower_property_lifecycle_impl.rs src/source_main_callable_impl.rs src/source_main_production_impl.rs src/source_main_service_impl.rs src/source_main_snapshot_impl.rs src/source_main_startup_impl.rs src/source_main_file_io_impl.rs src/source_v8_sort_impl.rs src/source_lower_clearlist_impl.rs src/source_lower_send_commit_impl.rs src/source_lower_utxo_trade_impl.rs src/source_spot_lifecycle_impl.rs src/source_spot_matching_impl.rs src/source_spot_queue_fragments_impl.rs src/source_spot_schedule_impl.rs src/source_recent_lifecycle_transition_witness_impl.rs src/source_transfer_schedule_impl.rs src/source_token_channel_schedule_impl.rs src/source_withdrawal_schedule_impl.rs src/source_activation_lifecycle_impl.rs src/source_activation_hash_impl.rs src/source_amm_lifecycle_impl.rs src/source_amm_quote_impl.rs src/source_amm_remaining_impl.rs src/source_durable_replay_impl.rs src/source_durable_replay_tests.rs src/litecoin_transparent_impl.rs src/litecoin_mweb_structure_impl.rs src/source_full_dispatch_transition_witness_impl.rs src/source_durable_transition_witness_impl.rs src/source_durable_transition_witness_tests.rs
       - name: Check native Main integer parsing reference
         run: node scripts/check_main_production_parse_int.cjs
+      - name: Check included native index and Main session formatting
+        run: rustfmt --check --edition 2021 src/storage_read_snapshot_impl.rs src/source_compact_stream_impl.rs src/source_main_index_stream_impl.rs src/source_index_validity_stream_impl.rs src/compact_native_main_owner_access_impl.rs src/source_main_native_owner_access_impl.rs src/source_main_native_validity_impl.rs src/source_main_native_runtime_impl.rs src/source_main_native_catchup_impl.rs src/source_main_native_checkpoint_impl.rs
       - name: Lint
         run: cargo clippy --all-targets --frozen -- -D warnings
       - name: Install pinned test-only JavaScript references
@@ -102,6 +104,16 @@ jobs:
           node scripts/main_lower_vectors.cjs --proof10 --lock --check
           node scripts/main_lower_vectors.cjs --check
           node scripts/main_lower_vectors.cjs --lock --check
+      - name: Native index streams and rich graph source evidence
+        env:
+          TRADELAYER_JS_ROOT: ${{ runner.temp }}/tl-secp-reference
+        run: |
+          for script in main_stream_controls validity_stream_controls native_main_controls native_processed_retry_prefix rich_thrown_vectors; do
+            node "scripts/$script.cjs" --check
+            node "scripts/$script.cjs" --lock --check
+          done
+          node scripts/source_graph_codec_vectors.cjs --check
+          node scripts/rich_array_length_controls.cjs --check
       - name: Original spot and upper Main lifecycle evidence
         env:
           TRADELAYER_JS_ROOT: ${{ runner.temp }}/tl-secp-reference
