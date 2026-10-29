@@ -1045,6 +1045,16 @@
       "priorCheckpointGoldens": 4,
       "queueSortBound": 1024,
       "fullSuitePromotion": false
+    },
+    "inlineNativeRecoveryIndependentReview": {
+      "record": "fixtures/reference_fidelity/inline-native-recovery-independent-review.json",
+      "RootIntegrated": true,
+      "newActualRootMetadataControls": 2,
+      "combinedRecoveryControlsPassed": 6,
+      "independentCopiedMetadataPassed": 125,
+      "productionDefectFound": false,
+      "newWholeLibraryRun": false,
+      "fullSuitePromotion": false
     }
   },
   "scope": "Full release remains code 239c340/tested216377f: 2,120 Rust executions and238 locked numeric checks. Latest 146984e adds actual cold source execution of complete acknowledged HISTORY-WAL transcripts on one moved financial owner and the same final Post index/capability/WAL locks. Strict raw actions drive execution; all original physical receipts and opaque Before/Accepted observations are recomputed and compared. Three new Core +two metadata controls,475 library/44 public pass. Inline/Mode4, recovery/supersession, cross-publication, unresolved terminal work, hot resume and killed-process finance remain open. Channel64+ sort gap is reproduced and assigned; later candidates stay unverified.",

@@ -1330,7 +1330,7 @@
     },
     {
       "path": "src/source_index_inline_recovery_tests.rs",
-      "sha256": "063732aff02d1e6ea6080f088a297a0bf47f2babd118bbc32748225857b905a3",
+      "sha256": "8fa053913afc7ad5341288dd1e77b6fe0aea08df0fad771a1ec0dc64565a4dc3",
       "lfNormalized": true
     },
     {
@@ -1366,6 +1366,11 @@
     {
       "path": "src/channel_queue_v8_sort_tests.rs",
       "sha256": "b2418adc8d8b311ade5ece6d4d824e474501300e282f9f99655349226cf62fdf",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_index_inline_review_tests.rs",
+      "sha256": "16c802ba2fae7c4d912b837ac8b2eb64f38732d52af5bf1e9c1cd23afe6f09b9",
       "lfNormalized": true
     }
   ],

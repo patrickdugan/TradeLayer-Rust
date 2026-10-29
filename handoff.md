@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-29T21:13:03Z. Maintained after every tested integration cycle.
+Updated: 2026-10-29T21:16:47Z. Maintained after every tested integration cycle.
 
 ## Goal and boundaries
 
@@ -39,7 +39,7 @@ All record names above are under `fixtures/reference_fidelity/`. Source results/
 1. `v8_main`: Mode4 package8fda3a48 is now integrated/tested. Next isolated prerequisite is a strict escrow descriptor and actual copied-generation old-view/closure; keep original versus copied identity separate and never convert a pin to a live permit. Coordinate caller selectors with row. Wider coldMode4 admission remains closed.
 2. `row_continuation_impl`: retained Main caller PCs using genuine caller corpus `a1d05d41…`,12 calls/35 records per numeric profile. Root has now reproduced and committed the additive source corpus and CI checks; record: `retained-main-caller-source-characterization.json`. This is source characterization, not Rust caller completion. Crucial source fact: extractBlockData's final saveMaxHeight is DETACHED. Main sync/init/initialize can fulfill and continue consensus while that same save is unresolved; its rejection is an unhandled notification. Awaited per-transaction height rejection has a different catch boundary. Keep caller completion separate from operation completion and no early financial drain/head escape.
 3. Both lanes must bind an explicit stable job/scope/operation ordinal plus Awaited/Detached selector. Identical method/args/Before may represent different concurrent saves; AppendPending must not silently choose the first frame. Main owns the WAL/frame selector; row owns caller PCs. Stage-only until Root checks.
-4. `v8_clearlist`: channel sort packagea05a13d2 is now integrated/tested, including real64 settlement/65 late-error retained Tally writes, exact comparator schedule and four prior checkpoints. The same sharedV8 helper/MainIO remain unchanged. Worker now independently reviews Mode4 native recovery and proposes discriminating negative controls.
+4. `v8_clearlist`: channel sort packagea05a13d2 is now integrated/tested, including real64 settlement/65 late-error retained Tally writes, exact comparator schedule and four prior checkpoints. The same sharedV8 helper/MainIO remain unchanged. Mode4 independent review is complete; two additional Root negative controls pass. Worker now audits current admission/UTXO gates and recent external-worker PRs before proposing any disjoint implementation.
 5. Broaden cold execution to inline/Mode4, recovery/supersession, cross-publication retained views, unresolved terminal work and actual killed-process financial recovery. Current cold success must not be relabeled as those broader gates or as mutable hot resume.
 
 The e0cee8/0a94 cold-action package is now integrated in this cycle. Older4a/6fa/546690/3b459/8c062/7b839/b2ae/6db packages are already integrated; use new pure transforms against current text rather than old whole-file overlays.
@@ -75,3 +75,7 @@ Mode4 preserves one actual owner and exact pending native operation across lost-
 ## Latest channel integration
 
 The reproduced64+ ready-queue refusal is fixed through the existing1,024-row source domain using the original comparator and shared safe V8 sort. Source outcomes, callback/error effects and partial financial writes remain faithful. Source placeholder errors are not repaired into success. No new fee/reward policy, owner, network adapter or authentication is selected. Keep the remaining caller/cold-view and host/proof requirements open.
+
+## Latest independent recovery review
+
+Two added native controls pass inside the actual Root crate, alongside all four prior inline metadata controls. Valid-CRC altered/extra native state is rejected before repair; foreign/stale/duplicate/Post mappings cannot authorize a retry. Production code is unchanged; warnings-denied Clippy/fmt267/inventory pass. The previous full library remains489 until the next all-target run. Record: `fixtures/reference_fidelity/inline-native-recovery-independent-review.json`.

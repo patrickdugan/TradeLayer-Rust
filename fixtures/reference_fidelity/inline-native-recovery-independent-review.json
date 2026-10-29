@@ -1,0 +1,50 @@
+{
+  "schema": "tl-inline-native-recovery-independent-review-v1",
+  "verifiedAtUtc": "2026-10-29T21:16:47Z",
+  "inputCommit": "60fc80d1b3fc1522eb6aea6d5177dec7955557c1",
+  "workerManifestSHA256": "5dbd42ddd88f177c630f3a9f7a507186ff801b3eea7d187d679e008dd35f3722",
+  "before": {
+    "src/source_index_inline_recovery_tests.rs": "063732aff02d1e6ea6080f088a297a0bf47f2babd118bbc32748225857b905a3",
+    "src/source_index_inline_review_tests.rs": null,
+    "scripts/ci-preflight.sh": "6b1f754c50501ac6a7ef6147a4d2a2c23e8a151af5857d8ad85558d023bf2f70",
+    ".github/workflows/ci.yml": "7649e022f5b2bee7ccdeb116a9079a1fc4c309a86db2a20deda1a558129e5436",
+    "docs/LOGIC_BY_TX_TYPE.json": "1efe278bb233f56a0ba196dc9a4c7c821bba317fa9fbf7edf581bd18a3a978e8"
+  },
+  "after": {
+    "src/source_index_inline_recovery_tests.rs": "8fa053913afc7ad5341288dd1e77b6fe0aea08df0fad771a1ec0dc64565a4dc3",
+    "src/source_index_inline_review_tests.rs": "16c802ba2fae7c4d912b837ac8b2eb64f38732d52af5bf1e9c1cd23afe6f09b9",
+    "scripts/ci-preflight.sh": "99ac3a39094dd5cd5b74ff98d8b78cebf108e2ba25c45fa9306c42417b1364ca",
+    ".github/workflows/ci.yml": "e4953c2e1233afd9385eb4ce4bbc60287397fe275caeb413f765fea0d034d83c",
+    "docs/LOGIC_BY_TX_TYPE.json": "73b36ee937b0b33b23fe2c1bdcf85142ad12c0d4bedc947501c0c378eb7df5be"
+  },
+  "newControls": 2,
+  "productionSourceChanged": false,
+  "reviewedCandidateManifestSHA256": "8fda3a482bea24bfbb3b30f0a0e8ad3596bded7b6c3d584cb70c776b53c16ae5",
+  "independentCopiedMetadataPassed": 125,
+  "independentIgnored": 1,
+  "reviewerWholeCoreRun": false,
+  "newRootControlsPassed": 2,
+  "RootCombinedRecoveryControlsPassed": 6,
+  "productionDefectFound": false,
+  "allTargetClippyWarningsDenied": true,
+  "cargoFmtPassed": true,
+  "includedRustFilesChecked": 267,
+  "routeInventoryPassed": true,
+  "newWholeLibraryRun": false,
+  "priorWholeLibraryPassed": 489,
+  "logs": {
+    "root-inline-wal-review-metadata-controls.log": "9b9396f030a281e60a4e1b18e46cda04f13b88539ee4fd07157e59c81c489abc",
+    "root-inline-wal-review-clippy-first.log": "66023d008d86e157f51e7f6566bf7bf747fc7d718753658290e17796f5ca56c0",
+    "root-inline-wal-review-fmt-first.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "root-inline-wal-review-included-fmt.log": "790dec84448bbd36393e90404a11a6ddecb56f295d781f785b19ffedfb08b72d",
+    "root-inline-wal-review-inventory.log": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393",
+    "root-inline-wal-review-orchestrator.log": "87f7fbe9cf12cc49446a21546f4499b2902def9f9854ab43168418cba7994871"
+  },
+  "review": "# Independent Mode4 inline-WAL review\n\nNo actionable production defect was found in the reviewed scope. This is a bounded code and metadata execution review; it is not a new financial-Core or cold-recovery validation claim.\n\nCandidate: immutable `8fda3a482bea24bfbb3b30f0a0e8ad3596bded7b6c3d584cb70c776b53c16ae5`. All 116 manifest-listed files verified. Independently applying all ten pure transforms to the exact committed `146984e` inputs and formatting with Rust 1.90 reproduced every frozen formatted preview. `ROOT_COMPARISON.json` records the independently inspected committed/current mounted bytes. No Root source, frozen author package or shared build was changed.\n\n## Findings\n\n- The no-index transition moves the existing financial Replay, original foundation/history/physical facts and actual source frame; only the poisoned native index is closed. Its failure wrappers retain that same owner. There is no financial-result constructor or financial snapshot input in the new recovery API.\n- Reopen pins derive from the actual sealed inline operation, including persistent identity/location/namespace, catalog publication, logical sequence, complete KV, directory and captured compaction configuration. The existing same-exclusive-lock checked-open primitive checks the complete committed prefix before any allowed tail repair. A Post candidate only verifies storage and returns to observation; it does not append or resume source.\n- Before/Intermediate creates a fresh writer-bound plan containing the original exact page/directory mutations and source method/arguments/result. The actual source call and owner scope are checked again before installation. `advance_native_recovery` syncs `NativeSupersessionIntent` before the replacement is installed. If that replacement compacts, the controller obtains a new actual escrow permit and syncs `EscrowBoundIntent` before attempting native I/O. The controller marks native ambiguity before the attempt, retaining the source PC instead of rerunning the parent action.\n- Mode4 is selected before its origin hash is created, through its separate explicit constructor. Old entries keep the false flag. The ordinary checked HISTORY reader still requires the exact old HISTORY origin and refuses Mode4. This review did not widen it or claim successful Mode4 cold reconstruction.\n- The six author's private-Core controls cover actual ordinary write, native Before/Post/Intermediate, raw-intent lost acknowledgement, supersession Before retry, prior escrow sync and foreign/corrupt storage with retained source effects. Parent reported those Core gates passed; this reviewer did not rerun or substitute a helper for them.\n\n## Independently executed evidence\n\nCopied actual metadata/source-owner closure compiled with Rust 1.90 against immutable `ad67f3d795a82d6847951b78f41d45d51219021099a538a5d0ae14f387b3ce3d` for existing public value/support types only. Strict `-D warnings -D clippy::all` passed. Full copied suite: **125 passed, 1 ignored child helper**, comprising 123 original tests and two new tests:\n\n1. An independently encoded valid-CRC journal has the same logical sequence as the retained inline Before but either changes the selected row or adds an unselected KV. Both also have an incomplete tail. Exact inline reopen refuses and the complete file tree remains byte-identical; it never truncates the rejected tail.\n2. A foreign current index cannot install or supersede the retained operation. After the exact replacement commits, stale mapping installation, stale Before supersession and duplicate append refuse without changing the current pin. An actual reopened Post cannot supersede. The original pending return remains a separately checked Post result.\n\nThe first version of test 2 attempted to read the Windows-exclusive journal while its owner was alive. That test observer failed with OS error 33; the immutable first source and failure logs are retained. The corrected observer captures the closed-file tree before reopening, performs live checks through the real owner, then compares files after closing it. Production code and tested rejection assertions were unchanged. Final suite passed 125/125 executed tests.\n\n## Root integration of the two new controls\n\nCopy `src/source_index_inline_review_tests.rs`. Apply only `prepare_inline_recovery_tests` from `prepare.py` to the current `src/source_index_inline_recovery_tests.rs`. It appends one nested test module and preserves existing test bodies. The tests reuse the parent's actual Temp counter/owner fixture, avoiding an independent colliding directory counter. No production change is proposed. Parent owns actual-Core execution, formatting, commit and full compatibility gates.\n\n## Remaining scope\n\nMode4 same-process sealed native recovery is distinct from process-loss reconstruction, the old HISTORY-only cold reader, a detached final extractor save, retained startup/catchup callers, overlapping inline operations and broader Main IIFE parity. The new metadata tests do not close those domains. FileSyncOnly/process-exit or injected failure evidence does not establish Windows power-loss directory durability. Pin equality provides conditional integrity against independently retained facts, not chain/actor authorization.\n\nUseful future private-Core discrimination, if extending this profile: an inline supersession `AfterCommit` lost control acknowledgement and a second ambiguity on the actual replacement should preserve the same source frame/effects and remain gated until the exact control/native Post is reconciled. These are test proposals, not reproduced defects or grounds to widen existing admission.\n",
+  "countsOverlap": true,
+  "coldMode4Established": false,
+  "actualDetachedMainCallersEstablished": false,
+  "killedProcessFinancialRecoveryEstablished": false,
+  "authenticationEstablished": false,
+  "completeBlockFraudProofEstablished": false
+}

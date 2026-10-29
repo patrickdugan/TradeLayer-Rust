@@ -249,3 +249,6 @@ fn inline_foreign_or_corrupt_candidate_refuses_without_repairing_any_file() {
     .is_err());
     assert_eq!(std::fs::read(catalog.join("CURRENT")).unwrap(), current);
 }
+
+#[path = "source_index_inline_review_tests.rs"]
+mod independent_review_tests;

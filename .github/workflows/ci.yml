@@ -38,6 +38,8 @@ jobs:
         run: python3 -m unittest discover -s tests -p test_rust_supply_chain.py -v
       - name: Check formatting
         run: cargo fmt --all -- --check
+      - name: Check independent inline recovery tests
+        run: rustfmt --check --edition 2021 src/source_index_inline_review_tests.rs
       - name: Check channel queue sort formatting
         run: rustfmt --check --edition 2021 src/channel_queue_v8_sort_tests.rs
       - name: Check inline native recovery and WAL formatting
