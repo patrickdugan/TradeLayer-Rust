@@ -1,12 +1,12 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-29T21:18:47Z",
-  "inspectedCheckoutCommit": "53e6a245d58265aa1a428f30c567aa67e610464c",
-  "verifiedImplementationCommit": "239c3403f05a4b4edef391d40145ed09052ee672",
-  "verifiedReleaseTests": 2120,
-  "topLevelTests": 2119,
+  "verifiedAtUtc": "2026-10-29T21:42:24Z",
+  "inspectedCheckoutCommit": "306d4186327a8d43d0fdf4c23c89563d3c0bb111",
+  "verifiedImplementationCommit": "53e6a245d58265aa1a428f30c567aa67e610464c",
+  "verifiedReleaseTests": 2142,
+  "topLevelTests": 2141,
   "subprocessChecks": 1,
-  "verifiedLockedReferenceTests": 238,
+  "verifiedLockedReferenceTests": 239,
   "moduleRows": 48,
   "externalReferenceRows": 1,
   "transactionRows": 37,
@@ -995,8 +995,9 @@
       "fullInlineRecoveryOrCrossPublicationEstablished": false,
       "processLossFinancialRecoveryEstablished": false,
       "independentReview": "fixtures/reference_fidelity/cold-acknowledged-actions-independent-review.json",
-      "fullSuitePromotion": false,
-      "commit": "146984e5e5a2760b78a362ccb8d74b09f3d17502"
+      "fullSuitePromotion": true,
+      "commit": "146984e5e5a2760b78a362ccb8d74b09f3d17502",
+      "fullSuiteRecord": "fixtures/reference_fidelity/inline-channel-release-validation.json"
     },
     "retainedMainCallerSource": {
       "record": "fixtures/reference_fidelity/retained-main-caller-source-characterization.json",
@@ -1027,8 +1028,9 @@
       "oldHistoryReaderRefusesMode4": true,
       "coldMode4OrDetachedCallersImplemented": false,
       "processLossFinancialRecoveryEstablished": false,
-      "fullSuitePromotion": false,
-      "commit": "3c1dc47781334aebbc8ac4731b60c3e33f30b3ab"
+      "fullSuitePromotion": true,
+      "commit": "3c1dc47781334aebbc8ac4731b60c3e33f30b3ab",
+      "fullSuiteRecord": "fixtures/reference_fidelity/inline-channel-release-validation.json"
     },
     "channelQueueV8Sort": {
       "status": "current-Core-scoped-checks-pass",
@@ -1045,8 +1047,9 @@
       "sharedV8HelperAndMainIoUnchanged": true,
       "priorCheckpointGoldens": 4,
       "queueSortBound": 1024,
-      "fullSuitePromotion": false,
-      "commit": "60fc80d1b3fc1522eb6aea6d5177dec7955557c1"
+      "fullSuitePromotion": true,
+      "commit": "60fc80d1b3fc1522eb6aea6d5177dec7955557c1",
+      "fullSuiteRecord": "fixtures/reference_fidelity/inline-channel-release-validation.json"
     },
     "inlineNativeRecoveryIndependentReview": {
       "record": "fixtures/reference_fidelity/inline-native-recovery-independent-review.json",
@@ -1056,11 +1059,12 @@
       "independentCopiedMetadataPassed": 125,
       "productionDefectFound": false,
       "newWholeLibraryRun": false,
-      "fullSuitePromotion": false,
-      "commit": "53e6a245d58265aa1a428f30c567aa67e610464c"
+      "fullSuitePromotion": true,
+      "commit": "53e6a245d58265aa1a428f30c567aa67e610464c",
+      "fullSuiteRecord": "fixtures/reference_fidelity/inline-channel-release-validation.json"
     }
   },
-  "scope": "Full release remains239c340/216377f:2,120 Rust/238 locked numeric. New3c1dc47 adds same-owner inline WAL/native Before/Intermediate/Post recovery:6 Core+4metadata,485library/44public. Channel60fc80d fixes64+ sorting through1024 with exact sharedV8/comparator and actual64 settlement/65 later-error Tally prefix:489library/17public/5locked financial pass. Review53e6a24 adds2 tested metadata negatives; no new full-library count yet. Original12Main callers/35records reproduce both numeric profiles. Retained Main callers, coldMode4/cross-publication/process-loss finance, host validation and authenticated complete-block proofs remain open.",
+  "scope": "Frozen release of implementation53e6a24/tested306d418 passes2,142 Rust executions (2,141top-level plusone successful storage child),239 locked numeric checks across282targets and1,822 unchanged inputs.491library includes same-owner cold HISTORY actions, explicit single-inline Mode4 WAL/native recovery,1024-row V8 channel sorting and actual64/65 financial source scenes. Retained Main startup/catchup/detached callers, coldMode4/cross-publication/process-loss finance, host evidence and authenticated complete-block proofs remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -1352,7 +1356,7 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Full release remains239c340/216377f:2,120 Rust/238 locked numeric. New3c1dc47 adds same-owner inline WAL/native Before/Intermediate/Post recovery:6 Core+4metadata,485library/44public. Channel60fc80d fixes64+ sorting through1024 with exact sharedV8/comparator and actual64 settlement/65 later-error Tally prefix:489library/17public/5locked financial pass. Review53e6a24 adds2 tested metadata negatives; no new full-library count yet. Original12Main callers/35records reproduce both numeric profiles. Retained Main callers, coldMode4/cross-publication/process-loss finance, host validation and authenticated complete-block proofs remain open.",
+  "workbookNote": "New full release2,142/239 verified; saved/sidebar headline promotion pending.",
   "savedWorkbook": {
     "sha256": "0bb319d8d482ef9840476a4be194eadefc4bc6375621640f5e3863e09b0fe3f9",
     "bytes": 48136,
@@ -1383,7 +1387,7 @@
     "lockedReferenceExecutions": 238,
     "releaseValidationRecord": "fixtures/reference_fidelity/native-inline-release-validation.json"
   },
-  "validationRecord": "fixtures/reference_fidelity/native-inline-release-validation.json",
+  "validationRecord": "fixtures/reference_fidelity/inline-channel-release-validation.json",
   "knownReferenceGaps": [
     "Full Main startup/catchup/historical inline callers, including detached final save lifetime",
     "Mode4/inline/recovery/supersession/cross-publication histories and actual process-loss financial recovery",
@@ -1394,10 +1398,10 @@
     "Later full-release promotion and collaborator fuzz review"
   ],
   "previousFullSuiteBaseline": {
-    "implementationCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
-    "releaseExecutions": 1977,
+    "implementationCommit": "239c3403f05a4b4edef391d40145ed09052ee672",
+    "releaseExecutions": 2120,
     "lockedReferenceExecutions": 238,
-    "record": "fixtures/reference_fidelity/rc-cycle-release-validation.json"
+    "record": "fixtures/reference_fidelity/native-inline-release-validation.json"
   },
   "focusedValidationRecord": "fixtures/reference_fidelity/channel-queue-v8-sort-core-integration.json",
   "focusedImplementationCommit": "53e6a245d58265aa1a428f30c567aa67e610464c",
@@ -1413,5 +1417,16 @@
     "pushed": false,
     "bundleFile": "TradeLayer-Rust-final.bundle",
     "finalWorkerNote": "handoffs/recovery-checkpoint-20261029/ROW_PACKAGING_STATE.md"
+  },
+  "sourceLockVersion": "9.1.2",
+  "releaseBaseline": {
+    "implementationCommit": "53e6a245d58265aa1a428f30c567aa67e610464c",
+    "testedCheckoutCommit": "306d4186327a8d43d0fdf4c23c89563d3c0bb111",
+    "tests": 2142,
+    "lockedReferenceTests": 239,
+    "record": "fixtures/reference_fidelity/inline-channel-release-validation.json",
+    "allTargets": true,
+    "frozenInputs": 1822,
+    "frozenInputsVerifiedBeforeAndAfter": true
   }
 }

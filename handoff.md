@@ -12,7 +12,7 @@ Keep one actual financial owner, actual native index and borrowed queue. Never i
 
 ## Verified current state
 
-Full all-target release: implementation `239c3403f05a4b4edef391d40145ed09052ee672`, tested checkout `216377fe9fb0ce89c92a47776e71e2c73a4b03d4`. **2,120 Rust executions** (2,119 top-level plus one successful storage child), **238 locked numeric checks**, 281 targets and 1,776 inputs verified unchanged before/after. Evidence: `fixtures/reference_fidelity/native-inline-release-validation.json`. Prior release records are preserved.
+Full all-target release: implementation `53e6a245d58265aa1a428f30c567aa67e610464c`, tested checkout `306d4186327a8d43d0fdf4c23c89563d3c0bb111`. **2,142 Rust executions** (2,141 top-level plus one successful storage child), **239 locked numeric checks**,282targets and1,822 frozen inputs unchanged before/after. Library491/fourignored. Evidence: `fixtures/reference_fidelity/inline-channel-release-validation.json`. Previous2,120/238 release remains immutable historical evidence.
 
 Current later cycle: channel V8 queue ordering through the existing1,024-entry bound, **489 library tests**, four new queue controls and one actual financial test/two complete source scenes. Sixteen existing public compatibility checks and five locked financial checks pass; all-target Clippy, Cargo fmt,266 included-file formatting, inventory and supply-chain pass. Prior inline recovery has485 library/44 public at3c1dc47. Counts overlap. Records: `channel-queue-v8-sort-core-integration.json`, `inline-native-recovery-wal-core-integration.json`. Full all-target promotion is pending.
 
@@ -83,3 +83,7 @@ Two added native controls pass inside the actual Root crate, alongside all four 
 ## Latest completeness refresh
 
 Fifteen cells now reflect the tested channel fix, same-process inline recovery and two independent controls, with48 TL modules/one external reference/all37 transaction rows preserved. Full parity/authentication/complete-block proof flags remain false. Saved workbook and sidebar row hashes match; styles/formulas/filters/panes/geometry and unrelated cells are unchanged, with zero formula errors.
+
+## Latest complete release gate
+
+All282 Rust targets, doc tests and the exact87-target genuine9.1.2 list pass on the same frozen checkout. The new channel financial target is included in both full and locked lists. Every1,822 tracked input was checked before/after; raw versus canonical input-manifest digests remain separate. This promotes the tested inline/channel/review code, while retained Main callers, coldMode4/cross-publication/killed-process finance and host/authenticated complete-block proof gates remain open. Saved/sidebar headline promotion is the next metadata step.
