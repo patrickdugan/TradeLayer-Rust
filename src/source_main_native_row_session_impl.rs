@@ -31,6 +31,7 @@ enum NativeMainRowControllerPcV1 {
     NativeIntent,
     NativeAppendAttempted,
     NativePost,
+    RecoveryBefore,
     Accepted,
     Complete,
     Blocked(String),
@@ -123,6 +124,7 @@ pub struct SourceMainNativeRowSessionV1 {
     pc: NativeMainRowControllerPcV1,
     receipt_budget: usize,
     command: NativeMainSessionCommand,
+    reopened: Option<crate::source_compact_index_v2::NativePreparedValidityRecoveryObservationV1>,
 }
 impl SourceMainNativeSessionV13 {
     pub fn into_row_session(
@@ -210,6 +212,7 @@ impl SourceMainNativeSessionV13 {
             pc: NativeMainRowControllerPcV1::Source,
             receipt_budget,
             command,
+            reopened: None,
         })
     }
 }
@@ -258,6 +261,7 @@ impl SourceMainNativeRowSessionV1 {
                 NativeMainRowControllerPcV1::NativeIntent => "NativeIntent",
                 NativeMainRowControllerPcV1::NativeAppendAttempted => "NativeAppendAttempted",
                 NativeMainRowControllerPcV1::NativePost => "NativePost",
+                NativeMainRowControllerPcV1::RecoveryBefore => "RecoveryBefore",
                 NativeMainRowControllerPcV1::Accepted => "Accepted",
                 NativeMainRowControllerPcV1::Complete => "Complete",
                 NativeMainRowControllerPcV1::Blocked(_) => "Blocked",
@@ -268,6 +272,9 @@ impl SourceMainNativeRowSessionV1 {
         }
         if let Some(error) = &self.source_start_error {
             visitor("sourceStartError", &s(&format!("{error:?}")))?;
+        }
+        if self.reopened.is_some() {
+            native_main_reopen_fields(self.reopened.as_ref(), visitor)?;
         }
         match &self.command {
             NativeMainSessionCommand::ProcessRows { rows, height, live } => {

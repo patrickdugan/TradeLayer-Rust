@@ -2,8 +2,8 @@
   "schema": "tl-logic-reference-review-v1",
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
   "rustCommit": "70f568ad703bef189c01c989631692fdf75235bb",
-  "rustCommitScope": "Inventory parent is historical. Full release963aae7 covers V12 startup/snapshot/IO/sort, native session13 and bounded graphs:1714 executions and238 numeric checks. Subsequent explicit RichThrownV14 RPC/catch carriers, same-owner partial-write error continuations and command replay pass focused Core/compatibility/source checks; full-suite promotion and broader DB/financial/deferred provenance remain pending. Native durable continuations, authenticated history and complete-block proofs remain open. All per-type full-parity/proof classifications stay unchanged and incomplete. Shared TxIndex metadata algorithms now retain the same owner and legacy dependency ordering; the original-source regression corpus passed. This factoring does not widen rich-error admission or any per-type parity/proof classification. Reviewed native scheduler/file-retry, segmented replay/capacity, prepared native appends, intent store and prepared validity are integrated for focused Core checks. Same-owner row preparation is factored without changing legacy behavior. Financial Main row/catchup continuation and end-to-end crash recovery remain unfinished; all per-type parity/proof classifications are unchanged. Explicit native recovery-open now verifies complete independently expected KV, sequence and location under the same exclusive lock before tail repair. Focused storage/native compatibility checks pass; financial row/catchup recovery remains unfinished. First actual row-list continuation now retains the same financial queue across prepared native validity awaits and binds intent/ack through a moved owner. Focused actual/source checks pass. This one-shot component does not complete enclosing catchup, head/history composition, reopen or process-loss recovery. Actual enclosing native catchup now retains fixed generation grouping, funding/trade cursors, six settlement phases and volume/vesting locals across each original row await. The finite no-service tail and failure prefixes pass focused source controls. Index reopen, durable supersession, service-tail, head/history/next-command composition and process-loss recovery remain unfinished. Verified actual prepared native candidates can now reopen under the existing same-lock integrity check. Exact retained mutations can be reprepared with a fresh owner token, and explicit versioned durable superseding intent syncs before append; only complete Post admits acknowledgment. Focused Core gates pass. Live financial controller composition, typed control-store recovery, process-loss and service/head/history continuation remain pending.",
-  "reviewedAtUtc": "2026-10-29T11:30:53Z",
+  "rustCommitScope": "Inventory parent is historical. Full release963aae7 covers V12 startup/snapshot/IO/sort, native session13 and bounded graphs:1714 executions and238 numeric checks. Subsequent explicit RichThrownV14 RPC/catch carriers, same-owner partial-write error continuations and command replay pass focused Core/compatibility/source checks; full-suite promotion and broader DB/financial/deferred provenance remain pending. Native durable continuations, authenticated history and complete-block proofs remain open. All per-type full-parity/proof classifications stay unchanged and incomplete. Shared TxIndex metadata algorithms now retain the same owner and legacy dependency ordering; the original-source regression corpus passed. This factoring does not widen rich-error admission or any per-type parity/proof classification. Reviewed native scheduler/file-retry, segmented replay/capacity, prepared native appends, intent store and prepared validity are integrated for focused Core checks. Same-owner row preparation is factored without changing legacy behavior. Financial Main row/catchup continuation and end-to-end crash recovery remain unfinished; all per-type parity/proof classifications are unchanged. Explicit native recovery-open now verifies complete independently expected KV, sequence and location under the same exclusive lock before tail repair. Focused storage/native compatibility checks pass; financial row/catchup recovery remains unfinished. First actual row-list continuation now retains the same financial queue across prepared native validity awaits and binds intent/ack through a moved owner. Focused actual/source checks pass. This one-shot component does not complete enclosing catchup, head/history composition, reopen or process-loss recovery. Actual enclosing native catchup now retains fixed generation grouping, funding/trade cursors, six settlement phases and volume/vesting locals across each original row await. The finite no-service tail and failure prefixes pass focused source controls. Index reopen, durable supersession, service-tail, head/history/next-command composition and process-loss recovery remain unfinished. Verified actual prepared native candidates can now reopen under the existing same-lock integrity check. Exact retained mutations can be reprepared with a fresh owner token, and explicit versioned durable superseding intent syncs before append; only complete Post admits acknowledgment. Focused Core gates pass. Live financial controller composition, typed control-store recovery, process-loss and service/head/history continuation remain pending. Actual row/catchup now moves the same financial owner/frame/store/permit into a distinct no-index type and drops only the mutable index. Explicit verified Post reopen resolves the same held await; mismatch returns the same retained owner. Before/Intermediate await durable replacement installation. ACK-store recovery, service/head/history composition and process-loss replay remain open.",
+  "reviewedAtUtc": "2026-10-29T11:38:06Z",
   "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
     {
@@ -166,7 +166,7 @@
     {
       "path": "src/source_contract_runtime.rs",
       "lfNormalized": true,
-      "sha256": "05e0f5e3427c73c21520119819ae23682bd141dbd7db616e0cb97c3f9cc7ca85"
+      "sha256": "adca3685aeea382b9a35f6039f0978aeb51c2c568167d021f0bce1dc84212e52"
     },
     {
       "path": "src/source_contract_values.rs",
@@ -540,7 +540,7 @@
     },
     {
       "path": "src/source_main_native_session.rs",
-      "sha256": "cc2c808884980a82df7749250f25a2e621a5223cc0fbe47c6f3aafc468e82894",
+      "sha256": "b4818bafdf101019c7f74756d0237d4ac8310fa1583e6978ffd23f14ea511b4c",
       "lfNormalized": true
     },
     {
@@ -645,7 +645,7 @@
     },
     {
       "path": "src/source_main_native_row_session_impl.rs",
-      "sha256": "64ee32f11e1aa21df6e23140f819a7662fec7af2f983416778971058ae609906",
+      "sha256": "7f8ba5561508aed649a3c1cef087eb6cfbaeea61604308248390e70db9b299c6",
       "lfNormalized": true
     },
     {
@@ -696,6 +696,21 @@
     {
       "path": "src/source_main_native_superseding_intent_tests.rs",
       "sha256": "367aa5f1eb34b2e8442f6e3644919d76634bb77254542e07ead25bfc7df0db78",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_no_index_impl.rs",
+      "sha256": "37c7bc3052fa6f9d06b03d978cf206fd774fb389a1a3908763338778140f177b",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_no_index_runtime_tests_impl.rs",
+      "sha256": "d8c41086d6a1ec60ac0642ce31c63ed24b652d1e35ffd9771b30f9322df82e44",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_no_index_tests.rs",
+      "sha256": "20fe4dc133e3c134ab6b3edaf84aec7e05076c5e7ed61ec80dd1996d5dc8c2c2",
       "lfNormalized": true
     }
   ],

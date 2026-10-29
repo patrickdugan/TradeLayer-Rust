@@ -1,0 +1,17 @@
+{
+  "reviewedManifestSHA256": "28191764c2cd9c95f78e01e133515c32b5722494527faded8f930a1620085176",
+  "allManifestPayloadHashesVerified": true,
+  "reviewedInputs": {
+    "INTEGRATION.md": "f05d836143937cae552888c66a8fd1a93eff79fa1898ce759d840d50e60cbc94",
+    "MANIFEST.json": "28191764c2cd9c95f78e01e133515c32b5722494527faded8f930a1620085176",
+    "src/source_main_native_no_index_impl.rs": "37c7bc3052fa6f9d06b03d978cf206fd774fb389a1a3908763338778140f177b",
+    "src/source_main_native_row_session_impl.rs": "2dc69dbc87bdee34c99d6623aebd56cb21af7f046d5335acc51957a720dd393c"
+  },
+  "reviewNotesSHA256": "fcb8f9e76874fb69e37022c533f2f50b4febaf6f4a7c93085bf1c86520b4d5a9",
+  "actualCoreOrFinancialProviderRun": false,
+  "wholeCoreBuild": false,
+  "rootEdits": false,
+  "newCorruptionReproduction": null,
+  "confirmedRemainingBoundary": "durable prefixACK IO -> Blocked with owners retained and no control recovery exit",
+  "pending": "frozen superseding controller follow-on from author"
+}

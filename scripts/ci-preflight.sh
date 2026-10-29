@@ -62,6 +62,7 @@ rustfmt --check --edition 2021 \
   src/source_main_native_checkpoint_impl.rs \
   src/source_main_native_row_continuation_impl.rs src/source_main_native_row_session_impl.rs src/source_index_row_binding_impl.rs \
   src/source_main_native_catchup_prepare_impl.rs src/source_main_native_catchup_continuation_impl.rs \
+  src/source_main_native_no_index_impl.rs src/source_main_native_no_index_runtime_tests_impl.rs \
   src/source_native_append_plan_impl.rs \
   src/source_index_prepared_put_impl.rs src/source_index_prepared_validity_impl.rs \
   src/source_index_verified_reopen_impl.rs src/source_index_supersession_binding_impl.rs \
