@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-29T07:55:37Z",
-  "inspectedCheckoutCommit": "2726d7119009a0e30a7f3ceed5b72d2b763c0149",
+  "verifiedAtUtc": "2026-10-29T08:25:39Z",
+  "inspectedCheckoutCommit": "5d44d77632016393c87977b1525091fea680d560",
   "verifiedImplementationCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
   "verifiedReleaseTests": 1714,
   "topLevelTests": 1713,
@@ -887,8 +887,8 @@
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-29T07:55:37Z",
-    "sha256": "9d9ba60c73157d68a350fc72498c5c46ce34d9ca5cb03f9f7c85bb01ff7d9f49",
+    "verifiedAtUtc": "2026-10-29T08:25:39Z",
+    "sha256": "6efbd3a0ba4fa6a122ee4190e3ed0d40ed19b8a6b7f5f02345b8699018bf8c9a",
     "savedAndSidebarRowsMatch": true,
     "moduleRowsFNV": 3225426248,
     "logicRowsFNV": 1151758449,
