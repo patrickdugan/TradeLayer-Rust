@@ -192,6 +192,12 @@ impl SourceMainNativeDurableActiveServiceV1 {
                     )
                     .map_err(active_wal_backend)?;
             }
+            if generation_escrow.as_ref().is_some_and(|c| c.inline_profile) {
+                origin
+                    .insert("profile", s(NATIVE_MAIN_INLINE_ACTIVE_WAL_PROFILE))
+                    .map_err(active_wal_backend)?;
+                origin.insert("requiredInlineServiceProfile",s(crate::source_contract_runtime::NATIVE_MAIN_INLINE_ACTIVE_SERVICE_PROFILE)).map_err(active_wal_backend)?;
+            }
             let head = sha256(&active_wal_bytes(&origin)?);
             let wal = ActiveServiceWalV1::create(root.as_ref(), namespace, origin, filesystem)?;
             Ok((archive, origin_pin, origin_history, head, wal))
@@ -218,7 +224,9 @@ impl SourceMainNativeDurableActiveServiceV1 {
         }
     }
     pub fn profile(&self) -> &'static str {
-        if self.generation_escrow.is_some() {
+        if self.inline_service_enabled() {
+            NATIVE_MAIN_INLINE_ACTIVE_WAL_PROFILE
+        } else if self.generation_escrow.is_some() {
             ACTIVE_ESCROW_WAL_PROFILE
         } else if self.history_enabled {
             "TL-MAIN-ACTIVE-SERVICE-HISTORY-WAL-13-1"
@@ -367,20 +375,19 @@ impl SourceMainNativeDurableActiveServiceV1 {
             let service = self
                 .active_service()
                 .ok_or(NativeMainActiveWalErrorV1::WrongAction)?;
-            let write = service
-                .pending_write()
-                .ok_or(NativeMainActiveWalErrorV1::WrongAction)?;
-            let context = write.durable_read_context();
+            let (context, append) = Self::pending_native_action_parts(service)?;
             if matches!(action, NativeMainActiveServiceActionV1::ResolvePost)
                 && self.acknowledged_append.as_ref() != Some(&context)
             {
                 return Err(NativeMainActiveWalErrorV1::WrongAction);
             }
             if matches!(action, NativeMainActiveServiceActionV1::AppendPending) {
-                let actual=crate::source_main_native_intent_store::NativeWriteIntentCandidatesV1::from_prepared_append(write.append_plan(),context.clone())
+                if let Some(append) = append {
+                    let actual=crate::source_main_native_intent_store::NativeWriteIntentCandidatesV1::from_prepared_append(append,context.clone())
                     .map_err(|e|active_wal_backend(format!("{e:?}")))?;
-                candidates = Some(active_wal_bytes(actual.independently_retained_facts())?);
-                mutations = Some(actual.exact_prepared_mutations().to_vec());
+                    candidates = Some(active_wal_bytes(actual.independently_retained_facts())?);
+                    mutations = Some(actual.exact_prepared_mutations().to_vec());
+                }
                 append_context = Some(context);
             }
         }
@@ -685,12 +692,12 @@ impl SourceMainNativeDurableActiveServiceV1 {
                             Some(NativeMainActiveServiceErrorV1::Backend(error.to_string()));
                         self.owner = Some(ActiveWalOwner::Ready(owner));
                     }
-                    Ok(expected) => match owner.into_active_service(
+                    Ok(expected) => match owner.into_active_service_internal(
                         &expected,
                         start,
                         generation,
                         documents,
-                        self.observation_limit,
+                        (self.observation_limit, self.inline_service_enabled()),
                     ) {
                         Ok(active) => self.owner = Some(ActiveWalOwner::Active(Box::new(active))),
                         Err(rejected) => {

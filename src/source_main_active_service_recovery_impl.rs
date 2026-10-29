@@ -4,6 +4,8 @@ struct ActiveWalNativeRecovery {
     prior: Option<ActiveServiceWalBlobV1>,
     replacement: Option<Box<crate::source_compact_index_v2::NativePreparedValidityWriteV1>>,
     mapping: Option<crate::source_compact_index_v2::NativePreparedValiditySupersessionV1>,
+    inline_replacement: Option<Box<crate::source_compact_index_v2::NativePreparedInlineDatabaseV1>>,
+    inline_mapping: Option<crate::source_compact_index_v2::NativeInlineSupersessionV1>,
     installed: bool,
 }
 struct ActiveServiceWithoutNativeIndex {
@@ -259,18 +261,10 @@ impl SourceMainNativeDurableActiveServiceV1 {
                     self.phase = NativeMainActiveWalPhaseV1::NativeRecoveryRequired;
                     return Err(NativeMainActiveWalErrorV1::NativeRecoveryRequired);
                 }
-                let write = frame
-                    .pending_write()
-                    .ok_or(NativeMainActiveWalErrorV1::WrongAction)?;
-                service
-                    .owner
-                    .index
-                    .resolve_prepared_validity_post(write)
-                    .map_err(|e| active_wal_backend(e.to_string()))?;
                 self.pending
                     .as_mut()
                     .expect("retained action")
-                    .append_context = Some(write.durable_read_context());
+                    .append_context = Some(Self::verify_current_native_post(service)?);
                 self.phase = NativeMainActiveWalPhaseV1::Observe;
             }
             _ => return Err(NativeMainActiveWalErrorV1::WrongAction),
@@ -278,6 +272,14 @@ impl SourceMainNativeDurableActiveServiceV1 {
         Ok(())
     }
     fn install_native_replacement(&mut self) -> ActiveWalResult<()> {
+        if self
+            .pending
+            .as_ref()
+            .and_then(|p| p.native_recovery.as_ref())
+            .is_some_and(|r| r.inline_replacement.is_some())
+        {
+            return self.install_inline_native_replacement();
+        }
         let p = self
             .pending
             .as_mut()
@@ -449,6 +451,8 @@ impl SourceMainNativeDurableServiceNoIndexV1 {
                     prior: previous,
                     replacement,
                     mapping,
+                    inline_replacement: None,
+                    inline_mapping: None,
                     installed: false,
                 },
             ))

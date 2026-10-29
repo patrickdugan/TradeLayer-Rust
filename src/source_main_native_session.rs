@@ -579,6 +579,9 @@ include!("source_main_active_service_durable_impl.rs");
 include!("source_main_active_service_recovery_impl.rs");
 include!("source_main_service_escrow_append_impl.rs");
 include!("source_main_active_escrow_controller_impl.rs");
+include!("source_main_inline_wal_impl.rs");
+include!("source_main_inline_wal_recovery_impl.rs");
+include!("source_main_inline_wal_install_impl.rs");
 #[cfg(test)]
 #[path = "source_main_active_service_action_codec_tests.rs"]
 mod native_active_service_action_codec_tests;

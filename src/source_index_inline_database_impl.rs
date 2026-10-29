@@ -10,6 +10,8 @@ pub struct NativePreparedInlineDatabaseV1 {
     after_state: NativeMetadataStateReceiptV1,
     put: Option<NativeMetadataPutPlanV1>,
     returned: DependencyReturn,
+    before_directory: Directory,
+    recovery_before: crate::compact_journal::VerifiedCompactPrefixV1,
 }
 impl NativePreparedInlineDatabaseV1 {
     pub fn method(&self) -> &str {
@@ -221,6 +223,8 @@ impl SourceCompactIndex {
         };
         Ok(NativePreparedInlineDatabaseV1 {
             context: self.native_store_context()?,
+            before_directory: self.directory.clone(),
+            recovery_before: self.journal.verified_prefix_pin()?,
             expected: expected.clone(),
             method: method.into(),
             arguments,

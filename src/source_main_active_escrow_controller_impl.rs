@@ -3,6 +3,7 @@ const ACTIVE_ESCROW_WAL_PROFILE: &str = "TL-MAIN-ACTIVE-SERVICE-ESCROW-WAL-13-1"
 struct ActiveServiceEscrowConfigV1 {
     root: PathBuf,
     durability: crate::compact_journal::GenerationEscrowDurabilityV1,
+    inline_profile: bool,
 }
 #[derive(Clone, Copy)]
 enum ActiveEscrowRoute {
@@ -19,6 +20,28 @@ impl SourceMainNativeDurableActiveServiceV1 {
         escrow_root: PathBuf,
         durability: crate::compact_journal::GenerationEscrowDurabilityV1,
     ) -> Result<Self, Box<RejectedNativeMainActiveWalV1>> {
+        Self::create_generation_escrow_internal(
+            owner,
+            wal_root,
+            namespace,
+            filesystem,
+            observation_limit,
+            (escrow_root, durability, false),
+        )
+    }
+    fn create_generation_escrow_internal(
+        owner: SourceMainNativeSessionV13,
+        wal_root: impl AsRef<std::path::Path>,
+        namespace: crate::storage::Namespace,
+        filesystem: crate::source_contract_replay::source_durable::SourceDurableFilesystem,
+        observation_limit: usize,
+        entry: (
+            PathBuf,
+            crate::compact_journal::GenerationEscrowDurabilityV1,
+            bool,
+        ),
+    ) -> Result<Self, Box<RejectedNativeMainActiveWalV1>> {
+        let (escrow_root, durability, inline_profile) = entry;
         let checked = (|| {
             let metadata = std::fs::symlink_metadata(&escrow_root).map_err(active_wal_backend)?;
             if !metadata.is_dir()
@@ -53,6 +76,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
             Ok(ActiveServiceEscrowConfigV1 {
                 root: escrow_root,
                 durability,
+                inline_profile,
             })
         })();
         match checked {
@@ -158,14 +182,11 @@ impl SourceMainNativeDurableActiveServiceV1 {
                 return Ok(false);
             }
         }
-        let write = service
-            .pending_write()
-            .ok_or(NativeMainActiveWalErrorV1::WrongAction)?;
-        if write.append_plan().intermediate().is_none() {
+        let (read_context, append) = Self::pending_native_action_parts(service)?;
+        if append.is_none_or(|plan| plan.intermediate().is_none()) {
             self.pending.as_mut().expect("pending").escrow_permit = None;
             return Ok(false);
         }
-        let read_context = write.durable_read_context();
         let point = service
             .owner
             .index
@@ -244,16 +265,8 @@ impl SourceMainNativeDurableActiveServiceV1 {
                 if stop != NativeMainServiceStopV1::AwaitNativeWrite {
                     return Err(NativeMainActiveWalErrorV1::NativeRecoveryRequired);
                 }
-                let write = frame
-                    .pending_write()
-                    .ok_or(NativeMainActiveWalErrorV1::WrongAction)?;
-                service
-                    .owner
-                    .index
-                    .resolve_prepared_validity_post(write)
-                    .map_err(active_wal_backend)?;
                 self.pending.as_mut().expect("pending").append_context =
-                    Some(write.durable_read_context());
+                    Some(Self::verify_current_native_post(service)?);
                 self.phase = NativeMainActiveWalPhaseV1::Observe;
             }
         }

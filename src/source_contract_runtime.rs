@@ -2971,6 +2971,7 @@ include!("source_main_native_service_block_prelude_impl.rs");
 include!("source_main_native_service_block_impl.rs");
 include!("source_main_native_service_runtime_impl.rs");
 include!("source_main_inline_index_runtime_impl.rs");
+include!("source_main_inline_install_runtime_impl.rs");
 include!("source_main_inline_service_runtime_impl.rs");
 include!("source_main_active_service_recovery_runtime_impl.rs");
 include!("source_main_service_escrow_runtime_impl.rs");

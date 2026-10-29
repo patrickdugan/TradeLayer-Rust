@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-29T20:51:48Z. Maintained after every tested integration cycle.
+Updated: 2026-10-29T21:05:49Z. Maintained after every tested integration cycle.
 
 ## Goal and boundaries
 
@@ -14,7 +14,7 @@ Keep one actual financial owner, actual native index and borrowed queue. Never i
 
 Full all-target release: implementation `239c3403f05a4b4edef391d40145ed09052ee672`, tested checkout `216377fe9fb0ce89c92a47776e71e2c73a4b03d4`. **2,120 Rust executions** (2,119 top-level plus one successful storage child), **238 locked numeric checks**, 281 targets and 1,776 inputs verified unchanged before/after. Evidence: `fixtures/reference_fidelity/native-inline-release-validation.json`. Prior release records are preserved.
 
-Current later cycle: cold acknowledged source actions, **475 library tests /44 public compatibility checks**, three actual Core plus two new metadata controls. Clippy warnings denied, Cargo fmt, 257 included-file formatting, route inventory and supply-chain checks pass. Evidence: `fixtures/reference_fidelity/cold-acknowledged-actions-core-integration.json`. These counts overlap; this later code is not full all-target promotion yet. Inspect `git log -1` for this cycle's commit.
+Current later cycle: explicit Mode4 inline WAL/native recovery, **485 library tests /44 public compatibility checks**, six actual Core plus four new metadata controls. Clippy warnings denied, Cargo fmt,265 included-file formatting, route inventory and supply-chain checks pass. Evidence: `fixtures/reference_fidelity/inline-native-recovery-wal-core-integration.json`. These counts overlap and include the prior cold acknowledged-action controls; this later code is not full all-target promotion yet. Inspect `git log -1` for the current integration commit.
 
 The test-only temp-folder fix `567f6b8` respects TL_NATIVE_MAIN_TMP when set and otherwise uses the standard temp directory, preserving canonical-parent/guarded cleanup. Seven actual native release tests pass without the override; no production source changed. Evidence: `fixtures/reference_fidelity/native-main-test-temp-default.json`.
 
@@ -32,9 +32,11 @@ Saved workbook and sidebar last promote the 2,120/238 release at code239c340. Th
 
 All record names above are under `fixtures/reference_fidelity/`. Source results/validity/scheduling/financial tables are comparison data, never execution inputs.
 
+- Explicit Mode4 inline WAL and same-process native Before/Intermediate/Post recovery are integrated. The raw intent and any compaction escrow are synced before native IO; replacement mappings sync before native-only retry. The actual financial owner/source PC survive ambiguous writes; no action/decoder retry. Six actual Core and four metadata controls pass. Old readers still refuse Mode4; detached callers/coldMode4/killed-process finance remain open. Record: `inline-native-recovery-wal-core-integration.json`.
+
 ## Active workers and next concrete gates
 
-1. `v8_main`: new immutable Mode4 inline-escrow WAL origin/history and same-owner native Before/Intermediate/Post recovery. Four actual metadata recovery controls pass, six proposed Core controls are being packaged. Not integrated until Root gates pass. Keep old modes/readers unchanged.
+1. `v8_main`: Mode4 package8fda3a48 is now integrated/tested. Next isolated prerequisite is a strict escrow descriptor and actual copied-generation old-view/closure; keep original versus copied identity separate and never convert a pin to a live permit. Coordinate caller selectors with row. Wider coldMode4 admission remains closed.
 2. `row_continuation_impl`: retained Main caller PCs using genuine caller corpus `a1d05d41…`,12 calls/35 records per numeric profile. Root has now reproduced and committed the additive source corpus and CI checks; record: `retained-main-caller-source-characterization.json`. This is source characterization, not Rust caller completion. Crucial source fact: extractBlockData's final saveMaxHeight is DETACHED. Main sync/init/initialize can fulfill and continue consensus while that same save is unresolved; its rejection is an unhandled notification. Awaited per-transaction height rejection has a different catch boundary. Keep caller completion separate from operation completion and no early financial drain/head escape.
 3. Both lanes must bind an explicit stable job/scope/operation ordinal plus Awaited/Detached selector. Identical method/args/Before may represent different concurrent saves; AppendPending must not silently choose the first frame. Main owns the WAL/frame selector; row owns caller PCs. Stage-only until Root checks.
 4. `v8_clearlist`: fix the reproduced64+ ready channel-queue sort boundary using the existing exact V8 TimSort helper. Preserve comparator/coercion/effect/throw and partial state; check64/65/128/1024, ties and meaningful known-kind paths against unchanged source. Unknown-kind draining alone does not prove settlement. Audit: `fixtures/reference_fidelity/post-main-ordered-gap-audit.json`.
@@ -65,3 +67,7 @@ Thirteen intentional cells now show code146984e/475 library/44 public scoped che
 ## Latest source-caller check
 
 Twelve unchanged Main/TxIndex calls and35 complete input/observation records reproduce under each genuine numeric profile. Existing13 calls/38 records reproduce byte-identically. New CI checks retain this oracle. No Rust implementation or release count changed; the detached final save still needs actual retained caller/job integration.
+
+## Latest tested integration
+
+Mode4 preserves one actual owner and exact pending native operation across lost-control/lost-native returns, partial writes and real compaction. The new485/44 scoped counts include prior controls and must not be added to the2,120/238 full release. Source caller characterization075aba4 remains source-only evidence until the retained Main wrappers pass actual Core controls. Workbook still reports the prior146984e/475 focused cut; refresh after the next channel batch.

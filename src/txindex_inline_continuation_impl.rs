@@ -211,7 +211,7 @@ impl TxIndexSourceOwner {
             result: None,
         })
     }
-    fn require_inline_owner(
+    pub(crate) fn require_inline_owner(
         &self,
         scope: u64,
         continuation: &TxIndexInlineContinuationV1,

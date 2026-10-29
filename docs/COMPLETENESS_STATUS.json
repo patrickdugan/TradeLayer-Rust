@@ -1009,6 +1009,25 @@
       "old13SourceCorpusUnchanged": true,
       "actualRustCallerImplemented": false,
       "fullSuitePromotion": false
+    },
+    "inlineNativeRecoveryWal": {
+      "status": "current-Core-scoped-checks-pass",
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/inline-native-recovery-wal-core-integration.json",
+      "newDistinctControls": 10,
+      "actualCoreControls": 6,
+      "metadataControls": 4,
+      "parallelLibraryPassed": 485,
+      "publicCompatibilityPassed": 44,
+      "immutableMode4Origin": true,
+      "sameActualFinancialOwnerRetained": true,
+      "sourceActionRetried": false,
+      "exactNativeBeforeIntermediatePostRecovery": true,
+      "syncedMappingBeforeReplacement": true,
+      "oldHistoryReaderRefusesMode4": true,
+      "coldMode4OrDetachedCallersImplemented": false,
+      "processLossFinancialRecoveryEstablished": false,
+      "fullSuitePromotion": false
     }
   },
   "scope": "Full release remains code 239c340/tested216377f: 2,120 Rust executions and238 locked numeric checks. Latest 146984e adds actual cold source execution of complete acknowledged HISTORY-WAL transcripts on one moved financial owner and the same final Post index/capability/WAL locks. Strict raw actions drive execution; all original physical receipts and opaque Before/Accepted observations are recomputed and compared. Three new Core +two metadata controls,475 library/44 public pass. Inline/Mode4, recovery/supersession, cross-publication, unresolved terminal work, hot resume and killed-process finance remain open. Channel64+ sort gap is reproduced and assigned; later candidates stay unverified.",
@@ -1336,7 +1355,6 @@
   },
   "validationRecord": "fixtures/reference_fidelity/native-inline-release-validation.json",
   "knownReferenceGaps": [
-    "New immutable retained-inline WAL origin/history mode and native ambiguity recovery",
     "Full Main startup/catchup/historical inline callers, including detached final save lifetime",
     "Mode4/inline/recovery/supersession/cross-publication histories and actual process-loss financial recovery",
     "Broader global startup/Promise/callback/receiver/value/history domains",

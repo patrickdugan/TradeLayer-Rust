@@ -16,10 +16,10 @@ impl SourceMainNativeActiveServiceV1 {
         if let Some(code) = frame.terminal_code() {
             return Err(NativeMainActiveServiceErrorV1::AlreadyExited(code));
         }
-        let write = frame
-            .pending_write()
+        let context = frame
+            .pending_native_context()
             .ok_or(NativeMainActiveServiceErrorV1::NoAttemptedWrite)?;
-        if self.attempted_write.as_ref() == Some(&write.durable_read_context()) {
+        if self.attempted_write.as_ref() == Some(&context) {
             return Err(NativeMainActiveServiceErrorV1::WriteAlreadyAttempted);
         }
         Ok(())
@@ -34,23 +34,13 @@ impl SourceMainNativeActiveServiceV1 {
             .try_reserve(1)
             .map_err(|_| NativeMainActiveServiceErrorV1::Capacity)?;
         let frame = self.frame.as_mut().expect("checked real frame");
-        self.attempted_write = Some(
-            frame
-                .pending_write()
-                .expect("checked real write")
-                .durable_read_context(),
-        );
+        self.attempted_write = Some(frame.pending_native_context().expect("checked real write"));
         let stop = self
             .owner
             .financial
             .native_main_runtime_mut()
             .native_main_service_append_with_escrow(&mut self.owner.index, frame, permit);
-        if frame
-            .pending_write()
-            .map(|write| write.durable_read_context())
-            .as_ref()
-            != self.attempted_write.as_ref()
-        {
+        if frame.pending_native_context().as_ref() != self.attempted_write.as_ref() {
             self.attempted_write = None;
         }
         self.pending_observation = Some(NativeMainActiveServicePendingV1 {

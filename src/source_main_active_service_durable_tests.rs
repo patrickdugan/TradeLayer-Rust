@@ -607,3 +607,6 @@ mod active_history_pin_codec_tests;
 
 #[path = "source_main_native_cold_active_reexecution_tests.rs"]
 mod cold_active_reexecution_tests;
+
+#[path = "source_main_inline_wal_tests.rs"]
+mod inline_wal_tests;

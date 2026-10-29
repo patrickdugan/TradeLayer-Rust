@@ -1,0 +1,29 @@
+# Inline active-WAL and same-process native recovery
+
+This additive integration preserves the previously tested inline source/live entry and cold acknowledged-action paths. Root mounted the frozen worker package through current-text transforms and checked the actual Core. The immutable package retains the pre-integration evidence.
+
+The explicit new constructor is `create_with_inline_service_escrow`. Before any source action it creates the immutable origin profile `TL-MAIN-ACTIVE-SERVICE-INLINE-ESCROW-WAL-13-1`, required inline-service entry profile, actual completed foundation archive, original physical history pin, escrow root and durability. Mode1/Mode2/Mode3 retain their previous constructors and bytes. The ordinary HISTORY cold reader continues to refuse this new profile.
+
+Mode4 uses the committed single-live-inline entry. Its pending operation is the actual `processBlockData` transaction update, MaxHeight update or indexExists update, or the existing single ordinary validity await. It refuses an ambiguous inline+validity selection. This does not admit new retained startup/catchup callers or a detached final extractor save. Those require a separate source-job/method-scope/operation-ordinal/await-role selector and raw-action/profile contract; a fulfilled caller is not evidence that a detached operation completed.
+
+## Commit and recovery ordering
+
+Raw action intent is synced before executing the action. Native append candidates and exact TLNM mutations come from the actual opaque prepared operation. A nonmutating DB outcome has no native append candidate but retains its actual operation context. Ordinary appends make no escrow copy. A cross-publication append first obtains an actual synced sealed escrow permit and syncs its independent facts under the original pending action before native IO.
+
+The same source method frame, Core/Tally/queue and native index remain owned by the controller. A native append changes storage without resolving the source Promise. ResolvePost independently verifies complete actual Post and then resumes the same PC once. No decoder, source query, failure hook, transaction mark, financial method or parent Advance is repeated.
+
+On a native ambiguous return, Pause/Shutdown and further actions remain blocked. `into_no_inline_index` moves the same financial/frame/WAL owner and closes only the actual native writer. Its separate typed recovery wrapper reopens only the independently prepared Before, Intermediate or Post using the actual current files, identity, namespace, catalog/publication, complete KV and directory. A foreign root, unknown prefix or corrupt completed prefix refuses without repairing it.
+
+Post is verify-only: the original StorageStopped observation stays in history; no native reappend or source execution occurs. Before/Intermediate creates a new actual-writer-bound plan containing only the original page/directory mutations. The original old token stays unusable. A separately synced supersession mapping binds the replacement before installation/retry. Any new compaction needs a newly synced actual escrow permit; an old pin or expired owner permit is insufficient. Each subsequent ambiguity keeps the same pending action and links to the previous actual recovery record.
+
+The new metadata plan captures private pre-operation directory and verified prefix facts. Existing inline field visitors and durable-read-context bytes remain unchanged. The additional facts cannot be constructed through a public decoder or used as a financial state importer. Existing validity recovery APIs remain unchanged; the inline recovery wrapper has a separate profile and typed plan.
+
+## Actual evidence and pending gates
+
+Four new real-Journal controls passed: synced lost return resolves exact Post; exact Before requires a fresh owner-bound mutation plan; actual compaction plus a partial tail reopens Intermediate and completes only the original operation; foreign/wrong-full-KV expectations fail. The composed standalone metadata/source-owner suite passed 123 tests with one ignored child helper; strict Clippy passed. The immutable provider is `ad67f3d7`, used for public types only. This is not an actual Core/controller result.
+
+Six proposed Core controls are staged: immutable mode/no ordinary copy plus old-reader refusal; lost intent ACK; lost native Post; partial Before plus lost supersession-control write; actual selected live-operation compaction with a prior synced escrow barrier; and foreign/corrupt actual files with the same parked financial owner. The compaction setup calibrates only actual native byte lengths on an independently raw-configured source execution. The real owner's operational threshold/priming is set before adoption. It supplies no financial or validity result and never mutates metadata behind an outstanding plan. The strict actual intermediate assertion remains.
+
+Root ran the six proposed controls against the actual Core: all pass, alongside four new metadata controls,485 library tests and44 public compatibility checks. All-target Clippy with warnings denied, Cargo fmt,265 included-file formatting, route inventory and supply-chain checks pass. Counts overlap. Evidence: `fixtures/reference_fidelity/inline-native-recovery-wal-core-integration.json`. No Root correction or changed expected outcome was needed.
+
+The full all-target release remains2,120 Rust/238 locked numeric checks at implementation239c340/tested216377f; this later scoped cycle is not full-suite promotion. Retained startup/catchup callers, detached-job composition, cold Mode4 replay, broader overlapping index mutators, process-loss financial rebuild and whole startup/IIFE parity remain open. The existing HISTORY reader still refuses Mode4. FileSyncOnly is not directory/power-loss durability; hashes do not authenticate chain or TradeLayer actors.
