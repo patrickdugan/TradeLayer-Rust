@@ -45,6 +45,13 @@ impl Journal {
         &mut self,
         expected: &VerifiedJournalPrefixV1,
     ) -> Result<JournalReadSnapshot, StorageError> {
+        self.read_history_frames_with_visit(expected, |_, _, _| {})
+    }
+    fn read_history_frames_with_visit(
+        &mut self,
+        expected: &VerifiedJournalPrefixV1,
+        mut visit: impl FnMut(u64, &[u8], &[Mutation]),
+    ) -> Result<JournalReadSnapshot, StorageError> {
         let length = self.file.metadata()?.len();
         if length != self.end || length > MAX_LOG_BYTES {
             return Err(StorageError::Corrupt(
@@ -99,7 +106,9 @@ impl Journal {
                     "history batch checksum or commit footer",
                 ));
             }
-            values = apply(&values, &decode(&frame[24..24 + payload_len])?)?;
+            let mutations = decode(&frame[24..24 + payload_len])?;
+            values = apply(&values, &mutations)?;
+            visit(next_sequence, &frame, &mutations);
             sequence = next_sequence;
             previous_crc = checksum;
             end += frame_len;

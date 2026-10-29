@@ -121,6 +121,9 @@ fn history_keys(value: &V, required: &[&str], optional: &[&str]) -> Result<()> {
     Ok(())
 }
 fn history_accepted_parts(raw: &[u8]) -> Result<(&[u8], V)> {
+    history_accepted_parts_profile(raw, false)
+}
+fn history_accepted_parts_profile(raw: &[u8], inline: bool) -> Result<(&[u8], V)> {
     if !raw.starts_with(b"TLMAP\x01") || raw.len() < 22 {
         return Err(ActiveServiceWalErrorV1::InvalidRecord);
     }
@@ -141,7 +144,15 @@ fn history_accepted_parts(raw: &[u8]) -> Result<(&[u8], V)> {
         return Err(ActiveServiceWalErrorV1::InvalidRecord);
     }
     let diagnostic = parse(&raw[length_end..])?;
-    history_keys(&diagnostic, &["apiRejection"], &["nativeRecovery"])?;
+    history_keys(
+        &diagnostic,
+        &["apiRejection"],
+        if inline {
+            &["nativeRecovery", "generationEscrow"]
+        } else {
+            &["nativeRecovery"]
+        },
+    )?;
     if !matches!(diagnostic.get("apiRejection"), V::Null | V::String(_)) {
         return Err(ActiveServiceWalErrorV1::InvalidRecord);
     }
@@ -178,6 +189,19 @@ impl VerifiedActiveServiceAckHistoryV1 {
         namespace: Namespace,
         expected: &ActiveServiceWalPinV1,
     ) -> Result<Self> {
+        Self::open_profile(root, namespace, expected, false)
+    }
+    fn open_profile(
+        root: &Path,
+        namespace: Namespace,
+        expected: &ActiveServiceWalPinV1,
+        inline: bool,
+    ) -> Result<Self> {
+        let history_profile = if inline {
+            MODE4_INLINE_WAL_PROFILE
+        } else {
+            ENHANCED_HISTORY_PROFILE
+        };
         let root = directory(root)?;
         if expected.profile != PROFILE
             || expected.root != root
@@ -215,17 +239,20 @@ impl VerifiedActiveServiceAckHistoryV1 {
             _ => return Err(ActiveServiceWalErrorV1::WrongContext),
         };
         let origin = decoded.get("origin");
-        history_keys(
-            &origin,
-            &[
-                "profile",
-                "archive",
-                "observation",
-                "requiredVerifiedHistory",
-            ],
-            &[],
-        )?;
-        if origin.get("profile") != s(ENHANCED_HISTORY_PROFILE) {
+        let mut origin_keys = vec![
+            "profile",
+            "archive",
+            "observation",
+            "requiredVerifiedHistory",
+        ];
+        if inline {
+            origin_keys.extend(["generationEscrow", "requiredInlineServiceProfile"]);
+        }
+        history_keys(&origin, &origin_keys, &[])?;
+        if inline {
+            mode4_require_origin(&origin)?;
+        }
+        if origin.get("profile") != s(history_profile) {
             return Err(ActiveServiceWalErrorV1::WrongContext);
         }
         let owner = NEXT
@@ -263,9 +290,13 @@ impl VerifiedActiveServiceAckHistoryV1 {
                 "verifiedHistoryBefore",
                 "verifiedHistoryPost",
             ],
-            &["nativeRecovery"],
+            if inline {
+                &["nativeRecovery", "generationEscrow"]
+            } else {
+                &["nativeRecovery"]
+            },
         )?;
-        if record.get("profile") != s(ENHANCED_HISTORY_PROFILE)
+        if record.get("profile") != s(history_profile)
             || record.get("stage") != s("Ack")
             || record.get("origin") != origin.get("archive")
         {
@@ -304,9 +335,13 @@ impl VerifiedActiveServiceAckHistoryV1 {
                     "verifiedHistoryBefore",
                     "verifiedHistoryPost",
                 ],
-                &["nativeRecovery"],
+                if inline {
+                    &["nativeRecovery", "generationEscrow"]
+                } else {
+                    &["nativeRecovery"]
+                },
             )?;
-            if entry.get("profile") != s(ENHANCED_HISTORY_PROFILE)
+            if entry.get("profile") != s(history_profile)
                 || history_count(&entry.get("sequence"))? != sequence
             {
                 return Err(ActiveServiceWalErrorV1::WrongContext);
@@ -330,7 +365,10 @@ impl VerifiedActiveServiceAckHistoryV1 {
                     "verifiedHistoryPost",
                     "nativeRecovery",
                     "previousHead",
-                ] {
+                ]
+                .into_iter()
+                .chain(inline.then_some("generationEscrow"))
+                {
                     if record.get(name) != entry.get(name) {
                         return Err(ActiveServiceWalErrorV1::WrongContext);
                     }
@@ -394,7 +432,11 @@ impl VerifiedActiveServiceAckHistoryV1 {
             return Err(ActiveServiceWalErrorV1::WrongPin);
         }
         for (at, entry) in entries.iter().enumerate() {
-            let (post_fields, diagnostic) = history_accepted_parts(entry.actual_accepted())?;
+            let (post_fields, diagnostic) = if inline {
+                history_accepted_parts_profile(entry.actual_accepted(), true)?
+            } else {
+                history_accepted_parts(entry.actual_accepted())?
+            };
             let diagnostic_recovery = diagnostic.get("nativeRecovery");
             if let Some(recovery) = entry.native_recovery() {
                 if history_blob(&diagnostic_recovery)? != ActiveServiceWalBlobV1::of(recovery)? {
@@ -402,6 +444,19 @@ impl VerifiedActiveServiceAckHistoryV1 {
                 }
             } else if diagnostic_recovery != V::Undefined {
                 return Err(ActiveServiceWalErrorV1::WrongPin);
+            }
+            if inline {
+                let raw = store.read_blob(&entry.entry)?;
+                let value = parse(&raw)?;
+                let reference = value.get("generationEscrow");
+                let diagnostic_reference = diagnostic.get("generationEscrow");
+                if reference == V::Undefined {
+                    if diagnostic_reference != V::Undefined {
+                        return Err(ActiveServiceWalErrorV1::WrongPin);
+                    }
+                } else if history_blob(&reference)? != history_blob(&diagnostic_reference)? {
+                    return Err(ActiveServiceWalErrorV1::WrongPin);
+                }
             }
             if let Some(next) = entries.get(at + 1) {
                 if post_fields != next.actual_before()

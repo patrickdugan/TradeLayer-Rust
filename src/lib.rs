@@ -228,6 +228,7 @@ pub mod source_main_native_owners;
 
 pub mod source_main_active_service_wal;
 pub mod source_main_native_session;
+pub mod source_main_retained_caller_action;
 pub mod source_main_step_kernel;
 
 pub mod source_rich_value;

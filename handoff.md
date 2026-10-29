@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-29T23:04:22Z. Maintained after every tested integration cycle.
+Updated: 2026-10-29T23:22:49Z. Maintained after every tested integration cycle.
 
 ## Goal and boundaries
 
@@ -14,11 +14,11 @@ Keep one actual financial owner, actual native index and borrowed queue. Never i
 
 Full all-target release: implementation `53e6a245d58265aa1a428f30c567aa67e610464c`, tested checkout `306d4186327a8d43d0fdf4c23c89563d3c0bb111`. **2,142 Rust executions** (2,141 top-level plus one successful storage child), **239 locked numeric checks**,282targets and1,822 frozen inputs unchanged before/after. Library491/fourignored. Evidence: `fixtures/reference_fidelity/inline-channel-release-validation.json`. Previous2,120/238 release remains immutable historical evidence.
 
-Current later cycle: same-invocation retained Main consensus,5 new Core/1source-job/3independent caller controls. Library520/fourignored,44 public,7 oldinline/6Mode4, warnings-denied Clippy/fmt291/inventory pass. Actual Initialize fulfills with its final save held and actual financial/native catchup runs without a competing plan. The same owner/header is retained; new route binds actual origin/generation. WAL/recovery/cold/arbitrary concurrent publications remain open. Record: `retained-main-consensus-core-integration.json`. Full baseline stays2,142/239.
+Current later cycle: Mode4 physicalACK/native metadata closure and retained callerStartOnly WAL.25new controls,545library/fourignored,44public,Clippy/fmt303/inventory/supply pass. Root fixed actual Mode4 initial scope/first-Before blob mismatch without relaxing the reader. The same source/financial/index owner and source await remain held. Caller Start syncs Intent before the actual constructor and rebinds uncertain WAL outcomes without repeating it. Full raw-source Mode4 replay/selectedcaller native recovery remain active. Record: `mode4-caller-start-core-integration.json`. Fullbaseline2,142/239.
 
 The test-only temp-folder fix `567f6b8` respects TL_NATIVE_MAIN_TMP when set and otherwise uses the standard temp directory, preserving canonical-parent/guarded cleanup. Seven actual native release tests pass without the override; no production source changed. Evidence: `fixtures/reference_fidelity/native-main-test-temp-default.json`.
 
-Saved workbook and sidebar last promote the 2,120/238 release at code239c340. They preserve all 37 transaction rows, styles/formulas/filters/panes and false full-parity/proof gates. Evidence: `fixtures/reference_fidelity/native-inline-release-completeness.json`. The later475 scoped description is now synchronized to code146984e in both saved workbook and sidebar; never add scoped executions to the release count. Verification: `fixtures/reference_fidelity/cold-acknowledged-actions-completeness.json`.
+Saved workbook and sidebar promote the2,142Rust/239numeric release at53e6a24/tested306d418. Their latest later scope is e3a7245/511library; refresh is pending for c5/520 and this new545library batch. All48TL/oneexternal/37transaction rows and proof gates remain. Do not add overlapping scoped test executions to the full release count.
 
 ## Integrated pieces — do not reapply old packages
 
@@ -111,3 +111,7 @@ Saved/sidebar now showe3a7245/511library and tested historical/Bitcoin/Main-call
 ## Latest consensus integration
 
 The actual parent invocation is now shared with catchup/service; original normal constructors/visitor bytes remain. Source caller outcome may precede its detached child, but the original header/owner cannot escape before both finish. Existing335 selectors remain receiver-local routing values; new origin-bound profile rejects accidental cross-owner equal-key selection without pretending hashes confer authority. Root fixed the genuine readiness guard and an incorrect test-only absent-field expectation; no reference data was relaxed. Mode4 physical closure3cc and callerStartbbcd remain queued for actual Core gates.
+
+## Latest Mode4 and caller Start integration
+
+Mode4 now verifies independently retained actual ordered CRC commit traces and physical Intent/escrow/supersession/Accepted/ACK closure, exact native historical preparation and final Post without granting a writer permit or resolving the financial source await. Caller Start is separately journaled before actual construction, with executed-once retention across ambiguous Accepted/ACK writes. The initial Mode4 scope commitment mismatch and compiler borrow fixes are recorded alongside retained failures. Old affected histories stay refused. Independent reader review remains a separate gate; full raw-action financial replay and selected caller WAL/native recovery are active next. New source/cold profiles are not admitted by old HISTORY/e0 executors. Nothing was pushed or published.

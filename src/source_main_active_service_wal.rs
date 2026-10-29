@@ -553,6 +553,11 @@ impl ActiveServiceWalV1 {
 }
 
 include!("source_main_active_service_cold_history_impl.rs");
+include!("source_main_mode4_cold_history_impl.rs");
+include!("source_main_mode4_inline_closure_impl.rs");
+#[cfg(test)]
+#[path = "source_main_mode4_cold_history_tests.rs"]
+mod mode4_cold_history_tests;
 
 #[cfg(test)]
 #[path = "source_main_active_service_wal_tests.rs"]

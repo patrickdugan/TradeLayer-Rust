@@ -216,3 +216,6 @@ fn already_referenced_corrupt_blob_refuses_preparation() {
 #[cfg(test)]
 #[path = "source_main_active_service_cold_history_tests.rs"]
 mod cold_ack_history_tests;
+
+#[path = "source_main_retained_caller_wal_metadata_tests.rs"]
+mod retained_start_metadata;

@@ -153,7 +153,13 @@ impl SourceMainNativeDurableActiveServiceV1 {
                 .checkpoint()
                 .map_err(|e| active_wal_backend(format!("{e:?}")))?;
             let origin_pin = ActiveServiceWalBlobV1::of(&archive)?;
-            let observation = Self::ready_observation(&owner, observation_limit)?;
+            let mut observation = Self::ready_observation(&owner, observation_limit)?;
+            if generation_escrow.as_ref().is_some_and(|c| c.inline_profile) {
+                Self::append_escrow_scope_observation(
+                    &mut observation,
+                    owner.index.inline_escrow_scope_active(),
+                )?;
+            }
             let mut origin = obj(&[
                 ("profile", s(NATIVE_MAIN_DURABLE_ACTIVE_SERVICE_PROFILE)),
                 ("archive", origin_pin.value()),

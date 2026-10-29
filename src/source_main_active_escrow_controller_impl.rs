@@ -144,16 +144,20 @@ impl SourceMainNativeDurableActiveServiceV1 {
     fn owner_observation(&self) -> ActiveWalResult<Vec<u8>> {
         let mut raw = self.owner_observation_unscoped()?;
         if self.generation_escrow.is_some() {
-            let mut fields = NativeFieldCollector::new("Native13/ActiveEscrowScope/v1", true, 1024);
-            fields
-                .emit(
-                    "inlineEscrowScopeActive",
-                    &V::Bool(self.index().inline_escrow_scope_active()),
-                )
-                .map_err(active_wal_backend)?;
-            raw.extend_from_slice(fields.frames.as_deref().expect("retained"));
+            Self::append_escrow_scope_observation(
+                &mut raw,
+                self.index().inline_escrow_scope_active(),
+            )?;
         }
         Ok(raw)
+    }
+    fn append_escrow_scope_observation(raw: &mut Vec<u8>, active: bool) -> ActiveWalResult<()> {
+        let mut fields = NativeFieldCollector::new("Native13/ActiveEscrowScope/v1", true, 1024);
+        fields
+            .emit("inlineEscrowScopeActive", &V::Bool(active))
+            .map_err(active_wal_backend)?;
+        raw.extend_from_slice(fields.frames.as_deref().expect("retained"));
+        Ok(())
     }
     fn begin_escrow_route(&mut self, route: ActiveEscrowRoute) {
         self.pending

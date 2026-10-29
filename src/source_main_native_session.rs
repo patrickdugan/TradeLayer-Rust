@@ -573,6 +573,7 @@ include!("source_main_native_service_session_impl.rs");
 include!("source_main_inline_service_session_impl.rs");
 include!("source_main_retained_caller_session_impl.rs");
 include!("source_main_retained_consensus_session_impl.rs");
+include!("source_main_retained_caller_start_wal_impl.rs");
 #[cfg(test)]
 #[path = "source_main_inline_service_tests.rs"]
 mod native_inline_service_tests;
@@ -582,6 +583,7 @@ include!("source_main_active_service_recovery_impl.rs");
 include!("source_main_service_escrow_append_impl.rs");
 include!("source_main_active_escrow_controller_impl.rs");
 include!("source_main_inline_wal_impl.rs");
+include!("source_main_mode4_trace_pin_impl.rs");
 include!("source_main_inline_wal_recovery_impl.rs");
 include!("source_main_inline_wal_install_impl.rs");
 #[cfg(test)]
@@ -633,3 +635,7 @@ mod retained_caller_tests;
 #[cfg(test)]
 #[path = "source_main_retained_consensus_tests.rs"]
 mod retained_consensus_tests;
+
+#[cfg(test)]
+#[path = "source_main_retained_caller_start_wal_tests.rs"]
+mod retained_caller_start_wal_tests;

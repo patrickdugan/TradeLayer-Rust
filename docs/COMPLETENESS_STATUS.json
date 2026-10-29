@@ -1141,6 +1141,30 @@
       "callerWalNativeRecoveryOrColdAdmitted": false,
       "arbitraryCompetingNativePublicationsAdmitted": false,
       "fullSuitePromotion": false
+    },
+    "mode4PhysicalAckClosure": {
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/mode4-caller-start-core-integration.json",
+      "newActualSourceControls": 3,
+      "newMetadataControls": 9,
+      "parallelLibraryPassed": 545,
+      "sameActualOwnerRetained": true,
+      "sourceAwaitResumedByReader": false,
+      "physicalTraceIsAuthentication": false,
+      "fullSourceColdReplayAdmitted": false,
+      "fullSuitePromotion": false
+    },
+    "retainedCallerStartWal": {
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/mode4-caller-start-core-integration.json",
+      "newActualSourceControls": 4,
+      "newInputCodecControls": 6,
+      "newStoreControls": 3,
+      "intentSyncedBeforeConstructor": true,
+      "constructorRetriedAfterExecution": false,
+      "initializeFulfilledByAck": false,
+      "selectedActionsAndNativeRecoveryAdmitted": false,
+      "fullSuitePromotion": false
     }
   },
   "scope": "Full release stays 2,142 Rust /239 numeric at53e6a24/tested306d418. Later e3a7245 passes511 library,7 historical metadata controls,4 new Bitcoin transaction checks plus14 old input/witness checks,7 inline/6 Mode4 and6 source-owner checks. Main caller335 passes8 new controls/44 public; complete consensus handoff, caller WAL/recovery and cold Mode4 closure remain active. Bitcoin checks preserve parent/chain/TL authority denials; no complete-block proof or full source parity is inferred.",

@@ -764,6 +764,10 @@ include!("storage_verified_prefix_impl.rs");
 mod verified_prefix_tests;
 
 include!("storage_history_prefix_impl.rs");
+include!("storage_verified_commit_trace_impl.rs");
+#[cfg(test)]
+#[path = "storage_verified_commit_trace_tests.rs"]
+mod verified_commit_trace_tests;
 include!("storage_verified_copy_impl.rs");
 #[cfg(test)]
 #[path = "storage_history_prefix_tests.rs"]
