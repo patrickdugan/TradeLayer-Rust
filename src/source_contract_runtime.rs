@@ -137,6 +137,7 @@ pub(crate) struct ContractCore {
     main_production: Option<SourceMainProduction>,
     source_rich: Option<rich_runtime_v14::State>,
     native_main_binding: Option<V>,
+    native_active_service_client_scope: Option<&'static str>,
     main_height_rejections: Vec<crate::validity_source::SourceException>,
     source_spot_main_active: bool,
     source_spot_orders_read: Option<SourceSpotOrdersReadJob>,
@@ -275,6 +276,9 @@ impl std::fmt::Debug for ContractCore {
         // remains visible instead of being hidden by the compatibility view.
         if self.main_production_enabled() || self.main_production.is_some() {
             view.field("main_production", &self.main_production);
+        }
+        if let Some(profile) = self.native_active_service_client_scope {
+            view.field("native_active_service_client_scope", &profile);
         }
         if let Some(binding) = &self.native_main_binding {
             view.field("native_main_binding", binding);
@@ -1010,6 +1014,7 @@ impl ContractCore {
                 None
             },
             native_main_binding: None,
+            native_active_service_client_scope: None,
             main_height_rejections: vec![],
             source_spot_main_active: false,
             source_spot_orders_read: None,
@@ -2930,9 +2935,15 @@ include!("source_main_startup_impl.rs");
 
 include!("source_main_native_runtime_impl.rs");
 include!("source_main_native_row_continuation_impl.rs");
+include!("source_main_native_completed_runtime_test_impl.rs");
 include!("source_main_native_no_index_runtime_tests_impl.rs");
 include!("source_main_native_catchup_prepare_impl.rs");
 include!("source_main_native_catchup_continuation_impl.rs");
+include!("source_main_native_service_io_impl.rs");
+include!("source_main_native_service_block_prelude_impl.rs");
+include!("source_main_native_service_block_impl.rs");
+include!("source_main_native_service_runtime_impl.rs");
+include!("source_main_native_service_fields_impl.rs");
 include!("source_main_native_supersession_runtime_impl.rs");
 include!("source_main_step_block_impl.rs");
 include!("source_main_step_runtime_impl.rs");
@@ -2985,3 +2996,11 @@ mod native_row_continuation_tests;
 #[cfg(test)]
 #[path = "source_main_native_catchup_continuation_tests.rs"]
 mod native_catchup_continuation_tests;
+
+#[cfg(test)]
+#[path = "source_main_native_service_block_tests.rs"]
+mod native_main_service_block_tests;
+
+#[cfg(test)]
+#[path = "source_main_native_service_client_scope_tests.rs"]
+mod native_main_service_client_scope_tests;

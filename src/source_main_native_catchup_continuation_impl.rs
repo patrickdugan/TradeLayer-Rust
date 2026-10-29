@@ -1,3 +1,8 @@
+// A control yield is not a source throw/refusal or completed Promise.
+enum NativeMainServiceCatchupDrive {
+    Stopped(NativeMainRowStopV1),
+    Yielded,
+}
 // Actual catchup locals and settlement PCs, outside Clone/Eq financial Core.
 // This initial enclosing profile refuses a configured daemon/timer service.
 #[cfg(test)]
@@ -245,6 +250,12 @@ impl SourceContractRuntime {
         start: V,
     ) -> Result<NativeMainCatchupContinuationV1, SourceRuleError> {
         self.native_main_catchup_continuation_preflight()?;
+        self.native_main_catchup_begin_owned(start)
+    }
+    fn native_main_catchup_begin_owned(
+        &mut self,
+        start: V,
+    ) -> Result<NativeMainCatchupContinuationV1, SourceRuleError> {
         let invocation = self.source_main_invocation_begin(&DependencyCall {
             target: "Main.constructConsensusFromIndex".into(),
             arguments: vec![start.clone()],
@@ -302,15 +313,37 @@ impl SourceContractRuntime {
         index: &mut SourceCompactIndex,
         frame: &mut NativeMainCatchupContinuationV1,
     ) -> NativeMainRowStopV1 {
+        match self.native_main_catchup_drive_budget(index, frame, None) {
+            NativeMainServiceCatchupDrive::Stopped(stop) => stop,
+            NativeMainServiceCatchupDrive::Yielded => unreachable!("unbounded legacy drive"),
+        }
+    }
+    fn native_main_catchup_drive_budget(
+        &mut self,
+        index: &mut SourceCompactIndex,
+        frame: &mut NativeMainCatchupContinuationV1,
+        budget: Option<usize>,
+    ) -> NativeMainServiceCatchupDrive {
+        let mut remaining = budget;
         loop {
             if frame.result.is_some() {
-                return NativeMainRowStopV1::Complete;
+                return NativeMainServiceCatchupDrive::Stopped(NativeMainRowStopV1::Complete);
             }
             if let Some(error) = &frame.storage_stop {
-                return NativeMainRowStopV1::StorageStopped(error.clone());
+                return NativeMainServiceCatchupDrive::Stopped(
+                    NativeMainRowStopV1::StorageStopped(error.clone()),
+                );
             }
             if let Some(error) = &frame.stopped {
-                return NativeMainRowStopV1::SourceStopped(error.clone());
+                return NativeMainServiceCatchupDrive::Stopped(NativeMainRowStopV1::SourceStopped(
+                    error.clone(),
+                ));
+            }
+            if let Some(left) = &mut remaining {
+                if *left == 0 {
+                    return NativeMainServiceCatchupDrive::Yielded;
+                }
+                *left -= 1;
             }
             match frame.pc {
                 NativeMainCatchupPcV1::Prepare => match self
@@ -397,7 +430,7 @@ impl SourceContractRuntime {
                         .validity
                         .append(&mut frame.row.as_mut().expect("actual active row").validity);
                     if stop != NativeMainRowStopV1::Complete {
-                        return stop;
+                        return NativeMainServiceCatchupDrive::Stopped(stop);
                     }
                     let row = frame.row.take().expect("completed actual row");
                     frame.consumed += row.consumed_rows;

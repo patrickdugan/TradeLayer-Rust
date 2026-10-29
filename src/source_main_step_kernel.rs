@@ -833,6 +833,17 @@ impl MainStepKernelV1 {
         owner: &mut impl MainStepOwner,
         command: MainStepCommandV1,
     ) -> Result<MainStepEvaluationV1, MainStepError> {
+        self.apply_with_drain_bound(owner, command, None)
+    }
+    fn apply_with_drain_bound(
+        &mut self,
+        owner: &mut impl MainStepOwner,
+        command: MainStepCommandV1,
+        drain_bound: Option<usize>,
+    ) -> Result<MainStepEvaluationV1, MainStepError> {
+        if drain_bound.is_some_and(|bound| bound > MAX_STEPS) {
+            return Err(MainStepError::InvalidInput);
+        }
         if self.terminal.is_some() {
             return Err(MainStepError::AlreadyExited);
         }
@@ -937,6 +948,9 @@ impl MainStepKernelV1 {
                 evaluation.stop = MainStepStop::ProcessExited(0);
                 return Ok(evaluation);
             }
+        }
+        if let Some(bound) = drain_bound {
+            limit = limit.min(bound);
         }
         for _ in 0..limit {
             let Some(id) = self.ready.pop_front() else {
@@ -1323,3 +1337,5 @@ impl MainStepCommandV1 {
 
 include!("source_main_step_fields_impl.rs");
 include!("source_main_step_file_kernel_impl.rs");
+
+include!("source_main_service_kernel_impl.rs");

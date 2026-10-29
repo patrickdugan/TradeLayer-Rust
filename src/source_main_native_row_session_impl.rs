@@ -6,6 +6,7 @@ use crate::source_contract_runtime::{
 };
 use crate::source_main_native_intent_store::{
     NativeCommandIntentPermitV1, NativeIntentStorePinV1, NativeIntentStoreV1,
+    NativePreparedCompletedAcceptedV1, NativePreparedCompletedCommandAckV1,
     NativePreparedPrefixAckV1, NativePreparedSupersedingIntentV1, NativeWriteIntentCandidatesV1,
 };
 
@@ -38,6 +39,12 @@ enum NativeMainRowControllerPcV1 {
     PrefixAckAttempted,
     PrefixAckSynced,
     SupersessionIntentSynced,
+    FinalAcceptedPrepared,
+    FinalAcceptedAttempted,
+    FinalAcceptedSynced,
+    FinalCommandAckPrepared,
+    FinalCommandAckAttempted,
+    FinalCommandAckSynced,
     Accepted,
     Complete,
     Blocked(String),
@@ -133,6 +140,7 @@ pub struct SourceMainNativeRowSessionV1 {
     reopened: Option<crate::source_compact_index_v2::NativePreparedValidityRecoveryObservationV1>,
     supersession: Option<NativeMainPreparedRowSupersessionV1>,
     superseding_active: bool,
+    publication: NativeMainCompletedPublicationV1,
     prefix_ack: Option<NativePreparedPrefixAckV1>,
     prefix_ack_recovered: Option<NativeIntentStorePinV1>,
 }
@@ -167,6 +175,10 @@ impl SourceMainNativeSessionV13 {
                 }
                 _ => return Err("actual row/catchup command required".into()),
             }
+            command.value().validate().map_err(|e| e.to_string())?;
+            let publication = self
+                .native_main_begin_publication(expected)
+                .map_err(|e| format!("{e:?}"))?;
             let raw = command
                 .value()
                 .diagnostic_json()
@@ -179,12 +191,29 @@ impl SourceMainNativeSessionV13 {
                 ("profile", s("TL-MAIN-ACTUAL-ROW-CONTROL-13-1")),
                 ("financial", s(&hex(&financial))),
                 ("physical", physical_value(&expected.physical)),
+                (
+                    "nativePublicationProfile",
+                    s(NATIVE_COMPLETED_PUBLICATION_PROFILE),
+                ),
+                (
+                    "nativeStartCommands",
+                    s(&publication.start.head.commands.to_string()),
+                ),
+                (
+                    "nativeStartHead",
+                    s(&hex(&publication.start.head.commitment)),
+                ),
+                (
+                    "nativeStartHistory",
+                    s(&publication.start.history_len.to_string()),
+                ),
             ]);
             store
                 .sync_command_intent(store_pin, raw.as_bytes(), before, receipt_budget)
                 .map_err(|e| e.to_string())
+                .map(|permit| (permit, publication))
         })();
-        let permit = match checked {
+        let (permit, publication) = match checked {
             Ok(permit) => permit,
             Err(cause) => {
                 return Err(Box::new(RejectedNativeMainRowSessionV1 {
@@ -225,6 +254,7 @@ impl SourceMainNativeSessionV13 {
             reopened: None,
             supersession: None,
             superseding_active: false,
+            publication,
             prefix_ack: None,
             prefix_ack_recovered: None,
         })
@@ -256,7 +286,10 @@ impl SourceMainNativeRowSessionV1 {
         self.frame.as_ref()?.grouping()
     }
     pub fn effects(&self) -> &[V] {
-        self.owner.financial.runtime().native_main_row_effects()
+        self.completed_native_receipt().map_or_else(
+            || self.owner.financial.runtime().native_main_row_effects(),
+            |receipt| receipt.effects.as_slice(),
+        )
     }
     pub fn pending_write(
         &self,
@@ -268,6 +301,7 @@ impl SourceMainNativeRowSessionV1 {
         visitor: &mut impl FnMut(&str, &V) -> Result<(), SourceRuleError>,
     ) -> Result<(), SourceRuleError> {
         visitor("profile", &s("TL-MAIN-ACTUAL-ROW-CONTROL-13-1"))?;
+        native_main_publication_fields(&self.publication, visitor)?;
         visitor(
             "controllerPc",
             &s(match self.pc {
@@ -284,6 +318,12 @@ impl SourceMainNativeRowSessionV1 {
                 NativeMainRowControllerPcV1::PrefixAckAttempted => "PrefixAckAttempted",
                 NativeMainRowControllerPcV1::PrefixAckSynced => "PrefixAckSynced",
                 NativeMainRowControllerPcV1::SupersessionIntentSynced => "SupersessionIntentSynced",
+                NativeMainRowControllerPcV1::FinalAcceptedPrepared => "FinalAcceptedPrepared",
+                NativeMainRowControllerPcV1::FinalAcceptedAttempted => "FinalAcceptedAttempted",
+                NativeMainRowControllerPcV1::FinalAcceptedSynced => "FinalAcceptedSynced",
+                NativeMainRowControllerPcV1::FinalCommandAckPrepared => "FinalCommandAckPrepared",
+                NativeMainRowControllerPcV1::FinalCommandAckAttempted => "FinalCommandAckAttempted",
+                NativeMainRowControllerPcV1::FinalCommandAckSynced => "FinalCommandAckSynced",
                 NativeMainRowControllerPcV1::Accepted => "Accepted",
                 NativeMainRowControllerPcV1::Complete => "Complete",
                 NativeMainRowControllerPcV1::Blocked(_) => "Blocked",
@@ -371,6 +411,17 @@ impl SourceMainNativeRowSessionV1 {
     pub fn advance(&mut self) -> NativeMainRowStopV1 {
         if matches!(
             self.pc,
+            NativeMainRowControllerPcV1::FinalAcceptedPrepared
+                | NativeMainRowControllerPcV1::FinalAcceptedAttempted
+                | NativeMainRowControllerPcV1::FinalAcceptedSynced
+                | NativeMainRowControllerPcV1::FinalCommandAckPrepared
+                | NativeMainRowControllerPcV1::FinalCommandAckAttempted
+                | NativeMainRowControllerPcV1::FinalCommandAckSynced
+        ) {
+            return self.resume_completed_barriers();
+        }
+        if matches!(
+            self.pc,
             NativeMainRowControllerPcV1::PrefixAckSynced
                 | NativeMainRowControllerPcV1::SupersessionIntentSynced
         ) {
@@ -399,34 +450,7 @@ impl SourceMainNativeRowSessionV1 {
         if stop != NativeMainRowStopV1::Complete {
             return stop;
         }
-        let collected = match self.observe_control(true) {
-            Ok(collected) => collected,
-            Err(error) => return self.block(error),
-        };
-        let financial = match self.owner.financial.native_main_financial_commitment() {
-            Ok(financial) => financial,
-            Err(error) => return self.block(error.to_string()),
-        };
-        let after = obj(&[
-            ("profile", s("TL-MAIN-ACTUAL-ROW-CONTROL-13-1")),
-            ("financial", s(&hex(&financial))),
-            ("controlFields", s(&collected.summary.fields.to_string())),
-            ("controlBytes", s(&collected.summary.bytes.to_string())),
-            ("controlCommitment", s(&hex(&collected.summary.commitment))),
-        ]);
-        if let Err(error) = self.store.sync_accepted(
-            &mut self.permit,
-            collected.frames.as_ref().expect("retained scalar frames"),
-            after,
-        ) {
-            return self.block(error.to_string());
-        }
-        self.pc = NativeMainRowControllerPcV1::Accepted;
-        if let Err(error) = self.store.sync_ack(&mut self.permit) {
-            return self.block(error.to_string());
-        }
-        self.pc = NativeMainRowControllerPcV1::Complete;
-        NativeMainRowStopV1::Complete
+        self.finish_completed_publication()
     }
     pub fn prepare_pending(&mut self) -> NativeMainRowStopV1 {
         if !matches!(self.pc, NativeMainRowControllerPcV1::Source) {

@@ -29,6 +29,7 @@ pub struct SourceMainNativeRowNoIndexV1 {
     reopened: Option<NativePreparedValidityRecoveryObservationV1>,
     supersession: Option<NativeMainPreparedRowSupersessionV1>,
     superseding_active: bool,
+    publication: NativeMainCompletedPublicationV1,
     prefix_ack: Option<NativePreparedPrefixAckV1>,
     prefix_ack_recovered: Option<NativeIntentStorePinV1>,
 }
@@ -95,6 +96,7 @@ impl SourceMainNativeRowSessionV1 {
             reopened,
             supersession,
             superseding_active,
+            publication,
             prefix_ack,
             prefix_ack_recovered,
         } = self;
@@ -137,6 +139,7 @@ impl SourceMainNativeRowSessionV1 {
             reopened,
             supersession,
             superseding_active,
+            publication,
             prefix_ack,
             prefix_ack_recovered,
         })
@@ -198,6 +201,7 @@ impl SourceMainNativeRowNoIndexV1 {
             command,
             supersession,
             superseding_active,
+            publication,
             prefix_ack,
             prefix_ack_recovered,
             namespace: _,
@@ -242,6 +246,7 @@ impl SourceMainNativeRowNoIndexV1 {
             reopened: Some(observation),
             supersession,
             superseding_active,
+            publication,
             prefix_ack,
             prefix_ack_recovered,
         })
@@ -251,6 +256,7 @@ impl SourceMainNativeRowNoIndexV1 {
         visitor: &mut impl FnMut(&str, &V) -> Result<(), SourceRuleError>,
     ) -> Result<(), SourceRuleError> {
         visitor("profile", &s("TL-MAIN-ACTUAL-NO-INDEX-LOAN-13-1"))?;
+        native_main_publication_fields(&self.publication, visitor)?;
         visitor("nativeOwnerPresent", &V::Bool(false))?;
         visitor(
             "namespace/path",

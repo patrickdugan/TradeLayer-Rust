@@ -555,10 +555,20 @@ include!("source_main_native_step_session_impl.rs");
 include!("source_main_native_step_segment_impl.rs");
 
 include!("source_main_native_row_session_impl.rs");
+include!("source_main_native_completed_bytes_impl.rs");
+include!("source_main_native_completed_bounded_codec_impl.rs");
+include!("source_main_native_completed_chain_impl.rs");
+include!("source_main_native_completed_publication_impl.rs");
+include!("source_main_native_completed_install_impl.rs");
+include!("source_main_native_completed_fields_impl.rs");
 include!("source_main_native_no_index_impl.rs");
 include!("source_main_native_supersession_controller_impl.rs");
 include!("source_main_native_prefix_ack_controller_impl.rs");
 include!("source_main_native_no_control_store_impl.rs");
+include!("source_main_native_service_session_impl.rs");
+#[cfg(test)]
+#[path = "source_main_native_service_tests.rs"]
+mod native_main_service_tests;
 #[cfg(test)]
 #[path = "source_main_native_row_session_tests.rs"]
 mod native_row_session_tests;
@@ -574,3 +584,15 @@ mod native_main_no_index_tests;
 #[cfg(test)]
 #[path = "source_main_native_no_control_store_tests.rs"]
 mod native_main_no_control_store_tests;
+
+#[cfg(test)]
+#[path = "source_main_native_completed_publication_tests.rs"]
+mod completed_publication_tests;
+
+#[cfg(test)]
+include!("source_main_native_completed_guard_test_impl.rs");
+
+include!("source_main_native_completed_controller_impl.rs");
+#[cfg(test)]
+#[path = "source_main_native_completed_recovery_tests.rs"]
+mod completed_recovery_tests;

@@ -1,0 +1,66 @@
+{
+  "profile": "NATIVE-MAIN-SERVICE-RC-HANDOFF-1",
+  "parentExecutedCore": {
+    "log": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\root-native-service-client-scope-first.log",
+    "sha256": "dacf65bdb757365e88cc7248d60f32c4ad0666d6d243d5715a37a270ed313da9",
+    "tests": 11,
+    "passed": 11,
+    "failed": 0,
+    "seconds": 5.71
+  },
+  "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "sourcePins": {
+    "fixtures/native_genesis/source/main.js": {
+      "bytes": 43435,
+      "rawSHA256": "006d59ba3d28d802b0e0c5be2d9d661b58caf1c919a704b3f0d40bc9613c4009",
+      "lfSHA256": "006d59ba3d28d802b0e0c5be2d9d661b58caf1c919a704b3f0d40bc9613c4009"
+    },
+    "fixtures/legacy_txindex_source_txIndex.txt": {
+      "bytes": 20396,
+      "rawSHA256": "25f61a0206e56e59cfe6bdc924c1c609c85d589cfe6aec38b93b886ac4807b9c",
+      "lfSHA256": "095449d90f511df44aff7b316105f57d4c0508ea8fb0b6f9c4a5f358edf6ca51"
+    },
+    "fixtures/source_channel_txutils_reference.txt": {
+      "bytes": 58349,
+      "rawSHA256": "38fbc7b5c1dc4d187867238b5ea00bc165c855e9ccfbc20c48141cd4796ac8a3",
+      "lfSHA256": "38fbc7b5c1dc4d187867238b5ea00bc165c855e9ccfbc20c48141cd4796ac8a3"
+    },
+    "scripts/native_main_service_tail_controls.cjs": {
+      "bytes": 16634,
+      "rawSHA256": "ebce698b6afd3beab56a15e75ac24b502ef5cea678abee3fe4e5cb906b9384cc",
+      "lfSHA256": "ebce698b6afd3beab56a15e75ac24b502ef5cea678abee3fe4e5cb906b9384cc"
+    },
+    "scripts/native_main_service_tail_observer2_controls.cjs": {
+      "bytes": 18420,
+      "rawSHA256": "d26931a51b1a54533d32bc9224160d5442894a336ab4b92832331d80ad7bc7aa",
+      "lfSHA256": "d26931a51b1a54533d32bc9224160d5442894a336ab4b92832331d80ad7bc7aa"
+    },
+    "scripts/native_service_source_base.cjs": {
+      "bytes": 86299,
+      "rawSHA256": "509015e9124795f3adda0997d5eacc495a1b80831b68d95fc078281f78852715",
+      "lfSHA256": "509015e9124795f3adda0997d5eacc495a1b80831b68d95fc078281f78852715"
+    },
+    "fixtures/native_main_service_tail.jsonl": {
+      "bytes": 1453175,
+      "rawSHA256": "29cadc91073ded9f0dcfea647118b10f995e097cb2a1baae7921140aecc3d0a2",
+      "lfSHA256": "29cadc91073ded9f0dcfea647118b10f995e097cb2a1baae7921140aecc3d0a2"
+    },
+    "fixtures/native_main_service_tail_observer2.jsonl": {
+      "bytes": 1463840,
+      "rawSHA256": "4b6bb3a74155feaf1d6855543b8e031da8b948c9b5c6a4fbd7a1c654aaed9a27",
+      "lfSHA256": "4b6bb3a74155feaf1d6855543b8e031da8b948c9b5c6a4fbd7a1c654aaed9a27"
+    },
+    "fixtures/native_main_service_tail_observer2_locked.jsonl": {
+      "bytes": 1463840,
+      "rawSHA256": "4b6bb3a74155feaf1d6855543b8e031da8b948c9b5c6a4fbd7a1c654aaed9a27",
+      "lfSHA256": "4b6bb3a74155feaf1d6855543b8e031da8b948c9b5c6a4fbd7a1c654aaed9a27"
+    }
+  },
+  "observedClasses": {
+    "MainSHA256": "cadcab37cf95dcc78d2258d12817c88fc6a01b9220c6cf18a25ddf68b43a7ea2",
+    "TxIndexSHA256": "01dcd57e943046f5bb1dc7bc01efe6ea98e456be593ff91ddb5b4799072b257e"
+  },
+  "implementationFreeze": "eacef4f3e554801054b2c1162cb014d885a18eb748a4a088ad6a89e5004ca42b",
+  "initializerSourceOnlyFreeze": "ecc021cc9b56444a7ef66c5c2094c3b41f93ed4e48b7d034e94829068aed71f2",
+  "status": "focused actual Core green; combined gates/commit/full release Parent-owned"
+}

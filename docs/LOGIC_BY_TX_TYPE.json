@@ -2,8 +2,8 @@
   "schema": "tl-logic-reference-review-v1",
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
   "rustCommit": "70f568ad703bef189c01c989631692fdf75235bb",
-  "rustCommitScope": "Inventory parent is historical. Full release963aae7 covers V12 startup/snapshot/IO/sort, native session13 and bounded graphs:1714 executions and238 numeric checks. Subsequent explicit RichThrownV14 RPC/catch carriers, same-owner partial-write error continuations and command replay pass focused Core/compatibility/source checks; full-suite promotion and broader DB/financial/deferred provenance remain pending. Native durable continuations, authenticated history and complete-block proofs remain open. All per-type full-parity/proof classifications stay unchanged and incomplete. Shared TxIndex metadata algorithms now retain the same owner and legacy dependency ordering; the original-source regression corpus passed. This factoring does not widen rich-error admission or any per-type parity/proof classification. Reviewed native scheduler/file-retry, segmented replay/capacity, prepared native appends, intent store and prepared validity are integrated for focused Core checks. Same-owner row preparation is factored without changing legacy behavior. Financial Main row/catchup continuation and end-to-end crash recovery remain unfinished; all per-type parity/proof classifications are unchanged. Explicit native recovery-open now verifies complete independently expected KV, sequence and location under the same exclusive lock before tail repair. Focused storage/native compatibility checks pass; financial row/catchup recovery remains unfinished. First actual row-list continuation now retains the same financial queue across prepared native validity awaits and binds intent/ack through a moved owner. Focused actual/source checks pass. This one-shot component does not complete enclosing catchup, head/history composition, reopen or process-loss recovery. Actual enclosing native catchup now retains fixed generation grouping, funding/trade cursors, six settlement phases and volume/vesting locals across each original row await. The finite no-service tail and failure prefixes pass focused source controls. Index reopen, durable supersession, service-tail, head/history/next-command composition and process-loss recovery remain unfinished. Verified actual prepared native candidates can now reopen under the existing same-lock integrity check. Exact retained mutations can be reprepared with a fresh owner token, and explicit versioned durable superseding intent syncs before append; only complete Post admits acknowledgment. Focused Core gates pass. Live financial controller composition, typed control-store recovery, process-loss and service/head/history continuation remain pending. Actual row/catchup now moves the same financial owner/frame/store/permit into a distinct no-index type and drops only the mutable index. Explicit verified Post reopen resolves the same held await; mismatch returns the same retained owner. Before/Intermediate await durable replacement installation. ACK-store recovery, service/head/history composition and process-loss replay remain open. Actual live row/catchup now syncs a sealed replacement intent before checked plan installation and resumes only after fresh append/Post acknowledgment. Repeated native ambiguity keeps same-command lineage. Sealed ACK helper passes Core checks; typed control-store recovery, head/history publication, service tail and process-loss replay remain pending. Four new genuine original-JS multiheight controls now have executed Rust comparisons: real bootstrap/processed skips, funding-before-trade with two validity failures, clearing rejection after prior settlement effects, and invalid-but-processed skip semantics. Expected outputs remain observations only. All13 catchup tests and source checks pass; broader service/cold recovery/authentication are not established. Actual native-prefix ACK and superseding-intent control sync now retain sealed operations through typed no-control-store recovery. Exact expected synced Post rebinds only the same retained permit; healthy Before retries only its exact prepared operation. Six new Core tests and all275 parallel library tests pass. Accepted/final command ACK recovery, publication, service/terminal WAL and cold replay remain separate.",
-  "reviewedAtUtc": "2026-10-29T12:49:49Z",
+  "rustCommitScope": "Inventory parent is historical. Full release963aae7 covers V12 startup/snapshot/IO/sort, native session13 and bounded graphs:1714 executions and238 numeric checks. Subsequent explicit RichThrownV14 RPC/catch carriers, same-owner partial-write error continuations and command replay pass focused Core/compatibility/source checks; full-suite promotion and broader DB/financial/deferred provenance remain pending. Native durable continuations, authenticated history and complete-block proofs remain open. All per-type full-parity/proof classifications stay unchanged and incomplete. Shared TxIndex metadata algorithms now retain the same owner and legacy dependency ordering; the original-source regression corpus passed. This factoring does not widen rich-error admission or any per-type parity/proof classification. Reviewed native scheduler/file-retry, segmented replay/capacity, prepared native appends, intent store and prepared validity are integrated for focused Core checks. Same-owner row preparation is factored without changing legacy behavior. Financial Main row/catchup continuation and end-to-end crash recovery remain unfinished; all per-type parity/proof classifications are unchanged. Explicit native recovery-open now verifies complete independently expected KV, sequence and location under the same exclusive lock before tail repair. Focused storage/native compatibility checks pass; financial row/catchup recovery remains unfinished. First actual row-list continuation now retains the same financial queue across prepared native validity awaits and binds intent/ack through a moved owner. Focused actual/source checks pass. This one-shot component does not complete enclosing catchup, head/history composition, reopen or process-loss recovery. Actual enclosing native catchup now retains fixed generation grouping, funding/trade cursors, six settlement phases and volume/vesting locals across each original row await. The finite no-service tail and failure prefixes pass focused source controls. Index reopen, durable supersession, service-tail, head/history/next-command composition and process-loss recovery remain unfinished. Verified actual prepared native candidates can now reopen under the existing same-lock integrity check. Exact retained mutations can be reprepared with a fresh owner token, and explicit versioned durable superseding intent syncs before append; only complete Post admits acknowledgment. Focused Core gates pass. Live financial controller composition, typed control-store recovery, process-loss and service/head/history continuation remain pending. Actual row/catchup now moves the same financial owner/frame/store/permit into a distinct no-index type and drops only the mutable index. Explicit verified Post reopen resolves the same held await; mismatch returns the same retained owner. Before/Intermediate await durable replacement installation. ACK-store recovery, service/head/history composition and process-loss replay remain open. Actual live row/catchup now syncs a sealed replacement intent before checked plan installation and resumes only after fresh append/Post acknowledgment. Repeated native ambiguity keeps same-command lineage. Sealed ACK helper passes Core checks; typed control-store recovery, head/history publication, service tail and process-loss replay remain pending. Four new genuine original-JS multiheight controls now have executed Rust comparisons: real bootstrap/processed skips, funding-before-trade with two validity failures, clearing rejection after prior settlement effects, and invalid-but-processed skip semantics. Expected outputs remain observations only. All13 catchup tests and source checks pass; broader service/cold recovery/authentication are not established. Actual native-prefix ACK and superseding-intent control sync now retain sealed operations through typed no-control-store recovery. Exact expected synced Post rebinds only the same retained permit; healthy Before retries only its exact prepared operation. Six new Core tests and all275 parallel library tests pass. Accepted/final command ACK recovery, publication, service/terminal WAL and cold replay remain separate. Actual final Accepted/command ACK recovery and completed-command head/history publication are integrated with exact retained-owner barriers. The explicit running-service component matches the bounded original-JavaScript financial/native/effect controls, including same-index TxUtils bootstrap and scoped shared-client counters. The combined library passes318 tests and25 public compatibility checks. Active-service WAL, cold source replay, global initialization failure/order and broader receiver/cache domains remain separate; full-release promotion/authentication/complete-block proofs are unestablished.",
+  "reviewedAtUtc": "2026-10-29T15:10:59Z",
   "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
     {
@@ -166,7 +166,7 @@
     {
       "path": "src/source_contract_runtime.rs",
       "lfNormalized": true,
-      "sha256": "11cc342533696fd3f6bfbbeec53a5a20b345c12adc0070e74e8a10de81cbb5b5"
+      "sha256": "63ec5da88540dc64ffe5e0520dc34b97ec5052715d8d1eb6e35ed1d69555ff3e"
     },
     {
       "path": "src/source_contract_values.rs",
@@ -406,7 +406,7 @@
     {
       "path": "src/source_activation_lifecycle_impl.rs",
       "lfNormalized": true,
-      "sha256": "de0eaf3d9c519fb8c8766c1d12ea2428041a3e5f531bfaa7e1b7136b8c04f046"
+      "sha256": "db80ee33ca943ea30d7eee4ebc903a6c1662ea886fc6d33c31356875b4ae5715"
     },
     {
       "path": "src/source_activation_hash_impl.rs",
@@ -540,7 +540,7 @@
     },
     {
       "path": "src/source_main_native_session.rs",
-      "sha256": "ece57c5f866fc9971212a1a6ae7b643c7025c56095036ed09075077f985ebcac",
+      "sha256": "9d1cab58f1924f79f47098774fa51b23de7c1bcd11946c6c192f4246e51082e0",
       "lfNormalized": true
     },
     {
@@ -555,7 +555,7 @@
     },
     {
       "path": "src/source_main_native_intent_store.rs",
-      "sha256": "677158cf5b8799a999312d6915e1f323f90b3c8e0d80b3d5f63088f05b1fa466",
+      "sha256": "f969247a3f4e1ab695ca50736a0386daa53f0331077cfa17041ac1ce90eea00e",
       "lfNormalized": true
     },
     {
@@ -610,7 +610,7 @@
     },
     {
       "path": "src/source_main_step_kernel.rs",
-      "sha256": "94baa86bf48e167a81315c7effd6e1a0f630e8f993fc99d77cd28c1a2b4f24d8",
+      "sha256": "198a40e013ed5a423ba33331abc2946d1bcbb5ac23f72c88620e8e677a39fa12",
       "lfNormalized": true
     },
     {
@@ -645,7 +645,7 @@
     },
     {
       "path": "src/source_main_native_row_session_impl.rs",
-      "sha256": "8d48fd1292638e458a46f211763477c1da3bf981c364641d1e910d9d016a5b45",
+      "sha256": "a6d43320051499010bea8f1838d02f81b9b82e83b7f2ec85d81c08800022399d",
       "lfNormalized": true
     },
     {
@@ -660,7 +660,7 @@
     },
     {
       "path": "src/source_main_native_catchup_continuation_impl.rs",
-      "sha256": "c0f424983f1702cb7431b830045ccc697208545a961271ef19c47869a4052b26",
+      "sha256": "383c3ec7b4f02ebb422309f3ed8055a23ee9053da7ae3862a631aac2a5355fcd",
       "lfNormalized": true
     },
     {
@@ -700,7 +700,7 @@
     },
     {
       "path": "src/source_main_native_no_index_impl.rs",
-      "sha256": "7996b756f3e13f5de787c7730a3b9e53a9cdae41acd3fdde9b465c8152d44d5b",
+      "sha256": "e08f0e7f059f757ed330ff929ede3ad9a5b14615b144b5c152aff7749424c117",
       "lfNormalized": true
     },
     {
@@ -755,7 +755,7 @@
     },
     {
       "path": "src/source_main_native_no_control_store_impl.rs",
-      "sha256": "282baf7337e0fa8c0f2b9cbf028722606cfdb830075f501ed2adacd6c9ac4804",
+      "sha256": "ad43f23f555498d341670b2a20e2de960a2d1a2d1a202a31970b37a075451280",
       "lfNormalized": true
     },
     {
@@ -771,6 +771,146 @@
     {
       "path": "src/source_main_native_catchup_session_tests.rs",
       "sha256": "3626d3842d69f6973c09c66bdb7f19d888f8d4ca6c6d67082327f7c0874c7263",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_service_block_prelude_impl.rs",
+      "sha256": "cf246a092df2dd35112ae52559f973f7ae3e18a6440c9c9330eec670ebd04fb8",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_service_block_impl.rs",
+      "sha256": "b38d961067a8f79f7229f60aba2cfb5240fc2bb4d80b71494960d4c486a12a7f",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_service_fields_impl.rs",
+      "sha256": "f1736e6a7f9bebeced8e1ab7eeff326f39dce2904a45e9b311da1f7d4e35f70f",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_service_io_impl.rs",
+      "sha256": "b95022a2cb1e89b5eb880b467024b3ec817941094f2fa1a97308022c56cddf8c",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_service_runtime_impl.rs",
+      "sha256": "fc5edbc24c7e64a89ffca4462b1be49a7a9309826a53029e64193b52eaeb269f",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_service_session_impl.rs",
+      "sha256": "d52e63b35086be8e3327db2ec51219026fa503da8336b9f37681a9d8afc6c338",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_service_tests.rs",
+      "sha256": "58dc13dcf30608f8f4b0621e429df86a8436724ebc5d539255356f28f19e10e7",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_service_kernel_impl.rs",
+      "sha256": "56d97af6b0d1fc433269f92eadc55ca4d76a9034a65fe8422093c9ac1237a948",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_service_block_tests.rs",
+      "sha256": "f4e1e19be69e006f167aba425e74fa3fa6b17181cd7c4fa49a66859ac729ed3d",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_service_test_transport.rs",
+      "sha256": "feaf7f4fe6f86e644c5d8f4e81c7958bacf458570ac6bb51c56f88c260b41d11",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_completed_ack_binding_impl.rs",
+      "sha256": "121218b8a1ece6db23d17689d90d41fc75d70a9cec2ed6760d377d05e7478f01",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_completed_bounded_codec_impl.rs",
+      "sha256": "c50ca25ac5daebbdb347806b49372001b0876245ff6e1374421a6c664292f153",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_completed_bytes_impl.rs",
+      "sha256": "fc43e28ad169b9f71343a82a02bf87b76e6bd67a1a9c0440cac94fe36c031865",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_completed_chain_impl.rs",
+      "sha256": "95365cf7e3dfa6da150308f3c914ef2c3d3c236ad9c180c4a59c041efa4c3251",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_completed_fields_impl.rs",
+      "sha256": "25bd71f3d251f19d556fbec4a6d9b25b8076a9fc2ad30b187e7a3ca2bddd12c9",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_completed_install_impl.rs",
+      "sha256": "3841b209b03fe595afc5570ddf4a753563af2c1fd86b5121ac9849f2a2f40bb4",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_completed_publication_impl.rs",
+      "sha256": "e6dbccf9f514025d5ebccce38030e9fd8162fd46547c5938efabfa06ccf3abb8",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_completed_publication_tests.rs",
+      "sha256": "94502347b347dad914397150194785553a404e8f3acfaebefd7c49d1b2649c78",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_completed_runtime_test_impl.rs",
+      "sha256": "50aed9e0d4880c296d0eb1b71b2bc40478d18584c964481f19408bb9c2946d96",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_completed_accepted_impl.rs",
+      "sha256": "86ce4e07f14bd8fa1b30c28b85981a380cd4d30bd169be57a6e44442fa482de7",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_completed_barrier_impl.rs",
+      "sha256": "8889eb5dd90282f3d6637dc084c6b1b6d87840dfa3fb649a0b65b690a968ee42",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_completed_barrier_tests.rs",
+      "sha256": "cabd5bd3cc0b27816b74263358fb9823f76076bdaa7ef6117774b2427b2e03aa",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_completed_command_ack_impl.rs",
+      "sha256": "f49b0bb9025a645ad805e2bfb1adb71196f32a32b618462bcf2489e1d7cd9ed6",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_completed_guard_test_impl.rs",
+      "sha256": "0aca9769b16e85141486812c5fcc550be47f55ab3e8dc5646bd14df3b66553b5",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_completed_empty_tests.rs",
+      "sha256": "275115cbbfe1d6b53e1adf20256b3b50de88c61db6eb7dec5f1a4f347021ec5d",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_completed_controller_impl.rs",
+      "sha256": "3a08118524c3c43ac32e06eb7b46bf630d194adeaf3831bb0d5b9ce5974e7445",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_completed_recovery_tests.rs",
+      "sha256": "fd1247227fb3912987d25d657fb05555b31e4a9fa5f49b161438f7ece0c589c0",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_service_client_scope_tests.rs",
+      "sha256": "3c30564a3175e6f91feea9717a64c915d6fdc3233525ae51f84a9979d172c6d3",
       "lfNormalized": true
     }
   ],

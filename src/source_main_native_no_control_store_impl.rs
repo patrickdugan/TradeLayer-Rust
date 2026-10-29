@@ -5,6 +5,8 @@ use crate::source_contract_replay::source_durable::SourceDurableFilesystem;
 enum NativeMainControlPostOperationV1 {
     PrefixAck,
     SupersedingIntent,
+    CompletedAccepted,
+    CompletedCommandAck,
 }
 pub struct SourceMainNativeRowNoControlStoreV1 {
     owner: SourceMainNativeSessionV13,
@@ -16,6 +18,7 @@ pub struct SourceMainNativeRowNoControlStoreV1 {
     reopened: Option<NativePreparedValidityRecoveryObservationV1>,
     supersession: Option<NativeMainPreparedRowSupersessionV1>,
     superseding_active: bool,
+    publication: NativeMainCompletedPublicationV1,
     prefix_ack: Option<NativePreparedPrefixAckV1>,
     prefix_ack_recovered: Option<NativeIntentStorePinV1>,
     operation: NativeMainControlPostOperationV1,
@@ -68,6 +71,16 @@ impl SourceMainNativeRowSessionV1 {
             {
                 NativeMainControlPostOperationV1::SupersedingIntent
             }
+            NativeMainRowControllerPcV1::FinalAcceptedAttempted
+                if self.publication.final_accepted.is_some() =>
+            {
+                NativeMainControlPostOperationV1::CompletedAccepted
+            }
+            NativeMainRowControllerPcV1::FinalCommandAckAttempted
+                if self.publication.final_command_ack.is_some() =>
+            {
+                NativeMainControlPostOperationV1::CompletedCommandAck
+            }
             _ => {
                 return Err(Box::new(RejectedNativeMainNoControlStoreV1 {
                     cause: "an actual retained control sync attempt is required".into(),
@@ -87,6 +100,18 @@ impl SourceMainNativeRowSessionV1 {
                 .unwrap()
                 .intent
                 .independently_expected_before(),
+            NativeMainControlPostOperationV1::CompletedAccepted => self
+                .publication
+                .final_accepted
+                .as_ref()
+                .unwrap()
+                .independently_expected_before(),
+            NativeMainControlPostOperationV1::CompletedCommandAck => self
+                .publication
+                .final_command_ack
+                .as_ref()
+                .unwrap()
+                .independently_expected_before(),
         };
         if self.store.pin().ok().as_ref() == Some(before) {
             return Err(Box::new(RejectedNativeMainNoControlStoreV1 { cause: "healthy independently known Before must retry exact prepared operation on the same Store".into(), session: self }));
@@ -103,6 +128,7 @@ impl SourceMainNativeRowSessionV1 {
             reopened,
             supersession,
             superseding_active,
+            publication,
             prefix_ack,
             prefix_ack_recovered,
         } = self;
@@ -119,6 +145,7 @@ impl SourceMainNativeRowSessionV1 {
             reopened,
             supersession,
             superseding_active,
+            publication,
             prefix_ack,
             prefix_ack_recovered,
             operation,
@@ -126,6 +153,10 @@ impl SourceMainNativeRowSessionV1 {
     }
     pub fn resume_recovered_control_post(&mut self) -> NativeMainRowStopV1 {
         match self.pc {
+            NativeMainRowControllerPcV1::FinalAcceptedSynced
+            | NativeMainRowControllerPcV1::FinalCommandAckSynced => {
+                self.resume_completed_barriers()
+            }
             NativeMainRowControllerPcV1::PrefixAckSynced => {
                 self.native_main_resume_acknowledged_source()
             }
@@ -144,12 +175,15 @@ impl SourceMainNativeRowNoControlStoreV1 {
         visitor: &mut impl FnMut(&str, &V) -> Result<(), SourceRuleError>,
     ) -> Result<(), SourceRuleError> {
         visitor("profile", &s("TL-MAIN-NO-CONTROL-STORE-13-1"))?;
+        native_main_publication_fields(&self.publication, visitor)?;
         visitor("controlStorePresent", &V::Bool(false))?;
         visitor(
             "operation",
             &s(match self.operation {
                 NativeMainControlPostOperationV1::PrefixAck => "PrefixAck",
                 NativeMainControlPostOperationV1::SupersedingIntent => "SupersedingIntent",
+                NativeMainControlPostOperationV1::CompletedAccepted => "CompletedAccepted",
+                NativeMainControlPostOperationV1::CompletedCommandAck => "CompletedCommandAck",
             }),
         )?;
         native_main_supersession_store_pin(
@@ -309,6 +343,18 @@ impl SourceMainNativeRowNoControlStoreV1 {
                 .unwrap()
                 .intent
                 .independently_expected_after(),
+            NativeMainControlPostOperationV1::CompletedAccepted => self
+                .publication
+                .final_accepted
+                .as_ref()
+                .unwrap()
+                .independently_expected_after(),
+            NativeMainControlPostOperationV1::CompletedCommandAck => self
+                .publication
+                .final_command_ack
+                .as_ref()
+                .unwrap()
+                .independently_expected_after(),
         }
     }
     pub fn try_reopen_synced_post(
@@ -318,6 +364,22 @@ impl SourceMainNativeRowNoControlStoreV1 {
         filesystem: SourceDurableFilesystem,
     ) -> Result<SourceMainNativeRowSessionV1, Box<RejectedNativeMainControlPostOpenV1>> {
         let opened = match self.operation {
+            NativeMainControlPostOperationV1::CompletedAccepted => {
+                NativeIntentStoreV1::open_synced_completed_accepted(
+                    root,
+                    namespace,
+                    self.publication.final_accepted.as_ref().unwrap(),
+                    filesystem,
+                )
+            }
+            NativeMainControlPostOperationV1::CompletedCommandAck => {
+                NativeIntentStoreV1::open_synced_completed_command_ack(
+                    root,
+                    namespace,
+                    self.publication.final_command_ack.as_ref().unwrap(),
+                    filesystem,
+                )
+            }
             NativeMainControlPostOperationV1::PrefixAck => {
                 NativeIntentStoreV1::open_synced_native_prefix_ack(
                     root,
@@ -345,6 +407,16 @@ impl SourceMainNativeRowNoControlStoreV1 {
             }
         };
         let rebound = match self.operation {
+            NativeMainControlPostOperationV1::CompletedAccepted => store
+                .recover_synced_completed_accepted(
+                    self.publication.final_accepted.as_ref().unwrap(),
+                    &mut self.permit,
+                ),
+            NativeMainControlPostOperationV1::CompletedCommandAck => store
+                .recover_synced_completed_command_ack(
+                    self.publication.final_command_ack.as_ref().unwrap(),
+                    &mut self.permit,
+                ),
             NativeMainControlPostOperationV1::PrefixAck => store.recover_synced_native_prefix_ack(
                 self.prefix_ack.as_ref().unwrap(),
                 &mut self.permit,
@@ -372,11 +444,18 @@ impl SourceMainNativeRowNoControlStoreV1 {
             reopened,
             supersession,
             superseding_active,
+            publication,
             prefix_ack,
             mut prefix_ack_recovered,
             operation,
         } = self;
         let pc = match operation {
+            NativeMainControlPostOperationV1::CompletedAccepted => {
+                NativeMainRowControllerPcV1::FinalAcceptedSynced
+            }
+            NativeMainControlPostOperationV1::CompletedCommandAck => {
+                NativeMainRowControllerPcV1::FinalCommandAckSynced
+            }
             NativeMainControlPostOperationV1::PrefixAck => {
                 prefix_ack_recovered = Some(
                     prefix_ack
@@ -403,6 +482,7 @@ impl SourceMainNativeRowNoControlStoreV1 {
             reopened,
             supersession,
             superseding_active,
+            publication,
             prefix_ack,
             prefix_ack_recovered,
         })

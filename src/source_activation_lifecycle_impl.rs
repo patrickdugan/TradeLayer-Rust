@@ -368,6 +368,9 @@ impl ContractCore {
         Ok(V::Undefined)
     }
     fn source_activation_client(&mut self, target: &str, args: &[V]) -> R<V> {
+        if self.native_active_service_client_scope.is_some() {
+            return self.native_main_service_client_rpc(target, args);
+        }
         self.activation_client_locked = true;
         let mut event = obj(&[
             ("kind", s("rpc-input")),
