@@ -1,0 +1,77 @@
+{
+  "schema": "tl-control-store-progress-completeness-v1",
+  "verifiedAtUtc": "2026-10-29T13:05:43Z",
+  "checkoutCommit": "eff87dd817dc3ec7ac3403ecb020b0156ccbedef",
+  "integrated": {
+    "nativeMultiheightSourceComparisons": {
+      "status": "committed-scoped-checks-pass",
+      "RootIntegrated": true,
+      "commit": "d13c8b3c0b6374a9edd0dd53ae7e91efc90a66da",
+      "record": "fixtures/reference_fidelity/native-main-multiheight-core-integration.json",
+      "recordSHA256": "9a8f0665e15e907b723b0ce3c500a474b865d8b0a8683dd7bc4902332c79c933",
+      "rustExecutions": 17,
+      "countsOverlap": true,
+      "fullSuitePromotion": false,
+      "distinctRustTests": 13,
+      "newSourceBoundaryComparisons": 4,
+      "sourceMainCallsPerNumericProfile": 4,
+      "sourceBootstrapCallsPerNumericProfile": 6,
+      "completeSerializedSourceStateEqualityEstablished": false
+    },
+    "nativeNoControlStoreRecovery": {
+      "status": "committed-scoped-checks-pass",
+      "RootIntegrated": true,
+      "commit": "eff87dd817dc3ec7ac3403ecb020b0156ccbedef",
+      "record": "fixtures/reference_fidelity/native-no-control-store-core-integration.json",
+      "recordSHA256": "c96516e8ef5b994a6679a95d03e8812f150932bc344b18b115e243a261ada960",
+      "rustExecutions": 306,
+      "countsOverlap": true,
+      "fullSuitePromotion": false,
+      "parallelLibraryPassed": 275,
+      "parallelLibraryThreads": 8,
+      "ignoredLibraryChildEntries": 3,
+      "initialNewTests": 6,
+      "publicCompatibilityExecutions": 25,
+      "acceptedAndFinalCommandAckRecoveryEstablished": false,
+      "headHistoryPublicationIntegrated": false,
+      "serviceTerminalWalIntegrated": false,
+      "coldProcessLossSourceReplayEstablished": false
+    }
+  },
+  "unpromotedWorkerResults": {
+    "completedCommandPublication": {
+      "manifest": "native-main-completed-publication-v13/root-ready-completed-publication-1/MANIFEST.json",
+      "manifestSHA256": "169b851cec07fa9a9932d5819efb5e130ef71dc4028e1d6a4fc400a8a2ad3d76",
+      "status": "Five component checks pass. Seven actual-Core tests supplied but uncompiled.",
+      "RootIntegrated": false,
+      "rustParityEstablished": false,
+      "fullSuitePromotion": false
+    },
+    "configuredServiceSourceControls": {
+      "manifest": "review-main-configured-service-tail/root-ready-service-tail-controls-1/MANIFEST.json",
+      "manifestSHA256": "cfa26d406a3bbec364e58490b50fd144cf1c3e4d8bb179e835e749661f63762b",
+      "status": "Executed source controls only. Service implementation and actual-Core parity pending.",
+      "RootIntegrated": false,
+      "rustParityEstablished": false,
+      "fullSuitePromotion": false
+    }
+  },
+  "fullSuitePromotion": false,
+  "releaseExecutions": 1714,
+  "lockedReferenceExecutions": 238,
+  "beforeWorkbookSHA256": "4b181c817c3ce757ece6264a147c840a285491b497ffa184c6461be8293ea391",
+  "baselineReleaseRecordSHA256": "5579b0b9f2a003660e76096253d44fa2a5cb445b55959ecf5de6146a6985d659",
+  "trackedTransactionRowsChanged": false,
+  "authenticationEstablished": false,
+  "completeBlockFraudProofEstablished": false,
+  "savedWorkbookSHA256": "c4eb3a2165bb88bec7e7987fb6fd62b245b23d54bd2636439a4902a85bef314c",
+  "savedAndSidebarRowsMatch": true,
+  "rowHashes": {
+    "modules": 887085099,
+    "logic": 1151758449
+  },
+  "intentionalCellChanges": 12,
+  "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
+  "visualReviewPassed": true,
+  "errors": 0
+}

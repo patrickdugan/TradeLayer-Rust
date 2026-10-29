@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-29T11:54:07Z",
-  "inspectedCheckoutCommit": "c1735b0cfc55a30c061271dc33cd1794e3b53b5a",
+  "verifiedAtUtc": "2026-10-29T13:05:43Z",
+  "inspectedCheckoutCommit": "eff87dd817dc3ec7ac3403ecb020b0156ccbedef",
   "verifiedImplementationCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
   "verifiedReleaseTests": 1714,
   "topLevelTests": 1713,
@@ -391,9 +391,9 @@
       "integrationCommit": "db077807bea26af2e73dac7b88e868c5b8da88f4",
       "integrationRecord": "fixtures/reference_fidelity/native-foundation-core-integration.json",
       "remaining": [
-        "Typed control-store recovery",
+        "Accepted/final-command ACK recovery",
         "Head/history and next-command publication",
-        "Service/terminal composition",
+        "Configured service/terminal composition",
         "Cold process-loss replay and host power-loss validation",
         "Full-suite promotion and authenticated history"
       ]
@@ -472,9 +472,9 @@
       },
       "providerSHA256": "8bccb17410d3fa4d6065e975e6456b78e0b6d3ff767781dd9b1e916568c238c2",
       "remaining": [
-        "Typed control-store recovery",
+        "Accepted/final-command ACK recovery",
         "Head/history and next-command publication",
-        "Service/terminal composition",
+        "Configured service/terminal composition",
         "Cold process-loss replay and host power-loss validation",
         "Full-suite promotion and authenticated history"
       ],
@@ -497,9 +497,9 @@
       "integrationCommit": "db077807bea26af2e73dac7b88e868c5b8da88f4",
       "integrationRecord": "fixtures/reference_fidelity/native-foundation-core-integration.json",
       "remaining": [
-        "Typed control-store recovery",
+        "Accepted/final-command ACK recovery",
         "Head/history and next-command publication",
-        "Service/terminal composition",
+        "Configured service/terminal composition",
         "Cold process-loss replay and host power-loss validation",
         "Full-suite promotion and authenticated history"
       ]
@@ -514,9 +514,9 @@
       "directCoreCapacityRegressionPending": false,
       "record": "fixtures/reference_fidelity/native-segment-capacity-core.json",
       "remaining": [
-        "Typed control-store recovery",
+        "Accepted/final-command ACK recovery",
         "Head/history and next-command publication",
-        "Service/terminal composition",
+        "Configured service/terminal composition",
         "Cold process-loss replay and host power-loss validation",
         "Full-suite promotion and authenticated history"
       ],
@@ -571,9 +571,9 @@
       "integrationCommit": "db077807bea26af2e73dac7b88e868c5b8da88f4",
       "integrationRecord": "fixtures/reference_fidelity/native-foundation-core-integration.json",
       "remaining": [
-        "Typed control-store recovery",
+        "Accepted/final-command ACK recovery",
         "Head/history and next-command publication",
-        "Service/terminal composition",
+        "Configured service/terminal composition",
         "Cold process-loss replay and host power-loss validation",
         "Full-suite promotion and authenticated history"
       ]
@@ -590,9 +590,9 @@
       "integrationCommit": "db077807bea26af2e73dac7b88e868c5b8da88f4",
       "integrationRecord": "fixtures/reference_fidelity/native-foundation-core-integration.json",
       "remaining": [
-        "Typed control-store recovery",
+        "Accepted/final-command ACK recovery",
         "Head/history and next-command publication",
-        "Service/terminal composition",
+        "Configured service/terminal composition",
         "Cold process-loss replay and host power-loss validation",
         "Full-suite promotion and authenticated history"
       ]
@@ -662,6 +662,14 @@
         "status": "source-only-no-rust-parity",
         "RootIntegrated": false,
         "fullSuitePromotion": false
+      },
+      "completedCommandPublication": {
+        "manifest": "native-main-completed-publication-v13/root-ready-completed-publication-1/MANIFEST.json",
+        "manifestSHA256": "169b851cec07fa9a9932d5819efb5e130ef71dc4028e1d6a4fc400a8a2ad3d76",
+        "status": "Five component checks pass. Seven actual-Core tests supplied but uncompiled.",
+        "RootIntegrated": false,
+        "rustParityEstablished": false,
+        "fullSuitePromotion": false
       }
     },
     "nativeCatchup": {
@@ -701,23 +709,51 @@
       "fullSuitePromotion": false
     },
     "sourceOnlyWorkerResults": {
-      "multiheightSourceControls": {
-        "manifest": "review-native-main-multiheight/root-ready-multiheight-controls-1/MANIFEST.json",
-        "manifestSHA256": "623fec9b9077e0e016bd585ec65b20f5678cbbc14ea8e5f8548955cec326c8d5",
-        "RootIntegrated": false,
-        "rustParityEstablished": false,
-        "fullSuitePromotion": false
-      },
       "configuredServiceSourceControls": {
         "manifest": "review-main-configured-service-tail/root-ready-service-tail-controls-1/MANIFEST.json",
         "manifestSHA256": "cfa26d406a3bbec364e58490b50fd144cf1c3e4d8bb179e835e749661f63762b",
+        "status": "Executed source controls only. Service implementation and actual-Core parity pending.",
         "RootIntegrated": false,
         "rustParityEstablished": false,
         "fullSuitePromotion": false
       }
+    },
+    "nativeMultiheightSourceComparisons": {
+      "status": "committed-scoped-checks-pass",
+      "RootIntegrated": true,
+      "commit": "d13c8b3c0b6374a9edd0dd53ae7e91efc90a66da",
+      "record": "fixtures/reference_fidelity/native-main-multiheight-core-integration.json",
+      "recordSHA256": "9a8f0665e15e907b723b0ce3c500a474b865d8b0a8683dd7bc4902332c79c933",
+      "rustExecutions": 17,
+      "countsOverlap": true,
+      "fullSuitePromotion": false,
+      "distinctRustTests": 13,
+      "newSourceBoundaryComparisons": 4,
+      "sourceMainCallsPerNumericProfile": 4,
+      "sourceBootstrapCallsPerNumericProfile": 6,
+      "completeSerializedSourceStateEqualityEstablished": false
+    },
+    "nativeNoControlStoreRecovery": {
+      "status": "committed-scoped-checks-pass",
+      "RootIntegrated": true,
+      "commit": "eff87dd817dc3ec7ac3403ecb020b0156ccbedef",
+      "record": "fixtures/reference_fidelity/native-no-control-store-core-integration.json",
+      "recordSHA256": "c96516e8ef5b994a6679a95d03e8812f150932bc344b18b115e243a261ada960",
+      "rustExecutions": 306,
+      "countsOverlap": true,
+      "fullSuitePromotion": false,
+      "parallelLibraryPassed": 275,
+      "parallelLibraryThreads": 8,
+      "ignoredLibraryChildEntries": 3,
+      "initialNewTests": 6,
+      "publicCompatibilityExecutions": 25,
+      "acceptedAndFinalCommandAckRecoveryEstablished": false,
+      "headHistoryPublicationIntegrated": false,
+      "serviceTerminalWalIntegrated": false,
+      "coldProcessLossSourceReplayEstablished": false
     }
   },
-  "scope": "Committed focused checks: catchup (45) (f6a31f1), verified native replacement intent (128) (6cf2e22), retained-owner Post reopen (51) (31bbb57), Before/Intermediate controller and sealed ACK helper (74) (c1735b0). Counts overlap and are excluded from the 1,714 Rust / 238 numeric full-release baseline at 963aae7. Typed control-store recovery, correct head/history and next-command publication, live service/terminal suffixes, cold process-loss replay, host power-loss, broader reference domains, authenticated history and complete-block proofs remain open.",
+  "scope": "Latest tested code eff87dd adds typed control-store recovery. Its checks comprise 6 new tests, 275 library passes with 3 ignored, and 25 public compatibility passes (306 executions with overlap). d13c8b3 adds 4 source-boundary comparisons and 13 distinct catchup tests (17 executions). The full-release baseline stays 963aae7: 1,714 Rust / 238 numeric checks. Accepted/final-command ACK recovery, head/history publication, live service, cold replay, host power-loss, authenticated history and complete-block proofs remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -1009,14 +1045,14 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Committed focused checks: catchup (45) (f6a31f1), verified native replacement intent (128) (6cf2e22), retained-owner Post reopen (51) (31bbb57), Before/Intermediate controller and sealed ACK helper (74) (c1735b0). Counts overlap and are excluded from the 1,714 Rust / 238 numeric full-release baseline at 963aae7. Typed control-store recovery, correct head/history and next-command publication, live service/terminal suffixes, cold process-loss replay, host power-loss, broader reference domains, authenticated history and complete-block proofs remain open.",
+  "workbookNote": "Latest tested code eff87dd adds typed control-store recovery. Its checks comprise 6 new tests, 275 library passes with 3 ignored, and 25 public compatibility passes (306 executions with overlap). d13c8b3 adds 4 source-boundary comparisons and 13 distinct catchup tests (17 executions). The full-release baseline stays 963aae7: 1,714 Rust / 238 numeric checks. Accepted/final-command ACK recovery, head/history publication, live service, cold replay, host power-loss, authenticated history and complete-block proofs remain open.",
   "savedWorkbook": {
-    "sha256": "4b181c817c3ce757ece6264a147c840a285491b497ffa184c6461be8293ea391",
-    "bytes": 48146,
+    "sha256": "c4eb3a2165bb88bec7e7987fb6fd62b245b23d54bd2636439a4902a85bef314c",
+    "bytes": 48113,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-29T11:54:07Z",
+    "asOfUtc": "2026-10-29T13:05:43Z",
     "rowHashes": {
-      "modules": 2618946991,
+      "modules": 887085099,
       "logic": 1151758449
     },
     "verifiedEdits": 12,
@@ -1024,27 +1060,27 @@
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-29T11:54:07Z",
-    "sha256": "4b181c817c3ce757ece6264a147c840a285491b497ffa184c6461be8293ea391",
+    "verifiedAtUtc": "2026-10-29T13:05:43Z",
+    "sha256": "c4eb3a2165bb88bec7e7987fb6fd62b245b23d54bd2636439a4902a85bef314c",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 2618946991,
+    "moduleRowsFNV": 887085099,
     "logicRowsFNV": 1151758449,
     "intentionalCellChanges": 12,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,
     "releasePromotionPending": true,
-    "lastFocusedCodeCommit": "c1735b0cfc55a30c061271dc33cd1794e3b53b5a"
+    "lastFocusedCodeCommit": "eff87dd817dc3ec7ac3403ecb020b0156ccbedef"
   },
   "validationRecord": "fixtures/reference_fidelity/native-main-release-validation.json",
   "knownReferenceGaps": [
-    "Typed control-store recovery",
-    "Correct completed-command head/history and next-command publication",
-    "Configured service/terminal continuation",
-    "Cold process-loss replay and intended-host power-loss validation",
+    "Accepted/final-command ACK recovery",
+    "Head/history and next-command publication",
+    "Configured service/terminal composition",
+    "Cold process-loss replay and host power-loss validation",
     "Broader rich DB/type-error, historical/value and financial/deferred domains",
     "Intended-host real-block CPU/RSS",
-    "Chain/UTXO/actor evidence, authenticated history and complete-block proofs"
+    "Full-suite promotion, chain/UTXO/actor evidence, authenticated history and complete-block proofs"
   ],
   "previousFullSuiteBaseline": {
     "implementationCommit": "9ff4aabcd7805562ec49550db91202ff999a13b4",
@@ -1052,10 +1088,10 @@
     "lockedReferenceExecutions": 238,
     "record": "fixtures/reference_fidelity/main-io-sort-release-validation.json"
   },
-  "focusedValidationRecord": "fixtures/reference_fidelity/native-supersession-controller-core-integration.json",
-  "focusedImplementationCommit": "c1735b0cfc55a30c061271dc33cd1794e3b53b5a",
-  "focusedVerifiedAtUtc": "2026-10-29T11:51:42Z",
-  "lastFocusedCodeCommit": "c1735b0cfc55a30c061271dc33cd1794e3b53b5a",
+  "focusedValidationRecord": "fixtures/reference_fidelity/native-no-control-store-core-integration.json",
+  "focusedImplementationCommit": "eff87dd817dc3ec7ac3403ecb020b0156ccbedef",
+  "focusedVerifiedAtUtc": "2026-10-29T12:49:49Z",
+  "lastFocusedCodeCommit": "eff87dd817dc3ec7ac3403ecb020b0156ccbedef",
   "recoveryPackage": {
     "commit": "9e2baa234a487c47f5a5160440b801347a668f30",
     "archiveSHA256": "acce9e5db7c65adef0246cf01581b4c06db0fd3cf356d1cdfa6528b47fff992f",
