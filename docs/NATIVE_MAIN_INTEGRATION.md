@@ -44,8 +44,10 @@ commands passed, including default and locked numeric regeneration and four
 genuine host/VM Array-length controls. Exact input and log hashes are recorded in
 `fixtures/reference_fidelity/native-main-core-integration.json`.
 
-This focused result does not replace the last full release baseline:
-release9ff4aab passed1,678 Rust executions and238 locked numeric-reference tests.
+The subsequent full release963aae7 passed **1,714 Rust executions** across270
+targets and **238 locked numeric-reference checks** across86 targets. All1,422
+frozen inputs were unchanged. This supersedes the previous9ff4aab full-suite
+baseline while preserving all remaining integration gates below.
 
 The isolated actual Core probe4 passed seven native integration tests and seven
 legacy compatibility checks under Rust1.90 MSVC, plus all-target Clippy with

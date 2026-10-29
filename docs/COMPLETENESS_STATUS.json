@@ -1,10 +1,10 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-28T23:01:35Z",
-  "inspectedCheckoutCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
-  "verifiedImplementationCommit": "9ff4aabcd7805562ec49550db91202ff999a13b4",
-  "verifiedReleaseTests": 1678,
-  "topLevelTests": 1677,
+  "verifiedAtUtc": "2026-10-29T01:15:15Z",
+  "inspectedCheckoutCommit": "2aa4782879bd41c014a9cf22914c4c90dcb7b948",
+  "verifiedImplementationCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
+  "verifiedReleaseTests": 1714,
+  "topLevelTests": 1713,
   "subprocessChecks": 1,
   "verifiedLockedReferenceTests": 238,
   "moduleRows": 48,
@@ -262,12 +262,14 @@
     "compactStreamingFollowOn": {
       "status": "integrated-with-focused-main-checkout-validation",
       "RootIntegrated": true,
-      "fullSuitePromotion": false,
+      "fullSuitePromotion": true,
       "reviewPending": [],
       "performanceScope": "Retained disk reduction is not a throughput improvement; measured compaction adds write IO.",
       "storageStreamCoreTests": 20,
       "independentReviewSHA256": "a78638f062c9f71625c8a94846db62bb61b943cbc9e32ce4ac96a5f2467cad8d",
-      "integrationRecord": "fixtures/reference_fidelity/native-main-core-integration.json"
+      "integrationRecord": "fixtures/reference_fidelity/native-main-core-integration.json",
+      "coveredByReleaseCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
+      "releaseValidationRecord": "fixtures/reference_fidelity/native-main-release-validation.json"
     },
     "terminalControlFollowOn": {
       "status": "full-release-covered-with-declared-scope",
@@ -311,9 +313,11 @@
       "nativeSourceFrames": 11051,
       "allTargetClippyPassed": true,
       "formattingPassed": true,
-      "fullSuitePromotion": false,
+      "fullSuitePromotion": true,
       "runtimePolicy13Added": false,
-      "record": "fixtures/reference_fidelity/native-main-core-integration.json"
+      "record": "fixtures/reference_fidelity/native-main-core-integration.json",
+      "coveredByReleaseCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
+      "releaseValidationRecord": "fixtures/reference_fidelity/native-main-release-validation.json"
     },
     "richGraphFoundation": {
       "status": "bounded-codec-integrated-core-tests-pass",
@@ -322,11 +326,30 @@
       "graphFrames": 76,
       "nativeArrayLengthControls": 4,
       "runtime14Integrated": false,
+      "fullSuitePromotion": true,
+      "record": "fixtures/reference_fidelity/native-main-core-integration.json",
+      "coveredByReleaseCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
+      "releaseValidationRecord": "fixtures/reference_fidelity/native-main-release-validation.json"
+    },
+    "suspendedMainPrivateProbe": {
+      "status": "isolated-private-core-component-tests-pass-not-integrated",
+      "CoreTests": 4,
+      "canonicalFieldTests": 2,
+      "RootIntegrated": false,
       "fullSuitePromotion": false,
-      "record": "fixtures/reference_fidelity/native-main-core-integration.json"
+      "productionSessionBinding": false,
+      "normalLibraryWarningsRemainUntilBinding": true,
+      "shutdownSourceMismatchCorrected": true,
+      "observerCorrectionHasNoRuntimeDelta": true,
+      "logs": {
+        "main-step-core-first.log": "47766b5a8a37efa42c46237b92ef03b9eeee8419241adf51810a4f5c17ee4c35",
+        "main-step-core-empty-trace.log": "02ddce26ab6571df4bc713d009f97e79907530f0812587f69e43558c96d07f50",
+        "main-step-core-caller-first.log": "f154a0e8b8dcbaaa500b7ab45d2e5cd306d9d5e9ea2ee53237a2878c8df33c98",
+        "main-step-core-caller-canonical.log": "4e868aa931e385e472b1cea298804ac5544db2c0c13b6f441c9aab0199d5fff4"
+      }
     }
   },
-  "scope": "Full release baseline remains9ff4aab (1678 Rust executions and238 numeric checks). Subsequent native Main/index integration963aae7 passes232 focused executions across16 targets and13 source checks. This is not a full-suite, full-parity, authenticated-history or complete-block-proof promotion.",
+  "scope": "Full release963aae7 passes1714 Rust executions across270 targets and238 exact pinned numeric-reference checks across86 targets; all1422 tracked inputs are unchanged. Native Main/index sessions and the bounded graph foundation are included. Full source parity, native daemon startup, timer/row continuations, cross-file recovery, Runtime14, authenticated history and complete-block proofs remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -618,7 +641,7 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Saved/sidebar trackers agree. Full-release baseline9ff4aab stays1678/238. Local integration963aae7 passes232 focused Rust executions and13 source checks; all per-type parity/proof classifications remain unchanged. Full release, native startup/durable continuation, suspended jobs and Runtime14 remain open.",
+  "workbookNote": "Saved/sidebar trackers are synchronized to full release963aae7:1714 Rust executions and238 numeric checks. Per-type parity/proof classifications remain unchanged. Native daemon startup, suspended continuations, durable intent/ack recovery, Runtime14, authenticated history and complete-block proofs remain open.",
   "savedWorkbook": {
     "sha256": "d5971ddc83546910e19f76290fa12a169eee4e486873d8232ca6349ec07d0796",
     "bytes": 48140,
@@ -633,17 +656,18 @@
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-29T00:32:15Z",
-    "sha256": "a61c782000da68f63f7986992d8595ce7e5e2962789675d8c83d204329f506d2",
+    "verifiedAtUtc": "2026-10-29T01:24:28Z",
+    "sha256": "dbc0998aa5f447775f75c8397c546166996ceef96f33f0e77c4afe66fa5bf43f",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 4025805135,
+    "moduleRowsFNV": 699720603,
     "logicRowsFNV": 1151758449,
-    "intentionalCellChanges": 6,
+    "intentionalCellChanges": 11,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
-    "errors": 0
+    "errors": 0,
+    "releasePromotionPending": false
   },
-  "validationRecord": "fixtures/reference_fidelity/main-io-sort-release-validation.json",
+  "validationRecord": "fixtures/reference_fidelity/native-main-release-validation.json",
   "knownReferenceGaps": [
     "Full module/IIFE startup domains outside the verified V12 cold-start controls and native daemon startup",
     "Native scanner/store service composition, full-history capacity, exact suspended source continuations and cross-file intent/ack recovery",
@@ -652,9 +676,10 @@
     "Chain/UTXO/actor evidence and complete-block proofs"
   ],
   "previousFullSuiteBaseline": {
-    "commit": "31ee8f4a3fc8996f410282028b4150a3cff01003",
-    "releaseExecutions": 1597,
-    "exactNumericReferenceTests": 198
+    "implementationCommit": "9ff4aabcd7805562ec49550db91202ff999a13b4",
+    "releaseExecutions": 1678,
+    "lockedReferenceExecutions": 238,
+    "record": "fixtures/reference_fidelity/main-io-sort-release-validation.json"
   },
   "focusedValidationRecord": "fixtures/reference_fidelity/native-main-core-integration.json",
   "focusedImplementationCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",

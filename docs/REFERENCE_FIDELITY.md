@@ -1,8 +1,8 @@
 # Reference fidelity and remaining integration
 
-Current full release `9ff4aab`: **1,678 Rust executions and 238 locked numeric-reference checks**, with all 1,337 frozen inputs verified. Main startup/snapshot/control and IO/sort are included. Native startup/recovery, rich14, suspended scheduling, authenticated history and complete-block proofs remain open. Evidence: `fixtures/reference_fidelity/main-io-sort-release-validation.json`.
+Current full release `963aae7`: **1,714 Rust executions and 238 locked numeric-reference checks**, with all 1,422 frozen inputs verified. This includes the native-index/Main owner session and bounded rich-value graph foundation. Native daemon startup/recovery, Runtime14, suspended scheduling, authenticated history and complete-block proofs remain open. Evidence: `fixtures/reference_fidelity/native-main-release-validation.json`.
 
-The subsequent native-index/Main session integration passes **232 focused Rust executions across16 targets**,13 source-check commands, formatting and all-target Clippy. It adds complete native reads, same-owner Main processing and command-reexecution archives, plus a bounded rich-value graph foundation. It does not enable Runtime14 or promote the full-suite baseline. See `NATIVE_MAIN_INTEGRATION.md` and `fixtures/reference_fidelity/native-main-core-integration.json` for exact scope and remaining gates.
+The subsequent native-index/Main session integration passes **232 focused Rust executions across16 targets**,13 source-check commands, formatting and all-target Clippy. It adds complete native reads, same-owner Main processing and command-reexecution archives, plus a bounded rich-value graph foundation. It does not enable Runtime14. Its declared scope is now covered by the full release above. See `NATIVE_MAIN_INTEGRATION.md` and `fixtures/reference_fidelity/native-main-core-integration.json` for exact scope and remaining gates.
 
 The following earlier records are retained as historical accounts, not current completion claims.
 
