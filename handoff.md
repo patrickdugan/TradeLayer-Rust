@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-29T23:27:31Z. Maintained after every tested integration cycle.
+Updated: 2026-10-29T23:46:29Z. Maintained after every tested integration cycle.
 
 ## Goal and boundaries
 
@@ -12,7 +12,7 @@ Keep one actual financial owner, actual native index and borrowed queue. Never i
 
 ## Verified current state
 
-Full all-target release: implementation `53e6a245d58265aa1a428f30c567aa67e610464c`, tested checkout `306d4186327a8d43d0fdf4c23c89563d3c0bb111`. **2,142 Rust executions** (2,141 top-level plus one successful storage child), **239 locked numeric checks**,282targets and1,822 frozen inputs unchanged before/after. Library491/fourignored. Evidence: `fixtures/reference_fidelity/inline-channel-release-validation.json`. Previous2,120/238 release remains immutable historical evidence.
+Full all-target release: implementation/tested checkout `a94ea4c7cdf4677d7d48455d65363edd263a16c1`. **2,204Rust executions** (2,203top-level plusone successful storage child), **239locked genuine9.1.2 numeric checks**,283targets and1,888frozen tracked inputs unchanged before/after. Library549/fourignored. Evidence:`fixtures/reference_fidelity/retained-callers-mode4-release-validation.json`. Previous2,142/239 release remains immutable historical evidence.
 
 Current later cycle: Mode4 physicalACK/native metadata closure and retained callerStartOnly WAL.25new controls,545library/fourignored,44public,Clippy/fmt303/inventory/supply pass. Root fixed actual Mode4 initial scope/first-Before blob mismatch without relaxing the reader. The same source/financial/index owner and source await remain held. Caller Start syncs Intent before the actual constructor and rebinds uncertain WAL outcomes without repeating it. Full raw-source Mode4 replay/selectedcaller native recovery remain active. Record: `mode4-caller-start-core-integration.json`. Fullbaseline2,142/239.
 
@@ -123,3 +123,21 @@ Saved/sidebar now show3337bea/545library and tested Mode4/callerStart/consensus 
 ## Independent Mode4 review addendum
 
 Exact3cc author freeze is independently bound by reviewer2e3f4a71. Four new Root controls/eight verifier scenarios and all10combined metadata tests pass, with Clippy/Cargo fmt/304includedformat/inventory clean. The controls preserve finalKV while repairing sequence/CRC around reordered barriers, exercise real Before/Intermediate recovery with omitted/duplicate/late barriers and alternative mutations, and reject a sameKV/sequence/generation foreign copy at the configured root. The reviewer passed161copied tests/oneignored; its administrative observations are opaque, not actual financial replay. Root initial observation correction and its3actualsource controls remain separately recorded in3337bea. No production bodies changed. The last wholelibrary run remains545; these4additional tests await the next full release. Record:`fixtures/reference_fidelity/mode4-ack-independent-review.json`.
+
+## Latest complete retained-caller/Mode4 release
+
+All283Rust targets, doc tests and the exact87-target genuine9.1.2 list passed on one frozena94ea4c checkout. All1,888tracked inputs verified before/after. This promotes the already tested caller/consensus/StartOnly/Mode4 metadata/historical/Bitcoin batch into the full release baseline without expanding their named domains. Remaining source composition includes uninitialized/no-chain startup and300ms delay, null/coercive SyncIndex branches, fileEBUSY/EPERM50ms retry composition, selectedcaller WAL/native recovery and full raw-action Mode4 replay. Mode4 duplicate-AppendPending API-rejection histories, pending-only plan facts and actual-stop IO facts remain explicit coverage gates. Process loss, host/fuzz, authenticated inputs and complete-block proof composition remain open. Saved/sidebar promotion follows this record.
+
+## Source-cited RC closure checklist
+
+Independent static audit084726a0 pins58 read inputs and23 citation targets. It confirms native rows/catchup/recovery/publication and retained same-invocation consensus as implemented within their documented domains. It adds no test or parity claim. Full audit: `fixtures/reference_fidelity/main-rc-gap-audit.json`.
+
+1. Journal retained caller controls beyond Start on the same owner. Owner: row_continuation_impl, selected-action WAL stage.
+2. Recover the exact selected caller/native operation with native-only reopen and synced supersession. Owner: row_continuation_impl.
+3. Finish literal global/startup and coercive/null caller branches. Owner: v8_clearlist, genuine source characterization followed by a narrow caller-stage implementation.
+4. Compose the existing 50ms EBUSY/EPERM file-retry continuation with the active native service on the same Core/index/queue. Separate file profile exists; composition remains open.
+5. Complete distinct Mode4 and caller cold source replay against actual historical views. Owner: v8_main, ordinary first-append milestone first.
+6. Feed fresh raw factual RPC/tip/documents through an explicit bounded input action. Current Start captures fixed input facts; no open-ended live feed is established.
+7. Rotate acknowledged active history beyond the actual4096-action bound while retaining the same owner and source/physical head. Index paging alone does not close this separate bound.
+
+No node/chain/UTXO/actor authority follows from these integrity or source-fidelity checks. The planned oracle-abuse fraud-proof exercise remains a later end-to-end gate with UTXORef as a separate consumer.

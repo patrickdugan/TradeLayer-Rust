@@ -1,10 +1,10 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-29T23:23:20Z",
-  "inspectedCheckoutCommit": "3337beaa192c611e5245547b36e583f2f85e821b",
-  "verifiedImplementationCommit": "53e6a245d58265aa1a428f30c567aa67e610464c",
-  "verifiedReleaseTests": 2142,
-  "topLevelTests": 2141,
+  "verifiedAtUtc": "2026-10-29T23:46:29Z",
+  "inspectedCheckoutCommit": "a94ea4c7cdf4677d7d48455d65363edd263a16c1",
+  "verifiedImplementationCommit": "a94ea4c7cdf4677d7d48455d65363edd263a16c1",
+  "verifiedReleaseTests": 2204,
+  "topLevelTests": 2203,
   "subprocessChecks": 1,
   "verifiedLockedReferenceTests": 239,
   "moduleRows": 48,
@@ -1107,8 +1107,9 @@
       "parallelLibraryPassed": 511,
       "coldOrCallerAdmissionWidened": false,
       "liveAppendPermitConstructed": false,
-      "fullSuitePromotion": false,
-      "commit": "e3a7245ccab65b2deb12a0ad5af9ba7b3b3e9b63"
+      "fullSuitePromotion": true,
+      "commit": "e3a7245ccab65b2deb12a0ad5af9ba7b3b3e9b63",
+      "fullSuiteRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json"
     },
     "bitcoinSupportedTransaction": {
       "RootIntegrated": true,
@@ -1121,8 +1122,9 @@
       "rawScenes": 67,
       "fullParentOrChainOrTlAuthority": false,
       "followerOrFinanceWired": false,
-      "fullSuitePromotion": false,
-      "commit": "e3a7245ccab65b2deb12a0ad5af9ba7b3b3e9b63"
+      "fullSuitePromotion": true,
+      "commit": "e3a7245ccab65b2deb12a0ad5af9ba7b3b3e9b63",
+      "fullSuiteRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json"
     },
     "retainedMainConsensus": {
       "RootIntegrated": true,
@@ -1140,8 +1142,9 @@
       "oldDescriptorBytesChanged": false,
       "callerWalNativeRecoveryOrColdAdmitted": false,
       "arbitraryCompetingNativePublicationsAdmitted": false,
-      "fullSuitePromotion": false,
-      "commit": "3337beaa192c611e5245547b36e583f2f85e821b"
+      "fullSuitePromotion": true,
+      "commit": "3337beaa192c611e5245547b36e583f2f85e821b",
+      "fullSuiteRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json"
     },
     "mode4PhysicalAckClosure": {
       "RootIntegrated": true,
@@ -1153,8 +1156,9 @@
       "sourceAwaitResumedByReader": false,
       "physicalTraceIsAuthentication": false,
       "fullSourceColdReplayAdmitted": false,
-      "fullSuitePromotion": false,
-      "commit": "3337beaa192c611e5245547b36e583f2f85e821b"
+      "fullSuitePromotion": true,
+      "commit": "3337beaa192c611e5245547b36e583f2f85e821b",
+      "fullSuiteRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json"
     },
     "retainedCallerStartWal": {
       "RootIntegrated": true,
@@ -1166,8 +1170,9 @@
       "constructorRetriedAfterExecution": false,
       "initializeFulfilledByAck": false,
       "selectedActionsAndNativeRecoveryAdmitted": false,
-      "fullSuitePromotion": false,
-      "commit": "3337beaa192c611e5245547b36e583f2f85e821b"
+      "fullSuitePromotion": true,
+      "commit": "3337beaa192c611e5245547b36e583f2f85e821b",
+      "fullSuiteRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json"
     },
     "mode4AckIndependentReview": {
       "RootIntegrated": true,
@@ -1177,10 +1182,11 @@
       "copiedMetadataTestsPassed": 161,
       "independentScenarios": 8,
       "noProductionBodiesChanged": true,
-      "fullSuitePromotion": false
+      "fullSuitePromotion": true,
+      "fullSuiteRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json"
     }
   },
-  "scope": "Full release stays 2,142 Rust /239 numeric at53e6a24/tested306d418. Later3337bea passes545 library and44public checks, including25new Mode4 ACK/native metadata closure and callerStartOnly controls. Retained consensusc5 passes9new controls on the same owner/invocation. Start syncs Intent before the actual constructor; ambiguous WAL retries retain the executed owner. Full raw-source Mode4 replay, selected caller native recovery, process loss, host/fuzz and authenticated proof gates remain open.",
+  "scope": "Frozen all-target release a94ea4c passes2204Rust executions (2203top-level plusone successful storage child),239genuine9.1.2 numeric checks across283targets and1,888unchanged inputs.549library includes retained Main callers/consensus, StartOnly WAL, physicalMode4/native metadata closure, strict copied/historical metadata and Bitcoin supported-transaction composition. Full Main startup/file-retry/native composition, selectedcaller WAL/native recovery, rawsourceMode4 cold replay, process loss/host/fuzz and authenticated complete-block proofs remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -1472,7 +1478,7 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Full release stays 2,142 Rust /239 numeric at53e6a24/tested306d418. Later3337bea passes545 library and44public checks, including25new Mode4 ACK/native metadata closure and callerStartOnly controls. Retained consensusc5 passes9new controls on the same owner/invocation. Start syncs Intent before the actual constructor; ambiguous WAL retries retain the executed owner. Full raw-source Mode4 replay, selected caller native recovery, process loss, host/fuzz and authenticated proof gates remain open.",
+  "workbookNote": "New complete retained-caller/Mode4 release verified; saved/sidebar promotion pending.",
   "savedWorkbook": {
     "sha256": "9bca5817739f67ee385e762e18c785dbe0013e71cabdfbeefa2777232001e1e7",
     "bytes": 47964,
@@ -1496,7 +1502,7 @@
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,
-    "releasePromotionPending": false,
+    "releasePromotionPending": true,
     "laterScopedFullReleasePromotionPending": true,
     "lastFocusedCodeCommit": "3337beaa192c611e5245547b36e583f2f85e821b",
     "releaseBaselinePromoted": true,
@@ -1504,7 +1510,7 @@
     "lockedReferenceExecutions": 239,
     "releaseValidationRecord": "fixtures/reference_fidelity/inline-channel-release-validation.json"
   },
-  "validationRecord": "fixtures/reference_fidelity/inline-channel-release-validation.json",
+  "validationRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json",
   "knownReferenceGaps": [
     "Full Main startup/catchup/historical inline callers, including detached final save lifetime",
     "Mode4/inline/recovery/supersession/cross-publication histories and actual process-loss financial recovery",
@@ -1515,10 +1521,10 @@
     "Later full-release promotion and collaborator fuzz review"
   ],
   "previousFullSuiteBaseline": {
-    "implementationCommit": "239c3403f05a4b4edef391d40145ed09052ee672",
-    "releaseExecutions": 2120,
-    "lockedReferenceExecutions": 238,
-    "record": "fixtures/reference_fidelity/native-inline-release-validation.json"
+    "implementationCommit": "53e6a245d58265aa1a428f30c567aa67e610464c",
+    "releaseExecutions": 2142,
+    "lockedReferenceExecutions": 239,
+    "record": "fixtures/reference_fidelity/inline-channel-release-validation.json"
   },
   "focusedValidationRecord": "fixtures/reference_fidelity/mode4-caller-start-core-integration.json",
   "focusedImplementationCommit": "3337beaa192c611e5245547b36e583f2f85e821b",
@@ -1537,13 +1543,13 @@
   },
   "sourceLockVersion": "9.1.2",
   "releaseBaseline": {
-    "implementationCommit": "53e6a245d58265aa1a428f30c567aa67e610464c",
-    "testedCheckoutCommit": "306d4186327a8d43d0fdf4c23c89563d3c0bb111",
-    "tests": 2142,
+    "implementationCommit": "a94ea4c7cdf4677d7d48455d65363edd263a16c1",
+    "testedCheckoutCommit": "a94ea4c7cdf4677d7d48455d65363edd263a16c1",
+    "tests": 2204,
     "lockedReferenceTests": 239,
-    "record": "fixtures/reference_fidelity/inline-channel-release-validation.json",
+    "record": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json",
     "allTargets": true,
-    "frozenInputs": 1822,
+    "frozenInputs": 1888,
     "frozenInputsVerifiedBeforeAndAfter": true
   }
 }
