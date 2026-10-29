@@ -234,6 +234,18 @@ impl SourceContractRuntime {
         frame: &mut NativeMainServiceContinuationV1,
         limit: usize,
     ) -> NativeMainServiceStopV1 {
+        self.native_main_service_advance_with_access(
+            frame,
+            limit,
+            &mut NativeMainLiveSourceMetadataAccess { index },
+        )
+    }
+    fn native_main_service_advance_with_access(
+        &mut self,
+        frame: &mut NativeMainServiceContinuationV1,
+        limit: usize,
+        access: &mut impl NativeMainSourceMetadataAccess,
+    ) -> NativeMainServiceStopV1 {
         use crate::source_main_step_kernel::MainStepCommandV1;
         if limit == 0 || limit > 4096 {
             return NativeMainServiceStopV1::SourceStopped(SourceRuleError::InvalidInput);
@@ -251,8 +263,8 @@ impl SourceContractRuntime {
             }
             if !frame.tail_started && frame.caller_result.is_none() {
                 if matches!(frame.catchup.pc, NativeMainCatchupPcV1::Tail) {
-                    match self.native_main_service_kernel_command(
-                        index,
+                    match access.kernel(
+                        self,
                         frame,
                         MainStepCommandV1::Start {
                             method: "Main.syncIfNecessary".into(),
@@ -269,7 +281,11 @@ impl SourceContractRuntime {
                     }
                     continue;
                 }
-                match self.native_main_catchup_drive_budget(index, &mut frame.catchup, Some(1)) {
+                match self.native_main_catchup_drive_budget_with_access(
+                    &mut frame.catchup,
+                    Some(1),
+                    access,
+                ) {
                     NativeMainServiceCatchupDrive::Yielded => continue,
                     NativeMainServiceCatchupDrive::Stopped(NativeMainRowStopV1::Complete) => {
                         frame.caller_result = frame.catchup.result.clone();
@@ -281,7 +297,7 @@ impl SourceContractRuntime {
                 }
             }
             if let Some(block) = &mut frame.block {
-                let stop = self.native_main_service_block_advance(index, block, &frame.documents);
+                let stop = access.block(self, block, &frame.documents);
                 if stop != NativeMainRowStopV1::Complete {
                     return native_main_service_row_stop(stop);
                 }
@@ -328,8 +344,8 @@ impl SourceContractRuntime {
                     NativeMainServiceStopV1::Quiescent
                 };
             }
-            match self.native_main_service_kernel_command(
-                index,
+            match access.kernel(
+                self,
                 frame,
                 MainStepCommandV1::DrainReady { limit: 1 },
                 false,

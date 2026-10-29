@@ -12,12 +12,25 @@ impl SourceContractRuntime {
         grouping: &mut Option<crate::source_compact_index_v2::RowStreamReceipt>,
         storage_stop: &mut Option<String>,
     ) -> R<Option<NativeMainCatchupPreparedV1>> {
+        self.native_main_catchup_prepare_with_metadata(
+            start,
+            &mut NativeMainLiveSourceMetadataAccess { index },
+            grouping,
+            storage_stop,
+        )
+    }
+    fn native_main_catchup_prepare_with_metadata(
+        &mut self,
+        start: V,
+        access: &mut impl NativeMainSourceMetadataAccess,
+        grouping: &mut Option<crate::source_compact_index_v2::RowStreamReceipt>,
+        storage_stop: &mut Option<String>,
+    ) -> R<Option<NativeMainCatchupPreparedV1>> {
         if !matches!(&start,V::Number(bits) if f64::from_bits(*bits).is_finite() && f64::from_bits(*bits)>=0. && f64::from_bits(*bits).fract()==0.)
         {
             return Err(SourceRuleError::UnsupportedNumericDomain.into());
         }
-        self.core
-            .native_main_index(index, "findMaxIndexedBlock", vec![])?;
+        access.find_max(&mut self.core)?;
         self.core.database("txIndex")?;
         self.core.source_send_tally_instance_initialized = true;
         // Original Tally.getInstance is unawaited: its load factory executes
@@ -43,11 +56,8 @@ impl SourceContractRuntime {
         self.core
             .find("consensus", obj(&[("_id", s("MaxProcessedHeight"))]))?;
         self.core.check_failure("txIndex", "findAsync")?;
-        let pin = index
-            .snapshot()
-            .map_err(|e| native_main_store_fault(e, storage_stop))?;
-        let read = index
-            .read_generation(&pin)
+        let read = access
+            .read_view()
             .map_err(|e| native_main_store_fault(e, storage_stop))?;
         let plan = match read
             .plan_main_groups()

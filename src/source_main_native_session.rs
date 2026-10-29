@@ -553,6 +553,8 @@ impl SourceMainNativeSessionV13 {
 include!("source_main_native_checkpoint_impl.rs");
 include!("source_main_native_historical_replay_impl.rs");
 include!("source_main_native_cold_prefix_impl.rs");
+include!("source_main_native_cold_active_reexecution_impl.rs");
+include!("source_main_native_cold_active_observation_impl.rs");
 include!("source_main_native_step_session_impl.rs");
 include!("source_main_native_step_segment_impl.rs");
 

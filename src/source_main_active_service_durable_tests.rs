@@ -604,3 +604,6 @@ mod cold_ack_actual_tests;
 
 #[path = "source_main_active_history_pin_codec_tests.rs"]
 mod active_history_pin_codec_tests;
+
+#[path = "source_main_native_cold_active_reexecution_tests.rs"]
+mod cold_active_reexecution_tests;

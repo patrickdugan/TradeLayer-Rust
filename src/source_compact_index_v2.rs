@@ -905,6 +905,7 @@ mod inline_database_tests;
 include!("source_index_prepared_validity_impl.rs");
 include!("source_index_cold_execution_impl.rs");
 include!("source_index_historical_validity_impl.rs");
+include!("source_index_historical_source_read_impl.rs");
 include!("source_index_row_binding_impl.rs");
 include!("source_main_native_no_index_index_tests_impl.rs");
 include!("source_index_verified_reopen_impl.rs");
@@ -949,3 +950,7 @@ mod cold_escrow_guard_tests;
 #[cfg(test)]
 #[path = "source_index_history_pin_codec_tests.rs"]
 mod history_pin_codec_tests;
+
+#[cfg(test)]
+#[path = "source_index_historical_source_read_tests.rs"]
+mod historical_source_read_tests;

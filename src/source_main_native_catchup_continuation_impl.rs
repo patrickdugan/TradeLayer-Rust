@@ -324,6 +324,18 @@ impl SourceContractRuntime {
         frame: &mut NativeMainCatchupContinuationV1,
         budget: Option<usize>,
     ) -> NativeMainServiceCatchupDrive {
+        self.native_main_catchup_drive_budget_with_access(
+            frame,
+            budget,
+            &mut NativeMainLiveSourceMetadataAccess { index },
+        )
+    }
+    fn native_main_catchup_drive_budget_with_access(
+        &mut self,
+        frame: &mut NativeMainCatchupContinuationV1,
+        budget: Option<usize>,
+        access: &mut impl NativeMainSourceMetadataAccess,
+    ) -> NativeMainServiceCatchupDrive {
         let mut remaining = budget;
         loop {
             if frame.result.is_some() {
@@ -346,13 +358,12 @@ impl SourceContractRuntime {
                 *left -= 1;
             }
             match frame.pc {
-                NativeMainCatchupPcV1::Prepare => match self
-                    .native_main_catchup_prepare_continuation(
-                        frame.start.clone(),
-                        index,
-                        &mut frame.grouping,
-                        &mut frame.storage_stop,
-                    ) {
+                NativeMainCatchupPcV1::Prepare => match access.prepare(
+                    self,
+                    frame.start.clone(),
+                    &mut frame.grouping,
+                    &mut frame.storage_stop,
+                ) {
                     Ok(Some(NativeMainCatchupPreparedV1 { plan, h, last })) => {
                         frame.plan = Some(plan);
                         frame.h = h;
@@ -422,10 +433,7 @@ impl SourceContractRuntime {
                             }
                         }
                     }
-                    let stop = self.native_main_rows_advance(
-                        index,
-                        frame.row.as_mut().expect("actual active row"),
-                    );
+                    let stop = access.rows(self, frame.row.as_mut().expect("actual active row"));
                     frame
                         .validity
                         .append(&mut frame.row.as_mut().expect("actual active row").validity);

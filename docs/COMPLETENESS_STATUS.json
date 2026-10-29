@@ -974,6 +974,28 @@
       "coveredByReleaseCommit": "239c3403f05a4b4edef391d40145ed09052ee672",
       "testedCheckoutCommit": "216377fe9fb0ce89c92a47776e71e2c73a4b03d4",
       "releaseValidationRecord": "fixtures/reference_fidelity/native-inline-release-validation.json"
+    },
+    "coldAcknowledgedActions": {
+      "status": "current-Core-scoped-checks-pass",
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/cold-acknowledged-actions-core-integration.json",
+      "newDistinctControls": 5,
+      "actualCoreControls": 3,
+      "metadataControls": 2,
+      "parallelLibraryPassed": 475,
+      "publicCompatibilityPassed": 44,
+      "sameActualFinalPostAndColdCapabilityRetained": true,
+      "oneMovedFinancialOwner": true,
+      "opaqueBeforeAcceptedAreComparisonOnly": true,
+      "completeOriginalPhysicalReceiptsCompared": true,
+      "nativeAppendExecuted": false,
+      "sourcePrepareAppendResolveSeparate": true,
+      "supportedMode": "HISTORY-WAL/current original publication/resolved ordinary native awaits",
+      "mutableHotResumeAvailable": false,
+      "fullInlineRecoveryOrCrossPublicationEstablished": false,
+      "processLossFinancialRecoveryEstablished": false,
+      "independentReview": "fixtures/reference_fidelity/cold-acknowledged-actions-independent-review.json",
+      "fullSuitePromotion": false
     }
   },
   "scope": "Verified implementation239c340/tested216377f: 2,120 Rust executions (2,119 top-level +one successful storage subprocess),238 locked numeric checks across281 targets and1,776 unchanged frozen inputs.470library cases include actual WAL/history/native validity recovery, completed cold rows/sealed prefix, bounded Promise continuations and explicit retained inline live service. Inline durable WAL/recovery, full startup/catchup/historical inline and acknowledged financial action replay, cross-publication views, host/process-loss validation and authenticated complete-block proofs remain open. New e0 cold actions and inline-WAL follow-on are outside this release.",
@@ -1302,14 +1324,14 @@
   "validationRecord": "fixtures/reference_fidelity/native-inline-release-validation.json",
   "knownReferenceGaps": [
     "New immutable retained-inline WAL origin/history mode and native ambiguity recovery",
-    "Full Main startup/catchup/historical inline callers",
-    "Full acknowledged active/catchup/timer/partial-command financial cold replay",
-    "Cross-publication historical source-view adapter and complete ESCROW-WAL cold proof closure",
+    "Full Main startup/catchup/historical inline callers, including detached final save lifetime",
+    "Mode4/inline/recovery/supersession/cross-publication histories and actual process-loss financial recovery",
     "Broader global startup/Promise/callback/receiver/value/history domains",
+    "Channel queue64+ source sort domain (concrete reproducer; isolated fix pending)",
     "Intended-host directory/power-loss and representative real-block CPU/RSS validation",
-    "Fee/reward matcher and Ledger wiring; economic/consensus choices",
-    "Later full-release promotion and collaborator fuzz review",
-    "Authenticated chain/UTXO/actor inputs and complete-block proof coverage"
+    "Explicit opted-in fee/reward matcher/Ledger policy and provenance; literal JS graph already executes",
+    "Parent UTXO/all-input/chain and economic/proof-verifier admission; complete-block proof composition",
+    "Later full-release promotion and collaborator fuzz review"
   ],
   "previousFullSuiteBaseline": {
     "implementationCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
