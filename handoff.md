@@ -1,6 +1,6 @@
 # TradeLayer-Rust release handoff
 
-Updated: 2026-10-29T15:36:21Z. This file is maintained after every integration/PR cycle.
+Updated: 2026-10-29T15:39:31Z. This file is maintained after every integration/PR cycle.
 
 ## Objective and operating rules
 
@@ -17,7 +17,7 @@ Commit completed, checked local work. Do not push, publish, create a PR or merge
 
 ## Current Main cycle
 
-Implemented in the working tree: actual completed-command receipts/history/head publication, retained-owner final Accepted/ACK recovery, explicit running-service continuations, actual live block/row execution and real same-index TxUtils bootstrap.
+Committed in the Main cycle: actual completed-command receipts/history/head publication, retained-owner final Accepted/ACK recovery, explicit running-service continuations, actual live block/row execution and real same-index TxUtils bootstrap.
 
 The final Store/publication/controller gates pass **32 distinct controls**:
 
@@ -79,3 +79,7 @@ The authoritative transaction inventory remains `docs/LOGIC_BY_TX_TYPE.json`: 36
 Use Rust `1.90.0-x86_64-pc-windows-msvc` and `../../work/cargo-check.ps1` with named `-CargoArguments @(...)`. Root debug target is `../../work/main-v12-target`; release target is `../../work/source-settlement-target`. Use a dedicated workspace temp directory and preserve distinct per-module test directory prefixes.
 
 The workbook is `../completeness-6b9c6c5f/TradeLayer-completeness.xlsx`; its sidebar mirror must match the saved file. Keep full-release counts separate from repeated or overlapping scoped checks. Refresh from committed code and completed logs after this cycle.
+
+## Tracker checkpoint after fee/reward integration
+
+The saved workbook and sidebar were refreshed against `21016cd` with 12 intentional cell changes. All 37 transaction rows, proof/parity gates, formulas, styles, filters and layout remain unchanged. Verification: `fixtures/reference_fidelity/rc-cycle-completeness.json`. The full release baseline is still 1,714 Rust /238 locked reference checks until the next frozen run completes.

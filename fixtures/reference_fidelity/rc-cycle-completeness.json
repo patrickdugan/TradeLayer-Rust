@@ -1,0 +1,63 @@
+{
+  "schema": "tl-rc-cycle-completeness-v1",
+  "verifiedAtUtc": "2026-10-29T15:39:31Z",
+  "checkoutCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
+  "integrated": {
+    "nativeServicePublication": {
+      "status": "committed-scoped-checks-pass",
+      "RootIntegrated": true,
+      "commit": "bbe36ddc953d6a2fb78964127a4562cba805c808",
+      "record": "fixtures/reference_fidelity/native-main-service-publication-core-integration.json",
+      "recordSHA256": "d1f28c18504ecf01036bf3db2e67fd64a21421a4321871d68a3edf5968ac4fb7",
+      "fullSuitePromotion": false,
+      "focusedCurrentCoreControls": 43,
+      "parallelLibraryPassed": 318,
+      "publicCompatibilityExecutions": 25,
+      "countsOverlap": true,
+      "finalAcceptedCommandAckRecoveryIntegrated": true,
+      "completedPublicationIntegrated": true,
+      "activeServiceRunningComponentIntegrated": true,
+      "activeServiceWALIntegrated": false,
+      "coldProcessLossReplayEstablished": false
+    },
+    "feeEngine": {
+      "status": "committed-scoped-checks-pass",
+      "RootIntegrated": true,
+      "commit": "a870049138be6500eface34320730ca17b9b22f8",
+      "record": "fixtures/reference_fidelity/pr152-fees-core-integration.json",
+      "recordSHA256": "49eb9ee2f909b1177563a55b8aa5ea078da57a5710cd6fee786ee81044a70c0f",
+      "fullSuitePromotion": false,
+      "actualIntegrationTestsPassed": 30,
+      "matcherOrConsensusChanged": false
+    },
+    "rewardAccounting": {
+      "status": "committed-scoped-checks-pass",
+      "RootIntegrated": true,
+      "commit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
+      "record": "fixtures/reference_fidelity/pr153-rewards-core-integration.json",
+      "recordSHA256": "b9cc7b7edf0fe63cca9cf2e25eff8aa99ef27b5fd6f20e3172af70aced654ee4",
+      "fullSuitePromotion": false,
+      "unitTestsPassed": 9,
+      "actualPublicApiTestsPassed": 21,
+      "independentFullWidthVectors": 1072,
+      "payoutOrConsensusChanged": false
+    }
+  },
+  "beforeWorkbookSHA256": "c4eb3a2165bb88bec7e7987fb6fd62b245b23d54bd2636439a4902a85bef314c",
+  "fullSuitePromotion": false,
+  "releaseExecutions": 1714,
+  "lockedReferenceExecutions": 238,
+  "trackedTransactionRowsChanged": false,
+  "authenticationEstablished": false,
+  "completeBlockFraudProofEstablished": false,
+  "savedWorkbookSHA256": "7f6b3002c88928131423da5ea3c93b13edec7051ab19d8cd946dedc147ab6abe",
+  "savedAndSidebarRowsMatch": true,
+  "rowHashes": {
+    "modules": 18578785,
+    "logic": 1151758449
+  },
+  "intentionalCellChanges": 12,
+  "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
+  "visualReviewPassed": true,
+  "errors": 0
+}
