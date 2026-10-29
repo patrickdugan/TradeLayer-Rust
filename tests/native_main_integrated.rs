@@ -23,7 +23,9 @@ struct Temp {
 }
 impl Temp {
     fn new() -> Self {
-        let parent = PathBuf::from(std::env::var("TL_NATIVE_MAIN_TMP").unwrap())
+        let parent = std::env::var_os("TL_NATIVE_MAIN_TMP")
+            .map(PathBuf::from)
+            .unwrap_or_else(std::env::temp_dir)
             .canonicalize()
             .unwrap();
         let root = parent.join(format!(

@@ -1,6 +1,6 @@
 # TradeLayer-Rust release handoff
 
-Updated: 2026-10-29T20:21:08Z. This file is maintained after every integration/PR cycle.
+Updated: 2026-10-29T20:27:23Z. This file is maintained after every integration/PR cycle.
 
 Latest full release: **2,120 Rust executions /238 locked numeric checks**, implementation `239c340`, tested `216377f`;470library/44scoped public checks. Evidence:`fixtures/reference_fidelity/native-inline-release-validation.json`. Full reference parity, authentication and complete-block fraud proofs remain open.
 
@@ -182,3 +182,7 @@ New e0cee8 cold-action candidate and forthcoming inline-WAL binding were kept OU
 ## Full-release workbook promotion
 
 The saved workbook and existing sidebar now show implementation `239c340`, tested `216377f`: **2,120 Rust executions /238 locked numeric checks**,281targets and1,776unchanged frozen inputs. Sixteen intentional cells updated the release header/count and bounded source/storage descriptions. All37 transaction rows, formulas, effective styles, filters, panes, geometry and parity/proof gates are preserved, with zero formula errors. Verification:`fixtures/reference_fidelity/native-inline-release-completeness.json`. The e0 cold-action and inline-WAL follow-ons remain outside this release.
+
+## CI native test temp default
+
+A test-only fix removes the undocumented requirement to set TL_NATIVE_MAIN_TMP for native_main_integrated. An explicit override is still respected; without one, the test uses the standard temporary folder. Canonical parent validation, unique child names and guarded cleanup remain intact. The exact old missing-variable failure was reproduced; three independent filesystem controls and all seven actual native release tests pass with that override removed. Clippy warnings denied and formatting pass. Production source is unchanged and the 2,120 Rust/238 numeric full-release baseline remains the separate earlier verified cut. Evidence:`fixtures/reference_fidelity/native-main-test-temp-default.json`. No push/PR/merge.

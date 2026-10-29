@@ -1,0 +1,27 @@
+{
+  "schema": "tl-native-main-test-temp-default-v1",
+  "verifiedAtUtc": "2026-10-29T20:27:23Z",
+  "inputCommit": "6592aeedf8b3cf6e929a0ea42470b2f6fabbc4df",
+  "workerManifestSHA256": "b36fe5e5c6112ac1c85a874c10785ea5b357126036e77046496fda01c6ba508f",
+  "testOnly": true,
+  "productionSourceChanged": false,
+  "existingOverridePreserved": true,
+  "missingNativeSpecificOverrideUsesStandardTempDir": true,
+  "canonicalParentAndGuardedChildDeletionPreserved": true,
+  "exactOriginalMissingOverrideFailureReproduced": true,
+  "independentFilesystemControlsPassed": 3,
+  "RootReleaseNativeTestsWithoutNativeOverridePassed": 7,
+  "clippyWarningsDenied": true,
+  "formatPassed": true,
+  "previousFullReleaseRecord": "fixtures/reference_fidelity/native-inline-release-validation.json",
+  "fullReleaseCountsUnchanged": {
+    "RustExecutions": 2120,
+    "lockedNumericChecks": 238
+  },
+  "testFileSHA256": "697b1abb2de4c8589b97f2155df8e46da8f99492b2fb52a9b353b859b584c2c5",
+  "logs": {
+    "root-native-temp-default-target.log": "2ba1f91c2ddd30356f3669a9c017d23a390d55b4c7a72957e98a2066a2bf7d6b",
+    "root-native-temp-default-clippy.log": "69ea1e6839a328c124ebd088e4dfc46761e37d5e4aa0980bcd2d2e959280b1c0",
+    "root-native-temp-default-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
