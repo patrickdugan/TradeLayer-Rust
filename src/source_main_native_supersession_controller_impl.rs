@@ -73,9 +73,29 @@ impl SourceMainNativeRowSessionV1 {
         NativeMainRowStopV1::AwaitNativeWrite
     }
     pub fn sync_prepared_superseding(&mut self) -> NativeMainRowStopV1 {
-        if !matches!(self.pc, NativeMainRowControllerPcV1::SupersessionPrepared) {
+        if !matches!(
+            self.pc,
+            NativeMainRowControllerPcV1::SupersessionPrepared
+                | NativeMainRowControllerPcV1::SupersessionStoreAttempted
+        ) {
             return NativeMainRowStopV1::StorageStopped(
                 "prepared superseding intent required; no blind sync retry".into(),
+            );
+        }
+        if matches!(
+            self.pc,
+            NativeMainRowControllerPcV1::SupersessionStoreAttempted
+        ) && self.store.pin().ok().as_ref()
+            != Some(
+                self.supersession
+                    .as_ref()
+                    .expect("retained intent")
+                    .intent
+                    .independently_expected_before(),
+            )
+        {
+            return NativeMainRowStopV1::StorageStopped(
+                "ambiguous control sync requires exact synced-Post reopen".into(),
             );
         }
         self.pc = NativeMainRowControllerPcV1::SupersessionStoreAttempted;
@@ -86,6 +106,9 @@ impl SourceMainNativeRowSessionV1 {
         {
             return NativeMainRowStopV1::StorageStopped(error.to_string());
         }
+        self.native_main_install_synced_supersession()
+    }
+    fn native_main_install_synced_supersession(&mut self) -> NativeMainRowStopV1 {
         let prepared = self
             .supersession
             .as_mut()

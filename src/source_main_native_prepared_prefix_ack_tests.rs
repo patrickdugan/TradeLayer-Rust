@@ -16,7 +16,7 @@ impl Temp {
         fs::create_dir_all(&parent).unwrap();
         let parent = parent.canonicalize().unwrap();
         let root = parent.join(format!(
-            "superseding-{}-{}",
+            "prepared-prefix-ack-{}-{}",
             std::process::id(),
             NEXT.fetch_add(1, Ordering::Relaxed)
         ));

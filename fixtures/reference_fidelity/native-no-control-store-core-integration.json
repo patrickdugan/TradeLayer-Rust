@@ -1,0 +1,75 @@
+{
+  "schema": "tl-native-main-no-control-store-core-v1",
+  "verifiedAtUtc": "2026-10-29T12:49:49Z",
+  "inputCommit": "d13c8b3c0b6374a9edd0dd53ae7e91efc90a66da",
+  "RootIntegrated": true,
+  "focusedRustExecutions": 306,
+  "initialNewTests": 6,
+  "parallelLibraryPassed": 275,
+  "parallelLibraryThreads": 8,
+  "ignoredLibraryChildEntries": 3,
+  "publicCompatibilityExecutions": 25,
+  "sourceManifestSHA256": "91b6edbd3ea17cb8dd7c804fb753b2ad68f09d1cca33a6ce35d0a79fbc9b0685",
+  "testOnlyTempPrefixAdaptations": {
+    "src/source_main_native_catchup_continuation_tests.rs": {
+      "from": "actual-row-continuation-{}-{}",
+      "to": "actual-catchup-continuation-{}-{}"
+    },
+    "src/source_main_native_catchup_session_tests.rs": {
+      "from": "moved-row-control-{}-{}",
+      "to": "moved-catchup-control-{}-{}"
+    },
+    "src/source_main_native_no_index_tests.rs": {
+      "from": "moved-row-control-{}-{}",
+      "to": "moved-no-index-control-{}-{}"
+    },
+    "src/source_main_native_prepared_prefix_ack_tests.rs": {
+      "from": "superseding-{}-{}",
+      "to": "prepared-prefix-ack-{}-{}"
+    }
+  },
+  "sameFinancialIndexFrameAndPermitMoved": true,
+  "onlyControlStoreDropped": true,
+  "healthyBeforeExactRetry": true,
+  "unknownTornControlRepairAllowed": false,
+  "sameCommandTwoRowsAndFatalAwaitChecked": true,
+  "acceptedAndFinalCommandAckRecoveryEstablished": false,
+  "headHistoryPublicationIntegrated": false,
+  "serviceTerminalWalIntegrated": false,
+  "coldProcessLossSourceReplayEstablished": false,
+  "hostPowerLossEstablished": false,
+  "authenticationEstablished": false,
+  "allTargetClippyWarningsDenied": true,
+  "includedFormattingFiles": 152,
+  "transactionRowsUnchanged": 37,
+  "fullSuitePromotion": false,
+  "lastFullReleaseExecutions": 1714,
+  "sourceFiles": {
+    "src/source_main_native_session.rs": "ece57c5f866fc9971212a1a6ae7b643c7025c56095036ed09075077f985ebcac",
+    "src/source_main_native_intent_store.rs": "677158cf5b8799a999312d6915e1f323f90b3c8e0d80b3d5f63088f05b1fa466",
+    "src/source_main_native_control_store_tests_impl.rs": "05f4aa6871dda1aed621eed1f5d199768a8bb81a362f3b1418f5f1a5fae22828",
+    "src/source_main_native_no_control_store_impl.rs": "282baf7337e0fa8c0f2b9cbf028722606cfdb830075f501ed2adacd6c9ac4804",
+    "src/source_main_native_no_control_store_tests.rs": "3af542903d9f479af19cba21dfe88a4891abb21d38756e73b7ed0c1a3f023283",
+    "src/source_main_native_no_index_impl.rs": "7996b756f3e13f5de787c7730a3b9e53a9cdae41acd3fdde9b465c8152d44d5b",
+    "src/source_main_native_prefix_ack_controller_impl.rs": "49a40ef5b490f0ddf50c46e069f2a510a06ac966d5790512e9c212c899d24e64",
+    "src/source_main_native_row_session_impl.rs": "8d48fd1292638e458a46f211763477c1da3bf981c364641d1e910d9d016a5b45",
+    "src/source_main_native_supersession_controller_impl.rs": "91fd72aacab83df764ee48589f58da72f44ae2fea31f505564ff16d6728ffaed",
+    "src/source_main_native_catchup_continuation_tests.rs": "e2cb6df1fbd31668ce75e3e28b11830812eadd19eace310572eec674d6c8d267",
+    "src/source_main_native_catchup_session_tests.rs": "3626d3842d69f6973c09c66bdb7f19d888f8d4ca6c6d67082327f7c0874c7263",
+    "src/source_main_native_no_index_tests.rs": "ec5f09c82f136b78d31030bbe7d01bcf39950b9856989e8bc08901c8de783998",
+    "src/source_main_native_prepared_prefix_ack_tests.rs": "8e4beaacff3aac84e59d1549183a1ddff28851544093edf211779694a2d27dae",
+    "scripts/ci-preflight.sh": "3640d934cf5f12507b2bac16fc7060dea3e7a880ec9efa735198aec0092d8f13",
+    "docs/LOGIC_BY_TX_TYPE.json": "0430f844c8ac171bc0c6d0f2c97c731198aec1934a1fef11af68647107904e6a",
+    "docs/NATIVE_MAIN_CONTROL_STORE_RECOVERY.md": "2072eb71841170d680c627bfa9255000784e348d11936c84e9dfab91bd4e7516"
+  },
+  "logs": {
+    "root-native-no-control-store-first.log": "3f5b53a387f57cc9f5777782b6ac5270ff3abb19a2d1bd7ba0a6df0320bdca53",
+    "root-native-no-control-store-parallel-lib-first.log": "97c438e1ac383f377846458ee9e58da6bfb03666af50acaaccf540a1f35d06e6",
+    "root-native-no-control-store-public-first.log": "d94509eec8a4187f8183a7b78fcb336a7c761cf426dfd7c849043c66edb1d7a6",
+    "root-native-no-control-store-format-first.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "root-native-no-control-store-included-format-first.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "root-native-no-control-store-clippy-first.log": "5cda2649a6b726ff4a42e59d71f768959d317a0d6cfd0f98e538335ca16a0b26",
+    "root-native-no-control-store-supply-first.log": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01",
+    "root-native-no-control-store-inventory-first.log": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393"
+  }
+}

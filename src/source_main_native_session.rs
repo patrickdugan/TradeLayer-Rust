@@ -557,6 +557,8 @@ include!("source_main_native_step_segment_impl.rs");
 include!("source_main_native_row_session_impl.rs");
 include!("source_main_native_no_index_impl.rs");
 include!("source_main_native_supersession_controller_impl.rs");
+include!("source_main_native_prefix_ack_controller_impl.rs");
+include!("source_main_native_no_control_store_impl.rs");
 #[cfg(test)]
 #[path = "source_main_native_row_session_tests.rs"]
 mod native_row_session_tests;
@@ -568,3 +570,7 @@ mod native_catchup_session_tests;
 #[cfg(test)]
 #[path = "source_main_native_no_index_tests.rs"]
 mod native_main_no_index_tests;
+
+#[cfg(test)]
+#[path = "source_main_native_no_control_store_tests.rs"]
+mod native_main_no_control_store_tests;

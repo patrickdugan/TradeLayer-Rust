@@ -9,7 +9,7 @@ struct Temp(PathBuf);
 impl Temp {
     fn new() -> Self {
         let root = std::env::temp_dir().canonicalize().unwrap().join(format!(
-            "moved-row-control-{}-{}",
+            "moved-catchup-control-{}-{}",
             std::process::id(),
             NEXT.fetch_add(1, Ordering::Relaxed)
         ));

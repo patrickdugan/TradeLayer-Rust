@@ -29,6 +29,8 @@ pub struct SourceMainNativeRowNoIndexV1 {
     reopened: Option<NativePreparedValidityRecoveryObservationV1>,
     supersession: Option<NativeMainPreparedRowSupersessionV1>,
     superseding_active: bool,
+    prefix_ack: Option<NativePreparedPrefixAckV1>,
+    prefix_ack_recovered: Option<NativeIntentStorePinV1>,
 }
 pub struct RejectedNativeMainNoIndexLoanV1 {
     pub cause: String,
@@ -93,6 +95,8 @@ impl SourceMainNativeRowSessionV1 {
             reopened,
             supersession,
             superseding_active,
+            prefix_ack,
+            prefix_ack_recovered,
         } = self;
         let SourceMainNativeSessionV13 {
             financial,
@@ -133,6 +137,8 @@ impl SourceMainNativeRowSessionV1 {
             reopened,
             supersession,
             superseding_active,
+            prefix_ack,
+            prefix_ack_recovered,
         })
     }
     pub fn reopened_observation(&self) -> Option<&NativePreparedValidityRecoveryObservationV1> {
@@ -192,7 +198,11 @@ impl SourceMainNativeRowNoIndexV1 {
             command,
             supersession,
             superseding_active,
-            ..
+            prefix_ack,
+            prefix_ack_recovered,
+            namespace: _,
+            pc: _,
+            reopened: _,
         } = self;
         let NativeMainFinancialWithoutIndexV1 {
             financial,
@@ -232,6 +242,8 @@ impl SourceMainNativeRowNoIndexV1 {
             reopened: Some(observation),
             supersession,
             superseding_active,
+            prefix_ack,
+            prefix_ack_recovered,
         })
     }
     pub fn visit_canonical_fields(
@@ -296,6 +308,13 @@ impl SourceMainNativeRowNoIndexV1 {
             native_main_supersession_fields(
                 self.supersession.as_ref(),
                 self.superseding_active,
+                visitor,
+            )?;
+        }
+        if self.prefix_ack_recovered.is_some() {
+            native_main_prefix_ack_fields(
+                self.prefix_ack.as_ref(),
+                self.prefix_ack_recovered.as_ref(),
                 visitor,
             )?;
         }

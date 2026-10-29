@@ -70,6 +70,7 @@ rustfmt --check --edition 2021 \
   src/compact_native_supersession_binding_impl.rs src/source_main_native_superseding_intent_impl.rs \
   src/source_main_native_prepared_prefix_ack_impl.rs \
   src/source_main_native_multiheight_tests.rs \
+  src/source_main_native_prefix_ack_controller_impl.rs src/source_main_native_no_control_store_impl.rs src/source_main_native_control_store_tests_impl.rs \
   src/source_main_native_step_checkpoint_impl.rs src/source_main_native_step_decode_impl.rs \
   src/source_main_native_step_session_impl.rs src/source_main_native_step_segment_impl.rs \
   src/source_main_step_block_impl.rs src/source_main_step_runtime_impl.rs src/source_main_step_fields_impl.rs \

@@ -8,7 +8,7 @@ impl Temp {
     fn new() -> Self {
         let parent = std::env::temp_dir().canonicalize().unwrap();
         let root = parent.join(format!(
-            "actual-row-continuation-{}-{}",
+            "actual-catchup-continuation-{}-{}",
             std::process::id(),
             NEXT.fetch_add(1, Ordering::Relaxed)
         ));
