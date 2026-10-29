@@ -1,0 +1,26 @@
+{
+  "schema": "tl-historical-bitcoin-completeness-v1",
+  "verifiedAtUtc": "2026-10-29T22:44:36Z",
+  "checkoutCommit": "e3a7245ccab65b2deb12a0ad5af9ba7b3b3e9b63",
+  "beforeWorkbookSHA256": "28471d2722d4d31ecb8bc142f94095b2373ef183fbf99c47cb909ff09a9a5f60",
+  "releaseRecord": "fixtures/reference_fidelity/inline-channel-release-validation.json",
+  "releaseRecordSHA256": "35e9b4dbeec549edaab6526b92ae136805aca7795e98d0c1e9cce4da55d84534",
+  "scopedRecord": "fixtures/reference_fidelity/historical-inline-database-core-integration.json",
+  "scopedRecordSHA256": "c23fecf7b262b314396e2d25e717105520749d8ad384ca66bef53cd09e5b331d",
+  "releaseExecutions": 2142,
+  "lockedReferenceExecutions": 239,
+  "scopedLibraryPassed": 511,
+  "fullSuitePromotion": false,
+  "authenticationEstablished": false,
+  "completeBlockFraudProofEstablished": false,
+  "savedWorkbookSHA256": "9fe99138d305452a8bf84515163bf39eb96d74341fe3bc34648201dc11265a72",
+  "savedAndSidebarRowsMatch": true,
+  "rowHashes": {
+    "modules": 3290365916,
+    "logic": 1151758449
+  },
+  "intentionalCellChanges": 13,
+  "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
+  "visualReviewPassed": true,
+  "errors": 0
+}

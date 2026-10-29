@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-29T22:35:07Z. Maintained after every tested integration cycle.
+Updated: 2026-10-29T22:44:36Z. Maintained after every tested integration cycle.
 
 ## Goal and boundaries
 
@@ -103,3 +103,7 @@ Source helpers and actual Core caller controls now preserve the detached final s
 ## Latest historical/Bitcoin integration
 
 Historical plans compute old-view outcomes and exact native mutation bytes, verify actual Post and resolve once; they cannot create a writer permit or resume a source PC. Bitcoin relation checks every supported input and basic money/duplicate/order rules but keeps authenticated parent/chain/TL gates denied. Root regenerated genuine reference fixtures; neither API widens economic or cold service admission. Caller review679 and same-invocation consensus3a8211 remain queued for Root gates; new Mode4 commit-trace/physical closure and durable caller composition are active worker lanes.
+
+## Latest scoped workbook refresh
+
+Saved/sidebar now showe3a7245/511library and tested historical/Bitcoin/Main-caller scope, while the complete release stays2,142Rust/239numeric. Thirteen intentional edits preserve all48TL modules/one external reference/37transaction rows, formulas/styles/filters/panes/geometry and proof gates, with zero formula errors. Verification:`fixtures/reference_fidelity/historical-bitcoin-completeness.json`. No queued consensus/WAL/trace-reader work is promoted.
