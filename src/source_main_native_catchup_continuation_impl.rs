@@ -260,8 +260,15 @@ impl SourceContractRuntime {
             target: "Main.constructConsensusFromIndex".into(),
             arguments: vec![start.clone()],
         })?;
+        self.native_main_catchup_frame(start, Some(invocation))
+    }
+    fn native_main_catchup_frame(
+        &self,
+        start: V,
+        invocation: Option<SourceMainInvocationV1>,
+    ) -> Result<NativeMainCatchupContinuationV1, SourceRuleError> {
         Ok(NativeMainCatchupContinuationV1 {
-            invocation: Some(invocation),
+            invocation,
             start,
             plan: None,
             grouping: None,
@@ -291,10 +298,10 @@ impl SourceContractRuntime {
         frame: &mut NativeMainCatchupContinuationV1,
         result: R<V>,
     ) {
-        frame.result = Some(self.source_main_invocation_finish(
-            frame.invocation.take().expect("linear catchup invocation"),
-            result,
-        ));
+        frame.result = Some(match frame.invocation.take() {
+            Some(invocation) => self.source_main_invocation_finish(invocation, result),
+            None => returned(result),
+        });
     }
     fn native_main_catchup_fault(
         &mut self,

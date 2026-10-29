@@ -102,8 +102,12 @@ impl TxIndexExtractContinuationV1 {
         self.child.as_ref()?.source.pending_call()
     }
     pub(crate) fn pending_descriptor(&self) -> Option<TxIndexExtractPendingV1> {
+        self.pending_call()?;
+        self.active_descriptor()
+    }
+    pub(crate) fn active_descriptor(&self) -> Option<TxIndexExtractPendingV1> {
         let child = self.child.as_ref()?;
-        child.source.pending_call()?;
+
         let operation_ordinal = child.source.pending_write_ordinal();
         Some(TxIndexExtractPendingV1 {
             parent_scope: self.scope,

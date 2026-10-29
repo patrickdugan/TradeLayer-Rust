@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-29T22:44:36Z. Maintained after every tested integration cycle.
+Updated: 2026-10-29T23:04:22Z. Maintained after every tested integration cycle.
 
 ## Goal and boundaries
 
@@ -14,7 +14,7 @@ Keep one actual financial owner, actual native index and borrowed queue. Never i
 
 Full all-target release: implementation `53e6a245d58265aa1a428f30c567aa67e610464c`, tested checkout `306d4186327a8d43d0fdf4c23c89563d3c0bb111`. **2,142 Rust executions** (2,141 top-level plus one successful storage child), **239 locked numeric checks**,282targets and1,822 frozen inputs unchanged before/after. Library491/fourignored. Evidence: `fixtures/reference_fidelity/inline-channel-release-validation.json`. Previous2,120/238 release remains immutable historical evidence.
 
-Current later cycle: historical inline metadata5+2independent controls and complete-supported Bitcoin transaction4public controls. Library511/fourignored,18Bitcoinpublic,6SourceOwner,7oldinline/6Mode4 pass; Clippy warnings denied, Cargo fmt,285 included files, inventory/supply-chain pass. Genuine133Script/72Corebasic calls regenerate5fixtures exactly. Records: `historical-inline-database-core-integration.json`, `bitcoin-supported-transaction-core-integration.json`. No parent/chain/TL authority or cold/caller admission is added. Full baseline remains2,142/239.
+Current later cycle: same-invocation retained Main consensus,5 new Core/1source-job/3independent caller controls. Library520/fourignored,44 public,7 oldinline/6Mode4, warnings-denied Clippy/fmt291/inventory pass. Actual Initialize fulfills with its final save held and actual financial/native catchup runs without a competing plan. The same owner/header is retained; new route binds actual origin/generation. WAL/recovery/cold/arbitrary concurrent publications remain open. Record: `retained-main-consensus-core-integration.json`. Full baseline stays2,142/239.
 
 The test-only temp-folder fix `567f6b8` respects TL_NATIVE_MAIN_TMP when set and otherwise uses the standard temp directory, preserving canonical-parent/guarded cleanup. Seven actual native release tests pass without the override; no production source changed. Evidence: `fixtures/reference_fidelity/native-main-test-temp-default.json`.
 
@@ -37,7 +37,7 @@ All record names above are under `fixtures/reference_fidelity/`. Source results/
 ## Active workers and next concrete gates
 
 1. `v8_main`: Mode4 and copied-history package45a42cf8 are now integrated/tested. Next is actual historical inline DB preparation against the verified original pages/directory, using a separate opaque historical plan; no fake live index or append permit from pins. Coordinate caller selectors with row. Wider coldMode4 admission remains closed.
-2. `row_continuation_impl`: firstaf213b component is now integrated/tested. Next stage `work/native-main-retained-consensus-v13` connects ConsensusReady to actual catchup/service on the SAME borrowed invocation, keeping detached save independent through actual caller fulfillment. Unresolved competing native plans must remain explicitly fenced until real historical/concurrent resolver support exists. No old Session/head release. Original12-call source corpus remains source evidence.
+2. `row_continuation_impl`: af/3a caller+consensus components are now integrated/tested, including actual Initialize fulfillment and source-job lifetime. NEW Start-only WAL packagebbcd706b is frozen but awaits Root Core gates; raw TLMACA1 codec6/actualStore3new tests pass in helper. Active follow-on wraps selected caller/consensus/detached/native/timer actions with exact origin-route keys and executed-once WAL barriers. No source constructor/action retry after uncertain IO.
 3. Both lanes must bind an explicit stable job/scope/operation ordinal plus Awaited/Detached selector. Identical method/args/Before may represent different concurrent saves; AppendPending must not silently choose the first frame. Main owns the WAL/frame selector; row owns caller PCs. Stage-only until Root checks.
 4. `v8_clearlist`: channel sort packagea05a13d2 is now integrated/tested, including real64 settlement/65 late-error retained Tally writes, exact comparator schedule and four prior checkpoints. The same sharedV8 helper/MainIO remain unchanged. Mode4 independent review is complete; two additional Root negative controls pass. Worker now audits current admission/UTXO gates and recent external-worker PRs before proposing any disjoint implementation.
 5. Broaden cold execution to inline/Mode4, recovery/supersession, cross-publication retained views, unresolved terminal work and actual killed-process financial recovery. Current cold success must not be relabeled as those broader gates or as mutable hot resume.
@@ -107,3 +107,7 @@ Historical plans compute old-view outcomes and exact native mutation bytes, veri
 ## Latest scoped workbook refresh
 
 Saved/sidebar now showe3a7245/511library and tested historical/Bitcoin/Main-caller scope, while the complete release stays2,142Rust/239numeric. Thirteen intentional edits preserve all48TL modules/one external reference/37transaction rows, formulas/styles/filters/panes/geometry and proof gates, with zero formula errors. Verification:`fixtures/reference_fidelity/historical-bitcoin-completeness.json`. No queued consensus/WAL/trace-reader work is promoted.
+
+## Latest consensus integration
+
+The actual parent invocation is now shared with catchup/service; original normal constructors/visitor bytes remain. Source caller outcome may precede its detached child, but the original header/owner cannot escape before both finish. Existing335 selectors remain receiver-local routing values; new origin-bound profile rejects accidental cross-owner equal-key selection without pretending hashes confer authority. Root fixed the genuine readiness guard and an incorrect test-only absent-field expectation; no reference data was relaxed. Mode4 physical closure3cc and callerStartbbcd remain queued for actual Core gates.

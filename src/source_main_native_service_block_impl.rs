@@ -45,9 +45,17 @@ impl SourceContractRuntime {
             target: "Main.processBlock".into(),
             arguments: vec![request.block.clone(), request.height.clone()],
         })?;
+        self.native_main_service_block_frame(request, Some(invocation), effect_start)
+    }
+    fn native_main_service_block_frame(
+        &self,
+        request: crate::source_main_step_kernel::MainServiceBlockRequest,
+        invocation: Option<SourceMainInvocationV1>,
+        effect_start: usize,
+    ) -> Result<NativeMainServiceBlockFrame, SourceRuleError> {
         Ok(NativeMainServiceBlockFrame {
             request,
-            invocation: Some(invocation),
+            invocation,
             pc: NativeMainServiceBlockPc::Prelude,
             inline_profile: false,
             inline_index: None,
@@ -82,10 +90,10 @@ impl SourceContractRuntime {
         frame: &mut NativeMainServiceBlockFrame,
         result: R<V>,
     ) {
-        let returned = self.source_main_invocation_finish(
-            frame.invocation.take().expect("actual live invocation"),
-            result,
-        );
+        let returned = match frame.invocation.take() {
+            Some(invocation) => self.source_main_invocation_finish(invocation, result),
+            None => returned(result),
+        };
         frame.result = Some(match returned {
             Ok(DependencyReturn::Immediate(v) | DependencyReturn::Pending(v)) => Ok(v),
             Ok(DependencyReturn::Throw(e) | DependencyReturn::PendingThrow(e)) => {

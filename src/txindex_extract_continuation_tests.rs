@@ -287,3 +287,6 @@ fn retained_extract_empty_early_no_work_and_forward_resume_keep_original_source_
         assert_eq!(new.base.snapshot_rows(), old.base.snapshot_rows());
     }
 }
+
+#[path = "txindex_retained_consensus_job_tests.rs"]
+mod retained_consensus_job_tests;

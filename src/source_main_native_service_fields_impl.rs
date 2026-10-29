@@ -11,6 +11,12 @@ impl NativeMainServiceContinuationV1 {
                 &s(NATIVE_MAIN_INLINE_ACTIVE_SERVICE_PROFILE),
             )?;
         }
+        if self.borrowed_invocation {
+            visitor(
+                "borrowedInvocation",
+                &s("TL-MAIN-RETAINED-CALLER-CONSENSUS-13-1"),
+            )?;
+        }
         visitor("clientBinding", &s(self.client_binding))?;
         visitor("bootstrapStart", &s(self.bootstrap_start.to_string()))?;
         visitor(

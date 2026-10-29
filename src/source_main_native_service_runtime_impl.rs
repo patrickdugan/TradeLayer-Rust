@@ -14,6 +14,7 @@ pub(crate) struct NativeMainServiceContinuationV1 {
     catchup: NativeMainCatchupContinuationV1,
     client_binding: &'static str,
     inline_profile: bool,
+    borrowed_invocation: bool,
     bootstrap_start: usize,
     invocation_effect_start: usize,
     kernel: crate::source_main_step_kernel::MainStepKernelV1,
@@ -140,6 +141,7 @@ impl SourceContractRuntime {
             bootstrap_start,
             invocation_effect_start,
             inline_profile: false,
+            borrowed_invocation: false,
             kernel: crate::source_main_step_kernel::MainStepKernelV1::new(generation),
             documents,
             tail_started: false,
@@ -328,7 +330,12 @@ impl SourceContractRuntime {
                     frame.stopped = Some(SourceRuleError::Backend);
                     continue;
                 }
-                match self.native_main_service_block_begin(request) {
+                let begun = if frame.borrowed_invocation {
+                    self.native_main_service_block_frame(request, None, self.core.effects.len())
+                } else {
+                    self.native_main_service_block_begin(request)
+                };
+                match begun {
                     Ok(mut block) => {
                         block.inline_profile = frame.inline_profile;
                         frame.block = Some(block);

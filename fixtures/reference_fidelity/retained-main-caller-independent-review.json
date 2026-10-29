@@ -1,0 +1,30 @@
+{
+  "schema": "tl-retained-main-caller-independent-review-v1",
+  "verifiedAtUtc": "2026-10-29T23:04:22Z",
+  "workerManifestSHA256": "67946ba839e991de11b6ab1d80bf70f5358a27e3b62ac575a1042a7ccc52ac93",
+  "reviewedManifestSHA256": "af213b0468be431b7eb77bd81402caca6ab9679c73928334a249522ffa64b680",
+  "independentCopiedTestsPassed": 125,
+  "independentIgnored": 1,
+  "newRootCoreControlsPassed": 3,
+  "reviewerWholeCoreRun": false,
+  "finding": "Receiver-local selector equality reproduced across actual owners; only receiver-held plan executes. New routed profile is separately owned; no financial-plan substitution reproduced.",
+  "originalSourceChecks": [
+    {
+      "node": "v24.22.1",
+      "numeric": "genuine9.3.1",
+      "cases": 12,
+      "observations": 35,
+      "fixtureSHA256": "1fb433a85917abd76bf7b2f63e2b6c7c6b121b506740affb4a545a27b32c3422"
+    },
+    {
+      "node": "v24.22.1",
+      "numeric": "genuine9.1.2",
+      "cases": 12,
+      "observations": 35,
+      "fixtureSHA256": "1fb433a85917abd76bf7b2f63e2b6c7c6b121b506740affb4a545a27b32c3422"
+    }
+  ],
+  "review": "Review of af213b0468be431b7eb77bd81402caca6ab9679c73928334a249522ffa64b680\n\nNo new financial-owner, native-plan substitution, early source-resume or\nold-live-path defect was reproduced in the bounded reviewed component.\n\nExecuted evidence:\n\n- Verified all 115 frozen files and regenerated five exact pure-transform outputs.\n- Mechanically regenerated the borrowed IO bodies and initializer prefix. The\n  old live frame layout, visitor and effect-adapter prefix remain byte exact.\n- Rust 1.90 copied actual SourceOwner/Journal closure: 125 passed, one ignored,\n  strict Clippy. These include two independent added real two-owner controls;\n  this is not execution of the newly added private financial Core methods.\n- Reexecuted all 12 unchanged full-source caller scenes under both genuine\n  BigNumber versions (9.3.1/9.1.2): 35 records each; both --check results retain\n  fixture SHA-256 1fb433a85917abd76bf7b2f63e2b6c7c6b121b506740affb4a545a27b32c3422.\n  These are source observations, not twelve complete Rust differential matches.\n- The four mounted production leaves equal the frozen payloads. The parent\n  removed only the unused tagged_field/tagged_items test helpers for Clippy.\n  Exact current hashes and additive-test input/output are in CURRENT_ROOT_CHECKS.\n\nConfirmed routing boundary, not a native authorization failure:\n\nNativeMainRetainedCallerPendingV1 (runtime lines 28-34) and\nTxIndexExtractPendingV1 contain caller-selected scope plus deterministic source\njob/method/ordinal/role. Two independent actual SourceOwners with distinct native\nstore contexts and reused scope501 produce equal selectors. Supplying A's equal\nselector to B is accepted, but B resolves only its own privately held actual\nwrite using B's independently checked native Post. A remains untouched. This\nmatches the documented receiver-local selector contract. A descriptor with a\ndifferent scope refuses without consuming B's source await or changing B's\nalready-applied Post. It is not a foreign native plan, financial state import,\nor authentication capability.\n\nBefore using such selectors as persistent caller-WAL routing keys, use a new\nexplicit route profile bound to independently retained actual Session/native\norigin and invocation generation. Preserve that origin over native reopen;\ndo not derive it from the current Post or caller scope alone. The row worker\nowns that separate additive route revision. The old receiver-local contract\nmust remain explicit, including the retained positive equivalence control.\n\nInspected source/control invariants:\n\n- Both append and resolve check the entire current typed selector BEFORE they\n  select any IO path (runtime lines 629-660). The caller cannot supply a native\n  write, native result or source evaluation. Pending write selection remains\n  receiver-owned. Role/ordinal changes cannot fall through to a different child.\n- Shared IO marks an append attempt before native IO, does not resolve source\n  on append, verifies actual Post before source resolve, and restores the same\n  SourceOwner after scoped loans. Existing storage/local-stop prefixes remain.\n- Only pre-source rejection returns the unchanged old Session. A begun caller\n  retains the one actual financial owner, index, invocation, raw inputs and\n  kernel metadata; no head/checkpoint/ordinary Session release is exposed.\n- CallerReturned and detached child completion remain distinct. The final\n  SaveMaxHeight native operation may outlive the fulfilled Sync/Init caller;\n  its MaxHeight and indexExists writes retain distinct ordinals. Initialize\n  keeps caller_result absent at ConsensusReady and retains the invocation and\n  any detached source child. ConsensusReady is not initialization completion.\n- Default live callbacks and Mode4 direct-frame selection are preserved. This\n  component adds no caller WAL, ambiguous-write recovery, historical action\n  admission, cold release, rich-throw transport or full Main IIFE completion.\n\nAdditive Root proposal (not compiled here):\n\nCopy src/source_main_retained_caller_review_tests.rs. Apply\nprepare.prepare_caller_tests to CURRENT src/source_main_retained_caller_tests.rs.\nIt appends a nested test module and preserves all existing tests/prefixes. Three\nprivate-Core controls exercise equal receiver-local keys across actual owners,\ndifferent-scope refusal before native/source effects, and an actual Awaited\ndescriptor refusing to route a Detached child. Root owns compilation. No\nproduction code or current-profile semantic change is proposed by this review.\n\nNo Root edits, whole-Core Cargo, push, PR or child commit were performed. Parent\nowns integration and the completed-work commit, as explicitly reserved.\n",
+  "newRoutedProfileOwnerRefusalPassedSeparately": true,
+  "hashIsAuthority": false
+}

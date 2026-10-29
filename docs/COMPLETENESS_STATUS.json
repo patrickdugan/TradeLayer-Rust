@@ -1123,6 +1123,24 @@
       "followerOrFinanceWired": false,
       "fullSuitePromotion": false,
       "commit": "e3a7245ccab65b2deb12a0ad5af9ba7b3b3e9b63"
+    },
+    "retainedMainConsensus": {
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/retained-main-consensus-core-integration.json",
+      "reviewRecord": "fixtures/reference_fidelity/retained-main-caller-independent-review.json",
+      "newCoreConsensusControls": 5,
+      "newSourceJobControl": 1,
+      "newIndependentCoreCallerControls": 3,
+      "parallelLibraryPassed": 520,
+      "publicCompatibilityPassed": 44,
+      "sameActualOwnerAndInvocation": true,
+      "heldFinalSaveCallerFulfillmentWithinScope": true,
+      "actualFinancialCatchup": true,
+      "newActualOriginRoute": true,
+      "oldDescriptorBytesChanged": false,
+      "callerWalNativeRecoveryOrColdAdmitted": false,
+      "arbitraryCompetingNativePublicationsAdmitted": false,
+      "fullSuitePromotion": false
     }
   },
   "scope": "Full release stays 2,142 Rust /239 numeric at53e6a24/tested306d418. Later e3a7245 passes511 library,7 historical metadata controls,4 new Bitcoin transaction checks plus14 old input/witness checks,7 inline/6 Mode4 and6 source-owner checks. Main caller335 passes8 new controls/44 public; complete consensus handoff, caller WAL/recovery and cold Mode4 closure remain active. Bitcoin checks preserve parent/chain/TL authority denials; no complete-block proof or full source parity is inferred.",

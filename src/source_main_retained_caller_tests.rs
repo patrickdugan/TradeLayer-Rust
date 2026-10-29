@@ -420,3 +420,6 @@ fn actual_static_initialization_failure_escapes_but_instance_failure_is_caught()
             && effect.get("thrown").get("message")
                 == s("recorded-instance-genesis-insert-rejection")));
 }
+
+#[path = "source_main_retained_caller_review_tests.rs"]
+mod independent_review;

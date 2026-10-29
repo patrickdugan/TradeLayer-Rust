@@ -38,6 +38,8 @@ jobs:
         run: python3 -m unittest discover -s tests -p test_rust_supply_chain.py -v
       - name: Check formatting
         run: cargo fmt --all -- --check
+      - name: Check retained consensus formatting
+        run: rustfmt --check --edition 2021 src/source_main_retained_consensus_factory_impl.rs src/source_main_retained_consensus_runtime_impl.rs src/source_main_retained_consensus_session_impl.rs src/source_main_retained_consensus_tests.rs src/txindex_retained_consensus_job_tests.rs src/source_main_retained_caller_review_tests.rs
       - name: Check historical inline and Bitcoin relation formatting
         run: rustfmt --check --edition 2021 src/source_index_historical_inline_database_impl.rs src/source_index_historical_inline_database_tests.rs src/source_index_inline_source_outcome_impl.rs src/source_index_metadata_state_entries_impl.rs src/source_index_historical_inline_review_tests.rs src/bitcoin_supported_transaction.rs
       - name: Check retained Main caller formatting
