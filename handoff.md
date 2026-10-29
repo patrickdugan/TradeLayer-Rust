@@ -1,6 +1,6 @@
 # TradeLayer-Rust release handoff
 
-Updated: 2026-10-29T19:42:16Z. This file is maintained after every integration/PR cycle.
+Updated: 2026-10-29T19:44:31Z. This file is maintained after every integration/PR cycle.
 
 Latest checked cycle: **470 library tests /44 public compatibility checks**, including seven retained inline live-service controls and five sealed-prefix controls. Evidence: `fixtures/reference_fidelity/retained-inline-service-core-integration.json`. The full all-target baseline remains 1,977 Rust/238 locked numeric checks until the next frozen release run.
 
@@ -166,3 +166,7 @@ Integrated6faada source owner/database/service PCs +546690 owner-move preservati
 All16 new controls pass within470library/fourignored:four owner,three metadata,seven actual inline service andtwo independent prefix regressions.44public compatibility, all-target Clippy, Cargo fmt,250include format files, inventory and supply-chain pass. Both genuine numeric versions execute13original source calls/38records with d492fdfc bytes. Source evidence is not13fullMain Rust parity claims. Current shared service loader/observer remain unchanged; new observer filename plumbing reuses the exact pinned old loader. Evidence:`fixtures/reference_fidelity/retained-inline-service-core-integration.json`; cold-prefix review:`fixtures/reference_fidelity/sealed-cold-prefix-independent-review.json`; inline independent review:`fixtures/reference_fidelity/retained-inline-service-independent-review.json` (123 metadata/owner plusfour independent controls, separate from Root count).
 
 Root test correction was matches! for two independent metadata-error assertions, preserving exact ColdWriteRefused variants. A redundant string-format closure was equivalently replaced with its function for Clippy; final suites were rerun. Initial compile/lint failures are retained. No source behavior, expected fixture or production error type changed. Next: v8_main new immutable inline WAL origin/history binding and actual native ambiguity recovery; row full acknowledged action/catchup source backend and later historical inline playback. Full startup/catchup callers, cross-publication views, killed-process financial recovery, host validation and authenticated complete-block proofs remain open. Spreadsheet last verified bad3892/436library and remains a separately recorded checkpoint. No push/PR/merge.
+
+## Tracker checkpoint after retained inline service
+
+Saved workbook and existing sidebar now match tested code `239c340`:470 library/44 public checks,7 actual inline live-service and5 sealed-prefix scoped checks. Original JS13 calls/38 records per genuine numeric profile are source evidence, not13 full Rust Main caller matches. Twelve original cell addresses changed, with a text readability refinement inside those same cells; all37 transaction rows, formulas, effective styles, filters, panes, geometry and proof gates are preserved. Verification:`fixtures/reference_fidelity/retained-inline-completeness.json`. Full all-target baseline remains1,977 Rust/238 locked numeric checks; later full-suite promotion remains separate.
