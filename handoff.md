@@ -1,6 +1,8 @@
 # TradeLayer-Rust release handoff
 
-Updated: 2026-10-29T19:05:52Z. This file is maintained after every integration/PR cycle.
+Updated: 2026-10-29T19:21:11Z. This file is maintained after every integration/PR cycle.
+
+Latest checked cycle: **454 library tests /44 public compatibility checks**, with 37 startup and three sealed-prefix scoped checks. Evidence: `fixtures/reference_fidelity/cold-prefix-promises-core-integration.json`. This is scoped integration; the full all-target baseline remains 1,977 Rust/238 locked numeric checks.
 
 ## Objective and operating rules
 
@@ -146,3 +148,13 @@ Boundaries: the ACK reader admits HISTORY-WAL, not an unproven ESCROW-WAL cold c
 ## Tracker checkpoint after native escrow / ACK integration
 
 The saved workbook and existing sidebar match tested code `bad3892`: 436 library tests and 44 public compatibility checks. Both recent cycles are covered, with 21 historical-await/cold-guard controls and 23 escrow/ACK/codec controls counted within the suite. Twelve intentional cells changed; all 37 transaction rows, formulas, effective styles, filters, panes, layout and proof gates are unchanged. Verification: `fixtures/reference_fidelity/escrow-ack-completeness.json`. The independent historical-await review passed 108 metadata tests and two separate controls, with strict Clippy; those counts are not added to the Root library. Review: `fixtures/reference_fidelity/historical-native-await-independent-review.json`. The full all-target release baseline remains 1,977 Rust/238 locked numeric checks.
+
+## Sealed cold-prefix / Promise v2 cycle
+
+Integrated frozen 4a0900 sealed-prefix carrier, 3b459 Promise v2 and 8a9d20 genuine microtask observer. The carrier reconstructs ONE original financial prefix while retaining the actual later Post index/lock/cold capability; it exposes no ordinary stale Session or mutable-owner escape. The original public completed-row API still requires exact current Post. The Promise continuation models actual client assimilation/bridge/outer FIFO jobs, partial checkpoints, multiple catches, shared Error capabilities and once-only notifications on the same Core.
+
+All 18 new controls pass: 454 combined library/four ignored; 44 public compatibility; 37 startup (22 retained+15 new) and three cold-prefix scoped cases. Both genuine numeric versions reproduce new12 scenes/143 observations and unchanged old14 scenes/99 observations. Core compares142 new+98 prior source cutoffs; the two explicit full-module boundary observations remain scoped exclusions. Clippy warnings denied, Cargo fmt,240 include-format files, inventory and supply-chain pass. Evidence: `fixtures/reference_fidelity/cold-prefix-promises-core-integration.json`.
+
+Root corrections are test-only: exact metadata-error matches without adding PartialEq to production; inherited UnknownDependency reconfiguration fence; and separate existing-row conflict/fresh-ID guarded-write inputs. Financial/pin/lock/IO assertions remain. All three initial failure logs are retained. No source projection/result was changed.
+
+Next: row full acknowledged-action driver and historical catchup/service backend; v8_main retained inline processBlockData/save-height/startup source PCs and service/WAL recovery. Cross-publication source views, full ESCROW-WAL cold proof closure, killed-process financial recovery, broader startup/callback domains, host validation and later full-suite promotion remain open. Spreadsheet last verified `bad3892`/436 library and is separately maintained; no claim that this newer cycle was already exported. No push/PR/merge.

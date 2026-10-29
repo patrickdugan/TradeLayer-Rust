@@ -14,6 +14,9 @@ impl ContractCore {
         self.source_main_service_set(ORDERED_BOOTSTRAP_KEY, state.value()?)
     }
     fn ordered_bootstrap_configure(&mut self, a: &[V]) -> R<V> {
+        if arg(a, 0).get("profile") == s(ORDERED_BOOTSTRAP_PROMISES_V2_PROFILE) {
+            return self.ordered_bootstrap_promises_v2_configure(a);
+        }
         if self.policy != SourceContractRuntimePolicy::MainOrchestrationV12
             || self.main_activation_locked
             || a.len() != 1
@@ -85,7 +88,7 @@ impl ContractCore {
         }
         self.emit(obj(&[
             ("kind", s("ordered-bootstrap")),
-            ("profile", s(ORDERED_BOOTSTRAP_PROFILE)),
+            ("profile", s(state.profile())),
             ("event", event),
         ]));
         Ok(())

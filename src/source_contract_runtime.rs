@@ -3035,6 +3035,9 @@ mod native_main_service_client_scope_tests;
 include!("source_main_bootstrap_state_impl.rs");
 include!("source_main_bootstrap_core_impl.rs");
 include!("source_main_bootstrap_runtime_impl.rs");
+include!("source_main_bootstrap_promises_state_impl.rs");
+include!("source_main_bootstrap_promises_core_impl.rs");
+include!("source_main_bootstrap_promises_runtime_impl.rs");
 #[cfg(test)]
 #[path = "source_main_bootstrap_tests.rs"]
 mod ordered_bootstrap_tests;

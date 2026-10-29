@@ -685,3 +685,5 @@ fn real_old_provider_bytes_preserve_earlier_setup_and_unknown_actions_never_sile
 }
 
 include!("source_main_bootstrap_old_dispatch_tests.rs");
+
+include!("source_main_bootstrap_promises_tests.rs");

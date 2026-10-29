@@ -259,3 +259,9 @@ fixtures/ordered_bootstrap_reference/*.tsv text eol=lf
 fixtures/ordered_bootstrap_reference/*.tlcr -text
 fixtures/ordered_bootstrap_step_reference/*.tsv text eol=lf
 fixtures/ordered_bootstrap_step_reference/*.tlcr -text
+
+# Exact-byte original Promise observer and LF source projections.
+scripts/native_main_bootstrap_microtask_controls.cjs -text -whitespace
+fixtures/native_main_bootstrap_microtasks*.jsonl text eol=lf
+fixtures/ordered_bootstrap_promises*.json text eol=lf
+fixtures/ordered_bootstrap_promises_controls.jsonl text eol=lf

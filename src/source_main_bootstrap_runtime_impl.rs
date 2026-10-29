@@ -64,6 +64,15 @@ impl SourceContractRuntime {
         {
             return Err(SourceRuleError::InvalidInput);
         }
+        if self
+            .core
+            .ordered_bootstrap_state()
+            .map_err(ordered_bootstrap_local)?
+            .promise_v2
+            .is_some()
+        {
+            return self.ordered_bootstrap_promises_v2_invoke(call);
+        }
         let input = arg(&call.arguments, 0);
         ob_keys(&input, &["profile", "action", "txid"])?;
         let V::Object(fields) = &input else {

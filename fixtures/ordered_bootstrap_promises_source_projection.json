@@ -1,0 +1,21 @@
+{
+  "originalSourceSHA256": "0d6a8046edae6c7ea69e3ffa5c477c7ea15ce1c060ae89ab690e51a85ac51a24",
+  "cases": [
+    "static-immediate-reject-handler-before-first-turn",
+    "static-deferred-handler-before-reject",
+    "static-deferred-reject-then-handler-same-turn",
+    "static-notified-late-handler-repeat-turns",
+    "both-immediate-reject-one-turn",
+    "both-deferred-reject-one-turn-import-first",
+    "both-deferred-reject-one-turn-static-first",
+    "same-turn-import-resolve-static-reject",
+    "same-turn-static-resolve-import-reject",
+    "both-deferred-resolve-static-first-checkpoints",
+    "same-error-object-rejects-two-source-promises",
+    "two-late-handlers-one-rejection-handled-notification"
+  ],
+  "projections": 142,
+  "sourceObservations": 143,
+  "inputOrigin": "explicit original raw controls/client/RPC facts only; no projected result/state/table drives execution",
+  "scope": "initializer fields, original Main caller, notification/catch ordering and shared error identity; full original source tables retained in source corpus, not imported into Core"
+}

@@ -2,8 +2,8 @@
   "schema": "tl-logic-reference-review-v1",
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
   "rustCommit": "70f568ad703bef189c01c989631692fdf75235bb",
-  "rustCommitScope": "Full release of implementation21016cd at tested checkout e99ef48 passes1,977 Rust executions and238 locked numeric checks with1,646 unchanged inputs. Main completed publication/running-service and standalone fees/rewards are covered. Active-service WAL/native recovery, cold financial replay, global startup ordering, authenticated history and complete-block proofs remain open. Per-type parity/proof classifications are unchanged. Additional scoped integration adds actual-owner active-service WAL and same-publication verified disk history views:27new controls,354 combined library passes. Native-index ambiguity recovery and cold financial replay remain open; last full release remains1977/238. Additional same-owner active native Before/Intermediate/Post recovery, four real storage process exits and completed raw ProcessRows historical source replay pass16new Core controls,370combined library tests and25public compatibility checks. Active/catchup/partial financial cold recovery and pruned-generation availability remain open; full-release baseline stays1977/238. Ordered callable Main bootstrap source ordering is integrated:22Core tests,14scenes/98Rust comparisons and99original-source observations in each numeric profile,392combined library/44public passes. Pending/notification startup cannot checkpoint/adopt; old witness scope refuses the new domain. Full global IIFEs and v2 Promise follow-on remain open. Historical native-await bridge and same-index cold guards/escrow primitive now pass21 new controls,413 combined library and44 public checks. Live source order/default bytes preserved. Full acknowledged action replay, inline IO, service escrow wiring and host power loss remain open. Guarded generation escrow WAL wiring, readonly real-file ACK history and strict existing history-pin codec now pass23 new controls,436 combined library/44public checks. Inline safety refusal is not source parity; full cold action replay/authentication/power loss remain open.",
-  "reviewedAtUtc": "2026-10-29T19:04:46Z",
+  "rustCommitScope": "Full release of implementation21016cd at tested checkout e99ef48 passes1,977 Rust executions and238 locked numeric checks with1,646 unchanged inputs. Main completed publication/running-service and standalone fees/rewards are covered. Active-service WAL/native recovery, cold financial replay, global startup ordering, authenticated history and complete-block proofs remain open. Per-type parity/proof classifications are unchanged. Additional scoped integration adds actual-owner active-service WAL and same-publication verified disk history views:27new controls,354 combined library passes. Native-index ambiguity recovery and cold financial replay remain open; last full release remains1977/238. Additional same-owner active native Before/Intermediate/Post recovery, four real storage process exits and completed raw ProcessRows historical source replay pass16new Core controls,370combined library tests and25public compatibility checks. Active/catchup/partial financial cold recovery and pruned-generation availability remain open; full-release baseline stays1977/238. Ordered callable Main bootstrap source ordering is integrated:22Core tests,14scenes/98Rust comparisons and99original-source observations in each numeric profile,392combined library/44public passes. Pending/notification startup cannot checkpoint/adopt; old witness scope refuses the new domain. Full global IIFEs and v2 Promise follow-on remain open. Historical native-await bridge and same-index cold guards/escrow primitive now pass21 new controls,413 combined library and44 public checks. Live source order/default bytes preserved. Full acknowledged action replay, inline IO, service escrow wiring and host power loss remain open. Guarded generation escrow WAL wiring, readonly real-file ACK history and strict existing history-pin codec now pass23 new controls,436 combined library/44public checks. Inline safety refusal is not source parity; full cold action replay/authentication/power loss remain open. Sealed cold-prefix carrier and bounded original Promise-v2 continuation integrated:18 new controls,454 combined library/44 public passes.37 startup controls preserve240 total compared source cutoffs across prior/new corpora;3cold-prefix controls retain same final Post and no stale Session escape. Full action/inline recovery and broad startup domains remain open.",
+  "reviewedAtUtc": "2026-10-29T19:21:11Z",
   "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
     {
@@ -166,7 +166,7 @@
     {
       "path": "src/source_contract_runtime.rs",
       "lfNormalized": true,
-      "sha256": "88639f2e65c8172f66c3ea1c66295a8770a8998512c3a8dcd0894c99de67f725"
+      "sha256": "6f70cf2b4cfaab608141e7b4b4270e3544aed376c1ad8afe599363a50959fffa"
     },
     {
       "path": "src/source_contract_values.rs",
@@ -540,7 +540,7 @@
     },
     {
       "path": "src/source_main_native_session.rs",
-      "sha256": "bd3e7f2aaa57e396c45def8765e95696e01a69f000e1f09390fee971b50137f6",
+      "sha256": "5c0de5c2139a00a9e6d3e3b8e72b920f426d0a23bfb1a73e6c173793853ab93d",
       "lfNormalized": true
     },
     {
@@ -1015,12 +1015,12 @@
     },
     {
       "path": "src/source_main_native_historical_replay_impl.rs",
-      "sha256": "50514951f8fe65d1df383ce1a22765d510832fa76575d01c3e2ea4a2d7f4959b",
+      "sha256": "ff395e4ec70fbe887448453b87a428883261181741fbee12ba2c94d9f3c92516",
       "lfNormalized": true
     },
     {
       "path": "src/source_main_native_historical_replay_tests.rs",
-      "sha256": "54f511d3f2cb45d0976a0bd85dea9490fdd883903d74a88b810ef7074d447426",
+      "sha256": "bfe0ec65d887b4acd6f4fee888017457bfd1167fffb5e847a5c77575a5f699c0",
       "lfNormalized": true
     },
     {
@@ -1035,22 +1035,22 @@
     },
     {
       "path": "src/source_main_bootstrap_core_impl.rs",
-      "sha256": "245818090195bb2dc3b1018510531d443dfc81bd677ed8e93bf3262bc1029423",
+      "sha256": "0fa1e4d789fb571c5cfb907032aa592cc091e7e8097b008db7876e4642f00cc0",
       "lfNormalized": true
     },
     {
       "path": "src/source_main_bootstrap_runtime_impl.rs",
-      "sha256": "e6015b19e9aeab236816d0a0b0a9ad1a1fcc029df28aedad3e918f988c37bb82",
+      "sha256": "7fd0f2b5ca54330450e89db2170328f6b4964fd223e025bc68e543e5c8c8f646",
       "lfNormalized": true
     },
     {
       "path": "src/source_main_bootstrap_state_impl.rs",
-      "sha256": "a36bd453ebf09bb027fb195de6a05a5f2a4b537d47c2ebd7613911b31a6ecf00",
+      "sha256": "69e4b0425b0d7d67d41a976a95bea0cf4efcd713e18c478610f89f4392a65c53",
       "lfNormalized": true
     },
     {
       "path": "src/source_main_bootstrap_tests.rs",
-      "sha256": "8ec1a7c1f794af7dacaa29741de2d9306aae7aec8183c7b811a632222901d08e",
+      "sha256": "1c4ac7198e68d51fbad10fda25fc91316410ab59e9c27ca1d5a29036e59a8256",
       "lfNormalized": true
     },
     {
@@ -1206,6 +1206,36 @@
     {
       "path": "src/source_main_active_history_pin_codec_tests.rs",
       "sha256": "7559b2c3a8fc15a9d5ea7b51fedc4370acd9defd8cd0780f41d62d1ea5e6c763",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_cold_prefix_impl.rs",
+      "sha256": "8f94694c0b3bf26e7b7fe9cdefc219da8e898571042c7ef5285164408e2bffda",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_cold_prefix_tests.rs",
+      "sha256": "67b7f6d51e3e2ca232989fc0ba7d06e2bc045266244ed06dde8a87e840491e12",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_bootstrap_promises_state_impl.rs",
+      "sha256": "8f2be6049fda27048af1a623b0df2518f364f0e0f60bbb42e8a23602c23b163f",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_bootstrap_promises_core_impl.rs",
+      "sha256": "0ad09ddff98ddb4dced4f8b827cb64236caed41e5235b9ca31fbc52ade4e4e59",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_bootstrap_promises_runtime_impl.rs",
+      "sha256": "0593e01efa8f40685d7d0ac239431e6b762d81047932cecf00bb024c834b0e20",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_bootstrap_promises_tests.rs",
+      "sha256": "6ebc367a1a2f0bc12e20febd0ca6f074e7abd38c0380a08b9e9dad1988afe667",
       "lfNormalized": true
     }
   ],

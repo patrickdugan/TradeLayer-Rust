@@ -35,6 +35,7 @@ struct OrderedBootstrap {
     steps: usize,
     caller_active: bool,
     last_rpc_error: Option<usize>,
+    promise_v2: Option<OrderedBootstrapPromisesV2>,
 }
 fn ob_string(v: V) -> Result<String, SourceRuleError> {
     match v {
@@ -157,6 +158,7 @@ impl OrderedBootstrap {
             steps: 0,
             caller_active: false,
             last_rpc_error: None,
+            promise_v2: None,
         })
     }
     fn closed(&self) -> bool {
@@ -173,8 +175,8 @@ impl OrderedBootstrap {
                 .all(|role| self.notified.contains(role) || (role == "index" && self.index_handled))
     }
     fn value(&self) -> Result<V, SourceRuleError> {
-        let value = obj(&[
-            ("profile", s(ORDERED_BOOTSTRAP_PROFILE)),
+        let mut value = obj(&[
+            ("profile", s(self.profile())),
             ("facts", V::Array(self.facts.clone())),
             ("imported", V::Bool(self.imported)),
             ("constructed", V::Bool(self.constructed)),
@@ -195,6 +197,9 @@ impl OrderedBootstrap {
             ("lastRpcError", ob_optional_value(self.last_rpc_error)),
             ("metadataQuiescent", V::Bool(self.closed())),
         ]);
+        if let Some(promise) = &self.promise_v2 {
+            value.insert("promiseV2", promise.value()?)?;
+        }
         value.validate()?;
         if value.diagnostic_json()?.len() > 1024 * 1024 {
             return Err(SourceRuleError::Capacity);
@@ -203,7 +208,12 @@ impl OrderedBootstrap {
     }
     // Only decode metadata already owned by this Core, never external state.
     fn owned(value: V) -> Result<Self, SourceRuleError> {
-        if value.get("profile") != s(ORDERED_BOOTSTRAP_PROFILE) {
+        if ![
+            s(ORDERED_BOOTSTRAP_PROFILE),
+            s(ORDERED_BOOTSTRAP_PROMISES_V2_PROFILE),
+        ]
+        .contains(&value.get("profile"))
+        {
             return Err(SourceRuleError::InvalidInput);
         }
         let facts = ob_array(value.get("facts"))?;
@@ -233,6 +243,10 @@ impl OrderedBootstrap {
             steps: ob_usize(value.get("steps"))?,
             caller_active: ob_bool(value.get("callerActive"))?,
             last_rpc_error: ob_optional(value.get("lastRpcError"))?,
+            promise_v2: match value.get("promiseV2") {
+                V::Undefined => None,
+                v => Some(OrderedBootstrapPromisesV2::owned(v)?),
+            },
         };
         if state.value()? != value {
             return Err(SourceRuleError::InvalidInput);

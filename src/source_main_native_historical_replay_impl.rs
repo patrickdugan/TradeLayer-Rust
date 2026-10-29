@@ -41,8 +41,38 @@ impl SourceMainNativeSessionV13 {
     pub fn reexecute_historical_rows(
         bytes: &[u8],
         expected: &NativeMainHistoricalRowsExpectationV1,
-        mut index: SourceCompactIndex,
+        index: SourceCompactIndex,
     ) -> Result<Self, Box<RejectedNativeMainHistoricalRowsV1>> {
+        let NativeMainHistoricalColdPartsV1 {
+            financial,
+            index,
+            foundation,
+            foundation_head,
+            origin_rows,
+            binding,
+            origin_physical,
+            head,
+            history,
+        } = Self::rebuild_historical_rows_prefix(bytes, expected, &expected.current, index)?;
+        Ok(Self {
+            financial,
+            index,
+            foundation,
+            foundation_head,
+            origin_rows,
+            binding,
+            origin_physical,
+            head,
+            history,
+            halted: false,
+        })
+    }
+    fn rebuild_historical_rows_prefix(
+        bytes: &[u8],
+        expected: &NativeMainHistoricalRowsExpectationV1,
+        actual_post: &crate::source_compact_index_v2::SourceIndexHistoryPinV1,
+        mut index: SourceCompactIndex,
+    ) -> Result<NativeMainHistoricalColdPartsV1, Box<RejectedNativeMainHistoricalRowsV1>> {
         let mut financial = None;
         let mut history = vec![];
         let attempted = (|| {
@@ -50,8 +80,8 @@ impl SourceMainNativeSessionV13 {
             if index
                 .capture_verified_history_pin()
                 .map_err(cold_history_error)?
-                != expected.current
-                || physical(&index)? != expected.archive.current
+                != *actual_post
+                || cold_prefix_physical(&expected.current) != expected.archive.current
                 || archive.entries.len() != expected.commands.len()
                 || archive.entries.iter().any(|(command, _)| {
                     !matches!(command, NativeMainSessionCommand::ProcessRows { .. })
@@ -59,6 +89,11 @@ impl SourceMainNativeSessionV13 {
             {
                 return Err(NativeMainSessionError::WrongPhysicalBinding);
             }
+            // Independently verify the historical completed endpoint before
+            // constructing the one financial owner. It can precede actual Post.
+            index
+                .read_verified_history_generation(&expected.current)
+                .map_err(cold_history_error)?;
             let origin_pin = expected
                 .commands
                 .first()
@@ -223,7 +258,7 @@ impl SourceMainNativeSessionV13 {
                 || index
                     .capture_verified_history_pin()
                     .map_err(cold_history_error)?
-                    != expected.current
+                    != *actual_post
             {
                 return Err(NativeMainSessionError::WrongHead);
             }
@@ -242,18 +277,19 @@ impl SourceMainNativeSessionV13 {
                 financial,
                 actual_prefix: history,
             })),
-            Ok((foundation, binding, origin_rows, origin_physical, head)) => Ok(Self {
-                financial: financial.expect("actual foundation was reexecuted"),
-                index,
-                foundation,
-                foundation_head: expected.archive.foundation,
-                origin_rows,
-                binding,
-                origin_physical,
-                head,
-                history,
-                halted: false,
-            }),
+            Ok((foundation, binding, origin_rows, origin_physical, head)) => {
+                Ok(NativeMainHistoricalColdPartsV1 {
+                    financial: financial.expect("actual foundation was reexecuted"),
+                    index,
+                    foundation,
+                    foundation_head: expected.archive.foundation,
+                    origin_rows,
+                    binding,
+                    origin_physical,
+                    head,
+                    history,
+                })
+            }
         }
     }
 }

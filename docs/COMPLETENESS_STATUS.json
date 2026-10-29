@@ -847,7 +847,7 @@
       "oldProviderStepCases": 7,
       "fullSuitePromotion": false,
       "globalMainIIFEEstablished": false,
-      "newPromiseV2Integrated": false,
+      "newPromiseV2Integrated": true,
       "commit": "fdfa8ea5cea5e3b2f1834c2c27a4102b33c97777"
     },
     "historicalNativeAwait": {
@@ -891,6 +891,38 @@
       "fullAcknowledgedFinancialReplayEstablished": false,
       "fullSuitePromotion": false,
       "commit": "bad3892c433556911784fd40a6ab92693cb7705e"
+    },
+    "sealedColdPrefix": {
+      "status": "current-Core-scoped-checks-pass",
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/cold-prefix-promises-core-integration.json",
+      "actualCoreControls": 3,
+      "sameActualFinalPostAndColdCapabilityRetained": true,
+      "oneRawFoundationFinancialOwner": true,
+      "publicExactCurrentAPIUnchanged": true,
+      "staleSessionReleaseAvailable": false,
+      "fullAcknowledgedFinancialReplayEstablished": false,
+      "fullSuitePromotion": false
+    },
+    "orderedCallableBootstrapV2": {
+      "status": "current-Core-scoped-checks-pass",
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/cold-prefix-promises-core-integration.json",
+      "newCoreControls": 15,
+      "allStartupCoreControls": 37,
+      "newSourceScenes": 12,
+      "newSourceObservationsPerNumericProfile": 143,
+      "newCoreProjectionComparisons": 142,
+      "priorSourceScenes": 14,
+      "priorSourceObservationsPerNumericProfile": 99,
+      "priorCoreProjectionComparisons": 98,
+      "parallelLibraryPassed": 454,
+      "publicCompatibilityPassed": 44,
+      "sameCoreErrorCapabilitiesAndFIFO": true,
+      "oldDefaultAndWitnessFencesPreserved": true,
+      "broaderGlobalStartupEstablished": false,
+      "arbitraryCallbacksThenablesEstablished": false,
+      "fullSuitePromotion": false
     }
   },
   "scope": "Full release remains code 21016cd: 1,977 Rust executions and 238 locked numeric checks. Latest bad3892 integrates the same-row historical native await, same-index cold guards, durable generation escrow with guarded service WAL wiring, actual read-only acknowledged history and exact history-pin codec. Combined library436/public44 pass. Ordered callable bootstrap remains22 controls/14source scenes/99observations per genuine numeric profile. Full financial active/catchup/timer/partial cold replay, retained inline source IO success/recovery, broader startup/Promise domains, cross-publication source views, host power-loss/performance and authenticated complete-block proofs remain open.",
