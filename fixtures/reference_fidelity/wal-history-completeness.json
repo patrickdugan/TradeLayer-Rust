@@ -1,0 +1,28 @@
+{
+  "schema": "tl-wal-history-completeness-v1",
+  "verifiedAtUtc": "2026-10-29T16:34:10Z",
+  "checkoutCommit": "8ce6ad0ac031289e77e48c78ea6b0dd110af39bf",
+  "beforeWorkbookSHA256": "7f6b3002c88928131423da5ea3c93b13edec7051ab19d8cd946dedc147ab6abe",
+  "releaseRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json",
+  "releaseRecordSHA256": "2a69f7805c1406927ab83274befbff6013ef7ce148f71ca8e402f541cbe782dc",
+  "scopedRecord": "fixtures/reference_fidelity/native-main-wal-history-core-integration.json",
+  "scopedRecordSHA256": "9915ff68e0872b629ee42673497eab00796b349e96d30ae90a6e596da3e47b46",
+  "releaseExecutions": 1977,
+  "lockedReferenceExecutions": 238,
+  "scopedLibraryPassed": 354,
+  "newCurrentCoreControls": 27,
+  "laterRecoveryFullSuitePromotion": false,
+  "trackedTransactionRowsChanged": false,
+  "authenticationEstablished": false,
+  "completeBlockFraudProofEstablished": false,
+  "savedWorkbookSHA256": "57dbfa163f4ec51fed7ffd0b1b93a2519c552986fb60dfe41418e45288769e29",
+  "savedAndSidebarRowsMatch": true,
+  "rowHashes": {
+    "modules": 2117159272,
+    "logic": 1151758449
+  },
+  "intentionalCellChanges": 14,
+  "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
+  "visualReviewPassed": true,
+  "errors": 0
+}

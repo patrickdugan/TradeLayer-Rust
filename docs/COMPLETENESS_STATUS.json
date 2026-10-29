@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-29T16:06:50Z",
-  "inspectedCheckoutCommit": "e99ef482d0f258d19a7a10aa776e6923d1c22532",
+  "verifiedAtUtc": "2026-10-29T16:34:10Z",
+  "inspectedCheckoutCommit": "8ce6ad0ac031289e77e48c78ea6b0dd110af39bf",
   "verifiedImplementationCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
   "verifiedReleaseTests": 1977,
   "topLevelTests": 1976,
@@ -814,10 +814,11 @@
       "countsOverlap": true,
       "fullSuitePromotion": false,
       "nativeIndexAmbiguityRecoveryEstablished": false,
-      "coldFinancialReplayEstablished": false
+      "coldFinancialReplayEstablished": false,
+      "commit": "8ce6ad0ac031289e77e48c78ea6b0dd110af39bf"
     }
   },
-  "scope": "Full release of Main publication/service plus fee and reward accounting passes 1,977 Rust executions across 281 targets and 238 locked numeric-reference checks. All 1,646 tracked inputs were verified unchanged. Active-service WAL/native ambiguity, cold source replay, global initialization ordering, broader source domains and authenticated proof coverage remain open.",
+  "scope": "Full release code21016cd, tested e99ef48:1,977 Rust executions across281 targets plus238 locked numeric checks;1,646 frozen inputs unchanged. Later recovery8ce6ad0 adds19 actual-owner WAL/codec/controller and8 actual-file history controls; combined library354 passes (3 ignored), Clippy/format/inventory/supply-chain pass. Counts overlap; this later scope is not yet a new all-target release. Native-index ambiguity recovery, cold source replay/generation escrow, global startup promise ordering, broader source domains, host validation and authenticated complete-block proofs remain open. handoff.md is current.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -1109,32 +1110,34 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Promote saved/sidebar release baseline to code21016cd/tested e99ef48:1,977 Rust executions (1,976 top-level +one successful storage subprocess),238 locked numeric checks. Transaction rows and proof/parity classifications remain unchanged; active WAL/native recovery and cold replay remain open.",
+  "workbookNote": "Full release code21016cd, tested e99ef48:1,977 Rust executions across281 targets plus238 locked numeric checks;1,646 frozen inputs unchanged. Later recovery8ce6ad0 adds19 actual-owner WAL/codec/controller and8 actual-file history controls; combined library354 passes (3 ignored), Clippy/format/inventory/supply-chain pass. Counts overlap; this later scope is not yet a new all-target release. Native-index ambiguity recovery, cold source replay/generation escrow, global startup promise ordering, broader source domains, host validation and authenticated complete-block proofs remain open. handoff.md is current.",
   "savedWorkbook": {
-    "sha256": "7f6b3002c88928131423da5ea3c93b13edec7051ab19d8cd946dedc147ab6abe",
-    "bytes": 48055,
+    "sha256": "57dbfa163f4ec51fed7ffd0b1b93a2519c552986fb60dfe41418e45288769e29",
+    "bytes": 48139,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-29T15:39:31Z",
+    "asOfUtc": "2026-10-29T16:34:10Z",
     "rowHashes": {
-      "modules": 18578785,
+      "modules": 2117159272,
       "logic": 1151758449
     },
-    "verifiedEdits": 12,
+    "verifiedEdits": 14,
     "layoutAndFormulaPreservationVerified": true
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-29T15:39:31Z",
-    "sha256": "7f6b3002c88928131423da5ea3c93b13edec7051ab19d8cd946dedc147ab6abe",
+    "verifiedAtUtc": "2026-10-29T16:34:10Z",
+    "sha256": "57dbfa163f4ec51fed7ffd0b1b93a2519c552986fb60dfe41418e45288769e29",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 18578785,
+    "moduleRowsFNV": 2117159272,
     "logicRowsFNV": 1151758449,
-    "intentionalCellChanges": 12,
+    "intentionalCellChanges": 14,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,
+    "fullReleaseBaselineSynchronized": true,
     "releasePromotionPending": true,
-    "lastFocusedCodeCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351"
+    "pendingPromotionScope": "Later WAL/history recovery code, not the synchronized 1977/238 baseline",
+    "lastFocusedCodeCommit": "8ce6ad0ac031289e77e48c78ea6b0dd110af39bf"
   },
   "validationRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json",
   "knownReferenceGaps": [
@@ -1151,10 +1154,10 @@
     "lockedReferenceExecutions": 238,
     "record": "fixtures/reference_fidelity/native-main-release-validation.json"
   },
-  "focusedValidationRecord": "fixtures/reference_fidelity/pr153-rewards-core-integration.json",
-  "focusedImplementationCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
-  "focusedVerifiedAtUtc": "2026-10-29T15:36:21Z",
-  "lastFocusedCodeCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
+  "focusedValidationRecord": "fixtures/reference_fidelity/native-main-wal-history-core-integration.json",
+  "focusedImplementationCommit": "8ce6ad0ac031289e77e48c78ea6b0dd110af39bf",
+  "focusedVerifiedAtUtc": "2026-10-29T16:32:02Z",
+  "lastFocusedCodeCommit": "8ce6ad0ac031289e77e48c78ea6b0dd110af39bf",
   "recoveryPackage": {
     "commit": "9e2baa234a487c47f5a5160440b801347a668f30",
     "archiveSHA256": "acce9e5db7c65adef0246cf01581b4c06db0fd3cf356d1cdfa6528b47fff992f",

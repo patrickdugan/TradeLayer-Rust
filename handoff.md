@@ -94,3 +94,7 @@ Implemented and checked:19 actual-Core WAL/codec/controller controls and8 actual
 The actual owner/frame remains held through ambiguous control writes. Exact Before retries only sealed WAL bytes. Historical metadata is read from actual files under the retained current lock; missing compacted history refuses. No old financial state is imported. Native-index ambiguity recovery, cold financial replay and global startup ordering remain open. The last all-target release is1977 Rust/238 numeric checks and does not include this later scoped cycle.
 
 Root corrections to the immutable worker proposal: two Core API call signatures, an allowed test namespace, unique test-directory prefix, and direct shared raw-input parser use to satisfy warnings-denied. Original compile/setup failures and the clean final run remain recorded. Next uncompiled freezes: native recovery b1afc804, historical raw-source rows c05aa394, ordered-bootstrap work in progress.
+
+## Tracker checkpoint after WAL/history integration
+
+Saved workbook and sidebar now match code8ce6ad0. The visible release baseline is1,977 Rust/238 numeric checks; the later scoped library result is354. Fourteen intentional cell changes preserve all37 transaction rows, formulas, styles, filters, layout and open proof/parity gates. Evidence: `fixtures/reference_fidelity/wal-history-completeness.json`.
