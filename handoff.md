@@ -1,6 +1,6 @@
 # TradeLayer-Rust release handoff
 
-Updated: 2026-10-29T17:25:16Z. This file is maintained after every integration/PR cycle.
+Updated: 2026-10-29T17:34:09Z. This file is maintained after every integration/PR cycle.
 
 ## Objective and operating rules
 
@@ -108,3 +108,7 @@ Final combined library:370passed/fourignored; public compatibility:25passed; Cli
 Root corrections preserve strict assertions: four Err checks avoid a Debug bound on a private financial owner, one unused test mut removed, all four metadata sidecar tests mounted, and the compaction case stops at the first actual primed catchup write instead of consuming its compaction while driving to live. A logically equivalent guard simplification satisfies Clippy. Earlier failures are retained.
 
 Next queued uncompiled candidates: ordered-bootstrap238947 plus source-loadera1f334; cold ACK reader7b839; read-only cold capability4e5bd; generation escrow1869. Native action/catchup/timer and partial-command financial cold replay, escrow wiring and global startup ordering remain open. The three agents continue those actual composition gates.
+
+## Tracker checkpoint after native recovery/cold rows
+
+Saved workbook and sidebar match code77c1b3c: last full release1,977 Rust/238 numeric checks; later scoped library370/public25 and four actual storage exits. Twelve cell changes preserve every transaction row, formula, style, filter, pane and open proof/parity gate. Evidence: fixtures/reference_fidelity/native-recovery-completeness.json.

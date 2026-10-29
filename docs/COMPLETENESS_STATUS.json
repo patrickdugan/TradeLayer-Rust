@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-29T16:34:10Z",
-  "inspectedCheckoutCommit": "8ce6ad0ac031289e77e48c78ea6b0dd110af39bf",
+  "verifiedAtUtc": "2026-10-29T17:34:09Z",
+  "inspectedCheckoutCommit": "77c1b3cc1929803406776f1c8eaa3fe811a1f87c",
   "verifiedImplementationCommit": "21016cd777906cc8dc9ce8fc6fa7ec8e33aac351",
   "verifiedReleaseTests": 1977,
   "topLevelTests": 1976,
@@ -830,10 +830,11 @@
       "sameProcessBeforeIntermediatePostRecoveryEstablished": true,
       "completedProcessRowsReexecutionEstablished": true,
       "fullSuitePromotion": false,
-      "fullActiveColdFinancialRecoveryEstablished": false
+      "fullActiveColdFinancialRecoveryEstablished": false,
+      "commit": "77c1b3cc1929803406776f1c8eaa3fe811a1f87c"
     }
   },
-  "scope": "Full release code21016cd, tested e99ef48:1,977 Rust executions across281 targets plus238 locked numeric checks;1,646 frozen inputs unchanged. Later recovery8ce6ad0 adds19 actual-owner WAL/codec/controller and8 actual-file history controls; combined library354 passes (3 ignored), Clippy/format/inventory/supply-chain pass. Counts overlap; this later scope is not yet a new all-target release. Native-index ambiguity recovery, cold source replay/generation escrow, global startup promise ordering, broader source domains, host validation and authenticated complete-block proofs remain open. handoff.md is current.",
+  "scope": "Full release code 21016cd remains 1,977 Rust executions plus 238 locked numeric checks. Later code 77c1b3c adds same-owner native Before/Intermediate/Post recovery, actual journaled supersession and completed raw ProcessRows historical source replay. Six native and nine cold-row/metadata controls plus one four-process-exit matrix pass; combined library 370 and public compatibility 25 pass. Counts overlap. Full active/catchup/timer/partial-command financial cold replay, durable generation escrow/wiring, startup ordering, broader source domains, host validation and authenticated complete-block proofs remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -1125,34 +1126,34 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Full release code21016cd, tested e99ef48:1,977 Rust executions across281 targets plus238 locked numeric checks;1,646 frozen inputs unchanged. Later recovery8ce6ad0 adds19 actual-owner WAL/codec/controller and8 actual-file history controls; combined library354 passes (3 ignored), Clippy/format/inventory/supply-chain pass. Counts overlap; this later scope is not yet a new all-target release. Native-index ambiguity recovery, cold source replay/generation escrow, global startup promise ordering, broader source domains, host validation and authenticated complete-block proofs remain open. handoff.md is current.",
+  "workbookNote": "Full release code 21016cd remains 1,977 Rust executions plus 238 locked numeric checks. Later code 77c1b3c adds same-owner native Before/Intermediate/Post recovery, actual journaled supersession and completed raw ProcessRows historical source replay. Six native and nine cold-row/metadata controls plus one four-process-exit matrix pass; combined library 370 and public compatibility 25 pass. Counts overlap. Full active/catchup/timer/partial-command financial cold replay, durable generation escrow/wiring, startup ordering, broader source domains, host validation and authenticated complete-block proofs remain open.",
   "savedWorkbook": {
-    "sha256": "57dbfa163f4ec51fed7ffd0b1b93a2519c552986fb60dfe41418e45288769e29",
-    "bytes": 48139,
+    "sha256": "f4a892e8bb30f556f13b12a767982affe957454133c01964c7682c5a1195d8ce",
+    "bytes": 48059,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-29T16:34:10Z",
+    "asOfUtc": "2026-10-29T17:34:09Z",
     "rowHashes": {
-      "modules": 2117159272,
+      "modules": 1793645981,
       "logic": 1151758449
     },
-    "verifiedEdits": 14,
+    "verifiedEdits": 12,
     "layoutAndFormulaPreservationVerified": true
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-29T16:34:10Z",
-    "sha256": "57dbfa163f4ec51fed7ffd0b1b93a2519c552986fb60dfe41418e45288769e29",
+    "verifiedAtUtc": "2026-10-29T17:34:09Z",
+    "sha256": "f4a892e8bb30f556f13b12a767982affe957454133c01964c7682c5a1195d8ce",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 2117159272,
+    "moduleRowsFNV": 1793645981,
     "logicRowsFNV": 1151758449,
-    "intentionalCellChanges": 14,
+    "intentionalCellChanges": 12,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,
     "fullReleaseBaselineSynchronized": true,
     "releasePromotionPending": true,
-    "pendingPromotionScope": "Later WAL/history recovery code, not the synchronized 1977/238 baseline",
-    "lastFocusedCodeCommit": "8ce6ad0ac031289e77e48c78ea6b0dd110af39bf"
+    "pendingPromotionScope": "Later native recovery/cold rows, not the synchronized1977/238 baseline",
+    "lastFocusedCodeCommit": "77c1b3cc1929803406776f1c8eaa3fe811a1f87c"
   },
   "validationRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json",
   "knownReferenceGaps": [
@@ -1169,10 +1170,10 @@
     "lockedReferenceExecutions": 238,
     "record": "fixtures/reference_fidelity/native-main-release-validation.json"
   },
-  "focusedValidationRecord": "fixtures/reference_fidelity/native-main-wal-history-core-integration.json",
-  "focusedImplementationCommit": "8ce6ad0ac031289e77e48c78ea6b0dd110af39bf",
-  "focusedVerifiedAtUtc": "2026-10-29T16:32:02Z",
-  "lastFocusedCodeCommit": "8ce6ad0ac031289e77e48c78ea6b0dd110af39bf",
+  "focusedValidationRecord": "fixtures/reference_fidelity/native-recovery-cold-rows-core-integration.json",
+  "focusedImplementationCommit": "77c1b3cc1929803406776f1c8eaa3fe811a1f87c",
+  "focusedVerifiedAtUtc": "2026-10-29T17:25:16Z",
+  "lastFocusedCodeCommit": "77c1b3cc1929803406776f1c8eaa3fe811a1f87c",
   "recoveryPackage": {
     "commit": "9e2baa234a487c47f5a5160440b801347a668f30",
     "archiveSHA256": "acce9e5db7c65adef0246cf01581b4c06db0fd3cf356d1cdfa6528b47fff992f",
