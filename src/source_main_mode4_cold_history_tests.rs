@@ -684,3 +684,6 @@ fn mode4_crc_valid_past_rewrite_with_same_ack_and_kv_cannot_select_a_new_trace()
     );
     assert_eq!(fs::read(&path).unwrap(), raw);
 }
+
+#[path = "source_main_mode4_independent_review_tests.rs"]
+mod independent_review;

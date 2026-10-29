@@ -1168,6 +1168,16 @@
       "selectedActionsAndNativeRecoveryAdmitted": false,
       "fullSuitePromotion": false,
       "commit": "3337beaa192c611e5245547b36e583f2f85e821b"
+    },
+    "mode4AckIndependentReview": {
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/mode4-ack-independent-review.json",
+      "newRootControlsPassed": 4,
+      "rootCombinedMetadataControlsPassed": 10,
+      "copiedMetadataTestsPassed": 161,
+      "independentScenarios": 8,
+      "noProductionBodiesChanged": true,
+      "fullSuitePromotion": false
     }
   },
   "scope": "Full release stays 2,142 Rust /239 numeric at53e6a24/tested306d418. Later3337bea passes545 library and44public checks, including25new Mode4 ACK/native metadata closure and callerStartOnly controls. Retained consensusc5 passes9new controls on the same owner/invocation. Start syncs Intent before the actual constructor; ambiguous WAL retries retain the executed owner. Full raw-source Mode4 replay, selected caller native recovery, process loss, host/fuzz and authenticated proof gates remain open.",

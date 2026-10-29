@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-29T23:23:20Z. Maintained after every tested integration cycle.
+Updated: 2026-10-29T23:27:31Z. Maintained after every tested integration cycle.
 
 ## Goal and boundaries
 
@@ -119,3 +119,7 @@ Mode4 now verifies independently retained actual ordered CRC commit traces and p
 ## Latest scoped workbook refresh
 
 Saved/sidebar now show3337bea/545library and tested Mode4/callerStart/consensus scope, while the complete release stays2,142Rust/239numeric. Thirteen intentional edits preserve all48TL modules/one external reference/37transaction rows, formulas/styles/filters/panes/geometry and proof gates, with zero formula errors. Verification:`fixtures/reference_fidelity/mode4-caller-start-completeness.json`. No pending selected-caller/native-recovery or raw-sourceMode4 replay work is promoted.
+
+## Independent Mode4 review addendum
+
+Exact3cc author freeze is independently bound by reviewer2e3f4a71. Four new Root controls/eight verifier scenarios and all10combined metadata tests pass, with Clippy/Cargo fmt/304includedformat/inventory clean. The controls preserve finalKV while repairing sequence/CRC around reordered barriers, exercise real Before/Intermediate recovery with omitted/duplicate/late barriers and alternative mutations, and reject a sameKV/sequence/generation foreign copy at the configured root. The reviewer passed161copied tests/oneignored; its administrative observations are opaque, not actual financial replay. Root initial observation correction and its3actualsource controls remain separately recorded in3337bea. No production bodies changed. The last wholelibrary run remains545; these4additional tests await the next full release. Record:`fixtures/reference_fidelity/mode4-ack-independent-review.json`.
