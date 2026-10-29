@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
   "verifiedAtUtc": "2026-10-28T23:01:35Z",
-  "inspectedCheckoutCommit": "9ff4aabcd7805562ec49550db91202ff999a13b4",
+  "inspectedCheckoutCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
   "verifiedImplementationCommit": "9ff4aabcd7805562ec49550db91202ff999a13b4",
   "verifiedReleaseTests": 1678,
   "topLevelTests": 1677,
@@ -260,16 +260,14 @@
       "releaseValidationRecord": "fixtures/reference_fidelity/main-io-sort-release-validation.json"
     },
     "compactStreamingFollowOn": {
-      "status": "worker-reported-checks-under-independent-review",
-      "RootIntegrated": false,
+      "status": "integrated-with-focused-main-checkout-validation",
+      "RootIntegrated": true,
       "fullSuitePromotion": false,
-      "reviewPending": [
-        "cross-store plan binding",
-        "logical/physical sequence distinction",
-        "retention and crash recovery",
-        "Main streaming integration"
-      ],
-      "performanceScope": "Retained disk reduction is not a throughput improvement; measured compaction adds write IO."
+      "reviewPending": [],
+      "performanceScope": "Retained disk reduction is not a throughput improvement; measured compaction adds write IO.",
+      "storageStreamCoreTests": 20,
+      "independentReviewSHA256": "a78638f062c9f71625c8a94846db62bb61b943cbc9e32ce4ac96a5f2467cad8d",
+      "integrationRecord": "fixtures/reference_fidelity/native-main-core-integration.json"
     },
     "terminalControlFollowOn": {
       "status": "full-release-covered-with-declared-scope",
@@ -301,9 +299,34 @@
       ],
       "coveredByReleaseCommit": "9ff4aabcd7805562ec49550db91202ff999a13b4",
       "releaseValidationRecord": "fixtures/reference_fidelity/main-io-sort-release-validation.json"
+    },
+    "nativeMainSession13": {
+      "status": "integrated-focused-checks-pass",
+      "implementationCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
+      "focusedRootExecutions": 232,
+      "targets": 16,
+      "nativeTests": 7,
+      "sourceCheckExecutions": 13,
+      "nativeSourceCases": 5,
+      "nativeSourceFrames": 11051,
+      "allTargetClippyPassed": true,
+      "formattingPassed": true,
+      "fullSuitePromotion": false,
+      "runtimePolicy13Added": false,
+      "record": "fixtures/reference_fidelity/native-main-core-integration.json"
+    },
+    "richGraphFoundation": {
+      "status": "bounded-codec-integrated-core-tests-pass",
+      "coreTests": 9,
+      "originalSourceCalls": 38,
+      "graphFrames": 76,
+      "nativeArrayLengthControls": 4,
+      "runtime14Integrated": false,
+      "fullSuitePromotion": false,
+      "record": "fixtures/reference_fidelity/native-main-core-integration.json"
     }
   },
-  "scope": "Existing release suites passed at31ee8f4. The known mixed-history state/Consensus defect, historical parity, production integration, complete block proofs and authentication remain open.",
+  "scope": "Full release baseline remains9ff4aab (1678 Rust executions and238 numeric checks). Subsequent native Main/index integration963aae7 passes232 focused executions across16 targets and13 source checks. This is not a full-suite, full-parity, authenticated-history or complete-block-proof promotion.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -595,7 +618,7 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Verified 9ff4aab: 1,678 Rust executions (1,677 top-level plus one subprocess), 238 numeric-reference checks and all 1,337 frozen inputs. Startup/snapshot/control and IO/sort phases are included. Native storage component checks remain separate; Main ownership/replay wiring, suspended jobs, rich throws, host durability, authenticated history and complete-block proofs remain open.",
+  "workbookNote": "Saved/sidebar trackers agree. Full-release baseline9ff4aab stays1678/238. Local integration963aae7 passes232 focused Rust executions and13 source checks; all per-type parity/proof classifications remain unchanged. Full release, native startup/durable continuation, suspended jobs and Runtime14 remain open.",
   "savedWorkbook": {
     "sha256": "d5971ddc83546910e19f76290fa12a169eee4e486873d8232ca6349ec07d0796",
     "bytes": 48140,
@@ -609,12 +632,23 @@
     "layoutAndFormulaPreservationVerified": true
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-  "workbookVerification": "Sidebar/saved values match; 13 targeted cells and needed row heights changed. Formulas, styles, filters, tables, widths and panes preserved; no formula errors. Changed views rendered and reviewed.",
+  "workbookVerification": {
+    "verifiedAtUtc": "2026-10-29T00:32:15Z",
+    "sha256": "a61c782000da68f63f7986992d8595ce7e5e2962789675d8c83d204329f506d2",
+    "savedAndSidebarRowsMatch": true,
+    "moduleRowsFNV": 4025805135,
+    "logicRowsFNV": 1151758449,
+    "intentionalCellChanges": 6,
+    "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
+    "visualReviewPassed": true,
+    "errors": 0
+  },
   "validationRecord": "fixtures/reference_fidelity/main-io-sort-release-validation.json",
   "knownReferenceGaps": [
-    "Full module/IIFE startup and scheduled/nonempty snapshot restoration",
-    "Compact indexing, streaming and compaction",
-    "Rich thrown-value transport and broader historical/value/event-loop domains",
+    "Full module/IIFE startup domains outside the verified V12 cold-start controls and native daemon startup",
+    "Native scanner/store service composition, full-history capacity, exact suspended source continuations and cross-file intent/ack recovery",
+    "Rich thrown-value Runtime14 owner/catch integration and broader historical/value/event-loop domains",
+    "Intended-host real-block CPU/RSS and hardware power-loss validation",
     "Chain/UTXO/actor evidence and complete-block proofs"
   ],
   "previousFullSuiteBaseline": {
@@ -622,6 +656,7 @@
     "releaseExecutions": 1597,
     "exactNumericReferenceTests": 198
   },
-  "focusedValidationRecord": "fixtures/reference_fidelity/main-v12-integration.json",
-  "focusedImplementationCommit": "bfd12ddb06c7cf67aeaeed2d16fa531d12a643c6"
+  "focusedValidationRecord": "fixtures/reference_fidelity/native-main-core-integration.json",
+  "focusedImplementationCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
+  "focusedVerifiedAtUtc": "2026-10-29T00:32:15Z"
 }
