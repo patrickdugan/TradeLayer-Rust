@@ -1062,6 +1062,21 @@
       "fullSuitePromotion": true,
       "commit": "53e6a245d58265aa1a428f30c567aa67e610464c",
       "fullSuiteRecord": "fixtures/reference_fidelity/inline-channel-release-validation.json"
+    },
+    "copiedOriginalMetadataView": {
+      "status": "current-Core-scoped-checks-pass",
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/copied-history-view-core-integration.json",
+      "newMetadataControls": 5,
+      "combinedEscrowTestsPassed": 19,
+      "workerStandaloneTestsPassed": 128,
+      "includedRustFilesChecked": 272,
+      "originalAndCopiedPhysicalIdentityDistinct": true,
+      "actual1100RowsAfterPrune": true,
+      "coldMode4AdmissionWidened": false,
+      "historicalInlinePreparationImplemented": false,
+      "livePermitFromDecodedPins": false,
+      "fullSuitePromotion": false
     }
   },
   "scope": "Frozen release of implementation53e6a24/tested306d418 passes2,142 Rust executions (2,141top-level plusone successful storage child),239 locked numeric checks across282targets and1,822 unchanged inputs.491library includes same-owner cold HISTORY actions, explicit single-inline Mode4 WAL/native recovery,1024-row V8 channel sorting and actual64/65 financial source scenes. Retained Main startup/catchup/detached callers, coldMode4/cross-publication/process-loss finance, host evidence and authenticated complete-block proofs remain open.",

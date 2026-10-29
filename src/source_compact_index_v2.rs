@@ -915,6 +915,8 @@ include!("source_main_native_no_index_index_tests_impl.rs");
 include!("source_index_verified_reopen_impl.rs");
 include!("source_index_supersession_binding_impl.rs");
 include!("source_index_generation_escrow_impl.rs");
+include!("source_index_escrow_descriptor_codec_impl.rs");
+include!("source_index_verified_old_view_impl.rs");
 include!("source_index_inline_escrow_guard_impl.rs");
 #[cfg(test)]
 #[path = "source_index_prepared_validity_tests.rs"]

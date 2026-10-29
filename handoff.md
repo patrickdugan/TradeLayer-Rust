@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-29T21:18:47Z. Maintained after every tested integration cycle.
+Updated: 2026-10-29T21:46:05Z. Maintained after every tested integration cycle.
 
 ## Goal and boundaries
 
@@ -14,7 +14,7 @@ Keep one actual financial owner, actual native index and borrowed queue. Never i
 
 Full all-target release: implementation `53e6a245d58265aa1a428f30c567aa67e610464c`, tested checkout `306d4186327a8d43d0fdf4c23c89563d3c0bb111`. **2,142 Rust executions** (2,141 top-level plus one successful storage child), **239 locked numeric checks**,282targets and1,822 frozen inputs unchanged before/after. Library491/fourignored. Evidence: `fixtures/reference_fidelity/inline-channel-release-validation.json`. Previous2,120/238 release remains immutable historical evidence.
 
-Current later cycle: channel V8 queue ordering through the existing1,024-entry bound, **489 library tests**, four new queue controls and one actual financial test/two complete source scenes. Sixteen existing public compatibility checks and five locked financial checks pass; all-target Clippy, Cargo fmt,266 included-file formatting, inventory and supply-chain pass. Prior inline recovery has485 library/44 public at3c1dc47. Counts overlap. Records: `channel-queue-v8-sort-core-integration.json`, `inline-native-recovery-wal-core-integration.json`. Full all-target promotion is pending.
+Current later cycle: strict escrow expectation readers and distinct verified original/copied metadata views. Five new actual Core metadata controls and19 combined escrow cases pass; Clippy warnings denied, Cargo fmt,272 included files and inventory pass. Actual1,100 old rows survive original-generation pruning. No runtime/financial/WAL body or cold admission changed. Record: `copied-history-view-core-integration.json`. This later scoped work is outside the2,142/239 all-target baseline.
 
 The test-only temp-folder fix `567f6b8` respects TL_NATIVE_MAIN_TMP when set and otherwise uses the standard temp directory, preserving canonical-parent/guarded cleanup. Seven actual native release tests pass without the override; no production source changed. Evidence: `fixtures/reference_fidelity/native-main-test-temp-default.json`.
 
@@ -36,7 +36,7 @@ All record names above are under `fixtures/reference_fidelity/`. Source results/
 
 ## Active workers and next concrete gates
 
-1. `v8_main`: Mode4 package8fda3a48 is now integrated/tested. Next isolated prerequisite is a strict escrow descriptor and actual copied-generation old-view/closure; keep original versus copied identity separate and never convert a pin to a live permit. Coordinate caller selectors with row. Wider coldMode4 admission remains closed.
+1. `v8_main`: Mode4 and copied-history package45a42cf8 are now integrated/tested. Next is actual historical inline DB preparation against the verified original pages/directory, using a separate opaque historical plan; no fake live index or append permit from pins. Coordinate caller selectors with row. Wider coldMode4 admission remains closed.
 2. `row_continuation_impl`: retained Main caller PCs using genuine caller corpus `a1d05d41…`,12 calls/35 records per numeric profile. Root has now reproduced and committed the additive source corpus and CI checks; record: `retained-main-caller-source-characterization.json`. This is source characterization, not Rust caller completion. Crucial source fact: extractBlockData's final saveMaxHeight is DETACHED. Main sync/init/initialize can fulfill and continue consensus while that same save is unresolved; its rejection is an unhandled notification. Awaited per-transaction height rejection has a different catch boundary. Keep caller completion separate from operation completion and no early financial drain/head escape.
 3. Both lanes must bind an explicit stable job/scope/operation ordinal plus Awaited/Detached selector. Identical method/args/Before may represent different concurrent saves; AppendPending must not silently choose the first frame. Main owns the WAL/frame selector; row owns caller PCs. Stage-only until Root checks.
 4. `v8_clearlist`: channel sort packagea05a13d2 is now integrated/tested, including real64 settlement/65 late-error retained Tally writes, exact comparator schedule and four prior checkpoints. The same sharedV8 helper/MainIO remain unchanged. Mode4 independent review is complete; two additional Root negative controls pass. Worker now audits current admission/UTXO gates and recent external-worker PRs before proposing any disjoint implementation.
@@ -87,3 +87,7 @@ Fifteen cells now reflect the tested channel fix, same-process inline recovery a
 ## Latest complete release gate
 
 All282 Rust targets, doc tests and the exact87-target genuine9.1.2 list pass on the same frozen checkout. The new channel financial target is included in both full and locked lists. Every1,822 tracked input was checked before/after; raw versus canonical input-manifest digests remain separate. This promotes the tested inline/channel/review code, while retained Main callers, coldMode4/cross-publication/killed-process finance and host/authenticated complete-block proof gates remain open. Saved/sidebar headline promotion is the next metadata step.
+
+## Latest copied-view integration
+
+The exact original metadata facts and actual copied-file identity remain separate. Strict decoding gives expected facts only; real copy/manifest/full-KV/row receipt verification is still required. Five new Root tests plus19combined escrow checks pass. Next work is genuine historical inline preparation and complete source/WAL composition, not a broad reader flag. Full release remains2,142/239; update the workbook with this later scoped work separately.

@@ -2,8 +2,8 @@
   "schema": "tl-logic-reference-review-v1",
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
   "rustCommit": "70f568ad703bef189c01c989631692fdf75235bb",
-  "rustCommitScope": "Full frozen release of implementation239c340/tested216377f passes2,120 Rust executions (2,119top-level +one successful storage child),238 locked numeric checks across281targets; all1,776inputs unchanged. Actual WAL/history/validity recovery, bounded cold rows/prefix, Promise continuations and explicit inline live service are covered. Inline durable WAL/recovery, full acknowledged action/startup/catchup/historical inline and cross-publication finance, host validation and authenticated complete-block proofs remain open. All37transaction rows retain their source parity and proof gates. Cold acknowledged HISTORY-WAL source actions now execute on one actual retained financial/index owner:3 Core+2metadata newcontrols,475combined library/44public pass. All Before/Accepted comparisons and native Append/Resolve are recomputed. Mode4/inline/recovery/cross-publication/hot-resume/killedfinance remain open; full baseline stays2,120Rust/238numeric. Explicit Mode4 inline WAL/native same-process recovery passes6 Core+4metadata controls,485library/44public checks. Original held source PCs survive exact Before/Intermediate/Post with synced replacement mapping; no source action retry. Detached callers/coldMode4/process-loss finance remain open; full baseline2,120Rust/238numeric unchanged. Channel64+ sort gap closes within existing1024-row bound using identical sharedV8helper/comparator:4unit+1actualfinancial control,489library/16existingpublic/5lockedfinancial pass. Two complete financial scenes preserve successful settlement and later-error Tally prefix; no MainIO or economics policy change. Full release remains2,120/238.",
-  "reviewedAtUtc": "2026-10-29T21:13:03Z",
+  "rustCommitScope": "Full frozen release of implementation239c340/tested216377f passes2,120 Rust executions (2,119top-level +one successful storage child),238 locked numeric checks across281targets; all1,776inputs unchanged. Actual WAL/history/validity recovery, bounded cold rows/prefix, Promise continuations and explicit inline live service are covered. Inline durable WAL/recovery, full acknowledged action/startup/catchup/historical inline and cross-publication finance, host validation and authenticated complete-block proofs remain open. All37transaction rows retain their source parity and proof gates. Cold acknowledged HISTORY-WAL source actions now execute on one actual retained financial/index owner:3 Core+2metadata newcontrols,475combined library/44public pass. All Before/Accepted comparisons and native Append/Resolve are recomputed. Mode4/inline/recovery/cross-publication/hot-resume/killedfinance remain open; full baseline stays2,120Rust/238numeric. Explicit Mode4 inline WAL/native same-process recovery passes6 Core+4metadata controls,485library/44public checks. Original held source PCs survive exact Before/Intermediate/Post with synced replacement mapping; no source action retry. Detached callers/coldMode4/process-loss finance remain open; full baseline2,120Rust/238numeric unchanged. Channel64+ sort gap closes within existing1024-row bound using identical sharedV8helper/comparator:4unit+1actualfinancial control,489library/16existingpublic/5lockedfinancial pass. Two complete financial scenes preserve successful settlement and later-error Tally prefix; no MainIO or economics policy change. Full release remains2,120/238. Copied original metadata views/strict escrow expectations now pass5 new actual Core metadata controls and19combined escrow cases;272includeformat/Clippy pass. Original/copy identities remain distinct,1100old rows survive actual prune, no writerpermit/coldadmission is granted. Full baseline2,142Rust/239numeric; later5notfullpromoted.",
+  "reviewedAtUtc": "2026-10-29T21:46:05Z",
   "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
     {
@@ -530,12 +530,12 @@
     },
     {
       "path": "src/compact_journal.rs",
-      "sha256": "73c100140e9b08eca34d06c27c338ec7ad549f7383a8cba32985aeb7ceb5056f",
+      "sha256": "d27a2fcd8c0eb266116b07deab6d8bf904d86e6f7020473a1ea78afc297162cc",
       "lfNormalized": true
     },
     {
       "path": "src/source_compact_index_v2.rs",
-      "sha256": "466861e95a2b49355c329985a6534d4d3c109394a348e9b5a194ad08b469433a",
+      "sha256": "6dbc35c0b98d6e1d58ba87e5a7f7cb80d7ea881acfdd16e6522ee507dc7b0acf",
       "lfNormalized": true
     },
     {
@@ -1090,7 +1090,7 @@
     },
     {
       "path": "src/compact_generation_escrow_tests.rs",
-      "sha256": "523cf5982c4eece6d7445a02563d34a54e2901867290a9f2a3a5ad92a0ba4b99",
+      "sha256": "ec8128e056c959a0dac2d6a68fc080cff2693283d7e8f21dbc35189c166fbe58",
       "lfNormalized": true
     },
     {
@@ -1100,7 +1100,7 @@
     },
     {
       "path": "src/source_index_generation_escrow_tests.rs",
-      "sha256": "20a870fdbd174f6dbcca3caaa149dfff1e67bb6a579a6312025c5a2ea9a73f14",
+      "sha256": "5c33b591ce950e4f74e00184464f7efa815b92097b27ad89d00bd15066c00bf0",
       "lfNormalized": true
     },
     {
@@ -1371,6 +1371,31 @@
     {
       "path": "src/source_index_inline_review_tests.rs",
       "sha256": "16c802ba2fae7c4d912b837ac8b2eb64f38732d52af5bf1e9c1cd23afe6f09b9",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/compact_escrow_descriptor_codec_impl.rs",
+      "sha256": "559005f8d68f57d9a00efa204ccd73d0edff4712302d523d6cf67343c005960b",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/compact_escrow_descriptor_codec_tests.rs",
+      "sha256": "95a1eb92f49ae14057d6f4b06dbf703c300eedbb7834c5182c9c42760a312583",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_index_escrow_descriptor_codec_impl.rs",
+      "sha256": "516e5630aa8b39b7165b8555c445e62e76cefcff8eaa0fa6b5085fb12772edd0",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_index_verified_old_view_impl.rs",
+      "sha256": "b9e77d37dd8dd4bdbba7379fe796ff62a6c3a4588ff44cf7493b4285ffe3c114",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_index_verified_old_view_tests.rs",
+      "sha256": "4d909a6dbe4c1be8af2b446cdcbbeb76155f502a0a557276e1e4287b705c0f0d",
       "lfNormalized": true
     }
   ],
