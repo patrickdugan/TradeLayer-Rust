@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-29T03:41:34Z",
-  "inspectedCheckoutCommit": "afccd367d9654f7254174e8ee70d682a4ca0be2e",
+  "verifiedAtUtc": "2026-10-29T04:05:54Z",
+  "inspectedCheckoutCommit": "c03f46b74f140f5fe9bd00588999fddddbe829d2",
   "verifiedImplementationCommit": "963aae732a1274bb4dafacd24e9d6666451ac51c",
   "verifiedReleaseTests": 1714,
   "topLevelTests": 1713,
@@ -490,21 +490,23 @@
       }
     },
     "nativeSegmentHistory": {
-      "status": "nominal-core-sixteen-pass-independent-publication-capacity-review-fails",
+      "status": "publication-correction-and-full-candidate-core-eighteen-pass",
       "RootIntegrated": false,
       "fullSuitePromotion": false,
-      "actualCoreTestsPassed": 16,
+      "actualCoreTestsPassed": 18,
       "logicalCommands": 4353,
       "segments": 18,
       "promotionHeld": true,
-      "directCoreCapacityRegressionPending": true,
-      "record": "fixtures/reference_fidelity/native-segment-history-core-review.json",
+      "directCoreCapacityRegressionPending": false,
+      "record": "fixtures/reference_fidelity/native-segment-capacity-core.json",
       "remaining": [
-        "Fix accepted-window byte-budget publication progress",
-        "Execute direct Core capacity regression and compatibility/Clippy gates",
-        "Root integration",
-        "Synced intent/ack, exact row recovery and host crash validation"
-      ]
+        "Root integration and compatibility/Clippy gates",
+        "Synced native intent/ack and exact row recovery",
+        "Host crash validation and broader resource domains"
+      ],
+      "promotionHoldReason": "Root integration, compatibility, all-target Clippy and durable recovery remain pending.",
+      "directCoreCapacityRegressionPassed": true,
+      "originalFailureRetained": true
     },
     "richOwnerPrefixFollowOn": {
       "status": "isolated-core-partial-write-and-prior-rpc-tests-pass",
@@ -522,11 +524,12 @@
         "targets": 2
       },
       "remaining": [
-        "Legacy compatibility and all-target Clippy",
-        "Source regeneration review",
+        "Legacy compatibility and source regeneration review",
         "Root integration",
         "Broader DB/financial error provenance and deferred continuations"
-      ]
+      ],
+      "allTargetClippyPassed": true,
+      "clippyLogSHA256": "0f0e1c4cb5bcb8e07f81db70b8d8e56a12aaf7c898b9d23299dbc300011eb4f9"
     }
   },
   "scope": "Full release963aae7 remains at1714 Rust executions across270 targets and238 pinned numeric-reference checks across86 targets. Subsequent explicit RichThrownV14 initial RPC/catch carriers and command replay are integrated with18 Root Core tests,28 matching-input compatibility executions and9 source-check commands; full-suite promotion is pending. Native timer/file controllers and recovery primitives pass separate isolated checks. Broader financial catches, daemon/continuation/durable integration, authenticated history and complete-block proofs remain open.",
@@ -821,7 +824,7 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Full release 963aae7 remains at 1,714 Rust executions and 238 numeric checks. Root code 61282d3 passes 18 Core tests, 28 compatibility executions and 9 source checks. The native history candidate passes 16 Core tests, including 4,353 commands/18 segments, but independent review reproduced a publication-capacity stall after 35 valid commands. State/proofs remain retained. Correction, direct Core reproduction, Root promotion, synced intent/ack, exact row recovery and broader rich/authentication/proof gates remain open.",
+  "workbookNote": "Full release 963aae7 remains at 1,714 Rust executions and 238 numeric checks. Root code 61282d3 passes 18 Core tests, 28 compatibility executions and 9 source checks. Separately, the native publication correction passes 18 candidate Core tests, including the unchanged 35-command regression and 4,353-command segmented replay. The original failure is retained. Root integration, compatibility/Clippy, synced intent/ack, exact row recovery and broader rich/authentication/proof gates remain open.",
   "savedWorkbook": {
     "sha256": "d5971ddc83546910e19f76290fa12a169eee4e486873d8232ca6349ec07d0796",
     "bytes": 48140,
@@ -836,10 +839,10 @@
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-29T03:49:17Z",
-    "sha256": "36b7ffac424d0ca575d1228445da9742aaa62f95717a93510244693fedc99861",
+    "verifiedAtUtc": "2026-10-29T04:12:16Z",
+    "sha256": "1e140db7af5c9f905ea455b4c29a9c11febd4e4ae06edd95a725e56e3fdb17ec",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 411104092,
+    "moduleRowsFNV": 4182285034,
     "logicRowsFNV": 1151758449,
     "intentionalCellChanges": 6,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,

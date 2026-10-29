@@ -1,0 +1,41 @@
+{
+  "schema": "tl-native-segment-capacity-core-v1",
+  "verifiedAtUtc": "2026-10-29T04:05:54Z",
+  "RootIntegrated": false,
+  "fullSuitePromotion": false,
+  "actualCoreExecutions": 18,
+  "originalIndependentRegressionChanged": false,
+  "onlyProductionFilesChanged": [
+    "src/source_main_native_step_session_impl.rs",
+    "src/source_main_native_step_segment_impl.rs"
+  ],
+  "sourceManifestSHA256": "cc3fd782d6b2715e1ffa69ab5e0d4afa36e76a9380279c4f02f1fc3093ffb012",
+  "sources": {
+    "src/source_main_native_step_session_impl.rs": "6f6e265372b866d7905cd6387c488c630b5f56cdb7c97ed5b9d425fd1dcb6e67",
+    "src/source_main_native_step_segment_impl.rs": "3fae0c9fdc5958f27dcb771e16b3381843f604cab350aacabed26905a8e5a19e",
+    "tests/source_main_native_step_session.rs": "c63369c4d029dad0659c356618bb16967a7b09b3dc177af03b1443163632c74a",
+    "tests/support/native_segment_capacity_typed.rs": "fc64df29387afed30bc2d7e4001d55720a53dfb4a6b57a8f3852e63cf8ccf380"
+  },
+  "logs": {
+    "native-step-binding-byte-capacity-first.log": {
+      "sha256": "6ae94d30b41a66991682a2006b82b4c8e68ad6e94d57a3f9445c0821fb9f0db1",
+      "passed": 0,
+      "failed": 1
+    },
+    "native-step-binding-byte-capacity-corrected.log": {
+      "sha256": "18929bc76b431942938d5b24a3eb1f322d144c22bd9a5257b456d2f61115a0c5",
+      "passed": 2,
+      "failed": 0
+    },
+    "native-step-binding-capacity-full.log": {
+      "sha256": "b20a8c2572ff74a3218c0ab97384c693d1d8fbbab980115baf5647601f312087",
+      "passed": 18,
+      "failed": 0
+    }
+  },
+  "independentReviewManifestSHA256": "7233311d78115e3bb8fb3696107c30c265f7c5e63cb45cb930195874824193d2",
+  "noRemainingReproducedDefectInReviewScope": true,
+  "singleRecordOverflowStillExplicitRetainedResourceBoundary": true,
+  "WALOrCrashRecoveryEstablished": false,
+  "authenticationEstablished": false
+}
