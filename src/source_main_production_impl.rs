@@ -71,6 +71,9 @@ impl ContractCore {
         )
     }
     fn source_main_production_configure(&mut self, a: &[V]) -> R<V> {
+        self.source_main_production_configure_mode(a, true)
+    }
+    fn source_main_production_configure_mode(&mut self, a: &[V], initialize_index: bool) -> R<V> {
         if a.len() != 1 {
             return Err(SourceRuleError::InvalidInput.into());
         }
@@ -125,7 +128,9 @@ impl ContractCore {
             parse_block: n(0.),
             service: None,
         });
-        self.source_main_production_index("getInstance", vec![])?;
+        if initialize_index {
+            self.source_main_production_index("getInstance", vec![])?;
+        }
         Ok(V::Undefined)
     }
     fn source_main_production_index(&mut self, method: &str, args: Vec<V>) -> R<V> {
@@ -171,10 +176,7 @@ impl ContractCore {
         }
         Ok((outcome(result.outcome)?, result.dependencies))
     }
-    fn source_main_production_io(&mut self, method: &str, args: &[V]) -> R<V> {
-        if self.source_main_service_enabled() {
-            self.source_main_service_set("lastRpc", s(method))?;
-        }
+    fn source_main_production_next_ordinal(&mut self, method: &str) -> R<u64> {
         let p = self
             .main_production
             .as_mut()
@@ -189,6 +191,17 @@ impl ContractCore {
             p.counts.push((method.into(), 1));
             1
         };
+        Ok(ordinal)
+    }
+    fn source_main_production_io(&mut self, method: &str, args: &[V]) -> R<V> {
+        if self.source_main_service_enabled() {
+            self.source_main_service_set("lastRpc", s(method))?;
+        }
+        let ordinal = self.source_main_production_next_ordinal(method)?;
+        let p = self
+            .main_production
+            .as_mut()
+            .ok_or(SourceRuleError::UnknownDependency)?;
         let io = p.io.clone();
         let client = p.client.clone();
         let failures = match io.get("failures") {
@@ -215,6 +228,7 @@ impl ContractCore {
                 ("message", message.clone()),
                 ("code", f.get("code")),
             ]);
+            self.ordered_bootstrap_capture_rpc(&thrown)?;
             self.emit(obj(&[
                 ("kind", s("rpc-input")),
                 ("method", s(method)),

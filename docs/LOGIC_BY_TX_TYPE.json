@@ -2,8 +2,8 @@
   "schema": "tl-logic-reference-review-v1",
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
   "rustCommit": "70f568ad703bef189c01c989631692fdf75235bb",
-  "rustCommitScope": "Full release of implementation21016cd at tested checkout e99ef48 passes1,977 Rust executions and238 locked numeric checks with1,646 unchanged inputs. Main completed publication/running-service and standalone fees/rewards are covered. Active-service WAL/native recovery, cold financial replay, global startup ordering, authenticated history and complete-block proofs remain open. Per-type parity/proof classifications are unchanged. Additional scoped integration adds actual-owner active-service WAL and same-publication verified disk history views:27new controls,354 combined library passes. Native-index ambiguity recovery and cold financial replay remain open; last full release remains1977/238. Additional same-owner active native Before/Intermediate/Post recovery, four real storage process exits and completed raw ProcessRows historical source replay pass16new Core controls,370combined library tests and25public compatibility checks. Active/catchup/partial financial cold recovery and pruned-generation availability remain open; full-release baseline stays1977/238.",
-  "reviewedAtUtc": "2026-10-29T17:25:16Z",
+  "rustCommitScope": "Full release of implementation21016cd at tested checkout e99ef48 passes1,977 Rust executions and238 locked numeric checks with1,646 unchanged inputs. Main completed publication/running-service and standalone fees/rewards are covered. Active-service WAL/native recovery, cold financial replay, global startup ordering, authenticated history and complete-block proofs remain open. Per-type parity/proof classifications are unchanged. Additional scoped integration adds actual-owner active-service WAL and same-publication verified disk history views:27new controls,354 combined library passes. Native-index ambiguity recovery and cold financial replay remain open; last full release remains1977/238. Additional same-owner active native Before/Intermediate/Post recovery, four real storage process exits and completed raw ProcessRows historical source replay pass16new Core controls,370combined library tests and25public compatibility checks. Active/catchup/partial financial cold recovery and pruned-generation availability remain open; full-release baseline stays1977/238. Ordered callable Main bootstrap source ordering is integrated:22Core tests,14scenes/98Rust comparisons and99original-source observations in each numeric profile,392combined library/44public passes. Pending/notification startup cannot checkpoint/adopt; old witness scope refuses the new domain. Full global IIFEs and v2 Promise follow-on remain open.",
+  "reviewedAtUtc": "2026-10-29T18:37:05Z",
   "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
     {
@@ -161,12 +161,12 @@
     {
       "path": "src/source_contract_replay.rs",
       "lfNormalized": true,
-      "sha256": "c64a81d927f2560228f7ca1024a7523c1b591b5c4bee233c696400bf6150a068"
+      "sha256": "2e4b4a9399dfacf6d03143aed037c64715790a9a0bcb2c536727a02ef969f4aa"
     },
     {
       "path": "src/source_contract_runtime.rs",
       "lfNormalized": true,
-      "sha256": "96333fd99312396f7a0dc5147191f93a96f6458f6506836fcd3d54552027b321"
+      "sha256": "b2e2654f2508e6762d2ed6a5a1bd1f148a2e7aea073aa3d9373f55b84b8dab91"
     },
     {
       "path": "src/source_contract_values.rs",
@@ -245,7 +245,7 @@
     },
     {
       "path": "src/source_transition_witness_impl.rs",
-      "sha256": "f5d0dcd4a60d66f974bace90c0113b881278b86f1b263b9dbb428e6acb813be5",
+      "sha256": "a9652f024543591584e2c032b5b07a0490fec7269f6cd4e88763319fdf34d5ba",
       "lfNormalized": true
     },
     {
@@ -295,7 +295,7 @@
     },
     {
       "path": "src/txindex_source_owner.rs",
-      "sha256": "df2d3a5fa7a54590674bcae2d1882945a8342ef5be354029c7c47ef03ce098b4",
+      "sha256": "a8d2d5c0b584fdf7b513f4dc3fa58a99a96d3306c69157309dcae6ac9c0659ab",
       "lfNormalized": true
     },
     {
@@ -665,7 +665,7 @@
     },
     {
       "path": "src/source_main_production_impl.rs",
-      "sha256": "5600b4b86bd1797bbf145414c30af73fcc596ee227074ce02569eb200c9d6392",
+      "sha256": "07c285662b1512587c05a9b9bf93755f173c298bfb579593ad70a00c57b59924",
       "lfNormalized": true
     },
     {
@@ -1026,6 +1026,41 @@
     {
       "path": "src/source_main_native_historical_rows_impl.rs",
       "sha256": "a2a1ceca62d21b37cb19142e3ffb833c2655f55483e758695baf0a47e433b0ce",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_native_owners.rs",
+      "sha256": "88c8d5234c4740fd6166586de930f873c4bc5cc95566e683e90d9416c8f10ab3",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_bootstrap_core_impl.rs",
+      "sha256": "245818090195bb2dc3b1018510531d443dfc81bd677ed8e93bf3262bc1029423",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_bootstrap_runtime_impl.rs",
+      "sha256": "e6015b19e9aeab236816d0a0b0a9ad1a1fcc029df28aedad3e918f988c37bb82",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_bootstrap_state_impl.rs",
+      "sha256": "a36bd453ebf09bb027fb195de6a05a5f2a4b537d47c2ebd7613911b31a6ecf00",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_bootstrap_tests.rs",
+      "sha256": "8ec1a7c1f794af7dacaa29741de2d9306aae7aec8183c7b811a632222901d08e",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/txindex_startup_continuation_impl.rs",
+      "sha256": "4cf0955b292dcd7d21ef87872a342feb83b7cbd60f2c4fe3cbc4bd615d97c04a",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_bootstrap_old_dispatch_tests.rs",
+      "sha256": "f9a950bde4cbcf94fec15d18b5281ff5e4a2bdb4917809a85675e9c97873751e",
       "lfNormalized": true
     }
   ],

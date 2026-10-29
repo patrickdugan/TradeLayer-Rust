@@ -831,7 +831,23 @@
       "completedProcessRowsReexecutionEstablished": true,
       "fullSuitePromotion": false,
       "fullActiveColdFinancialRecoveryEstablished": false,
-      "commit": "77c1b3cc1929803406776f1c8eaa3fe811a1f87c"
+      "commit": "77c1b3cc1929803406776f1c8eaa3fe811a1f87c",
+      "nativeRecoveryScope": "Explicit validity AppendPending plans; inline native put IO remains open"
+    },
+    "orderedCallableBootstrap": {
+      "status": "current-Core-scoped-checks-pass",
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/ordered-bootstrap-core-integration.json",
+      "actualCoreTestsPassed": 22,
+      "parallelLibraryPassed": 392,
+      "publicCompatibilityPassed": 44,
+      "sourceScenes": 14,
+      "sourceObservationsPerNumericProfile": 99,
+      "CoreProjectionComparisons": 98,
+      "oldProviderStepCases": 7,
+      "fullSuitePromotion": false,
+      "globalMainIIFEEstablished": false,
+      "newPromiseV2Integrated": false
     }
   },
   "scope": "Full release code 21016cd remains 1,977 Rust executions plus 238 locked numeric checks. Later code 77c1b3c adds same-owner native Before/Intermediate/Post recovery, actual journaled supersession and completed raw ProcessRows historical source replay. Six native and nine cold-row/metadata controls plus one four-process-exit matrix pass; combined library 370 and public compatibility 25 pass. Counts overlap. Full active/catchup/timer/partial-command financial cold replay, durable generation escrow/wiring, startup ordering, broader source domains, host validation and authenticated complete-block proofs remain open.",
@@ -1157,10 +1173,11 @@
   },
   "validationRecord": "fixtures/reference_fidelity/rc-cycle-release-validation.json",
   "knownReferenceGaps": [
-    "Active/catchup/timer and partial-command financial process-loss replay",
-    "Durable retained-generation escrow and guarded active-service wiring across pruning",
-    "Global import/static initialization rejection and notification ordering",
-    "Broader receiver/cache/value/history domains; intended-host power loss and real-block CPU/RSS",
+    "Inline processBlockData/save-height/startup native IO retained operation intents/recovery",
+    "Full acknowledged active/catchup/timer/partial-command financial cold replay",
+    "Durable generation escrow and guarded service wiring across pruning",
+    "Global Main module/IIFEs, richer Promise/callback/thenable domains and startup process loss",
+    "Broader receiver/cache/value/history domains; intended-host IO/power loss and real-block CPU/RSS",
     "Fee/reward matcher/Ledger wiring and economic/consensus choices",
     "Authenticated chain/UTXO/actor inputs and complete-block proof coverage"
   ],

@@ -617,6 +617,9 @@ impl SourceContractReplay {
         }
     }
     pub fn checkpoint(&self) -> Result<Vec<u8>> {
+        if !self.runtime.ordered_bootstrap_closed_for_adoption() {
+            return Err(SourceContractReplayError::InvalidCheckpoint);
+        }
         let mut bytes = match self.runtime.policy() {
             SourceContractRuntimePolicy::OnchainV1 => MAGIC_V1.to_vec(),
             SourceContractRuntimePolicy::GlobalClearingV2 => MAGIC_V2.to_vec(),

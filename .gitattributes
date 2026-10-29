@@ -248,3 +248,14 @@ fixtures/main_production_parse_int.tsv text eol=lf
 fixtures/main_orchestration_review_*.jsonl text eol=lf
 
 fixtures/rewards_wide_vectors.tsv text eol=lf
+
+# Exact pinned bootstrap observer/loader bytes and independent old archives.
+scripts/ordered_bootstrap_original_source_base.cjs -text -whitespace
+scripts/native_main_bootstrap_failure_controls.cjs -text -whitespace
+fixtures/native_main_bootstrap_failures*.jsonl text eol=lf
+fixtures/ordered_bootstrap*.json text eol=lf
+fixtures/ordered_bootstrap_controls.jsonl text eol=lf
+fixtures/ordered_bootstrap_reference/*.tsv text eol=lf
+fixtures/ordered_bootstrap_reference/*.tlcr -text
+fixtures/ordered_bootstrap_step_reference/*.tsv text eol=lf
+fixtures/ordered_bootstrap_step_reference/*.tlcr -text

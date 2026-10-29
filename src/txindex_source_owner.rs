@@ -1352,3 +1352,5 @@ impl TxIndexSourceOwner {
         &self.class_client
     }
 }
+
+include!("txindex_startup_continuation_impl.rs");

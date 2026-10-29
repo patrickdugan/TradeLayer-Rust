@@ -76,6 +76,7 @@ rustfmt --check --edition 2021 \
   src/source_main_native_completed_guard_test_impl.rs \
   src/source_main_native_completed_empty_tests.rs src/source_main_native_completed_controller_impl.rs src/source_main_native_completed_recovery_tests.rs \
   src/source_main_native_service_client_scope_tests.rs \
+  src/source_main_bootstrap_core_impl.rs src/source_main_bootstrap_runtime_impl.rs src/source_main_bootstrap_state_impl.rs src/source_main_bootstrap_tests.rs src/txindex_startup_continuation_impl.rs src/source_main_bootstrap_old_dispatch_tests.rs \
   src/source_index_historical_validity_impl.rs src/source_index_historical_validity_tests.rs src/source_main_native_historical_replay_impl.rs src/source_main_native_historical_replay_tests.rs src/source_main_native_historical_rows_impl.rs \
   src/source_main_active_service_recovery_impl.rs src/source_main_active_service_recovery_runtime_impl.rs src/source_main_active_service_recovery_tests.rs src/source_main_active_wal_exit_tests.rs \
   src/compact_history_prefix_impl.rs src/source_index_history_read_impl.rs src/source_index_history_read_tests.rs src/storage_history_prefix_impl.rs src/storage_history_prefix_tests.rs \

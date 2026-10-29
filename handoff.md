@@ -1,6 +1,6 @@
 # TradeLayer-Rust release handoff
 
-Updated: 2026-10-29T17:34:09Z. This file is maintained after every integration/PR cycle.
+Updated: 2026-10-29T18:37:05Z. This file is maintained after every integration/PR cycle.
 
 ## Objective and operating rules
 
@@ -112,3 +112,13 @@ Next queued uncompiled candidates: ordered-bootstrap238947 plus source-loadera1f
 ## Tracker checkpoint after native recovery/cold rows
 
 Saved workbook and sidebar match code77c1b3c: last full release1,977 Rust/238 numeric checks; later scoped library370/public25 and four actual storage exits. Twelve cell changes preserve every transaction row, formula, style, filter, pane and open proof/parity gate. Evidence: fixtures/reference_fidelity/native-recovery-completeness.json.
+
+## Ordered callable bootstrap integration cycle
+
+Integrated238947 +source-loadera1f334 +old-dispatch58cb. All22 Core controls pass;14 source scenes compare98 initializer/caller/notification cutoffs, and both genuine numeric versions reproduce all99 source observations byte-for-byte. Existing wrong-policy/unconfigured step calls retain old outcomes/heads/checkpoint bytes. The new closed profile is outside old TLSW1 witness admission. Pending and notification-pending startup cannot checkpoint/adopt.
+
+Combined library392passed/fourignored,44public compatibility passes, all-target Clippy, Cargo fmt,206include format files, inventory and supply-chain pass. Evidence: `fixtures/reference_fidelity/ordered-bootstrap-core-integration.json`. First run had14 fixture-reader setup failures; the existing deeper fixture parser corrected those without production-limit/expectation changes. Global Main/reOrg/IIFE success, arbitrary thenables, rich callbacks and interrupted-startup financial recovery remain open. v2 Promise3b459 is queued/uncompiled.
+
+Scope clarification for77c1b3c: completed same-process native recovery covers explicit VALIDITY AppendPending plans. Inline processBlockData/save-height/startup puts during Advance still need a retained operation PC, per-operation durable intent and source-faithful success/error handling. Guarded refusal is not final parity and Advance/source prefixes must never be rerun as write recovery. Row/source worker has genuine inline caught-rejection/applied-write/lost-return cases; v8_main is implementing that seam.
+
+Next queued packages:6db historical native-await bridge,4e5 cold capability plus confirmed-discard guard739025,1869 actual generation escrow,8c062 guarded escrow wiring,7b839 readonly ACK history,b2ae typed history codec and3b459 Promise v2. Full acknowledged active/catchup/timer/partial financial cold replay, inline native IO recovery, guarded retention, host validation and authenticated complete-block proofs remain required. Last full all-target release stays1,977 Rust/238 numeric checks.

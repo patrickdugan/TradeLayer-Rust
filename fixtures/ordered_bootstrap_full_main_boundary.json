@@ -1,0 +1,31 @@
+{
+  "case": "full-main-module-unavailable-reorg-boundary",
+  "point": "unchanged-full-main-module-import-refusal",
+  "input": {
+    "availableBuiltins": [
+      "events",
+      "util"
+    ],
+    "otherModuleCapabilities": "unavailable"
+  },
+  "imports": [
+    "events",
+    "util",
+    "./reOrg.js"
+  ],
+  "result": {
+    "thrown": {
+      "name": "SourceBoundaryUnavailable",
+      "message": "Unavailable full Main module dependency: ./reOrg.js"
+    }
+  },
+  "exported": [
+    "object",
+    []
+  ],
+  "sourcePin": [
+    "native_genesis/source/main.js",
+    "006d59ba3d28d802b0e0c5be2d9d661b58caf1c919a704b3f0d40bc9613c4009"
+  ],
+  "claim": "No successful full Main module/IIFE initialization is inferred from class controls"
+}

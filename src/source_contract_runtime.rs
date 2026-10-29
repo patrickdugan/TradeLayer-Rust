@@ -734,6 +734,23 @@ impl SourceContractRuntime {
         for v in &call.arguments {
             v.validate()?
         }
+        if call.target == "SourceMainBootstrap.step"
+            && self.policy() == SourceContractRuntimePolicy::MainOrchestrationV12
+            && self.core.ordered_bootstrap_present()
+        {
+            return self.ordered_bootstrap_invoke(call);
+        }
+        if self.core.ordered_bootstrap_present()
+            && (!self.ordered_bootstrap_closed_for_adoption()
+                || [
+                    "SourceMain.configureColdStartup",
+                    "SourceMain.configureProduction",
+                    "SourceMainBootstrap.configure",
+                ]
+                .contains(&call.target.as_str()))
+        {
+            return Err(SourceRuleError::UnknownDependency);
+        }
         if self.core.main_callable_enabled()
             && (call.target.starts_with("Main.")
                 || (self.core.main_production_enabled()
@@ -1870,6 +1887,11 @@ impl ContractCore {
                 }
             }
         }
+        if self.policy == SourceContractRuntimePolicy::MainOrchestrationV12
+            && target == "SourceMainBootstrap.configure"
+        {
+            return self.ordered_bootstrap_configure(a);
+        }
         if self.main_production_enabled() && target == "SourceMain.configureColdStartup" {
             return self.source_main_startup_configure();
         }
@@ -2320,6 +2342,7 @@ impl SourceBackend for ContractCore {
                         "SourceMain.configureProduction",
                         "SourceMain.configureService",
                         "SourceMain.configureColdStartup",
+                        "SourceMainBootstrap.configure",
                     ]
                     .contains(&call.target.as_str()))
         {
@@ -3006,3 +3029,10 @@ mod native_main_service_block_tests;
 #[cfg(test)]
 #[path = "source_main_native_service_client_scope_tests.rs"]
 mod native_main_service_client_scope_tests;
+
+include!("source_main_bootstrap_state_impl.rs");
+include!("source_main_bootstrap_core_impl.rs");
+include!("source_main_bootstrap_runtime_impl.rs");
+#[cfg(test)]
+#[path = "source_main_bootstrap_tests.rs"]
+mod ordered_bootstrap_tests;

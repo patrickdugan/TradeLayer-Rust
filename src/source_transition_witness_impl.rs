@@ -241,6 +241,9 @@ impl SourceTransitionWitness {
         commands: &[SourceContractCommand],
         expected: &SourceTransitionExpectation<'_>,
     ) -> SourceTransitionResult<Self> {
+        if !before.runtime().ordered_bootstrap_legacy_witness_allowed() {
+            return Err(SourceTransitionError::UnsupportedCommand);
+        }
         let commands_commitment = source_transition_commands_commitment(commands)?;
         source_transition_count(before.head(), commands.len())?;
         source_transition_expected(
@@ -323,6 +326,9 @@ impl SourceTransitionWitness {
         }
         source_transition_pre_policy(&self.before, expected.policy)?;
         let mut replay = SourceContractReplay::from_checkpoint(&self.before, expected.pre_head)?;
+        if !replay.runtime().ordered_bootstrap_legacy_witness_allowed() {
+            return Err(SourceTransitionError::UnsupportedCommand);
+        }
         if replay.runtime().policy() != expected.policy {
             return Err(SourceTransitionError::WrongPolicy);
         }

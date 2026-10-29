@@ -1,0 +1,22 @@
+{
+  "sourceSHA256": "088be935ca15e2c1f7db14069d3bd3ebb49ace5b7d1c682357cddbd4008e5200",
+  "cases": [
+    "immediate-success-import-before-static",
+    "deferred-import-resolves-before-main",
+    "deferred-import-resolves-after-main",
+    "deferred-import-rejects-before-main",
+    "deferred-import-rejects-after-main",
+    "immediate-import-rejects-before-main",
+    "immediate-import-rejects-same-turn-main",
+    "deferred-static-rejects-after-main",
+    "immediate-static-rejects-same-turn-main",
+    "both-deferred-reject-import-first",
+    "both-deferred-reject-index-first",
+    "rejected-import-raw-call-preserves-original-init-reference-error",
+    "main-height-rpc-rejection-is-separate-from-bootstrap",
+    "static-rejection-explicit-late-handler"
+  ],
+  "observations": 98,
+  "projectionScope": "initializer requests, actual client fields, completed Main caller results, actual unhandled/late-handled ordering; full financial tables/prototypes/logs/global Main IIFEs not claimed",
+  "inputOrigin": "only raw input/spec/RPC control fields, never expectedProjection"
+}

@@ -23,6 +23,7 @@ pub enum NativeMainOwnerError {
     CoreIndexMirrorPresent,
     UnsupportedFoundationPolicy,
     MissingOrMismatchedMainClient,
+    InitializationPending,
     Store(String),
 }
 pub struct RejectedNativeMainOwners {
@@ -80,6 +81,9 @@ impl NativeMainOwners {
         }
         if financial.runtime().policy() != SourceContractRuntimePolicy::MainOrchestrationV12 {
             return Err(NativeMainOwnerError::UnsupportedFoundationPolicy);
+        }
+        if !financial.runtime().ordered_bootstrap_closed_for_adoption() {
+            return Err(NativeMainOwnerError::InitializationPending);
         }
         if !financial.runtime().collection("txIndex").is_empty() {
             return Err(NativeMainOwnerError::CoreIndexMirrorPresent);

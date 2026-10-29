@@ -38,6 +38,8 @@ jobs:
         run: python3 -m unittest discover -s tests -p test_rust_supply_chain.py -v
       - name: Check formatting
         run: cargo fmt --all -- --check
+      - name: Check ordered callable bootstrap formatting
+        run: rustfmt --check --edition 2021 src/source_main_bootstrap_core_impl.rs src/source_main_bootstrap_runtime_impl.rs src/source_main_bootstrap_state_impl.rs src/source_main_bootstrap_tests.rs src/txindex_startup_continuation_impl.rs src/source_main_bootstrap_old_dispatch_tests.rs
       - name: Check historical raw-source row formatting
         run: rustfmt --check --edition 2021 src/source_index_historical_validity_impl.rs src/source_index_historical_validity_tests.rs src/source_main_native_historical_replay_impl.rs src/source_main_native_historical_replay_tests.rs src/source_main_native_historical_rows_impl.rs
       - name: Check native recovery and exit include formatting
@@ -193,6 +195,13 @@ jobs:
           node scripts/full_dispatch_witness_command_pins.cjs
       - name: Genuine composed source contract execution observations
         run: node scripts/source_contract_execution_vectors.cjs --check --module-root "$RUNNER_TEMP/tl-secp-reference"
+      - name: Original ordered Main bootstrap source observations
+        env:
+          TRADELAYER_JS_ROOT: ${{ runner.temp }}/tl-secp-reference
+        run: |
+          node scripts/native_main_bootstrap_failure_controls.cjs --check
+          node scripts/native_main_bootstrap_failure_controls.cjs --lock --check
+          python3 scripts/derive_ordered_bootstrap_controls.py --check
       - name: Install exact source-lock numeric reference
         run: npm install --prefix "$RUNNER_TEMP/tl-bignumber-lock" --ignore-scripts --no-audit --no-fund --save-exact bignumber.js@9.1.2
       - name: Compare unchanged corpus with source-lock BigNumber
