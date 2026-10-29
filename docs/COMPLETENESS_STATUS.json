@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-29T22:44:36Z",
-  "inspectedCheckoutCommit": "e3a7245ccab65b2deb12a0ad5af9ba7b3b3e9b63",
+  "verifiedAtUtc": "2026-10-29T23:23:20Z",
+  "inspectedCheckoutCommit": "3337beaa192c611e5245547b36e583f2f85e821b",
   "verifiedImplementationCommit": "53e6a245d58265aa1a428f30c567aa67e610464c",
   "verifiedReleaseTests": 2142,
   "topLevelTests": 2141,
@@ -1140,7 +1140,8 @@
       "oldDescriptorBytesChanged": false,
       "callerWalNativeRecoveryOrColdAdmitted": false,
       "arbitraryCompetingNativePublicationsAdmitted": false,
-      "fullSuitePromotion": false
+      "fullSuitePromotion": false,
+      "commit": "3337beaa192c611e5245547b36e583f2f85e821b"
     },
     "mode4PhysicalAckClosure": {
       "RootIntegrated": true,
@@ -1152,7 +1153,8 @@
       "sourceAwaitResumedByReader": false,
       "physicalTraceIsAuthentication": false,
       "fullSourceColdReplayAdmitted": false,
-      "fullSuitePromotion": false
+      "fullSuitePromotion": false,
+      "commit": "3337beaa192c611e5245547b36e583f2f85e821b"
     },
     "retainedCallerStartWal": {
       "RootIntegrated": true,
@@ -1164,10 +1166,11 @@
       "constructorRetriedAfterExecution": false,
       "initializeFulfilledByAck": false,
       "selectedActionsAndNativeRecoveryAdmitted": false,
-      "fullSuitePromotion": false
+      "fullSuitePromotion": false,
+      "commit": "3337beaa192c611e5245547b36e583f2f85e821b"
     }
   },
-  "scope": "Full release stays 2,142 Rust /239 numeric at53e6a24/tested306d418. Later e3a7245 passes511 library,7 historical metadata controls,4 new Bitcoin transaction checks plus14 old input/witness checks,7 inline/6 Mode4 and6 source-owner checks. Main caller335 passes8 new controls/44 public; complete consensus handoff, caller WAL/recovery and cold Mode4 closure remain active. Bitcoin checks preserve parent/chain/TL authority denials; no complete-block proof or full source parity is inferred.",
+  "scope": "Full release stays 2,142 Rust /239 numeric at53e6a24/tested306d418. Later3337bea passes545 library and44public checks, including25new Mode4 ACK/native metadata closure and callerStartOnly controls. Retained consensusc5 passes9new controls on the same owner/invocation. Start syncs Intent before the actual constructor; ambiguous WAL retries retain the executed owner. Full raw-source Mode4 replay, selected caller native recovery, process loss, host/fuzz and authenticated proof gates remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -1459,14 +1462,14 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Full release stays 2,142 Rust /239 numeric at53e6a24/tested306d418. Later e3a7245 passes511 library,7 historical metadata controls,4 new Bitcoin transaction checks plus14 old input/witness checks,7 inline/6 Mode4 and6 source-owner checks. Main caller335 passes8 new controls/44 public; complete consensus handoff, caller WAL/recovery and cold Mode4 closure remain active. Bitcoin checks preserve parent/chain/TL authority denials; no complete-block proof or full source parity is inferred.",
+  "workbookNote": "Full release stays 2,142 Rust /239 numeric at53e6a24/tested306d418. Later3337bea passes545 library and44public checks, including25new Mode4 ACK/native metadata closure and callerStartOnly controls. Retained consensusc5 passes9new controls on the same owner/invocation. Start syncs Intent before the actual constructor; ambiguous WAL retries retain the executed owner. Full raw-source Mode4 replay, selected caller native recovery, process loss, host/fuzz and authenticated proof gates remain open.",
   "savedWorkbook": {
-    "sha256": "9fe99138d305452a8bf84515163bf39eb96d74341fe3bc34648201dc11265a72",
-    "bytes": 48067,
+    "sha256": "9bca5817739f67ee385e762e18c785dbe0013e71cabdfbeefa2777232001e1e7",
+    "bytes": 47964,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-29T22:44:36Z",
+    "asOfUtc": "2026-10-29T23:23:20Z",
     "rowHashes": {
-      "modules": 3290365916,
+      "modules": 379202434,
       "logic": 1151758449
     },
     "verifiedEdits": 13,
@@ -1474,10 +1477,10 @@
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-29T22:44:36Z",
-    "sha256": "9fe99138d305452a8bf84515163bf39eb96d74341fe3bc34648201dc11265a72",
+    "verifiedAtUtc": "2026-10-29T23:23:20Z",
+    "sha256": "9bca5817739f67ee385e762e18c785dbe0013e71cabdfbeefa2777232001e1e7",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 3290365916,
+    "moduleRowsFNV": 379202434,
     "logicRowsFNV": 1151758449,
     "intentionalCellChanges": 13,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
@@ -1485,7 +1488,7 @@
     "errors": 0,
     "releasePromotionPending": false,
     "laterScopedFullReleasePromotionPending": true,
-    "lastFocusedCodeCommit": "e3a7245ccab65b2deb12a0ad5af9ba7b3b3e9b63",
+    "lastFocusedCodeCommit": "3337beaa192c611e5245547b36e583f2f85e821b",
     "releaseBaselinePromoted": true,
     "releaseExecutions": 2142,
     "lockedReferenceExecutions": 239,
@@ -1507,10 +1510,10 @@
     "lockedReferenceExecutions": 238,
     "record": "fixtures/reference_fidelity/native-inline-release-validation.json"
   },
-  "focusedValidationRecord": "fixtures/reference_fidelity/historical-inline-database-core-integration.json",
-  "focusedImplementationCommit": "e3a7245ccab65b2deb12a0ad5af9ba7b3b3e9b63",
-  "focusedVerifiedAtUtc": "2026-10-29T22:35:07Z",
-  "lastFocusedCodeCommit": "e3a7245ccab65b2deb12a0ad5af9ba7b3b3e9b63",
+  "focusedValidationRecord": "fixtures/reference_fidelity/mode4-caller-start-core-integration.json",
+  "focusedImplementationCommit": "3337beaa192c611e5245547b36e583f2f85e821b",
+  "focusedVerifiedAtUtc": "2026-10-29T23:22:49Z",
+  "lastFocusedCodeCommit": "3337beaa192c611e5245547b36e583f2f85e821b",
   "recoveryPackage": {
     "commit": "9e2baa234a487c47f5a5160440b801347a668f30",
     "archiveSHA256": "acce9e5db7c65adef0246cf01581b4c06db0fd3cf356d1cdfa6528b47fff992f",

@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-29T23:22:49Z. Maintained after every tested integration cycle.
+Updated: 2026-10-29T23:23:20Z. Maintained after every tested integration cycle.
 
 ## Goal and boundaries
 
@@ -115,3 +115,7 @@ The actual parent invocation is now shared with catchup/service; original normal
 ## Latest Mode4 and caller Start integration
 
 Mode4 now verifies independently retained actual ordered CRC commit traces and physical Intent/escrow/supersession/Accepted/ACK closure, exact native historical preparation and final Post without granting a writer permit or resolving the financial source await. Caller Start is separately journaled before actual construction, with executed-once retention across ambiguous Accepted/ACK writes. The initial Mode4 scope commitment mismatch and compiler borrow fixes are recorded alongside retained failures. Old affected histories stay refused. Independent reader review remains a separate gate; full raw-action financial replay and selected caller WAL/native recovery are active next. New source/cold profiles are not admitted by old HISTORY/e0 executors. Nothing was pushed or published.
+
+## Latest scoped workbook refresh
+
+Saved/sidebar now show3337bea/545library and tested Mode4/callerStart/consensus scope, while the complete release stays2,142Rust/239numeric. Thirteen intentional edits preserve all48TL modules/one external reference/37transaction rows, formulas/styles/filters/panes/geometry and proof gates, with zero formula errors. Verification:`fixtures/reference_fidelity/mode4-caller-start-completeness.json`. No pending selected-caller/native-recovery or raw-sourceMode4 replay work is promoted.
