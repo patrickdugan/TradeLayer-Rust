@@ -849,6 +849,25 @@
       "globalMainIIFEEstablished": false,
       "newPromiseV2Integrated": false,
       "commit": "fdfa8ea5cea5e3b2f1834c2c27a4102b33c97777"
+    },
+    "historicalNativeAwait": {
+      "status": "current-Core-scoped-checks-pass",
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/historical-native-await-core-integration.json",
+      "newDistinctControls": 21,
+      "parallelLibraryPassed": 413,
+      "ignoredChildEntries": 4,
+      "publicCompatibilityPassed": 44,
+      "focusedHistoricalPassed": 15,
+      "newCoreRowPCControls": 3,
+      "includedRustFormatFiles": 218,
+      "sameActualIndexColdCapability": true,
+      "completedRowsProductionCaller": true,
+      "defaultLiveOrderPreserved": true,
+      "activeServiceEscrowWiringEstablished": false,
+      "fullAcknowledgedActionReplayEstablished": false,
+      "windowsDirectoryDurabilityEstablished": false,
+      "fullSuitePromotion": false
     }
   },
   "scope": "Full release remains code 21016cd: 1,977 Rust executions and 238 locked numeric checks. Latest fdfa8ea integrates ordered callable startup: 22 Core controls, 392 combined library and 44 public compatibility passes. Both genuine numeric versions reproduce 14 scenes/99 observations; Core compares 98 initializer/caller/notification cutoffs and preserves old default/refusal boundaries. Global Main/IIFEs, richer Promise v2, inline native put recovery, full acknowledged active/catchup/timer/partial financial cold replay, durable retention wiring, host validation and authenticated complete-block proofs remain open.",

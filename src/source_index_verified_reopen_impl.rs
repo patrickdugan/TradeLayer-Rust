@@ -148,7 +148,11 @@ impl SourceCompactIndex {
         {
             return Err(CompactIndexError::WrongContext);
         }
-        let index = Self { journal, directory };
+        let index = Self {
+            journal,
+            directory,
+            cold_execution: None,
+        };
         index.audit()?;
         let snapshot = index.snapshot()?;
         let content = index.native_complete_metadata_state()?;

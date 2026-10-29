@@ -1,5 +1,6 @@
-// Actual row source execution on one existing financial owner. Metadata awaits
-// are checked against actual cold historical views; no past batch is appended.
+// Production caller of the split source PC bridge. Existing completed-row
+// replay drives all three phases synchronously; active action replay may park
+// the SAME frame between prepare, recorded append and source resolution.
 impl SourceContractRuntime {
     pub(crate) fn native_main_historical_rows(
         &mut self,
@@ -8,77 +9,58 @@ impl SourceContractRuntime {
         height: V,
         live: bool,
     ) -> NativeMainRuntimeEvaluation {
-        let mut validity = vec![];
-        let mut consumed_rows = 0;
-        let mut storage_stop = None;
-        let result = if self.core.native_main_binding.is_none() {
-            Err(SourceRuleError::Backend)
-        } else if let V::Array(rows) = rows {
-            if rows.len() > MAX_TABLE_ROWS {
-                Err(SourceRuleError::Capacity)
-            } else {
-                let mut rows = Some(rows);
-                self.source_main_invoke_with(
-                    &DependencyCall {
-                        target: if live {
-                            "Main.processTx"
-                        } else {
-                            "Main.processTxSet"
-                        }
-                        .into(),
-                        arguments: vec![],
-                    },
-                    false,
-                    &mut |runtime, _| {
-                        let rows = rows
-                            .take()
-                            .ok_or(SourceRuleError::Backend)?
-                            .into_iter()
-                            .map(|row| {
-                                consumed_rows += 1;
-                                Ok(row)
-                            });
-                        runtime.source_main_process_rows_iter(
-                            rows,
-                            height.clone(),
-                            live,
-                            &mut |core, id, kind, valid, reason| {
-                                core.database("txIndex")?;
-                                core.check_failure("txIndex", "findAsync")?;
-                                let evaluated = history
-                                    .verify_source_update(
-                                        id.clone(),
-                                        kind,
-                                        valid,
-                                        reason,
-                                        &mut |_arguments| match core
-                                            .check_failure("txIndex", "updateAsync")
-                                        {
-                                            Ok(()) => Ok(None),
-                                            Err(Fault::Thrown(error)) => {
-                                                Ok(Some(DependencyReturn::PendingThrow(error)))
-                                            }
-                                            Err(Fault::Local(error)) => Err(error.into()),
-                                        },
-                                    )
-                                    .map_err(|error| {
-                                        native_main_store_fault(error, &mut storage_stop)
-                                    })?;
-                                let result = evaluated.outcome.clone();
-                                validity.push(evaluated);
-                                outcome(result).map(|_| ())
-                            },
-                        )
-                    },
-                )
+        let mut frame = match self.native_main_rows_begin(rows, height, live) {
+            Ok(frame) => frame,
+            Err(error) => {
+                return NativeMainRuntimeEvaluation {
+                    result: Err(error),
+                    validity: vec![],
+                    consumed_rows: 0,
+                    storage_stop: None,
+                    grouping: None,
+                }
             }
-        } else {
-            Err(SourceRuleError::InvalidInput)
+        };
+        let mut storage_stop = None;
+        let result = loop {
+            match self.native_main_rows_advance_historical(history, &mut frame) {
+                NativeMainRowStopV1::Complete => {
+                    break frame.result.clone().expect("actual source finish")
+                }
+                NativeMainRowStopV1::SourceStopped(error) => break Err(error),
+                NativeMainRowStopV1::StorageStopped(error) => {
+                    storage_stop = Some(error);
+                    break Err(SourceRuleError::Backend);
+                }
+                NativeMainRowStopV1::AwaitNativeWrite => {
+                    let Some(write) = frame.pending_historical_write() else {
+                        break Err(SourceRuleError::Backend);
+                    };
+                    let raw = write.exact_prepared_mutations().to_vec();
+                    match self.native_main_rows_verify_historical_append(history, &mut frame, &raw)
+                    {
+                        NativeMainRowStopV1::AwaitNativeWrite => (),
+                        NativeMainRowStopV1::StorageStopped(error) => {
+                            storage_stop = Some(error);
+                            break Err(SourceRuleError::Backend);
+                        }
+                        _ => break Err(SourceRuleError::Backend),
+                    }
+                    match self.native_main_rows_resolve_historical_post(history, &mut frame) {
+                        NativeMainRowStopV1::Complete | NativeMainRowStopV1::AwaitNativeWrite => (),
+                        NativeMainRowStopV1::SourceStopped(error) => break Err(error),
+                        NativeMainRowStopV1::StorageStopped(error) => {
+                            storage_stop = Some(error);
+                            break Err(SourceRuleError::Backend);
+                        }
+                    }
+                }
+            }
         };
         NativeMainRuntimeEvaluation {
             result,
-            validity,
-            consumed_rows,
+            validity: frame.validity,
+            consumed_rows: frame.consumed_rows,
             storage_stop,
             grouping: None,
         }

@@ -256,37 +256,13 @@ impl NativePreparedValidityWriteV1 {
     /// Bind complete actual read/content observations separately from original
     /// physical read/write pins. This does not authorize those inputs.
     pub fn durable_read_context(&self) -> V {
-        prepared_obj(vec![
-            ("profile", prepared_text(PREPARED_VALIDITY_PROFILE)),
-            (
-                "logical",
-                prepared_obj(vec![
-                    ("queryProfile", prepared_text(&self.query.profile)),
-                    ("predicate", prepared_text(&self.query.predicate)),
-                    (
-                        "visitedRows",
-                        prepared_text(self.query.visited_rows.to_string()),
-                    ),
-                    (
-                        "matchedRows",
-                        prepared_text(self.query.matched_rows.to_string()),
-                    ),
-                    (
-                        "queryChain",
-                        prepared_text(prepared_hex(&self.query.chain_sha256d)),
-                    ),
-                    ("complete", V::Bool(self.query.complete)),
-                    ("beforeState", prepared_state_value(&self.before_state)),
-                    ("afterState", prepared_state_value(&self.after_state)),
-                    ("updateArguments", V::Array(self.arguments.clone())),
-                ]),
-            ),
-            (
-                "readPhysical",
-                prepared_snapshot_value(&self.query.snapshot),
-            ),
-            ("writePhysical", prepared_snapshot_value(&self.put.expected)),
-        ])
+        prepared_durable_read_context(
+            &self.query,
+            &self.arguments,
+            &self.before_state,
+            &self.after_state,
+            &self.put.expected,
+        )
     }
 }
 fn prepared_validity_evaluation(
@@ -352,6 +328,7 @@ impl SourceCompactIndex {
         &mut self,
         plan: &NativePreparedValidityWriteV1,
     ) -> Result<StreamedValidityEvaluation> {
+        self.require_live_metadata_write()?;
         self.require_snapshot(&plan.put.expected)?;
         if self.native_store_context()? != plan.context
             || self.native_complete_metadata_state()? != plan.before_state
@@ -491,4 +468,35 @@ fn prepared_validity_read_snapshot(
             before_state,
         },
     )))
+}
+
+fn prepared_durable_read_context(
+    query: &PrefixQueryReceipt,
+    arguments: &[V],
+    before_state: &NativeMetadataStateReceiptV1,
+    after_state: &NativeMetadataStateReceiptV1,
+    write_expected: &MetadataSnapshot,
+) -> V {
+    prepared_obj(vec![
+        ("profile", prepared_text(PREPARED_VALIDITY_PROFILE)),
+        (
+            "logical",
+            prepared_obj(vec![
+                ("queryProfile", prepared_text(&query.profile)),
+                ("predicate", prepared_text(&query.predicate)),
+                ("visitedRows", prepared_text(query.visited_rows.to_string())),
+                ("matchedRows", prepared_text(query.matched_rows.to_string())),
+                (
+                    "queryChain",
+                    prepared_text(prepared_hex(&query.chain_sha256d)),
+                ),
+                ("complete", V::Bool(query.complete)),
+                ("beforeState", prepared_state_value(before_state)),
+                ("afterState", prepared_state_value(after_state)),
+                ("updateArguments", V::Array(arguments.to_vec())),
+            ]),
+        ),
+        ("readPhysical", prepared_snapshot_value(&query.snapshot)),
+        ("writePhysical", prepared_snapshot_value(write_expected)),
+    ])
 }

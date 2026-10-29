@@ -30,6 +30,7 @@ pub enum CompactIndexError {
     StaleSnapshot,
     Corrupt,
     Limit,
+    ColdWriteRefused,
 }
 impl From<StorageError> for CompactIndexError {
     fn from(v: StorageError) -> Self {
@@ -83,6 +84,7 @@ struct Directory {
 pub struct SourceCompactIndex {
     journal: Journal,
     directory: Directory,
+    cold_execution: Option<u64>,
 }
 fn page_key(n: u32) -> String {
     format!("source-txindex-page-{n:08x}")
@@ -273,14 +275,22 @@ impl SourceCompactIndex {
             key: DIRECTORY.into(),
             value: directory.encode()?,
         }])?;
-        Ok(Self { journal, directory })
+        Ok(Self {
+            journal,
+            directory,
+            cold_execution: None,
+        })
     }
     pub fn open(root: &Path, namespace: Namespace, expected: &MetadataSnapshot) -> Result<Self> {
         require_namespace(root, &namespace)?;
         let (journal, _) = Journal::open_existing(root, namespace, Recovery::RejectIncompleteTail)?;
         let directory =
             Directory::decode(journal.get(DIRECTORY)?.ok_or(CompactIndexError::Corrupt)?)?;
-        let result = Self { journal, directory };
+        let result = Self {
+            journal,
+            directory,
+            cold_execution: None,
+        };
         result.require_snapshot(expected)?;
         result.audit()?;
         Ok(result)
@@ -390,6 +400,7 @@ impl SourceCompactIndex {
     /// Each actual source DB operation is one Journal publication. Two writes
     /// inside saveMaxHeight are deliberately two publications, not one repair.
     fn put(&mut self, row: V) -> Result<()> {
+        self.require_live_metadata_write()?;
         let id = row_id(&row)?;
         let mut directory = self.directory.clone();
         let i = directory
@@ -476,6 +487,7 @@ impl SourceCompactIndex {
         ids: &[String],
         new_context: &str,
     ) -> Result<MetadataSnapshot> {
+        self.require_live_metadata_write()?;
         self.require_snapshot(expected)?;
         if ids.len() > 1024 || new_context.is_empty() || new_context.len() > 4096 {
             return Err(CompactIndexError::Limit);
@@ -883,11 +895,13 @@ include!("source_main_native_owner_access_impl.rs");
 include!("source_main_native_validity_impl.rs");
 include!("source_index_prepared_put_impl.rs");
 include!("source_index_prepared_validity_impl.rs");
+include!("source_index_cold_execution_impl.rs");
 include!("source_index_historical_validity_impl.rs");
 include!("source_index_row_binding_impl.rs");
 include!("source_main_native_no_index_index_tests_impl.rs");
 include!("source_index_verified_reopen_impl.rs");
 include!("source_index_supersession_binding_impl.rs");
+include!("source_index_generation_escrow_impl.rs");
 #[cfg(test)]
 #[path = "source_index_prepared_validity_tests.rs"]
 mod prepared_validity_tests;
@@ -902,3 +916,23 @@ mod history_read_tests;
 #[cfg(test)]
 #[path = "source_index_historical_validity_tests.rs"]
 mod historical_validity_tests;
+
+#[cfg(test)]
+#[path = "source_index_cold_execution_tests.rs"]
+mod cold_execution_tests;
+
+#[cfg(test)]
+#[path = "source_index_cold_discard_tests.rs"]
+mod cold_discard_tests;
+
+#[cfg(test)]
+#[path = "source_index_generation_escrow_tests.rs"]
+mod generation_escrow_index_tests;
+
+#[cfg(test)]
+#[path = "source_index_historical_native_await_tests.rs"]
+mod historical_native_await_tests;
+
+#[cfg(test)]
+#[path = "source_index_cold_escrow_guard_tests.rs"]
+mod cold_escrow_guard_tests;

@@ -109,7 +109,11 @@ impl SourceCompactIndex {
         )?;
         let directory =
             Directory::decode(journal.get(DIRECTORY)?.ok_or(CompactIndexError::Corrupt)?)?;
-        let owner = Self { journal, directory };
+        let owner = Self {
+            journal,
+            directory,
+            cold_execution: None,
+        };
         owner.require_snapshot(&expected_current.metadata)?;
         if owner.capture_verified_history_pin()? != *expected_current {
             return Err(CompactIndexError::WrongContext);

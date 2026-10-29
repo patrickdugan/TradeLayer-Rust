@@ -110,6 +110,7 @@ impl SourceCompactIndex {
         &mut self,
         expected: &MetadataSnapshot,
     ) -> Result<(MetadataSnapshot, crate::compact_journal::CompactionReport)> {
+        self.require_live_metadata_write()?;
         self.require_snapshot(expected)?;
         let plan = self.journal.prepare_compaction()?;
         let report = self.journal.publish_compaction(&plan)?;
@@ -121,6 +122,7 @@ impl SourceCompactIndex {
         &mut self,
         config: crate::compact_journal::CompactionConfig,
     ) -> Result<()> {
+        self.require_live_metadata_write()?;
         self.journal.configure(config)?;
         Ok(())
     }

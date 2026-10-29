@@ -1,6 +1,6 @@
 # TradeLayer-Rust release handoff
 
-Updated: 2026-10-29T18:39:31Z. This file is maintained after every integration/PR cycle.
+Updated: 2026-10-29T18:57:11Z. This file is maintained after every integration/PR cycle.
 
 ## Objective and operating rules
 
@@ -126,3 +126,11 @@ Next queued packages:6db historical native-await bridge,4e5 cold capability plus
 ## Tracker checkpoint after ordered bootstrap
 
 The saved workbook and existing sidebar now match tested code `fdfa8ea`: 392 combined library tests, 44 public compatibility checks and 22 ordered-startup Core controls. Both genuine numeric profiles reproduce 14 source scenes/99 observations; Core compares the 98 initializer/caller/notification cutoffs. All 37 transaction rows, proof/parity gates, formulas, effective styles, filters, panes and geometry were preserved in 12 intentional cell changes. Verification: `fixtures/reference_fidelity/ordered-bootstrap-completeness.json`. Full release remains 1,977 Rust/238 locked numeric checks at implementation `21016cd`, tested `e99ef48`; later scoped integration is not full-suite promotion.
+
+## Historical native-await / cold guard / escrow cycle
+
+Integrated frozen4e5 → discard-fix739 → generation-escrow1869 → historical-await6db, including FIRST-statement guards on both escrow IO entries. Actual shared RowPC now parks at source-computed metadata preparation, verifies the recorded full Post/native mutation, then resolves the same await once. Existing completed-row replay uses this bridge. No financial answers are imported; no same-process action retry is introduced. Original live query/update-hook/prepare order and page-only hot writes remain.
+
+All21 new controls pass inside the actual Core library:413 library/four ignored,44 public compatibility passes,15 focused historical passes including3new Core and5prior completed-row cases. Clippy warnings denied, Cargo fmt,218 include format files, route inventory and supply-chain checks pass. Evidence: `fixtures/reference_fidelity/historical-native-await-core-integration.json`; independent older-provider escrow/cursor review: `fixtures/reference_fidelity/native-generation-escrow-independent-review.json`. The first launcher ran outside the repository and failed before compilation; the corrected launcher and all compiled controls pass, with the initial log retained. No source/test corrections were needed after mounting.
+
+Next:8c guarded active-service escrow WAL wiring,b2ae typed historical pin codec,7b read-only ACK history; row is implementing a sealed original-prefix carrier/full acknowledged-action replay with actual later Post retained, and v8_main is implementing inline processBlockData/save-height/startup source PCs. Promise-v2 candidate3b459 remains queued. Full active/catchup/timer/partial financial cold replay and Windows directory/power-loss validation remain open. Full release baseline remains1,977 Rust/238 numeric checks; this scoped cycle does not promote it. The saved workbook last verified fdfa8ea/392library; a later tracker refresh must compare this cycle separately. No push/PR/merge.

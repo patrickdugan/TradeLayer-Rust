@@ -82,6 +82,27 @@ fn native_pin_value(pin: &NativeAppendPin) -> V {
         ("manifest", text(&hex(&p.manifest_sha256d))),
     ])
 }
+
+pub(crate) fn native_prepared_mutation_bytes(mutations: &[Mutation]) -> Result<Vec<u8>> {
+    let mut raw_mutations = b"TLNM\x01".to_vec();
+    raw_mutations.extend_from_slice(&(mutations.len() as u32).to_be_bytes());
+    for mutation in mutations {
+        let (tag, key, value) = match mutation {
+            Mutation::Put { key, value } => (0u8, key, value.as_slice()),
+            Mutation::Delete { key } => (1u8, key, &[][..]),
+        };
+        raw_mutations.push(tag);
+        for part in [key.as_bytes(), value] {
+            raw_mutations.extend_from_slice(&(part.len() as u32).to_be_bytes());
+            raw_mutations.extend_from_slice(part);
+        }
+    }
+    if raw_mutations.len() > MAX_BLOB {
+        return Err(NativeIntentStoreError::Capacity);
+    }
+    Ok(raw_mutations)
+}
+
 impl NativeWriteIntentCandidatesV1 {
     /// Actual opaque plan input. No constructor from a checksum/file record.
     pub fn from_prepared_append(plan: &NativeAppendPlan, read_context: V) -> Result<Self> {
@@ -91,22 +112,7 @@ impl NativeWriteIntentCandidatesV1 {
             ("catalog", text(&catalog.to_string_lossy())),
             ("append", native_pin_value(plan.after())),
         ]);
-        let mut raw_mutations = b"TLNM\x01".to_vec();
-        raw_mutations.extend_from_slice(&(plan.mutations().len() as u32).to_be_bytes());
-        for mutation in plan.mutations() {
-            let (tag, key, value) = match mutation {
-                Mutation::Put { key, value } => (0u8, key, value.as_slice()),
-                Mutation::Delete { key } => (1u8, key, &[][..]),
-            };
-            raw_mutations.push(tag);
-            for part in [key.as_bytes(), value] {
-                raw_mutations.extend_from_slice(&(part.len() as u32).to_be_bytes());
-                raw_mutations.extend_from_slice(part);
-            }
-        }
-        if raw_mutations.len() > MAX_BLOB {
-            return Err(NativeIntentStoreError::Capacity);
-        }
+        let raw_mutations = native_prepared_mutation_bytes(plan.mutations())?;
         let facts = obj(&[
             ("profile", text("TL-MAIN-NATIVE-PREPARED-INTENT-13-1")),
             ("identity", text(identity)),

@@ -334,3 +334,6 @@ fn historical_actual_failure_facts_reexecute_fatal_validity_without_supplied_ver
         );
     }
 }
+
+#[path = "source_main_native_historical_row_bridge_tests.rs"]
+mod historical_row_bridge_tests;

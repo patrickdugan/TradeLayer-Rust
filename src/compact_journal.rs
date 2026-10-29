@@ -19,6 +19,7 @@ include!("compact_native_supersession_binding_impl.rs");
 include!("compact_native_main_owner_access_impl.rs");
 include!("compact_verified_prefix_impl.rs");
 include!("compact_history_prefix_impl.rs");
+include!("compact_generation_escrow_impl.rs");
 const MAX_GENERATIONS: usize = 64;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct CatalogPublication {
@@ -1006,3 +1007,7 @@ impl CompactingJournal {
 #[cfg(test)]
 #[path = "source_native_append_plan_tests.rs"]
 mod source_native_append_plan_tests;
+
+#[cfg(test)]
+#[path = "compact_generation_escrow_tests.rs"]
+mod generation_escrow_tests;

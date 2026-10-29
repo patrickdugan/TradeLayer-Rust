@@ -2959,6 +2959,7 @@ include!("source_main_startup_impl.rs");
 include!("source_main_native_runtime_impl.rs");
 include!("source_main_native_historical_rows_impl.rs");
 include!("source_main_native_row_continuation_impl.rs");
+include!("source_main_native_historical_row_bridge_impl.rs");
 include!("source_main_native_completed_runtime_test_impl.rs");
 include!("source_main_native_no_index_runtime_tests_impl.rs");
 include!("source_main_native_catchup_prepare_impl.rs");

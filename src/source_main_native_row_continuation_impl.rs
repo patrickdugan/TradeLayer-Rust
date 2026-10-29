@@ -36,6 +36,7 @@ struct NativeMainActualRowV1 {
     pc: NativeMainRowPcV1,
     validity_started: bool,
     write: Option<Box<NativePreparedValidityWriteV1>>,
+    historical_write: Option<Box<crate::source_compact_index_v2::NativeHistoricalValidityAwaitV1>>,
     ambiguous: Option<String>,
 }
 pub(crate) struct NativeMainRowContinuationV1 {
@@ -54,6 +55,13 @@ impl NativeMainRowContinuationV1 {
     pub(crate) fn pending_write(&self) -> Option<&NativePreparedValidityWriteV1> {
         self.current.as_ref()?.write.as_deref()
     }
+
+    pub(crate) fn pending_historical_write(
+        &self,
+    ) -> Option<&crate::source_compact_index_v2::NativeHistoricalValidityAwaitV1> {
+        self.current.as_ref()?.historical_write.as_deref()
+    }
+
     pub(crate) fn result(&self) -> Option<&Result<DependencyReturn, SourceRuleError>> {
         self.result.as_ref()
     }
@@ -115,7 +123,13 @@ impl NativeMainRowContinuationV1 {
                 "row/write",
                 &row.write
                     .as_ref()
-                    .map_or(V::Null, |write| write.durable_read_context()),
+                    .map(|write| write.durable_read_context())
+                    .or_else(|| {
+                        row.historical_write
+                            .as_ref()
+                            .map(|write| write.durable_read_context())
+                    })
+                    .unwrap_or(V::Null),
                 visitor,
             )?;
         }
@@ -362,6 +376,7 @@ impl SourceContractRuntime {
         frame.validity.push(evaluation);
         let row = frame.current.as_mut().expect("actual row");
         row.write = None;
+        row.historical_write = None;
         row.ambiguous = None;
         match result {
             Ok(_) => row.pc = NativeMainRowPcV1::Done,
@@ -375,6 +390,21 @@ impl SourceContractRuntime {
         &mut self,
         index: &SourceCompactIndex,
         frame: &mut NativeMainRowContinuationV1,
+    ) -> NativeMainRowStopV1 {
+        self.native_main_rows_advance_with_preparer(frame, &mut |core, row| {
+            native_main_prepare_live_row_validity(core, index, row)
+        })
+    }
+    fn native_main_rows_advance_with_preparer(
+        &mut self,
+        frame: &mut NativeMainRowContinuationV1,
+        prepare: &mut impl FnMut(
+            &mut ContractCore,
+            &NativeMainActualRowV1,
+        ) -> Result<
+            NativeMainPreparedRowValidityV1,
+            NativeMainPrepareRowFailureV1,
+        >,
     ) -> NativeMainRowStopV1 {
         loop {
             if frame.result.is_some() {
@@ -399,6 +429,7 @@ impl SourceContractRuntime {
                     pc: NativeMainRowPcV1::Prefix,
                     validity_started: false,
                     write: None,
+                    historical_write: None,
                     ambiguous: None,
                 });
             }
@@ -406,7 +437,7 @@ impl SourceContractRuntime {
             if let Some(error) = &row.ambiguous {
                 return NativeMainRowStopV1::StorageStopped(error.clone());
             }
-            if row.write.is_some() {
+            if row.write.is_some() || row.historical_write.is_some() {
                 return NativeMainRowStopV1::AwaitNativeWrite;
             }
             match &row.pc {
@@ -487,51 +518,20 @@ impl SourceContractRuntime {
                             }
                         }
                     }
-                    let query = index.snapshot().and_then(|pin| {
-                        index.prepare_validity_read(
-                            &pin,
-                            row.id.clone(),
-                            row.kind.clone(),
-                            row.params.get("valid"),
-                            row.params.get("reason"),
-                        )
-                    });
-                    let query = match query {
-                        Ok(query) => query,
-                        Err(error) => {
-                            row.ambiguous = Some(error.to_string());
-                            continue;
-                        }
-                    };
-                    let selected = match query {
-                        NativePreparedValidityQueryV1::Complete(evaluation) => {
-                            self.native_main_row_validity_result(frame, *evaluation);
-                            continue;
-                        }
-                        NativePreparedValidityQueryV1::Selected(selected) => selected,
-                    };
-                    let prepared = match self.core.check_failure("txIndex", "updateAsync") {
-                        Ok(()) => index
-                            .snapshot()
-                            .and_then(|pin| selected.prepare_write(index, &pin)),
-                        Err(Fault::Thrown(error)) => {
-                            selected.source_rejected(index, error).map(|evaluation| {
-                                NativePreparedValidityOperationV1::Complete(Box::new(evaluation))
-                            })
-                        }
-                        Err(Fault::Local(error)) => {
-                            row.pc = NativeMainRowPcV1::Stopped(error);
-                            continue;
-                        }
-                    };
-                    match prepared {
-                        Ok(NativePreparedValidityOperationV1::Complete(evaluation)) => {
+                    match prepare(&mut self.core, row) {
+                        Ok(NativeMainPreparedRowValidityV1::Complete(evaluation)) => {
                             self.native_main_row_validity_result(frame, *evaluation)
                         }
-                        Ok(NativePreparedValidityOperationV1::Write(write)) => {
-                            row.write = Some(write)
+                        Ok(NativeMainPreparedRowValidityV1::Live(write)) => row.write = Some(write),
+                        Ok(NativeMainPreparedRowValidityV1::Historical(write)) => {
+                            row.historical_write = Some(write)
                         }
-                        Err(error) => row.ambiguous = Some(error.to_string()),
+                        Err(NativeMainPrepareRowFailureV1::Local(error)) => {
+                            row.pc = NativeMainRowPcV1::Stopped(error)
+                        }
+                        Err(NativeMainPrepareRowFailureV1::Metadata(error)) => {
+                            row.ambiguous = Some(error.to_string())
+                        }
                     }
                 }
             }
