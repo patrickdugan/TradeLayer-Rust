@@ -45,6 +45,8 @@ pub enum NativeMainActiveWalPhaseV1 {
     NativeRecoveryRequired,
     NativeSupersessionIntent,
     NativeSupersessionAppend,
+    EscrowPrepare,
+    EscrowBoundIntent,
 }
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct NativeMainActiveWalReceiptV1 {
@@ -63,6 +65,10 @@ enum ActiveWalOwner {
     Active(Box<SourceMainNativeActiveServiceV1>),
 }
 struct ActiveWalPending {
+    escrow_permit: Option<crate::source_compact_index_v2::SourceIndexGenerationEscrowPermitV1>,
+    escrow_chain: Option<Vec<u8>>,
+    escrow_prior: Option<ActiveServiceWalBlobV1>,
+    escrow_route: Option<ActiveEscrowRoute>,
     native_recovery: Option<ActiveWalNativeRecovery>,
     history_before: Option<Vec<u8>>,
     history_post: Option<Vec<u8>>,
@@ -110,6 +116,7 @@ pub struct SourceMainNativeDurableActiveServiceV1 {
     acknowledged_append: Option<V>,
     observation_limit: usize,
     history_enabled: bool,
+    generation_escrow: Option<ActiveServiceEscrowConfigV1>,
     #[cfg(test)]
     barrier_fault: Option<(
         NativeMainActiveWalPhaseV1,
@@ -136,6 +143,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
         filesystem: crate::source_contract_replay::source_durable::SourceDurableFilesystem,
         observation_limit: usize,
         history_enabled: bool,
+        generation_escrow: Option<ActiveServiceEscrowConfigV1>,
     ) -> Result<Self, Box<RejectedNativeMainActiveWalV1>> {
         let checked = (|| {
             if observation_limit == 0 || observation_limit > ACTIVE_WAL_OBSERVATION_LIMIT {
@@ -169,6 +177,21 @@ impl SourceMainNativeDurableActiveServiceV1 {
             } else {
                 None
             };
+            if let Some(config) = &generation_escrow {
+                origin
+                    .insert("profile", s(ACTIVE_ESCROW_WAL_PROFILE))
+                    .map_err(active_wal_backend)?;
+                origin
+                    .insert(
+                        "generationEscrow",
+                        obj(&[
+                            ("profile", s("TL-COMPACT-GENERATION-ESCROW-13-1")),
+                            ("root", s(&config.root.to_string_lossy())),
+                            ("durability", s(&format!("{:?}", config.durability))),
+                        ]),
+                    )
+                    .map_err(active_wal_backend)?;
+            }
             let head = sha256(&active_wal_bytes(&origin)?);
             let wal = ActiveServiceWalV1::create(root.as_ref(), namespace, origin, filesystem)?;
             Ok((archive, origin_pin, origin_history, head, wal))
@@ -187,6 +210,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
                 acknowledged_append: None,
                 observation_limit,
                 history_enabled,
+                generation_escrow,
                 #[cfg(test)]
                 barrier_fault: None,
             }),
@@ -194,7 +218,9 @@ impl SourceMainNativeDurableActiveServiceV1 {
         }
     }
     pub fn profile(&self) -> &'static str {
-        if self.history_enabled {
+        if self.generation_escrow.is_some() {
+            ACTIVE_ESCROW_WAL_PROFILE
+        } else if self.history_enabled {
             "TL-MAIN-ACTIVE-SERVICE-HISTORY-WAL-13-1"
         } else {
             NATIVE_MAIN_DURABLE_ACTIVE_SERVICE_PROFILE
@@ -272,7 +298,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
             .map_err(active_wal_backend)?;
         Ok(())
     }
-    fn owner_observation(&self) -> ActiveWalResult<Vec<u8>> {
+    fn owner_observation_unscoped(&self) -> ActiveWalResult<Vec<u8>> {
         match self.owner.as_ref().expect("retained actual owner") {
             ActiveWalOwner::Ready(o) => Self::ready_observation(o, self.observation_limit),
             ActiveWalOwner::Active(o) => {
@@ -359,6 +385,10 @@ impl SourceMainNativeDurableActiveServiceV1 {
             }
         }
         self.pending = Some(ActiveWalPending {
+            escrow_permit: None,
+            escrow_chain: None,
+            escrow_prior: None,
+            escrow_route: None,
             native_recovery: None,
             history_before,
             history_post: None,
@@ -405,6 +435,12 @@ impl SourceMainNativeDurableActiveServiceV1 {
         }
         if let Some(raw) = &self.origin_history {
             refs.push(ActiveServiceWalBlobV1::of(raw)?);
+        }
+        if let Some(raw) = &p.escrow_chain {
+            refs.push(ActiveServiceWalBlobV1::of(raw)?);
+        }
+        if let Some(prior) = &p.escrow_prior {
+            refs.push(prior.clone());
         }
         if let Some(previous) = self.history.last() {
             refs.push(previous.entry.clone())
@@ -479,6 +515,11 @@ impl SourceMainNativeDurableActiveServiceV1 {
                     .map_err(active_wal_backend)?;
             }
         }
+        if let Some(raw) = &p.escrow_chain {
+            record
+                .insert("generationEscrow", ActiveServiceWalBlobV1::of(raw)?.value())
+                .map_err(active_wal_backend)?;
+        }
         Ok(record)
     }
     fn write_barrier(&mut self, stage: &str) -> ActiveWalResult<()> {
@@ -501,6 +542,9 @@ impl SourceMainNativeDurableActiveServiceV1 {
         {
             let p = self.pending.as_ref().expect("pending");
             let mut blobs = vec![p.raw.clone(), p.before.clone(), self.origin_archive.clone()];
+            if let Some(raw) = &p.escrow_chain {
+                blobs.push(raw.clone());
+            }
             if let Some(raw) = &self.origin_history {
                 blobs.push(raw.clone());
             }
@@ -550,8 +594,11 @@ impl SourceMainNativeDurableActiveServiceV1 {
                 }
                 NativeMainActiveWalPhaseV1::Intent => {
                     self.write_barrier("Intent")?;
-                    self.execute_once()?;
-                    self.phase = NativeMainActiveWalPhaseV1::Observe;
+                    self.after_raw_action_intent()?;
+                }
+                NativeMainActiveWalPhaseV1::EscrowPrepare
+                | NativeMainActiveWalPhaseV1::EscrowBoundIntent => {
+                    self.advance_escrow_barrier()?;
                 }
                 NativeMainActiveWalPhaseV1::Observe => {
                     if let Some(ActiveWalOwner::Active(service)) = &mut self.owner {
@@ -576,6 +623,11 @@ impl SourceMainNativeDurableActiveServiceV1 {
                                 "nativeRecovery",
                                 ActiveServiceWalBlobV1::of(&recovery.raw)?.value(),
                             )
+                            .map_err(active_wal_backend)?;
+                    }
+                    if let Some(raw) = &p.escrow_chain {
+                        diagnostic
+                            .insert("generationEscrow", ActiveServiceWalBlobV1::of(raw)?.value())
                             .map_err(active_wal_backend)?;
                     }
                     let suffix = active_wal_bytes(&diagnostic)?;
@@ -603,7 +655,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
             }
         }
     }
-    fn execute_once(&mut self) -> ActiveWalResult<()> {
+    fn execute_once_unscoped(&mut self) -> ActiveWalResult<()> {
         let pending = self
             .pending
             .as_mut()
@@ -650,9 +702,20 @@ impl SourceMainNativeDurableActiveServiceV1 {
                 }
             }
             ActiveWalOwner::Active(mut owner) => {
-                let result = owner
-                    .expectation()
-                    .and_then(|expected| owner.apply(&expected, action).map(|_| ()));
+                let result = owner.expectation().and_then(|expected| {
+                    if self.generation_escrow.is_some()
+                        && matches!(action, NativeMainActiveServiceActionV1::AppendPending)
+                    {
+                        owner
+                            .apply_escrow_append(
+                                &expected,
+                                self.pending.as_ref().and_then(|p| p.escrow_permit.as_ref()),
+                            )
+                            .map(|_| ())
+                    } else {
+                        owner.apply(&expected, action).map(|_| ())
+                    }
+                });
                 if let Err(error) = result {
                     if !owner.observation_pending() {
                         self.pending.as_mut().expect("pending").source_error = Some(error);
@@ -733,6 +796,11 @@ impl SourceMainNativeDurableActiveServiceV1 {
                     .map_err(active_wal_backend)?;
             }
         }
+        if let Some(raw) = &p.escrow_chain {
+            entry_value
+                .insert("generationEscrow", ActiveServiceWalBlobV1::of(raw)?.value())
+                .map_err(active_wal_backend)?;
+        }
         let raw = active_wal_bytes(&entry_value)?;
         let entry = ActiveServiceWalBlobV1::of(&raw)?;
         let mut chain = b"Native13/ActiveWalPhysicalAck/v1".to_vec();
@@ -795,12 +863,13 @@ impl SourceMainNativeDurableActiveServiceV1 {
                 p.plan = None;
                 match self.phase {
                     NativeMainActiveWalPhaseV1::NativeSupersessionIntent => {
-                        self.install_native_replacement()?;
-                        self.phase = NativeMainActiveWalPhaseV1::NativeSupersessionAppend;
+                        self.after_native_supersession_intent()?;
+                    }
+                    NativeMainActiveWalPhaseV1::EscrowBoundIntent => {
+                        self.execute_escrow_route()?;
                     }
                     NativeMainActiveWalPhaseV1::Intent => {
-                        self.execute_once()?;
-                        self.phase = NativeMainActiveWalPhaseV1::Observe;
+                        self.after_raw_action_intent()?;
                     }
                     NativeMainActiveWalPhaseV1::Accepted => {
                         self.phase = NativeMainActiveWalPhaseV1::Ack;

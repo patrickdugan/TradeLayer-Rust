@@ -381,3 +381,5 @@ impl CompactingJournal {
         self.commit_prepared_native_append(plan)
     }
 }
+
+include!("compact_generation_independent_prefix_impl.rs");

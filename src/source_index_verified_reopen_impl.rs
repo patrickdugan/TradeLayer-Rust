@@ -152,6 +152,7 @@ impl SourceCompactIndex {
             journal,
             directory,
             cold_execution: None,
+            inline_escrow_guard: None,
         };
         index.audit()?;
         let snapshot = index.snapshot()?;

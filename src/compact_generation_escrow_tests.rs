@@ -311,3 +311,6 @@ fn escrow_actual_cross_publication_native_append_requires_sealed_synced_copy() {
         &[7u8; 8000]
     );
 }
+
+#[path = "compact_independent_escrow_tests.rs"]
+mod independent_prefix_tests;

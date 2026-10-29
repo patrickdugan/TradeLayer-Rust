@@ -85,6 +85,7 @@ pub struct SourceCompactIndex {
     journal: Journal,
     directory: Directory,
     cold_execution: Option<u64>,
+    inline_escrow_guard: Option<u64>,
 }
 fn page_key(n: u32) -> String {
     format!("source-txindex-page-{n:08x}")
@@ -279,6 +280,7 @@ impl SourceCompactIndex {
             journal,
             directory,
             cold_execution: None,
+            inline_escrow_guard: None,
         })
     }
     pub fn open(root: &Path, namespace: Namespace, expected: &MetadataSnapshot) -> Result<Self> {
@@ -290,6 +292,7 @@ impl SourceCompactIndex {
             journal,
             directory,
             cold_execution: None,
+            inline_escrow_guard: None,
         };
         result.require_snapshot(expected)?;
         result.audit()?;
@@ -474,7 +477,7 @@ impl SourceCompactIndex {
             key: DIRECTORY.into(),
             value: directory.encode()?,
         });
-        self.journal.commit(mutations)?;
+        self.commit_inline_metadata(mutations)?;
         self.directory = directory;
         Ok(())
     }
@@ -535,7 +538,7 @@ impl SourceCompactIndex {
         if mutations.len() > crate::storage::MAX_BATCH_OPERATIONS {
             return Err(CompactIndexError::Limit);
         }
-        self.journal.commit(mutations)?;
+        self.commit_inline_metadata(mutations)?;
         self.directory = directory;
         self.snapshot()
     }
@@ -887,6 +890,7 @@ impl SourceCompactBlock {
 
 include!("source_compact_stream_impl.rs");
 include!("source_index_history_read_impl.rs");
+include!("source_index_history_pin_codec_impl.rs");
 
 include!("source_main_index_stream_impl.rs");
 
@@ -902,6 +906,7 @@ include!("source_main_native_no_index_index_tests_impl.rs");
 include!("source_index_verified_reopen_impl.rs");
 include!("source_index_supersession_binding_impl.rs");
 include!("source_index_generation_escrow_impl.rs");
+include!("source_index_inline_escrow_guard_impl.rs");
 #[cfg(test)]
 #[path = "source_index_prepared_validity_tests.rs"]
 mod prepared_validity_tests;
@@ -936,3 +941,7 @@ mod historical_native_await_tests;
 #[cfg(test)]
 #[path = "source_index_cold_escrow_guard_tests.rs"]
 mod cold_escrow_guard_tests;
+
+#[cfg(test)]
+#[path = "source_index_history_pin_codec_tests.rs"]
+mod history_pin_codec_tests;

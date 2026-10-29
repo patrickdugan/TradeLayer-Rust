@@ -552,6 +552,8 @@ impl ActiveServiceWalV1 {
     }
 }
 
+include!("source_main_active_service_cold_history_impl.rs");
+
 #[cfg(test)]
 #[path = "source_main_active_service_wal_tests.rs"]
 mod tests;

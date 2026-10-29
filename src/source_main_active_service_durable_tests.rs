@@ -598,3 +598,9 @@ mod native_recovery_tests;
 
 #[path = "source_main_active_wal_exit_tests.rs"]
 mod active_wal_exit_tests;
+
+#[path = "source_main_active_service_cold_history_actual_tests.rs"]
+mod cold_ack_actual_tests;
+
+#[path = "source_main_active_history_pin_codec_tests.rs"]
+mod active_history_pin_codec_tests;

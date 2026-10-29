@@ -868,6 +868,26 @@
       "fullAcknowledgedActionReplayEstablished": false,
       "windowsDirectoryDurabilityEstablished": false,
       "fullSuitePromotion": false
+    },
+    "nativeEscrowAckAndCodec": {
+      "status": "current-Core-scoped-checks-pass",
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/native-escrow-ack-codec-core-integration.json",
+      "newDistinctControls": 23,
+      "parallelLibraryPassed": 436,
+      "ignoredChildEntries": 4,
+      "publicCompatibilityPassed": 44,
+      "coreEscrowControls": 5,
+      "coreColdAckControls": 2,
+      "corePinWriterControls": 1,
+      "includedRustFormatFiles": 234,
+      "actualCopyAndBoundIntentBeforeNativeIO": true,
+      "ackReaderMode": "HISTORY-WAL only",
+      "typedPinsMatchExistingWriterBytes": true,
+      "inlineGuardIsNotFinalParity": true,
+      "inlineNativeIORecoveryEstablished": false,
+      "fullAcknowledgedFinancialReplayEstablished": false,
+      "fullSuitePromotion": false
     }
   },
   "scope": "Full release remains code 21016cd: 1,977 Rust executions and 238 locked numeric checks. Latest fdfa8ea integrates ordered callable startup: 22 Core controls, 392 combined library and 44 public compatibility passes. Both genuine numeric versions reproduce 14 scenes/99 observations; Core compares 98 initializer/caller/notification cutoffs and preserves old default/refusal boundaries. Global Main/IIFEs, richer Promise v2, inline native put recovery, full acknowledged active/catchup/timer/partial financial cold replay, durable retention wiring, host validation and authenticated complete-block proofs remain open.",

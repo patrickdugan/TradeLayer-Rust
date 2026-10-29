@@ -2969,6 +2969,7 @@ include!("source_main_native_service_block_prelude_impl.rs");
 include!("source_main_native_service_block_impl.rs");
 include!("source_main_native_service_runtime_impl.rs");
 include!("source_main_active_service_recovery_runtime_impl.rs");
+include!("source_main_service_escrow_runtime_impl.rs");
 include!("source_main_native_service_fields_impl.rs");
 include!("source_main_native_supersession_runtime_impl.rs");
 include!("source_main_step_block_impl.rs");

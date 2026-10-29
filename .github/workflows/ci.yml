@@ -38,6 +38,8 @@ jobs:
         run: python3 -m unittest discover -s tests -p test_rust_supply_chain.py -v
       - name: Check formatting
         run: cargo fmt --all -- --check
+      - name: Check native escrow and ACK history formatting
+        run: rustfmt --check --edition 2021 src/compact_generation_independent_prefix_impl.rs src/compact_independent_escrow_tests.rs src/source_index_independent_escrow_impl.rs src/source_index_independent_escrow_tests.rs src/source_index_inline_escrow_guard_impl.rs src/source_index_inline_escrow_guard_tests.rs src/source_main_active_escrow_controller_impl.rs src/source_main_active_service_escrow_tests.rs src/source_main_service_escrow_append_impl.rs src/source_main_service_escrow_runtime_impl.rs src/source_main_active_service_cold_history_impl.rs src/source_main_active_service_cold_history_tests.rs src/source_main_active_service_cold_history_actual_tests.rs src/source_index_history_pin_codec_impl.rs src/source_index_history_pin_codec_tests.rs src/source_main_active_history_pin_codec_tests.rs
       - name: Check historical native-await formatting
         run: rustfmt --check --edition 2021 src/source_index_cold_execution_impl.rs src/source_index_cold_execution_tests.rs src/source_index_cold_discard_tests.rs src/compact_generation_escrow_impl.rs src/compact_generation_escrow_tests.rs src/source_index_generation_escrow_impl.rs src/source_index_generation_escrow_tests.rs src/storage_verified_copy_impl.rs src/source_index_historical_native_await_tests.rs src/source_main_native_historical_row_bridge_impl.rs src/source_main_native_historical_row_bridge_tests.rs src/source_index_cold_escrow_guard_tests.rs
       - name: Check ordered callable bootstrap formatting

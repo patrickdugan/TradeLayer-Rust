@@ -64,7 +64,15 @@ impl SourceMainNativeDurableActiveServiceV1 {
         filesystem: crate::source_contract_replay::source_durable::SourceDurableFilesystem,
         observation_limit: usize,
     ) -> Result<Self, Box<RejectedNativeMainActiveWalV1>> {
-        Self::create_internal(owner, root, namespace, filesystem, observation_limit, false)
+        Self::create_internal(
+            owner,
+            root,
+            namespace,
+            filesystem,
+            observation_limit,
+            false,
+            None,
+        )
     }
     /// Explicit enhanced entry: mode and required origin pin are sealed in the
     /// immutable WAL context BEFORE any action; old create bytes stay unchanged.
@@ -75,7 +83,15 @@ impl SourceMainNativeDurableActiveServiceV1 {
         filesystem: crate::source_contract_replay::source_durable::SourceDurableFilesystem,
         observation_limit: usize,
     ) -> Result<Self, Box<RejectedNativeMainActiveWalV1>> {
-        Self::create_internal(owner, root, namespace, filesystem, observation_limit, true)
+        Self::create_internal(
+            owner,
+            root,
+            namespace,
+            filesystem,
+            observation_limit,
+            true,
+            None,
+        )
     }
     fn history_pin_bytes(index: &SourceCompactIndex) -> ActiveWalResult<Vec<u8>> {
         let pin = index
@@ -216,8 +232,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
         match self.phase {
             NativeMainActiveWalPhaseV1::NativeSupersessionIntent => {
                 self.write_barrier("NativeSupersessionIntent")?;
-                self.install_native_replacement()?;
-                self.phase = NativeMainActiveWalPhaseV1::NativeSupersessionAppend;
+                self.after_native_supersession_intent()?;
             }
             NativeMainActiveWalPhaseV1::NativeSupersessionAppend => {
                 // One native attempt only. Any error, including a post-write

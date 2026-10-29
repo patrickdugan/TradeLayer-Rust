@@ -1,6 +1,6 @@
 # TradeLayer-Rust release handoff
 
-Updated: 2026-10-29T18:57:11Z. This file is maintained after every integration/PR cycle.
+Updated: 2026-10-29T19:04:46Z. This file is maintained after every integration/PR cycle.
 
 ## Objective and operating rules
 
@@ -134,3 +134,11 @@ Integrated frozen4e5 → discard-fix739 → generation-escrow1869 → historical
 All21 new controls pass inside the actual Core library:413 library/four ignored,44 public compatibility passes,15 focused historical passes including3new Core and5prior completed-row cases. Clippy warnings denied, Cargo fmt,218 include format files, route inventory and supply-chain checks pass. Evidence: `fixtures/reference_fidelity/historical-native-await-core-integration.json`; independent older-provider escrow/cursor review: `fixtures/reference_fidelity/native-generation-escrow-independent-review.json`. The first launcher ran outside the repository and failed before compilation; the corrected launcher and all compiled controls pass, with the initial log retained. No source/test corrections were needed after mounting.
 
 Next:8c guarded active-service escrow WAL wiring,b2ae typed historical pin codec,7b read-only ACK history; row is implementing a sealed original-prefix carrier/full acknowledged-action replay with actual later Post retained, and v8_main is implementing inline processBlockData/save-height/startup source PCs. Promise-v2 candidate3b459 remains queued. Full active/catchup/timer/partial financial cold replay and Windows directory/power-loss validation remain open. Full release baseline remains1,977 Rust/238 numeric checks; this scoped cycle does not promote it. The saved workbook last verified fdfa8ea/392library; a later tracker refresh must compare this cycle separately. No push/PR/merge.
+
+## Guarded escrow / read-only ACK / history pin cycle
+
+Integrated frozen 8c062 guarded service escrow, 7b839 read-only acknowledged-history reader and b2ae22 exact metadata-pin codec. Actual copy/permit and EscrowBoundIntent sync now precede cross-publication native IO, including replacement plans. Lost returns keep the same frame/permit and native-only retry route. No-copy ordinary appends and existing mode bytes remain. The ACK reader retains the real file lock and verifies full contiguous required blob closure; strict pins match actual production writer bytes and still require real disk validation.
+
+All 23 new controls pass in the actual Core suite: 436 library/four ignored, 44 public compatibility, Clippy warnings denied, Cargo fmt, 234 include format files, inventory and supply-chain pass. Evidence: `fixtures/reference_fidelity/native-escrow-ack-codec-core-integration.json`. Root corrected one missing cfg(test) commit_probe: None initializer in the composed read-only WAL owner; no production semantics or expected result changed. Initial failure log retained.
+
+Boundaries: the ACK reader admits HISTORY-WAL, not an unproven ESCROW-WAL cold closure. The escrow mode blocks inline compaction until actual retained inline PC success/recovery is integrated; guard-only refusal is not final JS parity. Financial cold reexecution, cross-publication source views, process-loss finance and Windows directory/power-loss validation remain open. Current next queue: 4a0900 sealed cold-prefix carrier, row full action scheduler, v8_main inline source continuations, 3b459 Promise v2. Last full release remains 1,977 Rust/238 locked numeric checks. The workbook was last synchronized to fdfa8ea/392 library and must be refreshed separately. No push, PR or merge.

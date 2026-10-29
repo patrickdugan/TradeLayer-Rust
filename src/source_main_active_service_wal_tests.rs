@@ -212,3 +212,7 @@ fn already_referenced_corrupt_blob_refuses_preparation() {
         )
         .is_err());
 }
+
+#[cfg(test)]
+#[path = "source_main_active_service_cold_history_tests.rs"]
+mod cold_ack_history_tests;

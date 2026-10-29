@@ -141,3 +141,9 @@ fn source_escrow_rejects_partial_row_pin_and_extra_page_expectation() {
     pin.points = vec![bad.clone()];
     assert!(pin.open_historical(&bad).is_err());
 }
+
+#[path = "source_index_independent_escrow_tests.rs"]
+mod independent_prefix_tests;
+
+#[path = "source_index_inline_escrow_guard_tests.rs"]
+mod inline_escrow_guard_tests;

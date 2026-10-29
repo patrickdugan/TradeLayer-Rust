@@ -439,3 +439,6 @@ fn enhanced_history_mode_is_context_bound_and_missing_required_blob_cannot_downg
     assert!(owner.read_checked_history_entry(receipt).is_err());
     assert_eq!(owner.profile(), "TL-MAIN-ACTIVE-SERVICE-HISTORY-WAL-13-1");
 }
+
+#[path = "source_main_active_service_escrow_tests.rs"]
+mod active_service_escrow_tests;

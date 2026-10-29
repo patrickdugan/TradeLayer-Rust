@@ -96,6 +96,9 @@ impl SourceIndexEscrowReadSnapshotV1 {
         &self,
         mut visitor: impl FnMut(&V) -> Result<bool>,
     ) -> Result<RowStreamReceipt> {
+        if self.raw_entries().count() != self.directory.pages.len() + 1 {
+            return Err(CompactIndexError::Corrupt);
+        }
         let mut receipt = RowStreamReceipt {
             profile: STREAM_PROFILE.into(),
             snapshot: self.expected.metadata.clone(),
@@ -106,8 +109,7 @@ impl SourceIndexEscrowReadSnapshotV1 {
         let mut last = None;
         for page in &self.directory.pages {
             let rows = decode_page(
-                self.data
-                    .get(&page_key(page.number))
+                self.raw_get(&page_key(page.number))
                     .ok_or(CompactIndexError::Corrupt)?,
             )?;
             if row_id(&rows[0])? != page.first {
@@ -194,3 +196,5 @@ impl SourceCompactIndex {
         ))
     }
 }
+
+include!("source_index_independent_escrow_impl.rs");

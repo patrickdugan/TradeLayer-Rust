@@ -113,6 +113,7 @@ impl SourceCompactIndex {
             journal,
             directory,
             cold_execution: None,
+            inline_escrow_guard: None,
         };
         owner.require_snapshot(&expected_current.metadata)?;
         if owner.capture_verified_history_pin()? != *expected_current {
