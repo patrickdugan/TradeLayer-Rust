@@ -246,3 +246,5 @@ fixtures/source_contract_replay_v11_before_production.bin -text
 fixtures/main_error_labels_*.jsonl text eol=lf
 fixtures/main_production_parse_int.tsv text eol=lf
 fixtures/main_orchestration_review_*.jsonl text eol=lf
+
+fixtures/rewards_wide_vectors.tsv text eol=lf

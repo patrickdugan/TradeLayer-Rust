@@ -69,7 +69,7 @@ pub mod iou_ledger; // Funded atomic IOU payouts with an explicit local atom pol
 pub mod issuance_intent; // Bounded issuance request metadata; no token creation authority.
 pub mod joint; // Stage 22 independent registry + sole spot-owned ledger in one mixed state.
 pub mod joint_chain; // Stage 22 mixed unverified block replay and TLJC checkpoints.
-pub mod ledger; // In-memory atomic accounting primitives; not chain consensus.
+pub mod ledger;
 pub mod legacy_activation_audit; // Pinned activation.js read-only source semantics; genesis and authority denied.
 pub mod legacy_base; // Bounded historical Base94/custom Base256 string compatibility.
 pub mod legacy_channel_audit; // Pinned channels.js direct A/B commit projections, never signed-state authority.
@@ -100,6 +100,7 @@ pub mod read_only; // Offline transaction scanning; cannot authorize ledger stat
 pub mod registry; // Standalone tx0/7-9/13-15 registry state; authentication external.
 pub mod reorg; // Source RPC tip observations; never authorization to roll back.
 pub mod reporting; // Atomic network-scoped offline spot history and volume observations.
+pub mod rewards; // In-memory atomic accounting primitives; not chain consensus.
 pub mod root_reconciliation; // Read-only TLPT and zkTL metadata consistency.
 pub mod runtime; // Concrete RPC/startup adapters with independent durable expectations.
 pub mod scaling; // Bounded L2 settlement lifecycle and checked channel custody plans.

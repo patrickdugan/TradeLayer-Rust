@@ -1,6 +1,6 @@
 # TradeLayer-Rust release handoff
 
-Updated: 2026-10-29T15:25:30Z. This file is maintained after every integration/PR cycle.
+Updated: 2026-10-29T15:36:21Z. This file is maintained after every integration/PR cycle.
 
 ## Objective and operating rules
 
@@ -41,12 +41,25 @@ The combined library passes **318 tests with eight threads**, with three child e
 
 Integrated pinned PR head `6b9e43b00fad76b9810386fbaaf4da3e372f07f9` with the confirmed forged-total defect corrected. `FillFees::new/validate` enforces checked signed accounting identity; accrual rejects inconsistent/negative/overflowed totals before any mutation. All **30 actual current-Core integration tests**, all-target Clippy, formatting and transaction-inventory checks pass. Provenance and logs: `fixtures/reference_fidelity/pr152-fees-core-integration.json`.
 
-This cycle adds the PR's standalone arithmetic/accounting API. Matcher/ledger/consensus wiring and fee-policy choices are separate work, and no payout authority is inferred from a fee record. Reward PR #153 is frozen and next for Root integration.
+This cycle adds the PR's standalone arithmetic/accounting API. Matcher/ledger/consensus wiring and fee-policy choices are separate work, and no payout authority is inferred from a fee record. Reward PR #153 is now integrated in the following cycle.
+
+## Reward PR cycle #153
+
+Integrated pinned PR head `3a1cfc4eeffb7dcf73ece1b120a912f8848ff294`. Production arithmetic is unchanged. The randomized check now verifies the complete 256-bit remainder, and **1,072 independent Python full-width vectors** cover products, quotients, zero divisors and overflow. All **9 unit +21 current-Core public-API tests**, all-target Clippy, formatting and transaction-inventory checks pass. Tests include 100,000 seeded epochs and 20,000 identity splits. Provenance/checks: `fixtures/reference_fidelity/pr153-rewards-core-integration.json`.
+
+The accounting bound uses declared fee inputs; maker rebates/refunds can reduce actual cost. Tests/documentation retain the gross-fee counterexample and the independently netted-cost example. Per-account caps do not establish identity. No new economic parameters, consensus policy, mint or payout path was chosen.
+
+## Active next-cycle lanes
+
+- `/root/v8_main`: actual-owner active-service WAL and ambiguous control-write recovery, coordinated raw history contract.
+- `/root/row_continuation_impl`: verified actual-file historical metadata views, then cold financial/source reexecution with physical/logical bindings kept explicit.
+- `/root/v8_clearlist`: original import/static-init ordering and rejected-bootstrap notification parity using the 14-scene/99-observation source corpus.
+- Parent owns current branch edits, actual Core/release checks, commits and this live handoff. Prior fee/reward candidate roles above describe their completed integration cycles.
 
 ## Remaining release gates
 
 1. Main cycle is committed; run a new full-release promotion after the feature cycles below.
-2. Integrate corrected fees/rewards modules and their actual tests; record their own check scope.
+2. Fee/reward standalone APIs are integrated and scoped checks pass; include them in the next full-release run.
 3. Durable active-service action/WAL composition and cold process-loss replay. A fulfilled outer promise can still own pending live work and cannot release a frozen head.
 4. Global import/static initialization order and deferred bootstrap rejection handling. New source corpus `ecc021cc` has 14 scenes/99 observations, both numeric profiles checked; Rust parity is pending. It does not prove the full Main module initialization IIFE.
 5. Broader source receiver/cache/history/value domains, full release promotion, intended-host storage/power-loss checks and representative real-block CPU/RSS.

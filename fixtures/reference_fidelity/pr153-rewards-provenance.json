@@ -1,0 +1,35 @@
+{
+  "upstream": {
+    "url": "https://github.com/patrickdugan/TradeLayer-Rust/pull/153",
+    "head": "3a1cfc4eeffb7dcf73ece1b120a912f8848ff294",
+    "state": "open",
+    "merged": false,
+    "draft": false,
+    "recheckedUsing": "primary GitHub plugin GET /repos/patrickdugan/TradeLayer-Rust/pulls/153"
+  },
+  "upstreamFiles": {
+    "src/rewards.rs": {
+      "gitBlob": "b05b4205dcd1da06c7e71ab068f4d9d826037166",
+      "sha256": "100acb3fa4fd7d958f76d25b43dbc000ad8773a3ed6b608eb35d2e108b3fc011",
+      "url": "https://github.com/patrickdugan/TradeLayer-Rust/blob/3a1cfc4eeffb7dcf73ece1b120a912f8848ff294/src/rewards.rs"
+    },
+    "tests/rewards_accounting.rs": {
+      "gitBlob": "bef2291491ac72cff4e8fa24bb2c68841c0c18da",
+      "sha256": "3808d0aaa1f27dafe546825523a331dcf0f13d0927ebd92a531adba45e8ec8d9",
+      "url": "https://github.com/patrickdugan/TradeLayer-Rust/blob/3a1cfc4eeffb7dcf73ece1b120a912f8848ff294/tests/rewards_accounting.rs"
+    },
+    "docs/REWARDS.md": {
+      "gitBlob": "449c57515c75dd03c60596fd52fc0a3dc6efb4c9",
+      "sha256": "c174a90528a16938c1a4306ccef34e572771770114c56f11ad4b051b0563832e",
+      "url": "https://github.com/patrickdugan/TradeLayer-Rust/blob/3a1cfc4eeffb7dcf73ece1b120a912f8848ff294/docs/REWARDS.md"
+    }
+  },
+  "workerManifestSHA256": "6b9055b94309a58bf08899e139965cb2a9cc662b24cbb3187ac9f049ea876425",
+  "productionEquivalence": {
+    "productionCodeTokensUnchanged": true,
+    "tokenSHA256": "e4a06b1e86ed13c44a4398e8e48e3c983e629aa1be9b0b1547d783b7be6189b6",
+    "newUnitTestFunctions": 9,
+    "publicTestFunctions": 21,
+    "unsafeAdded": false
+  }
+}

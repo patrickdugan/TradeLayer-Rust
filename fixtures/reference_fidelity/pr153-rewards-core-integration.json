@@ -1,0 +1,37 @@
+{
+  "schema": "tl-pr153-rewards-core-v1",
+  "verifiedAtUtc": "2026-10-29T15:36:21Z",
+  "inputCommit": "a870049138be6500eface34320730ca17b9b22f8",
+  "upstreamHead": "3a1cfc4eeffb7dcf73ece1b120a912f8848ff294",
+  "workerManifestSHA256": "6b9055b94309a58bf08899e139965cb2a9cc662b24cbb3187ac9f049ea876425",
+  "RootIntegrated": true,
+  "unitTestsPassed": 9,
+  "actualPublicApiTestsPassed": 21,
+  "independentFullWidthVectors": 1072,
+  "productionArithmeticTokensUnchanged": true,
+  "allTargetClippyWarningsDenied": true,
+  "formattingPassed": true,
+  "transactionRowsUnchanged": 37,
+  "fullSuitePromotion": false,
+  "payoutOrConsensusChanged": false,
+  "sourceFiles": {
+    "src/lib.rs": "ebef808817337348ad94fa6b5103a9d27839c5bdbafcf7b97ad44caf751551c1",
+    "src/rewards.rs": "68082525872e4067ff17aa64bd2b43cb4bb6369046d17c0bafaaf46494844c95",
+    "tests/rewards_accounting.rs": "7a3240a84d5fdace09b1445e888252d10ec9dd0bcda2055f4ef126395155e9cb",
+    "docs/REWARDS.md": "728825a8e80dfd4f52d88f2d65fdb2a9a09f93965a488329214dea98f0420ee0",
+    "fixtures/rewards_wide_vectors.tsv": "c08067ba9cbf066ec3adaeb4a74c9b370fbb98adb3d860ddeecdd2078711e2f8",
+    "scripts/rewards_wide_vectors.py": "634e9e63a2e789232d245f0ab90cf642e6efc5330a8ca3d041a34691a9ae1cd4",
+    ".gitattributes": "c634b4f21405deddd094bbe0b771ad014bac4504e2cb1a5c7088864fe2909770",
+    "docs/LOGIC_BY_TX_TYPE.json": "6ec93464ebc83f03b0a1fff62361c0360c014a18dd1b65ef6024cc6ab8253fea",
+    "handoff.md": "16d794326edb9ea5f35c3f3609011496af6f6186575b53e93320a5cfc9a8b890",
+    "fixtures/reference_fidelity/pr153-rewards-provenance.json": "b737ad550505f16dad5ad9725257b31c514ea337991d3716eb2d1a37f780f954"
+  },
+  "logs": {
+    "root-pr153-rewards-unit.log": "499eb173db2c1420f7c358986120367b4c8d2258cc2019a348e331076f462243",
+    "root-pr153-rewards-tests.log": "b30340d4d30c0662cc38e68ad68dfd172f00f7991c3afbb24a77f436de961f4e",
+    "root-pr153-rewards-clippy.log": "a412750e496ac33ba1043fc0ba55507c49d6859b8bc58da161aebb3f8b67ae97",
+    "root-pr153-rewards-format.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "root-pr153-rewards-inventory.log": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393",
+    "root-pr153-rewards-vectors.log": "065e036ba771996a4a5f1f48acf657aa684c9e0818f72a8d470a1155110fe556"
+  }
+}
