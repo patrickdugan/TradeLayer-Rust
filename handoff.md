@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T15:00:31Z. Refresh this file after every tested integration or PR cycle.
+Updated: 2026-10-30T15:16:12Z. Refresh this file after every tested integration or PR cycle.
 
 ## Latest tested mixed native recovery increment (`d774f6e`)
 
@@ -116,3 +116,9 @@ Three complete pinned helpers now use an explicit entry on the existing Queue/Co
 Current cold correction354b+48bd reached7/8passing financial controls; the remaining unwritten-await negative disagrees on verified-action count after full financial equality. Resolve the actual stopping boundary before changing an assertion or committing the cold actor. Comparison-only54ac is mounted. Startup query/outer2557 and same-Kernel production binding remain worker work, not full startup parity.
 
 Orderbook exact committed archive91385 exposed a Windows export-only proof fixture failure: Git core.autocrlf converted new JSONL files toCRLF. Add explicit LF attributes for both exact source fixtures and their generator; do not normalize or weaken the exact proof assertion. The unchanged exact committed target set must rerun after this packaging correction. Source helper implementation/fixtures are unchanged.
+
+## Tested mixed cold source recovery (this commit)
+
+All8financial-owner+4metadata controls pass through the actual normal Core. Root corrected segmented writer framing and Mixed current-IO classification; original first-error/second-native-error custody and all stronger negative financial/effects/PC/Post assertions pass. The final apparent extra decode was a test measurement issue: a thread-local total included BOTH independent executions. Independent monotonic deltas now prove exactly one decode per live/cold run; no production counter reset, suppressed call or source result change.39oldcontroller regressions, strictalltargetClippy/Cargofmt/fmt519/inventory/supply pass. Evidence:`fixtures/reference_fidelity/main-mixed-native-cold-core-integration.json`. Runtime/CI/pins exclude failed queued-startup experiments.
+
+Orderbook committed snapshot273511c now passes all13public checks and all four genuine source full/proof10 regenerations after explicit LF export attributes; exact source corpus bytes match Root. Mixed cold Intermediate/copied-prefix candidate63f6 and sourcequery54a+outer2557/per-factory-stopdd7 remain next uncompiled gates. Same-Kernel production Promise binding, two queued positives, full RC/fuzz/host/authentication and complete-block proofs remain open. Workbook baseline2204/239 is unchanged pending fresh complete validation. No push/PR.

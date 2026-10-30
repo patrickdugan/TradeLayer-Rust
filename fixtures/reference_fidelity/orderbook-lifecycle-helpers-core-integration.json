@@ -58,5 +58,26 @@
     "proofExportBytes": 145668,
     "assertionsChanged": false,
     "correction": "Explicit text eol=lf for both new JSONL files and generator; pending exact committed rerun"
+  },
+  "exactCommittedVerification": {
+    "commit": "273511c4ad12c18be28c55a8e83f7ffbd643ef3e",
+    "archiveSHA256": "6d6304cea395afa43f7b421de46a0bd4f9380f37e9a8fc2a50e210a92ecb5a76",
+    "exactCommitArchive": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\orderbook-lf-exact-check",
+    "selectedPublicTests": 13,
+    "exactFixtureAndGeneratorBytes": {
+      "fixtures/orderbook_lifecycle_helpers.jsonl": "016d29123e20b28f9a5801b91eaf35848c73721b106ba9384b9fce99ec7edc7f",
+      "fixtures/orderbook_lifecycle_helpers_proof10.jsonl": "19eae035231d8a0d087266397b2bcca31145664ce4900e312d098111440a4076",
+      "scripts/orderbook_lifecycle_helpers.cjs": "c36dce229a497968b68f6e8455239a365571a3990fe2329196d29c1f5769e99d"
+    },
+    "publicTestsPassed": 13,
+    "allFourSourceRegenerationsPassed": true,
+    "proofAssertionUnchanged": true,
+    "logs": {
+      "root-orderbook-lf-exact-public-tests.log": "470e7e2d99973118b6610f33fdd943ccdf1ab87efa9c5a6fa55b23da3eb2e019",
+      "root-orderbook-lf-exact-source-full.log": "e8046b7ad1db81828c039b3c4388502084b5cf86383cbeb823a287cd30722624",
+      "root-orderbook-lf-exact-source-full-lock.log": "429eccc0dbb4c62618270a55361ead2d336656b240c1c8abe461d69e0bc89582",
+      "root-orderbook-lf-exact-source-proof10.log": "fc765d2fcbc138e8bf93c61bb6c583ee29e38d4c9c1b416731d06855df696074",
+      "root-orderbook-lf-exact-source-proof10-lock.log": "7a532669892317cd5dacc3dfe91ae02827e9dcd06dd0edb6b6f5710e50bea264"
+    }
   }
 }

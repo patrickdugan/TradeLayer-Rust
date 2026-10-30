@@ -564,6 +564,16 @@ include!("source_main_actual_native_fact_binding_impl.rs");
 include!("source_main_actual_fact_source_scope_impl.rs");
 include!("source_main_actual_fact_expectation_codec_impl.rs");
 include!("source_main_mixed_native_policy_impl.rs");
+include!("source_main_mixed_native_history_pin_impl.rs");
+include!("source_main_mixed_native_history_codec_impl.rs");
+include!("source_main_mixed_native_history_schema_impl.rs");
+include!("source_main_mixed_native_history_reader_impl.rs");
+include!("source_main_mixed_native_history_validation_impl.rs");
+include!("source_main_mixed_native_window_access_impl.rs");
+include!("source_main_mixed_native_ordinary_physical_impl.rs");
+include!("source_main_mixed_native_inline_physical_impl.rs");
+include!("source_main_mixed_native_escrow_registry_impl.rs");
+include!("source_main_mixed_native_inline_pending_impl.rs");
 include!("source_main_segmented_native_fact_binding_impl.rs");
 include!("source_main_segmented_native_io_dto_impl.rs");
 include!("source_main_segmented_native_fact_codec_impl.rs");
@@ -606,3 +616,7 @@ mod mixed_native_metadata_tests;
 #[cfg(test)]
 #[path = "source_main_ordinary_native_metadata_tests.rs"]
 mod ordinary_native_metadata_tests;
+
+#[cfg(test)]
+#[path = "source_main_mixed_native_history_metadata_tests.rs"]
+mod mixed_native_history_metadata_tests;

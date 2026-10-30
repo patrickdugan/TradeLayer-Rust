@@ -278,6 +278,26 @@ trait InlinePhysicalHistoryAccessV1 {
     fn read_reference(&self, pin: &ActiveServiceWalBlobV1) -> Result<Vec<u8>>;
     fn closure_metadata_namespace(&self) -> &Namespace;
     fn closure_records(&self) -> &[(u64, V)];
+    fn closure_entry(&self, sequence: u64) -> Result<&VerifiedActiveServiceAckEntryV1> {
+        self.entries()
+            .get(
+                usize::try_from(
+                    sequence
+                        .checked_sub(1)
+                        .ok_or(ActiveServiceWalErrorV1::WrongContext)?,
+                )
+                .map_err(|_| ActiveServiceWalErrorV1::Capacity)?,
+            )
+            .ok_or(ActiveServiceWalErrorV1::WrongContext)
+    }
+    fn closure_final_history_post(&self) -> Result<SourceIndexHistoryPinV1> {
+        self.mode4_pin(
+            self.entries()
+                .last()
+                .ok_or(ActiveServiceWalErrorV1::WrongContext)?
+                .verified_history_post(),
+        )
+    }
 
     // This validates a recorded no-publication relation only. The diagnostic
     // is not an execution result or permission to resolve a historical await.
@@ -489,17 +509,7 @@ trait InlinePhysicalHistoryAccessV1 {
         sequence: u64,
         source: &mut NativeHistoricalInlineDatabaseV1,
     ) -> Result<InlinePhysicalClosureDataV1> {
-        let entry = self
-            .entries()
-            .get(
-                usize::try_from(
-                    sequence
-                        .checked_sub(1)
-                        .ok_or(ActiveServiceWalErrorV1::WrongContext)?,
-                )
-                .map_err(|_| ActiveServiceWalErrorV1::Capacity)?,
-            )
-            .ok_or(ActiveServiceWalErrorV1::WrongContext)?;
+        let entry = self.closure_entry(sequence)?;
         if source.append_verified()
             || source.resolved()
             || history_accepted_parts_profile(entry.actual_accepted(), true)?
@@ -518,12 +528,7 @@ trait InlinePhysicalHistoryAccessV1 {
         if source.original_read() != &before {
             return Err(ActiveServiceWalErrorV1::WrongPin);
         }
-        let final_pin = self.mode4_pin(
-            self.entries()
-                .last()
-                .ok_or(ActiveServiceWalErrorV1::WrongContext)?
-                .verified_history_post(),
-        )?;
+        let final_pin = self.closure_final_history_post()?;
         if index
             .capture_verified_history_pin()
             .map_err(|_| ActiveServiceWalErrorV1::WrongPin)?

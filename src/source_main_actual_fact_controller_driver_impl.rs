@@ -386,6 +386,13 @@ impl SourceMainNativeDurableActiveServiceV1 {
             .pending
             .as_ref()
             .is_some_and(|p| p.source_error.is_none())
+            && (self.mixed_ordinary_facts.is_none()
+                || self.pending.as_ref().is_some_and(|p| {
+                    p.actual_fact_slots.as_ref().is_some_and(|s| s.io.is_some())
+                        || p.mixed_ordinary_slots
+                            .as_ref()
+                            .is_some_and(|s| s.attempt.is_some())
+                }))
             && self.active_service().is_some_and(|s| {
                 matches!(
                     s.pending_observation.as_ref().map(|p| &p.result),

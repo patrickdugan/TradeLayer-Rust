@@ -1,0 +1,9 @@
+# Mixed native cold source recovery
+
+The explicit cold profile reexecutes raw Start/Advance/append/Resolve/Pause/checkpoint actions using one freshly reconstructed financial/source/index/queue owner. Independently verified actual native history and IO facts constrain physical access; recorded Before/Accepted fields are comparisons only. Ordinary and inline plans retain their distinct result custody. An original source error remains separate from later native-only retry errors. A repeated API rejection cannot consume the original verified Post or create a fresh append ambiguity.
+
+Eight actual financial-owner controls and four metadata controls pass. They cover success, separate Resolve and segmented history, native Before replacement, original and second lost-return Post, rejected reappend/control actions, and an unperformed ordinary await that refuses without manufacturing a Post. The negative retains full financial state, ordered effects, source PC/actual error, unchanged disk and exactly one decode in each independent live/cold execution. The shared thread-local instrumentation is measured by deltas without reset or suppression. Existing39controller regressions pass. Strict all-target Clippy, Cargo fmt,519working included-file formatting, inventory and supply policy pass.
+
+This is bounded in-process actual-file cold replay evidence. Mixed cold compaction/Intermediate/copied-prefix closure is the next gate, followed by production startup Promise/RPC/DB/UID ordering, unacknowledged/killed-process recovery, integrated RC/fuzz, intended-host durability/performance and authenticated history. Existing source-default profiles/readers remain separate. No full-reference parity, authenticated oracle context or complete-block fraud proof is claimed. Release remains2,204Rust/239numeric.
+
+Evidence:`fixtures/reference_fidelity/main-mixed-native-cold-core-integration.json`.

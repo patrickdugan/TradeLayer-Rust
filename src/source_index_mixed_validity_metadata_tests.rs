@@ -423,3 +423,6 @@ fn mixed_recorded_scope_token_is_same_owner_and_clears_after_real_lost_return() 
     index.finish_recorded_native_only_scope(source).unwrap();
     assert!(!index.recorded_native_only_scope_active());
 }
+
+#[path = "source_index_mixed_historical_result_metadata_tests.rs"]
+mod mixed_historical_result_metadata_tests;

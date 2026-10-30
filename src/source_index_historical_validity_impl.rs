@@ -21,6 +21,8 @@ pub struct NativeHistoricalValidityAwaitV1 {
     directory: Directory,
     raw_mutations: Vec<u8>,
     post: SourceIndexHistoryPinV1,
+    mixed_write_before: Option<MetadataSnapshot>,
+    mixed_recorded_error: Option<String>,
 }
 impl NativeHistoricalValidityAwaitV1 {
     pub fn visit_canonical_fields(
@@ -59,7 +61,9 @@ impl NativeHistoricalValidityAwaitV1 {
             &self.arguments,
             &self.before_state,
             &self.after_state,
-            &self.query.snapshot,
+            self.mixed_write_before
+                .as_ref()
+                .unwrap_or(&self.query.snapshot),
         )
     }
     pub fn exact_prepared_mutations(&self) -> &[u8] {
@@ -172,6 +176,12 @@ impl<'a> NativeHistoricalValidityPlaybackV1<'a> {
     pub fn complete(&self) -> bool {
         self.next + 1 == self.boundaries.len() && self.active.is_none()
     }
+    // ACK-tape endpoint only: leaves an actually verified native await held.
+    // This neither resolves source nor releases its financial owner/index.
+    pub(crate) fn all_recorded_transitions_verified(&self) -> bool {
+        self.next + 1 == self.boundaries.len()
+            && (self.active.is_none() || self.active == self.next.checked_sub(1))
+    }
     pub fn consumed_transitions(&self) -> usize {
         self.next
     }
@@ -261,6 +271,8 @@ impl<'a> NativeHistoricalValidityPlaybackV1<'a> {
             directory,
             raw_mutations,
             post,
+            mixed_write_before: None,
+            mixed_recorded_error: None,
         };
         self.active = Some(self.next);
         Ok(NativeHistoricalValidityOperationV1::Await(Box::new(

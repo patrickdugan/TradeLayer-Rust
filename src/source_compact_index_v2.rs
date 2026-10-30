@@ -917,6 +917,7 @@ include!("source_index_prepared_validity_impl.rs");
 include!("source_index_cold_execution_impl.rs");
 include!("source_index_historical_validity_impl.rs");
 include!("source_index_mixed_validity_rebase_impl.rs");
+include!("source_index_mixed_historical_post_impl.rs");
 include!("source_index_mixed_recorded_guard_impl.rs");
 include!("source_index_verified_view_playback_impl.rs");
 include!("source_index_historical_inline_post_impl.rs");
