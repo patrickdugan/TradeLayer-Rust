@@ -1,0 +1,37 @@
+{
+  "schema": "tl-startup-rpc-order-diagnosis-completeness-v1",
+  "verifiedAtUtc": "2026-10-30T12:20:01Z",
+  "checkoutCommit": "717b319d649fb013870489ff0c4dede795862e90",
+  "lastTestedImplementationCommit": "aeebb65cc2623b5379b157458d611b1cd0930623",
+  "beforeWorkbookSHA256": "bdf4bea8553eb4c3eaa84a9a045193d1531d196deb71f2d24091bfde063eb2af",
+  "diagnosisRecord": "fixtures/reference_fidelity/main-startup-rpc-order-diagnosis.json",
+  "diagnosisRecordSHA256": "8f04b97409a3decc3d8350d91d9600c88af9a8f7b72e3ed449ae916608e5066a",
+  "releaseExecutions": 2204,
+  "lockedReferenceExecutions": 239,
+  "priorMainScopedLibraryPassed": 734,
+  "newWireTests": 5,
+  "oldEncoderRegressionTests": 13,
+  "newRustPasses": 0,
+  "productionCorrectionIncluded": false,
+  "fullSuitePromotion": false,
+  "queuedStartupPositivePassed": false,
+  "trackedTransactionRowsChanged": false,
+  "authenticationEstablished": false,
+  "completeBlockFraudProofEstablished": false,
+  "savedWorkbookSHA256": "a9589c405d5d1e8ad75cebfa5f156360bbe7e6d0f5d1c68ede9b59842efc547a",
+  "savedAndSidebarRowsMatch": true,
+  "rowHashes": {
+    "modules": 3223156088,
+    "logic": 1151758449
+  },
+  "intentionalCellChanges": 6,
+  "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
+  "visualReviewPassed": true,
+  "errors": 0,
+  "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
+  "sidebarStateVersion": 190,
+  "visualReviewRanges": [
+    "C26:G26",
+    "C47:G47"
+  ]
+}

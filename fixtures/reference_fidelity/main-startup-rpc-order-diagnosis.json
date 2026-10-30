@@ -1,0 +1,337 @@
+{
+  "schema": "tl-queued-startup-order-diagnosis-v1",
+  "verifiedAtUtc": "2026-10-30T12:19:05Z",
+  "checkoutCommit": "717b319d649fb013870489ff0c4dede795862e90",
+  "lastTestedImplementationCommit": "aeebb65cc2623b5379b157458d611b1cd0930623",
+  "stages": {
+    "causal": {
+      "path": "work/native-main-startup-rpc-order-v13/root-ready-rpc-order-causal-1",
+      "manifestSHA256": "dc7d6dbf1f587b2da83d8b3f5d5e9a61de99dc118202d2c54a2d353bb07809e1",
+      "verifiedPayloads": 26,
+      "productionCorrectionIncluded": false,
+      "retainedAnalysisRecomputedExactly": true
+    },
+    "notifications": {
+      "path": "work/native-main-startup-rpc-order-v13/root-ready-promise-notifications-1",
+      "manifestSHA256": "1c95c2b74b3f9988ec0b1162279145c304275685bf5aa0a803caa83a344240bf",
+      "verifiedPayloads": 33,
+      "productionCorrectionIncluded": false,
+      "retainedAnalysisRecomputedExactly": true
+    },
+    "review": {
+      "path": "work/review-queued-rpc-adoption-v13/root-ready-review-1",
+      "manifestSHA256": "afdf1b3bf7b8a4337284ac4a88d454a15b6a235cd5d3e57fd7c4c3a895451e20",
+      "verifiedPayloads": 44,
+      "productionCorrectionIncluded": false
+    }
+  },
+  "currentRootAuditedPins": {
+    "src/source_main_callable_impl.rs": "23fef859a390f739a97b24acc8fd84086f33767a1ba1dea6a03c689355a42700",
+    "src/source_main_native_catchup_continuation_impl.rs": "d89f5c73754069cfcdb7f809037b94b4e9817824b5af39d463d8c4fb591ec31c",
+    "src/source_main_native_catchup_prepare_impl.rs": "3f7f5692e820abf605e56fadb7770812a7bfee15f25616b35d6163e266e25355",
+    "src/source_main_native_service_io_impl.rs": "ae1b558e7104db45950d28828a9a50a4d80b57a22d455e9e4e41fcc21580a031",
+    "src/source_main_native_service_runtime_impl.rs": "03c9c28d3feef3bd7e9ea2f5dff6a8c1f303cc586674fb14cd08a2bc9a3ee26f",
+    "src/source_main_service_kernel_impl.rs": "68cabc0e8e879832286a51d23ae50698794e1a2d72732664b531fb29a39c2153",
+    "src/source_main_startup_nested_runtime_impl.rs": "32e88e0f11b470731ac3245930104701a9e6aed2b28c8721c0bb9b6b0fd2ca90",
+    "src/source_main_startup_queued_io_runtime_impl.rs": "ec055fe54c894b25cc0ff35313dbcb728835c57d2c6208b6329e546838c7d2fa",
+    "src/source_main_startup_queued_nested_drive_impl.rs": "c40ee7f9f317812c527c2dd96e2c04abe90db257015623fa4b78c939a57c28ff",
+    "src/source_main_step_kernel.rs": "b006c1fd093a55917384720a94a950eaba3f96ac2ea07df93c88ec3a05aba70e",
+    "src/source_main_step_runtime_impl.rs": "11c67e25669b28b132899508c960dcd8e1080a09d380018da21918359d8e85ae"
+  },
+  "pinnedJsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+  "actualCoreProviderSHA256": "cfbae645513f4e6fe631ec80d777c24dce4274249ff2a6227c02e9999e9b15d2",
+  "causalEvidence": {
+    "profile": "TL-MAIN-QUEUED-RPC-ORDER-CAUSAL-EVIDENCE-1",
+    "providerSHA256": "cfbae645513f4e6fe631ec80d777c24dce4274249ff2a6227c02e9999e9b15d2",
+    "actualPublicCoreProbe": {
+      "financialCoreRebuilt": false,
+      "actualOwner": true,
+      "firstTransactionUpsertStep": 32,
+      "outerLiveValidityStep": 43,
+      "heldFirstMaxHeightStep": 60,
+      "outerFixedReadRows": 4,
+      "outerFixedReadSequence": 6,
+      "outerLastHeight": 2819001,
+      "finiteObservationStep": 68,
+      "laterUnheldNativeWrites": 0,
+      "positiveComparisonPassed": false
+    },
+    "genuineSource": [
+      {
+        "file": "startup_nested_captured_uid_source.jsonl",
+        "case": "nested/21-before-real-live-write-outer-continues",
+        "outerFindMaxOperation": 125,
+        "outerFindMaxEffectOffset": 238,
+        "incomingFirstNetworkEffect": 238,
+        "outerFixedReadOperation": 129,
+        "outerFixedReadEffectOffset": 251,
+        "outerFixedReadRows": 3,
+        "firstTransactionRawRpcEffect": 256,
+        "firstUpsertOperation": 132,
+        "firstUpsertEffectOffset": 262,
+        "parentFulfilledAtOperationCount": 138.0,
+        "selectedPendingOperation": 134,
+        "laterSourceWrites": [
+          140,
+          141,
+          142,
+          166
+        ]
+      },
+      {
+        "file": "startup_nested_captured_uid_source.jsonl",
+        "case": "nested/22-applied-live-write-js-await-held-outer-continues",
+        "outerFindMaxOperation": 125,
+        "outerFindMaxEffectOffset": 238,
+        "incomingFirstNetworkEffect": 238,
+        "outerFixedReadOperation": 129,
+        "outerFixedReadEffectOffset": 251,
+        "outerFixedReadRows": 3,
+        "firstTransactionRawRpcEffect": 256,
+        "firstUpsertOperation": 132,
+        "firstUpsertEffectOffset": 262,
+        "parentFulfilledAtOperationCount": 138.0,
+        "selectedPendingOperation": 134,
+        "laterSourceWrites": [
+          140,
+          141,
+          142,
+          166
+        ]
+      },
+      {
+        "file": "startup_nested_captured_uid_source_locked.jsonl",
+        "case": "nested/21-before-real-live-write-outer-continues",
+        "outerFindMaxOperation": 125,
+        "outerFindMaxEffectOffset": 238,
+        "incomingFirstNetworkEffect": 238,
+        "outerFixedReadOperation": 129,
+        "outerFixedReadEffectOffset": 251,
+        "outerFixedReadRows": 3,
+        "firstTransactionRawRpcEffect": 256,
+        "firstUpsertOperation": 132,
+        "firstUpsertEffectOffset": 262,
+        "parentFulfilledAtOperationCount": 138.0,
+        "selectedPendingOperation": 134,
+        "laterSourceWrites": [
+          140,
+          141,
+          142,
+          166
+        ]
+      },
+      {
+        "file": "startup_nested_captured_uid_source_locked.jsonl",
+        "case": "nested/22-applied-live-write-js-await-held-outer-continues",
+        "outerFindMaxOperation": 125,
+        "outerFindMaxEffectOffset": 238,
+        "incomingFirstNetworkEffect": 238,
+        "outerFixedReadOperation": 129,
+        "outerFixedReadEffectOffset": 251,
+        "outerFixedReadRows": 3,
+        "firstTransactionRawRpcEffect": 256,
+        "firstUpsertOperation": 132,
+        "firstUpsertEffectOffset": 262,
+        "parentFulfilledAtOperationCount": 138.0,
+        "selectedPendingOperation": 134,
+        "laterSourceWrites": [
+          140,
+          141,
+          142,
+          166
+        ]
+      }
+    ],
+    "productionCorrectionIncluded": false,
+    "conclusion": "The coarse DrainFirstIncoming-to-native-await occurs later than the original parent Promise adoption. Yielding at the first transaction RPC alone is already later than the original outer fixed read. A source-derived return-adoption and actual Main RPC/database await continuation is required; no recorded scheduler/result is an execution input."
+  },
+  "promiseEvidence": {
+    "profile": "TL-ORIGINAL-MAIN-V8-PROMISE-NOTIFICATION-EVIDENCE-1",
+    "notificationOnly": true,
+    "noAddedHandlers": true,
+    "noBusinessMethodWrapping": true,
+    "genuineCalls": 4,
+    "records": 32,
+    "graphsAreExecutionInput": false,
+    "promiseRealmBoundary": "Pinned source business classes run in VM context; RecordedClient and util.promisify are actual host functions. Await of their native host Promise creates a source-realm assimilation edge. This is a named harness IO profile, not an inferred universal production ordering.",
+    "initialObserverFailure": "source-promise-order-1 enabled hooks during an already-running Promise callback; its after event legitimately has no previously observed before. Original assertion/log retained; observer2 records the pre-enable boundary without scheduling or source changes.",
+    "proof": [
+      {
+        "case": "nested/21-before-real-live-write-outer-continues",
+        "numeric": "default",
+        "events": 13421,
+        "graphSHA256": "f8ae104d8b7e5d8373afc79e74390027e05fca698b851e9b3b3c5053a770f5e1",
+        "returnChain": [
+          {
+            "method": "at Main.syncIfNecessary (unchanged-class/main.js:492:26)",
+            "promise": 2391,
+            "settledEvent": 7580
+          },
+          {
+            "method": "at Main.constructConsensusFromIndex (unchanged-class/main.js:194:41)",
+            "promise": 351,
+            "settledEvent": 7587
+          },
+          {
+            "method": "at Main.constructOrLoadConsensus (unchanged-class/main.js:169:35)",
+            "promise": 350,
+            "settledEvent": 7595
+          },
+          {
+            "method": "at Main.syncIndex (unchanged-class/main.js:143:20)",
+            "promise": 344,
+            "settledEvent": 7607
+          },
+          {
+            "method": "at Main.initOrLoadTxIndex (unchanged-class/main.js:129:28)",
+            "promise": 326,
+            "settledEvent": 7617
+          }
+        ],
+        "incomingPromise": 2429,
+        "hostRPCPromise": 2430,
+        "foreignAwaitWrapper": 2431,
+        "hostThenReaction": 2433,
+        "sourceAwaitReaction": 2432,
+        "incomingTrackQueryEvent": 7612,
+        "outerMaxQueryEvent": 7636,
+        "incomingTrackRawPromiseSettledEvent": 7670,
+        "outerFixedReadEvent": 7938
+      },
+      {
+        "case": "nested/22-applied-live-write-js-await-held-outer-continues",
+        "numeric": "default",
+        "events": 13385,
+        "graphSHA256": "1130eed7dcfc4f918404e9b0674fb5a17616b9d5cf54978682404cb8e9cd8013",
+        "returnChain": [
+          {
+            "method": "at Main.syncIfNecessary (unchanged-class/main.js:492:26)",
+            "promise": 2391,
+            "settledEvent": 7580
+          },
+          {
+            "method": "at Main.constructConsensusFromIndex (unchanged-class/main.js:194:41)",
+            "promise": 351,
+            "settledEvent": 7587
+          },
+          {
+            "method": "at Main.constructOrLoadConsensus (unchanged-class/main.js:169:35)",
+            "promise": 350,
+            "settledEvent": 7595
+          },
+          {
+            "method": "at Main.syncIndex (unchanged-class/main.js:143:20)",
+            "promise": 344,
+            "settledEvent": 7607
+          },
+          {
+            "method": "at Main.initOrLoadTxIndex (unchanged-class/main.js:129:28)",
+            "promise": 326,
+            "settledEvent": 7617
+          }
+        ],
+        "incomingPromise": 2429,
+        "hostRPCPromise": 2430,
+        "foreignAwaitWrapper": 2431,
+        "hostThenReaction": 2433,
+        "sourceAwaitReaction": 2432,
+        "incomingTrackQueryEvent": 7612,
+        "outerMaxQueryEvent": 7636,
+        "incomingTrackRawPromiseSettledEvent": 7670,
+        "outerFixedReadEvent": 7938
+      },
+      {
+        "case": "nested/21-before-real-live-write-outer-continues",
+        "numeric": "locked",
+        "events": 13421,
+        "graphSHA256": "f8ae104d8b7e5d8373afc79e74390027e05fca698b851e9b3b3c5053a770f5e1",
+        "returnChain": [
+          {
+            "method": "at Main.syncIfNecessary (unchanged-class/main.js:492:26)",
+            "promise": 2391,
+            "settledEvent": 7580
+          },
+          {
+            "method": "at Main.constructConsensusFromIndex (unchanged-class/main.js:194:41)",
+            "promise": 351,
+            "settledEvent": 7587
+          },
+          {
+            "method": "at Main.constructOrLoadConsensus (unchanged-class/main.js:169:35)",
+            "promise": 350,
+            "settledEvent": 7595
+          },
+          {
+            "method": "at Main.syncIndex (unchanged-class/main.js:143:20)",
+            "promise": 344,
+            "settledEvent": 7607
+          },
+          {
+            "method": "at Main.initOrLoadTxIndex (unchanged-class/main.js:129:28)",
+            "promise": 326,
+            "settledEvent": 7617
+          }
+        ],
+        "incomingPromise": 2429,
+        "hostRPCPromise": 2430,
+        "foreignAwaitWrapper": 2431,
+        "hostThenReaction": 2433,
+        "sourceAwaitReaction": 2432,
+        "incomingTrackQueryEvent": 7612,
+        "outerMaxQueryEvent": 7636,
+        "incomingTrackRawPromiseSettledEvent": 7670,
+        "outerFixedReadEvent": 7938
+      },
+      {
+        "case": "nested/22-applied-live-write-js-await-held-outer-continues",
+        "numeric": "locked",
+        "events": 13385,
+        "graphSHA256": "1130eed7dcfc4f918404e9b0674fb5a17616b9d5cf54978682404cb8e9cd8013",
+        "returnChain": [
+          {
+            "method": "at Main.syncIfNecessary (unchanged-class/main.js:492:26)",
+            "promise": 2391,
+            "settledEvent": 7580
+          },
+          {
+            "method": "at Main.constructConsensusFromIndex (unchanged-class/main.js:194:41)",
+            "promise": 351,
+            "settledEvent": 7587
+          },
+          {
+            "method": "at Main.constructOrLoadConsensus (unchanged-class/main.js:169:35)",
+            "promise": 350,
+            "settledEvent": 7595
+          },
+          {
+            "method": "at Main.syncIndex (unchanged-class/main.js:143:20)",
+            "promise": 344,
+            "settledEvent": 7607
+          },
+          {
+            "method": "at Main.initOrLoadTxIndex (unchanged-class/main.js:129:28)",
+            "promise": 326,
+            "settledEvent": 7617
+          }
+        ],
+        "incomingPromise": 2429,
+        "hostRPCPromise": 2430,
+        "foreignAwaitWrapper": 2431,
+        "hostThenReaction": 2433,
+        "sourceAwaitReaction": 2432,
+        "incomingTrackQueryEvent": 7612,
+        "outerMaxQueryEvent": 7636,
+        "incomingTrackRawPromiseSettledEvent": 7670,
+        "outerFixedReadEvent": 7938
+      }
+    ]
+  },
+  "verificationMethod": "Validate every immutable payload, independently recompute both retained analyzers with output replaced by equality assertions, and compare audited current Rust/JS. No source rerun or Core build.",
+  "newRustTests": 0,
+  "newSourceExecutionsByRoot": 0,
+  "productionCorrectionIncluded": false,
+  "positiveQueuedCasesStillFailed": 2,
+  "fullSuitePromotion": false,
+  "authenticationEstablished": false,
+  "completeBlockFraudProofEstablished": false
+}

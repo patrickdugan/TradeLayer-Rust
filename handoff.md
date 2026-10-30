@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T11:43:33Z. Refresh this file after every tested integration or PR cycle.
+Updated: 2026-10-30T12:20:01Z. Refresh this file after every tested integration or PR cycle.
 
 ## Latest tested wire increment (`aeebb65`)
 
@@ -70,3 +70,11 @@ Saved workbook/sidebar match `1ac51ad`:734 scoped library passes/four ignored/th
 ## Wire tracker verification
 
 Saved workbook/sidebar match `aeebb65`:five new plus thirteen unchanged encoder tests and four genuine source regenerations. Prior Main1ac51ad retains734 scoped library checks and the release baseline remains2,204Rust/239numeric. Queued-startup positives are explicitly failed/unpromoted. Ten intended cell edits preserve48TL+one external row/37transaction rows, formulas, styles, filters, panes and geometry; zero formula errors. A mistaken render invocation was restored from the exact prior backup and independently checked before this update. Evidence:`fixtures/reference_fidelity/literal-txencoder-unicode-completeness.json`.
+
+## Confirmed queued-startup ordering diagnosis
+
+Root verified all26causal,33Promise-notification and44review payloads, recomputed both retained analyses without changing frozen artifacts, and matched11audited current Rust leaves plus pinnedMain. The exact actual normal Core provider remainscfbae6455. Actual outer catchup captures4rows/sequence6 includingG+1 and prevents the second live pass; pinned JS captures3rows before the first transaction RPC. Two positive Core comparisons remain failed. This is a real source-ordering gap; no Rust production correction, new Rust pass or release promotion is claimed.
+
+The fix requires same-owner source Promise return/adoption readiness and separate RPC/database await continuations, including outer bootstrap. The observed host-IO/VM-business Promise assimilation is an explicit harness profile, not a universal same-realm production schedule. Never import notification graphs, operation numbers, expected row sets or tick counts as execution inputs; do not move one yield point to make the tests pass. Evidence:`fixtures/reference_fidelity/main-startup-rpc-order-diagnosis.json`. Captured analyzers were rerun; source random IDs and Core were not rerun in this tracker cycle.
+
+Workbook/sidebar now include the diagnosis with six intended cell edits, preserved layout/formulas/filters and zero formula errors. Test counts remain2,204release/239numeric, priorMain734scoped, and wire5new+13old. Fractional wireb50c and mixed livebf8b remain isolated/unintegrated; all authentication/complete-block proof and separateUTXORef gates stay open.
