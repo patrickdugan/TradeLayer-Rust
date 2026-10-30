@@ -1,0 +1,22 @@
+{
+  "independentWorkers": [
+    "sample:A1",
+    "sample:B1",
+    "callback:A1",
+    "callback:B1",
+    "sample:A2",
+    "callback:A2"
+  ],
+  "callbackEnqueues": [
+    "sample:A1",
+    "sample:B1",
+    "callback:A1",
+    "callback:B1",
+    "sample:A2",
+    "sample:C1",
+    "callback:A2",
+    "callback:C1",
+    "sample:A3",
+    "callback:A3"
+  ]
+}

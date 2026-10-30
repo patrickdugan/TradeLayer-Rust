@@ -1,0 +1,82 @@
+{
+  "schema": "tl-main-startup-source-kernel-mount-v1",
+  "verifiedAtUtc": "2026-10-30T17:35:29Z",
+  "inputCommit": "40b543e8ef639b87560947434aac97b70e6430b0",
+  "validatedIn": "clean export of HEAD blobs plus the exact projected files below",
+  "newDistinctTests": 32,
+  "stepKernelModuleTestsPassed": 11,
+  "fullLibraryRun": {
+    "passed": 838,
+    "failed": 0,
+    "ignored": 4
+  },
+  "allTargetClippyWarningsDenied": true,
+  "cargoFmtPassed": true,
+  "includedRustFilesChecked": 530,
+  "inventoryPassed": true,
+  "supplyPolicyPassed": true,
+  "manifests": {
+    "notificationOrderSuccessor": "6e9430fb95b39276009806416b3d139b69d92cf2317751ed023a181b0f6ebc85",
+    "keyVisitors": "f47629e53fe11276e68c0805eba999b205f8ab1c34eca95a290e1001cbcd76f0",
+    "sourceKernelNedb": "c40f3a1e5ee1a6cd5671930bd35e5a72ac36af9ce5daa0b2292656555e1eb3d0"
+  },
+  "rustfmtNormalized": [
+    "src/lib.rs",
+    "src/source_main_startup_promise_component_tests.rs",
+    "src/source_main_startup_source_kernel_tests.rs",
+    "src/source_main_step_kernel.rs"
+  ],
+  "adaptations": [
+    "Promise/NeDB modules, Kernel install/parts API and tests are cfg(test); production consults startup_source_profile_active(), the constant false outside tests, so default Kernel bytes/behavior are unchanged",
+    "two standalone comparisons against the old provider crate now compare with fixtures/startup_kernel_default_v1.txt, captured from the actual pre-mount HEAD rlib (value plus ordered canonical stream)",
+    "one install-refusal control creates its pending old job with service_enqueue(drain bound 0) instead of the uncommitted queued-Kernel helper",
+    "the frozen c40f harness gained the key-visitor and notification module declarations exactly as the live harness has them",
+    "tests reach the JSON parser as crate::issuance_intent instead of through the provider crate; the frozen NeDB executor and Promise reference fixtures are mounted under startup_* names",
+    "the queue imports MainStepLegacyThrow as super:: and the test domain is declared in lib.rs, because tests/source_main_step_canonical_fields.rs re-includes the Kernel file as module `kernel`"
+  ],
+  "sourceFiles": {
+    ".gitattributes": "857bcc676a0494293da92e216864775765a9584207013075759fa5810fd8cddf",
+    ".github/workflows/ci.yml": "5164dbf24cd1992d3277fa6343841553aa013aad35014dd77fb70f197a38ddaa",
+    "docs/LOGIC_BY_TX_TYPE.json": "c4aae9dcfb8f7500e9fdfea8f5099579e9c8fe9093b094a33559a2f8702bbed1",
+    "fixtures/startup_kernel_default_v1.txt": "a51a41eba5afe5c6b904f8eb3e002ec14bdfc8a94c45b0491bc3a832d920d69c",
+    "fixtures/startup_nedb_executor_reference.json": "733e87c9b1a0d4691211a36d1bb3a22ed5046a383e32e062b4b7d07e036ce750",
+    "fixtures/startup_promise_reference.jsonl": "2c322b15a6aedd16b98e48918dfaccc865ae988a9821db00685d08ddf2b4fcee",
+    "scripts/ci-preflight.sh": "c49cfc190090d6e6603cf0f3b9839fce1c072bfa8feb9d4b49980f9064f19328",
+    "src/lib.rs": "8353e6c5f6f3c2f325701e07ad23bf962ec8f97982bb56a1a9622f4df1fcca0f",
+    "src/source_main_startup_nedb_jobs.rs": "83fd3de75aab16fe6be4684d94ac211ecd2e463f4eac86d89d1209ffca4dc395",
+    "src/source_main_startup_nedb_jobs_tests.rs": "20276471e9adba4cfa8d2a76c717649a1d9ce670f32c7d81f6a60f3d7377e397",
+    "src/source_main_startup_notification_order_tests.rs": "1d18d9accc968e3b0dec524a74b489de07ff3578b66fd3aa75b86cb46fa53d83",
+    "src/source_main_startup_promise_component_tests.rs": "f25f6a6bfa8cb7210b79a3acd0d2bce95877ece33b3534e8f156e23a7c2d607a",
+    "src/source_main_startup_promise_key_impl.rs": "87431438e60f273ff07487a109c45e1190d7a928263fb3a7ea8a77081348b615",
+    "src/source_main_startup_promise_key_tests.rs": "8384f9a877a24efe5608a85a7ae82b56bbe3563e73eed30e017b1f34b49853d2",
+    "src/source_main_startup_promise_payload_tests.rs": "61afe9212747bdba8014dc025f0d67db0149a8870522ce0a3157086c98d5c38b",
+    "src/source_main_startup_promise_queue.rs": "60e37a5c94e50b62a136e59b5f755faaea28fa55e272ab8ff36c59cfdee71d95",
+    "src/source_main_startup_source_kernel_gate_impl.rs": "edc5821dc4a36adcd89cc80317e12172d41472f7944e115fce21f23ba737957b",
+    "src/source_main_startup_source_kernel_impl.rs": "8bdac74bc5a655e6d2f2bf9be3096ceaaff9017d8f761ce15fd01a5adc5c2428",
+    "src/source_main_startup_source_kernel_tests.rs": "99ba2aff5bd97a27c0cce7967c8c0484f893e4754d6b78ea308ea75fb4e3ab1d",
+    "src/source_main_step_fields_impl.rs": "24631e07d4c458ad793f4e8822ca5aed27014bfa0cfb755231d1c0ff5d7faea8",
+    "src/source_main_step_kernel.rs": "3a15b790db2143f0b4395db8b340027bc06830ad649a28310b33568b0db3b325"
+  },
+  "scope": {
+    "sameKernelOwnsPromiseAndNedbQueues": true,
+    "productionAdmission": false,
+    "outerFrameBoundToKernel": false,
+    "incomingReturnChainController": false,
+    "queuedStartupPositivesPass": false,
+    "fullReferenceParityEstablished": false
+  },
+  "notificationOrderEvidence": "author metadata log only before this mount; this run is the first Root-hosted execution",
+  "verifiedAllTargetBaseline": 2204,
+  "verifiedLockedReferenceBaseline": 239,
+  "fullAllTargetReleasePromoted": false,
+  "logs": {
+    "claude-kernel-mount-r4-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "claude-kernel-mount-r4-included-fmt.log": "595a3af1b04b976e0db85fd01540cdd3eea5d2138450eb47284c5a30d61ffeda",
+    "claude-kernel-mount-r4-inventory.log": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393",
+    "claude-kernel-mount-r4-supply.log": "0776ee193cd484c8ec22b752845ad6d4cfbc9ac99e5de3597070ba4a42ea6798",
+    "claude-kernel-mount-r4-clippy.log": "e7a0e788c2f011df0653279f56cd58dcca091a34d28573a86e1b886eaa34b4d9",
+    "claude-kernel-mount-r4-test-startup_source_kernel_tests.log": "47263de6a53b542a8fb3a35b7c14fbfdb18726c709f94fd72acf6d4fe2358925",
+    "claude-kernel-mount-r4-test-source_main_step_kernel.log": "4c2ee3c24251597c84125872184441295ef9da2a511f25975dfe26e1e61865cd",
+    "claude-kernel-mount-r4-lib.log": "1506f777def252bb41dfef3b07295fd130033e950e07a6525645d54701f8cc2c"
+  }
+}

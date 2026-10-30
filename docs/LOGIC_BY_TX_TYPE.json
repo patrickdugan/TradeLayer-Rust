@@ -525,7 +525,7 @@
     },
     {
       "path": "src/lib.rs",
-      "sha256": "5fed4ad8660ac15784c710ef0c37a1185250abdaf901bacae2d97ee4022ab73a",
+      "sha256": "8353e6c5f6f3c2f325701e07ad23bf962ec8f97982bb56a1a9622f4df1fcca0f",
       "lfNormalized": true
     },
     {
@@ -585,7 +585,7 @@
     },
     {
       "path": "src/source_main_step_fields_impl.rs",
-      "sha256": "b37f42030521cd1e97c9034eded8ab4dbbd33a7a73fe4c9a9ce903e890728532",
+      "sha256": "24631e07d4c458ad793f4e8822ca5aed27014bfa0cfb755231d1c0ff5d7faea8",
       "lfNormalized": true
     },
     {
@@ -610,7 +610,7 @@
     },
     {
       "path": "src/source_main_step_kernel.rs",
-      "sha256": "a5e6d3bd8cbc6ae439f1ca66424bb4f3c799709653fac652846babc640b72eb4",
+      "sha256": "3a15b790db2143f0b4395db8b340027bc06830ad649a28310b33568b0db3b325",
       "lfNormalized": true
     },
     {
@@ -2641,6 +2641,61 @@
     {
       "path": "src/source_main_startup_query_await_tests.rs",
       "sha256": "54414c66dc2ca795c66bc4923529cea5ca16e76bb77092da33e1e75982e552bd",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_startup_nedb_jobs.rs",
+      "sha256": "83fd3de75aab16fe6be4684d94ac211ecd2e463f4eac86d89d1209ffca4dc395",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_startup_nedb_jobs_tests.rs",
+      "sha256": "20276471e9adba4cfa8d2a76c717649a1d9ce670f32c7d81f6a60f3d7377e397",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_startup_notification_order_tests.rs",
+      "sha256": "1d18d9accc968e3b0dec524a74b489de07ff3578b66fd3aa75b86cb46fa53d83",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_startup_promise_component_tests.rs",
+      "sha256": "f25f6a6bfa8cb7210b79a3acd0d2bce95877ece33b3534e8f156e23a7c2d607a",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_startup_promise_key_impl.rs",
+      "sha256": "87431438e60f273ff07487a109c45e1190d7a928263fb3a7ea8a77081348b615",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_startup_promise_key_tests.rs",
+      "sha256": "8384f9a877a24efe5608a85a7ae82b56bbe3563e73eed30e017b1f34b49853d2",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_startup_promise_payload_tests.rs",
+      "sha256": "61afe9212747bdba8014dc025f0d67db0149a8870522ce0a3157086c98d5c38b",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_startup_promise_queue.rs",
+      "sha256": "60e37a5c94e50b62a136e59b5f755faaea28fa55e272ab8ff36c59cfdee71d95",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_startup_source_kernel_gate_impl.rs",
+      "sha256": "edc5821dc4a36adcd89cc80317e12172d41472f7944e115fce21f23ba737957b",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_startup_source_kernel_impl.rs",
+      "sha256": "8bdac74bc5a655e6d2f2bf9be3096ceaaff9017d8f761ce15fd01a5adc5c2428",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_startup_source_kernel_tests.rs",
+      "sha256": "99ba2aff5bd97a27c0cce7967c8c0484f893e4754d6b78ea308ea75fb4e3ab1d",
       "lfNormalized": true
     }
   ],

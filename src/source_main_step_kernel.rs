@@ -163,6 +163,10 @@ pub struct MainStepKernelV1 {
     file_retries: bool,
     native_file_blocks: bool,
     native_file_tail_parked: Option<MainServiceBlockRequest>,
+    #[cfg(test)]
+    startup_source_promises: Option<startup_source_promise_queue::StartupPromiseQueue>,
+    #[cfg(test)]
+    startup_source_nedb_jobs: Option<startup_source_nedb_jobs::StartupNedbQueue>,
     generation: u64,
     next_job: u64,
     next_timer: u64,
@@ -291,6 +295,10 @@ impl MainStepKernelV1 {
             file_retries: false,
             native_file_blocks: false,
             native_file_tail_parked: None,
+            #[cfg(test)]
+            startup_source_promises: None,
+            #[cfg(test)]
+            startup_source_nedb_jobs: None,
             next_job: 1,
             next_timer: 1,
             logical_time: n(0.),
@@ -308,6 +316,9 @@ impl MainStepKernelV1 {
         kernel
     }
     pub fn source_profile(&self) -> &'static str {
+        if self.startup_source_profile_active() {
+            return "TL-MAIN-VM-BUSINESS-HOST-IO-13-1";
+        }
         if self.native_file_blocks {
             return AUTOMATIC_NATIVE_FILE_KERNEL_PROFILE;
         }
@@ -856,6 +867,14 @@ impl MainStepKernelV1 {
         command: MainStepCommandV1,
         drain_bound: Option<usize>,
     ) -> Result<MainStepEvaluationV1, MainStepError> {
+        // A typed source-await controller is the sole driver of its new
+        // Promise domain. Old generic commands cannot silently reinterpret it.
+        // Literal shutdown retains its unconditional no-drain behavior.
+        if self.startup_source_profile_active()
+            && !matches!(command, MainStepCommandV1::Shutdown(_))
+        {
+            return Err(MainStepError::InvalidInput);
+        }
         if drain_bound.is_some_and(|bound| bound > MAX_STEPS) {
             return Err(MainStepError::InvalidInput);
         }
@@ -1132,7 +1151,7 @@ impl MainStepKernelV1 {
     /// Diagnostic output only. No state-import API exists: restart must
     /// reexecute independently bound source/control commands from its foundation.
     pub fn value(&self) -> V {
-        obj(&[
+        let mut fields = vec![
             ("profile", s(self.source_profile())),
             ("source", s(MAIN_SOURCE_SHA256)),
             ("generation", s(self.generation.to_string())),
@@ -1221,7 +1240,11 @@ impl MainStepKernelV1 {
                 "terminal",
                 self.terminal.map_or(V::Null, |code| n(code as f64)),
             ),
-        ])
+        ];
+        if self.startup_source_profile_active() {
+            fields.push(("startupPromisesRequireCanonicalFields", V::Bool(true)));
+        }
+        obj(&fields)
     }
 }
 impl MainStepEvaluationV1 {
@@ -1370,3 +1393,13 @@ include!("source_main_startup_nested_kernel_impl.rs");
 #[cfg(test)]
 #[path = "source_main_startup_nested_kernel_tests.rs"]
 mod startup_nested_kernel_tests;
+
+#[cfg(test)]
+#[path = "source_main_startup_nedb_jobs.rs"]
+pub(crate) mod startup_source_nedb_jobs;
+#[cfg(test)]
+#[path = "source_main_startup_promise_queue.rs"]
+pub(crate) mod startup_source_promise_queue;
+#[cfg(test)]
+include!("source_main_startup_source_kernel_impl.rs");
+include!("source_main_startup_source_kernel_gate_impl.rs");

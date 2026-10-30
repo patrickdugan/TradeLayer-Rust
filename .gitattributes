@@ -346,3 +346,8 @@ scripts/orderbook_lifecycle_helpers.cjs text eol=lf
 
 # Independent complete old-provider query observations.
 fixtures/startup_await_old_db_complete.jsonl text eol=lf
+
+# Same-Kernel startup Promise/NeDB reference observations.
+fixtures/startup_promise_reference.jsonl text eol=lf
+fixtures/startup_nedb_executor_reference.json text eol=lf
+fixtures/startup_kernel_default_v1.txt text eol=lf

@@ -258,6 +258,7 @@ impl MainStepKernelV1 {
         if let Some(error) = &self.owner_stopped {
             emit("ownerStopped/error", &s(error.to_string()))?;
         }
+        self.startup_visit_source_promises(emit)?;
         emit("terminal/present", &V::Bool(self.terminal.is_some()))?;
         if let Some(code) = self.terminal {
             field_uint("terminal/code", code.into(), emit)?;

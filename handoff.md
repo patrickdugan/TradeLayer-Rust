@@ -1,6 +1,10 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T17:07:49Z. Refresh this file after every tested integration or PR cycle.
+Updated: 2026-10-30T17:35:29Z. Refresh this file after every tested integration or PR cycle.
+
+## Same-Kernel startup Promise/NeDB components (Claude integration)
+
+The notification-order successor queue, key visitors and NeDB jobs are mounted in the existing step Kernel as a cfg(test) domain; production uses a constant-false gate, so default Kernel behavior is unchanged. 32 component controls run inside Root for the first time and pass, with the step-Kernel module (11) and the full library (838 passed, 4 ignored). Old-provider comparisons use a fixture captured from the pre-mount HEAD rlib. Strict Clippy/fmt/inventory/supply pass. Not production admission: the outer frame is not yet bound to this queue, and the Incoming/return-chain controller and queued positives remain open. Evidence:`fixtures/reference_fidelity/main-startup-source-kernel-mount-integration.json`. No push/PR.
 
 ## Outer/query frames and copied-prefix cold entry (Claude integration)
 

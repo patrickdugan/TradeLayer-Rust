@@ -1,0 +1,7 @@
+{"case":"foreign-first","observations":[{"continuation":2,"kind":"Fulfilled","value":2},{"continuation":1,"kind":"Fulfilled","value":1}]}
+{"case":"return-adoption-chain","observations":[{"continuation":1,"kind":"Fulfilled","value":7},{"continuation":3,"kind":"Fulfilled","value":7}]}
+{"case":"adoption-first-resolution-wins","observations":[{"continuation":1,"kind":"Fulfilled","value":7}]}
+{"case":"competing-ready-same-and-foreign","observations":[{"continuation":1,"kind":"Fulfilled","value":9},{"continuation":2,"kind":"Fulfilled","value":5}]}
+{"case":"two-catches-same-error","observations":[{"continuation":1,"kind":"Rejected","name":"Error","message":"actual IO rejection","code":["string","EIO"],"identity":1},{"continuation":2,"kind":"Rejected","name":"Error","message":"actual IO rejection","code":["string","EIO"],"identity":1}]}
+{"case":"late-catch-notifications","observations":[{"notification":"Unhandled"},{"continuation":1,"kind":"Rejected","name":"Error","message":"actual IO rejection","code":["string","EIO"],"identity":1},{"notification":"HandledLater"}]}
+{"case":"self-cycle-native-type-error","observations":[{"continuation":1,"kind":"Rejected","name":"TypeError","message":"Chaining cycle detected for promise #<Promise>","code":["undefined"],"identity":1}]}

@@ -233,6 +233,9 @@ pub mod source_main_native_session;
 pub mod source_main_raw_startup;
 pub mod source_main_retained_caller_action;
 pub mod source_main_startup_prefix;
+#[cfg(test)]
+#[path = "source_main_startup_source_kernel_tests.rs"]
+mod source_main_startup_source_kernel_tests;
 pub mod source_main_step_kernel;
 
 pub mod source_rich_value;

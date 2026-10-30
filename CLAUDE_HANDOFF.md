@@ -55,9 +55,13 @@ The failed queued-startup proposal is still only in the dirty checkout and was n
 
 Tooling notes: this machine has only Windows PowerShell 5.1, which turns native stderr into terminating errors under `$ErrorActionPreference=Stop`; run gates through `cmd /c ... > log 2>&1`. `cargo fmt --all` fails with os error 206 (command line too long) when the checkout path is longer than the repository path, so exports go to a short path.
 
+### Same-Kernel Promise/NeDB mount (committed)
+
+The c40f/f476/6e94 components now live in Root as a cfg(test) domain of `MainStepKernelV1` (32 controls pass in Root, full library 838 passed/4 ignored). Production consults `startup_source_profile_active()`, constant false outside tests. Remove that gate only when a production containing controller exists. Mount script and gates: `work/claude-source-kernel-mount-1/`. Evidence: `fixtures/reference_fidelity/main-startup-source-kernel-mount-integration.json`.
+
 ### First next action
 
-Implement the strict native raw-request capture transform (step 2 of `work/native-main-outer-bootstrap-kernel-binding-v13/CLAUDE_HANDOFF.md`) in a new revision against current one-line formatting, then bind outer hooks to the same `MainStepKernelV1::startup_source_parts()` queue.
+Implement the strict native raw-request capture transform (step 2 of `work/native-main-outer-bootstrap-kernel-binding-v13/CLAUDE_HANDOFF.md`) against current one-line formatting, then bind the outer hooks to `MainStepKernelV1::startup_source_parts()` with an exact-key registry and tests that consume the hook/access leaves (they are dead code until consumed, so they must mount together).
 
 ## Main remaining blocker: actual startup scheduling
 
