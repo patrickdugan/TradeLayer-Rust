@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T00:23:36Z. Refresh after every tested integration cycle.
+Updated: 2026-10-30T00:24:26Z. Refresh after every tested integration cycle.
 
 ## Current checkpoint
 
@@ -83,3 +83,7 @@ Then run the integrated RC path, consume collaborator fuzz results and perform t
 ## Latest rejected-append correction
 
 Actual-source controls cover ordinary append, an intervening pause and genuine Before/Intermediate/Post recovery. They retain the full source observation, RPC/effect prefix, original financial/index owner and unresolved await after rejection. Metadata controls reject missing prior ACK, changed configuration/TLNM/observation, wrong error, an already resolved prior action and a false rejection masking a real extra native publication. A supported unmatched update checks the no-write case and one-time computed zero result; rejected ACKs never supply an inline closure. The original failed gates are retained. No new JavaScript oracle cases, transaction rows or authenticated proof claims are added.
+
+## Latest scoped workbook refresh
+
+Saved/sidebar now show58b89a8/557library and tested rejected-append correction scope, while the complete release stays2,142Rust/239numeric. Thirteen intentional edits preserve all48TL modules/one external reference/37transaction rows, formulas/styles/filters/panes/geometry and proof gates, with zero formula errors. Verification:`fixtures/reference_fidelity/mode4-rejected-append-completeness.json`. No pending selected-caller/native-recovery or raw-sourceMode4 replay work is promoted.
