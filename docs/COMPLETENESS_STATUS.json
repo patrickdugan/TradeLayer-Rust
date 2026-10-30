@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-30T00:24:26Z",
-  "inspectedCheckoutCommit": "58b89a8759f6c818c638934b65f68cc2ed688ff9",
+  "verifiedAtUtc": "2026-10-30T01:40:55Z",
+  "inspectedCheckoutCommit": "bf9072c933f64b9d2fcff1968685d25beaf6cc69",
   "verifiedImplementationCommit": "a94ea4c7cdf4677d7d48455d65363edd263a16c1",
   "verifiedReleaseTests": 2204,
   "topLevelTests": 2203,
@@ -1210,10 +1210,11 @@
       "fullSuitePromotion": false,
       "ordinaryMode4SourceReexecutionOnly": true,
       "automaticFileNativeTailClosed": false,
-      "nullSyncIntegrated": false
+      "nullSyncIntegrated": false,
+      "commit": "bf9072c933f64b9d2fcff1968685d25beaf6cc69"
     }
   },
-  "scope": "Full release a94ea4c remains 2,204 Rust /239 genuine numeric checks. Later 58b89a8 passes 557 library and44 public checks, with five new actual-source and three metadata controls. Rejected appends retain prior native lineage without another publication or source return. Current API rejection no longer reuses an older storage failure. Selected caller recovery, ordinary Mode4 source replay and coercive Sync candidates await Root integration.",
+  "scope": "Full release a94ea4c remains 2,204 Rust / 239 genuine numeric checks. Later bf9072c passes 594 library (four ignored) and44 public checks, strict Clippy, formatting of 338 included files, inventory and supply policy. Selected caller WAL/recovery, primitive coercive Sync, direct file retries and ordinary Mode4 source replay through three native operations are integrated. Automatic file/native tail, null/global startup, recovery cold replay, fresh facts and history rotation remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -1505,14 +1506,14 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Full release a94ea4c remains 2,204 Rust /239 genuine numeric checks. Later 58b89a8 passes 557 library and44 public checks, with five new actual-source and three metadata controls. Rejected appends retain prior native lineage without another publication or source return. Current API rejection no longer reuses an older storage failure. Selected caller recovery, ordinary Mode4 source replay and coercive Sync candidates await Root integration.",
+  "workbookNote": "Full release a94ea4c remains 2,204 Rust / 239 genuine numeric checks. Later bf9072c passes 594 library (four ignored) and44 public checks, strict Clippy, formatting of 338 included files, inventory and supply policy. Selected caller WAL/recovery, primitive coercive Sync, direct file retries and ordinary Mode4 source replay through three native operations are integrated. Automatic file/native tail, null/global startup, recovery cold replay, fresh facts and history rotation remain open.",
   "savedWorkbook": {
-    "sha256": "cc7134dfb1bd320504135ea0b7eb6b29f6f6136942ee0166b0a2438222cfcadc",
-    "bytes": 47937,
+    "sha256": "a5c5e555b021e62bc998a448314b08b2ae18123eda75f2e18ae8eca9db6be1e4",
+    "bytes": 47985,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-30T00:24:26Z",
+    "asOfUtc": "2026-10-30T01:40:55Z",
     "rowHashes": {
-      "modules": 163120787,
+      "modules": 3430289806,
       "logic": 1151758449
     },
     "verifiedEdits": 13,
@@ -1520,10 +1521,10 @@
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-30T00:24:26Z",
-    "sha256": "cc7134dfb1bd320504135ea0b7eb6b29f6f6136942ee0166b0a2438222cfcadc",
+    "verifiedAtUtc": "2026-10-30T01:40:55Z",
+    "sha256": "a5c5e555b021e62bc998a448314b08b2ae18123eda75f2e18ae8eca9db6be1e4",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 163120787,
+    "moduleRowsFNV": 3430289806,
     "logicRowsFNV": 1151758449,
     "intentionalCellChanges": 13,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
@@ -1531,7 +1532,7 @@
     "errors": 0,
     "releasePromotionPending": false,
     "laterScopedFullReleasePromotionPending": true,
-    "lastFocusedCodeCommit": "58b89a8759f6c818c638934b65f68cc2ed688ff9",
+    "lastFocusedCodeCommit": "bf9072c933f64b9d2fcff1968685d25beaf6cc69",
     "releaseBaselinePromoted": true,
     "releaseExecutions": 2204,
     "lockedReferenceExecutions": 239,
@@ -1553,10 +1554,10 @@
     "lockedReferenceExecutions": 239,
     "record": "fixtures/reference_fidelity/inline-channel-release-validation.json"
   },
-  "focusedValidationRecord": "fixtures/reference_fidelity/mode4-rejected-append-core-integration.json",
-  "focusedImplementationCommit": "58b89a8759f6c818c638934b65f68cc2ed688ff9",
-  "focusedVerifiedAtUtc": "2026-10-30T00:23:36Z",
-  "lastFocusedCodeCommit": "58b89a8759f6c818c638934b65f68cc2ed688ff9",
+  "focusedValidationRecord": "fixtures/reference_fidelity/main-composition-core-integration.json",
+  "focusedImplementationCommit": "bf9072c933f64b9d2fcff1968685d25beaf6cc69",
+  "focusedVerifiedAtUtc": "2026-10-30T01:38:11Z",
+  "lastFocusedCodeCommit": "bf9072c933f64b9d2fcff1968685d25beaf6cc69",
   "recoveryPackage": {
     "commit": "9e2baa234a487c47f5a5160440b801347a668f30",
     "archiveSHA256": "acce9e5db7c65adef0246cf01581b4c06db0fd3cf356d1cdfa6528b47fff992f",

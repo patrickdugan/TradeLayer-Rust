@@ -1,10 +1,10 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T01:38:11Z. Refresh after every tested integration cycle.
+Updated: 2026-10-30T01:40:55Z. Refresh after every tested integration cycle.
 
 ## Current checkpoint
 
-The tested implementation is `a94ea4c7cdf4677d7d48455d65363edd263a16c1`. Release evidence was committed as `4a85b00e8a5365e018e5b1f50fb347058e4af473`.
+The last complete-release implementation is `a94ea4c7cdf4677d7d48455d65363edd263a16c1`. Release evidence was committed as `4a85b00e8a5365e018e5b1f50fb347058e4af473`.
 
 - **2,204 Rust executions:** 2,203 top-level tests plus one successful storage child, across 283 targets.
 - **239 genuine BigNumber 9.1.2 checks:** the exact 87-target numeric CI list.
@@ -22,7 +22,7 @@ Later focused correction: rejected append ACKs now preserve the prior original/r
 
 ## Latest tested composition
 
-The latest focused batch passes **594 library tests (four ignored), 44 public checks, all-target Clippy with warnings denied, Cargo formatting, 338 included-file formatting checks, inventory and supply policy**. Its 37 new unit tests cover selected caller WAL/native recovery, primitive coercive Sync, direct retained file retries and ordinary Mode4 raw-source reexecution through three successive native operations. Counts overlap with the full release; do not add them to it.
+The latest focused batch, `bf9072c933f64b9d2fcff1968685d25beaf6cc69`, passes **594 library tests (four ignored), 44 public checks, all-target Clippy with warnings denied, Cargo formatting, 338 included-file formatting checks, inventory and supply policy**. Its 37 new unit tests cover selected caller WAL/native recovery, primitive coercive Sync, direct retained file retries and ordinary Mode4 raw-source reexecution through three successive native operations. Counts overlap with the full release; do not add them to it.
 
 The original JavaScript coercive corpus regenerates identically under genuine BigNumber 9.3.1 and9.1.2: 26 calls/78 observations per profile, including the independently checked first10. The source numeric comparisons preserve literal string/number/boolean/undefined behavior and the special primitive string equality branch. Null and object inputs remain outside this explicit profile.
 
@@ -91,3 +91,9 @@ Then run the integrated RC path, consume collaborator fuzz results and perform t
 ## Latest rejected-append correction
 
 Actual-source controls cover ordinary append, an intervening pause and genuine Before/Intermediate/Post recovery. They retain the full source observation, RPC/effect prefix, original financial/index owner and unresolved await after rejection. Metadata controls reject missing prior ACK, changed configuration/TLNM/observation, wrong error, an already resolved prior action and a false rejection masking a real extra native publication. A supported unmatched update checks the no-write case and one-time computed zero result; rejected ACKs never supply an inline closure. The original failed gates are retained. No new JavaScript oracle cases, transaction rows or authenticated proof claims are added.
+
+## Latest scoped workbook refresh
+
+The saved workbook and sidebar show `bf9072c`: **594 library tests / 44 public checks**. The complete release remains **2,204 Rust / 239 numeric checks**. Thirteen intentional edits preserve all 48 TL modules, one external reference, 37 transaction rows, formulas, styles, filters, panes and geometry. Zero formula errors. Evidence: `fixtures/reference_fidelity/main-composition-completeness.json`.
+
+Automatic file/native-tail composition, null/global startup and broader recovery replay remain pending. Frozen next candidates include null Sync `962c7897` and its independent nonempty live-prefix control `03c4ff78`; neither has passed Root Core integration. Current worker stages and next-run pointers are maintained in `work/root-resume-current.json` outside the repository.

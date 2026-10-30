@@ -1,0 +1,26 @@
+{
+  "schema": "tl-main-composition-completeness-v1",
+  "verifiedAtUtc": "2026-10-30T01:40:55Z",
+  "checkoutCommit": "bf9072c933f64b9d2fcff1968685d25beaf6cc69",
+  "beforeWorkbookSHA256": "cc7134dfb1bd320504135ea0b7eb6b29f6f6136942ee0166b0a2438222cfcadc",
+  "releaseRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json",
+  "releaseRecordSHA256": "55a183f033a19d4e75e238cbc59cca12785610d1ba6c35d32774c313635f9aa7",
+  "scopedRecord": "fixtures/reference_fidelity/main-composition-core-integration.json",
+  "scopedRecordSHA256": "4e19c1a0641c2b5687098653615b4330f0a770eac986fdf0a560d0feb511bd03",
+  "releaseExecutions": 2204,
+  "lockedReferenceExecutions": 239,
+  "scopedLibraryPassed": 594,
+  "fullSuitePromotion": false,
+  "authenticationEstablished": false,
+  "completeBlockFraudProofEstablished": false,
+  "savedWorkbookSHA256": "a5c5e555b021e62bc998a448314b08b2ae18123eda75f2e18ae8eca9db6be1e4",
+  "savedAndSidebarRowsMatch": true,
+  "rowHashes": {
+    "modules": 3430289806,
+    "logic": 1151758449
+  },
+  "intentionalCellChanges": 13,
+  "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
+  "visualReviewPassed": true,
+  "errors": 0
+}
