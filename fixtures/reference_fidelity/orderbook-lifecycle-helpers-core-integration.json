@@ -49,5 +49,14 @@
     "root-mixed-cold-regression-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "root-mixed-cold-corrected-included-fmt.log": "7f2b89fbcad248e15022e8794f79b35e2c51781c575b37bd443baa62dd85172d",
     "root-mixed-cold-corrected-aux.log": "fe2407f250af0381558ed68d708a44e102562c5cf63a2d72212118249c459293"
+  },
+  "initialExactCommittedExport": {
+    "commit": "6a62e3851054267da72516fe4f6f284a7bba84cb",
+    "failure": "Missing LF attributes allowed Windows Git archive conversion of source fixtures to CRLF; byte-exact proof check failed before source cases",
+    "logSHA256": "2a6508da35e9887e792833f711c8c68ea20f1c3544b943b4a1f756f1944306cb",
+    "proofExpectedBytes": 145658,
+    "proofExportBytes": 145668,
+    "assertionsChanged": false,
+    "correction": "Explicit text eol=lf for both new JSONL files and generator; pending exact committed rerun"
   }
 }

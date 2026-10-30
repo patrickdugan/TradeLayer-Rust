@@ -338,3 +338,8 @@ scripts/startup_init_suffix_controls.cjs text eol=lf
 fixtures/startup_init_warm_client.jsonl text eol=lf
 fixtures/startup_init_warm_client_locked.jsonl text eol=lf
 scripts/startup_init_warm_client_controls.cjs text eol=lf
+
+# Preserve complete-source orderbook corpus bytes through Windows exports.
+fixtures/orderbook_lifecycle_helpers.jsonl text eol=lf
+fixtures/orderbook_lifecycle_helpers_proof10.jsonl text eol=lf
+scripts/orderbook_lifecycle_helpers.cjs text eol=lf
