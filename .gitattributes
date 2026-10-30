@@ -326,3 +326,12 @@ fixtures/main_fresh_input_service_chain.jsonl text eol=lf
 fixtures/main_fresh_input_service_chain_locked.jsonl text eol=lf
 scripts/native_main_fresh_input_controls.cjs text eol=lf
 scripts/native_main_fresh_input_service_chain_controls.cjs text eol=lf
+fixtures/startup_init_first10.jsonl text eol=lf
+fixtures/startup_init_first10_locked.jsonl text eol=lf
+fixtures/startup_init_source_inputs.json text eol=lf
+scripts/startup_init_controls.cjs text eol=lf
+scripts/startup_init_observer.cjs text eol=lf
+scripts/startup_init_source_base.cjs text eol=lf whitespace=-blank-at-eof
+fixtures/startup_init_suffix.jsonl text eol=lf
+fixtures/startup_init_suffix_locked.jsonl text eol=lf
+scripts/startup_init_suffix_controls.cjs text eol=lf

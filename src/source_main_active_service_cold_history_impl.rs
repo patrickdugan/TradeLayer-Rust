@@ -197,11 +197,39 @@ impl VerifiedActiveServiceAckHistoryV1 {
         expected: &ActiveServiceWalPinV1,
         inline: bool,
     ) -> Result<Self> {
-        let history_profile = if inline {
-            MODE4_INLINE_WAL_PROFILE
-        } else {
-            ENHANCED_HISTORY_PROFILE
-        };
+        Self::open_profile_exact(
+            root,
+            namespace,
+            expected,
+            if inline {
+                ExactAckHistoryProfileV1::Mode4
+            } else {
+                ExactAckHistoryProfileV1::History
+            },
+            None,
+        )
+    }
+    fn open_profile_exact(
+        root: &Path,
+        namespace: Namespace,
+        expected: &ActiveServiceWalPinV1,
+        exact: ExactAckHistoryProfileV1,
+        metadata_namespace: Option<&Namespace>,
+    ) -> Result<Self> {
+        let inline = exact.inline();
+        let facts = exact.facts();
+        let history_profile = exact.profile();
+        if facts {
+            mode4_namespace(
+                &namespace,
+                metadata_namespace.ok_or(ActiveServiceWalErrorV1::WrongContext)?,
+            )?;
+        }
+        let mut fact_optional = Vec::new();
+        if facts {
+            fact_optional.extend(["nativeRecovery", "generationEscrow"]);
+            fact_optional.extend_from_slice(ACTUAL_SOURCE_FACT_ENTRY_FIELDS);
+        }
         let root = directory(root)?;
         if expected.profile != PROFILE
             || expected.root != root
@@ -248,8 +276,13 @@ impl VerifiedActiveServiceAckHistoryV1 {
         if inline {
             origin_keys.extend(["generationEscrow", "requiredInlineServiceProfile"]);
         }
+        if facts {
+            origin_keys.extend(["requiredNativeFactProfile", "actualNativeFactScope"]);
+        }
         history_keys(&origin, &origin_keys, &[])?;
-        if inline {
+        if facts {
+            actual_source_fact_origin(&origin)?;
+        } else if inline {
             mode4_require_origin(&origin)?;
         }
         if origin.get("profile") != s(history_profile) {
@@ -272,6 +305,9 @@ impl VerifiedActiveServiceAckHistoryV1 {
             commit_probe: None,
         };
         let record = store.record()?;
+        if facts {
+            actual_source_fact_entry_shape(&record)?;
+        }
         history_keys(
             &record,
             &[
@@ -290,7 +326,9 @@ impl VerifiedActiveServiceAckHistoryV1 {
                 "verifiedHistoryBefore",
                 "verifiedHistoryPost",
             ],
-            if inline {
+            if facts {
+                &fact_optional
+            } else if inline {
                 &["nativeRecovery", "generationEscrow"]
             } else {
                 &["nativeRecovery"]
@@ -320,6 +358,9 @@ impl VerifiedActiveServiceAckHistoryV1 {
         for sequence in (1..=count).rev() {
             let raw = history_read_blob(&store, &next.value(), &mut budget)?;
             let entry = parse(&raw)?;
+            if facts {
+                actual_source_fact_entry_shape(&entry)?;
+            }
             history_keys(
                 &entry,
                 &[
@@ -335,7 +376,9 @@ impl VerifiedActiveServiceAckHistoryV1 {
                     "verifiedHistoryBefore",
                     "verifiedHistoryPost",
                 ],
-                if inline {
+                if facts {
+                    &fact_optional
+                } else if inline {
                     &["nativeRecovery", "generationEscrow"]
                 } else {
                     &["nativeRecovery"]
@@ -368,7 +411,12 @@ impl VerifiedActiveServiceAckHistoryV1 {
                 ]
                 .into_iter()
                 .chain(inline.then_some("generationEscrow"))
-                {
+                .chain(
+                    ACTUAL_SOURCE_FACT_ENTRY_FIELDS
+                        .iter()
+                        .copied()
+                        .filter(|_| facts),
+                ) {
                     if record.get(name) != entry.get(name) {
                         return Err(ActiveServiceWalErrorV1::WrongContext);
                     }

@@ -257,7 +257,28 @@ fn mode4_snapshot(pin: &SourceIndexHistoryPinV1) -> V {
         ("manifest", s(hex(&p.manifest_sha256d))),
     ])
 }
-impl VerifiedInlineActiveServiceAckHistoryV1 {
+
+struct InlinePhysicalClosureDataV1 {
+    sequence: u64,
+    action: ActiveServiceWalBlobV1,
+    before: SourceIndexHistoryPinV1,
+    post: SourceIndexHistoryPinV1,
+    recovery_links: usize,
+    escrow_links: usize,
+}
+trait InlinePhysicalHistoryAccessV1 {
+    fn entries(&self) -> &[VerifiedActiveServiceAckEntryV1];
+    fn origin(&self) -> &V;
+    fn origin_history(&self) -> &[u8];
+    fn entry_value(&self, entry: &VerifiedActiveServiceAckEntryV1) -> Result<V>;
+    fn decoded_action(
+        &self,
+        entry: &VerifiedActiveServiceAckEntryV1,
+    ) -> Result<crate::source_main_native_session::NativeMainActiveServiceActionV1>;
+    fn read_reference(&self, pin: &ActiveServiceWalBlobV1) -> Result<Vec<u8>>;
+    fn closure_metadata_namespace(&self) -> &Namespace;
+    fn closure_records(&self) -> &[(u64, V)];
+
     // This validates a recorded no-publication relation only. The diagnostic
     // is not an execution result or permission to resolve a historical await.
     fn mode4_require_rejected_reappend(
@@ -310,11 +331,8 @@ impl VerifiedInlineActiveServiceAckHistoryV1 {
         Ok(())
     }
     fn mode4_pin(&self, raw: &[u8]) -> Result<SourceIndexHistoryPinV1> {
-        SourceIndexHistoryPinV1::from_canonical_scalar_bytes(
-            &self.independent.metadata_namespace,
-            raw,
-        )
-        .map_err(|_| ActiveServiceWalErrorV1::WrongPin)
+        SourceIndexHistoryPinV1::from_canonical_scalar_bytes(self.closure_metadata_namespace(), raw)
+            .map_err(|_| ActiveServiceWalErrorV1::WrongPin)
     }
     fn mode4_chain(&self, start: V, escrow: bool) -> Result<Vec<(ActiveServiceWalBlobV1, V)>> {
         let mut reference = start;
@@ -370,7 +388,7 @@ impl VerifiedInlineActiveServiceAckHistoryV1 {
                 return Err(ActiveServiceWalErrorV1::WrongContext);
             }
             let pin = SourceIndexGenerationEscrowPinV1::from_canonical_scalar_bytes(
-                &self.independent.metadata_namespace,
+                self.closure_metadata_namespace(),
                 &mode4_decode_hex(&raw.get("expectedEscrowFieldsHex"))?,
             )
             .map_err(|_| ActiveServiceWalErrorV1::WrongPin)?;
@@ -451,7 +469,7 @@ impl VerifiedInlineActiveServiceAckHistoryV1 {
         reference: &ActiveServiceWalBlobV1,
     ) -> Result<u64> {
         let mut found = None;
-        for (physical, record) in &self.records {
+        for (physical, record) in self.closure_records() {
             if history_count(&record.get("sequence"))? == sequence
                 && record.get("stage") == s(stage)
                 && record.get(key) == reference.value()
@@ -465,12 +483,12 @@ impl VerifiedInlineActiveServiceAckHistoryV1 {
     /// The caller supplies its independently recomputed opaque historical
     /// operation, never an Accepted result. Full source/action replay and the
     /// caller/job/await-role selector remain separate admission requirements.
-    pub fn verify_inline_operation(
+    fn verify_inline_operation_data(
         &self,
         index: &mut SourceCompactIndex,
         sequence: u64,
         source: &mut NativeHistoricalInlineDatabaseV1,
-    ) -> Result<VerifiedMode4InlineClosureV1> {
+    ) -> Result<InlinePhysicalClosureDataV1> {
         let entry = self
             .entries()
             .get(
@@ -555,7 +573,7 @@ impl VerifiedInlineActiveServiceAckHistoryV1 {
             }
             let mut escrow_at = 0;
             let mut lower = self
-                .records
+                .closure_records()
                 .iter()
                 .find(|(_, r)| {
                     r.get("sequence") == s(sequence.to_string()) && r.get("stage") == s("Intent")
@@ -702,14 +720,13 @@ impl VerifiedInlineActiveServiceAckHistoryV1 {
                 .verify_recorded_native_append(&actual_post, raw)
                 .map_err(|_| ActiveServiceWalErrorV1::WrongPin)?;
         }
-        Ok(VerifiedMode4InlineClosureV1 {
+        Ok(InlinePhysicalClosureDataV1 {
             sequence,
             action: ActiveServiceWalBlobV1::of(entry.raw_action())?,
             before,
             post,
             recovery_links: recoveries.len(),
             escrow_links: target_escrows.len(),
-            wal: self.independent.clone(),
         })
     }
     fn mode4_attempt_escrow(
@@ -750,7 +767,7 @@ impl VerifiedInlineActiveServiceAckHistoryV1 {
         let mut current_recovery = V::Undefined;
         let mut current_escrow = V::Undefined;
         let mut escrow_count = 0usize;
-        for (_, record) in &self.records {
+        for (_, record) in self.closure_records() {
             if record.get("sequence") != s(entry.sequence.to_string()) {
                 continue;
             }
@@ -823,5 +840,54 @@ impl VerifiedInlineActiveServiceAckHistoryV1 {
             return Err(ActiveServiceWalErrorV1::WrongPin);
         }
         Ok(())
+    }
+}
+
+impl InlinePhysicalHistoryAccessV1 for VerifiedInlineActiveServiceAckHistoryV1 {
+    fn entries(&self) -> &[VerifiedActiveServiceAckEntryV1] {
+        VerifiedInlineActiveServiceAckHistoryV1::entries(self)
+    }
+    fn origin(&self) -> &V {
+        VerifiedInlineActiveServiceAckHistoryV1::origin(self)
+    }
+    fn origin_history(&self) -> &[u8] {
+        VerifiedInlineActiveServiceAckHistoryV1::origin_history(self)
+    }
+    fn entry_value(&self, entry: &VerifiedActiveServiceAckEntryV1) -> Result<V> {
+        VerifiedInlineActiveServiceAckHistoryV1::entry_value(self, entry)
+    }
+    fn decoded_action(
+        &self,
+        entry: &VerifiedActiveServiceAckEntryV1,
+    ) -> Result<crate::source_main_native_session::NativeMainActiveServiceActionV1> {
+        VerifiedInlineActiveServiceAckHistoryV1::decoded_action(self, entry)
+    }
+    fn read_reference(&self, pin: &ActiveServiceWalBlobV1) -> Result<Vec<u8>> {
+        VerifiedInlineActiveServiceAckHistoryV1::read_reference(self, pin)
+    }
+    fn closure_metadata_namespace(&self) -> &Namespace {
+        &self.independent.metadata_namespace
+    }
+    fn closure_records(&self) -> &[(u64, V)] {
+        &self.records
+    }
+}
+impl VerifiedInlineActiveServiceAckHistoryV1 {
+    pub fn verify_inline_operation(
+        &self,
+        index: &mut SourceCompactIndex,
+        sequence: u64,
+        source: &mut NativeHistoricalInlineDatabaseV1,
+    ) -> Result<VerifiedMode4InlineClosureV1> {
+        let data = self.verify_inline_operation_data(index, sequence, source)?;
+        Ok(VerifiedMode4InlineClosureV1 {
+            sequence: data.sequence,
+            action: data.action,
+            before: data.before,
+            post: data.post,
+            recovery_links: data.recovery_links,
+            escrow_links: data.escrow_links,
+            wal: self.independent.clone(),
+        })
     }
 }

@@ -1,0 +1,11 @@
+{
+  "sourceHarnessManifest": "a1d05d41b2d7a5e01db4912fee865b2b43bb0431881f451793a49dd6453de79c",
+  "sourceBaseSHA256": "509015e9124795f3adda0997d5eacc495a1b80831b68d95fc078281f78852715",
+  "observerSHA256": "817fcf6b6603b767f0c25d9fe36ef79e48806b25cbfe09612e79a267c6ff9055",
+  "observerChange": "Private base filename plus observational compileClass/promiseSignaled/support exports; unchanged original business bodies",
+  "wholeMainGlobalImportClaim": false,
+  "upstreamManifestSHA256": "6ea1221ef3907c6855b04b780cebb1e02f152baf752c700aa6dd9b2046c95023",
+  "startupUpstreamManifestSHA256": "8910bc069a2dd2f16bd7cdd36802a7097ee66e553df0e77d070680ba2444a543",
+  "initSourceSHA256": "55c7dd6da798a58dc57d34ad75be357f9811574db5e6f384620055f966447cc0",
+  "dbSourceSHA256": "b92a05fee6652494b72bf6893d9633850c697be773e88b24d62798a8bc8f5e38"
+}

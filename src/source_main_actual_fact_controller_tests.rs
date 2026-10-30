@@ -272,3 +272,6 @@ fn facts_origin_is_explicit_and_old_mode4_reader_refuses_it() {
 
 #[path = "source_main_actual_fact_recovery_tests.rs"]
 mod actual_fact_native_recovery_tests;
+
+#[path = "source_main_actual_fact_trace_core_tests.rs"]
+mod actual_fact_trace_core_tests;

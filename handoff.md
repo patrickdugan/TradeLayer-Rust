@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T04:26:36Z. Refresh after every tested integration cycle.
+Updated: 2026-10-30T04:55:17Z. Refresh after every tested integration cycle.
 
 ## Current checkpoint
 
@@ -20,6 +20,16 @@ Later focused correction: rejected append ACKs now preserve the prior original/r
 
 **This is a passing development checkpoint, not a completed RC.** The source-composition and operational gates below remain open.
 
+## Latest tested startup and trace prerequisite
+
+This batch passes **658 library tests (four ignored), 44 public checks, strict all-target Clippy, Cargo formatting, 392 included-file formatting checks, inventory and supply policy**. Ten new actual-Core controls pass: eight startup and two independently produced writer-trace controls. Evidence: `fixtures/reference_fidelity/main-startup-trace-core-integration.json`. Full release evidence stays **2,204 Rust /239 numeric** at `a94ea4c7`; this is not a completed RC.
+
+The typed raw startup owner consumes an unconfigured actual Replay and the same native index. TxUtils import, DB automatic initialization and Main constructor/static init run in source order. The prefix keeps the original module promise distinct from the shared internal promise, preserves1500/500/300 waits and genuine partial failures, and performs the legitimate new DB attempt after an earlier automatic rejection. SDK own fields are distinct from RPC getChain/getTest facts. Configured owners are never reset, stale inputs refuse unchanged, and old Invoke/witness namespaces remain closed. Eight controls establish named DB/throw prefix projections; they do not establish complete effects or Rust Initialize suffix fulfillment.
+
+The separate13-2 trace reader checks mandatory facts, actual producer WAL prefixes and ordered native IO/ACK barriers. Old HISTORY/Mode4 profiles retain their own constructors and proof brands. The physical verification body and completed-prefix reconstruction body are shared literally; their old paths pass regression checks. Positive13-2 native-page and completed-prefix composition still needs the full actor controls. Real three-plan writer history passes; a corrupt mandatory fact and changed retained trace refuse without repair. No decoded pin becomes a live native permit. The full raw-source financial cold actor remains unfinished.
+
+The unchanged JavaScript reproduces15 calls/86 records under both genuine BigNumber profiles. Some source cases execute the complete empty Initialize; those source-only observations are not Rust suffix coverage. Record counts include inputs. Full/global startup, nonempty startup-to-live finance, financial cold replay and active-history continuation remain open.
+
 ## Latest tested fresh input
 
 The latest tested code is `5ae93f188110ba1dd36088e2280244789ad7e053`. This batch passes **648 library tests (four ignored), 44 public checks, all-target Clippy with warnings denied, Cargo formatting, 378 included-file formatting checks, inventory and supply policy**. Ten new controls cover the new canonical raw-fact codec and actual financial owners. Evidence: `fixtures/reference_fidelity/main-fresh-input-core-integration.json`. The complete release baseline remains **2,204 Rust /239 numeric** at `a94ea4c7`; do not add overlapping focused counts or promote this to a completed RC.
@@ -30,7 +40,7 @@ This is in-memory factual admission. Durable feed actions/cold replay, native am
 
 ## Latest tested orchestration
 
-The latest tested code is `b8546b3fa7624b22d2b3853951104198429ce77f`. This batch passes **638 library tests (four ignored), 44 public checks, all-target Clippy with warnings denied, Cargo formatting, 372 included-file formatting checks, inventory and supply policy**. All 44 new unit tests pass. Counts overlap with earlier/full runs; do not add focused runs to the full release total. Evidence: `fixtures/reference_fidelity/main-orchestration-core-integration.json`.
+The prior orchestration checkpoint is `b8546b3fa7624b22d2b3853951104198429ce77f`. This batch passes **638 library tests (four ignored), 44 public checks, all-target Clippy with warnings denied, Cargo formatting, 372 included-file formatting checks, inventory and supply policy**. All 44 new unit tests pass. Counts overlap with earlier/full runs; do not add focused runs to the full release total. Evidence: `fixtures/reference_fidelity/main-orchestration-core-integration.json`.
 
 - Null Sync preserves separate parent/detached source fulfillment and the same actual financial header/index/queue. A header cannot close while its borrowed block or unadopted completion remains. It closes once at the safe boundary while a future timer may remain pending.
 - Automatic Incoming/file/native execution preserves partial work, all five retries and the final50ms wait, same native plan through distinct Append/Resolve, shutdown and literal physical restore without an invented balance rollback. Its new automatic-only parked tail allows an independent file retry while financial/native work remains held. Actual trace ranges distinguish already-owned effects from direct Kernel events; no value deduplication is used. Legacy/default queue rules and visitor bytes remain unchanged.
@@ -38,7 +48,7 @@ The latest tested code is `b8546b3fa7624b22d2b3853951104198429ce77f`. This batch
 
 Source checks preserve the original JavaScript: null first-ten10calls/36records, held-live1call/3records, four automatic scenes/21records and the parallel two-timer8record scene under both genuine numeric profiles. The old probe's NotQuiescent refusal is retained; extending the unreleased automatic domain was explicit. Empty processBlockData legitimately makes no native write. Failed gates, wrong test filter/corpus selection and precise corrections are recorded; zero-test runs count as no coverage.
 
-This remains a development checkpoint. Full release evidence is still **2,204 Rust /239 numeric** at `a94ea4c7`. The complete13-2 cold source actor, fresh feed, raw/global startup, history continuation and authenticated proof gates remain open.
+This remains a development checkpoint. Full release evidence is still **2,204 Rust /239 numeric** at `a94ea4c7`. The complete13-2 financial cold source actor, durable fresh-feed composition, raw/global startup, history continuation and authenticated proof gates remain open.
 
 ## Rules and ownership
 
@@ -52,7 +62,7 @@ TL produces checkable state-oracle data. **UTXORef is a separate consumer reposi
 
 ## Integrated scope
 
-All record names below are under `fixtures/reference_fidelity/` and are included by the full release record. Counts overlap; never add focused runs to the release total.
+Record names in the table are under `fixtures/reference_fidelity/`. The frozen complete-release manifest defines that release; later focused records are not implicitly included. Counts overlap; never add focused runs to the release total.
 
 | Component | What the tested code establishes | Evidence |
 | --- | --- | --- |
@@ -71,8 +81,8 @@ Root fixed a real Mode4 writer mismatch: its initial observation omitted the esc
 | Agent | Current isolated work | Boundary |
 | --- | --- | --- |
 | `row_continuation_impl` | Fresh input integrated; extending acknowledged active history beyond 4096 on the same owner | No old action/WAL/cold admission and no invented fine-grained RPC suspension. |
-| `v8_main` | Complete checked13-2 physical trace/fact reader and one-owner raw-source cold actor | Actual-fact writer/native recovery are integrated; no Before/Accepted reconstruction or implicit old-reader admission. |
-| `v8_clearlist` | Explicit unconfigured raw startup foundation, literal shared DB promises/retry and Initialize suffix | f495/a70 prefix proposals and genuine source evidence remain outside Root until Core integration. Configured owners are never reset. |
+| `v8_main` | Strict13-2 trace/checked-prefix integrated; completing the one-owner raw-source financial cold actor | Actual-fact writer/native recovery are integrated; no Before/Accepted reconstruction or implicit old-reader admission. |
+| `v8_clearlist` | Explicit unconfigured raw startup foundation, literal shared DB promises/retry and Initialize suffix | f495/a70/SDK06d9 prefix is Root-tested; actual Initialize suffix remains isolated. Configured owners are never reset. |
 
 ## RC closure checklist
 
@@ -94,7 +104,7 @@ Intended-host real-block CPU/RSS, directory/power-loss, actual killed-process fi
 - Exact current runner/log/provider pointers are in `work/root-resume-current.json`. Refresh the workbook/sidebar every 30 minutes when state changes, preserving layout and proof gates.
 - Finished public-support provider: `work/providers/retained-callers-mode4-a94ea4c/libtradelayer_core.rlib`, SHA-256 `7f9b78d5169202225dee1aed5a03f8eeff6c189e6ea5ae98be062633c1de5560`; immutable provenance is adjacent. Candidate private Core tests still require Root execution.
 - Root gates use `work/cargo-check.ps1 -CargoArguments @(...)`, the pinned 1.90 toolchain and one Cargo process. Debug target: `work/main-v12-target`; release target: `work/source-settlement-target`. Use the existing runners' temp and genuine numeric settings.
-- Next action: gate corrected raw startup, complete source-fact cold replay and active-history milestones against current source, commit tested work and refresh this handoff. No pending worker result is complete merely because its files or helper tests exist.
+- Next action: finish and gate actual Initialize/nonempty startup, full financial cold actor and active-history milestones against current source, then commit tested work and refresh this handoff. No pending worker result is complete merely because its files or helper tests exist.
 
 ## Latest rejected-append correction
 

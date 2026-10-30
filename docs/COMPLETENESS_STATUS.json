@@ -1243,6 +1243,21 @@
       "fineRpcAwaitContinuationIntegrated": false,
       "fullSuitePromotion": false,
       "commit": "5ae93f188110ba1dd36088e2280244789ad7e053"
+    },
+    "mainStartupTrace": {
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/main-startup-trace-core-integration.json",
+      "libraryPassed": 658,
+      "libraryIgnored": 4,
+      "publicCompatibilityPassed": 44,
+      "newUnitTests": 10,
+      "startupCoreControls": 8,
+      "actualWriterTraceCoreControls": 2,
+      "sourceCallsPerNumericProfile": 15,
+      "sourceRecordsPerNumericProfile": 86,
+      "rustInitializeSuffixFulfilled": false,
+      "fullFinancialColdActorIntegrated": false,
+      "fullSuitePromotion": false
     }
   },
   "scope": "Full release a94ea4c remains 2,204 Rust /239 genuine numeric checks. Later 5ae93f1 passes 648 library tests (four ignored),44 public checks and 10 new controls, strict Clippy, formatting, inventory and supply policy. Typed future RPC/document facts preserve the same financial owner, native plan, captured locals, timer, route and counters. Durable feed/cold replay, fine-grained RPC waits, raw startup, history continuation and authenticated proof gates remain open.",
