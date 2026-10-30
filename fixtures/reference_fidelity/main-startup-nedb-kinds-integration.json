@@ -1,0 +1,66 @@
+{
+  "schema": "tl-main-startup-nedb-kinds-v1",
+  "verifiedAtUtc": "2026-10-30T18:19:23Z",
+  "inputCommit": "6fe3845970705e55809e37fe25df4520411a6c25",
+  "validatedIn": "clean export of HEAD blobs plus the exact projected files below",
+  "newDistinctTests": 2,
+  "newTests": [
+    "genuine_upsert_and_field_query_order_across_idle_databases",
+    "genuine_modifying_upsert_takes_a_second_candidate_pass"
+  ],
+  "kernelComponentTestsPassed": 34,
+  "outerProbeTestsPassed": 17,
+  "genuineReference": {
+    "node": "v24.22.1",
+    "nedb": "1.8.0",
+    "async": "0.2.10",
+    "scripts": "work/claude-nedb-update-reference-1/{nedb_update_reference,nedb_kind_ticks}.cjs (both --check reproduce)",
+    "inputs": {
+      "nedb_update_reference.cjs": "5ad3cc67db52992eefb490c33943f180ac87223a5e22b3a46a71e60398a67391",
+      "nedb_update_reference.json": "ffd0bdd74a9e3aae74736a83a846f1cf77759f9ec1160aff7fc74d10d4a1e46c",
+      "nedb_kind_ticks.cjs": "ab53299164aa08313da3a330f48c2c8eb5feed9d73c5a1bad3236ea39db52719",
+      "nedb_kind_ticks.json": "d9df87acca0f4b767aa66c5df016ed35d4b5481c313d7c51f4ad93f2f411a7f2",
+      "NEDB_UPDATE_REFERENCE_PINS.json": "bc8c1a72243c3b20a09954e051727556250b7b2f4905807aecbee5e51ca37892"
+    },
+    "perKindTurns": {
+      "findOne/find": "sample@1 callback@2",
+      "upsertInsert": "sample@2 callback@3",
+      "upsertModify": "sample@2 sample@5 callback@6",
+      "updateModify": "sample@3 callback@4",
+      "insert": "callback@0 (not modeled)"
+    },
+    "usedAsScheduleInput": false
+  },
+  "allTargetClippyWarningsDenied": true,
+  "cargoFmtPassed": true,
+  "inventoryPassed": true,
+  "supplyPolicyPassed": true,
+  "fullLibraryRun": null,
+  "fullLibraryNote": "not rerun: the queue is cfg(test)-only; all-target Clippy compiled every target",
+  "sourceFiles": {
+    ".gitattributes": "b5bc435ec4c33f4913184a9afb6368cc42b5980c8fff336db37d3ec63ba974b1",
+    ".github/workflows/ci.yml": "1a2cf04bab6c01bb44dc161d87df61bdbe1cf257c438a214c78db3afe8a96277",
+    "docs/LOGIC_BY_TX_TYPE.json": "0a0f4879fd81258cae580fed4b6065a798c440550c92f66776de5763f45b4835",
+    "fixtures/startup_nedb_kinds_reference.json": "ffd0bdd74a9e3aae74736a83a846f1cf77759f9ec1160aff7fc74d10d4a1e46c",
+    "scripts/ci-preflight.sh": "03f9840eebc9af61c054616a5056a4cc13c3152e01d8affb44e7c56703891666",
+    "src/source_main_startup_nedb_jobs.rs": "f7287e87c4eccfb9a38a95b1d541e69d454ec56dbc093e1349fe0b5733684c96",
+    "src/source_main_startup_nedb_jobs_tests.rs": "fc4dcf24838ef27482396a5c41c78ea4b5e40479972bd0e1c25150e8be3cbf99",
+    "src/source_main_startup_nedb_kinds_tests.rs": "9a841d9e1fa219d00c659b22165c266df4c1f165e5486d0bbc89797368236be2"
+  },
+  "scope": {
+    "persistenceCollection": true,
+    "upsertUpdateFieldFindOneShapes": true,
+    "insertModeled": false,
+    "legacyKernelDbPrimitivesRouted": false,
+    "queuedStartupPositivesPass": false
+  },
+  "logs": {
+    "claude-kinds-r1-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "claude-kinds-r1-included-fmt.log": "ec50e6125359ff78af744a6a87cd3e809719ba4666b0496331408e85d3af479d",
+    "claude-kinds-r1-inventory.log": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393",
+    "claude-kinds-r1-supply.log": "26e83506b55387a978c886fe6297398273b562e258609062aa9c36ee43e2aed5",
+    "claude-kinds-r1-clippy.log": "f8f870b9360e4dcbe1cee7f1f4d0776c0cdea8ff09590bb81cad1f1fd2c3e4e1",
+    "claude-kinds-r1-test-startup_source_kernel_tests.log": "b5a87933f3b97e8b0fb644abf483aee28268af4ec3bb87628522603c622646ce",
+    "claude-kinds-r1-test-actual_outer_bootstrap_await_probe.log": "efb8407757f065db332786a8c1017ab426c3b68942d1c30bd5e083400ae34c29"
+  }
+}

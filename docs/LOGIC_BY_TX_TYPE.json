@@ -2645,12 +2645,12 @@
     },
     {
       "path": "src/source_main_startup_nedb_jobs.rs",
-      "sha256": "83fd3de75aab16fe6be4684d94ac211ecd2e463f4eac86d89d1209ffca4dc395",
+      "sha256": "f7287e87c4eccfb9a38a95b1d541e69d454ec56dbc093e1349fe0b5733684c96",
       "lfNormalized": true
     },
     {
       "path": "src/source_main_startup_nedb_jobs_tests.rs",
-      "sha256": "20276471e9adba4cfa8d2a76c717649a1d9ce670f32c7d81f6a60f3d7377e397",
+      "sha256": "fc4dcf24838ef27482396a5c41c78ea4b5e40479972bd0e1c25150e8be3cbf99",
       "lfNormalized": true
     },
     {
@@ -2716,6 +2716,11 @@
     {
       "path": "src/source_main_outer_bootstrap_kernel_tests.rs",
       "sha256": "24abde6c1789406afd89c2c7f2a004b2d69e13735d2953dd05992ca1efcbbb4d",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_startup_nedb_kinds_tests.rs",
+      "sha256": "9a841d9e1fa219d00c659b22165c266df4c1f165e5486d0bbc89797368236be2",
       "lfNormalized": true
     }
   ],

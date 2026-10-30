@@ -1,6 +1,10 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T18:08:27Z. Refresh this file after every tested integration or PR cycle.
+Updated: 2026-10-30T18:19:23Z. Refresh this file after every tested integration or PR cycle.
+
+## NeDB request kinds (Claude integration)
+
+Genuine NeDB 1.8 gives each request kind its own executor turn profile (reads sample@1/callback@2; upsert +1 leading turn; plain update +2; an upsert that finds a document takes an internal filter turn and a second candidate pass). The startup NeDB queue now models upsert, plain update and field findOne plus the persistence collection, and reproduces two genuine cross-database scenes exactly. 34 Kernel component and 17 outer probe controls pass with strict Clippy. Next: route the legacy Kernel Incoming DB primitives through it. Evidence:`fixtures/reference_fidelity/main-startup-nedb-kinds-integration.json`. No push/PR.
 
 ## Early parent routes (Claude integration)
 

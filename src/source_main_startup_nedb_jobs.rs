@@ -14,6 +14,7 @@ pub(crate) enum Collection {
     Consensus,
     TallyMap,
     TxIndex,
+    Persistence,
 }
 impl Collection {
     fn position(self) -> usize {
@@ -21,6 +22,7 @@ impl Collection {
             Self::Consensus => 0,
             Self::TallyMap => 1,
             Self::TxIndex => 2,
+            Self::Persistence => 3,
         }
     }
     pub(crate) fn name(self) -> &'static str {
@@ -28,13 +30,30 @@ impl Collection {
             Self::Consensus => "consensus",
             Self::TallyMap => "tallyMap",
             Self::TxIndex => "txIndex",
+            Self::Persistence => "persistence",
         }
     }
 }
+// Genuine NeDB 1.8 turn profiles on an idle database (nedb_kind_ticks.cjs):
+// reads sample after 1 turn and call back after 2; an upsert adds one leading
+// async.waterfall turn; a plain update adds two. An upsert whose existence
+// sample finds a document runs an internal filter turn and a second pass.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum QueryKind {
     FindOneStringId,
     FindAll,
+    FindOneQuery,
+    Update,
+    Upsert,
+}
+impl QueryKind {
+    fn leading_turns(self) -> u8 {
+        match self {
+            Self::FindOneStringId | Self::FindAll | Self::FindOneQuery => 0,
+            Self::Upsert => 1,
+            Self::Update => 2,
+        }
+    }
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct RequestKey {
@@ -45,8 +64,10 @@ pub(crate) struct RequestKey {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Phase {
     Requested,
+    Lead,
     Worker,
     Sample,
+    Internal,
     Filter,
     Callback,
     Completed,
@@ -58,11 +79,15 @@ struct Request {
     collection: Collection,
     kind: QueryKind,
     phase: Phase,
+    lead: u8,
+    second_pass: bool,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Job {
     Process(Collection),
+    Waterfall(RequestKey),
     CandidatesIndex(RequestKey),
+    InternalFilter(RequestKey),
     CandidatesFilter(RequestKey),
     Complete(RequestKey),
 }
@@ -89,7 +114,7 @@ pub(crate) struct StartupNedbQueue {
     generation: u64,
     promises_owner_job: Option<ActualPayloadBinding>,
     requests: Vec<Request>,
-    databases: [DatabaseQueue; 3],
+    databases: [DatabaseQueue; 4],
     ready: VecDeque<Job>,
     active: Option<Delivery>,
     inflight: Option<Job>,
@@ -205,6 +230,8 @@ impl StartupNedbQueue {
             collection,
             kind,
             phase: Phase::Requested,
+            lead: kind.leading_turns(),
+            second_pass: false,
         });
         self.databases[collection.position()]
             .requests
@@ -239,11 +266,34 @@ impl StartupNedbQueue {
                             .requests
                             .pop_front()
                             .expect("checked queue");
-                        let row = self.at(key)?;
                         self.databases[at].busy = true;
-                        self.requests[row].phase = Phase::Worker;
-                        self.ready.push_back(Job::CandidatesIndex(key));
+                        self.start_worker(key)?;
                     }
+                    None
+                }
+                Job::Waterfall(key) => {
+                    let row = self.at(key)?;
+                    if self.requests[row].phase != Phase::Lead || self.requests[row].lead == 0 {
+                        return Err(SourceRuleError::InvalidInput);
+                    }
+                    self.reserve_jobs(1)?;
+                    self.requests[row].lead -= 1;
+                    self.continue_lead(key)?;
+                    None
+                }
+                Job::InternalFilter(key) => {
+                    // The upsert's existence cursor found a document: its
+                    // filter turn ends the cursor, then the update waterfall
+                    // defers once more before the modifying candidate pass.
+                    let row = self.at(key)?;
+                    if self.requests[row].phase != Phase::Internal {
+                        return Err(SourceRuleError::InvalidInput);
+                    }
+                    self.reserve_jobs(1)?;
+                    self.requests[row].second_pass = true;
+                    self.requests[row].lead = 1;
+                    self.requests[row].phase = Phase::Lead;
+                    self.ready.push_back(Job::Waterfall(key));
                     None
                 }
                 Job::Complete(key) => {
@@ -261,9 +311,7 @@ impl StartupNedbQueue {
                             .requests
                             .pop_front()
                             .expect("checked queue");
-                        let next_at = self.at(next)?;
-                        self.requests[next_at].phase = Phase::Worker;
-                        self.ready.push_back(Job::CandidatesIndex(next));
+                        self.start_worker(next)?;
                     } else {
                         self.databases[at].busy = false;
                     }
@@ -306,6 +354,54 @@ impl StartupNedbQueue {
         }
         Ok(None)
     }
+    fn start_worker(&mut self, key: RequestKey) -> Result<(), SourceRuleError> {
+        let row = self.at(key)?;
+        self.requests[row].phase = Phase::Lead;
+        self.continue_lead(key)
+    }
+    // Remaining leading waterfall turns defer once each; then the candidate
+    // index step is the next immediate.
+    fn continue_lead(&mut self, key: RequestKey) -> Result<(), SourceRuleError> {
+        let row = self.at(key)?;
+        if self.requests[row].lead > 0 {
+            self.ready.push_back(Job::Waterfall(key));
+        } else {
+            self.requests[row].phase = Phase::Worker;
+            self.ready.push_back(Job::CandidatesIndex(key));
+        }
+        Ok(())
+    }
+    /// The upsert's existence sample, acknowledged with whether the actual
+    /// sampled candidates contained a document (an actual IO outcome).
+    pub(crate) fn acknowledge_upsert_sample(
+        &mut self,
+        delivery: Delivery,
+        found: bool,
+    ) -> Result<(), SourceRuleError> {
+        self.live()?;
+        if self.active != Some(delivery) || delivery.kind != DeliveryKind::SampleCandidates {
+            return Err(SourceRuleError::InvalidInput);
+        }
+        let at = self.at(delivery.request)?;
+        let request = &self.requests[at];
+        if request.phase != Phase::Sample
+            || request.kind != QueryKind::Upsert
+            || request.second_pass
+        {
+            return Err(SourceRuleError::InvalidInput);
+        }
+        self.reserve_jobs(1)?;
+        if found {
+            self.requests[at].phase = Phase::Internal;
+            self.ready.push_back(Job::InternalFilter(delivery.request));
+        } else {
+            self.requests[at].phase = Phase::Filter;
+            self.ready
+                .push_back(Job::CandidatesFilter(delivery.request));
+        }
+        self.active = None;
+        Ok(())
+    }
     pub(crate) fn acknowledge_actual(&mut self, delivery: Delivery) -> Result<(), SourceRuleError> {
         self.live()?;
         if self.active != Some(delivery) {
@@ -315,6 +411,11 @@ impl StartupNedbQueue {
         match delivery.kind {
             DeliveryKind::SampleCandidates => {
                 if self.requests[at].phase != Phase::Sample {
+                    return Err(SourceRuleError::InvalidInput);
+                }
+                // An upsert's existence sample decides its path; it must be
+                // acknowledged with the actual sampled outcome.
+                if self.requests[at].kind == QueryKind::Upsert && !self.requests[at].second_pass {
                     return Err(SourceRuleError::InvalidInput);
                 }
                 self.reserve_jobs(1)?;
@@ -344,7 +445,7 @@ impl StartupNedbQueue {
         }
         visitor(
             "profile",
-            &text("TL-MAIN-NEDB18-ASYNC0210-STRING-ID-EXECUTOR-13-1"),
+            &text("TL-MAIN-NEDB18-ASYNC0210-EXECUTOR-KINDS-13-2"),
         )?;
         visitor("owner", &text(self.owner))?;
         visitor("generation", &text(self.generation))?;
@@ -363,6 +464,8 @@ impl StartupNedbQueue {
             visitor(&format!("{p}/collection"), &text(request.collection.name()))?;
             visitor(&format!("{p}/kind"), &text(format!("{:?}", request.kind)))?;
             visitor(&format!("{p}/phase"), &text(format!("{:?}", request.phase)))?;
+            visitor(&format!("{p}/lead"), &text(request.lead))?;
+            visitor(&format!("{p}/secondPass"), &V::Bool(request.second_pass))?;
             visitor(
                 &format!("{p}/sourceJob"),
                 &text(request.binding.job.serial()),

@@ -1,0 +1,25 @@
+{
+  "updateAndFieldQueries": [
+    "sample:persistence",
+    "sample:consensus",
+    "sample:txIndex",
+    "callback:persistence-findOne-height",
+    "callback:consensus-findOne",
+    "callback:txIndex-upsert",
+    "sample:consensus",
+    "sample:txIndex",
+    "callback:consensus-upsert",
+    "callback:txIndex-upsert-2",
+    "sample:txIndex",
+    "callback:txIndex-findOne"
+  ],
+  "modifyPaths": [
+    "sample:txIndex",
+    "sample:consensus",
+    "callback:txIndex-findOne",
+    "sample:persistence",
+    "callback:persistence-update-modify",
+    "sample:consensus",
+    "callback:consensus-upsert-modify"
+  ]
+}

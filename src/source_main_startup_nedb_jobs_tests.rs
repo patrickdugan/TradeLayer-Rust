@@ -293,3 +293,5 @@ fn owner_stop_retains_selected_real_job_and_denies_any_more_sampling_or_callback
         after.get("requests/0/phase")
     );
 }
+
+include!("source_main_startup_nedb_kinds_tests.rs");

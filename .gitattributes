@@ -354,3 +354,6 @@ fixtures/startup_kernel_default_v1.txt text eol=lf
 
 # Genuine outer-prefix request order (comparison only).
 fixtures/startup_outer_request_order_genuine.txt text eol=lf
+
+# Genuine NeDB 1.8 request-kind executor order (comparison only).
+fixtures/startup_nedb_kinds_reference.json text eol=lf
