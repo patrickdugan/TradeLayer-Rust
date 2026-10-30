@@ -1,0 +1,37 @@
+{
+  "schema": "tl-main-pin-fresh-cold-completeness-v1",
+  "verifiedAtUtc": "2026-10-30T08:32:08Z",
+  "checkoutCommit": "d6f090add7ba0bc815e3ee3b84f8831b43e0b695",
+  "beforeWorkbookSHA256": "27615b812b0050a0ddfdd5512eb3442c71345b3a09484d6d8a482e582e8fce8d",
+  "releaseRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json",
+  "releaseRecordSHA256": "55a183f033a19d4e75e238cbc59cca12785610d1ba6c35d32774c313635f9aa7",
+  "scopedRecord": "fixtures/reference_fidelity/main-pin-fresh-cold-core-integration.json",
+  "scopedRecordSHA256": "b1455266e72abdfff8367bbcaa5287d5d980752f2cf26c487487e8b52d2dcfc6",
+  "releaseExecutions": 2204,
+  "lockedReferenceExecutions": 239,
+  "scopedLibraryPassed": 715,
+  "singleFullLibraryRun": true,
+  "newControls": 32,
+  "fullSuitePromotion": false,
+  "authenticationEstablished": false,
+  "completeBlockFraudProofEstablished": false,
+  "savedWorkbookSHA256": "f338414f3e5c84925b5ee6c7896653b622ea0a29bcb1cd7eb08db981e7537f99",
+  "savedAndSidebarRowsMatch": true,
+  "rowHashes": {
+    "modules": 1901936588,
+    "logic": 1151758449
+  },
+  "intentionalCellChanges": 17,
+  "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
+  "visualReviewPassed": true,
+  "errors": 0,
+  "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
+  "sidebarStateVersion": 187,
+  "visualReviewRanges": [
+    "C21:G21",
+    "C26:G26",
+    "C32:G32",
+    "C47:G47"
+  ],
+  "noteShortenedToPreserveExistingRowGeometry": "D26"
+}

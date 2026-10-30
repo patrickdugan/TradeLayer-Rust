@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-30T06:11:45Z",
-  "inspectedCheckoutCommit": "9f901cb473313f8797ba4becc8bf550a9f5f9b08",
+  "verifiedAtUtc": "2026-10-30T08:32:08Z",
+  "inspectedCheckoutCommit": "d6f090add7ba0bc815e3ee3b84f8831b43e0b695",
   "verifiedImplementationCommit": "a94ea4c7cdf4677d7d48455d65363edd263a16c1",
   "verifiedReleaseTests": 2204,
   "topLevelTests": 2203,
@@ -1288,10 +1288,11 @@
       "fullSuitePromotion": false,
       "fullGlobalStartupParity": false,
       "pairedFreshColdIntegrated": false,
-      "ordinaryTypedNativeRecoveryColdIntegrated": false
+      "ordinaryTypedNativeRecoveryColdIntegrated": false,
+      "commit": "d6f090add7ba0bc815e3ee3b84f8831b43e0b695"
     }
   },
-  "scope": "Full release a94ea4c remains 2,204 Rust / 239 genuine numeric checks. Later 9f901cb covers 683 distinct library tests (four ignored), 44 public and 25 new controls, strict Clippy/fmt411/inventory/supply. Exact test-name audit combines 680 regressions with separately covered long/corrected cases; production Rust is unchanged across runs. Financial13-2 replay and 4,097 real Pause calls pass. Nested consensus, nonempty/global startup, durable fresh/file/segmented cold composition and authentication/proof gates remain open.",
+  "scope": "Full release a94ea4c remains 2,204 Rust / 239 genuine numeric checks. Later d6f090a passes one full 715-test library run (four ignored), 44 public and 32 new controls; strict Clippy/fmt441/inventory/supply. Durable fresh-input recovery, ordinary segmented cold replay of4,098 actions and selected literal nested/outer startup pass. Broader startup concurrency, genuine entropy/effects, paired fresh/file cold composition, host evidence and authentication/proof gates remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -1583,14 +1584,14 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Full release a94ea4c remains 2,204 Rust / 239 genuine numeric checks. Later 9f901cb covers 683 distinct library tests (four ignored), 44 public and 25 new controls, strict Clippy/fmt411/inventory/supply. Exact test-name audit combines 680 regressions with separately covered long/corrected cases; production Rust is unchanged across runs. Financial13-2 replay and 4,097 real Pause calls pass. Nested consensus, nonempty/global startup, durable fresh/file/segmented cold composition and authentication/proof gates remain open.",
+  "workbookNote": "Full release a94ea4c remains 2,204 Rust / 239 genuine numeric checks. Later d6f090a passes one full 715-test library run (four ignored), 44 public and 32 new controls; strict Clippy/fmt441/inventory/supply. Durable fresh-input recovery, ordinary segmented cold replay of4,098 actions and selected literal nested/outer startup pass. Broader startup concurrency, genuine entropy/effects, paired fresh/file cold composition, host evidence and authentication/proof gates remain open.",
   "savedWorkbook": {
-    "sha256": "27615b812b0050a0ddfdd5512eb3442c71345b3a09484d6d8a482e582e8fce8d",
-    "bytes": 47757,
+    "sha256": "f338414f3e5c84925b5ee6c7896653b622ea0a29bcb1cd7eb08db981e7537f99",
+    "bytes": 47718,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-30T06:11:45Z",
+    "asOfUtc": "2026-10-30T08:32:08Z",
     "rowHashes": {
-      "modules": 2001525430,
+      "modules": 1901936588,
       "logic": 1151758449
     },
     "verifiedEdits": 17,
@@ -1598,18 +1599,17 @@
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-30T06:11:45Z",
-    "sha256": "27615b812b0050a0ddfdd5512eb3442c71345b3a09484d6d8a482e582e8fce8d",
+    "verifiedAtUtc": "2026-10-30T08:32:08Z",
+    "sha256": "f338414f3e5c84925b5ee6c7896653b622ea0a29bcb1cd7eb08db981e7537f99",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 2001525430,
+    "moduleRowsFNV": 1901936588,
     "logicRowsFNV": 1151758449,
     "intentionalCellChanges": 17,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,
-    "releasePromotionPending": false,
     "laterScopedFullReleasePromotionPending": true,
-    "lastFocusedCodeCommit": "9f901cb473313f8797ba4becc8bf550a9f5f9b08",
+    "lastFocusedCodeCommit": "d6f090add7ba0bc815e3ee3b84f8831b43e0b695",
     "releaseBaselinePromoted": true,
     "releaseExecutions": 2204,
     "lockedReferenceExecutions": 239,
@@ -1631,10 +1631,10 @@
     "lockedReferenceExecutions": 239,
     "record": "fixtures/reference_fidelity/inline-channel-release-validation.json"
   },
-  "focusedValidationRecord": "fixtures/reference_fidelity/main-initialize-cold-core-integration.json",
-  "focusedImplementationCommit": "9f901cb473313f8797ba4becc8bf550a9f5f9b08",
-  "focusedVerifiedAtUtc": "2026-10-30T06:09:46Z",
-  "lastFocusedCodeCommit": "9f901cb473313f8797ba4becc8bf550a9f5f9b08",
+  "focusedValidationRecord": "fixtures/reference_fidelity/main-pin-fresh-cold-core-integration.json",
+  "focusedImplementationCommit": "d6f090add7ba0bc815e3ee3b84f8831b43e0b695",
+  "focusedVerifiedAtUtc": "2026-10-30T08:31:26Z",
+  "lastFocusedCodeCommit": "d6f090add7ba0bc815e3ee3b84f8831b43e0b695",
   "recoveryPackage": {
     "commit": "9e2baa234a487c47f5a5160440b801347a668f30",
     "archiveSHA256": "acce9e5db7c65adef0246cf01581b4c06db0fd3cf356d1cdfa6528b47fff992f",
