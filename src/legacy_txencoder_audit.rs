@@ -976,16 +976,67 @@ fn enc_number(value: Option<&JsonValue>) -> EncoderResult<f64> {
         }
     })
 }
+// Literal Number.toString(36), following V8's binary64 digit selection.
+// Adapted from the V8 project algorithm (BSD license/attribution in
+// docs/LITERAL_TXENCODER_FRACTION.md). BigNumber's separate 20-place rounding
+// and all original typed-wrapper arithmetic remain unchanged.
 fn enc_number_radix36(number: f64) -> EncoderResult<String> {
-    // V8's fractional radix36 digit selection is outside this adapter's domain.
-    if !number.is_finite() || number.fract() != 0.0 || number.abs() > JS_SAFE_INTEGER as f64 {
+    if !number.is_finite() || number.abs() > JS_SAFE_INTEGER as f64 {
         return Err(LegacyEncoderError::UnsupportedNumberRadix36);
     }
-    Ok(format!(
+    let absolute = number.abs();
+    let mut integer = absolute.floor();
+    let mut fraction = absolute - integer;
+    let mut fractional = Vec::<u8>::new();
+    if fraction != 0.0 {
+        let next = f64::from_bits(absolute.to_bits() + 1);
+        let mut delta = (0.5 * (next - absolute)).max(f64::from_bits(1));
+        if fraction >= delta {
+            loop {
+                if fractional.len() == LEGACY_ENCODER_MAX_ASCII {
+                    return Err(LegacyEncoderError::SourceReturnTooLong);
+                }
+                fraction *= 36.0;
+                delta *= 36.0;
+                let digit = fraction as u8;
+                debug_assert!(digit < 36);
+                fractional.push(digit);
+                fraction -= f64::from(digit);
+                if (fraction > 0.5 || (fraction == 0.5 && digit & 1 != 0)) && fraction + delta > 1.0
+                {
+                    let mut carry = true;
+                    while let Some(previous) = fractional.pop() {
+                        if previous < 35 {
+                            fractional.push(previous + 1);
+                            carry = false;
+                            break;
+                        }
+                    }
+                    if carry {
+                        integer += 1.0;
+                    }
+                    break;
+                }
+                if fraction < delta {
+                    break;
+                }
+            }
+        }
+    }
+    let mut output = format!(
         "{}{}",
         if number < 0.0 { "-" } else { "" },
-        b36(number.abs() as u128)
-    ))
+        b36(integer as u128)
+    );
+    if !fractional.is_empty() {
+        output.push('.');
+        output.extend(
+            fractional
+                .into_iter()
+                .map(|digit| b"0123456789abcdefghijklmnopqrstuvwxyz"[usize::from(digit)] as char),
+        );
+    }
+    Ok(output)
 }
 fn enc_radix36(value: Option<&JsonValue>) -> EncoderResult<String> {
     match value {
@@ -1200,7 +1251,7 @@ fn enc_property_id(value: Option<&JsonValue>) -> EncoderResult<String> {
 /// Executes the complete pinned encoder API within an explicit local domain.
 /// JSON distinguishes missing fields, null, Boolean, Number and numeric String;
 /// it cannot express functions, symbols, BigInts or custom prototypes. Number
-/// radix36 is restricted to signed safe integers. BigNumber decimal arithmetic
+/// radix36 accepts finite binary64 fractions and signed safe integers. BigNumber decimal arithmetic
 /// and rounding do not use binary64 until an actual source `.toNumber()` call.
 /// Output remains the existing unverified source-string type.
 pub fn source_encode_method_unverified(

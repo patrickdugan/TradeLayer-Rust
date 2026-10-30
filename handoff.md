@@ -1,8 +1,12 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T12:20:01Z. Refresh this file after every tested integration or PR cycle.
+Updated: 2026-10-30T12:53:04Z. Refresh this file after every tested integration or PR cycle.
 
-## Latest tested wire increment (`aeebb65`)
+## Latest tested fractional wire increment (this commit)
+
+Literal finite Number radix36 fractions now preserve the pinned source output, including subnormals, negative zero, neighbors and carry. All5new fractional+13existing encoder+5Unicode Core tests pass. Four fractional source regenerations cover4,474actualcalls/4,470admitted strings under genuine9.3.1/9.1.2; four Unicode checks also reproduce. Strict all-target Clippy/Cargofmt/fmt464/inventory/supply pass. Two formerly refused literal fractional test scenes now assert their exact original source return; other guards and typed wrapper prefix stay unchanged. Evidence:`fixtures/reference_fidelity/literal-txencoder-fraction-core-integration.json`. Queued startup remains failed/uncommitted and recovery packages8097/51ac/bf8b await the next Core gate. Full release2204/239 and prior Main734 remain separate historical evidence. No push/PR.
+
+## Previous Unicode wire increment (`aeebb65`)
 
 The literal encoder preserves bounded Unicode scalar text and ECMAScript whitespace without normalization. Five new actual-Core integration tests plus thirteen unchanged encoder tests pass. Four genuine complete-source regenerations cover68 full cases and10 first-call controls under both9.3.1 and9.1.2. Strict all-target Clippy, Cargo formatting, included formatting, inventory and supply policy pass. Typed ASCII wrappers, generic concatenation and existing numeric/resource guards stay unchanged. This is bounded Unicode support; fractional Number radix36, unpaired UTF-16, historical acceptance and authentication remain open. Evidence:`fixtures/reference_fidelity/literal-txencoder-unicode-core-integration.json`. Full release remains2,204Rust/239numeric and prior Main evidence remains734 scoped at1ac51ad.
 

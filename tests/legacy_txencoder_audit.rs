@@ -170,8 +170,10 @@ fn generic_encoder_bounds_are_explicit_and_failed_calls_do_not_rewrite_input() {
     let input = JsonValue::parse(r#"{"propertyId":0.5,"amount":1,"address":"alice"}"#).unwrap();
     let before = input.clone();
     assert_eq!(
-        source_encode_method_unverified("encodeSend", &input),
-        Err(LegacyEncoderError::UnsupportedNumberRadix36)
+        source_encode_method_unverified("encodeSend", &input)
+            .unwrap()
+            .source_string(),
+        Some("tl20;alice;0.i;1")
     );
     assert_eq!(input, before);
     assert_eq!(

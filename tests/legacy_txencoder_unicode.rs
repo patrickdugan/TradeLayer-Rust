@@ -100,11 +100,10 @@ fn literal_unicode_keeps_typed_ascii_wrappers_and_old_generic_concat_closed() {
 
 #[test]
 fn non_unicode_numeric_resource_and_source_failure_guards_stay_explicit() {
-    for row in rows().filter(|row| row[0] == "Q") {
+    for row in rows().filter(|row| row[0] == "Q" && row[1] != "guard-fractional-number") {
         let expected = match row[1] {
             "guard-ascii-control" => LegacyEncoderError::NonPrintableAscii,
             "guard-overlong-unicode" => LegacyEncoderError::SourceReturnTooLong,
-            "guard-fractional-number" => LegacyEncoderError::UnsupportedNumberRadix36,
             "guard-missing-source-array" => LegacyEncoderError::MissingOrMalformedField,
             "guard-custom-tostring" => LegacyEncoderError::UnsupportedNumericCoercion,
             other => panic!("unknown declared guard: {other}"),
@@ -119,6 +118,16 @@ fn non_unicode_numeric_resource_and_source_failure_guards_stay_explicit() {
         );
         assert_eq!(actual_input, before);
     }
+    // This previously guarded literal scene is now an exact source return.
+    let fractional = rows()
+        .find(|row| row[1] == "guard-fractional-number")
+        .unwrap();
+    assert_eq!(
+        source_encode_method_unverified(fractional[2], &input(&fractional))
+            .unwrap()
+            .source_string(),
+        Some(unhex(fractional[5]).as_str())
+    );
     assert!(
         JsonValue::parse(r#""\ud800""#).is_err(),
         "unpaired UTF-16 remains outside JsonValue"

@@ -1,0 +1,311 @@
+{
+  "schema": "tl-literal-txencoder-fraction-core-v1",
+  "verifiedAtUtc": "2026-10-30T12:53:04Z",
+  "inputCommit": "5a590b2404ab21c3d2d2c0692c84ee0062b40455",
+  "workerManifestSHA256": "b50c5a1d36244721ac8c2654fb767027ec8f707fa9f7b9c36444682dea31abcb",
+  "verifiedWorkerPayloads": 68,
+  "newIntegrationTests": 5,
+  "oldEncoderRegressionTests": 13,
+  "existingUnicodeRegressionTests": 5,
+  "countsOverlapWithPriorBaseline": true,
+  "sourceChecks": {
+    "fraction-full": {
+      "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+      "sourcePins": {
+        "encoder": [
+          "legacy_types_source_txEncoder.txt",
+          "c3b95909e66ef04320501fd8e919ae954f761af0449a09782c083e71a7ef8c42"
+        ],
+        "base94": [
+          "legacy_base94_source.txt",
+          "0b33c7b2beaa3d86f13a3ef5c995121457281b2d744cc87f8ca58d32070234eb"
+        ],
+        "base256": [
+          "legacy_base256_source.txt",
+          "11a0d6be7142f9baa4e41e9c9c295c80583b803b7d79495ed260d28d45db6edc"
+        ],
+        "converter": [
+          "legacy_base_converter_source.txt",
+          "a047cb70ef64fce2ad7a70ed4dc844efc05d3c72c5ccf4f53ed7957b95b35b62"
+        ]
+      },
+      "numericVersion": "9.3.1",
+      "numericSHA256": "58ba6fb59668342346f17983a61ace455f6f425ac4fbfab84f489df257594d16",
+      "node": "24.22.1",
+      "v8": "13.6.233.17-node.58",
+      "actualCalls": 4474,
+      "admittedStrings": 4470,
+      "guardObservations": 4,
+      "fixtureSHA256": "a722e349376b79e44ea598b933852072dc5cbd3eb29c6f2d58606a1bd5ac1924",
+      "sourceBodiesChanged": false,
+      "expectedFinancialInput": false
+    },
+    "fraction-full-lock": {
+      "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+      "sourcePins": {
+        "encoder": [
+          "legacy_types_source_txEncoder.txt",
+          "c3b95909e66ef04320501fd8e919ae954f761af0449a09782c083e71a7ef8c42"
+        ],
+        "base94": [
+          "legacy_base94_source.txt",
+          "0b33c7b2beaa3d86f13a3ef5c995121457281b2d744cc87f8ca58d32070234eb"
+        ],
+        "base256": [
+          "legacy_base256_source.txt",
+          "11a0d6be7142f9baa4e41e9c9c295c80583b803b7d79495ed260d28d45db6edc"
+        ],
+        "converter": [
+          "legacy_base_converter_source.txt",
+          "a047cb70ef64fce2ad7a70ed4dc844efc05d3c72c5ccf4f53ed7957b95b35b62"
+        ]
+      },
+      "numericVersion": "9.1.2",
+      "numericSHA256": "20db2d8d32fd388a927588beb9c1cdbb2c91ddf0273a180161334b28cb00902e",
+      "node": "24.22.1",
+      "v8": "13.6.233.17-node.58",
+      "actualCalls": 4474,
+      "admittedStrings": 4470,
+      "guardObservations": 4,
+      "fixtureSHA256": "a722e349376b79e44ea598b933852072dc5cbd3eb29c6f2d58606a1bd5ac1924",
+      "sourceBodiesChanged": false,
+      "expectedFinancialInput": false
+    },
+    "fraction-proof10": {
+      "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+      "sourcePins": {
+        "encoder": [
+          "legacy_types_source_txEncoder.txt",
+          "c3b95909e66ef04320501fd8e919ae954f761af0449a09782c083e71a7ef8c42"
+        ],
+        "base94": [
+          "legacy_base94_source.txt",
+          "0b33c7b2beaa3d86f13a3ef5c995121457281b2d744cc87f8ca58d32070234eb"
+        ],
+        "base256": [
+          "legacy_base256_source.txt",
+          "11a0d6be7142f9baa4e41e9c9c295c80583b803b7d79495ed260d28d45db6edc"
+        ],
+        "converter": [
+          "legacy_base_converter_source.txt",
+          "a047cb70ef64fce2ad7a70ed4dc844efc05d3c72c5ccf4f53ed7957b95b35b62"
+        ]
+      },
+      "numericVersion": "9.3.1",
+      "numericSHA256": "58ba6fb59668342346f17983a61ace455f6f425ac4fbfab84f489df257594d16",
+      "node": "24.22.1",
+      "v8": "13.6.233.17-node.58",
+      "actualCalls": 10,
+      "admittedStrings": 10,
+      "guardObservations": 0,
+      "fixtureSHA256": "6ca86814bd0a181f435d282d86ac55bb8ecac8e4fcb843be996e960270927ac1",
+      "sourceBodiesChanged": false,
+      "expectedFinancialInput": false
+    },
+    "fraction-proof10-lock": {
+      "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+      "sourcePins": {
+        "encoder": [
+          "legacy_types_source_txEncoder.txt",
+          "c3b95909e66ef04320501fd8e919ae954f761af0449a09782c083e71a7ef8c42"
+        ],
+        "base94": [
+          "legacy_base94_source.txt",
+          "0b33c7b2beaa3d86f13a3ef5c995121457281b2d744cc87f8ca58d32070234eb"
+        ],
+        "base256": [
+          "legacy_base256_source.txt",
+          "11a0d6be7142f9baa4e41e9c9c295c80583b803b7d79495ed260d28d45db6edc"
+        ],
+        "converter": [
+          "legacy_base_converter_source.txt",
+          "a047cb70ef64fce2ad7a70ed4dc844efc05d3c72c5ccf4f53ed7957b95b35b62"
+        ]
+      },
+      "numericVersion": "9.1.2",
+      "numericSHA256": "20db2d8d32fd388a927588beb9c1cdbb2c91ddf0273a180161334b28cb00902e",
+      "node": "24.22.1",
+      "v8": "13.6.233.17-node.58",
+      "actualCalls": 10,
+      "admittedStrings": 10,
+      "guardObservations": 0,
+      "fixtureSHA256": "6ca86814bd0a181f435d282d86ac55bb8ecac8e4fcb843be996e960270927ac1",
+      "sourceBodiesChanged": false,
+      "expectedFinancialInput": false
+    },
+    "unicode-full": {
+      "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+      "sourcePins": {
+        "encoder": [
+          "legacy_types_source_txEncoder.txt",
+          "c3b95909e66ef04320501fd8e919ae954f761af0449a09782c083e71a7ef8c42"
+        ],
+        "base94": [
+          "legacy_base94_source.txt",
+          "0b33c7b2beaa3d86f13a3ef5c995121457281b2d744cc87f8ca58d32070234eb"
+        ],
+        "base256": [
+          "legacy_base256_source.txt",
+          "11a0d6be7142f9baa4e41e9c9c295c80583b803b7d79495ed260d28d45db6edc"
+        ],
+        "converter": [
+          "legacy_base_converter_source.txt",
+          "a047cb70ef64fce2ad7a70ed4dc844efc05d3c72c5ccf4f53ed7957b95b35b62"
+        ]
+      },
+      "numericVersion": "9.3.1",
+      "numericSHA256": "58ba6fb59668342346f17983a61ace455f6f425ac4fbfab84f489df257594d16",
+      "actualCalls": 68,
+      "admittedSuccessRows": 63,
+      "guardObservations": 5,
+      "fixtureSHA256": "699642c870862706133cd9aa9df347ebc4217f31cd96a47a34679d73989d199b",
+      "sourceBodiesChanged": false,
+      "financialOutcomeInput": false
+    },
+    "unicode-full-lock": {
+      "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+      "sourcePins": {
+        "encoder": [
+          "legacy_types_source_txEncoder.txt",
+          "c3b95909e66ef04320501fd8e919ae954f761af0449a09782c083e71a7ef8c42"
+        ],
+        "base94": [
+          "legacy_base94_source.txt",
+          "0b33c7b2beaa3d86f13a3ef5c995121457281b2d744cc87f8ca58d32070234eb"
+        ],
+        "base256": [
+          "legacy_base256_source.txt",
+          "11a0d6be7142f9baa4e41e9c9c295c80583b803b7d79495ed260d28d45db6edc"
+        ],
+        "converter": [
+          "legacy_base_converter_source.txt",
+          "a047cb70ef64fce2ad7a70ed4dc844efc05d3c72c5ccf4f53ed7957b95b35b62"
+        ]
+      },
+      "numericVersion": "9.1.2",
+      "numericSHA256": "20db2d8d32fd388a927588beb9c1cdbb2c91ddf0273a180161334b28cb00902e",
+      "actualCalls": 68,
+      "admittedSuccessRows": 63,
+      "guardObservations": 5,
+      "fixtureSHA256": "699642c870862706133cd9aa9df347ebc4217f31cd96a47a34679d73989d199b",
+      "sourceBodiesChanged": false,
+      "financialOutcomeInput": false
+    },
+    "unicode-proof10": {
+      "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+      "sourcePins": {
+        "encoder": [
+          "legacy_types_source_txEncoder.txt",
+          "c3b95909e66ef04320501fd8e919ae954f761af0449a09782c083e71a7ef8c42"
+        ],
+        "base94": [
+          "legacy_base94_source.txt",
+          "0b33c7b2beaa3d86f13a3ef5c995121457281b2d744cc87f8ca58d32070234eb"
+        ],
+        "base256": [
+          "legacy_base256_source.txt",
+          "11a0d6be7142f9baa4e41e9c9c295c80583b803b7d79495ed260d28d45db6edc"
+        ],
+        "converter": [
+          "legacy_base_converter_source.txt",
+          "a047cb70ef64fce2ad7a70ed4dc844efc05d3c72c5ccf4f53ed7957b95b35b62"
+        ]
+      },
+      "numericVersion": "9.3.1",
+      "numericSHA256": "58ba6fb59668342346f17983a61ace455f6f425ac4fbfab84f489df257594d16",
+      "actualCalls": 10,
+      "admittedSuccessRows": 10,
+      "guardObservations": 0,
+      "fixtureSHA256": "b93225f68c97733676e0acaef2f12e02a624970dde1820360aa90ec866c5813f",
+      "sourceBodiesChanged": false,
+      "financialOutcomeInput": false
+    },
+    "unicode-proof10-lock": {
+      "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+      "sourcePins": {
+        "encoder": [
+          "legacy_types_source_txEncoder.txt",
+          "c3b95909e66ef04320501fd8e919ae954f761af0449a09782c083e71a7ef8c42"
+        ],
+        "base94": [
+          "legacy_base94_source.txt",
+          "0b33c7b2beaa3d86f13a3ef5c995121457281b2d744cc87f8ca58d32070234eb"
+        ],
+        "base256": [
+          "legacy_base256_source.txt",
+          "11a0d6be7142f9baa4e41e9c9c295c80583b803b7d79495ed260d28d45db6edc"
+        ],
+        "converter": [
+          "legacy_base_converter_source.txt",
+          "a047cb70ef64fce2ad7a70ed4dc844efc05d3c72c5ccf4f53ed7957b95b35b62"
+        ]
+      },
+      "numericVersion": "9.1.2",
+      "numericSHA256": "20db2d8d32fd388a927588beb9c1cdbb2c91ddf0273a180161334b28cb00902e",
+      "actualCalls": 10,
+      "admittedSuccessRows": 10,
+      "guardObservations": 0,
+      "fixtureSHA256": "b93225f68c97733676e0acaef2f12e02a624970dde1820360aa90ec866c5813f",
+      "sourceBodiesChanged": false,
+      "financialOutcomeInput": false
+    }
+  },
+  "sourceFiles": {
+    "src/legacy_txencoder_audit.rs": "c1499b48bd8f6cd05d6955c80c2f22f439c7e889963e92504cad486f12149408",
+    "tests/legacy_txencoder_audit.rs": "f65634fb933b839c790975676033024000ebd52a8ce30a55cf513568a647b15b",
+    "tests/legacy_txencoder_unicode.rs": "537a07d3d811eefa814ee85c7c15f8e21fec1030ce66e501a8c1c052cff0dbc5",
+    "docs/LITERAL_TXENCODER_UNICODE.md": "5318db30ba28ebc81c114f747a65f65ad307dc444e11799af6a6d2d7f0748bc1",
+    "docs/LITERAL_TXENCODER_FRACTION.md": "76d6fdd0a3fdabf57c632c496b357ea31f9754c2f18585ee0238d97d544d8b34",
+    "docs/third-party/V8-NUMBER-CONVERSIONS-LICENSE": "6ab33af8774a0f396ee3aeeb761e3229057682d6f9fa7f572e390c2cb3a6e509",
+    "fixtures/txencoder_fraction_proof10.tsv": "6ca86814bd0a181f435d282d86ac55bb8ecac8e4fcb843be996e960270927ac1",
+    "fixtures/txencoder_fraction_vectors.tsv": "a722e349376b79e44ea598b933852072dc5cbd3eb29c6f2d58606a1bd5ac1924",
+    "scripts/txencoder_fraction_vectors.cjs": "afe3c256d502cdfebd646ebe9d38a9f93e6dd22fe52a2b233780ddbd18b7fb30",
+    "tests/legacy_txencoder_fraction.rs": "e3e4b5edfcb3bc8448fdb7ff861f52b43299f09e120ec9f6139ebc69d0838415"
+  },
+  "typedWrapperPrefixUnchanged": true,
+  "expandedPriorLiteralAssertions": 2,
+  "otherAssertionsRemoved": false,
+  "frozenInputCount": 2153,
+  "frozenInputManifestSHA256": "ccbfe0b7f97a0189667a0aaea44dbedd0bbda346719d57bdd4b344f7693954e4",
+  "allTargetClippyWarningsDenied": true,
+  "cargoFmtPassed": true,
+  "includedRustFilesChecked": 464,
+  "inventoryPassed": true,
+  "supplyPolicyPassed": true,
+  "logs": {
+    "root-wire-fraction-clippy.log": "d55b4d5fa416faa127da0e6c9f9e4a8fa2226d8c2e0fd160f85ef44fccf54154",
+    "root-wire-fraction-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "root-wire-fraction-source-fraction-full-lock.log": "d6eb0f30953f227996d54c83e96fd399efec2b492b8432dd2b9b4f111d9fd668",
+    "root-wire-fraction-source-fraction-full.log": "da0a124a331f8d7ca429a1aca1b124e8de8fb82a95bcb81789d764ed741e4f92",
+    "root-wire-fraction-source-fraction-proof10-lock.log": "3e4105dca3f1a988e363fd1c9b6c383beb9d4b1b2e7740391909eb41ed2aa3a4",
+    "root-wire-fraction-source-fraction-proof10.log": "22ee07463b0cf4c1b7c4faa57bb7e3ca03f6fae98d3a9a36601e2adad7436510",
+    "root-wire-fraction-source-included-fmt.log": "cb82aa7ca7d745ac09d549b89ae6000e0c5812125366a7d6fc9148b4341a4b96",
+    "root-wire-fraction-source-inventory.log": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393",
+    "root-wire-fraction-source-supply-policy.log": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01",
+    "root-wire-fraction-source-unicode-full-lock.log": "4f8bc3e25e4acb6ac6a5cf9764065992faadfb14c662ad3cf25f1edeed1b958c",
+    "root-wire-fraction-source-unicode-full.log": "dd09fdb307263004088e0180c287dd8bab986d8cd13e94e0ef16c2dfd9a9df4e",
+    "root-wire-fraction-source-unicode-proof10-lock.log": "a83c9ac13c3db3c474d554f0fd9c588a7b846b08581635eb6fa66e9140cdda7e",
+    "root-wire-fraction-source-unicode-proof10.log": "f8c57be7022449ea1937b050833d5b5d4df25bbb98d938c70941e1d5016733c2",
+    "root-wire-fraction-unicode.log": "4df5587d5a1fb80f07175a2fffaf473f79da74d4a1dfd55cfec25d33f52783e9"
+  },
+  "scope": {
+    "finiteBinary64Radix36FractionsUseLiteralSourceDigitRounding": true,
+    "subnormalNeighborsCarryNegativeZeroAndNinePayloadSitesCompared": true,
+    "bigNumberAndTypedAsciiWrappersUnchanged": true,
+    "unsafeNonfiniteCustomObjectAndLoneUtf16DomainsRemainGuarded": true,
+    "expectedOutputsUsedAsExecutionInputs": false,
+    "fullWireParityEstablished": false,
+    "authenticationEstablished": false,
+    "fullAllTargetReleasePromoted": false
+  },
+  "separateQueuedStartup": {
+    "includedInThisCommit": false,
+    "positivePassed": 0,
+    "positiveFailed": 2,
+    "diagnosisRecord": "fixtures/reference_fidelity/main-startup-rpc-order-diagnosis.json"
+  },
+  "verifiedAllTargetBaseline": 2204,
+  "verifiedLockedReferenceBaseline": 239,
+  "priorMainScopedLibraryPassed": 734,
+  "priorMainScopedCommit": "1ac51ada2aa623d21db978be21cb4cac20f20454"
+}
