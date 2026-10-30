@@ -1,0 +1,182 @@
+{
+  "schema": "tl-literal-txencoder-unicode-core-v1",
+  "verifiedAtUtc": "2026-10-30T11:40:12Z",
+  "inputCommit": "72a726bb9a98e8e333a2d51bb9a56841786badca",
+  "workerManifestSHA256": "8014d662fd57c13860699612d3cc932a0a17c123d753cfd9e1df4f7c343d2b66",
+  "newIntegrationTests": 5,
+  "oldEncoderRegressionTests": 13,
+  "countsOverlapWithPriorBaseline": true,
+  "sourceChecks": {
+    "wire-full": {
+      "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+      "sourcePins": {
+        "encoder": [
+          "legacy_types_source_txEncoder.txt",
+          "c3b95909e66ef04320501fd8e919ae954f761af0449a09782c083e71a7ef8c42"
+        ],
+        "base94": [
+          "legacy_base94_source.txt",
+          "0b33c7b2beaa3d86f13a3ef5c995121457281b2d744cc87f8ca58d32070234eb"
+        ],
+        "base256": [
+          "legacy_base256_source.txt",
+          "11a0d6be7142f9baa4e41e9c9c295c80583b803b7d79495ed260d28d45db6edc"
+        ],
+        "converter": [
+          "legacy_base_converter_source.txt",
+          "a047cb70ef64fce2ad7a70ed4dc844efc05d3c72c5ccf4f53ed7957b95b35b62"
+        ]
+      },
+      "numericVersion": "9.3.1",
+      "numericSHA256": "58ba6fb59668342346f17983a61ace455f6f425ac4fbfab84f489df257594d16",
+      "actualCalls": 68,
+      "admittedSuccessRows": 63,
+      "guardObservations": 5,
+      "fixtureSHA256": "699642c870862706133cd9aa9df347ebc4217f31cd96a47a34679d73989d199b",
+      "sourceBodiesChanged": false,
+      "financialOutcomeInput": false
+    },
+    "wire-full-lock": {
+      "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+      "sourcePins": {
+        "encoder": [
+          "legacy_types_source_txEncoder.txt",
+          "c3b95909e66ef04320501fd8e919ae954f761af0449a09782c083e71a7ef8c42"
+        ],
+        "base94": [
+          "legacy_base94_source.txt",
+          "0b33c7b2beaa3d86f13a3ef5c995121457281b2d744cc87f8ca58d32070234eb"
+        ],
+        "base256": [
+          "legacy_base256_source.txt",
+          "11a0d6be7142f9baa4e41e9c9c295c80583b803b7d79495ed260d28d45db6edc"
+        ],
+        "converter": [
+          "legacy_base_converter_source.txt",
+          "a047cb70ef64fce2ad7a70ed4dc844efc05d3c72c5ccf4f53ed7957b95b35b62"
+        ]
+      },
+      "numericVersion": "9.1.2",
+      "numericSHA256": "20db2d8d32fd388a927588beb9c1cdbb2c91ddf0273a180161334b28cb00902e",
+      "actualCalls": 68,
+      "admittedSuccessRows": 63,
+      "guardObservations": 5,
+      "fixtureSHA256": "699642c870862706133cd9aa9df347ebc4217f31cd96a47a34679d73989d199b",
+      "sourceBodiesChanged": false,
+      "financialOutcomeInput": false
+    },
+    "wire-proof10": {
+      "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+      "sourcePins": {
+        "encoder": [
+          "legacy_types_source_txEncoder.txt",
+          "c3b95909e66ef04320501fd8e919ae954f761af0449a09782c083e71a7ef8c42"
+        ],
+        "base94": [
+          "legacy_base94_source.txt",
+          "0b33c7b2beaa3d86f13a3ef5c995121457281b2d744cc87f8ca58d32070234eb"
+        ],
+        "base256": [
+          "legacy_base256_source.txt",
+          "11a0d6be7142f9baa4e41e9c9c295c80583b803b7d79495ed260d28d45db6edc"
+        ],
+        "converter": [
+          "legacy_base_converter_source.txt",
+          "a047cb70ef64fce2ad7a70ed4dc844efc05d3c72c5ccf4f53ed7957b95b35b62"
+        ]
+      },
+      "numericVersion": "9.3.1",
+      "numericSHA256": "58ba6fb59668342346f17983a61ace455f6f425ac4fbfab84f489df257594d16",
+      "actualCalls": 10,
+      "admittedSuccessRows": 10,
+      "guardObservations": 0,
+      "fixtureSHA256": "b93225f68c97733676e0acaef2f12e02a624970dde1820360aa90ec866c5813f",
+      "sourceBodiesChanged": false,
+      "financialOutcomeInput": false
+    },
+    "wire-proof10-lock": {
+      "sourceCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
+      "sourcePins": {
+        "encoder": [
+          "legacy_types_source_txEncoder.txt",
+          "c3b95909e66ef04320501fd8e919ae954f761af0449a09782c083e71a7ef8c42"
+        ],
+        "base94": [
+          "legacy_base94_source.txt",
+          "0b33c7b2beaa3d86f13a3ef5c995121457281b2d744cc87f8ca58d32070234eb"
+        ],
+        "base256": [
+          "legacy_base256_source.txt",
+          "11a0d6be7142f9baa4e41e9c9c295c80583b803b7d79495ed260d28d45db6edc"
+        ],
+        "converter": [
+          "legacy_base_converter_source.txt",
+          "a047cb70ef64fce2ad7a70ed4dc844efc05d3c72c5ccf4f53ed7957b95b35b62"
+        ]
+      },
+      "numericVersion": "9.1.2",
+      "numericSHA256": "20db2d8d32fd388a927588beb9c1cdbb2c91ddf0273a180161334b28cb00902e",
+      "actualCalls": 10,
+      "admittedSuccessRows": 10,
+      "guardObservations": 0,
+      "fixtureSHA256": "b93225f68c97733676e0acaef2f12e02a624970dde1820360aa90ec866c5813f",
+      "sourceBodiesChanged": false,
+      "financialOutcomeInput": false
+    }
+  },
+  "sourceFiles": {
+    "src/legacy_txencoder_audit.rs": "68ce52c785d83ee2f553476a5bce6ecf2bca2f8749c49ea6f720d4da4ee8e4ee",
+    "tests/legacy_txencoder_unicode.rs": "9ce32f726802b11d41615704371a2674a39899fe17730eab9ea8f83e6786f973",
+    "fixtures/txencoder_unicode_vectors.tsv": "699642c870862706133cd9aa9df347ebc4217f31cd96a47a34679d73989d199b",
+    "fixtures/txencoder_unicode_proof10.tsv": "b93225f68c97733676e0acaef2f12e02a624970dde1820360aa90ec866c5813f",
+    "scripts/txencoder_unicode_vectors.cjs": "5e38bf516cd85c1e85b2f60d13a64d75746e48f8dc4240ac87008b2ed9e90f01",
+    "docs/LITERAL_TXENCODER_UNICODE.md": "c4cabfe430aadd61a77e792c17208e2abc563967598dc56313528f8c6bb9c676"
+  },
+  "frozenWorkingInputCount": 2143,
+  "frozenWorkingInputManifestSHA256": "3285f32ab622161d3e1110ff0a21c6787a42051636a90b830323fa5b232474ff",
+  "allTargetClippyWarningsDenied": true,
+  "cargoFmtPassed": true,
+  "includedRustFilesChecked": 464,
+  "inventoryPassed": true,
+  "supplyPolicyPassed": true,
+  "logs": {
+    "root-wire-unicode-clippy.log": "572ed1ad2db1c6d95062027c2edcd8aa0ef0d5716435ecc7e390ff9f8ddac192",
+    "root-wire-unicode-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "root-wire-unicode-unicode.log": "b06c7f60f0f70ae6b28d9f6d9bb1c0dbfa3add1764a1ba57a7ee4742321a0bdb",
+    "root-queued-wire-aux-included-fmt.log": "cb82aa7ca7d745ac09d549b89ae6000e0c5812125366a7d6fc9148b4341a4b96",
+    "root-queued-wire-aux-inventory.log": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393",
+    "root-queued-wire-aux-supply-policy.log": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01",
+    "root-queued-wire-aux-wire-full-lock.log": "4f8bc3e25e4acb6ac6a5cf9764065992faadfb14c662ad3cf25f1edeed1b958c",
+    "root-queued-wire-aux-wire-full.log": "dd09fdb307263004088e0180c287dd8bab986d8cd13e94e0ef16c2dfd9a9df4e",
+    "root-queued-wire-aux-wire-proof10-lock.log": "a83c9ac13c3db3c474d554f0fd9c588a7b846b08581635eb6fa66e9140cdda7e",
+    "root-queued-wire-aux-wire-proof10.log": "f8c57be7022449ea1937b050833d5b5d4df25bbb98d938c70941e1d5016733c2"
+  },
+  "scope": {
+    "literalUnicodeScalarTextPreservedWithoutNormalization": true,
+    "ecmaWhitespaceAndUtf16ThresholdsUseGenuineCompleteSource": true,
+    "typedAsciiWrappersAndGenericConcatUnchanged": true,
+    "originalNumericControlAndResourceRefusalsPreserved": true,
+    "unpairedUtf16Representable": false,
+    "fullWireParityEstablished": false,
+    "authenticationEstablished": false,
+    "fullAllTargetReleasePromoted": false
+  },
+  "remainingGates": [
+    "Fractional Number radix36 and broader coercion domains",
+    "Historical wire corpus and authenticated transaction acceptance",
+    "New all-target/numeric release promotion"
+  ],
+  "separateWorkingQueuedStartup": {
+    "includedInThisCommit": false,
+    "positiveCasesPassed": 0,
+    "defenseCasesPassed": 2,
+    "lastRootSession": 67372,
+    "lastRootExitCode": 1,
+    "reason": "Both positive cases still lack later actual writes at genuine finite unheld quiescence. Assertions remain hard.",
+    "notWireCoverageOrPromotion": true
+  },
+  "priorMainScopedLibraryPassed": 734,
+  "priorMainScopedCommit": "1ac51ada2aa623d21db978be21cb4cac20f20454",
+  "verifiedAllTargetBaseline": 2204,
+  "verifiedLockedReferenceBaseline": 239
+}

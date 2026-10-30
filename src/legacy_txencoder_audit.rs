@@ -812,10 +812,42 @@ type EncoderResult<T> = Result<T, LegacyEncoderError>;
 const MAX_ENCODER_JSON_BYTES: usize = 32_768;
 const MAX_ENCODER_NUMERIC_BYTES: usize = 512;
 
+// Literal source strings are Unicode scalar text. Typed/repaired wrappers
+// above keep raw_text/source_output and their original ASCII-only contract.
+fn literal_raw_text(raw: &str) -> EncoderResult<&str> {
+    if raw.len() > LEGACY_ENCODER_MAX_ASCII {
+        return Err(LegacyEncoderError::SourceReturnTooLong);
+    }
+    // Retain the existing ASCII control-byte guard and UTF-8 resource bound.
+    if raw.bytes().any(|byte| byte < 0x20 || byte == 0x7f) {
+        return Err(LegacyEncoderError::NonPrintableAscii);
+    }
+    Ok(raw)
+}
+fn literal_js_space(c: char) -> bool {
+    matches!(c, '\u{0009}'..='\u{000d}' | '\u{0020}' | '\u{00a0}' | '\u{1680}' |
+        '\u{2000}'..='\u{200a}' | '\u{2028}' | '\u{2029}' | '\u{202f}' |
+        '\u{205f}' | '\u{3000}' | '\u{feff}')
+}
+fn literal_source_output(
+    ty: u8,
+    result: String,
+    prefix: SourceInnerEnvelope,
+    mut caveats: Vec<SourceEncoderCaveat>,
+) -> EncoderResult<UnverifiedSourceEncoding> {
+    literal_raw_text(&result)?;
+    caveats.push(SourceEncoderCaveat::NoHistoricalSignerOrNetworkEvidence);
+    Ok(UnverifiedSourceEncoding {
+        source_type_id: ty,
+        source_inner_result: result,
+        prefix_shape: prefix,
+        caveats,
+    })
+}
 fn enc_input_domain(value: &JsonValue) -> EncoderResult<()> {
     match value {
         JsonValue::String(text) => {
-            raw_text(text)?;
+            literal_raw_text(text)?;
         }
         JsonValue::Array(values) => {
             if values.len() > MAX_SOURCE_LIST_IDS {
@@ -827,7 +859,7 @@ fn enc_input_domain(value: &JsonValue) -> EncoderResult<()> {
         }
         JsonValue::Object(object) => {
             for (key, value) in object.iter() {
-                raw_text(key)?;
+                literal_raw_text(key)?;
                 enc_input_domain(value)?;
             }
         }
@@ -923,7 +955,7 @@ fn enc_number(value: Option<&JsonValue>) -> EncoderResult<f64> {
         }
         Some(JsonValue::String(_)) | Some(JsonValue::Array(_)) => {
             let text = enc_string(value)?;
-            let text = text.trim();
+            let text = text.trim_matches(literal_js_space);
             if text.is_empty() {
                 0.0
             } else if let Some(hex) = text.strip_prefix("0x").or_else(|| text.strip_prefix("0X")) {
@@ -978,7 +1010,8 @@ fn enc_decimal(value: Option<&JsonValue>) -> EncoderResult<Decimal> {
     if text.len() > MAX_ENCODER_NUMERIC_BYTES {
         return Err(LegacyEncoderError::UnsupportedNumericCoercion);
     }
-    Decimal::from_str(text.trim()).map_err(|_| LegacyEncoderError::UnsupportedNumericCoercion)
+    Decimal::from_str(text.trim_matches(literal_js_space))
+        .map_err(|_| LegacyEncoderError::UnsupportedNumericCoercion)
 }
 fn enc_scaled(value: Option<&JsonValue>, scale: &str) -> EncoderResult<Decimal> {
     enc_decimal(value)?
@@ -1132,7 +1165,7 @@ fn enc_property_id(value: Option<&JsonValue>) -> EncoderResult<String> {
                 let Some(part) = part else {
                     return Ok("NaN".to_owned());
                 };
-                let text = part.trim_start();
+                let text = part.trim_start_matches(literal_js_space);
                 let (negative, text) = if let Some(rest) = text.strip_prefix('-') {
                     (true, rest)
                 } else {
@@ -1195,7 +1228,7 @@ pub fn source_encode_method_unverified(
         } else {
             enc_property_id(Some(input))?
         };
-        raw_text(&text)?;
+        literal_raw_text(&text)?;
         return Ok(SourceEncoderReturn::Helper(text));
     }
     if method != "encodeCloseOracle" && !matches!(input, JsonValue::Object(_)) {
@@ -1841,7 +1874,7 @@ pub fn source_encode_method_unverified(
     } else {
         format!("tl{}{body}", b36(u128::from(ty)))
     };
-    Ok(SourceEncoderReturn::Encoding(source_output(
+    Ok(SourceEncoderReturn::Encoding(literal_source_output(
         ty, text, prefix, caveats,
     )?))
 }

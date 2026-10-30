@@ -1,6 +1,12 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T10:25:44Z. Refresh this file after every tested integration or PR cycle.
+Updated: 2026-10-30T11:40:12Z. Refresh this file after every tested integration or PR cycle.
+
+## Latest tested wire increment (this commit)
+
+The literal encoder preserves bounded Unicode scalar text and ECMAScript whitespace without normalization. Five new actual-Core integration tests plus thirteen unchanged encoder tests pass. Four genuine complete-source regenerations cover68 full cases and10 first-call controls under both9.3.1 and9.1.2. Strict all-target Clippy, Cargo formatting, included formatting, inventory and supply policy pass. Typed ASCII wrappers, generic concatenation and existing numeric/resource guards stay unchanged. This is bounded Unicode support; fractional Number radix36, unpaired UTF-16, historical acceptance and authentication remain open. Evidence:`fixtures/reference_fidelity/literal-txencoder-unicode-core-integration.json`. Full release remains2,204Rust/239numeric and prior Main evidence remains734 scoped at1ac51ad.
+
+The separate queued-startup working proposal is deliberately uncommitted and unpromoted. Root session67372 compiled: two defenses pass, but both positive held-callback cases still fail because no later source write occurs by finite unheld quiescence. The unchanged genuine source does make those writes after first caller fulfillment. Keep all hard assertions, owner/result custody and original source chronology; `v8_clearlist` is diagnosing the missing continuation. The earlier ready-job Tail enqueue and observation-driver corrections alone did not close this gate. Exact handles/manifests are in `work/root-resume-current.json`.
 
 ## Latest local checkpoint
 
@@ -38,8 +44,8 @@ Two checks exposed real boundaries. The fresh test attempted a blob read through
 
 | Worker | Isolated next work |
 | --- | --- |
-| `row_continuation_impl` | Frozen8097/51ac producer/result/recovery prerequisites await Root; full mixed typed writer/trace/segmented cold is in separate WIP. |
-| `v8_main` | Paired cold integrated; queued metadata/startup independent review, preserving exact failure and result-custody boundaries. |
+| `row_continuation_impl` | Frozen8097/51ac plusbf8b mixed live writer await Root; complete trace/cold remains separate WIP. |
+| `v8_main` | Literal wire Unicode tested; fractional Number radix36 source parity next in an isolated stage. |
 | `v8_clearlist` | Per-job queued startup runtime/controller fence/full canonical custody; exact RPC/microtask/UID/effect parity remains open. |
 
 The external web worker is independent; unavailable handoff text or unexecuted source code is not integrated work. Root owns repository writes and commits. Apply immutable worker manifests through pure transforms of CURRENT source; never overlay stale whole files. Run one whole-Core Cargo process at a time. Agents use isolated stages and must not run Root/private Core.
