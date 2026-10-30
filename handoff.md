@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T04:26:23Z. Refresh after every tested integration cycle.
+Updated: 2026-10-30T04:26:36Z. Refresh after every tested integration cycle.
 
 ## Current checkpoint
 
@@ -22,7 +22,7 @@ Later focused correction: rejected append ACKs now preserve the prior original/r
 
 ## Latest tested fresh input
 
-The latest batch passes **648 library tests (four ignored), 44 public checks, all-target Clippy with warnings denied, Cargo formatting, 378 included-file formatting checks, inventory and supply policy**. Ten new controls cover the new canonical raw-fact codec and actual financial owners. Evidence: `fixtures/reference_fidelity/main-fresh-input-core-integration.json`. The complete release baseline remains **2,204 Rust /239 numeric** at `a94ea4c7`; do not add overlapping focused counts or promote this to a completed RC.
+The latest tested code is `5ae93f188110ba1dd36088e2280244789ad7e053`. This batch passes **648 library tests (four ignored), 44 public checks, all-target Clippy with warnings denied, Cargo formatting, 378 included-file formatting checks, inventory and supply policy**. Ten new controls cover the new canonical raw-fact codec and actual financial owners. Evidence: `fixtures/reference_fidelity/main-fresh-input-core-integration.json`. The complete release baseline remains **2,204 Rust /239 numeric** at `a94ea4c7`; do not add overlapping focused counts or promote this to a completed RC.
 
 The typed fresh-input service/caller consumes the existing owner. It changes only future tip/block/network/transaction-document facts, preserving counters, client, captured source locals, actual prepared native plan, physical index, route, pending timer and borrowed financial queue. Retained caller and service future document sets change together. Invalid, observation-pending and terminal feeds refuse before publication. Six codec and four actual-Core controls pass. Original JavaScript reproduces ten cases/44 records plus one service-chain case/four records under genuine BigNumber 9.3.1 and 9.1.2. Record counts include raw inputs.
 
@@ -102,6 +102,4 @@ Actual-source controls cover ordinary append, an intervening pause and genuine B
 
 ## Latest scoped workbook refresh
 
-Saved workbook and sidebar agree on `b8546b3`: **638 library tests / 44 public checks**, including 44 new unit tests. Full release evidence remains **2,204 Rust / 239 numeric checks** at `a94ea4c7`; the scoped run does not replace that release. Fourteen intentional edits preserve all 48 TL modules, one external reference, 37 transaction rows, formulas, styles, filters, panes and geometry. Zero formula errors. Evidence: `fixtures/reference_fidelity/main-orchestration-completeness.json`.
-
-Full 13-2 source-fact cold replay, fresh input, raw/global startup and active-history continuation remain pending. Candidate source/helper checks are not promoted to Core integration. The next explicit typed feed is frozen as `1064bf02`; raw startup has `f4951a81` plus literal DB retry `a70ea938`, with its actual Initialize suffix still being extended. Work-only manifests and exact current runner pointers are in `work/root-resume-current.json` outside the repository.
+Saved workbook and sidebar agree on `5ae93f1`:648 library /44 public checks and 10 new controls. Full release remains 2,204 Rust /239 numeric at a94ea4c7. Eleven intentional edits preserve all 48 TL modules, one external reference,37 transaction rows, formulas/styles/filters/panes/geometry and proof gates, with zero errors. Evidence:`fixtures/reference_fidelity/main-fresh-input-completeness.json`. Raw/global startup, complete 13-2 cold replay, durable fresh/file composition, active-history continuation and authenticated proof gates remain pending.
