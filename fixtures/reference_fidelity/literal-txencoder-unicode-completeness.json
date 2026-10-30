@@ -1,0 +1,48 @@
+{
+  "schema": "tl-literal-wire-unicode-completeness-v1",
+  "verifiedAtUtc": "2026-10-30T11:43:33Z",
+  "checkoutCommit": "aeebb65cc2623b5379b157458d611b1cd0930623",
+  "beforeWorkbookSHA256": "6010dcb3e158214d174e6c6e1a43115b0222863e89e66505a6dbdebed2b8443a",
+  "releaseRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json",
+  "releaseRecordSHA256": "55a183f033a19d4e75e238cbc59cca12785610d1ba6c35d32774c313635f9aa7",
+  "scopedRecord": "fixtures/reference_fidelity/literal-txencoder-unicode-core-integration.json",
+  "scopedRecordSHA256": "80984846b09aff3cf21ed6befd94325a86c221a9e4c0394ff218de88e5aea5d4",
+  "releaseExecutions": 2204,
+  "lockedReferenceExecutions": 239,
+  "priorMainScopedLibraryPassed": 734,
+  "priorMainScopedCommit": "1ac51ada2aa623d21db978be21cb4cac20f20454",
+  "newWireTests": 5,
+  "oldEncoderRegressionTests": 13,
+  "newCurrentLibraryRunClaimed": false,
+  "fullSuitePromotion": false,
+  "queuedStartupPositivePassed": false,
+  "trackedTransactionRowsChanged": false,
+  "authenticationEstablished": false,
+  "completeBlockFraudProofEstablished": false,
+  "restorationVerification": {
+    "restoredWorkbookSHA256": "6010dcb3e158214d174e6c6e1a43115b0222863e89e66505a6dbdebed2b8443a",
+    "originalVerifiedWorkbookSHA256": "a903af1166c75622d42c993a6d484c83fcb63911dc72c2e2ae615eef4fe0b65f",
+    "rowsValuesFormulasStylesFiltersPanesGeometryPreserved": true,
+    "prior17ExactCellChangesVerified": true,
+    "sidebarRemainedAtVersion": 188,
+    "reason": "Incorrect render invocation entered create branch; restored exact verified pre-edit backup and replayed prior seventeen deltas through Artifact Tool."
+  },
+  "savedWorkbookSHA256": "bdf4bea8553eb4c3eaa84a9a045193d1531d196deb71f2d24091bfde063eb2af",
+  "savedAndSidebarRowsMatch": true,
+  "rowHashes": {
+    "modules": 963327053,
+    "logic": 1151758449
+  },
+  "intentionalCellChanges": 10,
+  "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
+  "visualReviewPassed": true,
+  "errors": 0,
+  "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
+  "sidebarStateVersion": 189,
+  "visualReviewRanges": [
+    "C20:G20",
+    "C26:G26",
+    "C47:G47",
+    "A2:H4"
+  ]
+}

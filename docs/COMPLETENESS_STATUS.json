@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-30T10:25:44Z",
-  "inspectedCheckoutCommit": "1ac51ada2aa623d21db978be21cb4cac20f20454",
+  "verifiedAtUtc": "2026-10-30T11:43:33Z",
+  "inspectedCheckoutCommit": "aeebb65cc2623b5379b157458d611b1cd0930623",
   "verifiedImplementationCommit": "a94ea4c7cdf4677d7d48455d65363edd263a16c1",
   "verifiedReleaseTests": 2204,
   "topLevelTests": 2203,
@@ -1307,9 +1307,40 @@
       "startupQueuedFinancialBinding": false,
       "allTargetReleasePromoted": false,
       "commit": "1ac51ada2aa623d21db978be21cb4cac20f20454"
+    },
+    "literalTxEncoderUnicode": {
+      "commit": "aeebb65cc2623b5379b157458d611b1cd0930623",
+      "record": "fixtures/reference_fidelity/literal-txencoder-unicode-core-integration.json",
+      "newIntegrationTests": 5,
+      "oldEncoderRegressionTests": 13,
+      "sourceCallsPerNumericProfile": 68,
+      "genuineNumericProfiles": [
+        "9.3.1",
+        "9.1.2"
+      ],
+      "allTargetClippyPassed": true,
+      "formattingPassed": true,
+      "fullSuitePromotion": false,
+      "fullSourceParityEstablished": false,
+      "remaining": [
+        "Fractional Number radix36 and guarded domains",
+        "Historical corpus and authenticated acceptance",
+        "New all-target release promotion"
+      ]
+    },
+    "queuedStartupWorkingProposal": {
+      "status": "uncommitted-not-promoted",
+      "lastRootSession": 67372,
+      "exitCode": 1,
+      "positivePassed": 0,
+      "positiveFailed": 2,
+      "defensePassed": 2,
+      "reason": "Later actual source writes absent at held finite unheld quiescence; real RPC-await continuation remains under investigation.",
+      "record": "fixtures/reference_fidelity/literal-txencoder-unicode-core-integration.json",
+      "fullSuitePromotion": false
     }
   },
-  "scope": "Release a94ea4c remains2,204 Rust/239 numeric checks. Later 1ac51ad:734 scoped library passes (four ignored; three unchanged ordinary long tests filtered),44 compatibility+13 canonical,22new controls,strict Clippy/fmt454/inventory/supply. Prior full715/d6 remains separate. Paired raw-feed cold replay and late metadata result custody pass. Queued startup, exact RPC/microtask/UID parity, mixed recovery, host and authenticated proof gates stay open.",
+  "scope": "Release a94ea4c remains2,204 Rust/239 numeric. Main1ac51ad retains734 scoped library checks (four ignored, three unchanged long cases filtered),44compatibility+13canonical. Later wire aeebb65 passes5new+13old encoder tests and four unchanged-source regenerations. Unicode scalar text, ECMA whitespace and UTF-16 thresholds match; explicit numeric/resource guards remain. Queued startup still fails two positive concurrency checks and is unpromoted. Full RC, exact RPC/UID order, mixed recovery, host and authenticated proof gates remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -1601,32 +1632,32 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Release a94ea4c remains2,204 Rust/239 numeric checks. Later 1ac51ad:734 scoped library passes (four ignored; three unchanged ordinary long tests filtered),44 compatibility+13 canonical,22new controls,strict Clippy/fmt454/inventory/supply. Prior full715/d6 remains separate. Paired raw-feed cold replay and late metadata result custody pass. Queued startup, exact RPC/microtask/UID parity, mixed recovery, host and authenticated proof gates stay open.",
+  "workbookNote": "Release a94ea4c remains2,204 Rust/239 numeric. Main1ac51ad retains734 scoped library checks (four ignored, three unchanged long cases filtered),44compatibility+13canonical. Later wire aeebb65 passes5new+13old encoder tests and four unchanged-source regenerations. Unicode scalar text, ECMA whitespace and UTF-16 thresholds match; explicit numeric/resource guards remain. Queued startup still fails two positive concurrency checks and is unpromoted. Full RC, exact RPC/UID order, mixed recovery, host and authenticated proof gates remain open.",
   "savedWorkbook": {
-    "sha256": "a903af1166c75622d42c993a6d484c83fcb63911dc72c2e2ae615eef4fe0b65f",
-    "bytes": 47771,
+    "sha256": "bdf4bea8553eb4c3eaa84a9a045193d1531d196deb71f2d24091bfde063eb2af",
+    "bytes": 47946,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-30T10:25:44Z",
+    "asOfUtc": "2026-10-30T11:43:33Z",
     "rowHashes": {
-      "modules": 3050241063,
+      "modules": 963327053,
       "logic": 1151758449
     },
-    "verifiedEdits": 17,
+    "verifiedEdits": 10,
     "layoutAndFormulaPreservationVerified": true
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-30T10:25:44Z",
-    "sha256": "a903af1166c75622d42c993a6d484c83fcb63911dc72c2e2ae615eef4fe0b65f",
+    "verifiedAtUtc": "2026-10-30T11:43:33Z",
+    "sha256": "bdf4bea8553eb4c3eaa84a9a045193d1531d196deb71f2d24091bfde063eb2af",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 3050241063,
+    "moduleRowsFNV": 963327053,
     "logicRowsFNV": 1151758449,
-    "intentionalCellChanges": 17,
+    "intentionalCellChanges": 10,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,
     "laterScopedFullReleasePromotionPending": true,
-    "lastFocusedCodeCommit": "1ac51ada2aa623d21db978be21cb4cac20f20454",
+    "lastFocusedCodeCommit": "aeebb65cc2623b5379b157458d611b1cd0930623",
     "releaseExecutions": 2204,
     "lockedReferenceExecutions": 239,
     "releaseValidationRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json"
@@ -1647,10 +1678,10 @@
     "lockedReferenceExecutions": 239,
     "record": "fixtures/reference_fidelity/inline-channel-release-validation.json"
   },
-  "focusedValidationRecord": "fixtures/reference_fidelity/main-paired-fresh-cold-core-integration.json",
-  "focusedImplementationCommit": "1ac51ada2aa623d21db978be21cb4cac20f20454",
-  "focusedVerifiedAtUtc": "2026-10-30T10:21:49Z",
-  "lastFocusedCodeCommit": "1ac51ada2aa623d21db978be21cb4cac20f20454",
+  "focusedValidationRecord": "fixtures/reference_fidelity/literal-txencoder-unicode-core-integration.json",
+  "focusedImplementationCommit": "aeebb65cc2623b5379b157458d611b1cd0930623",
+  "focusedVerifiedAtUtc": "2026-10-30T11:40:12Z",
+  "lastFocusedCodeCommit": "aeebb65cc2623b5379b157458d611b1cd0930623",
   "recoveryPackage": {
     "commit": "9e2baa234a487c47f5a5160440b801347a668f30",
     "archiveSHA256": "acce9e5db7c65adef0246cf01581b4c06db0fd3cf356d1cdfa6528b47fff992f",

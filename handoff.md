@@ -1,8 +1,8 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T11:40:12Z. Refresh this file after every tested integration or PR cycle.
+Updated: 2026-10-30T11:43:33Z. Refresh this file after every tested integration or PR cycle.
 
-## Latest tested wire increment (this commit)
+## Latest tested wire increment (`aeebb65`)
 
 The literal encoder preserves bounded Unicode scalar text and ECMAScript whitespace without normalization. Five new actual-Core integration tests plus thirteen unchanged encoder tests pass. Four genuine complete-source regenerations cover68 full cases and10 first-call controls under both9.3.1 and9.1.2. Strict all-target Clippy, Cargo formatting, included formatting, inventory and supply policy pass. Typed ASCII wrappers, generic concatenation and existing numeric/resource guards stay unchanged. This is bounded Unicode support; fractional Number radix36, unpaired UTF-16, historical acceptance and authentication remain open. Evidence:`fixtures/reference_fidelity/literal-txencoder-unicode-core-integration.json`. Full release remains2,204Rust/239numeric and prior Main evidence remains734 scoped at1ac51ad.
 
@@ -66,3 +66,7 @@ Commit completed checked work on this branch; leave unrelated changes untouched.
 ## Latest tracker verification
 
 Saved workbook/sidebar match `1ac51ad`:734 scoped library passes/four ignored/three unchanged long cases filtered;44 compatibility+13 canonical;22new controls. The prior full715/d6 remains separate. Seventeen intended edits preserve48TL+one external row/37transaction rows, formulas/styles/filters/panes/geometry; zero formula errors. Evidence:`fixtures/reference_fidelity/main-paired-fresh-cold-completeness.json`. No full-reference/authenticated/full-block proof gate is promoted.
+
+## Wire tracker verification
+
+Saved workbook/sidebar match `aeebb65`:five new plus thirteen unchanged encoder tests and four genuine source regenerations. Prior Main1ac51ad retains734 scoped library checks and the release baseline remains2,204Rust/239numeric. Queued-startup positives are explicitly failed/unpromoted. Ten intended cell edits preserve48TL+one external row/37transaction rows, formulas, styles, filters, panes and geometry; zero formula errors. A mistaken render invocation was restored from the exact prior backup and independently checked before this update. Evidence:`fixtures/reference_fidelity/literal-txencoder-unicode-completeness.json`.
