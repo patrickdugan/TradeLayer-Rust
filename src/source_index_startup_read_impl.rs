@@ -27,6 +27,8 @@ impl NativeMainStartupIndexScopeV1 {
 pub(crate) struct NativeMainStartupIndexReadV1 {
     writer: crate::compact_journal::SourceQueuedLiveWriterV1,
     kind: NativeMainStartupIndexReadKindV1,
+    method: &'static str,
+    arguments: Vec<V>,
     request: MetadataSnapshot,
     sampled: bool,
     callback: bool,
@@ -38,6 +40,10 @@ pub(crate) struct NativeMainStartupIndexReadV1 {
     stopped: Option<String>,
 }
 impl NativeMainStartupIndexReadV1 {
+    pub(crate) fn outer_startup_request_view(&self) -> (&'static str, &[V]) {
+        (self.method, &self.arguments)
+    }
+
     pub(crate) fn kind(&self) -> NativeMainStartupIndexReadKindV1 {
         self.kind
     }
@@ -82,6 +88,8 @@ impl NativeMainStartupIndexReadV1 {
                 NativeMainStartupIndexReadKindV1::Fixed => "Fixed",
             }),
         )?;
+        visitor("method", &prepared_text(self.method))?;
+        startup_index_visit_value("arguments", &V::Array(self.arguments.clone()), visitor)?;
         startup_index_visit_value("request", &prepared_snapshot_value(&self.request), visitor)?;
         for (key, value) in [
             ("sampled", self.sampled),
@@ -221,6 +229,16 @@ impl SourceCompactIndex {
         Ok(NativeMainStartupIndexReadV1 {
             writer: self.journal.capture_source_queued_live_writer()?,
             kind,
+            method: if kind == NativeMainStartupIndexReadKindV1::FindMax {
+                "findOneAsync"
+            } else {
+                "findAsync"
+            },
+            arguments: vec![if kind == NativeMainStartupIndexReadKindV1::FindMax {
+                prepared_obj(vec![("_id", prepared_text("MaxHeight"))])
+            } else {
+                prepared_obj(vec![])
+            }],
             request: self.snapshot()?,
             sampled: false,
             callback: false,
@@ -254,10 +272,7 @@ impl SourceCompactIndex {
             while cursor.next_row()?.is_some() {}
             query.rows = Some(cursor.receipt());
             if query.kind == NativeMainStartupIndexReadKindV1::FindMax {
-                query.result = Some(read.source_database_read(
-                    "findOneAsync",
-                    &[prepared_obj(vec![("_id", prepared_text("MaxHeight"))])],
-                )?);
+                query.result = Some(read.source_database_read(query.method, &query.arguments)?);
             }
             Ok(())
         })();

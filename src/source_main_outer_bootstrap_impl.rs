@@ -626,24 +626,36 @@ impl SourceContractRuntime {
         index: &SourceCompactIndex,
         register_child: &mut impl FnMut(u64, &'static str) -> Result<u64, SourceRuleError>,
     ) -> Result<(), SourceRuleError> {
+        let mut hooks = NativeMainOuterLegacyFactoryHooksV1 { register_child };
+        self.native_main_outer_bootstrap_resume_actual_with_hooks(frame, await_, index, &mut hooks)
+    }
+    pub(crate) fn native_main_outer_bootstrap_resume_actual_with_hooks(
+        &mut self,
+        frame: &mut NativeMainOuterBootstrapV1,
+        await_: NativeMainOuterBootstrapAwaitV1,
+        index: &SourceCompactIndex,
+        hooks: &mut impl NativeMainOuterFactoryHooksV1,
+    ) -> Result<(), SourceRuleError> {
         frame.require(await_)?;
         frame.require_index(index)?;
         if frame.actual_completion(await_)?.is_none() {
             return Err(SourceRuleError::InvalidInput);
         }
-        self.native_main_outer_bootstrap_resume_actual_inner(frame, await_, index, register_child)
-            .map_err(|error| frame.stop(error))?;
+        self.native_main_outer_bootstrap_resume_actual_inner_with_hooks(
+            frame, await_, index, hooks,
+        )
+        .map_err(|error| frame.stop(error))?;
         if self.core.effects_exhausted {
             return Err(frame.stop(SourceRuleError::Capacity));
         }
         Ok(())
     }
-    fn native_main_outer_bootstrap_resume_actual_inner(
+    fn native_main_outer_bootstrap_resume_actual_inner_with_hooks(
         &mut self,
         frame: &mut NativeMainOuterBootstrapV1,
         await_: NativeMainOuterBootstrapAwaitV1,
         index: &SourceCompactIndex,
-        register_child: &mut impl FnMut(u64, &'static str) -> Result<u64, SourceRuleError>,
+        hooks: &mut impl NativeMainOuterFactoryHooksV1,
     ) -> Result<(), SourceRuleError> {
         frame.require(await_)?;
         frame.require_index(index)?;
@@ -733,10 +745,11 @@ impl SourceContractRuntime {
                     Err(error) => return frame.finish_main(Err(error)),
                 }
                 frame.install(Lane::Main, Site::TxIndexFactory)?;
-                self.native_main_outer_bootstrap_capture_factory(
+                self.native_main_outer_bootstrap_capture_factory_with_hooks(
                     frame,
                     "txIndex",
                     Site::TxIndexFactory,
+                    hooks,
                 )
             }
             Site::TxIndexFactory => {
@@ -745,7 +758,8 @@ impl SourceContractRuntime {
                 }
                 // Actual synchronous new-instance/loadFromDB entry. This child
                 // is reserved NOW, not at outer begin or as its parent's job.
-                let job = register_child(frame.source_job, "TallyMap.getInstance/loadFromDB")
+                let job = hooks
+                    .register_child(frame.source_job, "TallyMap.getInstance/loadFromDB")
                     .map_err(|error| frame.stop(error))?;
                 if job == 0 || job == frame.source_job {
                     return Err(frame.stop(SourceRuleError::InvalidInput));
@@ -753,17 +767,19 @@ impl SourceContractRuntime {
                 frame.tally_job = Some(job);
                 self.core.source_send_tally_instance_initialized = true;
                 frame.install(Lane::Tally, Site::TallyFactory)?;
-                self.native_main_outer_bootstrap_capture_factory(
+                self.native_main_outer_bootstrap_capture_factory_with_hooks(
                     frame,
                     "tallyMap",
                     Site::TallyFactory,
+                    hooks,
                 )?;
                 // No reaction/job drain between these two original factories.
                 frame.install(Lane::Main, Site::ConsensusFactory)?;
-                self.native_main_outer_bootstrap_capture_factory(
+                self.native_main_outer_bootstrap_capture_factory_with_hooks(
                     frame,
                     "consensus",
                     Site::ConsensusFactory,
+                    hooks,
                 )
             }
             Site::TallyFactory => match frame.actual_factory(Site::TallyFactory)? {
@@ -911,3 +927,6 @@ fn native_main_outer_bootstrap_plan(
 }
 
 include!("source_main_outer_bootstrap_factory_stop_impl.rs");
+
+include!("source_main_outer_bootstrap_factory_hooks_impl.rs");
+include!("source_main_outer_bootstrap_kernel_access_impl.rs");

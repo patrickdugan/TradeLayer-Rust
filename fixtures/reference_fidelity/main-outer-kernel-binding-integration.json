@@ -1,0 +1,98 @@
+{
+  "schema": "tl-main-outer-kernel-binding-v1",
+  "verifiedAtUtc": "2026-10-30T18:00:52Z",
+  "inputCommit": "359ff01dc82a4777ee432875e477ada471288e87",
+  "validatedIn": "clean export of HEAD blobs plus the exact projected files below",
+  "newDistinctTests": 4,
+  "newTests": [
+    "kernel_driven_outer_prefix_issues_requests_in_genuine_source_order",
+    "kernel_driven_tally_factory_reaction_precedes_consensus_factory_reaction",
+    "kernel_driven_and_component_driven_frames_retain_the_same_actual_results",
+    "kernel_hooks_refuse_a_foreign_parent_or_a_second_tally_child"
+  ],
+  "outerProbeTestsPassed": 16,
+  "nativeFixedReadTestsPassed": 5,
+  "fullLibraryRun": {
+    "passed": 842,
+    "failed": 0,
+    "ignored": 4
+  },
+  "allTargetClippyWarningsDenied": true,
+  "cargoFmtPassed": true,
+  "includedRustFilesChecked": 534,
+  "inventoryPassed": true,
+  "supplyPolicyPassed": true,
+  "genuineComparison": {
+    "fixture": "fixtures/startup_outer_request_order_genuine.txt",
+    "sourcePackageManifest": "dc7d6dbf1f587b2da83d8b3f5d5e9a61de99dc118202d2c54a2d353bb07809e1",
+    "derivation": "work/claude-outer-kernel-binding-1/extract_genuine_order.py",
+    "genuineRuns": 4,
+    "prefixOccurrencesPerRun": 2,
+    "genuineOrdinals": [
+      [
+        4,
+        5,
+        6,
+        7
+      ],
+      [
+        125,
+        127,
+        128,
+        129
+      ]
+    ],
+    "usedAsScheduleInput": false
+  },
+  "laneInputs": {
+    "prepare_kernel_hooks.py": "a51e994d595bb390632292578db8cad122e1e06c0c064a5922aec9bb4021eeda",
+    "src/source_main_outer_bootstrap_factory_hooks_impl.rs": "430ea69a6c9e9299105dac2165d06e394f7d27f1c4411a3b3657569ba8e49def",
+    "src/source_main_outer_bootstrap_kernel_access_impl.rs": "e2f653562ee7884379028278884f81bff73bee4961a24e8e4785b6c07358dfee"
+  },
+  "rustfmtNormalized": [
+    "src/source_index_startup_read_impl.rs",
+    "src/source_main_outer_bootstrap_impl.rs",
+    "src/source_main_outer_bootstrap_kernel_driver_impl.rs",
+    "src/source_main_outer_bootstrap_kernel_tests.rs"
+  ],
+  "sourceFiles": {
+    ".gitattributes": "ba24146f276e0da2d6bd8cf26ff109291255529b2e0c59f1a97406828f2f36d6",
+    ".github/workflows/ci.yml": "53e6f3c038f3cf4a28a27eb058a8117e43872fd891ee8a46274dc27acda47362",
+    "docs/LOGIC_BY_TX_TYPE.json": "4872fcec7fa2155b736f9c42002deb384105ddfe561d5727b7b7afb13d18fba8",
+    "fixtures/startup_outer_request_order_genuine.txt": "8d7760fbf971f3d0c4e22cbfe883d0cb00e4ff6026b23130949ce71b4d6b41cf",
+    "scripts/ci-preflight.sh": "59daedacb530708d36874b8e11ab1266adc800dac02f0f8c6e7ea211ce4d8f4b",
+    "src/source_contract_runtime.rs": "e73b7b372cc5c82dc7ec34dec69ba3964827a27e1bbfdd521cad70cc709b8528",
+    "src/source_index_startup_read_impl.rs": "04d4aed38f71d437116b01b2dc3686247a09bfb8d52f36737abb3ae08c4689a8",
+    "src/source_main_outer_bootstrap_factory_hooks_impl.rs": "430ea69a6c9e9299105dac2165d06e394f7d27f1c4411a3b3657569ba8e49def",
+    "src/source_main_outer_bootstrap_impl.rs": "4230a4de1e6017caa1d6849cc1ba8506f9788061e9526988fd256c775b9a6b62",
+    "src/source_main_outer_bootstrap_kernel_access_impl.rs": "e2f653562ee7884379028278884f81bff73bee4961a24e8e4785b6c07358dfee",
+    "src/source_main_outer_bootstrap_kernel_driver_impl.rs": "c1049074510da8a9abc46f8382099015efc0c54fc8682579c6739f8672b3b805",
+    "src/source_main_outer_bootstrap_kernel_tests.rs": "6ca7e0cd42911b6df9eb2871a3edefef4bdb38f8553658c2219420f97c89a54c",
+    "src/source_main_outer_bootstrap_tests.rs": "cddb3d3012d14d5276437962a19535387de1727a996443310363985e1b3ec2be"
+  },
+  "scope": {
+    "sameKernelPromiseQueueChoosesOuterContinuations": true,
+    "sameKernelNedbExecutorChoosesSampleAndCallback": true,
+    "tallyChildAllocatedAtTrueCall": true,
+    "outerRequestOrderMatchesGenuineProjection": true,
+    "parentRoutesReservedBeforeResultAttach": true,
+    "earlyParentSubscriptionAtAsyncCallReturn": false,
+    "incomingSyncLaneInterleaved": false,
+    "productionAdmission": false,
+    "queuedStartupPositivesPass": false,
+    "fullReferenceParityEstablished": false
+  },
+  "verifiedAllTargetBaseline": 2204,
+  "verifiedLockedReferenceBaseline": 239,
+  "fullAllTargetReleasePromoted": false,
+  "logs": {
+    "claude-binding-r4-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "claude-binding-r4-included-fmt.log": "6a33f860492c805238e167f71174d486edc6818faf96cf0e5bbe993adbb7a47f",
+    "claude-binding-r4-inventory.log": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393",
+    "claude-binding-r4-supply.log": "742b08cb0aeb4254c75ab8a4e86b350a18d4553e2503ea0979b72e31821d6630",
+    "claude-binding-r4-clippy.log": "8a10254974bbd1a52574924f2ba6e2e78269a27b8d61c996e00c4498f15edb56",
+    "claude-binding-r4-test-actual_outer_bootstrap_await_probe.log": "947f02d8720356c48fcc2e7f2b4585574e58e9f714b194640b11165f9a219f5b",
+    "claude-binding-r4-test-actual_outer_startup_reads.log": "8736f93799974e6b1746b99926146f8f646bdc9a070325fbac1ab2ad8565b118",
+    "claude-binding-r4-lib.log": "ab86e62d00e763f7cf69028c712d13a4ebe4322bd56a7d7a5136416254cb7b69"
+  }
+}

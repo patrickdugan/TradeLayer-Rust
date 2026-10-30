@@ -1,6 +1,10 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T17:35:29Z. Refresh this file after every tested integration or PR cycle.
+Updated: 2026-10-30T18:00:52Z. Refresh this file after every tested integration or PR cycle.
+
+## Outer frame driven by the same Kernel (Claude integration)
+
+A test-domain driver lets the step Kernel's Promise queue and NeDB executor choose every continuation of the actual outer frame (factories through hooks, queries through NeDB sample/callback, result awaits as source-business Promises). Its request order, txIndex findOne(MaxHeight) -> tallyMap findOne -> consensus findOne(MaxProcessedHeight) -> txIndex find({}), equals the genuine order in all four Main.initialize runs at both prefixes (ordinals 4-7 and 125-129; comparison only). The earlier hand-driven component order (Tally last) was not the source order. Results and the prepared plan match the component-driven frame. 4 new controls; outer probe 16, fixed reads 5, full library 842 passed/4 ignored; strict Clippy/fmt/inventory/supply pass. The Incoming/Sync lane is not yet interleaved, so the queued positives remain open. Evidence:`fixtures/reference_fidelity/main-outer-kernel-binding-integration.json`. No push/PR.
 
 ## Same-Kernel startup Promise/NeDB components (Claude integration)
 

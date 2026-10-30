@@ -487,3 +487,5 @@ fn actual_outer_tally_factory_capacity_retains_its_result_and_never_enters_conse
     );
     assert!(frame.take_prepared().is_err());
 }
+
+include!("source_main_outer_bootstrap_kernel_tests.rs");

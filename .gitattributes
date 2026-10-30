@@ -351,3 +351,6 @@ fixtures/startup_await_old_db_complete.jsonl text eol=lf
 fixtures/startup_promise_reference.jsonl text eol=lf
 fixtures/startup_nedb_executor_reference.json text eol=lf
 fixtures/startup_kernel_default_v1.txt text eol=lf
+
+# Genuine outer-prefix request order (comparison only).
+fixtures/startup_outer_request_order_genuine.txt text eol=lf

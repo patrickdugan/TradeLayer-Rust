@@ -1,0 +1,4 @@
+txIndex	findOne	[{"_id":"MaxHeight"}]
+tallyMap	findOne	[{"_id":"tallyMap"}]
+consensus	findOne	[{"_id":"MaxProcessedHeight"}]
+txIndex	find	[{}]

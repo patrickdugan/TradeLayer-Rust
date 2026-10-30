@@ -166,7 +166,7 @@
     {
       "path": "src/source_contract_runtime.rs",
       "lfNormalized": true,
-      "sha256": "ae3ece955e8ae3b3eb4314303860d86e7d4b041673653c6e8a3a8371f8529bde"
+      "sha256": "e73b7b372cc5c82dc7ec34dec69ba3964827a27e1bbfdd521cad70cc709b8528"
     },
     {
       "path": "src/source_contract_values.rs",
@@ -2595,7 +2595,7 @@
     },
     {
       "path": "src/source_index_startup_read_impl.rs",
-      "sha256": "545efeada15be2033b6129a5d49617c5a7e8fce65869e93097c4a9f0b7cd8929",
+      "sha256": "04d4aed38f71d437116b01b2dc3686247a09bfb8d52f36737abb3ae08c4689a8",
       "lfNormalized": true
     },
     {
@@ -2620,12 +2620,12 @@
     },
     {
       "path": "src/source_main_outer_bootstrap_impl.rs",
-      "sha256": "bda8320f9b9803ea9961ed46ea386865678b1fa65b0de32b2e614cf307874753",
+      "sha256": "4230a4de1e6017caa1d6849cc1ba8506f9788061e9526988fd256c775b9a6b62",
       "lfNormalized": true
     },
     {
       "path": "src/source_main_outer_bootstrap_tests.rs",
-      "sha256": "5e3102aa4750f9e384438992e25a8f10cd23d654b2c8e9cd1536594b24b9acec",
+      "sha256": "cddb3d3012d14d5276437962a19535387de1727a996443310363985e1b3ec2be",
       "lfNormalized": true
     },
     {
@@ -2696,6 +2696,26 @@
     {
       "path": "src/source_main_startup_source_kernel_tests.rs",
       "sha256": "99ba2aff5bd97a27c0cce7967c8c0484f893e4754d6b78ea308ea75fb4e3ab1d",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_outer_bootstrap_factory_hooks_impl.rs",
+      "sha256": "430ea69a6c9e9299105dac2165d06e394f7d27f1c4411a3b3657569ba8e49def",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_outer_bootstrap_kernel_access_impl.rs",
+      "sha256": "e2f653562ee7884379028278884f81bff73bee4961a24e8e4785b6c07358dfee",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_outer_bootstrap_kernel_driver_impl.rs",
+      "sha256": "c1049074510da8a9abc46f8382099015efc0c54fc8682579c6739f8672b3b805",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_outer_bootstrap_kernel_tests.rs",
+      "sha256": "6ca7e0cd42911b6df9eb2871a3edefef4bdb38f8553658c2219420f97c89a54c",
       "lfNormalized": true
     }
   ],

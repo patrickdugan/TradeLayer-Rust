@@ -3001,6 +3001,7 @@ mod actual_outer_bootstrap_await_probe {
     include!("source_main_startup_query_await_impl.rs");
     include!("source_main_outer_bootstrap_impl.rs");
     include!("source_main_outer_bootstrap_visit_impl.rs");
+    include!("source_main_outer_bootstrap_kernel_driver_impl.rs");
     mod tests {
         include!("source_main_outer_bootstrap_tests.rs");
     }
