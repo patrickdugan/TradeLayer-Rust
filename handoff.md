@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T04:55:17Z. Refresh after every tested integration cycle.
+Updated: 2026-10-30T04:55:31Z. Refresh after every tested integration cycle.
 
 ## Current checkpoint
 
@@ -22,7 +22,7 @@ Later focused correction: rejected append ACKs now preserve the prior original/r
 
 ## Latest tested startup and trace prerequisite
 
-This batch passes **658 library tests (four ignored), 44 public checks, strict all-target Clippy, Cargo formatting, 392 included-file formatting checks, inventory and supply policy**. Ten new actual-Core controls pass: eight startup and two independently produced writer-trace controls. Evidence: `fixtures/reference_fidelity/main-startup-trace-core-integration.json`. Full release evidence stays **2,204 Rust /239 numeric** at `a94ea4c7`; this is not a completed RC.
+The latest tested code is `79a30c6f4ec0ec321ad0968123cab910f77a4978`. This batch passes **658 library tests (four ignored), 44 public checks, strict all-target Clippy, Cargo formatting, 392 included-file formatting checks, inventory and supply policy**. Ten new actual-Core controls pass: eight startup and two independently produced writer-trace controls. Evidence: `fixtures/reference_fidelity/main-startup-trace-core-integration.json`. Full release evidence stays **2,204 Rust /239 numeric** at `a94ea4c7`; this is not a completed RC.
 
 The typed raw startup owner consumes an unconfigured actual Replay and the same native index. TxUtils import, DB automatic initialization and Main constructor/static init run in source order. The prefix keeps the original module promise distinct from the shared internal promise, preserves1500/500/300 waits and genuine partial failures, and performs the legitimate new DB attempt after an earlier automatic rejection. SDK own fields are distinct from RPC getChain/getTest facts. Configured owners are never reset, stale inputs refuse unchanged, and old Invoke/witness namespaces remain closed. Eight controls establish named DB/throw prefix projections; they do not establish complete effects or Rust Initialize suffix fulfillment.
 
@@ -112,4 +112,4 @@ Actual-source controls cover ordinary append, an intervening pause and genuine B
 
 ## Latest scoped workbook refresh
 
-Saved workbook and sidebar agree on `5ae93f1`:648 library /44 public checks and 10 new controls. Full release remains 2,204 Rust /239 numeric at a94ea4c7. Eleven intentional edits preserve all 48 TL modules, one external reference,37 transaction rows, formulas/styles/filters/panes/geometry and proof gates, with zero errors. Evidence:`fixtures/reference_fidelity/main-fresh-input-completeness.json`. Raw/global startup, complete 13-2 cold replay, durable fresh/file composition, active-history continuation and authenticated proof gates remain pending.
+Saved workbook and sidebar agree on `79a30c6`: 658 library /44 public and ten new Core controls. Full release stays2,204 Rust /239 numeric at a94ea4c7. Fourteen intentional edits preserve48 TL modules, one external reference,37 transaction rows, formulas/styles/filters/panes/geometry and proof gates, with zero errors. Evidence: `fixtures/reference_fidelity/main-startup-trace-completeness.json`. Complete actual Initialize/nonempty startup, full financial cold replay, segmented history and durable new-profile composition remain open.

@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-30T04:26:36Z",
-  "inspectedCheckoutCommit": "5ae93f188110ba1dd36088e2280244789ad7e053",
+  "verifiedAtUtc": "2026-10-30T04:55:31Z",
+  "inspectedCheckoutCommit": "79a30c6f4ec0ec321ad0968123cab910f77a4978",
   "verifiedImplementationCommit": "a94ea4c7cdf4677d7d48455d65363edd263a16c1",
   "verifiedReleaseTests": 2204,
   "topLevelTests": 2203,
@@ -1257,10 +1257,11 @@
       "sourceRecordsPerNumericProfile": 86,
       "rustInitializeSuffixFulfilled": false,
       "fullFinancialColdActorIntegrated": false,
-      "fullSuitePromotion": false
+      "fullSuitePromotion": false,
+      "commit": "79a30c6f4ec0ec321ad0968123cab910f77a4978"
     }
   },
-  "scope": "Full release a94ea4c remains 2,204 Rust /239 genuine numeric checks. Later 5ae93f1 passes 648 library tests (four ignored),44 public checks and 10 new controls, strict Clippy, formatting, inventory and supply policy. Typed future RPC/document facts preserve the same financial owner, native plan, captured locals, timer, route and counters. Durable feed/cold replay, fine-grained RPC waits, raw startup, history continuation and authenticated proof gates remain open.",
+  "scope": "Full release a94ea4c remains 2,204 Rust / 239 genuine numeric checks. Later 79a30c6 passes 658 library tests (four ignored), 44 public checks and ten new Core controls, strict Clippy, formatting, inventory and supply policy. Raw startup preserves named DB promise/timer/retry behavior and SDK-vs-RPC fields. Strict13-2 trace/producer facts are checked; complete Initialize, financial cold replay, durable new-profile composition, history continuation and authentication/proof gates remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -1552,33 +1553,33 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Full release a94ea4c remains 2,204 Rust /239 genuine numeric checks. Later 5ae93f1 passes 648 library tests (four ignored),44 public checks and 10 new controls, strict Clippy, formatting, inventory and supply policy. Typed future RPC/document facts preserve the same financial owner, native plan, captured locals, timer, route and counters. Durable feed/cold replay, fine-grained RPC waits, raw startup, history continuation and authenticated proof gates remain open.",
+  "workbookNote": "Full release a94ea4c remains 2,204 Rust / 239 genuine numeric checks. Later 79a30c6 passes 658 library tests (four ignored), 44 public checks and ten new Core controls, strict Clippy, formatting, inventory and supply policy. Raw startup preserves named DB promise/timer/retry behavior and SDK-vs-RPC fields. Strict13-2 trace/producer facts are checked; complete Initialize, financial cold replay, durable new-profile composition, history continuation and authentication/proof gates remain open.",
   "savedWorkbook": {
-    "sha256": "06a0fdac088f6e1c20e403fa40f9c61bda48084fc2fc16f33d9a6b56a74d9f72",
-    "bytes": 48029,
+    "sha256": "7cb993a4912979b68b474f2b0f0074408601a3e216d9ee87d7a5583616391bb3",
+    "bytes": 47766,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-30T04:26:36Z",
+    "asOfUtc": "2026-10-30T04:55:31Z",
     "rowHashes": {
-      "modules": 635135199,
+      "modules": 3872947788,
       "logic": 1151758449
     },
-    "verifiedEdits": 11,
+    "verifiedEdits": 14,
     "layoutAndFormulaPreservationVerified": true
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-30T04:26:36Z",
-    "sha256": "06a0fdac088f6e1c20e403fa40f9c61bda48084fc2fc16f33d9a6b56a74d9f72",
+    "verifiedAtUtc": "2026-10-30T04:55:31Z",
+    "sha256": "7cb993a4912979b68b474f2b0f0074408601a3e216d9ee87d7a5583616391bb3",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 635135199,
+    "moduleRowsFNV": 3872947788,
     "logicRowsFNV": 1151758449,
-    "intentionalCellChanges": 11,
+    "intentionalCellChanges": 14,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,
     "releasePromotionPending": false,
     "laterScopedFullReleasePromotionPending": true,
-    "lastFocusedCodeCommit": "5ae93f188110ba1dd36088e2280244789ad7e053",
+    "lastFocusedCodeCommit": "79a30c6f4ec0ec321ad0968123cab910f77a4978",
     "releaseBaselinePromoted": true,
     "releaseExecutions": 2204,
     "lockedReferenceExecutions": 239,
@@ -1600,10 +1601,10 @@
     "lockedReferenceExecutions": 239,
     "record": "fixtures/reference_fidelity/inline-channel-release-validation.json"
   },
-  "focusedValidationRecord": "fixtures/reference_fidelity/main-fresh-input-core-integration.json",
-  "focusedImplementationCommit": "5ae93f188110ba1dd36088e2280244789ad7e053",
-  "focusedVerifiedAtUtc": "2026-10-30T04:26:23Z",
-  "lastFocusedCodeCommit": "5ae93f188110ba1dd36088e2280244789ad7e053",
+  "focusedValidationRecord": "fixtures/reference_fidelity/main-startup-trace-core-integration.json",
+  "focusedImplementationCommit": "79a30c6f4ec0ec321ad0968123cab910f77a4978",
+  "focusedVerifiedAtUtc": "2026-10-30T04:55:17Z",
+  "lastFocusedCodeCommit": "79a30c6f4ec0ec321ad0968123cab910f77a4978",
   "recoveryPackage": {
     "commit": "9e2baa234a487c47f5a5160440b801347a668f30",
     "archiveSHA256": "acce9e5db7c65adef0246cf01581b4c06db0fd3cf356d1cdfa6528b47fff992f",
