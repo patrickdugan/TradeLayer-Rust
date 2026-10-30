@@ -1,0 +1,99 @@
+{
+  "schema": "tl-mode4-rejected-append-core-v1",
+  "verifiedAtUtc": "2026-10-30T00:23:36Z",
+  "inputCommit": "b2588730ac7f5d7b2e03a89df4718e7f9e6cbe45",
+  "before": {
+    "src/source_main_active_service_durable_impl.rs": "298d3ce7cb559d9a76354f559305f03d61e5d5bdbaecd33705fe620500ba0eec",
+    "src/source_main_mode4_cold_history_impl.rs": "adca4cd52cc2412082c45cf2cb9e8f0417c417543e2b5b6ef4c7f497d336aee0",
+    "src/source_main_mode4_inline_closure_impl.rs": "76313dc7afec07d20fa68209983e416d821e7d1e49f63071d3e5461c4cde167e",
+    "src/source_main_mode4_cold_history_tests.rs": "b609ee52047eaaceb37d4c81640fa7a93772b8d491a011b74c7ae6ed33ee29ff",
+    "src/source_main_mode4_closure_core_tests.rs": "5e4f253a7485c9436384e829a22065512eaddd168ee311ff4a244f94eb7d3e24"
+  },
+  "frozenGateInputs": {
+    "src/source_main_active_service_durable_impl.rs": "7dbe17a41f8fe66a113b98c000f46a27b8f5da7547dd07f0a5f410d05d38455a",
+    "src/source_main_mode4_cold_history_impl.rs": "16da70124e51b67ee2e37d561dd91e04d9c898d74997e0d97cf0e88ee486132e",
+    "src/source_main_mode4_inline_closure_impl.rs": "bd21b2625c1ba35a19d7605086aed4bd8a270eebbbae228c371d1d6b9599716c",
+    "src/source_main_mode4_cold_history_tests.rs": "76de37c619521a495f014077e1f3aa133b0f93d2a07ae06f6f9e3d66c46ac176",
+    "src/source_main_mode4_closure_core_tests.rs": "37cbf55661a2cdc5186b1a53f2e45390feb752336599863deeb6a2f45acf1bff",
+    "docs/LOGIC_BY_TX_TYPE.json": "f5beb109ca14a9816ab3a80671be591951c99fbcf995f855b68f7daba139634e"
+  },
+  "newActualSourceControls": 5,
+  "newMetadataControls": 3,
+  "diagnostics": [
+    "root-mode4-rejected-append-first.log",
+    "root-mode4-rejected-append-second.log"
+  ],
+  "expectedLibrary": 557,
+  "expectedCorpusChanged": false,
+  "previousFreeze": {
+    "src/source_main_active_service_durable_impl.rs": "7dbe17a41f8fe66a113b98c000f46a27b8f5da7547dd07f0a5f410d05d38455a",
+    "src/source_main_mode4_cold_history_impl.rs": "16da70124e51b67ee2e37d561dd91e04d9c898d74997e0d97cf0e88ee486132e",
+    "src/source_main_mode4_inline_closure_impl.rs": "bd21b2625c1ba35a19d7605086aed4bd8a270eebbbae228c371d1d6b9599716c",
+    "src/source_main_mode4_cold_history_tests.rs": "fc3ded96286992cd003bbe491a45974e5d12de080de635f9fcaed52c8914ea55",
+    "src/source_main_mode4_closure_core_tests.rs": "37cbf55661a2cdc5186b1a53f2e45390feb752336599863deeb6a2f45acf1bff",
+    "docs/LOGIC_BY_TX_TYPE.json": "323d132d4f3148142ba4e07a80ec38e0f0a1be898d706548b7f6c923aa2f493c"
+  },
+  "testOnlyCorrection": "No-write control uses admitted unmatched updateAsync(upsert:false), not unsupported findAsync. No production correction since the eight successful third-gate source controls.",
+  "fourthFreeze": {
+    "src/source_main_active_service_durable_impl.rs": "7dbe17a41f8fe66a113b98c000f46a27b8f5da7547dd07f0a5f410d05d38455a",
+    "src/source_main_mode4_cold_history_impl.rs": "16da70124e51b67ee2e37d561dd91e04d9c898d74997e0d97cf0e88ee486132e",
+    "src/source_main_mode4_inline_closure_impl.rs": "bd21b2625c1ba35a19d7605086aed4bd8a270eebbbae228c371d1d6b9599716c",
+    "src/source_main_mode4_cold_history_tests.rs": "64ec6820f56d37145d3b0d4973aa4c13b601b6f9cd22749598a46c40e33041d7",
+    "src/source_main_mode4_closure_core_tests.rs": "37cbf55661a2cdc5186b1a53f2e45390feb752336599863deeb6a2f45acf1bff",
+    "docs/LOGIC_BY_TX_TYPE.json": "ed489759d300659f608a9bcf5706bc63a9c7cc193d6f9a79fc2c62b0f02e5883"
+  },
+  "testOnlyCorrections": [
+    "Use admitted unmatched updateAsync(upsert:false), not unsupported findAsync.",
+    "No-write historical plans intentionally resolve from Prepared and never mark an absent append as verified. Assert the original contract and computed zero outcome; production unchanged."
+  ],
+  "newActualSourceControlsPassed": 5,
+  "newMetadataControlsPassed": 3,
+  "combinedSourceClosureControlsPassed": 8,
+  "combinedMetadataControlsPassed": 13,
+  "combinedLibraryPassed": 557,
+  "libraryIgnored": 4,
+  "publicCompatibilityPassed": 44,
+  "allTargetClippyWarningsDenied": true,
+  "cargoFmtPassed": true,
+  "includedRustFilesChecked": 304,
+  "inventoryPassed": true,
+  "supplyPolicyPassed": true,
+  "logs": {
+    "root-mode4-rejected-append-fifth-metadata-core.log": "f7a813c86adf70c390cc581a9a1fb039f705e520421f21cb718e6809d2d1bdca",
+    "root-mode4-rejected-append-fifth-library.log": "afc04547f96adcb21519099c4c0525ea4148b770008acedbfddb7054a1cca98a",
+    "root-mode4-rejected-append-fifth-public-compatibility.log": "54444dab75465bcae25938eb9aacd30aaae609a7739f9772bd95620ed1941ae9",
+    "root-mode4-rejected-append-fifth-clippy.log": "c1b08d1c62f6a5c534ef892bf136b052b0e041385e403cded73d0ac7c6cc16c4",
+    "root-mode4-rejected-append-fifth-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "root-mode4-rejected-append-fifth-included-fmt.log": "b685755bb616a271dafe7e33c2679e946edca8b345aa356175c22247851ab1fa",
+    "root-mode4-rejected-append-fifth-inventory.log": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393",
+    "root-mode4-rejected-append-fifth-supply-policy.log": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01",
+    "root-mode4-rejected-append-fifth-orchestrator.log": "63e49ccf72adc900941b727df8c36ef19165133e7c610ab4b9ec4772672ecb42",
+    "root-mode4-rejected-append-third-source-core.log": "a150c8d309330b9f42f3f6874020b125a42a2c9d0c7026d3dd291bebb6830baf",
+    "root-mode4-rejected-append-first.log": "7663c9a81d24ed8920724c692818a5360503457792a2c344c85b8f22225ab77c",
+    "root-mode4-rejected-append-second.log": "1795dd71a0a7945727bad608df19b79a9a3b27f210ab58eaa8be05556faad6ea",
+    "root-mode4-rejected-append-third-metadata-core.log": "d1d9397f04aca98085bfac10fba2395f27e6fa872307885faeca7efcabb7f9d1",
+    "root-mode4-rejected-append-fourth-metadata-core.log": "ee59081f890a8ea6c0ee54c3f5eee9736c64dedb552c694d9a2d6fee38191e09"
+  },
+  "independentReadOnlyReview": {
+    "workerManifestSHA256": "42a3814918282f530f9da80f6f3ab905998088f1f6bc4692f47ceb9aa9bf75fd",
+    "actionableDefects": 0,
+    "coreExecuted": false,
+    "review": "Read-only review of the five exact fifth-gate inputs. No Root edits or Cargo.\n\nNo actionable production defect found by source inspection in the requested\nboundary. This is not an independently executed financial/source parity result.\n\n1. Current-action source_error is populated only for the current owner.apply\n   rejection when no current source observation exists. The new guard therefore\n   prevents a rejected reappend inheriting an earlier StorageStopped observation.\n   A genuine current StorageStopped retains its actual pending/history result,\n   leaves current source_error absent and still enters NativeRecoveryRequired.\n   It does not convert the recorded earlier storage error into source success.\n2. last_append tracks only non-rejected AppendPending and clears on non-rejected\n   ResolvePost. Pause preserves the unresolved relation. A rejected ResolvePost\n   cannot clear it. Rejected reappend requires unchanged complete source fields,\n   exact before==post metadata, prior verified Post==current Before, no new\n   recovery/escrow, and exact original mutations. Current candidate raw object\n   equals the prior actual candidate or its last linked replacement, including\n   configuration, catalog, read context and physical append bindings. Every\n   replacement mutation hash is checked against retained actual TLNM bytes.\n3. verify_inline_operation refuses every non-null apiRejection BEFORE marking a\n   historical operation append-verified or resolved, including no-write plans.\n   The no-write success control computes its original unmatched-update return\n   independently; rejection never supplies a source return.\n4. Tests cover absent prior, changed mutation/config/observation/rejection,\n   successful intervening ResolvePost, false no-publication with a real extra\n   append, genuine before/post/intermediate recovery, Pause and retained original\n   financial/source prefix. The source guards retain observation/rows/effects,\n   not a newly supplied expected source state.\n\nRemaining scope: these reader checks validate original physical metadata/WAL\nrelations, not source-authority or full cold financial reexecution. A diagnostic\nalone is never a source success/capability. Independent cold-source replay must\nstill reproduce exact API rejection and full Before/Accepted fields. Root owns\nactual Core controls; none were run in this review.\n"
+  },
+  "countsOverlap": true,
+  "writerFix": "Only a current action without an API rejection may classify its observed StorageStopped result as native recovery. A previous retained storage error is not a new failed write.",
+  "readerFix": "Recorded WriteAlreadyAttempted reappend binds the prior successful unconsumed append ACK, exact original/final replacement candidate and mutation/configuration, identical native history and unchanged source observation. ResolvePost clears the relation.",
+  "rejectedActionCanVerifyInlineOperation": false,
+  "rejectedActionResolvesSourceAwait": false,
+  "sameActualFinancialIndexAndSourceOwnerRetained": true,
+  "sourceActionRepeated": false,
+  "successfulNoWritePlanPhase": "Prepared; no nonexistent append is marked verified; computed zero outcome resolves separately once",
+  "productionUnchangedAfterEightThirdGateSourceControls": true,
+  "expectedSourceOrFixtureCorpusChanged": false,
+  "fullRawSourceMode4ReplayEstablished": false,
+  "fullAllTargetReleasePromoted": false,
+  "verifiedAllTargetBaseline": 2204,
+  "verifiedLockedNumericBaseline": 239,
+  "authenticationEstablished": false,
+  "completeBlockFraudProofEstablished": false
+}

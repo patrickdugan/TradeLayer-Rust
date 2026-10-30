@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-29T23:47:05Z. Refresh after every tested integration cycle.
+Updated: 2026-10-30T00:23:36Z. Refresh after every tested integration cycle.
 
 ## Current checkpoint
 
@@ -15,6 +15,8 @@ The tested implementation is `a94ea4c7cdf4677d7d48455d65363edd263a16c1`. Release
 Evidence: [release validation](fixtures/reference_fidelity/retained-callers-mode4-release-validation.json). Its adjacent input manifest preserves the frozen file list. The previous 2,142/239 release remains historical evidence.
 
 The saved completeness workbook and existing sidebar agree on this release. Sixteen intentional cell edits preserved the 48 TL module rows, one external reference, all 37 transaction rows, formulas, styles, filters, panes and geometry. Zero formula errors. Evidence: `fixtures/reference_fidelity/retained-callers-mode4-release-completeness.json`.
+
+Later focused correction: rejected append ACKs now preserve the prior original/replacement native relation, while a current API rejection cannot reuse an older StorageStopped result. Five new actual source and three metadata controls pass; library **557/four ignored**, 44 public checks, Clippy/fmt304/inventory/supply pass. Evidence: `mode4-rejected-append-core-integration.json`. The full release remains 2,204/239 until the next complete run.
 
 **This is a passing development checkpoint, not a completed RC.** The source-composition and operational gates below remain open.
 
@@ -48,7 +50,7 @@ Root fixed a real Mode4 writer mismatch: its initial observation omitted the esc
 
 | Agent | Current isolated work | Boundary |
 | --- | --- | --- |
-| `row_continuation_impl` | Selected caller/consensus/detached/timer actions, exact routed native selection and native-only recovery with durable mapping | Owns new selected-controller leaves and pure include/profile overlays. Does not own existing caller runtime/frame or the consensus factory. |
+| `row_continuation_impl` | Selected WAL/recovery frozen as `1a761c39`, with nine actual Core controls awaiting Root. Next: independent rejection review, then active-service file retry composition. | Owns new selected-controller leaves and pure include/profile overlays. Does not own existing caller runtime/frame or the consensus factory. |
 | `v8_main` | Ordinary concrete Mode4 raw-action/financial reexecution through actual original/copied historical views | Four new read-adapter metadata controls are a prerequisite, not financial replay. Old missing IO/plan facts remain explicit refusals. |
 | `v8_clearlist` | Genuine JavaScript coercive SyncIndex characterization, then a narrow explicit caller profile | Owns existing caller runtime/frame branch changes plus new helper leaves. Preserve the old numeric profile and its visitor bytes. Null's detached initOrLoad path is broader and must not become synchronous success. |
 
@@ -62,7 +64,7 @@ The independent static audit pins 58 read inputs and 23 source citation targets:
 2. **Selected native recovery.** Bind exact origin, operation kind, job, method scope, ordinal, role and context. Reopen/supersede only that native operation, sync the mapping, then resolve Post once. Never choose the first pending operation implicitly.
 3. **Remaining literal source branches.** Global/module initialization and notifications; uninitialized/no-chain Initialize and its 300 ms wait; coercive/null SyncIndex branches and genuine detached jobs.
 4. **File retry composition.** The separate file continuation already models five attempts and the final 50 ms wait. Compose it with the active native service on the same Core/index/queue, including EBUSY/EPERM, ENOENT, partial file work, pause/height/shutdown interleavings and reorg behavior. Do not invent a financial rollback absent from the source.
-5. **Mode4/caller cold source replay.** Reexecute raw actions against verified original/copied metadata and compare all observations. Characterize repeated AppendPending API rejection. New explicit producers may retain actual-stop IO facts or never-appended native-plan metadata before source observation; old Before/Accepted data must not supply those inputs.
+5. **Mode4/caller cold source replay.** Reexecute raw actions against verified original/copied metadata and compare all observations. Rejected-append metadata and same-process recovery are tested; cold replay must still reexecute those raw rejected actions. New explicit producers may retain actual-stop IO facts or never-appended native-plan metadata before source observation; old Before/Accepted data must not supply those inputs.
 6. **Fresh factual live input.** Start currently captures fixed RPC/documents facts. Add an explicit bounded recorded input action for fresh raw tip/block/transaction facts; preserve counters, active frames and financial state. The existing strict `source_main_step_update_io` is a useful primitive, not current active-service admission.
 7. **Active-history continuation.** Rotate/publish acknowledged history past the actual 4,096-action limit while retaining the same owner and source/physical head. Native index paging alone does not remove this separate limit.
 
@@ -77,3 +79,7 @@ Then run the integrated RC path, consume collaborator fuzz results and perform t
 - Finished public-support provider: `work/providers/retained-callers-mode4-a94ea4c/libtradelayer_core.rlib`, SHA-256 `7f9b78d5169202225dee1aed5a03f8eeff6c189e6ea5ae98be062633c1de5560`; immutable provenance is adjacent. Candidate private Core tests still require Root execution.
 - Root gates use `work/cargo-check.ps1 -CargoArguments @(...)`, the pinned 1.90 toolchain and one Cargo process. Debug target: `work/main-v12-target`; release target: `work/source-settlement-target`. Use the existing runners' temp and genuine numeric settings.
 - Next action: validate the first frozen worker milestone against current source, record exact checks, commit it and refresh this handoff. No pending worker result is complete merely because its files or helper tests exist.
+
+## Latest rejected-append correction
+
+Actual-source controls cover ordinary append, an intervening pause and genuine Before/Intermediate/Post recovery. They retain the full source observation, RPC/effect prefix, original financial/index owner and unresolved await after rejection. Metadata controls reject missing prior ACK, changed configuration/TLNM/observation, wrong error, an already resolved prior action and a false rejection masking a real extra native publication. A supported unmatched update checks the no-write case and one-time computed zero result; rejected ACKs never supply an inline closure. The original failed gates are retained. No new JavaScript oracle cases, transaction rows or authenticated proof claims are added.

@@ -258,6 +258,57 @@ fn mode4_snapshot(pin: &SourceIndexHistoryPinV1) -> V {
     ])
 }
 impl VerifiedInlineActiveServiceAckHistoryV1 {
+    // This validates a recorded no-publication relation only. The diagnostic
+    // is not an execution result or permission to resolve a historical await.
+    fn mode4_require_rejected_reappend(
+        &self,
+        entry: &VerifiedActiveServiceAckEntryV1,
+        prior: Option<&VerifiedActiveServiceAckEntryV1>,
+        before: &SourceIndexHistoryPinV1,
+        post: &SourceIndexHistoryPinV1,
+    ) -> Result<()> {
+        let prior = prior.ok_or(ActiveServiceWalErrorV1::WrongContext)?;
+        let value = self.entry_value(entry)?;
+        let (fields, diagnostic) = history_accepted_parts_profile(entry.actual_accepted(), true)?;
+        if diagnostic.get("apiRejection") != s("WriteAlreadyAttempted")
+            || fields != entry.actual_before()
+            || before != post
+            || prior.verified_history_post() != entry.verified_history_before()
+            || entry.native_recovery().is_some()
+            || value.get("generationEscrow") != V::Undefined
+            || entry.native_mutations() != prior.native_mutations()
+        {
+            return Err(ActiveServiceWalErrorV1::WrongPin);
+        }
+        match (entry.native_candidates(), prior.native_candidates()) {
+            (None, None) => (),
+            (Some(current), Some(original)) => {
+                let mut previous = Mode4Candidates::parse(parse(original)?, before)?;
+                let prior_value = self.entry_value(prior)?;
+                for (_, recovery) in self.mode4_chain(prior_value.get("nativeRecovery"), false)? {
+                    let replacement = recovery.get("replacementCandidates");
+                    if replacement != V::Undefined {
+                        if history_hash(&recovery.get("replacementMutationsSha256"))?
+                            != sha256(
+                                entry
+                                    .native_mutations()
+                                    .ok_or(ActiveServiceWalErrorV1::WrongPin)?,
+                            )
+                        {
+                            return Err(ActiveServiceWalErrorV1::WrongPin);
+                        }
+                        previous = Mode4Candidates::parse(replacement, before)?;
+                    }
+                }
+                let current = Mode4Candidates::parse(parse(current)?, before)?;
+                if current.raw != previous.raw || current.post != Mode4AppendPoint::of(before) {
+                    return Err(ActiveServiceWalErrorV1::WrongPin);
+                }
+            }
+            _ => return Err(ActiveServiceWalErrorV1::WrongPin),
+        }
+        Ok(())
+    }
     fn mode4_pin(&self, raw: &[u8]) -> Result<SourceIndexHistoryPinV1> {
         SourceIndexHistoryPinV1::from_canonical_scalar_bytes(
             &self.independent.metadata_namespace,
@@ -433,6 +484,10 @@ impl VerifiedInlineActiveServiceAckHistoryV1 {
             .ok_or(ActiveServiceWalErrorV1::WrongContext)?;
         if source.append_verified()
             || source.resolved()
+            || history_accepted_parts_profile(entry.actual_accepted(), true)?
+                .1
+                .get("apiRejection")
+                != V::Null
             || !matches!(
                 self.decoded_action(entry)?,
                 crate::source_main_native_session::NativeMainActiveServiceActionV1::AppendPending

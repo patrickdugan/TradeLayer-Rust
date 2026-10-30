@@ -737,20 +737,28 @@ impl SourceMainNativeDurableActiveServiceV1 {
                 self.owner = Some(ActiveWalOwner::Active(owner));
             }
         }
-        if matches!(
-            self.pending.as_ref().expect("pending").action,
-            NativeMainActiveServiceActionV1::AppendPending
-        ) && self.active_service().is_some_and(|s| {
-            matches!(
-                s.pending_observation
-                    .as_ref()
-                    .map(|p| &p.result)
-                    .or_else(|| s.history().last().map(|r| &r.result)),
-                Some(NativeMainActiveServiceActionResultV1::Stop(
-                    NativeMainServiceStopV1::StorageStopped(_)
-                ))
+        if self
+            .pending
+            .as_ref()
+            .expect("pending")
+            .source_error
+            .is_none()
+            && matches!(
+                self.pending.as_ref().expect("pending").action,
+                NativeMainActiveServiceActionV1::AppendPending
             )
-        }) {
+            && self.active_service().is_some_and(|s| {
+                matches!(
+                    s.pending_observation
+                        .as_ref()
+                        .map(|p| &p.result)
+                        .or_else(|| s.history().last().map(|r| &r.result)),
+                    Some(NativeMainActiveServiceActionResultV1::Stop(
+                        NativeMainServiceStopV1::StorageStopped(_)
+                    ))
+                )
+            })
+        {
             self.phase = NativeMainActiveWalPhaseV1::NativeRecoveryRequired;
             return Err(NativeMainActiveWalErrorV1::NativeRecoveryRequired);
         }

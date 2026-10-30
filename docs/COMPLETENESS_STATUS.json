@@ -1184,6 +1184,18 @@
       "noProductionBodiesChanged": true,
       "fullSuitePromotion": true,
       "fullSuiteRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json"
+    },
+    "mode4RejectedAppend": {
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/mode4-rejected-append-core-integration.json",
+      "newActualSourceControlsPassed": 5,
+      "newMetadataControlsPassed": 3,
+      "parallelLibraryPassed": 557,
+      "publicCompatibilityPassed": 44,
+      "sameActualOwnerRetained": true,
+      "staleStorageStopMisclassificationFixed": true,
+      "rejectedActionCanVerifyInlineOperation": false,
+      "fullSuitePromotion": false
     }
   },
   "scope": "Frozen release a94ea4c: 2,204 Rust executions (2,203 top-level plus one storage child), 239 genuine9.1.2 numeric checks, 283 targets and 1,888 unchanged tracked inputs. Includes549 library cases, retained Main callers/consensus, StartOnly WAL, strict Mode4 physicalACK/native metadata closure, historical/copied views and Bitcoin supported-transaction checks. Startup/file-retry composition, selected-caller recovery, raw-source Mode4 replay, host/fuzz and authenticated complete-block proofs remain open.",

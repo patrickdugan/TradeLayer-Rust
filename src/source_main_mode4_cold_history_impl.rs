@@ -199,8 +199,10 @@ impl VerifiedInlineActiveServiceAckHistoryV1 {
             )
             .map_err(|_| ActiveServiceWalErrorV1::WrongPin)?;
         let mut at = 0;
+        let mut last_append = None;
         for entry in self.entries() {
             let decoded = self.decoded_action(entry)?;
+            let (_, diagnostic) = history_accepted_parts_profile(entry.actual_accepted(), true)?;
             if entry.sequence == 1 {
                 if !matches!(
                     decoded,
@@ -243,6 +245,8 @@ impl VerifiedInlineActiveServiceAckHistoryV1 {
                 {
                     return Err(ActiveServiceWalErrorV1::WrongContext);
                 }
+            } else if diagnostic.get("apiRejection") == s("WriteAlreadyAttempted") {
+                self.mode4_require_rejected_reappend(entry, last_append, &before, &post)?;
             } else if entry.native_candidates().is_none() {
                 if before != post
                     || entry.native_recovery().is_some()
@@ -362,6 +366,17 @@ impl VerifiedInlineActiveServiceAckHistoryV1 {
                 || stages.last().is_none_or(|(_, s)| s != "Ack")
             {
                 return Err(ActiveServiceWalErrorV1::WrongContext);
+            }
+            if diagnostic.get("apiRejection") == V::Null {
+                match decoded {
+                    crate::source_main_native_session::NativeMainActiveServiceActionV1::AppendPending => {
+                        last_append = Some(entry);
+                    }
+                    crate::source_main_native_session::NativeMainActiveServiceActionV1::ResolvePost => {
+                        last_append = None;
+                    }
+                    _ => (),
+                }
             }
         }
         if at != self.records.len() {

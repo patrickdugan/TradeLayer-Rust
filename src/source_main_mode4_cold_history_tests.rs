@@ -271,14 +271,24 @@ impl Fixture {
         self.finish_inner(p, index, false)
     }
     fn finish_inner(&mut self, p: Pending, index: &SourceCompactIndex, reordered: bool) {
+        let observation =
+            format!("opaque actual metadata fixture observation {}", p.sequence).into_bytes();
+        self.finish_observation(p, index, reordered, observation, V::Null);
+    }
+    fn finish_observation(
+        &mut self,
+        p: Pending,
+        index: &SourceCompactIndex,
+        reordered: bool,
+        observation: Vec<u8>,
+        rejection: V,
+    ) {
         let history = index
             .capture_verified_history_pin()
             .unwrap()
             .canonical_scalar_bytes()
             .unwrap();
-        let observation =
-            format!("opaque actual metadata fixture observation {}", p.sequence).into_bytes();
-        let mut diagnostic = obj(&[("apiRejection", V::Null)]);
+        let mut diagnostic = obj(&[("apiRejection", rejection)]);
         if let Some(raw) = &p.recovery {
             diagnostic.insert("nativeRecovery", pin(raw)).unwrap();
         }
@@ -683,6 +693,175 @@ fn mode4_crc_valid_past_rewrite_with_same_ack_and_kv_cannot_select_a_new_trace()
         "a supplied new trace cannot substitute for a valid intent/ACK graph"
     );
     assert_eq!(fs::read(&path).unwrap(), raw);
+}
+
+#[test]
+fn mode4_rejected_reappend_requires_prior_post_exact_plan_and_unchanged_observation() {
+    for fault in [
+        "valid",
+        "no-prior",
+        "mutations",
+        "configuration",
+        "observation",
+        "rejection",
+        "resolved",
+    ] {
+        let temp = Temp::new();
+        let mut index = metadata(&temp, false);
+        let mut f = fixture(&temp, &index);
+        f.start(&index);
+        let before = index.capture_verified_history_pin().unwrap();
+        let live = index
+            .prepare_inline_database(&before.metadata, "updateAsync", arguments())
+            .unwrap();
+        let mut sequence = 2;
+        if fault != "no-prior" {
+            let p = f.begin(sequence, Action::AppendPending, &index, Some(&live));
+            index.append_inline_database(&live, None).unwrap();
+            f.finish(p, &index);
+            sequence += 1;
+        }
+        if fault == "resolved" {
+            let p = f.begin(sequence, Action::ResolvePost, &index, None);
+            f.finish(p, &index);
+            sequence += 1;
+        }
+        let mut p = f.pending(sequence, Action::AppendPending, &index, Some(&live));
+        if fault == "mutations" {
+            let mut args = arguments();
+            args[1] = obj(&[("$set", obj(&[("value", V::number(12.))]))]);
+            let other = index
+                .prepare_inline_database(&index.snapshot().unwrap(), "updateAsync", args)
+                .unwrap();
+            let native = crate::source_main_native_intent_store::NativeWriteIntentCandidatesV1::from_prepared_append(
+                other.append_plan().unwrap(), other.durable_read_context()).unwrap();
+            assert_ne!(
+                p.mutations.as_deref().unwrap(),
+                native.exact_prepared_mutations()
+            );
+            p.mutations = Some(native.exact_prepared_mutations().to_vec());
+        }
+        if fault == "configuration" {
+            let mut value = parse(p.candidates.as_ref().unwrap()).unwrap();
+            let target = history_count(&value.get("targetLogBytes")).unwrap();
+            value
+                .insert(
+                    "targetLogBytes",
+                    s(if target == 65536 { "131072" } else { "65536" }),
+                )
+                .unwrap();
+            p.candidates = Some(bytes(&value).unwrap());
+        }
+        let mut observation = p.before.clone();
+        if fault == "observation" {
+            observation.extend_from_slice(b" changed source fields");
+        }
+        let rejection = s(if fault == "rejection" {
+            "NoAttemptedWrite"
+        } else {
+            "WriteAlreadyAttempted"
+        });
+        f.barrier(&p, "Intent", None, None, None);
+        f.finish_observation(p, &index, false, observation, rejection);
+        let expected = f.store.capture_inline_cold_pin(&meta_ns()).unwrap();
+        let path = f.store.journal_path();
+        let current = index.capture_verified_history_pin().unwrap();
+        drop(f);
+        let original = fs::read(&path).unwrap();
+        let result = VerifiedInlineActiveServiceAckHistoryV1::open(&temp.wal, wal_ns(), &expected);
+        assert_eq!(result.is_ok(), fault == "valid", "{fault}");
+        drop(result);
+        assert_eq!(fs::read(path).unwrap(), original, "{fault}");
+        assert_eq!(
+            index.capture_verified_history_pin().unwrap(),
+            current,
+            "{fault}"
+        );
+    }
+}
+
+#[test]
+fn mode4_rejected_noop_update_never_supplies_a_historical_source_return() {
+    let temp = Temp::new();
+    let mut index = metadata(&temp, false);
+    let mut f = fixture(&temp, &index);
+    f.start(&index);
+    let before = index.capture_verified_history_pin().unwrap();
+    let args = vec![
+        obj(&[("_id", s("absent-noop-update"))]),
+        obj(&[("$set", obj(&[("value", V::number(11.))]))]),
+        obj(&[("upsert", V::Bool(false))]),
+    ];
+    let view = VerifiedOriginalMetadataViewV1::open_original(&mut index, &before).unwrap();
+    let mut successful = view
+        .prepare_historical_inline_database("updateAsync", args.clone())
+        .unwrap();
+    let mut rejected = view
+        .prepare_historical_inline_database("updateAsync", args.clone())
+        .unwrap();
+    assert!(!successful.requires_native_write());
+    drop(view);
+    let live = index
+        .prepare_inline_database(&before.metadata, "updateAsync", args)
+        .unwrap();
+    assert!(live.append_plan().is_none());
+    let p = f.begin(2, Action::AppendPending, &index, Some(&live));
+    index.append_inline_database(&live, None).unwrap();
+    f.finish(p, &index);
+    let p = f.begin(3, Action::AppendPending, &index, Some(&live));
+    let observation = p.before.clone();
+    f.finish_observation(p, &index, false, observation, s("WriteAlreadyAttempted"));
+    let expected = f.store.capture_inline_cold_pin(&meta_ns()).unwrap();
+    drop(f);
+    let reader =
+        VerifiedInlineActiveServiceAckHistoryV1::open(&temp.wal, wal_ns(), &expected).unwrap();
+    reader
+        .verify_inline_operation(&mut index, 2, &mut successful)
+        .unwrap();
+    // An unmatched update has no append to verify. Its computed no-write
+    // outcome remains separately resolvable from the original Prepared phase.
+    assert!(!successful.append_verified());
+    assert!(!successful.resolved());
+    assert!(reader
+        .verify_inline_operation(&mut index, 3, &mut rejected)
+        .is_err());
+    assert!(!rejected.append_verified());
+    assert!(!rejected.resolved());
+    assert_eq!(
+        successful.resolve_recorded_post().unwrap(),
+        crate::validity_source::DependencyReturn::Pending(V::number(0.))
+    );
+    assert!(successful.resolve_recorded_post().is_err());
+    assert_eq!(index.capture_verified_history_pin().unwrap(), before);
+}
+
+#[test]
+fn mode4_rejected_append_cannot_hide_a_real_extra_native_publication() {
+    let temp = Temp::new();
+    let mut index = metadata(&temp, false);
+    let mut f = fixture(&temp, &index);
+    f.start(&index);
+    let before = index.capture_verified_history_pin().unwrap();
+    let live = index
+        .prepare_inline_database(&before.metadata, "updateAsync", arguments())
+        .unwrap();
+    let p = f.begin(2, Action::AppendPending, &index, Some(&live));
+    index.append_inline_database(&live, None).unwrap();
+    f.finish(p, &index);
+    let p = f.begin(3, Action::AppendPending, &index, Some(&live));
+    let mut args = arguments();
+    args[1] = obj(&[("$set", obj(&[("value", V::number(12.))]))]);
+    let other = index
+        .prepare_inline_database(&index.snapshot().unwrap(), "updateAsync", args)
+        .unwrap();
+    index.append_inline_database(&other, None).unwrap();
+    let observation = p.before.clone();
+    f.finish_observation(p, &index, false, observation, s("WriteAlreadyAttempted"));
+    let expected = f.store.capture_inline_cold_pin(&meta_ns()).unwrap();
+    let actual = index.capture_verified_history_pin().unwrap();
+    drop(f);
+    assert!(VerifiedInlineActiveServiceAckHistoryV1::open(&temp.wal, wal_ns(), &expected).is_err());
+    assert_eq!(index.capture_verified_history_pin().unwrap(), actual);
 }
 
 #[path = "source_main_mode4_independent_review_tests.rs"]

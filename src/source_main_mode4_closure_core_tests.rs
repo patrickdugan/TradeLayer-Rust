@@ -112,3 +112,149 @@ fn mode4_actual_source_before_replacement_closure_preserves_same_source_await() 
     owner.advance().unwrap();
     verify_same_actual_owner(owner, &t, source);
 }
+
+fn actual_compacting_inline(t: &Temp) -> SourceMainNativeDurableActiveServiceV1 {
+    let calibration = temp();
+    let (raw, docs, prime) = setup_primed(&calibration, None);
+    let mut probe = wrap(raw, docs, &calibration);
+    first_inline(&mut probe);
+    let at = probe.index().footprint().unwrap().journal_file_bytes;
+    run_action(&mut probe, NativeMainActiveServiceActionV1::AppendPending);
+    let bytes = probe.index().footprint().unwrap().journal_file_bytes - at;
+    let offset = at - prime + bytes - 1;
+    drop(probe);
+    let (raw, docs, real_prime) = setup_primed(t, Some(offset));
+    assert_eq!(real_prime, prime);
+    let mut owner = wrap(raw, docs, t);
+    first_inline(&mut owner);
+    assert!(owner
+        .active_service()
+        .unwrap()
+        .pending_inline_write()
+        .unwrap()
+        .append_plan()
+        .unwrap()
+        .intermediate()
+        .is_some());
+    owner
+}
+fn actual_rejected_reappend(recovery: Option<Candidate>, pause: bool) {
+    let t = temp();
+    let mut owner = if matches!(recovery, Some(Candidate::Intermediate)) {
+        actual_compacting_inline(&t)
+    } else {
+        ordinary(&t)
+    };
+    let mut first_source = actual_source_operation(&mut owner);
+    let mut rejected_source = actual_source_operation(&mut owner);
+    if let Some(candidate) = recovery {
+        if candidate == Candidate::Intermediate {
+            active_mut(&mut owner)
+                .owner
+                .index
+                .native_main_test_compaction_fault("after-current-sync");
+            owner
+                .prepare_action(NativeMainActiveServiceActionV1::AppendPending)
+                .unwrap();
+            assert!(matches!(
+                owner.advance(),
+                Err(NativeMainActiveWalErrorV1::NativeRecoveryRequired)
+            ));
+        } else {
+            fail_native(&mut owner, candidate == Candidate::Post);
+        }
+        let without = owner.into_no_inline_index().unwrap();
+        owner = without
+            .try_reopen(
+                &t.root,
+                candidate,
+                if candidate == Candidate::Before {
+                    Recovery::DiscardIncompleteTail
+                } else {
+                    Recovery::RejectIncompleteTail
+                },
+            )
+            .unwrap();
+        owner.advance().unwrap();
+    } else {
+        run_action(&mut owner, NativeMainActiveServiceActionV1::AppendPending);
+    }
+    let first_sequence = owner.history().last().unwrap().sequence;
+    if pause {
+        run_action(&mut owner, NativeMainActiveServiceActionV1::Pause);
+    }
+    let source_before = owner.observation().unwrap();
+    let native_before = owner.index().capture_verified_history_pin().unwrap();
+    let effects_before = owner.active_service().unwrap().effects().to_vec();
+    let calls_before = rpc_count(&owner);
+    run_action(&mut owner, NativeMainActiveServiceActionV1::AppendPending);
+    let rejected = owner.history().last().unwrap();
+    let rejected_sequence = rejected.sequence;
+    let accepted = owner.read_history_blob(&rejected.accepted).unwrap();
+    let fields_len =
+        usize::try_from(u64::from_be_bytes(accepted[6..14].try_into().unwrap())).unwrap();
+    assert_eq!(&accepted[14..14 + fields_len], source_before);
+    assert_eq!(
+        &accepted[22 + fields_len..],
+        active_wal_bytes(&obj(&[("apiRejection", s("WriteAlreadyAttempted"))])).unwrap()
+    );
+    assert_eq!(owner.observation().unwrap(), source_before);
+    assert_eq!(
+        owner.index().capture_verified_history_pin().unwrap(),
+        native_before
+    );
+    assert_eq!(owner.active_service().unwrap().effects(), effects_before);
+    assert_eq!(rpc_count(&owner), calls_before);
+    let independent = owner.capture_inline_cold_pin().unwrap();
+    let ActiveWalOwner::Active(mut same) = owner.owner.take().unwrap() else {
+        panic!("same actual active owner");
+    };
+    drop(owner);
+    let reader = VerifiedInlineActiveServiceAckHistoryV1::open(
+        &t.root,
+        Namespace::new("LTC", false, "consensus").unwrap(),
+        &independent,
+    )
+    .unwrap();
+    reader
+        .verify_inline_operation(&mut same.owner.index, first_sequence, &mut first_source)
+        .unwrap();
+    assert!(first_source.append_verified());
+    assert!(!first_source.resolved());
+    assert!(reader
+        .verify_inline_operation(
+            &mut same.owner.index,
+            rejected_sequence,
+            &mut rejected_source
+        )
+        .is_err());
+    assert!(!rejected_source.append_verified());
+    assert!(!rejected_source.resolved());
+    assert_eq!(same.effects(), effects_before);
+    assert_eq!(
+        same.owner.index.capture_verified_history_pin().unwrap(),
+        native_before
+    );
+    assert!(same.pending_inline_write().is_some());
+}
+
+#[test]
+fn mode4_actual_rejected_second_append_preserves_ack_history_without_second_publication() {
+    actual_rejected_reappend(None, false);
+}
+#[test]
+fn mode4_actual_rejected_append_after_pause_keeps_original_ack_relation() {
+    actual_rejected_reappend(None, true);
+}
+#[test]
+fn mode4_actual_rejected_append_after_before_recovery_keeps_replacement_relation() {
+    actual_rejected_reappend(Some(Candidate::Before), false);
+}
+#[test]
+fn mode4_actual_rejected_append_after_lost_post_keeps_retained_source_failure() {
+    actual_rejected_reappend(Some(Candidate::Post), false);
+}
+#[test]
+fn mode4_actual_rejected_append_after_intermediate_recovery_keeps_real_escrow() {
+    actual_rejected_reappend(Some(Candidate::Intermediate), false);
+}
