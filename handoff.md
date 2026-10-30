@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T15:24:50Z. Refresh this file after every tested integration or PR cycle.
+Updated: 2026-10-30T15:50:36Z. Refresh this file after every tested integration or PR cycle.
 
 ## Latest tested mixed native recovery increment (`d774f6e`)
 
@@ -128,3 +128,11 @@ Orderbook committed snapshot273511c now passes all13public checks and all four g
 33a1b49 exact committed snapshot passes all8cold owner+4metadata checks; orderbook273511c exact files pass13public checks and four original-source regenerations. Sidebar/workbook195 records17new distinct checked tests separately from prior39/782scoped overlapping evidence and unchanged2204/239release.17intended edits preserve48TL+1external,37transaction rows, all formulas/styles/filters/panes/geometry and zero errors. Evidence:`fixtures/reference_fidelity/mixed-cold-orderbook-completeness.json`.
 
 Current uncommitted next gate mounts18new proposals: shared-query54a, outer2557+per-factory-stopdd7, mixedIntermediate/copied-prefix63f6. Root61279 first Core compile failed only at source_main_outer_bootstrap_impl.rs703: retained DependencyReturn supplied where SourceOutcome was expected. No18cases ran. v8_main owns the source-await-specific correction. No Root/Core process remains from61279. Do not weaken retained error/Promise ordering or supply callback values. Same original Kernel Promise/NeDB c40f/0768 and Incoming/outer bindings remain isolated worker work; two queued startup positives still unpromoted. Continue actual18gate after the minimal type fix.
+
+## Claude transfer — Codex conservation
+
+User requested handoff to conserve Codex. All three workers stopped; no Core or worker tool is live. The30minute completeness automation is PAUSED. Read `CLAUDE_HANDOFF.md` and committed worker notes under `docs/claude-handoff/`. Claude takes integration ownership and must preserve the dirty checkout. No source is reset/stashed; unfinished code is deliberately not committed as completed work.
+
+Latest actual Root6219 terminal0:12outer/query+5native-read+9cold-owner checks pass,26executions/18new relative to33a. c0e fixed the first compile error. dd36 private take_prepared visibility correction is frozen but NOT mounted; strict lint and checked commit remain next. The original failed queued-startup positives remain unresolved. New Kernel metadata/NeDB/key-visitor/notification successor is isolated, not integrated with the actual financial startup controller. Its author log verifies45metadata+Clippy after an independently found notification-order defect; immutable manifest undercounts43, with explicit addendum. Do not promote component metadata to full startup parity.
+
+The synchronized workbook/sidebar195 remains the15:24:50Z committed-scope snapshot,17new checked cold/orderbook cases and unchanged2204/239release. Later18working checks are documented here, not a new release/book promotion. Full RC/authentication/block proofs remain open. No push/PR.

@@ -1438,10 +1438,17 @@
     },
     "outerAndIntermediateProbe": {
       "uncommitted": true,
-      "newTestsNotExecuted": 18,
+      "newTestsNotExecuted": 0,
       "firstCompileFailed": true,
       "reason": "Outer retained native DependencyReturn requires source-await-specific conversion; no successful new Core cases claimed",
-      "productionStartupParityEstablished": false
+      "productionStartupParityEstablished": false,
+      "status": "26 working controls pass; 18new; visibility/lint/commit pending",
+      "newDistinctTests": 18,
+      "actualWorkingChecksPassed": 26,
+      "initialCompileFailureFixed": true,
+      "visibilityFixMounted": false,
+      "strictAllTargetClippyPending": true,
+      "codeCommitted": false
     }
   },
   "scope": "Latest checked code33a1b49 passes8financial-owner+4metadata cold-recovery checks, also all12from its clean committed snapshot. Orderbook6a62e38/273511c passes5new+8queue checks and all four genuine source regenerations from committed files.17new checks are distinct; older39controller/782scoped regressions overlap prior evidence. Release remains2,204Rust/239numeric. Next18working probes for source query timing/outer bootstrap/compaction-copy have not run: first Core build needs a retained-result type fix. Two queued-startup positives, production Promise/RPC/DB/UID parity, full RC/fuzz/host and authentication/full-block proofs remain open.",
@@ -1811,5 +1818,14 @@
     "frozenInputs": 1888,
     "frozenInputsVerifiedBeforeAndAfter": true
   },
-  "latestBroadLibraryValidationRecord": "fixtures/reference_fidelity/main-mixed-native-broad-library-validation.json"
+  "latestBroadLibraryValidationRecord": "fixtures/reference_fidelity/main-mixed-native-broad-library-validation.json",
+  "claudeHandoff": {
+    "preparedAtUtc": "2026-10-30T15:50:36Z",
+    "committedBase": "186054725b4e957352cd38f5a0b9af525e12716d",
+    "mainDocument": "CLAUDE_HANDOFF.md",
+    "workersStopped": true,
+    "spreadsheetAutomationPaused": true,
+    "workbookStillAtVerifiedSnapshot": "2026-10-30T15:24:50Z",
+    "workingEvidenceNew18NotPromotedToRelease": true
+  }
 }
