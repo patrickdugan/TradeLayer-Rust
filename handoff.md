@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T03:59:52Z. Refresh after every tested integration cycle.
+Updated: 2026-10-30T04:01:16Z. Refresh after every tested integration cycle.
 
 ## Current checkpoint
 
@@ -22,7 +22,7 @@ Later focused correction: rejected append ACKs now preserve the prior original/r
 
 ## Latest tested orchestration
 
-The latest batch passes **638 library tests (four ignored), 44 public checks, all-target Clippy with warnings denied, Cargo formatting, 372 included-file formatting checks, inventory and supply policy**. All 44 new unit tests pass. Counts overlap with earlier/full runs; do not add focused runs to the full release total. Evidence: `fixtures/reference_fidelity/main-orchestration-core-integration.json`.
+The latest tested code is `b8546b3fa7624b22d2b3853951104198429ce77f`. This batch passes **638 library tests (four ignored), 44 public checks, all-target Clippy with warnings denied, Cargo formatting, 372 included-file formatting checks, inventory and supply policy**. All 44 new unit tests pass. Counts overlap with earlier/full runs; do not add focused runs to the full release total. Evidence: `fixtures/reference_fidelity/main-orchestration-core-integration.json`.
 
 - Null Sync preserves separate parent/detached source fulfillment and the same actual financial header/index/queue. A header cannot close while its borrowed block or unadopted completion remains. It closes once at the safe boundary while a future timer may remain pending.
 - Automatic Incoming/file/native execution preserves partial work, all five retries and the final50ms wait, same native plan through distinct Append/Resolve, shutdown and literal physical restore without an invented balance rollback. Its new automatic-only parked tail allows an independent file retry while financial/native work remains held. Actual trace ranges distinguish already-owned effects from direct Kernel events; no value deduplication is used. Legacy/default queue rules and visitor bytes remain unchanged.
@@ -91,3 +91,9 @@ Intended-host real-block CPU/RSS, directory/power-loss, actual killed-process fi
 ## Latest rejected-append correction
 
 Actual-source controls cover ordinary append, an intervening pause and genuine Before/Intermediate/Post recovery. They retain the full source observation, RPC/effect prefix, original financial/index owner and unresolved await after rejection. Metadata controls reject missing prior ACK, changed configuration/TLNM/observation, wrong error, an already resolved prior action and a false rejection masking a real extra native publication. A supported unmatched update checks the no-write case and one-time computed zero result; rejected ACKs never supply an inline closure. The original failed gates are retained. No new JavaScript oracle cases, transaction rows or authenticated proof claims are added.
+
+## Latest scoped workbook refresh
+
+Saved workbook and sidebar agree on `b8546b3`: **638 library tests / 44 public checks**, including 44 new unit tests. Full release evidence remains **2,204 Rust / 239 numeric checks** at `a94ea4c7`; the scoped run does not replace that release. Fourteen intentional edits preserve all 48 TL modules, one external reference, 37 transaction rows, formulas, styles, filters, panes and geometry. Zero formula errors. Evidence: `fixtures/reference_fidelity/main-orchestration-completeness.json`.
+
+Full 13-2 source-fact cold replay, fresh input, raw/global startup and active-history continuation remain pending. Candidate source/helper checks are not promoted to Core integration. The next explicit typed feed is frozen as `1064bf02`; raw startup has `f4951a81` plus literal DB retry `a70ea938`, with its actual Initialize suffix still being extended. Work-only manifests and exact current runner pointers are in `work/root-resume-current.json` outside the repository.
