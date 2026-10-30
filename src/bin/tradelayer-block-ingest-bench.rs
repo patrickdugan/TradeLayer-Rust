@@ -73,9 +73,15 @@ enum Phase {
     BoundaryParse,
     DependencyPlan,
     TxidMerkle,
+    OneTeamTreePrepared,
+    WeightedShards,
+    PooledWeighted,
+    PooledBarrier,
+    InplaceMerkle,
+    FastReduce,
 }
 
-const PHASES: [Phase; 9] = [
+const PHASES: [Phase; 15] = [
     Phase::Owned,
     Phase::FullOwned,
     Phase::Prepared,
@@ -85,6 +91,12 @@ const PHASES: [Phase; 9] = [
     Phase::BoundaryParse,
     Phase::DependencyPlan,
     Phase::TxidMerkle,
+    Phase::OneTeamTreePrepared,
+    Phase::WeightedShards,
+    Phase::PooledWeighted,
+    Phase::PooledBarrier,
+    Phase::InplaceMerkle,
+    Phase::FastReduce,
 ];
 
 /// Equivalence checks and output destruction are outside every timer. Full
@@ -144,9 +156,22 @@ fn measure(
             black_box(result);
             elapsed
         }
-        Phase::Prepared | Phase::OneTeamPrepared => {
+        Phase::Prepared
+        | Phase::OneTeamPrepared
+        | Phase::OneTeamTreePrepared
+        | Phase::WeightedShards
+        | Phase::PooledWeighted
+        | Phase::PooledBarrier
+        | Phase::InplaceMerkle
+        | Phase::FastReduce => {
             let result = match phase {
+                Phase::WeightedShards => view.inspect_parallel_weighted_shards(config),
+                Phase::PooledWeighted => view.inspect_parallel_pooled_weighted(config),
+                Phase::PooledBarrier => view.inspect_parallel_pooled_barrier(config),
+                Phase::InplaceMerkle => view.inspect_parallel_one_team_inplace_merkle(config),
+                Phase::FastReduce => view.inspect_parallel_one_team_fast_reduce(config),
                 Phase::Prepared => view.inspect_parallel(config),
+                Phase::OneTeamTreePrepared => view.inspect_parallel_one_team_tree_reference(config),
                 _ => view.inspect_parallel_one_team(config),
             }
             .unwrap();
@@ -274,7 +299,7 @@ fn main() {
     }
     let mut samples: [Vec<Duration>; PHASES.len()] = std::array::from_fn(|_| Vec::new());
     for repeat in 0..repeats {
-        // Deterministic rotation gives every phase each slot over nine
+        // Deterministic rotation gives every phase each slot over fifteen
         // repeats. Raw per-phase samples retain their chronological order.
         for offset in 0..PHASES.len() {
             let slot = (repeat + offset) % PHASES.len();
@@ -289,22 +314,47 @@ fn main() {
             ));
         }
     }
+    // Retain the original pairwise counterbalanced comparison as well as
+    // the full phase rotation. Both variants perform the same prepared work.
+    let mut hash_pair = Vec::with_capacity(repeats);
+    let mut tree_pair = Vec::with_capacity(repeats);
+    for repeat in 0..repeats {
+        for hash_first in [repeat % 2 == 0, repeat % 2 != 0] {
+            let phase = if hash_first {
+                Phase::OneTeamPrepared
+            } else {
+                Phase::OneTeamTreePrepared
+            };
+            let elapsed = measure(phase, &raw, &view, config, &new, &dependency, &txids);
+            if hash_first {
+                hash_pair.push(elapsed);
+            } else {
+                tree_pair.push(elapsed);
+            }
+        }
+    }
     let baseline_ms = median(&samples[0]).as_secs_f64() * 1000.0;
     let full_owned_ms = median(&samples[1]).as_secs_f64() * 1000.0;
     let prepared_ms = median(&samples[2]).as_secs_f64() * 1000.0;
-    let one_team_ms = median(&samples[3]).as_secs_f64() * 1000.0;
+    let one_team_ms = median(&hash_pair).as_secs_f64() * 1000.0;
     let bulk_ms = median(&samples[4]).as_secs_f64() * 1000.0;
     let one_team_full_ms = median(&samples[5]).as_secs_f64() * 1000.0;
     let boundary_parse_ms = median(&samples[6]).as_secs_f64() * 1000.0;
     let dependency_plan_ms = median(&samples[7]).as_secs_f64() * 1000.0;
     let txid_merkle_ms = median(&samples[8]).as_secs_f64() * 1000.0;
+    let one_team_tree_ms = median(&tree_pair).as_secs_f64() * 1000.0;
+    let weighted_ms = median(&samples[10]).as_secs_f64() * 1000.0;
+    let pooled_ms = median(&samples[11]).as_secs_f64() * 1000.0;
+    let barrier_ms = median(&samples[12]).as_secs_f64() * 1000.0;
+    let inplace_ms = median(&samples[13]).as_secs_f64() * 1000.0;
+    let fast_ms = median(&samples[14]).as_secs_f64() * 1000.0;
     let bulk_seconds = (bulk_ms / 1000.0).max(1e-9);
     println!("benchmark=UNVERIFIED_SYNTHETIC_BULK_BLOCK_INGEST");
     println!("transaction_count={count}");
     println!("witness_percent={witness_percent}");
     println!("workers={workers}");
     println!("repeats={repeats}");
-    println!("measurement_order=ROTATE_NINE_PHASES_BY_REPEAT");
+    println!("measurement_order=ROTATE_FIFTEEN_PHASES_BY_REPEAT");
     println!("warmup_runs_per_phase=1");
     println!("equivalence_checks=OUTSIDE_TIMERS");
     println!("prepared_phase_scope=PREPARSED_HASH_CARRIER_REDUCTION_TXID_MERKLE");
@@ -323,6 +373,45 @@ fn main() {
     println!("full_owned_block_pipeline_median_ms={full_owned_ms:.3}");
     println!("fused_prepared_only_median_ms={prepared_ms:.3}");
     println!("one_team_prepared_only_median_ms={one_team_ms:.3}");
+    println!("one_team_tree_reference_prepared_only_median_ms={one_team_tree_ms:.3}");
+    println!(
+        "one_team_hashmap_vs_tree_ratio={:.3}",
+        one_team_tree_ms / one_team_ms.max(1e-9)
+    );
+    println!("one_team_variant_order=COUNTERBALANCED");
+    println!("one_team_pair_scope=PREPARED_HASH_VERSUS_TREE_SEPARATE_FROM_PHASE_ROTATION");
+    print_samples("one_team_hash_counterbalanced", &hash_pair);
+    print_samples("one_team_tree_counterbalanced", &tree_pair);
+    println!("weighted_shards_prepared_only_median_ms={weighted_ms:.3}");
+    println!("pooled_weighted_prepared_only_median_ms={pooled_ms:.3}");
+    println!("pooled_barrier_prepared_only_median_ms={barrier_ms:.3}");
+    println!("one_team_inplace_merkle_prepared_only_median_ms={inplace_ms:.3}");
+    println!("one_team_fast_reduce_prepared_only_median_ms={fast_ms:.3}");
+    println!(
+        "weighted_shards_vs_one_team_ratio={:.3}",
+        one_team_ms / weighted_ms.max(1e-9)
+    );
+    println!(
+        "pooled_weighted_vs_one_team_ratio={:.3}",
+        one_team_ms / pooled_ms.max(1e-9)
+    );
+    println!(
+        "pooled_barrier_vs_one_team_ratio={:.3}",
+        one_team_ms / barrier_ms.max(1e-9)
+    );
+    println!(
+        "fast_reduce_vs_one_team_ratio={:.3}",
+        one_team_ms / fast_ms.max(1e-9)
+    );
+    println!(
+        "duplicate_hashmap_vs_btree_ratio={:.3}",
+        one_team_tree_ms / one_team_ms.max(1e-9)
+    );
+    println!(
+        "merkle_inplace_vs_allocating_ratio={:.3}",
+        one_team_tree_ms / inplace_ms.max(1e-9)
+    );
+    println!("pooled_weighted_window_result_cap=512");
     println!(
         "one_team_vs_windowed_ratio={:.3}",
         prepared_ms / one_team_ms.max(1e-9)
@@ -373,11 +462,21 @@ fn main() {
         "boundary_parse",
         "dependency_plan",
         "txid_merkle",
+        "one_team_tree_reference_prepared_only",
+        "weighted_shards",
+        "pooled_weighted",
+        "pooled_barrier",
+        "inplace_merkle",
+        "fast_reduce",
     ]
     .into_iter()
     .zip(&samples)
     {
         print_samples(label, values);
+        println!(
+            "rotation_{label}_median_ms={:.3}",
+            median(values).as_secs_f64() * 1000.0
+        );
     }
     println!("txid_merkle=LOCAL_CHECK_ONLY");
     println!("dependency_plan=STRUCTURAL_ONLY_EXTERNAL_UTXOS_AND_SCRIPTS_UNVERIFIED");

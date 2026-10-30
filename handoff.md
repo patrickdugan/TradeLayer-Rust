@@ -1,6 +1,16 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T18:19:23Z. Refresh this file after every tested integration or PR cycle.
+Updated: 2026-10-30T23:04:37.190489+00:00. Refresh this file after every tested integration or PR cycle.
+
+## Local branch consolidation: focused checks passed, broad rebuild pending
+
+Verified 2026-10-30T23:04:37.190489+00:00. All72 retained heads are reconciled:18 through feature histories,27 exact-head squash replacements already present,27 obsolete previews with70 original artifacts archived. All75 original unique heads, including3 previously proven duplicates, are preserved in the consolidation history. Canonical CI remains active; no new PR or branch was created.
+
+Completed local gate: 575 focused Rust executions across 73 integration targets and5 changed ledger-helper modules; all-target Rust1.90 Clippy with warnings denied; Cargo formatting and every separately listed include; Main parseInt guard; actual acceptance suites/harness and independent oracles; scanner-to-SQLite forgery/reorg tests; all scanner variant/block1 smoke cases; all21 retained benchmark CI assertions; exact original bytes for all666 fixtures and70 archives. Counts are scoped and overlap older runs; do not call this a full-library/all-target pass.
+
+The cold full preflight remains running in the isolated integration checkout, session64217, log `work/branch-integration-logs/full-preflight-final.log`. Its test build uses opt-level1 with debug assertions/overflow checks, one compiler worker/test thread. Complete that run, the protected contract CLI and native wallet oracle before any authorized push; no publication is authorized here. `docs/branch-integration/validation.json` records completed and pending checks precisely. Lean/Kani, Linux durability, real-host CPU/peakRSS and node-backed Litecoin remain separate gates. This is not an RC or authentication claim.
+
+Current native validation, default windowed scanner and authority denials remain intact. Litecoin MWEB parsing is explicit, administrator chronology is prechecked, and fixture byte preservation is the default while existing LF rules remain. TL exports checkable state-oracle data to a separate UTXORef consumer. The primary checkout's24 unrelated queued-startup files are preserved separately and remain unpromoted.
 
 ## NeDB request kinds (Claude integration)
 

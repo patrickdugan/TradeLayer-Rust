@@ -10,3 +10,11 @@
 
 # Disposable genuine legacy-NeDB oracle databases.
 /work/nedb/
+
+# Local SQLite read-only candidate evidence and WAL sidecars
+/candidate-data/
+
+# Generated Python bytecode.
+__pycache__/
+__pycache__/
+*.pyc

@@ -9,10 +9,11 @@ pub mod activation; // Complete source activation metadata; funded genesis stays
 pub mod activation_history; // Origins derived from the actual complete owner replay.
 pub mod adjuster; // Source tick adjustment metadata; no automatic orderbook policy.
 pub mod amm;
+mod atomic_batch; // Clone-validate-commit boundary and Kani rollback harnesses.
 pub mod bankruptcy_source_audit; // Stage25F pure source-level bankruptcy algebra, no market authority.
 pub mod bitcoin_chainwork; // Bitcoin mainnet nBits/MTP/chainwork from explicit checkpoints; not full consensus.
 pub mod bitcoin_forks; // Bounded greatest-work selection among observed header forks; no active-chain trust.
-pub mod bitcoin_inclusion;
+pub mod bitcoin_inclusion; // Bitcoin SHA256d header and tx Merkle checks; no full consensus.
 pub mod bitcoin_witness_commitment; // Stage25M unverified Bitcoin BIP141 full-tx witness evidence.
 pub mod bitvm_bundle; // Bounded source artifact integrity, no execution-proof verification.
 pub mod bitvm_cache; // Source cache challenge lifecycle metadata, no funded custody.
@@ -22,7 +23,9 @@ pub mod bip32_public; // Public BIP32 derivation with strict and pinned-source m
 pub mod bootstrap; // Owned startup readiness with explicit source characterization.
 pub mod bootstrap_storage; // Concrete restoration of complete durable state owners.
 pub mod candidate_evidence;
+mod canonical_columns; // Canonical nonzero map mutations for wallet and channel columns.
 pub mod chain; // Trust-boundary and reversible block progression, prototype only.
+pub mod channel_admin_replay_audit; // Conditional source administrator projection; no authority.
 pub mod channel_admission_audit; // Stage25M claimed as-of type4/type19 direct clearlist evidence, never authorization.
 pub mod channel_bip143_audit; // Stage 25I exact SegWit-v0 SIGHASH_ALL digest; no signature verification.
 pub mod channel_inclusion_audit; // Stage25L relative Bitcoin Merkle/witness non-authority.
@@ -33,6 +36,7 @@ pub mod channel_type9_inclusion_audit; // Stage25N raw type9 event/Bitcoin relat
 pub mod channel_type9_sender_audit; // Stage25O claimed Bitcoin P2WPKH first-input digest and sender-bound candidate, never permission.
 pub mod channel_witness_audit; // Stage 25H raw native P2WSH script/outpoint only; not ECDSA authorization.
 pub mod channels_source; // Complete bounded source metadata; no funded custody authority.
+mod checked_amounts; // Bit-precise checked debit/credit arithmetic; Kani proof harnesses.
 pub mod clearing_cadence; // Stage 24C read-only JS clearing callback and funding schedule observations.
 pub mod clearing_chain; // Stage 25D unverified combined spot-clearing rollback and TLCC checkpoints.
 pub mod clearing_math; // Stage 24A diagnostic loss, funding and PnL equations; no ledger writes.
@@ -69,6 +73,7 @@ pub mod iou_ledger; // Funded atomic IOU payouts with an explicit local atom pol
 pub mod issuance_intent; // Bounded issuance request metadata; no token creation authority.
 pub mod joint; // Stage 22 independent registry + sole spot-owned ledger in one mixed state.
 pub mod joint_chain; // Stage 22 mixed unverified block replay and TLJC checkpoints.
+mod journal_move; // Fail-closed single-use settlement journal movement; Kani harness.
 pub mod ledger;
 pub mod legacy_activation_audit; // Pinned activation.js read-only source semantics; genesis and authority denied.
 pub mod legacy_base; // Bounded historical Base94/custom Base256 string compatibility.
@@ -82,6 +87,7 @@ pub mod legacy_validity_audit; // Pinned validity.js source Type0/7/8/9 predicat
 pub mod liquidation_audit; // Stage 25E1 read-only maintenance, bankruptcy and insurance-deficit preflight.
 pub mod liquidation_input_gate; // Stage 25G read-only current-block provenance and mandatory authorization gap.
 pub mod liquidation_source_characterization; // Source-pinned read-only AMM priority and avg-vs-mark audit.
+pub mod litecoin_evidence; // Stage 23C raw-byte Litecoin evidence checks and replay gate; read-only.
 pub mod margin_map; // Local position accounting; authenticated collateral orchestration external.
 pub mod margin_map_source_owner; // Literal source instance maps and position identity.
 pub mod mark_basis; // Exact settled basis and subatom carry; no separate Ledger.
@@ -90,7 +96,10 @@ pub mod network_profile; // Independent Bitcoin/Litecoin/Dogecoin mainnet identi
 pub mod options; // Source options ticker, PnL, pricing and portfolio calculations.
 pub mod oracle;
 pub mod oracle_source_owner; // Actual source documents, cache and publication watermarks.
+mod ordered_columns; // Sorted Vec backend for wallet and channel accounting columns.
 pub mod parallel_txindex; // Bounded parallel read-only runtime TXID/OP_RETURN scan and ordered fetch; never consensus.
+pub mod parent_funding_evidence; // Stage8D5 raw prevout transaction/value/script consistency only, not active-chain proof.
+pub mod parent_utxo_snapshot; // Stage8D4 parent witness coverage, no trusted Bitcoin UTXO root or Script validation.
 pub mod persistence; // Atomic persisted joint replay and rollback, no chain authentication.
 pub mod procedural; // Source procedural metadata and context gates, no proof authority.
 pub mod property_catalog; // Owned source-compatible property metadata and effect replay.
@@ -124,6 +133,7 @@ pub mod storage; // Bounded OS-locked disk journal and explicit restart recovery
 pub mod tally; // Source tally projections and fee metadata, no independent spendable ledger.
 pub mod token_settlement_source;
 pub mod trade_history; // Caller-supplied trade reporting and canonical checkpoints; no settlement authority.
+pub mod txindex_parallel; // Bounded std-thread TXID/carrier scanning; source ordering preserved, no execution.
 pub mod txindex_source_owner;
 pub mod types_economic; // Unverified exact mapping into supported economic handlers.
 pub mod types_source; // Full source decode-to-validity orchestration.
@@ -132,6 +142,7 @@ pub mod validity_source; // Complete bounded source predicates over explicit dep
 pub mod vaults; // Standalone vault metadata and collateral lifecycle.
 pub mod vesting; // Source initialization journals and explicit numerical repair.
 pub mod volume_index; // Caller-supplied exact volume and VWAP reporting; no price authority.
+pub mod wave_precheck; // Stage8D dependency-wave read-only probes, no Script/UTXO or Ledger permission.
 pub mod wire; // Read-only legacy ASCII format analysis; never auto-fallback.
 pub mod wire_v1;
 pub mod withdrawal_parity; // Read-only JS-like deferred queue oracle for differential tests.

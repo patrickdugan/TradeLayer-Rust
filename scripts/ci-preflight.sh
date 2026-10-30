@@ -152,5 +152,6 @@ cargo clippy --all-targets --locked -- -D warnings
 if [[ "$mode" == "--full" ]]; then
   node scripts/check_main_production_parse_int.cjs
   cargo test --locked
+  python3 scripts/audit_native_wallet_order.py
 fi
 echo "Rust CI preflight passed ($mode). GitHub still runs network, Lean and Kani gates."

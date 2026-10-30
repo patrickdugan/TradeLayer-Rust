@@ -1,0 +1,937 @@
+{
+  "verifiedUtc": "2026-10-30T23:04:37.190489+00:00",
+  "baseMain": "997f8197f28a2d08f3d2f5a255b5294be8518ee3",
+  "auditBase": "02a736e593ff453385993041fa561804ce6071cf",
+  "localMergeStatus": "PASS: directly affected financial/native/scanner regressions, full pinned lint and formatting, fixture provenance and independent oracles",
+  "sourceIndexSHA256": "ceed012acc5bf5452a95b9853584a5b494313e765b335a7ac7948301c6db0e34",
+  "sourceIndexAlgorithm": "SHA256 of git ls-files --stage over source/test/script/fixture/contract/adapter/formal/toolchain/policy paths; documentation excluded",
+  "cargoTests": {
+    "scope": "Focused integration executables and the five changed private ledger-helper modules; NOT a complete current-library or all-target test count",
+    "totals": {
+      "passed": 575,
+      "failed": 0,
+      "ignored": 0
+    },
+    "targetCount": 73,
+    "privateModuleCount": 5,
+    "targets": [
+      {
+        "target": "channel_admin_replay_audit",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\channel_admin_replay_audit-8504b68ec71c2ff8.exe",
+        "builtUtc": "2026-10-30T22:26:08.245350+00:00",
+        "returncode": 0,
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-channel_admin_replay_audit.log"
+      },
+      {
+        "target": "channel_revision",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\channel_revision-a15292115ac8cbb5.exe",
+        "builtUtc": "2026-10-30T21:10:12.666685+00:00",
+        "returncode": 0,
+        "passed": 8,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-channel_revision.log"
+      },
+      {
+        "target": "channel_settlement",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\channel_settlement-64a5b785f0b26440.exe",
+        "builtUtc": "2026-10-30T22:25:11.510516+00:00",
+        "returncode": 0,
+        "passed": 9,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-channel_settlement.log"
+      },
+      {
+        "target": "economic",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic-4c42dff051c26a99.exe",
+        "builtUtc": "2026-10-30T22:40:16.177681+00:00",
+        "returncode": 0,
+        "passed": 8,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic.log"
+      },
+      {
+        "target": "economic_amm",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_amm-e6fc7ddbc4ee0a8d.exe",
+        "builtUtc": "2026-10-30T21:12:19.790336+00:00",
+        "returncode": 0,
+        "passed": 15,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_amm.log"
+      },
+      {
+        "target": "economic_amm_snapshot",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_amm_snapshot-234eb82974e65f6a.exe",
+        "builtUtc": "2026-10-30T22:20:04.501305+00:00",
+        "returncode": 0,
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_amm_snapshot.log"
+      },
+      {
+        "target": "economic_chain",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_chain-fce10f83cf2e85e5.exe",
+        "builtUtc": "2026-10-30T22:24:50.146879+00:00",
+        "returncode": 0,
+        "passed": 9,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_chain.log"
+      },
+      {
+        "target": "economic_contract",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_contract-a58577d8238835f3.exe",
+        "builtUtc": "2026-10-30T21:13:31.693366+00:00",
+        "returncode": 0,
+        "passed": 21,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_contract.log"
+      },
+      {
+        "target": "economic_contract_snapshot",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_contract_snapshot-8ff00db40f8c4a33.exe",
+        "builtUtc": "2026-10-30T22:26:52.679823+00:00",
+        "returncode": 0,
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_contract_snapshot.log"
+      },
+      {
+        "target": "economic_funding",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_funding-aa63784d902f6e9b.exe",
+        "builtUtc": "2026-10-30T22:24:29.122192+00:00",
+        "returncode": 0,
+        "passed": 7,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_funding.log"
+      },
+      {
+        "target": "economic_funding_snapshot",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_funding_snapshot-d5ac014cb550a421.exe",
+        "builtUtc": "2026-10-30T21:13:27.846766+00:00",
+        "returncode": 0,
+        "passed": 8,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_funding_snapshot.log"
+      },
+      {
+        "target": "economic_insurance",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_insurance-adb420482398c379.exe",
+        "builtUtc": "2026-10-30T21:09:20.872327+00:00",
+        "returncode": 0,
+        "passed": 11,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_insurance.log"
+      },
+      {
+        "target": "economic_liquidation_review",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_liquidation_review-08bb6cd092f64887.exe",
+        "builtUtc": "2026-10-30T22:23:37.433446+00:00",
+        "returncode": 0,
+        "passed": 14,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_liquidation_review.log"
+      },
+      {
+        "target": "economic_liquidation_snapshot",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_liquidation_snapshot-280cf0eb8fb13f70.exe",
+        "builtUtc": "2026-10-30T22:39:58.305228+00:00",
+        "returncode": 0,
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_liquidation_snapshot.log"
+      },
+      {
+        "target": "economic_mark_review",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_mark_review-b6d6368d106407d6.exe",
+        "builtUtc": "2026-10-30T21:16:59.234739+00:00",
+        "returncode": 0,
+        "passed": 9,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_mark_review.log"
+      },
+      {
+        "target": "economic_mark_snapshot",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_mark_snapshot-2d8fec872592f6c5.exe",
+        "builtUtc": "2026-10-30T22:43:00.968063+00:00",
+        "returncode": 0,
+        "passed": 6,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_mark_snapshot.log"
+      },
+      {
+        "target": "economic_review",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_review-f3aacde685d2dfc4.exe",
+        "builtUtc": "2026-10-30T22:22:19.346642+00:00",
+        "returncode": 0,
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_review.log"
+      },
+      {
+        "target": "economic_snapshot",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_snapshot-61264c7fc2b5869d.exe",
+        "builtUtc": "2026-10-30T22:47:09.220875+00:00",
+        "returncode": 0,
+        "passed": 6,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_snapshot.log"
+      },
+      {
+        "target": "economic_source_catalog_chain",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_source_catalog_chain-9809d8fadbc139ef.exe",
+        "builtUtc": "2026-10-30T22:22:10.797725+00:00",
+        "returncode": 0,
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_source_catalog_chain.log"
+      },
+      {
+        "target": "economic_source_catalog_execution",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_source_catalog_execution-d83996b55184c5ed.exe",
+        "builtUtc": "2026-10-30T21:13:31.264937+00:00",
+        "returncode": 0,
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_source_catalog_execution.log"
+      },
+      {
+        "target": "economic_source_catalog_oracle_snapshot",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_source_catalog_oracle_snapshot-a3f0ae4da0c9256f.exe",
+        "builtUtc": "2026-10-30T22:21:09.711656+00:00",
+        "returncode": 0,
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_source_catalog_oracle_snapshot.log"
+      },
+      {
+        "target": "economic_source_catalog_snapshot",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_source_catalog_snapshot-bcfa8604aa24d6c3.exe",
+        "builtUtc": "2026-10-30T22:41:10.157161+00:00",
+        "returncode": 0,
+        "passed": 6,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_source_catalog_snapshot.log"
+      },
+      {
+        "target": "economic_source_oracle",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_source_oracle-5c4a97af56e3e3a1.exe",
+        "builtUtc": "2026-10-30T22:33:42.555409+00:00",
+        "returncode": 0,
+        "passed": 4,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_source_oracle.log"
+      },
+      {
+        "target": "economic_source_oracle_contracts",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_source_oracle_contracts-2060a35f25cf4362.exe",
+        "builtUtc": "2026-10-30T22:27:47.468669+00:00",
+        "returncode": 0,
+        "passed": 6,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_source_oracle_contracts.log"
+      },
+      {
+        "target": "economic_source_send",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_source_send-a714bf817c7c0ec8.exe",
+        "builtUtc": "2026-10-30T21:15:09.718908+00:00",
+        "returncode": 0,
+        "passed": 6,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_source_send.log"
+      },
+      {
+        "target": "economic_source_spot",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_source_spot-913f4df03054ff11.exe",
+        "builtUtc": "2026-10-30T22:40:43.302400+00:00",
+        "returncode": 0,
+        "passed": 4,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_source_spot.log"
+      },
+      {
+        "target": "economic_spot_prices",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_spot_prices-43844d049aa2ec5b.exe",
+        "builtUtc": "2026-10-30T22:25:01.529971+00:00",
+        "returncode": 0,
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_spot_prices.log"
+      },
+      {
+        "target": "economic_state_oracle",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_state_oracle-66158cbdef8fd9ac.exe",
+        "builtUtc": "2026-10-30T22:20:54.999349+00:00",
+        "returncode": 0,
+        "passed": 7,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_state_oracle.log"
+      },
+      {
+        "target": "economic_validity",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_validity-a02ffabdd77758e4.exe",
+        "builtUtc": "2026-10-30T22:30:09.068112+00:00",
+        "returncode": 0,
+        "passed": 14,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_validity.log"
+      },
+      {
+        "target": "economic_validity_contracts",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\economic_validity_contracts-2d6eb4c229ce8fa8.exe",
+        "builtUtc": "2026-10-30T22:21:13.006771+00:00",
+        "returncode": 0,
+        "passed": 6,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-economic_validity_contracts.log"
+      },
+      {
+        "target": "insurance_ledger_v2",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\insurance_ledger_v2-3ef3ce9827c77985.exe",
+        "builtUtc": "2026-10-30T22:41:39.729333+00:00",
+        "returncode": 0,
+        "passed": 9,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-insurance_ledger_v2.log"
+      },
+      {
+        "target": "iou_ledger",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\iou_ledger-bed4fbade42b4fbd.exe",
+        "builtUtc": "2026-10-30T21:12:54.876472+00:00",
+        "returncode": 0,
+        "passed": 13,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-iou_ledger.log"
+      },
+      {
+        "target": "joint_chain",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\joint_chain-195bdfe0734842a1.exe",
+        "builtUtc": "2026-10-30T21:13:01.291665+00:00",
+        "returncode": 0,
+        "passed": 16,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-joint_chain.log"
+      },
+      {
+        "target": "joint_channel_restore_fence",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\joint_channel_restore_fence-4bd1d5a1c769a058.exe",
+        "builtUtc": "2026-10-30T22:32:26.402570+00:00",
+        "returncode": 0,
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-joint_channel_restore_fence.log"
+      },
+      {
+        "target": "joint_economic_fence",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\joint_economic_fence-d0d477ac978ef7ca.exe",
+        "builtUtc": "2026-10-30T21:09:29.520744+00:00",
+        "returncode": 0,
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-joint_economic_fence.log"
+      },
+      {
+        "target": "joint_history_floor",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\joint_history_floor-05e4998245e01968.exe",
+        "builtUtc": "2026-10-30T22:25:15.311415+00:00",
+        "returncode": 0,
+        "passed": 6,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-joint_history_floor.log"
+      },
+      {
+        "target": "ledger_invariants",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\ledger_invariants-a0f4a117528c083b.exe",
+        "builtUtc": "2026-10-30T22:39:41.390498+00:00",
+        "returncode": 0,
+        "passed": 24,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-ledger_invariants.log"
+      },
+      {
+        "target": "ledger_refinement_oracle",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\ledger_refinement_oracle-404675430a06653c.exe",
+        "builtUtc": "2026-10-30T22:25:20.185725+00:00",
+        "returncode": 0,
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-ledger_refinement_oracle.log"
+      },
+      {
+        "target": "litecoin_evidence",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\litecoin_evidence-df8ab7bba1053bf9.exe",
+        "builtUtc": "2026-10-30T22:31:11.420228+00:00",
+        "returncode": 0,
+        "passed": 12,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-litecoin_evidence.log"
+      },
+      {
+        "target": "native_economic",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\native_economic-ec7449c6a27423c7.exe",
+        "builtUtc": "2026-10-30T22:51:24.524366+00:00",
+        "returncode": 0,
+        "passed": 7,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-native_economic.log"
+      },
+      {
+        "target": "native_joint",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\native_joint-c680f866344f1fd9.exe",
+        "builtUtc": "2026-10-30T22:49:21.881985+00:00",
+        "returncode": 0,
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-native_joint.log"
+      },
+      {
+        "target": "native_ledger",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\native_ledger-ece9c6a73cf4c65c.exe",
+        "builtUtc": "2026-10-30T22:51:53.748102+00:00",
+        "returncode": 0,
+        "passed": 8,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-native_ledger.log"
+      },
+      {
+        "target": "native_prefix_checkpoint",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\native_prefix_checkpoint-05dcd7129c16dc0c.exe",
+        "builtUtc": "2026-10-30T22:45:41.757094+00:00",
+        "returncode": 0,
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-native_prefix_checkpoint.log"
+      },
+      {
+        "target": "panic_stage_atomicity",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\panic_stage_atomicity-06e6120583271d88.exe",
+        "builtUtc": "2026-10-30T22:20:34.820225+00:00",
+        "returncode": 0,
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-panic_stage_atomicity.log"
+      },
+      {
+        "target": "parallel_txindex",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\parallel_txindex-9af8aecd1676e945.exe",
+        "builtUtc": "2026-10-30T22:38:55.406133+00:00",
+        "returncode": 0,
+        "passed": 9,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-parallel_txindex.log"
+      },
+      {
+        "target": "raw_block_ingest",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\raw_block_ingest-5b83a3410ae84cef.exe",
+        "builtUtc": "2026-10-30T22:34:40.756617+00:00",
+        "returncode": 0,
+        "passed": 6,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-raw_block_ingest.log"
+      },
+      {
+        "target": "spot_chain",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\spot_chain-edc4d15540762c62.exe",
+        "builtUtc": "2026-10-30T22:22:37.410160+00:00",
+        "returncode": 0,
+        "passed": 11,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-spot_chain.log"
+      },
+      {
+        "target": "spot_clearing_one_ledger",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\spot_clearing_one_ledger-0e9609036bd404d8.exe",
+        "builtUtc": "2026-10-30T22:39:44.551693+00:00",
+        "returncode": 0,
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-spot_clearing_one_ledger.log"
+      },
+      {
+        "target": "spot_exchange",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\spot_exchange-d88551dd4daba0c0.exe",
+        "builtUtc": "2026-10-30T22:48:22.958119+00:00",
+        "returncode": 0,
+        "passed": 9,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-spot_exchange.log"
+      },
+      {
+        "target": "stage8d5_reduction_merkle",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\stage8d5_reduction_merkle-617e33dae5050db7.exe",
+        "builtUtc": "2026-10-30T21:11:50.480341+00:00",
+        "returncode": 0,
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-stage8d5_reduction_merkle.log"
+      },
+      {
+        "target": "stage8d6_hashmap_promotion",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\stage8d6_hashmap_promotion-bfe1b1ca50ea1617.exe",
+        "builtUtc": "2026-10-30T21:12:25.177842+00:00",
+        "returncode": 0,
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-stage8d6_hashmap_promotion.log"
+      },
+      {
+        "target": "stage8d_fused_dependency",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\stage8d_fused_dependency-c0fabc789db80011.exe",
+        "builtUtc": "2026-10-30T22:38:32.041893+00:00",
+        "returncode": 0,
+        "passed": 8,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-stage8d_fused_dependency.log"
+      },
+      {
+        "target": "stage8d_one_team",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\stage8d_one_team-0725c3804ed10b0a.exe",
+        "builtUtc": "2026-10-30T22:39:06.975338+00:00",
+        "returncode": 0,
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-stage8d_one_team.log"
+      },
+      {
+        "target": "stage8d_parent_utxo_snapshot",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\stage8d_parent_utxo_snapshot-6fa1f72b83e303e2.exe",
+        "builtUtc": "2026-10-30T22:49:15.827345+00:00",
+        "returncode": 0,
+        "passed": 15,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-stage8d_parent_utxo_snapshot.log"
+      },
+      {
+        "target": "stage8d_pooled_weighted",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\stage8d_pooled_weighted-f86833405da2b0f8.exe",
+        "builtUtc": "2026-10-30T22:26:56.821639+00:00",
+        "returncode": 0,
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-stage8d_pooled_weighted.log"
+      },
+      {
+        "target": "stage8d_raw_funding_evidence",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\stage8d_raw_funding_evidence-644679305b98dd98.exe",
+        "builtUtc": "2026-10-30T22:42:14.852736+00:00",
+        "returncode": 0,
+        "passed": 17,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-stage8d_raw_funding_evidence.log"
+      },
+      {
+        "target": "stage8d_wave_precheck",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\stage8d_wave_precheck-76f7218da4f14a05.exe",
+        "builtUtc": "2026-10-30T22:52:05.984119+00:00",
+        "returncode": 0,
+        "passed": 11,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-stage8d_wave_precheck.log"
+      },
+      {
+        "target": "stage8d_weighted_shards",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\stage8d_weighted_shards-cc0f66c8a847de02.exe",
+        "builtUtc": "2026-10-30T22:54:44.793506+00:00",
+        "returncode": 0,
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-stage8d_weighted_shards.log"
+      },
+      {
+        "target": "txindex_hash_fastpath",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\txindex_hash_fastpath-fde126083cb58d3f.exe",
+        "builtUtc": "2026-10-30T22:49:17.562685+00:00",
+        "returncode": 0,
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-txindex_hash_fastpath.log"
+      },
+      {
+        "target": "txindex_parallel",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\txindex_parallel-4ec117f20fbb2be8.exe",
+        "builtUtc": "2026-10-30T22:39:09.493911+00:00",
+        "returncode": 0,
+        "passed": 7,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-txindex_parallel.log"
+      },
+      {
+        "target": "channel_escrow",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\channel_escrow-9c509a3cf66324c6.exe",
+        "builtUtc": "2026-10-30T22:40:05.514241+00:00",
+        "returncode": 0,
+        "passed": 6,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-channel_escrow.log"
+      },
+      {
+        "target": "durable_iou",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\durable_iou-fe7ab6d4e6c2be2c.exe",
+        "builtUtc": "2026-10-30T22:38:06.103536+00:00",
+        "returncode": 0,
+        "passed": 7,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-durable_iou.log"
+      },
+      {
+        "target": "durable_iou_capacity",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\durable_iou_capacity-331bfa212e6d4d29.exe",
+        "builtUtc": "2026-10-30T21:11:21.069320+00:00",
+        "returncode": 0,
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-durable_iou_capacity.log"
+      },
+      {
+        "target": "durable_signed_channels",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\durable_signed_channels-967942c30bdb0ad6.exe",
+        "builtUtc": "2026-10-30T22:48:41.875372+00:00",
+        "returncode": 0,
+        "passed": 5,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-durable_signed_channels.log"
+      },
+      {
+        "target": "fees",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\fees-1421233e81e377cd.exe",
+        "builtUtc": "2026-10-30T22:39:16.452992+00:00",
+        "returncode": 0,
+        "passed": 30,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-fees.log"
+      },
+      {
+        "target": "rewards_accounting",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\rewards_accounting-76803e52c991fed7.exe",
+        "builtUtc": "2026-10-30T22:21:34.866934+00:00",
+        "returncode": 0,
+        "passed": 21,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-rewards_accounting.log"
+      },
+      {
+        "target": "signed_channel_owner",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\signed_channel_owner-35f356a9327913f4.exe",
+        "builtUtc": "2026-10-30T22:25:35.833154+00:00",
+        "returncode": 0,
+        "passed": 13,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-signed_channel_owner.log"
+      },
+      {
+        "target": "source_channel_financial",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\source_channel_financial-bd283f3c96a4314c.exe",
+        "builtUtc": "2026-10-30T22:50:46.302317+00:00",
+        "returncode": 0,
+        "passed": 4,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-source_channel_financial.log"
+      },
+      {
+        "target": "source_contract_fees",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\source_contract_fees-224a63c8092360c8.exe",
+        "builtUtc": "2026-10-30T22:51:10.662430+00:00",
+        "returncode": 0,
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-source_contract_fees.log"
+      },
+      {
+        "target": "source_liquidity_rewards",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\source_liquidity_rewards-e523b3ff7a885690.exe",
+        "builtUtc": "2026-10-30T21:12:12.374739+00:00",
+        "returncode": 0,
+        "passed": 4,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-source_liquidity_rewards.log"
+      },
+      {
+        "target": "source_main_withdrawal_schedule",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\source_main_withdrawal_schedule-d2177d2ba717d1ee.exe",
+        "builtUtc": "2026-10-30T22:19:53.351150+00:00",
+        "returncode": 0,
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\withdrawal-reference-script-bytes-fixed.log",
+        "priorFailedAttempt": {
+          "returncode": 101,
+          "passed": 0,
+          "failed": 1,
+          "log": "..\\branch-integration-logs\\focused-source_main_withdrawal_schedule.log"
+        },
+        "resolution": "Unchanged original test passed after CRLF-converted reference scripts were restored exactly to indexed Git blobs."
+      },
+      {
+        "target": "withdrawal_parity",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\withdrawal_parity-82bcf2f521382eb2.exe",
+        "returncode": 0,
+        "passed": 7,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\focused-withdrawal_parity.log"
+      },
+      {
+        "target": "wire_roundtrip",
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-tests\\carried-wire-main.exe",
+        "returncode": 0,
+        "passed": 4,
+        "failed": 0,
+        "ignored": 0,
+        "log": "..\\branch-integration-logs\\carried-wire-main.log",
+        "build": "Exact newer-main test source compiled with Rust1.90 against the current optimized integration library, warnings denied, debug assertions/overflow checks enabled; rustfmt passed"
+      }
+    ],
+    "privateModules": [
+      {
+        "module": "atomic_batch::tests::",
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0,
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\tradelayer_core-34be888bd8426189.exe",
+        "log": "..\\branch-integration-logs\\kernel-atomic_batch.log"
+      },
+      {
+        "module": "canonical_columns::tests::",
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0,
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\tradelayer_core-34be888bd8426189.exe",
+        "log": "..\\branch-integration-logs\\kernel-canonical_columns.log"
+      },
+      {
+        "module": "checked_amounts::tests::",
+        "passed": 2,
+        "failed": 0,
+        "ignored": 0,
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\tradelayer_core-34be888bd8426189.exe",
+        "log": "..\\branch-integration-logs\\kernel-checked_amounts.log"
+      },
+      {
+        "module": "journal_move::tests::",
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0,
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\tradelayer_core-34be888bd8426189.exe",
+        "log": "..\\branch-integration-logs\\kernel-journal_move.log"
+      },
+      {
+        "module": "ordered_columns::tests::",
+        "passed": 6,
+        "failed": 0,
+        "ignored": 0,
+        "binary": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\deps\\tradelayer_core-34be888bd8426189.exe",
+        "log": "..\\branch-integration-logs\\kernel-ordered_columns.log"
+      }
+    ],
+    "artifactSelection": "Most recent available compiled executable per target, built from this integration source; debug/optimized configurations may differ"
+  },
+  "completedPinnedGates": [
+    "cargo-format",
+    "included-source-format-0",
+    "included-source-format-1",
+    "included-source-format-2",
+    "included-source-format-3",
+    "included-source-format-4",
+    "included-source-format-5",
+    "included-source-format-6",
+    "included-source-format-7",
+    "included-source-format-8",
+    "included-source-format-9",
+    "included-source-format-10",
+    "included-source-format-11",
+    "included-source-format-12",
+    "included-source-format-13",
+    "clippy-all-targets",
+    "main-parse-int-guard"
+  ],
+  "acceptanceContracts": {
+    "manifestAndHarness": "PASS: unchanged manifest validation and all seven harness self-tests",
+    "acceptanceSuites": "PASS: actual compiled parallel-index, fused-dependency, one-team, raw-block and hash-fastpath targets, plus independent hash/dependency oracles",
+    "fullVerifierCLI": "PENDING: its Cargo invocations wait behind the separate full rebuild"
+  },
+  "fullPreflight": {
+    "status": "PENDING",
+    "session": 64217,
+    "log": "work/branch-integration-logs/full-preflight-final.log",
+    "configuration": "Rust1.90 Windows MSVC, offline, test opt-level1, debug assertions and overflow checks enabled, one compiler worker and outer test thread",
+    "meaning": "This local integration commit is not a clean full-preflight, release-candidate or publication claim. The cold broad build continues separately."
+  },
+  "additionalChecks": {
+    "runtimeSmokes": [
+      {
+        "check": "all-schedules-serial-smoke",
+        "returncode": 0,
+        "command": [
+          "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\tradelayer-block-ingest-bench.exe",
+          "100",
+          "1",
+          "0",
+          "2"
+        ],
+        "log": "..\\branch-integration-logs\\all-schedules-serial-smoke.log",
+        "completedUtc": "2026-10-30T21:28:31.742735+00:00"
+      },
+      {
+        "check": "all-schedules-parallel-smoke",
+        "returncode": 0,
+        "command": [
+          "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\tradelayer-block-ingest-bench.exe",
+          "1000",
+          "4",
+          "50",
+          "2"
+        ],
+        "log": "..\\branch-integration-logs\\all-schedules-parallel-smoke.log",
+        "completedUtc": "2026-10-30T21:28:33.447013+00:00"
+      },
+      {
+        "check": "all-schedules-large-smoke",
+        "returncode": 0,
+        "command": [
+          "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\tradelayer-block-ingest-bench.exe",
+          "10000",
+          "8",
+          "95",
+          "2"
+        ],
+        "log": "..\\branch-integration-logs\\all-schedules-large-smoke.log",
+        "completedUtc": "2026-10-30T21:28:44.371966+00:00"
+      },
+      {
+        "check": "original-scanner-smoke",
+        "returncode": 0,
+        "command": [
+          "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\tradelayer-txindex-bench.exe",
+          "2048",
+          "4"
+        ],
+        "log": "..\\branch-integration-logs\\original-scanner-smoke.log",
+        "completedUtc": "2026-10-30T21:28:45.549688+00:00"
+      },
+      {
+        "check": "historical-block1-vector",
+        "returncode": 0,
+        "command": [
+          "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "scripts/make_stage8d6_mainnet_block1.py",
+          "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-tests\\block1.hex"
+        ],
+        "log": "..\\branch-integration-logs\\historical-block1-vector.log",
+        "completedUtc": "2026-10-30T21:28:45.986798+00:00"
+      },
+      {
+        "check": "historical-block1-reducer-smoke",
+        "returncode": 0,
+        "command": [
+          "C:\\Users\\patri\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "scripts/bench_stage8d6_real_blocks.py",
+          "--binary",
+          "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-target\\debug\\tradelayer-real-block-reduce-bench.exe",
+          "--workers",
+          "2",
+          "--repeats",
+          "2",
+          "--trials",
+          "2",
+          "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\branch-integration-tests\\block1.hex"
+        ],
+        "log": "..\\branch-integration-logs\\historical-block1-reducer-smoke.log",
+        "completedUtc": "2026-10-30T21:28:47.100835+00:00"
+      }
+    ],
+    "benchmarkOutput": "PASS: all21 retained large-benchmark CI assertions; unique metric keys",
+    "rustScannerSQLite": "PASS: real scanner, forged-row rejection, A-B-A reorg and16-block offline benchmark",
+    "fixtureProvenance": "PASS: all666 fixtures match their original indexed Git blobs,162 Windows conversion cases preserve bytes,70 archived previews preserve original Git blobs",
+    "independentPythonNode": "PASS: candidate/provenance/RPC/contract/Litecoin/supply-chain suites and original-source/hash/funding/type789 oracles. Initial PATH/loopback failures resolved without test changes.",
+    "nativeAdapter": "rustc -D warnings PASS; Linux durability execution pending"
+  },
+  "repairs": [
+    "Retained native snapshot validation inside incoming staged atomic ledger helper; added newer native/signed-channel column reads",
+    "Explicit Litecoin MWEB parser and observation preserve Bitcoin scanner flags/allocation path",
+    "Chronology/inclusion preflight fixes administrator audit error ordering; original assertion retained",
+    "SQLite test producers write LF and explicitly close handles; strict parser retained",
+    "Fixture byte preservation defaults to -text with existing explicit LF rules retained; no golden content changed",
+    "All existing CI steps retained; benchmark supplies their original asserted fields and counterbalanced comparison; independent administrator oracles wired into CI"
+  ],
+  "remainingGates": [
+    "Complete cold full Cargo test run and independent native wallet oracle",
+    "Execute protected contract CLI after the build lock is released",
+    "Lean/Kani and Lean/C++ proof execution",
+    "Linux native candidate directory-sync/crash/recovery suite",
+    "Representative intended-host CPU/peakRSS and vector-insertion measurements",
+    "Node-backed Litecoin replay/deployment validation",
+    "Separate unfinished queued-startup proposal; not covered or promoted by this commit"
+  ],
+  "remoteChanges": "NONE: no push, publication, new PR or branch deletion"
+}

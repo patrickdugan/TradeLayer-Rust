@@ -1,0 +1,20 @@
+[
+  {
+    "branch": "ci/dedupe-rust-workflow-events-20261023",
+    "branchCommit": "beb3285ec5010499c4ec9a1130e26cdaad1a21af",
+    "mainCommitsWithExactPatchText": [
+      "8870609b2db5825b58efc23fc6d7d3a663c1d1db"
+    ],
+    "whitespacePreserved": true,
+    "onlyDiffIndexAndHunkLocationsExcluded": true
+  },
+  {
+    "branch": "ci/prepush-preflight-20261023",
+    "branchCommit": "7203955f733429e78a94cbba6ecc4fba00470bba",
+    "mainCommitsWithExactPatchText": [
+      "82b2188542d8bb4ef1273b48c9bf13563cc1b6cb"
+    ],
+    "whitespacePreserved": true,
+    "onlyDiffIndexAndHunkLocationsExcluded": true
+  }
+]

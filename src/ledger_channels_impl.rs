@@ -35,8 +35,8 @@ impl ChannelSide {
 struct ChannelState {
     owner_a: Option<AccountId>,
     owner_b: Option<AccountId>,
-    escrow_a: BTreeMap<PropertyId, u128>,
-    escrow_b: BTreeMap<PropertyId, u128>,
+    escrow_a: OrderedColumns<PropertyId>,
+    escrow_b: OrderedColumns<PropertyId>,
 }
 impl ChannelState {
     fn owner(&self, side: ChannelSide) -> Option<&AccountId> {
@@ -45,13 +45,13 @@ impl ChannelState {
             ChannelSide::B => self.owner_b.as_ref(),
         }
     }
-    fn escrow(&self, side: ChannelSide) -> &BTreeMap<PropertyId, u128> {
+    fn escrow(&self, side: ChannelSide) -> &OrderedColumns<PropertyId> {
         match side {
             ChannelSide::A => &self.escrow_a,
             ChannelSide::B => &self.escrow_b,
         }
     }
-    fn escrow_mut(&mut self, side: ChannelSide) -> &mut BTreeMap<PropertyId, u128> {
+    fn escrow_mut(&mut self, side: ChannelSide) -> &mut OrderedColumns<PropertyId> {
         match side {
             ChannelSide::A => &mut self.escrow_a,
             ChannelSide::B => &mut self.escrow_b,
@@ -61,11 +61,7 @@ impl ChannelState {
         self.escrow(side).get(&id).copied().unwrap_or(0)
     }
     fn put(&mut self, side: ChannelSide, id: PropertyId, atoms: u128) {
-        if atoms == 0 {
-            self.escrow_mut(side).remove(&id);
-        } else {
-            self.escrow_mut(side).insert(id, atoms);
-        }
+        crate::canonical_columns::put_nonzero(self.escrow_mut(side), id, atoms);
     }
     fn claim(
         &mut self,
@@ -163,12 +159,10 @@ impl Ledger {
         }
         let state = self.channels.entry(channel.clone()).or_default();
         state.claim(&channel, side, &from)?;
-        let after = state
-            .atoms(side, id)
-            .checked_add(amount_atoms)
-            .ok_or(LedgerError::ArithmeticOverflow)?;
-        state.put(side, id, after);
-        self.put_balance(id, from, balance - amount_atoms);
+        let (debit_after, credit_after) =
+            checked_move_for_property(id, balance, state.atoms(side, id), amount_atoms)?;
+        state.put(side, id, credit_after);
+        self.put_balance(id, from, debit_after);
         Ok(())
     }
 
@@ -242,15 +236,13 @@ impl Ledger {
         }
         let to = self.channels.entry(to_channel.clone()).or_default();
         to.claim(&to_channel, to_side, &owner)?;
-        let after = to
-            .atoms(to_side, id)
-            .checked_add(amount_atoms)
-            .ok_or(LedgerError::ArithmeticOverflow)?;
-        to.put(to_side, id, after);
+        let (debit_after, credit_after) =
+            checked_move_for_property(id, balance, to.atoms(to_side, id), amount_atoms)?;
+        to.put(to_side, id, credit_after);
         self.channels
             .get_mut(&from_channel)
             .expect("verified channel")
-            .put(from_side, id, balance - amount_atoms);
+            .put(from_side, id, debit_after);
         Ok(())
     }
 
@@ -299,12 +291,9 @@ impl Ledger {
         if !self.properties.contains_key(&id) {
             return Err(LedgerError::BalanceWithoutProperty(id));
         }
-        let sum = sums
-            .get(&id)
-            .copied()
-            .unwrap_or(0)
-            .checked_add(atoms)
-            .ok_or(LedgerError::ArithmeticOverflow)?;
+        let sum =
+            crate::checked_amounts::checked_supply_add(sums.get(&id).copied().unwrap_or(0), atoms)
+                .ok_or(LedgerError::ArithmeticOverflow)?;
         sums.insert(id, sum);
         Ok(())
     }

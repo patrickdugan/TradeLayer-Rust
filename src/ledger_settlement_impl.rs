@@ -270,19 +270,21 @@ impl Ledger {
             recomputed.net_atoms,
         )?;
         let receiving_side = recomputed.payer_side.other();
-        let receiver = state
-            .atoms(receiving_side, receipt.property)
-            .checked_add(recomputed.net_atoms)
-            .ok_or(LedgerError::ArithmeticOverflow)?;
-        let payer = state.atoms(recomputed.payer_side, receipt.property) - recomputed.net_atoms;
+        let (payer, receiver) = checked_move_for_property(
+            receipt.property,
+            state.atoms(recomputed.payer_side, receipt.property),
+            state.atoms(receiving_side, receipt.property),
+            recomputed.net_atoms,
+        )?;
         state.put(receiving_side, receipt.property, receiver);
         state.put(recomputed.payer_side, receipt.property, payer);
         for (claim_txid, _) in selected {
-            let claim = self
-                .pending_net_settlements
-                .remove(&claim_txid)
-                .expect("selected pending settlement");
-            self.swept_net_settlements.insert(claim_txid, claim);
+            crate::journal_move::move_pending_once(
+                &mut self.pending_net_settlements,
+                &mut self.swept_net_settlements,
+                claim_txid,
+            )
+            .map_err(|_| LedgerError::MalformedSettlementJournal)?;
         }
         self.king_settlements.insert(txid, receipt);
         Ok(())

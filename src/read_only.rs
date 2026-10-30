@@ -254,6 +254,51 @@ pub(crate) fn prepare_transaction_prefix(raw: &[u8]) -> Result<TransactionLayout
     })
 }
 
+/// Inspect one actual output directly from a complete serialized Bitcoin
+/// transaction; return its borrowed script and amount in satoshis.
+///
+/// Strict prefix parsing has already walked the entire transaction, including
+/// SegWit witness stacks. We separately walk the canonical vin/vout region,
+/// checking every output amount and total against Bitcoin MoneyRange. This
+/// provides byte-origin consistency for a *claimed* prevout, not UTXO existence,
+/// coinbase history, funding inclusion, signature validity or spend authority.
+pub fn select_unverified_transaction_output(
+    raw: &[u8],
+    requested_vout: u32,
+) -> Result<Option<(u64, &[u8])>, ScanError> {
+    let layout = prepare_transaction_prefix(raw)?;
+    if raw.len() != layout.total_bytes {
+        return Err(ScanError::TrailingBytes);
+    }
+    let mut reader = Cursor::new(raw);
+    reader.offset = layout.first_outpoint_start;
+    for _ in 0..layout.input_count {
+        reader.read(36)?;
+        reader.variable_bytes()?;
+        reader.read(4)?;
+    }
+    let count = reader.limited_count()?;
+    if count != layout.output_count as usize {
+        return Err(ScanError::Invalid(
+            "output count differs from layout".into(),
+        ));
+    }
+    let mut amount_total = 0u64;
+    let mut selected = None;
+    for index in 0..count {
+        let amount = u64::from_le_bytes(reader.read(8)?.try_into().expect("8-byte amount"));
+        amount_total = amount_total
+            .checked_add(amount)
+            .filter(|total| *total <= 21_000_000 * 100_000_000)
+            .ok_or_else(|| ScanError::Invalid("Bitcoin output MoneyRange exceeded".into()))?;
+        let script = reader.variable_bytes()?;
+        if index == requested_vout as usize {
+            selected = Some((amount, script));
+        }
+    }
+    Ok(selected)
+}
+
 /// Hash in display order, the reverse of SHA256d digest bytes.
 pub fn id_hex(digest: &[u8; 32]) -> String {
     digest
@@ -324,6 +369,55 @@ pub struct TransactionObservation {
     pub output_count: u32,
     pub op_return_count: u32,
     pub carriers: Vec<Carrier>,
+}
+
+/// Litecoin MWEB extension data carried under serialization flag 0x08
+/// (Litecoin Core src/primitives/transaction.h at ec1b6489).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MwebData {
+    None,
+    /// Null MWEB::Tx (a single 0x00 byte): the block's integrating HogEx.
+    HogEx,
+    /// Non-null MWEB payload, kept opaque; only canonical fields are hashed.
+    Opaque,
+}
+
+/// A spent outpoint; txid in raw hashing order.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct OutPoint {
+    pub txid: [u8; 32],
+    pub vout: u32,
+}
+
+impl OutPoint {
+    /// The null outpoint that marks a coinbase input.
+    pub fn is_coinbase(&self) -> bool {
+        self.txid == [0; 32] && self.vout == u32::MAX
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TxOutput {
+    pub value: u64,
+    pub script: Vec<u8>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LitecoinTransactionObservation {
+    /// Raw digest bytes in hashing order (not explorer display order).
+    /// Excludes witness and MWEB data, as Litecoin Core's GetHash does.
+    pub txid: [u8; 32],
+    /// Excludes MWEB data, as Litecoin Core's GetWitnessHash does.
+    pub wtxid: [u8; 32],
+    pub has_witness: bool,
+    pub mweb: MwebData,
+    pub input_count: u32,
+    pub output_count: u32,
+    pub op_return_count: u32,
+    pub carriers: Vec<Carrier>,
+    /// Canonical inputs and outputs exactly as serialized.
+    pub inputs: Vec<OutPoint>,
+    pub outputs: Vec<TxOutput>,
 }
 
 /// Strictly extract one push following OP_RETURN. Multiple pushes, trailing
@@ -476,6 +570,141 @@ pub fn inspect_transaction(raw: &[u8]) -> Result<TransactionObservation, ScanErr
     inspect_prepared_transaction(raw, &layout)
 }
 
+/// Explicit Litecoin serialization including opaque MWEB; syntax only, never consensus.
+pub fn inspect_litecoin_transaction(
+    raw: &[u8],
+) -> Result<LitecoinTransactionObservation, ScanError> {
+    if raw.len() > MAX_RAW_TRANSACTION {
+        return Err(ScanError::TooLong);
+    }
+    let mut reader = Cursor::new(raw);
+    let version = reader.read(4)?;
+    let extended = raw.get(4).copied() == Some(0);
+    let mut flags = 0u8;
+    if extended {
+        let _marker = reader.byte()?;
+        flags = reader.byte()?;
+        // Only SegWit (0x01) and Litecoin MWEB (0x08) are defined.
+        if flags == 0 || flags & !0x09 != 0 {
+            return Err(ScanError::Invalid("unsupported serialization flags".into()));
+        }
+    }
+    let has_witness = flags & 0x01 != 0;
+    let has_mweb = flags & 0x08 != 0;
+    let inputs_start = reader.offset;
+    let inputs = reader.limited_count()?;
+    let mut outpoints = Vec::with_capacity(inputs);
+    for _ in 0..inputs {
+        let outpoint = reader.read(36)?;
+        let mut txid = [0u8; 32];
+        txid.copy_from_slice(&outpoint[..32]);
+        let mut vout = [0u8; 4];
+        vout.copy_from_slice(&outpoint[32..]);
+        outpoints.push(OutPoint {
+            txid,
+            vout: u32::from_le_bytes(vout),
+        });
+        reader.variable_bytes()?; // scriptSig
+        reader.read(4)?; // sequence
+    }
+    let outputs = reader.limited_count()?;
+    let mut carriers = Vec::new();
+    let mut tx_outputs = Vec::with_capacity(outputs);
+    let mut op_return_count = 0u32;
+    for n in 0..outputs {
+        let mut value = [0u8; 8];
+        value.copy_from_slice(reader.read(8)?);
+        let script = reader.variable_bytes()?;
+        tx_outputs.push(TxOutput {
+            value: u64::from_le_bytes(value),
+            script: script.to_vec(),
+        });
+        if script.first() == Some(&0x6a) {
+            op_return_count += 1;
+            if let Some(payload) = one_op_return_push(script) {
+                if let Some(carrier) = classify(n as u32, payload) {
+                    carriers.push(carrier);
+                }
+            }
+        }
+    }
+    let outputs_end = reader.offset;
+    if has_witness {
+        let mut nonempty_witness = false;
+        for _ in 0..inputs {
+            let n = reader.varint()?;
+            if n > MAX_IO_COUNT {
+                return Err(ScanError::TooLong);
+            }
+            nonempty_witness |= n != 0;
+            for _ in 0..n {
+                reader.variable_bytes()?;
+            }
+        }
+        if !nonempty_witness {
+            return Err(ScanError::Invalid(
+                "superfluous SegWit witness marker".into(),
+            ));
+        }
+    }
+    let witness_end = reader.offset;
+    let mut mweb = MwebData::None;
+    if has_mweb {
+        let remaining = raw
+            .len()
+            .checked_sub(reader.offset + 4)
+            .filter(|n| *n > 0)
+            .ok_or_else(|| ScanError::Invalid("truncated MWEB data".into()))?;
+        let blob = reader.read(remaining)?;
+        mweb = match blob[0] {
+            0 if blob.len() == 1 => MwebData::HogEx,
+            1 => MwebData::Opaque,
+            _ => {
+                return Err(ScanError::Invalid(
+                    "invalid MWEB optional-pointer tag".into(),
+                ))
+            }
+        };
+    }
+    let locktime = reader.read(4)?;
+    if reader.offset != raw.len() {
+        return Err(ScanError::TrailingBytes);
+    }
+    let txid = if extended {
+        let mut stripped = Vec::with_capacity(raw.len());
+        stripped.extend_from_slice(version);
+        stripped.extend_from_slice(&raw[inputs_start..outputs_end]);
+        stripped.extend_from_slice(locktime);
+        double_sha256(&stripped)
+    } else {
+        double_sha256(raw)
+    };
+    let wtxid = if !has_witness {
+        txid
+    } else if has_mweb {
+        let mut without_mweb = Vec::with_capacity(raw.len());
+        without_mweb.extend_from_slice(version);
+        without_mweb.extend_from_slice(&[0, 1]);
+        without_mweb.extend_from_slice(&raw[inputs_start..witness_end]);
+        without_mweb.extend_from_slice(locktime);
+        double_sha256(&without_mweb)
+    } else {
+        double_sha256(raw)
+    };
+    Ok(LitecoinTransactionObservation {
+        txid,
+        wtxid,
+        has_witness,
+        mweb,
+        input_count: u32::try_from(inputs).map_err(|_| ScanError::TooLong)?,
+        output_count: u32::try_from(outputs).map_err(|_| ScanError::TooLong)?,
+        op_return_count,
+        carriers,
+        inputs: outpoints,
+        outputs: tx_outputs,
+    })
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ReplayItem {
     pub label: String,
@@ -610,6 +839,71 @@ mod tests {
         assert!(decode_hex("abc").is_err());
         assert!(decode_hex("0z").is_err());
         assert!(decode_hex(&"ff".repeat(MAX_RAW_TRANSACTION + 1)).is_err());
+    }
+
+    #[test]
+    fn litecoin_mweb_flags_hash_only_canonical_fields() {
+        // Synthetic: version 2, one input, outputs OP_RETURN "tl0" and P2WPKH.
+        let body = decode_hex(concat!(
+            "01",
+            "0000000000000000000000000000000000000000000000000000000000000001",
+            "00000000",
+            "00",
+            "ffffffff",
+            "02",
+            "0000000000000000",
+            "05",
+            "6a03746c30",
+            "2202000000000000",
+            "16",
+            "00141111111111111111111111111111111111111111"
+        ))
+        .unwrap();
+        let version = [2u8, 0, 0, 0];
+        let locktime = [0u8; 4];
+        let legacy = [&version[..], &body, &locktime].concat();
+        let legacy_txid = double_sha256(&legacy);
+        let witness = [1u8, 1, 7];
+        let cases: [(u8, &[u8], &[u8], MwebData); 3] = [
+            (0x08, &[], &[0], MwebData::HogEx),
+            (0x09, &witness, &[0], MwebData::HogEx),
+            (0x08, &[], &[1, 0xee, 0xee, 0xee], MwebData::Opaque),
+        ];
+        for (flags, wit, blob, kind) in cases {
+            let raw = [&version[..], &[0, flags], &body, wit, blob, &locktime].concat();
+            assert!(
+                inspect_transaction(&raw).is_err(),
+                "Bitcoin must reject MWEB flags"
+            );
+            let seen = inspect_litecoin_transaction(&raw).unwrap();
+            assert_eq!(seen.txid, legacy_txid);
+            assert_eq!(seen.mweb, kind);
+            assert_eq!(seen.carriers.len(), 1);
+            if flags & 1 == 0 {
+                assert_eq!(seen.wtxid, legacy_txid);
+            } else {
+                let segwit_only = [&version[..], &[0, 1], &body, wit, &locktime].concat();
+                assert_eq!(seen.wtxid, double_sha256(&segwit_only));
+            }
+        }
+        for (flags, blob) in [(0x08u8, &[2u8][..]), (0x08, &[]), (0x02, &[]), (0x18, &[0])] {
+            let raw = [&version[..], &[0, flags], &body, blob, &locktime].concat();
+            assert!(
+                inspect_litecoin_transaction(&raw).is_err(),
+                "flags {flags:#x}"
+            );
+        }
+        // MWEB-only (no canonical inputs/outputs) has no canonical txid preimage.
+        let mweb_only = [&version[..], &[0, 0x08, 0, 0, 1, 0xee], &locktime].concat();
+        assert!(inspect_litecoin_transaction(&mweb_only).is_err());
+        // An item may be empty while its witness stack is nonempty.
+        let empty_item_witness = [&version[..], &[0, 1], &body, &[1, 0], &locktime].concat();
+        assert_eq!(
+            inspect_litecoin_transaction(&empty_item_witness)
+                .unwrap()
+                .txid,
+            inspect_transaction(&empty_item_witness).unwrap().txid,
+        );
     }
 
     #[test]

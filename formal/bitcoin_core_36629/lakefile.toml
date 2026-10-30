@@ -1,0 +1,47 @@
+name = "BitcoinCore36629"
+defaultTargets = ["ActiveHashGuard", "ForkAwareMerge", "ReorgSchedule", "MergeSnapshot", "DBKeyOrder", "UniversalKeyOrder", "FixedDigits", "IndexModel", "OrderedEncoding", "OffsetCodec", "HistoryExecution", "SpenderExecution", "BlockLayout", "RPCGuard", "MergeHistory"]
+
+[[lean_lib]]
+name = "IndexModel"
+
+[[lean_lib]]
+name = "OrderedEncoding"
+
+[[lean_lib]]
+name = "OffsetCodec"
+
+[[lean_lib]]
+name = "HistoryExecution"
+
+[[lean_lib]]
+name = "SpenderExecution"
+
+[[lean_lib]]
+name = "BlockLayout"
+
+[[lean_lib]]
+name = "RPCGuard"
+
+[[lean_lib]]
+name = "MergeHistory"
+
+[[lean_lib]]
+name = "FixedDigits"
+
+[[lean_lib]]
+name = "UniversalKeyOrder"
+
+[[lean_lib]]
+name = "DBKeyOrder"
+
+[[lean_lib]]
+name = "MergeSnapshot"
+
+[[lean_lib]]
+name = "ReorgSchedule"
+
+[[lean_lib]]
+name = "ForkAwareMerge"
+
+[[lean_lib]]
+name = "ActiveHashGuard"

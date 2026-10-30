@@ -482,14 +482,42 @@ jobs:
         run: python3 scripts/audit_tx_parser_review.py
       - name: Stage 8D1b one scoped TX worker team and serial-equivalent 10k TX proof
         run: cargo test --frozen --test stage8d_one_team
+      - name: Stage 8D3 readonly dependency-wave barriers, cancellation and permanent denial
+        run: cargo test --frozen --test stage8d_wave_precheck
+      - name: Stage 8D4 candidate parent UTXO coverage, stale preindex and immutable denial
+        run: cargo test --frozen --test stage8d_parent_utxo_snapshot
+      - name: Stage 8D4 independent Python candidate witness SHA256d encoding oracle
+        run: python3 scripts/audit_stage8d4_candidate_fingerprint.py
+      - name: Stage 8D5 raw funding TXID and claimed prevout byte-equality denials
+        run: cargo test --frozen --test stage8d_raw_funding_evidence
+      - name: Stage 8D5 independent Python raw funding TXID and 3-vout reference
+        run: python3 scripts/audit_stage8d5_raw_funding.py
+      - name: Stage 8D6 randomized duplicate-TXID index parity and historical block-1 fixture
+        run: cargo test --frozen --test stage8d6_hashmap_promotion
+      - name: Stage 8D5 source-ordered hash-index and in-place Bitcoin Merkle parity
+        run: cargo test --frozen --test stage8d5_reduction_merkle
+      - name: Stage 8D4 bounded persistent TX workers, byte-weighted claims, serial parity
+        run: cargo test --frozen --test stage8d_pooled_weighted
+      - name: Stage 8D2 source-ordered static hash-work partition parity and denial
+        run: cargo test --frozen --test stage8d_weighted_shards
       - name: Legacy txIndex.js exact pinned source Node VM with fake RPC/DB and three-argument decoder
         run: node scripts/audit_legacy_txindex_source.cjs
       - name: Legacy txIndex.js Rust source marker offsets, vout-loss and permanent denial
         run: cargo test --frozen --test legacy_txindex_audit
       - name: Offline runtime multicore TXID source-order benchmark smoke (no performance threshold)
         run: cargo run --frozen --bin tradelayer-index-bench -- 1500 512 4 256 2
+      - name: Stage 26 txIndex exact pinned 506-line JS source VM, mock-only ingress
+        run: node scripts/audit_legacy_txindex_source.cjs
+      - name: Stage 26 bounded 10k-TX std-thread parallel SHA256d index determinism
+        run: cargo test --frozen --test txindex_parallel
+      - name: Stage 26 pinned source marker/vout/3-argument indexing diagnostics
+        run: cargo test --frozen --test legacy_txindex_audit
       - name: Stage 25F source-only exact rational bankruptcy threshold
         run: cargo test --frozen --test bankruptcy_source_audit
+      - name: Conditional type7/8/9 administrator original-source oracle
+        run: node scripts/audit_type789_source_admin.cjs
+      - name: Independent type7/8/9 relative Merkle vectors
+        run: python3 scripts/audit_type789_merkle_vectors.py
       - name: Verify Stage 25A isolated margin and funding atomicity
         run: cargo test --frozen --test clearing_sandbox
       - name: Verify Stage 25B single-ledger spot and clearing invariants
@@ -498,6 +526,8 @@ jobs:
         run: cargo test --frozen --test clearing_collateral_policy
       - name: Reject orphaned clearing replay history in legacy spot checkpoints
         run: cargo test --frozen --test clearing_checkpoint_fence
+      - name: Native wallet-key Ord and binary-search cross-language oracle
+        run: python3 scripts/audit_native_wallet_order.py
       - name: Legacy withdrawal amount mismatch audit
         run: node scripts/audit_legacy_withdrawal_codec.cjs
       - name: Legacy wire vector audit
@@ -512,6 +542,25 @@ jobs:
         run: python3 -m unittest discover -s tests -p test_collect_litecoin_rpc.py -v
       - name: Litecoin first-input source trace and reorg tests (fake RPC only)
         run: python3 -m unittest discover -s tests -p test_litecoin_source_trace.py -v
+      - name: Litecoin historical lead resolution and loopback transport tests (synthetic)
+        run: python3 -m unittest discover -s tests -p test_litecoin_resolve_leads.py -v
+      - name: Litecoin offline evidence verifier tests (synthetic trace + pinned genesis headers)
+        run: python3 -m unittest discover -s tests -p test_verify_litecoin_evidence.py -v
+      - name: Litecoin replay inputs (validateaddress recorder, SYNTHETIC chain builder)
+        run: python3 -m unittest discover -s tests -p test_litecoin_replay_inputs.py -v
+      - name: Legacy JS replay harness unit tests (no legacy dependencies; synthetic records)
+        run: node tests/test_legacy_js_replay.cjs
+      - name: Stage 23C Rust authentication of a SYNTHETIC source trace matches node-reported addresses
+        run: |
+          tmp_dir="$(mktemp -d)"
+          trap 'rm -rf "$tmp_dir"' EXIT
+          python3 tests/synthetic_ltc_chain.py "$tmp_dir"
+          python3 scripts/export_ltc_evidence.py --manifest "$tmp_dir/manifest.json" \
+            --corpus "$tmp_dir/corpus.tsv" --output "$tmp_dir/export.tsv"
+          cargo run --locked --bin tradelayer-ltc-authenticate -- "$tmp_dir/export.tsv" > "$tmp_dir/rust-auth.tsv"
+          python3 scripts/export_ltc_evidence.py --compare "$tmp_dir/rust-auth.tsv" \
+            --manifest "$tmp_dir/manifest.json" > "$tmp_dir/compare.json"
+          python3 -c "import json,sys; c=json.load(open(sys.argv[1]))['counts']; assert c == {'MATCH': 3}, c" "$tmp_dir/compare.json"
       - name: Legacy comparison integration tests (fake decoder only)
         run: node tests/test_compare_legacy.cjs
       - name: Rust diagnostic export smoke test
@@ -570,6 +619,24 @@ jobs:
           grep -Fxq 'root_namespaces=SEPARATE' "$tmp_dir/report"
           grep -Fxq 'receipts=26' "$tmp_dir/report"
 
+  # Independent suite binds prose intent to existing Rust/Python acceptance
+  # tests. This job must complete before the existing aggregator succeeds.
+  executable_contract:
+    runs-on: ubuntu-24.04
+    env:
+      CARGO_NET_OFFLINE: "true"
+    steps:
+      - name: Checkout candidate revision
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Install pinned Rust toolchain
+        run: rustup toolchain install 1.90.0 --profile minimal --component rustfmt --component clippy
+      - name: Adversarial executable-contract harness self-tests
+        run: python3 -m unittest discover -s tests -p test_executable_contract.py -v
+      - name: Execute protected TX-index acceptance contract
+        run: python3 scripts/verify_executable_contract.py
+
   # The release build is independent of source-format/semantic tests and
   # consumes ~42s in the prior serial 84s workflow. Run it on another
   # isolated frozen runner; NEVER replace it with a debug build.
@@ -603,7 +670,7 @@ jobs:
           grep -Fxq 'full_block_consensus=UNVERIFIED' /tmp/txindex-segwit-perf.log
       - name: Stage 8C release 4000-TX one-fetch zero-copy versus owned-Vec benchmark
         run: |
-          target/release/tradelayer-block-ingest-bench 4000 4 50 3 > /tmp/txindex-bulk-perf.log
+          target/release/tradelayer-block-ingest-bench 4000 4 50 4 > /tmp/txindex-bulk-perf.log
           cat /tmp/txindex-bulk-perf.log
           grep -Fxq 'ordered_equivalence=PASS' /tmp/txindex-bulk-perf.log
           grep -Fxq 'new_raw_tx_byte_copies=0' /tmp/txindex-bulk-perf.log
@@ -612,7 +679,7 @@ jobs:
           grep -Fxq 'full_block_consensus=UNVERIFIED' /tmp/txindex-bulk-perf.log
       - name: Stage 8D fused benchmark at 1000 TX single worker, 0 percent SegWit
         run: |
-          target/release/tradelayer-block-ingest-bench 1000 1 0 2 > /tmp/txindex-8d-small.log
+          target/release/tradelayer-block-ingest-bench 1000 1 0 4 > /tmp/txindex-8d-small.log
           cat /tmp/txindex-8d-small.log
           grep -Fxq 'ordered_equivalence=PASS' /tmp/txindex-8d-small.log
           grep -q '^full_owned_block_pipeline_median_ms=' /tmp/txindex-8d-small.log
@@ -620,27 +687,62 @@ jobs:
           grep -Fxq 'full_block_consensus=UNVERIFIED' /tmp/txindex-8d-small.log
       - name: Stage 8D fused benchmark at 10000 TX eight workers, 95 percent SegWit
         run: |
-          target/release/tradelayer-block-ingest-bench 10000 8 95 2 > /tmp/txindex-8d-large.log
+          target/release/tradelayer-block-ingest-bench 10000 8 95 4 > /tmp/txindex-8d-large.log
           cat /tmp/txindex-8d-large.log
           grep -Fxq 'ordered_equivalence=PASS' /tmp/txindex-8d-large.log
           grep -q '^full_pipeline_speed_ratio=' /tmp/txindex-8d-large.log
           grep -Fxq 'full_block_consensus=UNVERIFIED' /tmp/txindex-8d-large.log
           grep -q '^one_team_prepared_only_median_ms=' /tmp/txindex-8d-large.log
           grep -q '^one_team_vs_windowed_ratio=' /tmp/txindex-8d-large.log
+          grep -q '^one_team_tree_reference_prepared_only_median_ms=' /tmp/txindex-8d-large.log
+          grep -q '^one_team_hashmap_vs_tree_ratio=' /tmp/txindex-8d-large.log
+          grep -Fxq 'one_team_variant_order=COUNTERBALANCED' /tmp/txindex-8d-large.log
+          grep -q '^one_team_fast_reduce_prepared_only_median_ms=' /tmp/txindex-8d-large.log
+          grep -q '^fast_reduce_vs_one_team_ratio=' /tmp/txindex-8d-large.log
+          grep -Fxq 'one_team_variant_order=COUNTERBALANCED' /tmp/txindex-8d-large.log
+          grep -q '^duplicate_hashmap_vs_btree_ratio=' /tmp/txindex-8d-large.log
+          grep -q '^merkle_inplace_vs_allocating_ratio=' /tmp/txindex-8d-large.log
+          grep -q '^pooled_weighted_prepared_only_median_ms=' /tmp/txindex-8d-large.log
+          grep -q '^pooled_weighted_vs_one_team_ratio=' /tmp/txindex-8d-large.log
+          grep -q '^pooled_barrier_prepared_only_median_ms=' /tmp/txindex-8d-large.log
+          grep -q '^pooled_barrier_vs_one_team_ratio=' /tmp/txindex-8d-large.log
+          grep -Fxq 'pooled_weighted_window_result_cap=512' /tmp/txindex-8d-large.log
+          grep -q '^weighted_shards_prepared_only_median_ms=' /tmp/txindex-8d-large.log
+          grep -q '^weighted_shards_vs_one_team_ratio=' /tmp/txindex-8d-large.log
           grep -Fxq 'one_team_extra_result_slots=10000' /tmp/txindex-8d-large.log
+      - name: Stage 8D6 published Bitcoin mainnet block-1 raw hex and separate-process RSS smoke
+        run: |
+          python3 scripts/make_stage8d6_mainnet_block1.py /tmp/stage8d6-block1.hex > /tmp/stage8d6-vector.log
+          grep -Fxq 'mainnet_block1_merkle=LOCAL_CHECK_ONLY' /tmp/stage8d6-vector.log
+          target/release/tradelayer-real-block-reduce-bench /tmp/stage8d6-block1.hex 2 3 tree > /tmp/stage8d6-tree.log
+          target/release/tradelayer-real-block-reduce-bench /tmp/stage8d6-block1.hex 2 3 hash > /tmp/stage8d6-hash.log
+          grep -Fxq 'transaction_count=1' /tmp/stage8d6-tree.log
+          grep -Fxq 'transaction_count=1' /tmp/stage8d6-hash.log
+          grep -Fxq 'full_bitcoin_consensus=UNVERIFIED' /tmp/stage8d6-hash.log
+          grep -q '^process_peak_rss_kib=' /tmp/stage8d6-hash.log
+          python3 scripts/bench_stage8d6_real_blocks.py --workers 2 --repeats 2 --trials 2 /tmp/stage8d6-block1.hex > /tmp/stage8d6-rss.jsonl
+          python3 -c 'import json; row=json.load(open("/tmp/stage8d6-rss.jsonl")); assert row["transaction_count"] == 1; assert row["source_trust"] == "LOCAL_MERKLE_ONLY"'
+      - name: Stage 26 synthetic TXID CPU throughput benchmark, no speedup assertion
+        run: |
+          target/release/tradelayer-txindex-bench 2048 4 > /tmp/tradelayer-txindex-bench.txt
+          cat /tmp/tradelayer-txindex-bench.txt
+          grep -Fxq 'consensus_admission=UNVERIFIED' /tmp/tradelayer-txindex-bench.txt
+          grep -Fxq 'state_application=NOT_PERFORMED' /tmp/tradelayer-txindex-bench.txt
 
   # Preserve the preexisting required "check" job name, but make it an
   # explicit AND over both independent jobs. A test or release failure,
   # cancellation, skipped check or superseded run MUST block promotion.
   check:
-    needs: [tests, release]
+    needs: [tests, release, executable_contract]
     if: ${{ always() }}
     runs-on: ubuntu-24.04
     steps:
-      - name: Enforce full frozen tests AND release build success
+      - name: Enforce tests, release and executable contract success
         env:
           TESTS_RESULT: ${{ needs.tests.result }}
           RELEASE_RESULT: ${{ needs.release.result }}
+          CONTRACT_RESULT: ${{ needs.executable_contract.result }}
         run: |
           test "$TESTS_RESULT" = success
           test "$RELEASE_RESULT" = success
+          test "$CONTRACT_RESULT" = success

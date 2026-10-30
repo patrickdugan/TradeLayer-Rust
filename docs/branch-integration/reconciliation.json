@@ -1,0 +1,2151 @@
+{
+  "base": "02a736e593ff453385993041fa561804ce6071cf",
+  "branches": [
+    {
+      "branch": "agent/executable-contract-txindex-v1-20261026",
+      "tip": "a30888a1516355e2ea5554b90dd5eda2e02c813a",
+      "resolution": "integrated",
+      "evidence": "original tip is an ancestor of the integration tree"
+    },
+    {
+      "branch": "audit/stage8d-readonly-wave-probes",
+      "tip": "1dc7f76538c2b76004aa1207c14a75d09dbdf35c",
+      "resolution": "integrated",
+      "evidence": "original tip is an ancestor of the integration tree"
+    },
+    {
+      "branch": "audit/stage8d4-parent-utxo-snapshot-coverage",
+      "tip": "ab42b6c42075b70bd2f6cf215843a3b2747d6312",
+      "resolution": "integrated",
+      "evidence": "original tip is an ancestor of the integration tree"
+    },
+    {
+      "branch": "audit/stage8d5-raw-funding-evidence",
+      "tip": "fe50d0cd71bfd99ff38b494a30e7b3224e0580c2",
+      "resolution": "integrated",
+      "evidence": "original tip is an ancestor of the integration tree"
+    },
+    {
+      "branch": "bench/stage8d-bitcoin-core-rpc-ingest",
+      "tip": "4942bd0da53610cfb0ce97261ff4ba9560fea6f8",
+      "resolution": "integrated",
+      "evidence": "original tip is an ancestor of the integration tree"
+    },
+    {
+      "branch": "ci/activation-formal-proof-preview",
+      "tip": "a5786b3d457f498eeffe2bce9fee39e547599212",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/activation-formal-preview.yml",
+        ".github/workflows/ci.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_activation_formal_merge.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs",
+        "tests/native_prefix_checkpoint.rs",
+        "tests/panic_stage_atomicity.rs"
+      ],
+      "absent": [
+        ".github/workflows/activation-formal-preview.yml",
+        "scripts/preview_activation_formal_merge.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "c122e2499769afcf91ea5ff41e62b9c57e6773c1",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/activation-formal-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/activation-formal-proof-preview/.github/workflows/activation-formal-preview.yml",
+            "gitBlob": "9dc10eb61a85d4f0881b7b033bb388db0a30d64b"
+          },
+          {
+            "originalPath": "scripts/preview_activation_formal_merge.sh",
+            "archivePath": "docs/branch-integration/retired-previews/activation-formal-proof-preview/scripts/preview_activation_formal_merge.sh",
+            "gitBlob": "502aafc415af890e6dea1d960a0d9f1cc3c57afe"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/channel-guard-formal-preview",
+      "tip": "1c7fd64d9e154f359a885691ecdc9b98fa5ecf01",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/channel-guard-formal-preview.yml",
+        ".github/workflows/ci.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_channel_guard_formal_merge.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs",
+        "tests/native_prefix_checkpoint.rs",
+        "tests/panic_stage_atomicity.rs"
+      ],
+      "absent": [
+        ".github/workflows/channel-guard-formal-preview.yml",
+        "scripts/preview_channel_guard_formal_merge.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "ddc97bd43f180d5d038450dc2df77415a26d344a",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/channel-guard-formal-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/channel-guard-formal-preview/.github/workflows/channel-guard-formal-preview.yml",
+            "gitBlob": "71b7f8ccc035ca64085a1c56e7a7c62f2e177b6d"
+          },
+          {
+            "originalPath": "scripts/preview_channel_guard_formal_merge.sh",
+            "archivePath": "docs/branch-integration/retired-previews/channel-guard-formal-preview/scripts/preview_channel_guard_formal_merge.sh",
+            "gitBlob": "80505f8e4e5993f8f3444f61c1d084eeff150fdf"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/clearlist-formal-proof-preview",
+      "tip": "4dd93b4115b2844899b0b08397df1bb950922fa1",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/clearlist-formal-preview.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_clearlist_formal_merge.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs",
+        "tests/native_prefix_checkpoint.rs",
+        "tests/panic_stage_atomicity.rs"
+      ],
+      "absent": [
+        ".github/workflows/clearlist-formal-preview.yml",
+        "scripts/preview_clearlist_formal_merge.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "46e9f68ed2e5da7577968e8972a94aa6849d4eed",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/clearlist-formal-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/clearlist-formal-proof-preview/.github/workflows/clearlist-formal-preview.yml",
+            "gitBlob": "406966ec32239151fda1e4dfb35bde7fbb291109"
+          },
+          {
+            "originalPath": "scripts/preview_clearlist_formal_merge.sh",
+            "archivePath": "docs/branch-integration/retired-previews/clearlist-formal-proof-preview/scripts/preview_clearlist_formal_merge.sh",
+            "gitBlob": "299ddf0e0260ed02823060ed5118978d45c7c1dd"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/formal-main-merge-preview-stage16",
+      "tip": "79737c103baba96b5939dc9b80eb2c71d7ab5eb6",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/formal-merge-preview.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        "Cargo.toml",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_formal_main_merge.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs"
+      ],
+      "absent": [
+        ".github/workflows/formal-merge-preview.yml",
+        "scripts/preview_formal_main_merge.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "b6467d893692f58687445488a9a3a0fa0034cee9",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/formal-merge-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/formal-main-merge-preview-stage16/.github/workflows/formal-merge-preview.yml",
+            "gitBlob": "e7d9a029a7ef495e62c99273aaba7bd401735384"
+          },
+          {
+            "originalPath": "scripts/preview_formal_main_merge.sh",
+            "archivePath": "docs/branch-integration/retired-previews/formal-main-merge-preview-stage16/scripts/preview_formal_main_merge.sh",
+            "gitBlob": "39f147089fe36af4fa30f5e01e12b25cc9ba71c7"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/formal-rust-run-dedupe-20261023",
+      "tip": "a4ca18d980fec36e9d3bde65f086a282e18e945b",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "ci/formal-rust-run-dedupe-20261023",
+        "tip": "a4ca18d980fec36e9d3bde65f086a282e18e945b",
+        "number": 26,
+        "merged": true,
+        "base": "formal/protocol-safety-lean-v1",
+        "head": "ci/formal-rust-run-dedupe-20261023",
+        "head_sha": "a4ca18d980fec36e9d3bde65f086a282e18e945b",
+        "merge_commit_sha": "9ef7b11f8fe51afe82682e2cfac4e4c5cbb5c09c",
+        "merged_at": "2026-10-23T01:15:16Z"
+      }
+    },
+    {
+      "branch": "ci/lean-deduplicate-20261023",
+      "tip": "9b9f7b7df2b58130a4d4cc3d02fd72de7f001b22",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "ci/lean-deduplicate-20261023",
+        "tip": "9b9f7b7df2b58130a4d4cc3d02fd72de7f001b22",
+        "number": 24,
+        "merged": true,
+        "base": "formal/protocol-safety-lean-v1",
+        "head": "ci/lean-deduplicate-20261023",
+        "head_sha": "9b9f7b7df2b58130a4d4cc3d02fd72de7f001b22",
+        "merge_commit_sha": "46bc72885944550ef83ab442c0a916b3fed3c7a1",
+        "merged_at": "2026-10-23T01:09:27Z"
+      }
+    },
+    {
+      "branch": "ci/stage17-vec-storage-preflight",
+      "tip": "be2625ac49474cd1409018b42f53677fffb331ab",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        ".github/workflows/stage17-candidate.yml",
+        ".stage17/ordered_columns.rs.txt",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_stage17_candidate.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs"
+      ],
+      "absent": [
+        ".github/workflows/stage17-candidate.yml",
+        ".stage17/ordered_columns.rs.txt",
+        "scripts/preview_stage17_candidate.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "75add2f59512cbbc080053cde1d712cbc5761df6",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/stage17-candidate.yml",
+            "archivePath": "docs/branch-integration/retired-previews/stage17-vec-storage-preflight/.github/workflows/stage17-candidate.yml",
+            "gitBlob": "a37c4eea46d1366ab7ed27960568bfd9651d6379"
+          },
+          {
+            "originalPath": ".stage17/ordered_columns.rs.txt",
+            "archivePath": "docs/branch-integration/retired-previews/stage17-vec-storage-preflight/.stage17/ordered_columns.rs.txt",
+            "gitBlob": "8923afd15a2a1c0896c657db58440ee6f41f384b"
+          },
+          {
+            "originalPath": "scripts/preview_stage17_candidate.sh",
+            "archivePath": "docs/branch-integration/retired-previews/stage17-vec-storage-preflight/scripts/preview_stage17_candidate.sh",
+            "gitBlob": "c7f3eb37bc69ca23d2bc8cdc24de025e820bfb72"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/stage18-prefix-checkpoint-preview",
+      "tip": "543e0777aaa208b837257de94adf4ffc0c59855a",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        ".github/workflows/stage18-prefix-preview.yml",
+        ".stage18/native_prefix_checkpoint.rs.txt",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_stage18_prefix.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs"
+      ],
+      "absent": [
+        ".github/workflows/stage18-prefix-preview.yml",
+        ".stage18/native_prefix_checkpoint.rs.txt",
+        "scripts/preview_stage18_prefix.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "161d35d422b4bea40e931d6c4ab5eee3e21e4502",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/stage18-prefix-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/stage18-prefix-checkpoint-preview/.github/workflows/stage18-prefix-preview.yml",
+            "gitBlob": "1dafbc3cf9e690c55f8d71518c21290ccd815912"
+          },
+          {
+            "originalPath": ".stage18/native_prefix_checkpoint.rs.txt",
+            "archivePath": "docs/branch-integration/retired-previews/stage18-prefix-checkpoint-preview/.stage18/native_prefix_checkpoint.rs.txt",
+            "gitBlob": "f3697284af521f11df69c75a4d46b67b0689ecc4"
+          },
+          {
+            "originalPath": "scripts/preview_stage18_prefix.sh",
+            "archivePath": "docs/branch-integration/retired-previews/stage18-prefix-checkpoint-preview/scripts/preview_stage18_prefix.sh",
+            "gitBlob": "f782b520912107c8eb2108d0cddeed9c80d00164"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/stage18-stage25b-merge-preview",
+      "tip": "f57b3d894abf8ff641aabd4164daccd5aba68689",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        ".github/workflows/stage18-stage25b-preview.yml",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_stage18_stage25b_merge.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs",
+        "tests/native_prefix_checkpoint.rs"
+      ],
+      "absent": [
+        ".github/workflows/stage18-stage25b-preview.yml",
+        "scripts/preview_stage18_stage25b_merge.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "464a5a2fdd4bb180779e9b12e4b64a841225f605",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/stage18-stage25b-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/stage18-stage25b-merge-preview/.github/workflows/stage18-stage25b-preview.yml",
+            "gitBlob": "9f6fbb549ad7b2fab3027024aff4c19233682f6e"
+          },
+          {
+            "originalPath": "scripts/preview_stage18_stage25b_merge.sh",
+            "archivePath": "docs/branch-integration/retired-previews/stage18-stage25b-merge-preview/scripts/preview_stage18_stage25b_merge.sh",
+            "gitBlob": "2ec28bf8dce5b2a1960858cb4abfe36eb6359bfd"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/stage18c-panic-rollback-preview",
+      "tip": "a40f1f0edc4dcda3a87329f4b23cc5f57376435b",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        ".github/workflows/stage18c-panic-preview.yml",
+        ".stage18c/panic_stage.rs.txt",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_stage18c_panic.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs",
+        "tests/native_prefix_checkpoint.rs"
+      ],
+      "absent": [
+        ".github/workflows/stage18c-panic-preview.yml",
+        ".stage18c/panic_stage.rs.txt",
+        "scripts/preview_stage18c_panic.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "e9efd78487fb96a22eb237631a33e2c1cae948f9",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/stage18c-panic-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/stage18c-panic-rollback-preview/.github/workflows/stage18c-panic-preview.yml",
+            "gitBlob": "5ccb2028dcdc7525dfc9514c693621c93509d4d9"
+          },
+          {
+            "originalPath": ".stage18c/panic_stage.rs.txt",
+            "archivePath": "docs/branch-integration/retired-previews/stage18c-panic-rollback-preview/.stage18c/panic_stage.rs.txt",
+            "gitBlob": "9cf1cdd8ba5d628c28cd7cfe258ef2f7fb3606fe"
+          },
+          {
+            "originalPath": "scripts/preview_stage18c_panic.sh",
+            "archivePath": "docs/branch-integration/retired-previews/stage18c-panic-rollback-preview/scripts/preview_stage18c_panic.sh",
+            "gitBlob": "8c040620ad3e3164e6f8c1bcafcfbf64aaa7d838"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/stage19-source-lower-bound-preview",
+      "tip": "267fcb59a76302be40b685b9fe7efa2cfc666b85",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        ".github/workflows/stage19-lower-bound-preview.yml",
+        ".stage19/ordered_columns.rs.txt",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_stage19_lower_bound.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs",
+        "tests/native_prefix_checkpoint.rs",
+        "tests/panic_stage_atomicity.rs"
+      ],
+      "absent": [
+        ".github/workflows/stage19-lower-bound-preview.yml",
+        ".stage19/ordered_columns.rs.txt",
+        "scripts/preview_stage19_lower_bound.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "aab10d5be60f01b27c9c733f9d93fc5533130664",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/stage19-lower-bound-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/stage19-source-lower-bound-preview/.github/workflows/stage19-lower-bound-preview.yml",
+            "gitBlob": "89db7b1c8ebc58a5983fc21b048af3310b829fce"
+          },
+          {
+            "originalPath": ".stage19/ordered_columns.rs.txt",
+            "archivePath": "docs/branch-integration/retired-previews/stage19-source-lower-bound-preview/.stage19/ordered_columns.rs.txt",
+            "gitBlob": "e73a6a3140a180a13f75a2d519b45f41aee19655"
+          },
+          {
+            "originalPath": "scripts/preview_stage19_lower_bound.sh",
+            "archivePath": "docs/branch-integration/retired-previews/stage19-source-lower-bound-preview/scripts/preview_stage19_lower_bound.sh",
+            "gitBlob": "8c718e1f43fd293c55d178c26a51c6fdf9bb61d0"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/stage20-symbolic-search-preview",
+      "tip": "85f8fede50ea76f96c53df1b72c896ae6805a1c7",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        ".github/workflows/stage20-kani-preview.yml",
+        ".stage20/ordered_columns_kani.rs.txt",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_stage20_kani.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs",
+        "tests/native_prefix_checkpoint.rs",
+        "tests/panic_stage_atomicity.rs"
+      ],
+      "absent": [
+        ".github/workflows/stage20-kani-preview.yml",
+        ".stage20/ordered_columns_kani.rs.txt",
+        "scripts/preview_stage20_kani.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "e604eaa220ca6c986cc974506d0f8aacda35f70b",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/stage20-kani-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/stage20-symbolic-search-preview/.github/workflows/stage20-kani-preview.yml",
+            "gitBlob": "af064fabb7cd5e0907aff4380c1e9ec606771e88"
+          },
+          {
+            "originalPath": ".stage20/ordered_columns_kani.rs.txt",
+            "archivePath": "docs/branch-integration/retired-previews/stage20-symbolic-search-preview/.stage20/ordered_columns_kani.rs.txt",
+            "gitBlob": "8c3c465c34dbe4492b6c79b5f5667f7f47d8f5a8"
+          },
+          {
+            "originalPath": "scripts/preview_stage20_kani.sh",
+            "archivePath": "docs/branch-integration/retired-previews/stage20-symbolic-search-preview/scripts/preview_stage20_kani.sh",
+            "gitBlob": "247663b4558ab19df786a57b191e44b9742de1bb"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/stage21-stage25c-merge-preview",
+      "tip": "fe3ed9e1ddd17d551619208325f936a49a701748",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        ".github/workflows/stage21-stage25c-preview.yml",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_stage21_stage25c_merge.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs",
+        "tests/native_prefix_checkpoint.rs",
+        "tests/panic_stage_atomicity.rs"
+      ],
+      "absent": [
+        ".github/workflows/stage21-stage25c-preview.yml",
+        "scripts/preview_stage21_stage25c_merge.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "1cee617309af9aa9b2fbcdebc21a21607af4d2c3",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/stage21-stage25c-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/stage21-stage25c-merge-preview/.github/workflows/stage21-stage25c-preview.yml",
+            "gitBlob": "b780418091d8edbf3e8fb2d3c4a64c242b35da35"
+          },
+          {
+            "originalPath": "scripts/preview_stage21_stage25c_merge.sh",
+            "archivePath": "docs/branch-integration/retired-previews/stage21-stage25c-merge-preview/scripts/preview_stage21_stage25c_merge.sh",
+            "gitBlob": "32c92df08f5f5225063a7cdc1301aa41151cef26"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/stage22-combined-native-ord-preview",
+      "tip": "2bfa0b95a207478307c526f07aa415e2f19e63b0",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        ".github/workflows/stage22-combined-preview.yml",
+        ".stage22/combined_native_ordered_columns.rs.txt",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_stage22_combined.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs",
+        "tests/native_prefix_checkpoint.rs",
+        "tests/panic_stage_atomicity.rs"
+      ],
+      "absent": [
+        ".github/workflows/stage22-combined-preview.yml",
+        ".stage22/combined_native_ordered_columns.rs.txt",
+        "scripts/preview_stage22_combined.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "c18e8f11e8800718cdacddf4d93cc1466fc722eb",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/stage22-combined-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-combined-native-ord-preview/.github/workflows/stage22-combined-preview.yml",
+            "gitBlob": "f8bb451f164445b7505d655e05dca0ddc788cb67"
+          },
+          {
+            "originalPath": ".stage22/combined_native_ordered_columns.rs.txt",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-combined-native-ord-preview/.stage22/combined_native_ordered_columns.rs.txt",
+            "gitBlob": "2aab714492655a4b690c23cdbc9537bca2f54f2e"
+          },
+          {
+            "originalPath": "scripts/preview_stage22_combined.sh",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-combined-native-ord-preview/scripts/preview_stage22_combined.sh",
+            "gitBlob": "e0a98f9a7ff73b3fa254baf0b3260401b76ab433"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/stage22-native-ascii-kani-preview",
+      "tip": "12332ebde7af318eb5b496d3b8a433e4171fa0b3",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        ".github/workflows/stage22-native-kani-preview.yml",
+        ".stage22/ordered_columns_native_kani.rs.txt",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_stage22_native_kani.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs",
+        "tests/native_prefix_checkpoint.rs",
+        "tests/panic_stage_atomicity.rs"
+      ],
+      "absent": [
+        ".github/workflows/stage22-native-kani-preview.yml",
+        ".stage22/ordered_columns_native_kani.rs.txt",
+        "scripts/preview_stage22_native_kani.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "e5bd53e8391152069a39d0c11ba748d3e062e1dd",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/stage22-native-kani-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-native-ascii-kani-preview/.github/workflows/stage22-native-kani-preview.yml",
+            "gitBlob": "44180b8fa265ab8ccbdd0ce403012fe318a3fa45"
+          },
+          {
+            "originalPath": ".stage22/ordered_columns_native_kani.rs.txt",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-native-ascii-kani-preview/.stage22/ordered_columns_native_kani.rs.txt",
+            "gitBlob": "ebdd3e2aeeb6d57672164d2841431e84399ebc0e"
+          },
+          {
+            "originalPath": "scripts/preview_stage22_native_kani.sh",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-native-ascii-kani-preview/scripts/preview_stage22_native_kani.sh",
+            "gitBlob": "e27d8cdce9e7dcfc536495885ec089fcf8d9922b"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/stage22-property-precedence-preview",
+      "tip": "851cab5c691b9c824d2bbba9f4c50925ab731060",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        ".github/workflows/stage22-property-preview.yml",
+        ".stage22/property_precedence.rs.txt",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_stage22_property.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs",
+        "tests/native_prefix_checkpoint.rs",
+        "tests/panic_stage_atomicity.rs"
+      ],
+      "absent": [
+        ".github/workflows/stage22-property-preview.yml",
+        ".stage22/property_precedence.rs.txt",
+        "scripts/preview_stage22_property.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "c18e8f11e8800718cdacddf4d93cc1466fc722eb",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/stage22-property-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-property-precedence-preview/.github/workflows/stage22-property-preview.yml",
+            "gitBlob": "4a90473deb61ebc4b7fb72fa6975d4682705242f"
+          },
+          {
+            "originalPath": ".stage22/property_precedence.rs.txt",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-property-precedence-preview/.stage22/property_precedence.rs.txt",
+            "gitBlob": "a6b7a6e5380f4a563c5209fb2878bc683cfaaef3"
+          },
+          {
+            "originalPath": "scripts/preview_stage22_property.sh",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-property-precedence-preview/scripts/preview_stage22_property.sh",
+            "gitBlob": "ef74b106b98152fcc28642372f266912964ffc5c"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/stage22-stage25e2b-merge-preview",
+      "tip": "77603c21ebea367563bc89da3c3894420c44a5aa",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        ".github/workflows/stage22-stage25e2b-preview.yml",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_stage22_stage25e2b_merge.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs",
+        "tests/native_prefix_checkpoint.rs",
+        "tests/panic_stage_atomicity.rs"
+      ],
+      "absent": [
+        ".github/workflows/stage22-stage25e2b-preview.yml",
+        "scripts/preview_stage22_stage25e2b_merge.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "a74f7f11f39c94f8beae16badc9c0d8596131cc1",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [
+          {
+            "path": "src/ordered_columns.rs",
+            "reason": "The complete addition-only source patch is already present byte-for-byte in the integrated formal module."
+          }
+        ],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/stage22-stage25e2b-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-stage25e2b-merge-preview/.github/workflows/stage22-stage25e2b-preview.yml",
+            "gitBlob": "9a67cce4e1637c946c69871c2e628ada2375b18c"
+          },
+          {
+            "originalPath": "scripts/preview_stage22_stage25e2b_merge.sh",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-stage25e2b-merge-preview/scripts/preview_stage22_stage25e2b_merge.sh",
+            "gitBlob": "b9caad0e317414b35c86ba57071938f4ee846417"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/stage22-stage25f-merge-preview",
+      "tip": "dd910e17186d37058a793ee6687aa033a26e2cc9",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        ".github/workflows/stage22-stage25f-preview.yml",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_stage22_stage25f_merge.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs",
+        "tests/native_prefix_checkpoint.rs",
+        "tests/panic_stage_atomicity.rs"
+      ],
+      "absent": [
+        ".github/workflows/stage22-stage25f-preview.yml",
+        "scripts/preview_stage22_stage25f_merge.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "f9eeff68719dc3e6c2706c641789ae7883136df4",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/stage22-stage25f-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-stage25f-merge-preview/.github/workflows/stage22-stage25f-preview.yml",
+            "gitBlob": "ede951701c897dca7be21ad9c520c7aecd0a5079"
+          },
+          {
+            "originalPath": "scripts/preview_stage22_stage25f_merge.sh",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-stage25f-merge-preview/scripts/preview_stage22_stage25f_merge.sh",
+            "gitBlob": "b03d9977cbebd50220e770c40d31ec47a086965a"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/stage22-stage25g-merge-preview",
+      "tip": "5fdaddd2ea910a988e048fd63130d062e51d706a",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        ".github/workflows/stage22-stage25g-preview.yml",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_stage22_stage25g_merge.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs",
+        "tests/native_prefix_checkpoint.rs",
+        "tests/panic_stage_atomicity.rs"
+      ],
+      "absent": [
+        ".github/workflows/stage22-stage25g-preview.yml",
+        "scripts/preview_stage22_stage25g_merge.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "06459c4d580e67ae0ea769628071b2b14e272c69",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/stage22-stage25g-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-stage25g-merge-preview/.github/workflows/stage22-stage25g-preview.yml",
+            "gitBlob": "2d30c82c9f6e8f76fdc448d63c3e09f4b0b49586"
+          },
+          {
+            "originalPath": "scripts/preview_stage22_stage25g_merge.sh",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-stage25g-merge-preview/scripts/preview_stage22_stage25g_merge.sh",
+            "gitBlob": "867dab5bbb3d771141e005f91fa1a98f7d61bbcc"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/stage22-stage25h-merge-preview",
+      "tip": "4c12f5aaddb0c04c139bc0d8f73dc1d4817085c7",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        ".github/workflows/stage22-stage25h-preview.yml",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_stage22_stage25h_merge.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs",
+        "tests/native_prefix_checkpoint.rs",
+        "tests/panic_stage_atomicity.rs"
+      ],
+      "absent": [
+        ".github/workflows/stage22-stage25h-preview.yml",
+        "scripts/preview_stage22_stage25h_merge.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "e80984188a7f55a490d06c931cb393337960b8e4",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/stage22-stage25h-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-stage25h-merge-preview/.github/workflows/stage22-stage25h-preview.yml",
+            "gitBlob": "824d2ce6d896f23f30828f13f3b465972ce51a25"
+          },
+          {
+            "originalPath": "scripts/preview_stage22_stage25h_merge.sh",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-stage25h-merge-preview/scripts/preview_stage22_stage25h_merge.sh",
+            "gitBlob": "98ca24b674c1d4320168676fb439b41a58c16019"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/stage22-stage25i-merge-preview",
+      "tip": "dcabb4b5ef99912f8f50dc68ae8b06439b15f13d",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        ".github/workflows/stage22-stage25i-preview.yml",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_stage22_stage25i_merge.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs",
+        "tests/native_prefix_checkpoint.rs",
+        "tests/panic_stage_atomicity.rs"
+      ],
+      "absent": [
+        ".github/workflows/stage22-stage25i-preview.yml",
+        "scripts/preview_stage22_stage25i_merge.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "8feeec52e2c7a7b49b9e4dbcae3da5438714bceb",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/stage22-stage25i-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-stage25i-merge-preview/.github/workflows/stage22-stage25i-preview.yml",
+            "gitBlob": "2bd1b3068d7e58353bfd8caa3059253497379d64"
+          },
+          {
+            "originalPath": "scripts/preview_stage22_stage25i_merge.sh",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-stage25i-merge-preview/scripts/preview_stage22_stage25i_merge.sh",
+            "gitBlob": "60686ce84e659ae27524c8731ee4118ed8b78015"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/stage22-stage25j-merge-preview",
+      "tip": "18b50aa85ae8d0f4c7d8bec27d35037ff8efc7d0",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        ".github/workflows/stage22-stage25j-preview.yml",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_stage22_stage25j_merge.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs",
+        "tests/native_prefix_checkpoint.rs",
+        "tests/panic_stage_atomicity.rs"
+      ],
+      "absent": [
+        ".github/workflows/stage22-stage25j-preview.yml",
+        "scripts/preview_stage22_stage25j_merge.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "83b1e129cf26844e75d225d38464a380900ca7d6",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/stage22-stage25j-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-stage25j-merge-preview/.github/workflows/stage22-stage25j-preview.yml",
+            "gitBlob": "7dc4186b9ea592feeb02bf18e79af267842cc4d7"
+          },
+          {
+            "originalPath": "scripts/preview_stage22_stage25j_merge.sh",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-stage25j-merge-preview/scripts/preview_stage22_stage25j_merge.sh",
+            "gitBlob": "23beb0adeddd5b1c87ea47d97e7d2a2555c521dc"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/stage22-two-byte-string-preview",
+      "tip": "6f24c0fa12b2462c163e07712934b0c36edd2426",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        ".github/workflows/stage22-two-byte-preview.yml",
+        ".stage22/two_byte_ordered_columns.rs.txt",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_stage22_two_byte.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs",
+        "tests/native_prefix_checkpoint.rs",
+        "tests/panic_stage_atomicity.rs"
+      ],
+      "absent": [
+        ".github/workflows/stage22-two-byte-preview.yml",
+        ".stage22/two_byte_ordered_columns.rs.txt",
+        "scripts/preview_stage22_two_byte.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "c18e8f11e8800718cdacddf4d93cc1466fc722eb",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/stage22-two-byte-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-two-byte-string-preview/.github/workflows/stage22-two-byte-preview.yml",
+            "gitBlob": "96a9eb95ba6e756311f543e9305cbf007660dbb4"
+          },
+          {
+            "originalPath": ".stage22/two_byte_ordered_columns.rs.txt",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-two-byte-string-preview/.stage22/two_byte_ordered_columns.rs.txt",
+            "gitBlob": "a5bad3cb1aab4e7a6de95fb93bab0d63a112c1af"
+          },
+          {
+            "originalPath": "scripts/preview_stage22_two_byte.sh",
+            "archivePath": "docs/branch-integration/retired-previews/stage22-two-byte-string-preview/scripts/preview_stage22_two_byte.sh",
+            "gitBlob": "0073db7be8c574da3576c87f386daca4ba83fe2a"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/stage25g-published-head-check",
+      "tip": "06459c4d580e67ae0ea769628071b2b14e272c69",
+      "resolution": "integrated",
+      "evidence": "original tip is an ancestor of the integration tree"
+    },
+    {
+      "branch": "ci/stage25l-bitcoin-p2wsh-inclusion-preview",
+      "tip": "04a2c92d639c2cbc082bd8d6b5a0cfc69503ecbf",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/stage25l-inclusion-preview.yml",
+        "ci/stage25l/audit_bitcoin_channel_merkle_fixture.py.txt",
+        "ci/stage25l/channel_inclusion_audit.rs.txt",
+        "ci/stage25l/channel_inclusion_audit_tests.rs.txt",
+        "ci/stage25l/preflight.sh"
+      ],
+      "absent": [
+        ".github/workflows/stage25l-inclusion-preview.yml",
+        "ci/stage25l/audit_bitcoin_channel_merkle_fixture.py.txt",
+        "ci/stage25l/channel_inclusion_audit.rs.txt",
+        "ci/stage25l/channel_inclusion_audit_tests.rs.txt",
+        "ci/stage25l/preflight.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "1ad1e3791d1fa105fc20f2acb79bba59b6e82c87",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/stage25l-inclusion-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/stage25l-bitcoin-p2wsh-inclusion-preview/.github/workflows/stage25l-inclusion-preview.yml",
+            "gitBlob": "0284fb00f9d1cef55bcd96227eb9c6881befe869"
+          },
+          {
+            "originalPath": "ci/stage25l/audit_bitcoin_channel_merkle_fixture.py.txt",
+            "archivePath": "docs/branch-integration/retired-previews/stage25l-bitcoin-p2wsh-inclusion-preview/ci/stage25l/audit_bitcoin_channel_merkle_fixture.py.txt",
+            "gitBlob": "93a28c27cfc54d6e8632f3b24f7dacef4441b527"
+          },
+          {
+            "originalPath": "ci/stage25l/channel_inclusion_audit.rs.txt",
+            "archivePath": "docs/branch-integration/retired-previews/stage25l-bitcoin-p2wsh-inclusion-preview/ci/stage25l/channel_inclusion_audit.rs.txt",
+            "gitBlob": "3975406664c26d8a2d4ff559bb19688dfdc43abf"
+          },
+          {
+            "originalPath": "ci/stage25l/channel_inclusion_audit_tests.rs.txt",
+            "archivePath": "docs/branch-integration/retired-previews/stage25l-bitcoin-p2wsh-inclusion-preview/ci/stage25l/channel_inclusion_audit_tests.rs.txt",
+            "gitBlob": "9894b5b8cd475ea0d5d416878a7d57b7ff18131f"
+          },
+          {
+            "originalPath": "ci/stage25l/preflight.sh",
+            "archivePath": "docs/branch-integration/retired-previews/stage25l-bitcoin-p2wsh-inclusion-preview/ci/stage25l/preflight.sh",
+            "gitBlob": "bbca3d9646f2e8f13cfa4bb91d7380e51899ce15"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/stage25l-formal-proof-preview",
+      "tip": "3e65e354a184e79a63dada3da07bfc1875baf224",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        ".github/workflows/stage22-stage25l-preview.yml",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_stage22_stage25l_merge.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs",
+        "tests/native_prefix_checkpoint.rs",
+        "tests/panic_stage_atomicity.rs"
+      ],
+      "absent": [
+        ".github/workflows/stage22-stage25l-preview.yml",
+        "scripts/preview_stage22_stage25l_merge.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "c93578edc34bbecae452145b5fb08c458e694bbf",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/stage22-stage25l-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/stage25l-formal-proof-preview/.github/workflows/stage22-stage25l-preview.yml",
+            "gitBlob": "27caf0092f587985d2fe494403653dc43f31106a"
+          },
+          {
+            "originalPath": "scripts/preview_stage22_stage25l_merge.sh",
+            "archivePath": "docs/branch-integration/retired-previews/stage25l-formal-proof-preview/scripts/preview_stage22_stage25l_merge.sh",
+            "gitBlob": "80506a1f396d749ed345a00a0ecb4611dba9f200"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/stage25m-bip141-preflight",
+      "tip": "f46ab65c52dae77a5a66d7618e8969f081c0ca34",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/stage25m-bip141-preflight.yml",
+        "ci/stage25m/audit_bip141_witness_fixture.py.txt",
+        "ci/stage25m/bitcoin_witness_commitment.rs.txt",
+        "ci/stage25m/bitcoin_witness_commitment_tests.rs.txt",
+        "ci/stage25m/preflight.sh",
+        "ci/stage25m/stage25m_bip141_vectors.tsv.txt"
+      ],
+      "absent": [
+        ".github/workflows/stage25m-bip141-preflight.yml",
+        "ci/stage25m/audit_bip141_witness_fixture.py.txt",
+        "ci/stage25m/bitcoin_witness_commitment.rs.txt",
+        "ci/stage25m/bitcoin_witness_commitment_tests.rs.txt",
+        "ci/stage25m/preflight.sh",
+        "ci/stage25m/stage25m_bip141_vectors.tsv.txt"
+      ],
+      "evidence": {
+        "sharedAncestor": "3625646263fd00cb56d53cc1a2a7e11e9791fb41",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/stage25m-bip141-preflight.yml",
+            "archivePath": "docs/branch-integration/retired-previews/stage25m-bip141-preflight/.github/workflows/stage25m-bip141-preflight.yml",
+            "gitBlob": "9099cb6858f9bacdae758655718f375f8236fbd8"
+          },
+          {
+            "originalPath": "ci/stage25m/audit_bip141_witness_fixture.py.txt",
+            "archivePath": "docs/branch-integration/retired-previews/stage25m-bip141-preflight/ci/stage25m/audit_bip141_witness_fixture.py.txt",
+            "gitBlob": "4eed16f5e99eb4424d3785dddb8a68caafa2567e"
+          },
+          {
+            "originalPath": "ci/stage25m/bitcoin_witness_commitment.rs.txt",
+            "archivePath": "docs/branch-integration/retired-previews/stage25m-bip141-preflight/ci/stage25m/bitcoin_witness_commitment.rs.txt",
+            "gitBlob": "ee93a22782d577d2eb5ffb8b5f3b064f8cb481ad"
+          },
+          {
+            "originalPath": "ci/stage25m/bitcoin_witness_commitment_tests.rs.txt",
+            "archivePath": "docs/branch-integration/retired-previews/stage25m-bip141-preflight/ci/stage25m/bitcoin_witness_commitment_tests.rs.txt",
+            "gitBlob": "d8d4149a6dd5628dd2ad16104fb574dbce328146"
+          },
+          {
+            "originalPath": "ci/stage25m/preflight.sh",
+            "archivePath": "docs/branch-integration/retired-previews/stage25m-bip141-preflight/ci/stage25m/preflight.sh",
+            "gitBlob": "53998bb1454df4e4bac188e842e54520ba508f7c"
+          },
+          {
+            "originalPath": "ci/stage25m/stage25m_bip141_vectors.tsv.txt",
+            "archivePath": "docs/branch-integration/retired-previews/stage25m-bip141-preflight/ci/stage25m/stage25m_bip141_vectors.tsv.txt",
+            "gitBlob": "87ad357cbd883c02844e59385b2aceea9561522a"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/stage25m-formal-composed-preview",
+      "tip": "8ad6678abcbff65ee4266d71ba46b8cc1a42d9ef",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        ".github/workflows/stage22-stage25m-preview.yml",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_stage22_stage25m_merge.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs",
+        "tests/native_prefix_checkpoint.rs",
+        "tests/panic_stage_atomicity.rs"
+      ],
+      "absent": [
+        ".github/workflows/stage22-stage25m-preview.yml",
+        "scripts/preview_stage22_stage25m_merge.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "c25ddec4574f9e1438739001af10398bab6e7843",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/stage22-stage25m-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/stage25m-formal-composed-preview/.github/workflows/stage22-stage25m-preview.yml",
+            "gitBlob": "e44c99102f9155a4bd1df43417152e12275e4798"
+          },
+          {
+            "originalPath": "scripts/preview_stage22_stage25m_merge.sh",
+            "archivePath": "docs/branch-integration/retired-previews/stage25m-formal-composed-preview/scripts/preview_stage22_stage25m_merge.sh",
+            "gitBlob": "0ae6cbcf5cf98428313cbe8dffe30d7ef7a8ad1a"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/stage25o-formal-proof-preview",
+      "tip": "fad251173fa193105deb323463cfaf280eb7c9e8",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        ".github/workflows/stage22-stage25o-preview.yml",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_stage22_stage25o_merge.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs",
+        "tests/native_prefix_checkpoint.rs",
+        "tests/panic_stage_atomicity.rs"
+      ],
+      "absent": [
+        ".github/workflows/stage22-stage25o-preview.yml",
+        "scripts/preview_stage22_stage25o_merge.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "c25ddec4574f9e1438739001af10398bab6e7843",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/stage22-stage25o-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/stage25o-formal-proof-preview/.github/workflows/stage22-stage25o-preview.yml",
+            "gitBlob": "b8ad1adcec49ae124d030484bd186e3dc38cbc25"
+          },
+          {
+            "originalPath": "scripts/preview_stage22_stage25o_merge.sh",
+            "archivePath": "docs/branch-integration/retired-previews/stage25o-formal-proof-preview/scripts/preview_stage22_stage25o_merge.sh",
+            "gitBlob": "7cfe0e3e0b2e8ba055ffb03bca5cb1fb61647570"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "ci/validity-formal-proof-preview",
+      "tip": "9cb91b5b4101c45d732c1fe6e97a476f44dc4a99",
+      "resolution": "historical-preview-reconciled",
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/kani.yml",
+        ".github/workflows/lean.yml",
+        ".github/workflows/validity-formal-preview.yml",
+        "docs/CHANNEL_ESCROW.md",
+        "docs/LEDGER.md",
+        "formal/README.md",
+        "formal/TradeLayerFormal.lean",
+        "formal/lake-manifest.json",
+        "formal/lakefile.toml",
+        "formal/lean-toolchain",
+        "scripts/audit_native_wallet_order.py",
+        "scripts/ci-preflight.sh",
+        "scripts/preview_validity_formal_merge.sh",
+        "src/atomic_batch.rs",
+        "src/canonical_columns.rs",
+        "src/checked_amounts.rs",
+        "src/journal_move.rs",
+        "src/ledger.rs",
+        "src/ledger_channels_impl.rs",
+        "src/ledger_settlement_impl.rs",
+        "src/lib.rs",
+        "src/ordered_columns.rs",
+        "tests/ledger_invariants.rs",
+        "tests/ledger_refinement_oracle.rs",
+        "tests/native_prefix_checkpoint.rs",
+        "tests/panic_stage_atomicity.rs"
+      ],
+      "absent": [
+        ".github/workflows/validity-formal-preview.yml",
+        "scripts/preview_validity_formal_merge.sh"
+      ],
+      "evidence": {
+        "sharedAncestor": "48057fc6e9735415fa93d00ef2d53ef4a8c1088d",
+        "replacement": "Canonical combined Rust, Lean, Kani and chain-audit workflows test the integrated sources; obsolete snapshot/merge-preview workflow definitions are preserved as inactive historical artifacts.",
+        "alreadyPresent": [],
+        "archives": [
+          {
+            "originalPath": ".github/workflows/validity-formal-preview.yml",
+            "archivePath": "docs/branch-integration/retired-previews/validity-formal-proof-preview/.github/workflows/validity-formal-preview.yml",
+            "gitBlob": "a7a94fc8d62ec1c67e1fb53561bc7949571d658c"
+          },
+          {
+            "originalPath": "scripts/preview_validity_formal_merge.sh",
+            "archivePath": "docs/branch-integration/retired-previews/validity-formal-proof-preview/scripts/preview_validity_formal_merge.sh",
+            "gitBlob": "3faf296b8c0ea291f0312c4862b074cfda4f354b"
+          }
+        ]
+      }
+    },
+    {
+      "branch": "docs/stage19-search-oracle-trust-boundary",
+      "tip": "02b42b8a9b218b07abb539aefd304db7bef51b9c",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "docs/stage19-search-oracle-trust-boundary",
+        "tip": "02b42b8a9b218b07abb539aefd304db7bef51b9c",
+        "number": 59,
+        "merged": true,
+        "base": "formal/protocol-safety-lean-v1",
+        "head": "docs/stage19-search-oracle-trust-boundary",
+        "head_sha": "02b42b8a9b218b07abb539aefd304db7bef51b9c",
+        "merge_commit_sha": "e604eaa220ca6c986cc974506d0f8aacda35f70b",
+        "merged_at": "2026-10-24T12:02:35Z"
+      }
+    },
+    {
+      "branch": "feat/bitcoin-chainwork-stage-17",
+      "tip": "9d71df564a4432c09aacfae6865705187daebe96",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "feat/bitcoin-chainwork-stage-17",
+        "tip": "9d71df564a4432c09aacfae6865705187daebe96",
+        "number": 17,
+        "merged": true,
+        "base": "main",
+        "head": "feat/bitcoin-chainwork-stage-17",
+        "head_sha": "9d71df564a4432c09aacfae6865705187daebe96",
+        "merge_commit_sha": "c10140917f08ae617e767828a7c0501133e457db",
+        "merged_at": "2026-10-22T16:47:47Z"
+      }
+    },
+    {
+      "branch": "feat/bitcoin-spv-inclusion-stage-16",
+      "tip": "4c0f6b3ec3a77a24563f1f8828294546d78e19fd",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "feat/bitcoin-spv-inclusion-stage-16",
+        "tip": "4c0f6b3ec3a77a24563f1f8828294546d78e19fd",
+        "number": 16,
+        "merged": true,
+        "base": "main",
+        "head": "feat/bitcoin-spv-inclusion-stage-16",
+        "head_sha": "4c0f6b3ec3a77a24563f1f8828294546d78e19fd",
+        "merge_commit_sha": "f619a84cdd1d984bf465dd7ed7628cb1badf9d4a",
+        "merged_at": "2026-10-22T15:55:03Z"
+      }
+    },
+    {
+      "branch": "feat/channel-escrow-stage-10",
+      "tip": "314ed8992873d508b59e8b85196757abf8da478e",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "feat/channel-escrow-stage-10",
+        "tip": "314ed8992873d508b59e8b85196757abf8da478e",
+        "number": 10,
+        "merged": true,
+        "base": "main",
+        "head": "feat/channel-escrow-stage-10",
+        "head_sha": "314ed8992873d508b59e8b85196757abf8da478e",
+        "merge_commit_sha": "3fba113e23c1d3887857fab9b3539d2bae2dde39",
+        "merged_at": "2026-10-22T13:34:38Z"
+      }
+    },
+    {
+      "branch": "feat/channel-net-settlement-stage-12",
+      "tip": "96a30814eeee9e0ec600afa26e52f9c797de295f",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "feat/channel-net-settlement-stage-12",
+        "tip": "96a30814eeee9e0ec600afa26e52f9c797de295f",
+        "number": 12,
+        "merged": true,
+        "base": "main",
+        "head": "feat/channel-net-settlement-stage-12",
+        "head_sha": "96a30814eeee9e0ec600afa26e52f9c797de295f",
+        "merge_commit_sha": "7c8846d76fd7a8db259589fb2721ccc56705d760",
+        "merged_at": "2026-10-22T14:49:33Z"
+      }
+    },
+    {
+      "branch": "feat/durable-candidate-sqlite-20261027",
+      "tip": "48270d07ec01ad0d8e091f9bedc41c4bd8c3cd5a",
+      "resolution": "integrated",
+      "evidence": "original tip is an ancestor of the integration tree"
+    },
+    {
+      "branch": "feat/litecoin-replay-stage-23bc",
+      "tip": "c5cdd450844730dc2804ef1fa076355acfec9b1e",
+      "resolution": "integrated",
+      "evidence": "original tip is an ancestor of the integration tree"
+    },
+    {
+      "branch": "feat/settlement-authz-gate-stage-13",
+      "tip": "24d6dd30824b66ee22600e6f8776aba0714da857",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "feat/settlement-authz-gate-stage-13",
+        "tip": "24d6dd30824b66ee22600e6f8776aba0714da857",
+        "number": 13,
+        "merged": true,
+        "base": "main",
+        "head": "feat/settlement-authz-gate-stage-13",
+        "head_sha": "24d6dd30824b66ee22600e6f8776aba0714da857",
+        "merge_commit_sha": "5217f2aa02adcdd5b79263f6d0a2771784d427c6",
+        "merged_at": "2026-10-22T15:01:19Z"
+      }
+    },
+    {
+      "branch": "feat/stage25p-conditional-admin-replay",
+      "tip": "943632833ee8ac55143087dae4925f889327d5f4",
+      "resolution": "integrated",
+      "paths": [
+        "docs/STAGE25P_CONDITIONAL_ADMIN_REPLAY.md",
+        "fixtures/channel_admin_789_merkle_synthetic.tsv",
+        "scripts/audit_type789_merkle_vectors.py",
+        "scripts/audit_type789_source_admin.cjs",
+        "src/channel_admin_replay_audit.rs",
+        "tests/channel_admin_replay_audit.rs"
+      ],
+      "absent": [
+        "docs/STAGE25P_CONDITIONAL_ADMIN_REPLAY.md",
+        "fixtures/channel_admin_789_merkle_synthetic.tsv",
+        "scripts/audit_type789_merkle_vectors.py",
+        "scripts/audit_type789_source_admin.cjs",
+        "src/channel_admin_replay_audit.rs",
+        "tests/channel_admin_replay_audit.rs"
+      ],
+      "evidence": "Original branch tip is an ancestor of the reconciled integration tree; source exports, parser boundaries and existing canonical implementation retained."
+    },
+    {
+      "branch": "feat/stwo-state-commitment-stage-14",
+      "tip": "8703aa61817d630819a48301e206ae2a4e4d7383",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "feat/stwo-state-commitment-stage-14",
+        "tip": "8703aa61817d630819a48301e206ae2a4e4d7383",
+        "number": 14,
+        "merged": true,
+        "base": "main",
+        "head": "feat/stwo-state-commitment-stage-14",
+        "head_sha": "8703aa61817d630819a48301e206ae2a4e4d7383",
+        "merge_commit_sha": "79f8dac6d5864cf2d315fa50e2204a3be48621a4",
+        "merged_at": "2026-10-22T15:15:02Z"
+      }
+    },
+    {
+      "branch": "feat/tlpt-zktl-root-reconciliation-stage-15",
+      "tip": "c7d1e80f52fb7b39e8f425c59d3242c26ebed526",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "feat/tlpt-zktl-root-reconciliation-stage-15",
+        "tip": "c7d1e80f52fb7b39e8f425c59d3242c26ebed526",
+        "number": 15,
+        "merged": true,
+        "base": "main",
+        "head": "feat/tlpt-zktl-root-reconciliation-stage-15",
+        "head_sha": "c7d1e80f52fb7b39e8f425c59d3242c26ebed526",
+        "merge_commit_sha": "20d5f8b6e245c6703b073b0ba4ad2b5836cdf472",
+        "merged_at": "2026-10-22T15:33:10Z"
+      }
+    },
+    {
+      "branch": "feat/txindex-bounded-parallel-scan",
+      "tip": "c77483378b2cbdb950b2949dfa514c48e8759635",
+      "resolution": "integrated",
+      "paths": [
+        ".github/workflows/ci.yml",
+        "docs/LEGACY_TXINDEX_PARALLEL.md",
+        "fixtures/legacy_txindex_source_txIndex.txt",
+        "scripts/audit_legacy_txindex_source.cjs",
+        "src/bin/tradelayer-txindex-bench.rs",
+        "src/legacy_txindex_audit.rs",
+        "src/lib.rs",
+        "src/txindex_parallel.rs",
+        "tests/legacy_txindex_audit.rs",
+        "tests/txindex_parallel.rs"
+      ],
+      "absent": [
+        "docs/LEGACY_TXINDEX_PARALLEL.md",
+        "src/bin/tradelayer-txindex-bench.rs",
+        "src/txindex_parallel.rs",
+        "tests/txindex_parallel.rs"
+      ],
+      "evidence": "Original branch tip is an ancestor of the reconciled integration tree; source exports, parser boundaries and existing canonical implementation retained."
+    },
+    {
+      "branch": "feat/withdrawal-finality-and-parity-stage-11",
+      "tip": "189a579edce63df8da14f4aa8b37a45f4886d2a8",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "feat/withdrawal-finality-and-parity-stage-11",
+        "tip": "189a579edce63df8da14f4aa8b37a45f4886d2a8",
+        "number": 11,
+        "merged": true,
+        "base": "main",
+        "head": "feat/withdrawal-finality-and-parity-stage-11",
+        "head_sha": "189a579edce63df8da14f4aa8b37a45f4886d2a8",
+        "merge_commit_sha": "5a34498d6f0baaee2eb2bfd2ccf9dde3e305e57c",
+        "merged_at": "2026-10-22T14:16:25Z"
+      }
+    },
+    {
+      "branch": "formal/native-indexed-write-bridge-stage16",
+      "tip": "f8a68a33bbd01e3a28950785e1c38abd68209b18",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "formal/native-indexed-write-bridge-stage16",
+        "tip": "f8a68a33bbd01e3a28950785e1c38abd68209b18",
+        "number": 38,
+        "merged": true,
+        "base": "formal/protocol-safety-lean-v1",
+        "head": "formal/native-indexed-write-bridge-stage16",
+        "head_sha": "f8a68a33bbd01e3a28950785e1c38abd68209b18",
+        "merge_commit_sha": "b6467d893692f58687445488a9a3a0fa0034cee9",
+        "merged_at": "2026-10-23T16:44:03Z"
+      }
+    },
+    {
+      "branch": "formal/proof-validation-base",
+      "tip": "0ef9942029b22593f97673396be0b8613803f843",
+      "resolution": "integrated",
+      "evidence": "original tip is an ancestor of the integration tree"
+    },
+    {
+      "branch": "formal/protocol-safety-lean-v1",
+      "tip": "46e9f68ed2e5da7577968e8972a94aa6849d4eed",
+      "resolution": "integrated",
+      "evidence": "original tip is an ancestor of the integration tree"
+    },
+    {
+      "branch": "formal/stage17-native-vec-oracle",
+      "tip": "3f233748a7730b41ccd38bd50556451b4d7375fa",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "formal/stage17-native-vec-oracle",
+        "tip": "3f233748a7730b41ccd38bd50556451b4d7375fa",
+        "number": 46,
+        "merged": true,
+        "base": "formal/protocol-safety-lean-v1",
+        "head": "formal/stage17-native-vec-oracle",
+        "head_sha": "3f233748a7730b41ccd38bd50556451b4d7375fa",
+        "merge_commit_sha": "161d35d422b4bea40e931d6c4ab5eee3e21e4502",
+        "merged_at": "2026-10-24T09:30:03Z"
+      }
+    },
+    {
+      "branch": "formal/stage18-conditional-rust-vec-refinement",
+      "tip": "c3430ee6dbea5c420c3918b7b69d5d45310669af",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "formal/stage18-conditional-rust-vec-refinement",
+        "tip": "c3430ee6dbea5c420c3918b7b69d5d45310669af",
+        "number": 48,
+        "merged": true,
+        "base": "formal/protocol-safety-lean-v1",
+        "head": "formal/stage18-conditional-rust-vec-refinement",
+        "head_sha": "c3430ee6dbea5c420c3918b7b69d5d45310669af",
+        "merge_commit_sha": "dc7af30ef29e94944ee372091d3d4d0416013d7f",
+        "merged_at": "2026-10-24T10:34:49Z"
+      }
+    },
+    {
+      "branch": "formal/stage18-derive-native-vec-invariants",
+      "tip": "bbd12c7eda54105e56c97c1bf7e7abda56c0e5f5",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "formal/stage18-derive-native-vec-invariants",
+        "tip": "bbd12c7eda54105e56c97c1bf7e7abda56c0e5f5",
+        "number": 51,
+        "merged": true,
+        "base": "formal/protocol-safety-lean-v1",
+        "head": "formal/stage18-derive-native-vec-invariants",
+        "head_sha": "bbd12c7eda54105e56c97c1bf7e7abda56c0e5f5",
+        "merge_commit_sha": "464a5a2fdd4bb180779e9b12e4b64a841225f605",
+        "merged_at": "2026-10-24T10:48:58Z"
+      }
+    },
+    {
+      "branch": "formal/stage18-native-prefix-checkpoints",
+      "tip": "6fd679db37acbc21ab16e6f99620dcfb9867e4d2",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "formal/stage18-native-prefix-checkpoints",
+        "tip": "6fd679db37acbc21ab16e6f99620dcfb9867e4d2",
+        "number": 50,
+        "merged": true,
+        "base": "formal/protocol-safety-lean-v1",
+        "head": "formal/stage18-native-prefix-checkpoints",
+        "head_sha": "6fd679db37acbc21ab16e6f99620dcfb9867e4d2",
+        "merge_commit_sha": "2e0fea45d8f7fddcd716448c8e1afb6737603e9d",
+        "merged_at": "2026-10-24T10:38:58Z"
+      }
+    },
+    {
+      "branch": "formal/stage18c-ledger-panic-atomicity",
+      "tip": "ce71a2fbf14283479174f3e4b74b8fef6df51695",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "formal/stage18c-ledger-panic-atomicity",
+        "tip": "ce71a2fbf14283479174f3e4b74b8fef6df51695",
+        "number": 54,
+        "merged": true,
+        "base": "formal/protocol-safety-lean-v1",
+        "head": "formal/stage18c-ledger-panic-atomicity",
+        "head_sha": "ce71a2fbf14283479174f3e4b74b8fef6df51695",
+        "merge_commit_sha": "aab10d5be60f01b27c9c733f9d93fc5533130664",
+        "merged_at": "2026-10-24T11:25:17Z"
+      }
+    },
+    {
+      "branch": "formal/stage19-auditable-lower-bound",
+      "tip": "a076879e40246c6a6c87bf1dce866f5b2ceba163",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "formal/stage19-auditable-lower-bound",
+        "tip": "a076879e40246c6a6c87bf1dce866f5b2ceba163",
+        "number": 57,
+        "merged": true,
+        "base": "formal/protocol-safety-lean-v1",
+        "head": "formal/stage19-auditable-lower-bound",
+        "head_sha": "a076879e40246c6a6c87bf1dce866f5b2ceba163",
+        "merge_commit_sha": "4dd0dd36ca2d0e60c71de695012caf6be8a18057",
+        "merged_at": "2026-10-24T11:56:46Z"
+      }
+    },
+    {
+      "branch": "formal/stage19-half-open-cursor-proof",
+      "tip": "9cfebbea054924350380362c6471fa9535a836ae",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "formal/stage19-half-open-cursor-proof",
+        "tip": "9cfebbea054924350380362c6471fa9535a836ae",
+        "number": 56,
+        "merged": true,
+        "base": "formal/protocol-safety-lean-v1",
+        "head": "formal/stage19-half-open-cursor-proof",
+        "head_sha": "9cfebbea054924350380362c6471fa9535a836ae",
+        "merge_commit_sha": "b3673b60a4b2b19f2b4184fdf49783058261fc0c",
+        "merged_at": "2026-10-24T11:46:14Z"
+      }
+    },
+    {
+      "branch": "formal/stage19-pivot-index-bridge",
+      "tip": "a50a8cc33014b5ef0e3c5254cc9dc873effb264d",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "formal/stage19-pivot-index-bridge",
+        "tip": "a50a8cc33014b5ef0e3c5254cc9dc873effb264d",
+        "number": 58,
+        "merged": true,
+        "base": "formal/protocol-safety-lean-v1",
+        "head": "formal/stage19-pivot-index-bridge",
+        "head_sha": "a50a8cc33014b5ef0e3c5254cc9dc873effb264d",
+        "merge_commit_sha": "168e69151db28d6befbe9a7ef40728c04d800362",
+        "merged_at": "2026-10-24T11:58:07Z"
+      }
+    },
+    {
+      "branch": "formal/stage20-native-pivot-reads",
+      "tip": "27540e10b16db600e2ef8147cda656af97f8454d",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "formal/stage20-native-pivot-reads",
+        "tip": "27540e10b16db600e2ef8147cda656af97f8454d",
+        "number": 60,
+        "merged": true,
+        "base": "formal/protocol-safety-lean-v1",
+        "head": "formal/stage20-native-pivot-reads",
+        "head_sha": "27540e10b16db600e2ef8147cda656af97f8454d",
+        "merge_commit_sha": "3bd78848f8fec01f82ca3ff3d583203ea9ef2ebd",
+        "merged_at": "2026-10-24T12:18:51Z"
+      }
+    },
+    {
+      "branch": "formal/stage20-symbolic-locate",
+      "tip": "cfa29e511faebdf23ec79ed04e67bed8b8873d06",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "formal/stage20-symbolic-locate",
+        "tip": "cfa29e511faebdf23ec79ed04e67bed8b8873d06",
+        "number": 62,
+        "merged": true,
+        "base": "formal/protocol-safety-lean-v1",
+        "head": "formal/stage20-symbolic-locate",
+        "head_sha": "cfa29e511faebdf23ec79ed04e67bed8b8873d06",
+        "merge_commit_sha": "1d6f10cb3ed2e84e889c49e42db8821d3a9ca494",
+        "merged_at": "2026-10-24T12:34:30Z"
+      }
+    },
+    {
+      "branch": "formal/stage21-native-locate-result",
+      "tip": "50cb59d9efad36bb7b6d96add24b4e6b5869904d",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "formal/stage21-native-locate-result",
+        "tip": "50cb59d9efad36bb7b6d96add24b4e6b5869904d",
+        "number": 65,
+        "merged": true,
+        "base": "formal/protocol-safety-lean-v1",
+        "head": "formal/stage21-native-locate-result",
+        "head_sha": "50cb59d9efad36bb7b6d96add24b4e6b5869904d",
+        "merge_commit_sha": "1cee617309af9aa9b2fbcdebc21a21607af4d2c3",
+        "merged_at": "2026-10-24T13:27:23Z"
+      }
+    },
+    {
+      "branch": "formal/stage22-native-account-ord-kani",
+      "tip": "ea879aac30949c92c97132b63f8cc7479e3ee858",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "formal/stage22-native-account-ord-kani",
+        "tip": "ea879aac30949c92c97132b63f8cc7479e3ee858",
+        "number": 71,
+        "merged": true,
+        "base": "formal/protocol-safety-lean-v1",
+        "head": "formal/stage22-native-account-ord-kani",
+        "head_sha": "ea879aac30949c92c97132b63f8cc7479e3ee858",
+        "merge_commit_sha": "c18e8f11e8800718cdacddf4d93cc1466fc722eb",
+        "merged_at": "2026-10-24T15:54:38Z"
+      }
+    },
+    {
+      "branch": "formal/stage22-native-composite-ord",
+      "tip": "96a0a1533e436ed0dae86985980db039d1ed0309",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "formal/stage22-native-composite-ord",
+        "tip": "96a0a1533e436ed0dae86985980db039d1ed0309",
+        "number": 82,
+        "merged": true,
+        "base": "formal/protocol-safety-lean-v1",
+        "head": "formal/stage22-native-composite-ord",
+        "head_sha": "96a0a1533e436ed0dae86985980db039d1ed0309",
+        "merge_commit_sha": "183b50eadccc1f8f1afcfb619be8d97d8b5587b1",
+        "merged_at": "2026-10-25T00:24:22Z"
+      }
+    },
+    {
+      "branch": "formal/stage22-two-byte-native-ord",
+      "tip": "a2bb0ccc1d64ffd2234fe1dead501f183c74be4a",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "formal/stage22-two-byte-native-ord",
+        "tip": "a2bb0ccc1d64ffd2234fe1dead501f183c74be4a",
+        "number": 77,
+        "merged": true,
+        "base": "formal/protocol-safety-lean-v1",
+        "head": "formal/stage22-two-byte-native-ord",
+        "head_sha": "a2bb0ccc1d64ffd2234fe1dead501f183c74be4a",
+        "merge_commit_sha": "a74f7f11f39c94f8beae16badc9c0d8596131cc1",
+        "merged_at": "2026-10-24T16:17:12Z"
+      }
+    },
+    {
+      "branch": "perf/stage8d2-weighted-static-shards",
+      "tip": "88da5c5b57f63c71e1ac23851a97d9a5d47118fd",
+      "resolution": "integrated",
+      "evidence": "original tip is an ancestor of the integration tree"
+    },
+    {
+      "branch": "perf/stage8d4-pooled-weighted-windows",
+      "tip": "9091bcdf03b203f599d67e3c239ebbbe9bd59159",
+      "resolution": "integrated",
+      "evidence": "original tip is an ancestor of the integration tree"
+    },
+    {
+      "branch": "perf/stage8d5-inplace-merkle-hash-index",
+      "tip": "a8986de084a235c516739d4d5acbcc3bb0cc7d1d",
+      "resolution": "integrated",
+      "evidence": "original tip is an ancestor of the integration tree"
+    },
+    {
+      "branch": "perf/stage8d6-hashmap-promotion-realbench",
+      "tip": "8cb31416adf36dc7eefa53a396a40659eb3a6668",
+      "resolution": "integrated",
+      "evidence": "original tip is an ancestor of the integration tree"
+    },
+    {
+      "branch": "research/lean-bitcoin-scriptindex-36629-20261027",
+      "tip": "c2bff578461cb23b4e268dadc9589a1c3b4d4575",
+      "resolution": "integrated",
+      "evidence": "original tip is an ancestor of the integration tree"
+    },
+    {
+      "branch": "research/native-candidate-segments-20261027",
+      "tip": "6e9ab5541e647085a6c0b78ec29139c26b85b2c5",
+      "resolution": "integrated",
+      "evidence": "original tip is an ancestor of the integration tree"
+    },
+    {
+      "branch": "test/stage22-native-ascii-full-domain",
+      "tip": "b920d412f1cd05d0f9f4650e97ee5aeda6e81487",
+      "resolution": "squash-already-integrated",
+      "evidence": {
+        "branch": "test/stage22-native-ascii-full-domain",
+        "tip": "b920d412f1cd05d0f9f4650e97ee5aeda6e81487",
+        "number": 70,
+        "merged": true,
+        "base": "formal/protocol-safety-lean-v1",
+        "head": "test/stage22-native-ascii-full-domain",
+        "head_sha": "b920d412f1cd05d0f9f4650e97ee5aeda6e81487",
+        "merge_commit_sha": "e5bd53e8391152069a39d0c11ba748d3e062e1dd",
+        "merged_at": "2026-10-24T13:51:34Z"
+      }
+    }
+  ],
+  "updatedUtc": "2026-10-30T23:04:37.190489+00:00",
+  "counts": {
+    "integrated": 18,
+    "historical-preview-reconciled": 27,
+    "squash-already-integrated": 27
+  },
+  "originalHeadBackup": {
+    "mainPrerequisite": "75443fd02f75dfaea7e551da5090b90fc012c03c",
+    "bundleSHA256": "81e03dcb551df1495a1fd74c638d10b684950ad2bf2bc18789d19edbc3eec0b7",
+    "bundleBytes": 783698,
+    "verifiedHeads": 75
+  },
+  "threePreviouslyVerifiedDuplicates": [
+    {
+      "ref": "refs/remotes/origin/chore/core-36629-adapter-stage-20261027",
+      "tip": "1f08a32e8bfa5a4ca77f8c64e8f88477e2268f8b"
+    },
+    {
+      "ref": "refs/remotes/origin/ci/dedupe-rust-workflow-events-20261023",
+      "tip": "beb3285ec5010499c4ec9a1130e26cdaad1a21af"
+    },
+    {
+      "ref": "refs/remotes/origin/ci/prepush-preflight-20261023",
+      "tip": "7203955f733429e78a94cbba6ecc4fba00470bba"
+    }
+  ],
+  "consolidationFirstParent": "997f8197f28a2d08f3d2f5a255b5294be8518ee3"
+}

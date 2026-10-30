@@ -1,3 +1,8 @@
+# Recorded fixtures are byte evidence: preserve their committed bytes by
+# default. More specific LF text rules below remain in force for generators.
+fixtures/** -text
+scripts/** -text
+
 # Preserve audited JavaScript blob bytes, including their existing LF endings.
 fixtures/legacy_adjuster_source.txt -text -whitespace
 fixtures/legacy_issuance_intent_source.txt -text -whitespace
@@ -357,3 +362,13 @@ fixtures/startup_outer_request_order_genuine.txt text eol=lf
 
 # Genuine NeDB 1.8 request-kind executor order (comparison only).
 fixtures/startup_nedb_kinds_reference.json text eol=lf
+
+# Byte-exact native writer/control and complete-source file retry evidence.
+fixtures/source_compact_index/**/writer-CURRENT.txt text eol=lf
+fixtures/source_compact_index/**/writer-segment.dat -text
+fixtures/native_store_13_2_blobs.tsv text eol=lf
+fixtures/main_file_retry_proof10.jsonl text eol=lf
+fixtures/main_file_retry_vectors.jsonl text eol=lf
+
+# Preserve original historical preview blobs without rewriting their bytes.
+docs/branch-integration/retired-previews/** -text -whitespace
