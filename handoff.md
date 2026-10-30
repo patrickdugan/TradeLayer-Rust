@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T13:53:51Z. Refresh this file after every tested integration or PR cycle.
+Updated: 2026-10-30T14:08:39Z. Refresh this file after every tested integration or PR cycle.
 
 ## Latest tested mixed native recovery increment (`d774f6e`)
 
@@ -96,3 +96,9 @@ Saved workbook/sidebar match `125e63d`:5fractional+5Unicode+13previous encoder t
 ## Mixed live tracker verification
 
 Saved workbook/sidebar match `d774f6e`:39new focused controls/44compatibility/13committed canonical, strictClippy/fmt/inventory/supply. Fourteen intended edits preserve48TL+one external row/37transaction rows, formulas/styles/filters/panes/geometry, zero formula errors. Broad782 regression93155 is still running at this refresh,780top-level cases passed and two long cases pending; no final library count is promoted. PriorMain734/wire23/release2204/239 remain separate. Two queued startup positives still fail; height-await is test-only. Evidence:`fixtures/reference_fidelity/main-mixed-native-live-completeness.json`.
+
+## Completed mixed broad regression
+
+Frozen actual-Core library session93155 completed:782passed/fourignored/two known failed uncommitted queued positives filtered; all three ordinary long domains ran. Exact test-name coverage, immutable binary/input/log hashes and the later equivalent predicate rewrite plus39affected reruns are recorded. Exact committed treec7f8300 also passes all-target typecheck and Cargo formatting (session54467). This is scoped working-context evidence, not a full current committed-library/all-target release promotion. Evidence:`fixtures/reference_fidelity/main-mixed-native-broad-library-validation.json`. No live processes remain from these gates; do not restart completed runners.
+
+Workbook/sidebar now show782scoped checks and retain startup/RPC/UID, mixed cold, host, authentication and complete-block-proof gates. Seven intended edits preserve all rows, formulas/styles/filters/panes/geometry; zero errors. Next Root gates: d67e+46cb mixed cold six financial-owner controls and acac orderbook helper twoCore controls. Intrinsic Promise8332 is a standalone prerequisite; actual Kernel/Incoming and outer-bootstrap bindings remain under active workers. Independent mixed_cold_review is auditing physical retry/result custody. No push/PR.

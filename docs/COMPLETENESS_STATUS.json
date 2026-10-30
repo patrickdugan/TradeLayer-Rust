@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-30T13:53:51Z",
-  "inspectedCheckoutCommit": "d774f6e6010d84367296f731ff4827f300fd974b",
+  "verifiedAtUtc": "2026-10-30T14:08:39Z",
+  "inspectedCheckoutCommit": "c7f830008846ddbb7a0d7b79097c07908eef05f9",
   "verifiedImplementationCommit": "a94ea4c7cdf4677d7d48455d65363edd263a16c1",
   "verifiedReleaseTests": 2204,
   "topLevelTests": 2203,
@@ -1379,7 +1379,7 @@
       "committedCanonicalChecks": 13,
       "allTargetClippyPassed": true,
       "formattingPassed": true,
-      "broadLibraryRegression": "running;780of782passed at refresh, two long cases pending; two known uncommitted failures filtered",
+      "broadLibraryRegression": "complete:782passed/fourignored/two known failed uncommitted queued positives filtered; all ordinary long cases included",
       "fullSuitePromotion": false,
       "fullSourceParityEstablished": false,
       "remaining": [
@@ -1388,10 +1388,14 @@
         "Process-loss/hot/caller/file/segmented fresh composition",
         "Integrated RC/fuzz, intended-host evidence and separate UTXORef exercise",
         "Authentication and complete-block proofs"
-      ]
+      ],
+      "broadLibraryRecord": "fixtures/reference_fidelity/main-mixed-native-broad-library-validation.json",
+      "scopedWorkingLibraryPassed": 782,
+      "exactCommittedAllTargetsTypecheckPassed": true,
+      "fullCurrentCommittedLibraryRunClaimed": false
     }
   },
-  "scope": "Release a94ea4c remains2,204 Rust/239numeric. Prior Main1ac51ad has734 scoped library checks; wire125e63d has23encoder checks. Latest d774f6e:39new controls (15financial-owner,18metadata,6test-only height-await),44compatibility+13committed canonical,strictClippy/fmt/inventory/supply. Mixed live IO facts, source-result custody, native-only recovery/escrow and checkpoints pass. Broad frozen regression is running:780of782eligible checks passed, two long cases pending; two known failed uncommitted startup positives filtered/fourignored. Production Promise/RPC/DB/UID order, mixed cold, RC/fuzz, host and authenticated proofs remain open.",
+  "scope": "Release a94ea4c remains2,204Rust/239numeric. Mixed d774f6e passes39new focused controls,44compatibility+13committed canonical,strictClippy/fmt/inventory/supply. Its frozen working-context regression passes782/fourignored, filtering only two known failed uncommitted startup cases; all ordinary long cases ran. The exact c7f8300 committed tree passes all-target typecheck. A later equivalent stage-predicate merge reran39affected controllers. Full current-library/all-target promotion remains pending. Production Promise/RPC/DB/UID order, mixed cold, RC/fuzz, host and authenticated proofs remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -1683,27 +1687,27 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Release a94ea4c remains2,204 Rust/239numeric. Prior Main1ac51ad has734 scoped library checks; wire125e63d has23encoder checks. Latest d774f6e:39new controls (15financial-owner,18metadata,6test-only height-await),44compatibility+13committed canonical,strictClippy/fmt/inventory/supply. Mixed live IO facts, source-result custody, native-only recovery/escrow and checkpoints pass. Broad frozen regression is running:780of782eligible checks passed, two long cases pending; two known failed uncommitted startup positives filtered/fourignored. Production Promise/RPC/DB/UID order, mixed cold, RC/fuzz, host and authenticated proofs remain open.",
+  "workbookNote": "Release a94ea4c remains2,204Rust/239numeric. Mixed d774f6e passes39new focused controls,44compatibility+13committed canonical,strictClippy/fmt/inventory/supply. Its frozen working-context regression passes782/fourignored, filtering only two known failed uncommitted startup cases; all ordinary long cases ran. The exact c7f8300 committed tree passes all-target typecheck. A later equivalent stage-predicate merge reran39affected controllers. Full current-library/all-target promotion remains pending. Production Promise/RPC/DB/UID order, mixed cold, RC/fuzz, host and authenticated proofs remain open.",
   "savedWorkbook": {
-    "sha256": "e7f16780214877a199ffcc20cda4d9c498f3847ca19e21bc823852ca9994a3cd",
-    "bytes": 48051,
+    "sha256": "47bc89c58325a532fe01ed033d4e35730346de3a8d0ed15ebbf27230414b2136",
+    "bytes": 48030,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-30T13:53:51Z",
+    "asOfUtc": "2026-10-30T14:08:39Z",
     "rowHashes": {
-      "modules": 3481816239,
+      "modules": 1780867387,
       "logic": 1151758449
     },
-    "verifiedEdits": 14,
+    "verifiedEdits": 7,
     "layoutAndFormulaPreservationVerified": true
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-30T13:53:51Z",
-    "sha256": "e7f16780214877a199ffcc20cda4d9c498f3847ca19e21bc823852ca9994a3cd",
+    "verifiedAtUtc": "2026-10-30T14:08:39Z",
+    "sha256": "47bc89c58325a532fe01ed033d4e35730346de3a8d0ed15ebbf27230414b2136",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 3481816239,
+    "moduleRowsFNV": 1780867387,
     "logicRowsFNV": 1151758449,
-    "intentionalCellChanges": 14,
+    "intentionalCellChanges": 7,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,
@@ -1712,7 +1716,8 @@
     "releaseExecutions": 2204,
     "lockedReferenceExecutions": 239,
     "releaseValidationRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json",
-    "sourceDiagnosisRecord": "fixtures/reference_fidelity/main-startup-rpc-order-diagnosis.json"
+    "sourceDiagnosisRecord": "fixtures/reference_fidelity/main-startup-rpc-order-diagnosis.json",
+    "latestBroadLibraryValidationRecord": "fixtures/reference_fidelity/main-mixed-native-broad-library-validation.json"
   },
   "validationRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json",
   "knownReferenceGaps": [
@@ -1755,5 +1760,6 @@
     "allTargets": true,
     "frozenInputs": 1888,
     "frozenInputsVerifiedBeforeAndAfter": true
-  }
+  },
+  "latestBroadLibraryValidationRecord": "fixtures/reference_fidelity/main-mixed-native-broad-library-validation.json"
 }
