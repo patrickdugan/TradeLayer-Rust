@@ -615,6 +615,7 @@ include!("source_main_mixed_native_cold_capture_impl.rs");
 include!("source_main_mixed_native_state_selection_impl.rs");
 include!("source_main_mixed_native_state_impl.rs");
 include!("source_main_mixed_native_source_reexecution_impl.rs");
+include!("source_main_mixed_native_cold_prefix_provider_impl.rs");
 include!("source_main_mixed_native_recovery_impl.rs");
 include!("source_main_mixed_native_replacement_impl.rs");
 include!("source_main_segmented_origin_blob_impl.rs");

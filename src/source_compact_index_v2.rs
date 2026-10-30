@@ -931,6 +931,13 @@ include!("source_index_generation_escrow_impl.rs");
 include!("source_index_escrow_descriptor_codec_impl.rs");
 include!("source_index_verified_old_view_impl.rs");
 include!("source_index_main_read_view_impl.rs");
+
+#[cfg(test)]
+include!("source_index_startup_read_impl.rs");
+#[cfg(test)]
+#[path = "source_index_startup_read_tests.rs"]
+mod actual_outer_startup_reads;
+
 include!("source_index_inline_source_outcome_impl.rs");
 include!("source_index_metadata_state_entries_impl.rs");
 include!("source_index_historical_inline_database_impl.rs");

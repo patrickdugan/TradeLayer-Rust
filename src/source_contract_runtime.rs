@@ -1374,23 +1374,7 @@ impl ContractCore {
                 self.table(name)?;
             }
             match op {
-                "findOneAsync" => {
-                    for row in self.rows(name) {
-                        if self.matches(row, &arg(&args, 0))? {
-                            return Ok(row.clone());
-                        }
-                    }
-                    Ok(V::Null)
-                }
-                "findAsync" => {
-                    let mut found = vec![];
-                    for row in self.rows(name) {
-                        if self.matches(row, &arg(&args, 0))? {
-                            found.push(row.clone())
-                        }
-                    }
-                    Ok(V::Array(found))
-                }
+                "findOneAsync" | "findAsync" => self.source_db_read_rows(name, op, &args),
                 "get" => Ok(self
                     .rows(name)
                     .iter()
@@ -1527,6 +1511,39 @@ impl ContractCore {
                 _ => Err(SourceRuleError::UnknownDependency.into()),
             }
         })();
+        let result = self.source_db_record_result(name, op, args, result)?;
+        self.source_db_after_recorded_result(name, op, &result)?;
+        result
+    }
+    fn source_db_read_rows(&self, name: &str, op: &str, args: &[V]) -> R<V> {
+        match op {
+            "findOneAsync" => {
+                for row in self.rows(name) {
+                    if self.matches(row, &arg(args, 0))? {
+                        return Ok(row.clone());
+                    }
+                }
+                Ok(V::Null)
+            }
+            "findAsync" => {
+                let mut found = vec![];
+                for row in self.rows(name) {
+                    if self.matches(row, &arg(args, 0))? {
+                        found.push(row.clone())
+                    }
+                }
+                Ok(V::Array(found))
+            }
+            _ => Err(SourceRuleError::UnknownDependency.into()),
+        }
+    }
+    fn source_db_record_result(
+        &mut self,
+        name: &str,
+        op: &str,
+        args: Vec<V>,
+        result: R<V>,
+    ) -> R<R<V>> {
         let result = if self.amm_lifecycle_enabled()
             && name == "orderBooks"
             && matches!(&result, Ok(_) | Err(Fault::Thrown(_)))
@@ -1558,6 +1575,9 @@ impl ContractCore {
             _ => (),
         };
         self.emit(event);
+        Ok(result)
+    }
+    fn source_db_after_recorded_result(&mut self, name: &str, op: &str, result: &R<V>) -> R<()> {
         if self.activation_lifecycle_enabled() {
             self.source_activation_after_db(name, op)?;
         }
@@ -1575,7 +1595,7 @@ impl ContractCore {
             && (result.is_ok()
                 || (self.spot_lifecycle_enabled()
                     && self.source_spot_main_active
-                    && matches!(&result, Err(Fault::Thrown(_)))))
+                    && matches!(result, Err(Fault::Thrown(_)))))
         {
             self.channel_save_writes += 1;
             if self.channel_save_writes == 1 {
@@ -1584,7 +1604,7 @@ impl ContractCore {
                 self.source_channel_balance_tick()?;
             }
         }
-        result
+        Ok(())
     }
     fn find(&mut self, name: &str, query: V) -> R<V> {
         self.db(name, "findOneAsync", vec![query])
@@ -2974,6 +2994,21 @@ include!("source_main_actual_fact_append_cold_impl.rs");
 include!("source_main_native_completed_runtime_test_impl.rs");
 include!("source_main_native_no_index_runtime_tests_impl.rs");
 include!("source_main_native_catchup_prepare_impl.rs");
+
+#[cfg(test)]
+mod actual_outer_bootstrap_await_probe {
+    use super::*;
+    include!("source_main_startup_query_await_impl.rs");
+    include!("source_main_outer_bootstrap_impl.rs");
+    include!("source_main_outer_bootstrap_visit_impl.rs");
+    mod tests {
+        include!("source_main_outer_bootstrap_tests.rs");
+    }
+    mod shared_query_tests {
+        include!("source_main_startup_query_await_tests.rs");
+    }
+}
+
 include!("source_main_native_catchup_continuation_impl.rs");
 include!("source_main_native_service_io_impl.rs");
 include!("source_main_native_service_block_prelude_impl.rs");

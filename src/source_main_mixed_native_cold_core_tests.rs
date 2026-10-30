@@ -274,3 +274,6 @@ fn mixed_cold_unwritten_final_ordinary_await_is_refused_with_real_financial_pref
 
 #[path = "source_main_mixed_native_recovery_cold_core_tests.rs"]
 mod mixed_native_recovery_cold_core_tests;
+
+#[path = "source_main_mixed_native_intermediate_cold_tests.rs"]
+mod mixed_native_intermediate_cold_tests;

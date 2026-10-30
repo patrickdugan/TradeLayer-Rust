@@ -1,0 +1,81 @@
+{
+  "schema": "tl-main-outer-bootstrap-intermediate-core-v1",
+  "verifiedAtUtc": "2026-10-30T17:07:49Z",
+  "inputCommit": "70aace401f0749e4de55f830150f38601487b394",
+  "validatedIn": "clean export of HEAD blobs plus the exact projected files below",
+  "newDistinctTests": 18,
+  "executedChecks": {
+    "outerAndQueryControls": 12,
+    "nativeFixedReadControls": 5,
+    "mixedColdOwnerControls": 9
+  },
+  "fullLibraryRun": {
+    "passed": 806,
+    "failed": 0,
+    "ignored": 4,
+    "note": "cargo test --lib on the same export; library only, not all targets or reference regenerations"
+  },
+  "allTargetClippyWarningsDenied": true,
+  "cargoFmtPassed": true,
+  "includedRustFilesChecked": 519,
+  "inventoryPassed": true,
+  "supplyPolicyPassed": true,
+  "sourceFiles": {
+    ".gitattributes": "807f7dd077629603015170ad6db0e840a17b21554e6ae50daf1d23a28e2a3c22",
+    ".github/workflows/ci.yml": "54e611b1d2e9db1d25a691b2ca9576b16c66c9173360acb4131643ca25c049c9",
+    "docs/LOGIC_BY_TX_TYPE.json": "3e45eb6fab5ab9e76bd07208c43bce8e11ecc2bb84256c6868e2bfd565deec72",
+    "fixtures/startup_await_old_db_complete.jsonl": "5873ab0a692e6394b0222eef9486cd25c9adfccef556f626131462e3b79dd5ea",
+    "scripts/ci-preflight.sh": "b2f479fe9e85ae4b121b8bac10524ea89d2cfcca9d150b7aed2f6d8a042c5cae",
+    "src/source_compact_index_v2.rs": "12b7c64aceaa9f0f2744348ac5f921a418eb0acecf6b262df32b26ee9a54e03f",
+    "src/source_contract_runtime.rs": "ae3ece955e8ae3b3eb4314303860d86e7d4b041673653c6e8a3a8371f8529bde",
+    "src/source_index_startup_read_impl.rs": "545efeada15be2033b6129a5d49617c5a7e8fce65869e93097c4a9f0b7cd8929",
+    "src/source_index_startup_read_tests.rs": "f66918098970652cc68caac5fadb3074458a8e93b98ad4a7f9e53fe1dc5eccc6",
+    "src/source_main_mixed_native_cold_core_tests.rs": "39c22a5044578e31ac0539ac545271ac950933ab1e8f482365ee8cb5d8cfc20f",
+    "src/source_main_mixed_native_cold_prefix_provider_impl.rs": "2507897f787b8a4b065a458a4912b97c29285310d275f36d24d10e9021a2f3f8",
+    "src/source_main_mixed_native_intermediate_cold_tests.rs": "d382bf4219ede89cb7435fcdd5ffd05a793968b04344ad508313f4c55ec3a086",
+    "src/source_main_native_session.rs": "6fb79dd43c6da99c54bbfef95a54fcaedbee6d6bbe136982650a50417ab20d41",
+    "src/source_main_outer_bootstrap_factory_stop_impl.rs": "a6036b5286a74a76e66616a49d82b072b0c63e047d836e67860c9f2523bd1ffc",
+    "src/source_main_outer_bootstrap_impl.rs": "bda8320f9b9803ea9961ed46ea386865678b1fa65b0de32b2e614cf307874753",
+    "src/source_main_outer_bootstrap_tests.rs": "5e3102aa4750f9e384438992e25a8f10cd23d654b2c8e9cd1536594b24b9acec",
+    "src/source_main_outer_bootstrap_visit_impl.rs": "6f3ea17f3b4dc41a6b3bd6370c0ff4f6773de673bf199b43f076b07aedbf6452",
+    "src/source_main_startup_query_await_impl.rs": "08b257e0be4ec6aa3fff24f45733f116f318d1207cc6aa2e560ebd8429c86b54",
+    "src/source_main_startup_query_await_tests.rs": "54414c66dc2ca795c66bc4923529cea5ca16e76bb77092da33e1e75982e552bd"
+  },
+  "manifests": {
+    "outer": "25573cb771b6a993d807984b383e9e5cf9c266830857f6f537c7141b69edd16e",
+    "query": "54a94229f992c45b9d5e703f536f373e955bada6b3c6e6e7f0af022f4eaa5da2",
+    "factoryStop": "dd7b992235187346d4c71fed0ed178f54cb089e94e0ea6fe52c3956b5dc3d28e",
+    "intermediate": "63f688d4f3e6efeb1fc405f7afddd8a9ff91aa8161a90edbb1349a5d334eb3f8",
+    "nativeReturnConversion": "c0e83a76c7f9f978deb789d219f9d6023a4d3d3a3aad81448603c8d8177bbc4b",
+    "preparedVisibility": "dd36be979a138f3614258631dfb83f9bfbb80d58bb2f25ec70e22a090d3a95d6"
+  },
+  "sourceProjectionExcludesFailedQueuedProfile": true,
+  "corrections": [
+    "take_prepared is private to the containing Runtime controller (resolves private_interfaces); prepared type unchanged",
+    "LOGIC inventory pin for fixtures/legacy_types_source_types.txt now hashes the committed LF blob (lfNormalized); it previously hashed an autocrlf CRLF checkout and failed on any clean checkout"
+  ],
+  "scope": {
+    "outerAndQueryFrameApisCfgTestOnly": true,
+    "oldCoreDbPurelyFactoredIntoReadRecordHooks": true,
+    "copiedPrefixColdEntrySeparateFromOldPublicC05": true,
+    "productionContainingOwnerStartupBindingEstablished": false,
+    "fullStartupSchedulerEstablished": false,
+    "queuedStartupPositivesPass": false,
+    "processKillOrAuthenticationEstablished": false,
+    "fullReferenceParityEstablished": false
+  },
+  "verifiedAllTargetBaseline": 2204,
+  "verifiedLockedReferenceBaseline": 239,
+  "fullAllTargetReleasePromoted": false,
+  "logs": {
+    "claude-outer-increment-r3-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "claude-outer-increment-r3-included-fmt.log": "7f2b89fbcad248e15022e8794f79b35e2c51781c575b37bd443baa62dd85172d",
+    "claude-outer-increment-r3-inventory.log": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393",
+    "claude-outer-increment-r3-supply.log": "52a4fbd7c013f6480ed510711e1301831cca2960e25ea859d5b52f2d06ab1032",
+    "claude-outer-increment-r3-clippy.log": "9402fda77a77a82b472903aaed250f6df6fdd775614aee2b3a7e9e6f441edda7",
+    "claude-outer-increment-r3-outer-and-query.log": "e41ed21aca90bd11aad3c6be2c08eea22520d40b8287446fd7fd109aab7e82cc",
+    "claude-outer-increment-r3-native-fixed-read.log": "b90de102b577467e7494079ae8ff0bb396ff0cd38ae5fe17d029c476ec558542",
+    "claude-outer-increment-r3-mixed-cold-owners.log": "1727f3cf04b28756784533b7a42315e6cfcfaa12612e82cc89d8285113fd3e37",
+    "claude-outer-increment-r3-lib.log": "8dfe757aaa9bb45415b6ace386d0cba348c7b6e2f2d362ca10312c081631e0db"
+  }
+}

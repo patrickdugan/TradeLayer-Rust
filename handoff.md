@@ -1,6 +1,10 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T15:50:36Z. Refresh this file after every tested integration or PR cycle.
+Updated: 2026-10-30T17:07:49Z. Refresh this file after every tested integration or PR cycle.
+
+## Outer/query frames and copied-prefix cold entry (Claude integration)
+
+18 new actual-Core controls pass from a clean export of the committed tree: 12 outer/query, 5 native fixed-read (original-writer binding, 1,031-row streaming) and 9 mixed cold owners (8 previous + the compaction/copy/Intermediate/sealed-retry/Post scene). Strict all-target Clippy, Cargo fmt, 519 included files, inventory and supply pass. The full library on the same export passes (806 passed, 4 ignored, 0 failed). `take_prepared` is now private (dd36). The types.js inventory pin was corrected to the committed LF blob; it failed on every clean checkout before. Outer/query APIs stay cfg(test); production containing-owner startup binding, the two queued positives and the full scheduler remain open. Evidence:`fixtures/reference_fidelity/main-outer-bootstrap-intermediate-core-integration.json`. Release 2204/239 unchanged. No push/PR.
 
 ## Latest tested mixed native recovery increment (`d774f6e`)
 

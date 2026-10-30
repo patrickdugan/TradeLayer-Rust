@@ -30,7 +30,7 @@ Claude is now the integration owner. Historical worker statements such as "no Ro
 
 ## Committed and verified
 
-Current pre-handoff checkpoint is `186054725b4e957352cd38f5a0b9af525e12716d`. The handoff itself adds a later documentation commit; use `git log` for its SHA.
+Pre-handoff checkpoint was `186054725b4e957352cd38f5a0b9af525e12716d`. The handoff itself adds a later documentation commit; use `git log` for its SHA.
 
 | Commit | Result |
 |---|---|
@@ -45,35 +45,19 @@ Evidence: `fixtures/reference_fidelity/orderbook-lifecycle-helpers-core-integrat
 
 The cold negative's decode accessor reads a **thread-local total**, not a per-Runtime counter. It correctly measures independent live/cold deltas of one without resetting or suppressing calls. Its other strong state/effects/action-count/PC/error/no-Post assertions remain intact.
 
-## Current uncommitted work: 18 new checks passed; lint/commit still pending
+## Committed by Claude (2026-10-31)
 
-Do not discard the dirty checkout. It contains both the older failed queued-startup proposal and a newer tested increment that is not yet ready to commit.
+The 18-check outer/query/intermediate increment is committed with the dd36 visibility fix (`take_prepared` private). It was validated in a clean export of exactly the committed blobs (`work/tlx`, runner `work/claude-check-outer-increment.ps1`, logs `work/claude-outer-increment-r3-*.log`): 12 outer/query + 5 native fixed-read + 9 mixed cold owners pass; strict all-target Clippy, Cargo fmt, 519 included files, inventory and supply pass, and the full library on the same export passes (806 passed, 4 ignored, 0 failed; library only, not all targets). Evidence: `fixtures/reference_fidelity/main-outer-bootstrap-intermediate-core-integration.json`.
 
-The latest actual normal-Core run is `work/check-outer-intermediate-second.ps1`, completed session **6219**, exit 0:
+A pre-existing defect was fixed in the same commit: the `LOGIC_BY_TX_TYPE.json` pin for `fixtures/legacy_types_source_types.txt` hashed a CRLF autocrlf checkout, so the inventory gate failed on any clean (Linux CI) checkout. It now pins the committed LF blob (`a49c1b1f`, the hash every other consumer already uses) with `lfNormalized`.
 
-- `work/root-outer-intermediate-second-outer-and-query.log`: 12 pass (six query controls, six outer controls).
-- `work/root-outer-intermediate-second-native-fixed-read.log`: five pass, including original-writer binding and 1,031-row streaming.
-- `work/root-outer-intermediate-second-mixed-cold-owners.log`: nine pass (eight previous cold owner controls plus one new real compaction/copy/Intermediate/sealed-retry/Post case).
+The failed queued-startup proposal is still only in the dirty checkout and was not staged: the three Runtime includes, the six one-line include edits, the queued leaves, their CI/preflight lines and pins. The working-tree `LOGIC_BY_TX_TYPE.json`, `ci.yml`, `ci-preflight.sh` and `source_contract_runtime.rs` therefore still differ from HEAD by exactly that proposal.
 
-That is **26 executed checks, 18 newly added relative to committed `33a1b49`**. It is not an all-library/all-target run, a full startup scheduler, or a process-kill proof. Current inputs are pinned in `work/root-outer-intermediate-second-inputs.json` and mount records `root-outer-intermediate-mounted.json` / `root-outer-native-return-fix.json`.
-
-The new outer/query frame APIs are deliberately compiled in a **cfg(test) component namespace**. The existing Core.db method is purely factored into read/record/hooks; six controls compare complete original results, effects and state against an independently captured actual older Core. Production containing-owner startup binding is still missing.
+Tooling notes: this machine has only Windows PowerShell 5.1, which turns native stderr into terminating errors under `$ErrorActionPreference=Stop`; run gates through `cmd /c ... > log 2>&1`. `cargo fmt --all` fails with os error 206 (command line too long) when the checkout path is longer than the repository path, so exports go to a short path.
 
 ### First next action
 
-Apply the frozen **visibility-only** correction, not mounted yet:
-
-```text
-work/native-main-outer-bootstrap-kernel-binding-v13/root-ready-prepared-visibility-1
-MANIFEST SHA256 dd36be979a138f3614258631dfb83f9bfbb80d58bb2f25ec70e22a090d3a95d6
-prepare_prepared_visibility.prepare_outer(current source_main_outer_bootstrap_impl.rs)
-```
-
-It changes only `take_prepared` from `pub(crate)` to private. The existing prepared type must stay private; do not widen it or add a warning allowance. This resolves the actual `private_interfaces` warning. Preserve the already mounted factory-stop and actual-await conversion fixes.
-
-Then run relevant affected tests, strict all-target Clippy, Cargo formatting, explicit included-file formatting (currently **529** files), inventory and supply-policy checks. Freeze fresh current inputs. Commit the coherent checked increment while **excluding the older failed queued proposal** from shared Runtime/CI/inventory files. Preserve executable mode **100755** for `scripts/ci-preflight.sh` when staging projected content; `update-index --chmod` can accidentally stage unrelated working contents. Prior safe patterns are in `work/commit-mixed-cold-checked.py` and `work/commit-orderbook-helpers-checked.py`; do not rerun completed one-time commit/mount scripts.
-
-The new copied-prefix cold entry is explicitly separate: `NativeMainColdPrefixV1::reexecute_with_mixed_fact_views`, using the same raw-foundation reconstruction body with verified original/copy views. Its one passing financial scene does not prove arbitrary history/configuration/process-loss domains. Old public c05 admission is unchanged.
+Implement the strict native raw-request capture transform (step 2 of `work/native-main-outer-bootstrap-kernel-binding-v13/CLAUDE_HANDOFF.md`) in a new revision against current one-line formatting, then bind outer hooks to the same `MainStepKernelV1::startup_source_parts()` queue.
 
 ## Main remaining blocker: actual startup scheduling
 
