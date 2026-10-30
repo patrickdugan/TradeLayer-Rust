@@ -3069,3 +3069,7 @@ include!("source_main_raw_startup_sdk_impl.rs");
 #[cfg(test)]
 #[path = "source_main_bootstrap_tests.rs"]
 mod ordered_bootstrap_tests;
+
+include!("source_main_raw_startup_live_runtime_impl.rs");
+
+include!("source_main_startup_nested_runtime_impl.rs");

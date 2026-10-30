@@ -304,6 +304,15 @@ impl SourceContractRuntime {
         limit: usize,
         access: &mut impl NativeMainSourceMetadataAccess,
     ) -> NativeMainServiceStopV1 {
+        self.native_main_service_advance_with_access_startup(frame, limit, access, false)
+    }
+    fn native_main_service_advance_with_access_startup(
+        &mut self,
+        frame: &mut NativeMainServiceContinuationV1,
+        limit: usize,
+        access: &mut impl NativeMainSourceMetadataAccess,
+        startup_fifo_completion: bool,
+    ) -> NativeMainServiceStopV1 {
         use crate::source_main_step_kernel::MainStepCommandV1;
         if limit == 0 || limit > 4096 {
             return NativeMainServiceStopV1::SourceStopped(SourceRuleError::InvalidInput);
@@ -419,6 +428,27 @@ impl SourceContractRuntime {
             }
             if let Some(completed) = &frame.completed_block {
                 if frame.kernel.service_next_block().as_ref() != Some(&completed.request) {
+                    if startup_fifo_completion && frame.kernel.service_has_ready() {
+                        if frame.kernel.service_next_block().is_some() {
+                            // A second distinct ready block needs another real
+                            // block slot. Retain this local capacity prefix;
+                            // never give it the first job's actual completion.
+                            frame.stopped = Some(SourceRuleError::Capacity);
+                            continue;
+                        }
+                        match access.kernel(
+                            self,
+                            frame,
+                            MainStepCommandV1::DrainReady { limit: 1 },
+                            false,
+                        ) {
+                            Ok(evaluation) => {
+                                self.native_main_service_accept_evaluation(frame, evaluation)
+                            }
+                            Err(error) => return NativeMainServiceStopV1::KernelStopped(error),
+                        }
+                        continue;
+                    }
                     frame.stopped = Some(SourceRuleError::InvalidInput);
                     continue;
                 }

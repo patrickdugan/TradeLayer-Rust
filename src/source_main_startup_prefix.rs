@@ -725,3 +725,5 @@ fn visit_job(
     }
     Ok(())
 }
+
+include!("source_main_startup_clock_impl.rs");

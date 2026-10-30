@@ -278,3 +278,6 @@ mod actual_fact_trace_core_tests;
 
 #[path = "source_main_actual_fact_reexecution_core_tests.rs"]
 mod actual_fact_source_reexecution_core_tests;
+
+#[path = "source_main_durable_fresh_core_tests.rs"]
+mod durable_fresh_core_tests;

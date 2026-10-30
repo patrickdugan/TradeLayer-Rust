@@ -766,6 +766,7 @@ mod verified_prefix_tests;
 include!("storage_history_prefix_impl.rs");
 include!("storage_verified_commit_trace_impl.rs");
 include!("storage_active_history_window_impl.rs");
+include!("storage_verified_commit_range_impl.rs");
 #[cfg(test)]
 #[path = "storage_verified_commit_trace_tests.rs"]
 mod verified_commit_trace_tests;
@@ -777,3 +778,7 @@ mod history_prefix_tests;
 #[cfg(test)]
 #[path = "storage_active_history_window_tests.rs"]
 mod active_history_window_tests;
+
+#[cfg(test)]
+#[path = "storage_verified_commit_range_tests.rs"]
+mod verified_commit_range_tests;

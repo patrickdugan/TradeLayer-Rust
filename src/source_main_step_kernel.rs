@@ -1362,3 +1362,11 @@ mod automatic_file_kernel_tests;
 #[cfg(test)]
 #[path = "source_main_automatic_parallel_kernel_tests.rs"]
 mod automatic_parallel_kernel_tests;
+
+include!("source_main_step_startup_clock_impl.rs");
+
+include!("source_main_startup_nested_kernel_impl.rs");
+
+#[cfg(test)]
+#[path = "source_main_startup_nested_kernel_tests.rs"]
+mod startup_nested_kernel_tests;

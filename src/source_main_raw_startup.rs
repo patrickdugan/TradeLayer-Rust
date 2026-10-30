@@ -222,3 +222,7 @@ impl SourceMainRawStartupV1 {
 mod tests;
 
 include!("source_main_raw_startup_suffix_impl.rs");
+
+include!("source_main_raw_startup_live_impl.rs");
+
+include!("source_main_startup_nested_impl.rs");

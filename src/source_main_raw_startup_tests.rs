@@ -425,3 +425,7 @@ mod raw_startup_empty_suffix {
     use super::*;
     include!("source_main_raw_startup_suffix_tests.rs");
 }
+
+include!("source_main_raw_startup_live_tests.rs");
+
+include!("source_main_startup_nested_tests.rs");

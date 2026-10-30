@@ -2,6 +2,9 @@ pub use tradelayer_core::validity_source;
 #[allow(dead_code)]
 #[path = "../src/source_main_step_kernel.rs"]
 mod kernel;
+#[allow(dead_code)]
+#[path = "../src/source_main_startup_prefix.rs"]
+mod source_main_startup_prefix;
 use kernel::*;
 use std::collections::BTreeSet;
 use validity_source::{SourceRuleError, SourceValue as V};

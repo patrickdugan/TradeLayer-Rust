@@ -244,3 +244,6 @@ fn cold_wrong_raw_observation_limit_retains_actual_executed_source_prefix_and_bo
     )
     .is_err());
 }
+
+#[path = "source_main_segmented_cold_source_tests.rs"]
+mod segmented_cold_source_tests;

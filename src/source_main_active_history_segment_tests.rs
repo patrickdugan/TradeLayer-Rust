@@ -356,3 +356,6 @@ fn finite_origin_is_never_silently_upgraded_to_segmented() {
 
 #[path = "source_main_active_history_extended_tests.rs"]
 mod extended_segment_tests;
+
+#[path = "source_main_segmented_history_reader_tests.rs"]
+mod segmented_reader_tests;

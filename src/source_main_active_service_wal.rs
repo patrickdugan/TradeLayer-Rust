@@ -344,16 +344,14 @@ impl ActiveServiceWalV1 {
         if blobs.len() > 16 || references.len() > 64 {
             return Err(ActiveServiceWalErrorV1::Capacity);
         }
+        let mut new_blob_pins = Vec::with_capacity(blobs.len());
         for raw in &blobs {
-            ActiveServiceWalBlobV1::of(raw)?;
+            new_blob_pins.push(ActiveServiceWalBlobV1::of(raw)?);
         }
         // Every retained dependency is pinned now. New blobs are verified at
         // write; already-existing referenced blobs must really be present.
         for pin in &references {
-            if !blobs
-                .iter()
-                .any(|raw| ActiveServiceWalBlobV1::of(raw).ok().as_ref() == Some(pin))
-            {
+            if !new_blob_pins.iter().any(|candidate| candidate == pin) {
                 self.read_blob(pin)?;
             }
         }
@@ -548,11 +546,17 @@ impl ActiveServiceWalV1 {
     }
     pub fn read_blob(&self, pin: &ActiveServiceWalBlobV1) -> Result<Vec<u8>> {
         self.healthy()?;
+        #[cfg(test)]
+        blob_pin_reuse_tests::observe_existing_blob_read(pin);
         self.read_blob_unchecked(pin)
     }
 }
 
 include!("source_main_active_history_segment_impl.rs");
+include!("source_main_segmented_history_capture_impl.rs");
+include!("source_main_segmented_history_reader_impl.rs");
+#[cfg(test)]
+include!("source_main_wal_blob_pin_reference_impl.rs");
 include!("source_main_active_service_cold_history_impl.rs");
 include!("source_main_mode4_cold_history_impl.rs");
 include!("source_main_mode4_inline_closure_impl.rs");
@@ -561,6 +565,7 @@ include!("source_main_actual_fact_source_scope_impl.rs");
 include!("source_main_actual_fact_expectation_codec_impl.rs");
 include!("source_main_actual_fact_history_profile_impl.rs");
 include!("source_main_actual_fact_trace_impl.rs");
+include!("source_main_durable_fresh_boundary_impl.rs");
 include!("source_main_actual_fact_barriers_impl.rs");
 include!("source_main_actual_fact_physical_impl.rs");
 include!("source_main_actual_fact_pending_impl.rs");
@@ -578,3 +583,7 @@ mod tests;
 #[cfg(test)]
 #[path = "source_main_active_history_segment_tests.rs"]
 mod active_history_segment_tests;
+
+#[cfg(test)]
+#[path = "source_main_wal_blob_pin_reuse_tests.rs"]
+mod blob_pin_reuse_tests;

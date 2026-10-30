@@ -1275,6 +1275,20 @@
       "segmentedColdIntegrated": false,
       "fullSuitePromotion": false,
       "commit": "9f901cb473313f8797ba4becc8bf550a9f5f9b08"
+    },
+    "mainPinFreshColdStartup": {
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/main-pin-fresh-cold-core-integration.json",
+      "libraryPassed": 715,
+      "libraryIgnored": 4,
+      "singleFullLibraryRun": true,
+      "publicCompatibilityPassed": 44,
+      "newUnitTests": 32,
+      "includedRustFilesChecked": 441,
+      "fullSuitePromotion": false,
+      "fullGlobalStartupParity": false,
+      "pairedFreshColdIntegrated": false,
+      "ordinaryTypedNativeRecoveryColdIntegrated": false
     }
   },
   "scope": "Full release a94ea4c remains 2,204 Rust / 239 genuine numeric checks. Later 9f901cb covers 683 distinct library tests (four ignored), 44 public and 25 new controls, strict Clippy/fmt411/inventory/supply. Exact test-name audit combines 680 regressions with separately covered long/corrected cases; production Rust is unchanged across runs. Financial13-2 replay and 4,097 real Pause calls pass. Nested consensus, nonempty/global startup, durable fresh/file/segmented cold composition and authentication/proof gates remain open.",

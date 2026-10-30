@@ -227,6 +227,7 @@ pub mod source_main_native_intent_store;
 pub mod source_main_native_owners;
 
 pub mod source_main_active_service_wal;
+pub mod source_main_durable_fresh_action;
 pub mod source_main_fresh_input;
 pub mod source_main_native_session;
 pub mod source_main_raw_startup;

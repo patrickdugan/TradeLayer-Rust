@@ -556,6 +556,7 @@ include!("source_main_checked_history_provider_impl.rs");
 include!("source_main_actual_fact_prefix_provider_impl.rs");
 include!("source_main_native_cold_prefix_impl.rs");
 include!("source_main_native_cold_active_reexecution_impl.rs");
+include!("source_main_segmented_cold_source_impl.rs");
 include!("source_main_mode4_source_reexecution_impl.rs");
 include!("source_main_actual_fact_state_impl.rs");
 include!("source_main_actual_fact_source_reexecution_impl.rs");
@@ -582,6 +583,9 @@ include!("source_main_retained_file_session_impl.rs");
 include!("source_main_automatic_file_session_impl.rs");
 include!("source_main_retained_consensus_session_impl.rs");
 include!("source_main_fresh_input_session_impl.rs");
+include!("source_main_durable_fresh_controller_impl.rs");
+include!("source_main_durable_fresh_driver_impl.rs");
+include!("source_main_durable_fresh_recovery_impl.rs");
 include!("source_main_coercive_sync_session_impl.rs");
 include!("source_main_null_sync_session_impl.rs");
 include!("source_main_retained_caller_start_wal_impl.rs");
@@ -596,6 +600,8 @@ mod native_inline_service_tests;
 include!("source_main_active_service_action_codec_impl.rs");
 include!("source_main_active_service_durable_impl.rs");
 include!("source_main_segmented_active_history_impl.rs");
+include!("source_main_segmented_origin_blob_impl.rs");
+include!("source_main_segmented_actor_capture_impl.rs");
 include!("source_main_active_service_recovery_impl.rs");
 include!("source_main_service_escrow_append_impl.rs");
 include!("source_main_actual_fact_append_session_impl.rs");
@@ -680,3 +686,5 @@ mod automatic_native_file_tests;
 #[cfg(test)]
 #[path = "source_main_fresh_input_core_tests.rs"]
 mod fresh_rpc_input_tests;
+
+include!("source_main_raw_startup_live_route_impl.rs");

@@ -38,6 +38,12 @@ jobs:
         run: python3 -m unittest discover -s tests -p test_rust_supply_chain.py -v
       - name: Check formatting
         run: cargo fmt --all -- --check
+      - name: Check segmented origin blob formatting
+        run: rustfmt --check --edition 2021 src/source_main_segmented_origin_blob_impl.rs
+      - name: Check literal nested startup formatting
+        run: rustfmt --check --edition 2021 src/source_main_raw_startup_live_impl.rs src/source_main_raw_startup_live_route_impl.rs src/source_main_raw_startup_live_runtime_impl.rs src/source_main_raw_startup_live_tests.rs src/source_main_startup_clock_impl.rs src/source_main_startup_nested_impl.rs src/source_main_startup_nested_kernel_impl.rs src/source_main_startup_nested_kernel_tests.rs src/source_main_startup_nested_runtime_impl.rs src/source_main_startup_nested_tests.rs src/source_main_step_startup_clock_impl.rs
+      - name: Check WAL pin reuse and fresh/cold continuation formatting
+        run: rustfmt --check --edition 2021 src/source_main_durable_fresh_action.rs src/source_main_durable_fresh_action_tests.rs src/source_main_durable_fresh_boundary_impl.rs src/source_main_durable_fresh_boundary_tests.rs src/source_main_durable_fresh_controller_impl.rs src/source_main_durable_fresh_core_tests.rs src/source_main_durable_fresh_driver_impl.rs src/source_main_durable_fresh_recovery_impl.rs src/source_main_segmented_actor_capture_impl.rs src/source_main_segmented_cold_source_impl.rs src/source_main_segmented_cold_source_tests.rs src/source_main_segmented_history_capture_impl.rs src/source_main_segmented_history_reader_impl.rs src/source_main_segmented_history_reader_tests.rs src/source_main_wal_blob_pin_reference_impl.rs src/source_main_wal_blob_pin_reuse_tests.rs src/storage_verified_commit_range_impl.rs src/storage_verified_commit_range_tests.rs
       - name: Check segmented active actor formatting
         run: rustfmt --check --edition 2021 src/source_main_segmented_active_history_impl.rs src/source_main_segmented_active_history_tests.rs src/source_main_active_history_extended_tests.rs
       - name: Check Initialize and financial cold actors formatting

@@ -567,6 +567,9 @@ impl SourceMainNativeDurableActiveServiceV1 {
         if let Some(previous) = self.history.last() {
             refs.push(previous.entry.clone())
         }
+        if let Some(raw) = self.segmented_ready_origin_blob()? {
+            refs.push(ActiveServiceWalBlobV1::of(&raw)?);
+        }
         if self.actual_facts.is_some() {
             for raw in self.actual_fact_blobs()? {
                 refs.push(ActiveServiceWalBlobV1::of(&raw)?);
@@ -681,6 +684,9 @@ impl SourceMainNativeDurableActiveServiceV1 {
         {
             let p = self.pending.as_ref().expect("pending");
             let mut blobs = vec![p.raw.clone(), p.before.clone(), self.origin_archive.clone()];
+            if let Some(raw) = self.segmented_ready_origin_blob()? {
+                blobs.push(raw);
+            }
             if let Some(raw) = &p.escrow_chain {
                 blobs.push(raw.clone());
             }

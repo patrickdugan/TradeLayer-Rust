@@ -407,6 +407,15 @@ impl SourceContractRuntime {
         f: &mut NativeMainRetainedCallerFrameV1,
         documents: &V,
     ) -> Result<NativeMainRetainedCallerStopV1, SourceRuleError> {
+        self.native_main_retained_caller_advance_inner_tracked(index, f, documents, None)
+    }
+    fn native_main_retained_caller_advance_inner_tracked(
+        &mut self,
+        index: &mut SourceCompactIndex,
+        f: &mut NativeMainRetainedCallerFrameV1,
+        documents: &V,
+        mut nested_consensus: Option<&mut bool>,
+    ) -> Result<NativeMainRetainedCallerStopV1, SourceRuleError> {
         if let Some(e) = &f.local_stop {
             return Ok(NativeMainRetainedCallerStopV1::Native(
                 NativeMainRowStopV1::SourceStopped(e.clone()),
@@ -538,6 +547,9 @@ impl SourceContractRuntime {
                             ));
                             f.pc = NativeMainRetainedCallerPcV1::Extract;
                         } else if max == tip {
+                            if let Some(nested) = nested_consensus.as_deref_mut() {
+                                *nested = true;
+                            }
                             f.pc = NativeMainRetainedCallerPcV1::Consensus;
                         } else {
                             self.native_main_retained_sync_return(f);
