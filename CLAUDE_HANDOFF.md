@@ -69,6 +69,12 @@ Result awaits (FindMax/Tally load/MaxProcessed) now subscribe at the async call'
 
 Put the Incoming/Sync/checkBlockLag lane on the same driver loop (raw RPC as RecordedHostIo Promises, its NeDB operations through the same executor), then compare the combined operation order with the genuine ordinals 125-138 (outer fixed read before the first transaction RPC/upsert). Only then revisit the two queued positives.
 
+Diagnosis behind this (Claude, 2026-10-31, from code and the dc7d6dbf evidence, not yet executed):
+
+- In the genuine run NeDB is the real library (32 genuine NeDB 1.8 memory handles), so every `findOne`/`update` costs per-collection executor `setImmediate` turns. The recorded client's RPC methods are async functions that return already-resolved Promises, so `getBlockCount`/`getNetworkInfo` cost microtask turns only (`startup_init_source_base.cjs` `io()`).
+- The legacy step Kernel's `Frame::Incoming`/`Sync`/`Recovery` run `HeightRead`, `HeightWrite` and the persistence/txIndex writes as synchronous primitives inside one `ready` turn (`src/source_main_step_kernel.rs`, `advance` and `apply_with_drain_bound`). That lets the live lane's first upsert happen before the outer fixed read's NeDB sample, which is exactly the observed four-versus-three-rows failure.
+- Required work, in order: (1) extend `StartupNedbQueue` with the remaining collections (persistence and the others the Incoming lane touches), non-`_id` `findOne`, and `update`/upsert executor jobs, re-deriving each job shape from the genuine NeDB executor reference (`nedb_executor_reference.cjs` in the source-kernel package) and refreezing its fixture; (2) under the startup profile only, make the legacy Kernel's DB primitives park the job and request the executor, executing the actual primitive at the sample delivery and readying the job at the callback; (3) route every legacy `ready.push_back` in that profile through the same `StartupPromiseQueue` reaction FIFO, so legacy jobs and outer routes share one microtask order; (4) run Main's outer and Incoming lanes together and compare with genuine ordinals 125-138.
+
 ## Main remaining blocker: actual startup scheduling
 
 Two uncommitted queued positives still fail: the proposed Rust scheduler samples an outer fixed index view **after** the first live upsert, yielding four rows; genuine pinned JS samples three rows **before** the first transaction RPC/upsert. Later live writes are therefore absent. The old assertions have not been weakened or ignored in CI.
