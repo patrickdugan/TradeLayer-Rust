@@ -2649,6 +2649,7 @@ include!("source_contract_oracle_impl.rs");
 include!("source_clearing_funding_impl.rs");
 include!("source_insurance_lifecycle_impl.rs");
 include!("source_clearing_global_impl.rs");
+include!("source_orderbook_helpers_runtime_impl.rs");
 
 include!("source_insurance_legacy_v1_impl.rs");
 

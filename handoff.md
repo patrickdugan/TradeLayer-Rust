@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T14:46:10Z. Refresh this file after every tested integration or PR cycle.
+Updated: 2026-10-30T15:00:31Z. Refresh this file after every tested integration or PR cycle.
 
 ## Latest tested mixed native recovery increment (`d774f6e`)
 
@@ -108,3 +108,9 @@ Workbook/sidebar now show782scoped checks and retain startup/RPC/UID, mixed cold
 Refresh 2026-10-30T14:46:10Z inspected committed checkpoint1a8d2fb without changing source. Actual frozen working-tree checks:5new orderbook lifecycle tests plus8existing queue tests pass;4cold metadata controls pass. All8cold financial-owner controls fail: first segmented Before framing differs, or Advance incorrectly classifies a retained old StorageStopped as a fresh native IO ambiguity. Immutable inputs and exact passed/failed names/log hashes are recorded in `fixtures/reference_fidelity/cold-orderbook-candidate-validation.json`. These candidate tests do not raise the2,204Rust/239numeric release baseline or the782scoped prior-library count.
 
 Worker corrections354b/48bd are frozen but unmounted and Core-unvalidated; keep all existing financial/negative assertions. A comparison-only diagnostic54ac is available separately. Actual Intermediate/copied-prefix cold closure is still pending. Promise/query54a9 and Kernel/outer-bootstrap production bindings remain isolated worker prerequisites; do not promote standalone checks to full startup parity. No source, CI or test files were staged by this heartbeat; candidate implementation remains uncommitted until its gates pass. Workbook/sidebar194 have13intentional edits, preserved48TL+1external and37transaction rows, formulas/styles/filters/panes/geometry, and zero formula errors. UTXORef remains a separate consumer. No push/PR.
+
+## Tested orderbook lifecycle helpers (this commit)
+
+Three complete pinned helpers now use an explicit entry on the existing Queue/Core/registry: getAddressOrders,cancelContractOrdersForSize,adjustOrdersForAddress.5new actual-Core tests and8unchanged queue checks pass; complete-source35calls/proof10 regenerate under genuine9.3.1/9.1.2. Original missing-method/circular-loader errors, sorting/splices/cached partial writes, commented-out persistence and unbound-reference failures remain literal. Strict all-targetClippy/Cargofmt/fmt519/inventory/supply pass. Runtime/CI/pins selectively exclude uncommitted cold and queued-startup experiments. `fixtures/reference_fidelity/orderbook-lifecycle-helpers-core-integration.json` records scope and hashes. Release remains2204/239.
+
+Current cold correction354b+48bd reached7/8passing financial controls; the remaining unwritten-await negative disagrees on verified-action count after full financial equality. Resolve the actual stopping boundary before changing an assertion or committing the cold actor. Comparison-only54ac is mounted. Startup query/outer2557 and same-Kernel production binding remain worker work, not full startup parity.

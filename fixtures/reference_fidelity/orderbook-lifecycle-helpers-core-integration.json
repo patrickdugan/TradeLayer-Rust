@@ -1,0 +1,53 @@
+{
+  "schema": "tl-orderbook-lifecycle-helpers-core-v1",
+  "verifiedAtUtc": "2026-10-30T15:00:31Z",
+  "inputCommit": "2ed67a4296f331c74ef2e50668447fbc8c0df9f0",
+  "sourceManifest": "acacdeb1ae081a3678e5f8b51736cff2554737c07ab8792b6f60c3aefe1c0712",
+  "newCoreTestsPassed": 5,
+  "existingQueueTestsPassed": 8,
+  "originalSourceCalls": 35,
+  "proofSubsetCalls": 10,
+  "numericProfiles": [
+    "9.3.1",
+    "9.1.2"
+  ],
+  "sourceBusinessBodiesChanged": false,
+  "sameQueueCoreRegistryAndTally": true,
+  "declaredOriginalModuleEntryContexts": true,
+  "oldEntryMethodsCodecsAndDefaultAdmissionUnchanged": true,
+  "allTargetsClippyWarningsDenied": true,
+  "cargoFmtPassed": true,
+  "includedWorkingRustFilesChecked": 519,
+  "sourceProjectionExcludesColdAndQueuedExperiments": true,
+  "fullAllTargetReleasePromoted": false,
+  "authenticationEstablished": false,
+  "completeBlockFraudProofEstablished": false,
+  "sourceFiles": {
+    ".github/workflows/ci.yml": "629165fbf37df081ec98daff7b2f81a3308193f6e37822dd5077ae8ce45ec962",
+    "docs/LOGIC_BY_TX_TYPE.json": "49c67a7a53b27bb2cfb64abb060b427fb5c01d5d6a4acbca9e777cc83b5e8db7",
+    "docs/ORDERBOOK_LIFECYCLE_HELPERS.md": "30d3e9ca73eab92400246a1b1ef21a9b70e0561854988227ad17bd1c9f39b52a",
+    "fixtures/orderbook_lifecycle_helpers.jsonl": "016d29123e20b28f9a5801b91eaf35848c73721b106ba9384b9fce99ec7edc7f",
+    "fixtures/orderbook_lifecycle_helpers_proof10.jsonl": "19eae035231d8a0d087266397b2bcca31145664ce4900e312d098111440a4076",
+    "scripts/ci-preflight.sh": "fd96b0fc5ffb8b73881f7f3b76631ab9bc6fc02fbedd050487498ec33839bbc8",
+    "scripts/orderbook_lifecycle_helpers.cjs": "c36dce229a497968b68f6e8455239a365571a3990fe2329196d29c1f5769e99d",
+    "src/contract_orderbook_helpers_impl.rs": "805e9188295f966e5ed47b003284784973b7a884473e4ff1861e24f61e2b2c2c",
+    "src/contract_orderbook_helpers_numeric_impl.rs": "1ed9c1178edb436a053e74df6b2806df30e3e8f3c21e956e5a76f42eecce9a3a",
+    "src/contract_queue_source_owner.rs": "de0f603150c222e05a788690b490729ef60d5c0757b4dcdac8b468513f492aee",
+    "src/source_contract_runtime.rs": "12a265a50ede28b5dc44b059b8460202ebf9a417fbe68a408c8ae7f9caad67e4",
+    "src/source_orderbook_helpers_runtime_impl.rs": "4d75782501d78f83e0248d4a9832cda07b504d5f335f434645fb51bfdda10a7d",
+    "tests/orderbook_lifecycle_helpers.rs": "83ec536a6d078dbe17198348510dd317b22ba185d4295d6541273451da86968c",
+    "tests/orderbook_lifecycle_runtime.rs": "4f1e83fad7f1284e4919b77750d4754db36349548a116b06edea93bbb4a0d20d",
+    "tests/orderbook_lifecycle_transport.rs": "f72c360fd996c1ffaf32bc6cf327f8bef581afa1162767a855534dc2c0e32b62"
+  },
+  "logs": {
+    "root-cold-orderbook-first-aux-source-full.log": "e8046b7ad1db81828c039b3c4388502084b5cf86383cbeb823a287cd30722624",
+    "root-cold-orderbook-first-aux-source-full-lock.log": "429eccc0dbb4c62618270a55361ead2d336656b240c1c8abe461d69e0bc89582",
+    "root-cold-orderbook-first-aux-source-proof10.log": "fc765d2fcbc138e8bf93c61bb6c583ee29e38d4c9c1b416731d06855df696074",
+    "root-cold-orderbook-first-aux-source-proof10-lock.log": "7a532669892317cd5dacc3dfe91ae02827e9dcd06dd0edb6b6f5710e50bea264",
+    "root-mixed-cold-regression-orderbook.log": "21eb44f4aa83cc931e1646ac68ab2914cdddfdaf37a9a5f20d8fe6df06f92032",
+    "root-mixed-cold-regression-clippy.log": "1c553b9530d10df724f4494e957192a41714a018f6765c4108a337ad842bdd2a",
+    "root-mixed-cold-regression-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "root-mixed-cold-corrected-included-fmt.log": "7f2b89fbcad248e15022e8794f79b35e2c51781c575b37bd443baa62dd85172d",
+    "root-mixed-cold-corrected-aux.log": "fe2407f250af0381558ed68d708a44e102562c5cf63a2d72212118249c459293"
+  }
+}

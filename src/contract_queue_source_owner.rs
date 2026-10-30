@@ -1750,3 +1750,4 @@ fn sort_ready(rows: &mut [V]) -> Eval<()> {
 }
 
 include!("source_spot_queue_fragments_impl.rs");
+include!("contract_orderbook_helpers_impl.rs");
