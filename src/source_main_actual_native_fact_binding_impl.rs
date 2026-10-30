@@ -51,8 +51,9 @@ impl ActiveServiceWalV1 {
         plan: &crate::source_compact_index_v2::NativePreparedInlineDatabaseV1,
     ) -> Result<ActualNativeFactBindingV1> {
         let origin = parse(&self.context)?.get("origin");
-        let source_mode = origin.get("profile") == s(ACTUAL_SOURCE_FACT_WAL_PROFILE)
-            && origin.get("actualNativeFactScope") == s(ACTUAL_SOURCE_FACT_SCOPE);
+        let source_mode = (origin.get("profile") == s(ACTUAL_SOURCE_FACT_WAL_PROFILE)
+            && origin.get("actualNativeFactScope") == s(ACTUAL_SOURCE_FACT_SCOPE))
+            || mixed_native_fact_origin(&origin);
         if (origin.get("profile") != s(ACTUAL_NATIVE_FACT_WAL_PROFILE) && !source_mode)
             || origin.get("requiredNativeFactProfile") != s(ACTUAL_NATIVE_FACT_PROFILE)
         {
@@ -102,10 +103,11 @@ impl ActiveServiceWalV1 {
 impl ActualNativeFactBindingV1 {
     pub(crate) fn require_synced_native_intent(&self, wal: &ActiveServiceWalV1) -> Result<()> {
         let record = wal.record()?;
-        let source_mode =
-            parse(&wal.context)?.get("origin").get("profile") == s(ACTUAL_SOURCE_FACT_WAL_PROFILE);
+        let origin = parse(&wal.context)?.get("origin");
+        let source_mode = origin.get("profile") == s(ACTUAL_SOURCE_FACT_WAL_PROFILE)
+            || mixed_native_fact_origin(&origin);
         let (context_key, history_key, candidates_key, mutations_key) = if source_mode {
-            if record.get("profile") != s(ACTUAL_SOURCE_FACT_WAL_PROFILE)
+            if record.get("profile") != origin.get("profile")
                 || !matches!(record.get("stage"),V::String(ref stage) if ["Intent","NativeSupersessionIntent","EscrowBoundIntent"].contains(&stage.as_str()))
                 || record.get("actualSourceSelection").get("profile")
                     != s("TL-MAIN-ACTUAL-SINGLE-INLINE-SELECTION-13-1")

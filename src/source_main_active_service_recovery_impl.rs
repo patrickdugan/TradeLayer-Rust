@@ -240,6 +240,13 @@ impl SourceMainNativeDurableActiveServiceV1 {
                 self.after_native_supersession_intent()?;
             }
             NativeMainActiveWalPhaseV1::NativeSupersessionAppend => {
+                if self.mixed_ordinary_facts.is_some()
+                    && self
+                        .active_service()
+                        .is_some_and(|s| s.pending_write().is_some())
+                {
+                    return self.execute_mixed_ordinary_replacement();
+                }
                 if self.actual_facts.is_some() {
                     return self.execute_actual_fact_replacement();
                 }

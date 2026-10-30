@@ -1,6 +1,12 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T12:54:13Z. Refresh this file after every tested integration or PR cycle.
+Updated: 2026-10-30T13:48:14Z. Refresh this file after every tested integration or PR cycle.
+
+## Latest tested mixed native recovery increment (this commit)
+
+All39new controls pass:15actual financial-owner+18metadata/DTO+6height-await primitive.44public compatibility and13committed canonical checks pass; the working context also passes2uncommitted queued Kernel checks. Strict all-target Clippy/Cargofmt/fmt491/inventory/supply pass. Both actual native plan kinds now retain original typed outcomes through fact sync, native-only Before/Intermediate/Post/escrow recovery and segmented checkpoints. Root caught and corrected a real escrow dispatch bug; both unchanged failures now pass. The height primitive is test-only, not production Promise admission.
+
+The two failed queued-startup positive tests remain uncommitted and unpromoted. The live mixed and height changes are selectively staged; shared Runtime/CI/pins exclude the failed queued includes. Broad frozen regression93155 is RUNNING, candidate782passes/fourignored/twoknown queued failures excluded, ordinary long cases included. Its exact binary/manifest/session are in work/root-resume-current.json; never restart it just because a poll times out. The equivalent Clippy predicate merge followed the frozen build and39affected controller tests reran. No full current-library/all-target count is raised. Evidence:`fixtures/reference_fidelity/main-mixed-native-live-core-integration.json`. Release2204/239, prior Main734scoped and wire23 remain separate. No push/PR.
 
 ## Latest tested fractional wire increment (`125e63d`)
 

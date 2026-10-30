@@ -86,6 +86,7 @@ pub struct SourceCompactIndex {
     directory: Directory,
     cold_execution: Option<u64>,
     inline_escrow_guard: Option<u64>,
+    recorded_native_only_scope: Option<u64>,
 }
 fn page_key(n: u32) -> String {
     format!("source-txindex-page-{n:08x}")
@@ -281,6 +282,7 @@ impl SourceCompactIndex {
             directory,
             cold_execution: None,
             inline_escrow_guard: None,
+            recorded_native_only_scope: None,
         })
     }
     pub fn open(root: &Path, namespace: Namespace, expected: &MetadataSnapshot) -> Result<Self> {
@@ -293,6 +295,7 @@ impl SourceCompactIndex {
             directory,
             cold_execution: None,
             inline_escrow_guard: None,
+            recorded_native_only_scope: None,
         };
         result.require_snapshot(expected)?;
         result.audit()?;
@@ -403,6 +406,7 @@ impl SourceCompactIndex {
     /// Each actual source DB operation is one Journal publication. Two writes
     /// inside saveMaxHeight are deliberately two publications, not one repair.
     fn put(&mut self, row: V) -> Result<()> {
+        self.require_unretained_metadata_write()?;
         self.require_live_metadata_write()?;
         let id = row_id(&row)?;
         let mut directory = self.directory.clone();
@@ -490,6 +494,7 @@ impl SourceCompactIndex {
         ids: &[String],
         new_context: &str,
     ) -> Result<MetadataSnapshot> {
+        self.require_unretained_metadata_write()?;
         self.require_live_metadata_write()?;
         self.require_snapshot(expected)?;
         if ids.len() > 1024 || new_context.is_empty() || new_context.len() > 4096 {
@@ -900,6 +905,7 @@ include!("source_main_native_validity_impl.rs");
 include!("source_index_prepared_put_impl.rs");
 include!("source_index_inline_database_impl.rs");
 include!("source_index_actual_append_facts_impl.rs");
+include!("source_index_segmented_native_fact_producer_impl.rs");
 include!("source_index_inline_recovery_impl.rs");
 #[cfg(test)]
 #[path = "source_index_inline_database_tests.rs"]
@@ -910,6 +916,8 @@ mod inline_recovery_tests;
 include!("source_index_prepared_validity_impl.rs");
 include!("source_index_cold_execution_impl.rs");
 include!("source_index_historical_validity_impl.rs");
+include!("source_index_mixed_validity_rebase_impl.rs");
+include!("source_index_mixed_recorded_guard_impl.rs");
 include!("source_index_verified_view_playback_impl.rs");
 include!("source_index_historical_inline_post_impl.rs");
 include!("source_index_actual_fact_reopen_view_impl.rs");
@@ -983,3 +991,7 @@ include!("source_index_queued_database_impl.rs");
 #[cfg(test)]
 #[path = "source_index_queued_database_tests.rs"]
 mod queued_source_database_tests;
+
+#[cfg(test)]
+#[path = "source_index_mixed_validity_metadata_tests.rs"]
+mod mixed_validity_metadata_tests;

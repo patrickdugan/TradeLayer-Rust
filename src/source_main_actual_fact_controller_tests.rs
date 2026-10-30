@@ -281,3 +281,6 @@ mod actual_fact_source_reexecution_core_tests;
 
 #[path = "source_main_durable_fresh_core_tests.rs"]
 mod durable_fresh_core_tests;
+
+#[path = "source_main_mixed_native_core_tests.rs"]
+mod mixed_native_core_tests;

@@ -83,6 +83,7 @@ struct ActiveWalPending {
     post: Option<Vec<u8>>,
     plan: Option<PreparedActiveServiceWalWriteV1>,
     actual_fact_slots: Option<ActualSourceActionFactSlotsV1>,
+    mixed_ordinary_slots: Option<MixedOrdinaryActionFactsV1>,
     entry: Option<Vec<u8>>,
     receipt: Option<NativeMainActiveWalReceiptV1>,
 }
@@ -119,6 +120,7 @@ pub struct SourceMainNativeDurableActiveServiceV1 {
     history_enabled: bool,
     generation_escrow: Option<ActiveServiceEscrowConfigV1>,
     actual_facts: Option<ActualSourceFactModeStateV1>,
+    mixed_ordinary_facts: Option<MixedOrdinaryFactModeV1>,
     segmented_history: Option<ActiveHistoryLiveStateV1>,
     #[cfg(test)]
     barrier_fault: Option<(
@@ -186,7 +188,26 @@ impl SourceMainNativeDurableActiveServiceV1 {
         history_enabled: bool,
         entry: (Option<ActiveServiceEscrowConfigV1>, bool, bool),
     ) -> Result<Self, Box<RejectedNativeMainActiveWalV1>> {
-        let (generation_escrow, actual_fact_mode, segmented) = entry;
+        Self::create_internal_mixed_fact_entry(
+            owner,
+            root,
+            namespace,
+            filesystem,
+            observation_limit,
+            history_enabled,
+            (entry.0, entry.1, entry.2, false),
+        )
+    }
+    fn create_internal_mixed_fact_entry(
+        owner: SourceMainNativeSessionV13,
+        root: impl AsRef<std::path::Path>,
+        namespace: crate::storage::Namespace,
+        filesystem: crate::source_contract_replay::source_durable::SourceDurableFilesystem,
+        observation_limit: usize,
+        history_enabled: bool,
+        entry: (Option<ActiveServiceEscrowConfigV1>, bool, bool, bool),
+    ) -> Result<Self, Box<RejectedNativeMainActiveWalV1>> {
+        let (generation_escrow, actual_fact_mode, segmented, mixed) = entry;
         let checked = (|| {
             if observation_limit == 0 || observation_limit > ACTIVE_WAL_OBSERVATION_LIMIT {
                 return Err(NativeMainActiveWalErrorV1::Capacity);
@@ -203,7 +224,21 @@ impl SourceMainNativeDurableActiveServiceV1 {
                 )?;
             }
             if actual_fact_mode {
-                Self::append_actual_facts_scope_observation(&mut observation)?;
+                if mixed {
+                    Self::append_actual_facts_scope_observation_for(
+                        &mut observation,
+                        MIXED_SOURCE_FACT_SCOPE,
+                    )?;
+                } else {
+                    Self::append_actual_facts_scope_observation(&mut observation)?;
+                }
+            }
+            if mixed {
+                Self::append_mixed_ordinary_scope_observation(&mut observation)?;
+                Self::append_mixed_recorded_scope(
+                    &mut observation,
+                    owner.index.recorded_native_only_scope_active(),
+                )?;
             }
             let mut origin = obj(&[
                 ("profile", s(NATIVE_MAIN_DURABLE_ACTIVE_SERVICE_PROFILE)),
@@ -271,7 +306,8 @@ impl SourceMainNativeDurableActiveServiceV1 {
                     .map_err(active_wal_backend)?;
             }
             if segmented {
-                if !history_enabled || generation_escrow.is_some() || actual_fact_mode {
+                if !history_enabled || (!mixed && (generation_escrow.is_some() || actual_fact_mode))
+                {
                     return Err(NativeMainActiveWalErrorV1::WrongAction);
                 }
                 origin
@@ -288,6 +324,34 @@ impl SourceMainNativeDurableActiveServiceV1 {
                     .map_err(active_wal_backend)?;
                 origin
                     .insert("acknowledgedWindowLimit", s("256"))
+                    .map_err(active_wal_backend)?;
+            }
+            if mixed {
+                if !actual_fact_mode
+                    || !history_enabled
+                    || !segmented
+                    || generation_escrow.as_ref().is_none_or(|c| !c.inline_profile)
+                {
+                    return Err(NativeMainActiveWalErrorV1::WrongAction);
+                }
+                origin
+                    .insert("profile", s(MIXED_SOURCE_FACT_WAL_PROFILE))
+                    .map_err(active_wal_backend)?;
+                origin
+                    .insert("actualNativeFactScope", s(MIXED_SOURCE_FACT_SCOPE))
+                    .map_err(active_wal_backend)?;
+                origin.insert("requiredOrdinaryNativeFactProfile",s(crate::source_main_active_service_wal::ACTUAL_VALIDITY_PLAN_FACT_PROFILE)).map_err(active_wal_backend)?;
+                origin
+                    .insert(
+                        "ordinaryNativeFactScope",
+                        s(crate::source_main_active_service_wal::ACTUAL_VALIDITY_FACT_SCOPE),
+                    )
+                    .map_err(active_wal_backend)?;
+                origin
+                    .insert(
+                        "underlyingSourceHistoryProfile",
+                        s(MIXED_SOURCE_FACT_WAL_PROFILE),
+                    )
                     .map_err(active_wal_backend)?;
             }
             let head = sha256(&active_wal_bytes(&origin)?);
@@ -310,6 +374,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
                 history_enabled,
                 generation_escrow,
                 actual_facts: actual_fact_mode.then(ActualSourceFactModeStateV1::default),
+                mixed_ordinary_facts: mixed.then(MixedOrdinaryFactModeV1::default),
                 segmented_history: segmented.then(ActiveHistoryLiveStateV1::default),
                 #[cfg(test)]
                 barrier_fault: None,
@@ -318,6 +383,9 @@ impl SourceMainNativeDurableActiveServiceV1 {
         }
     }
     pub fn profile(&self) -> &'static str {
+        if self.mixed_ordinary_facts.is_some() {
+            return MIXED_SOURCE_FACT_WAL_PROFILE;
+        }
         if self.segmented_history.is_some() {
             return crate::source_main_active_service_wal::SEGMENTED_ACTIVE_HISTORY_PROFILE;
         }
@@ -468,6 +536,8 @@ impl SourceMainNativeDurableActiveServiceV1 {
         } else {
             None
         };
+        let mixed_before = self.capture_mixed_ordinary_plan()?;
+        let mixed_alias = self.mixed_ordinary_action_alias(&action)?;
         let before = self.owner_observation()?;
         let history_before = if self.history_enabled {
             Some(self.capture_history_bytes()?)
@@ -516,6 +586,13 @@ impl SourceMainNativeDurableActiveServiceV1 {
             mutations,
             append_context,
             source_error: None,
+            mixed_ordinary_slots: self.mixed_ordinary_facts.as_ref().map(|_| {
+                MixedOrdinaryActionFactsV1 {
+                    before: mixed_before,
+                    alias: mixed_alias,
+                    ..Default::default()
+                }
+            }),
             actual_fact_slots: actual_before.map(|before| ActualSourceActionFactSlotsV1 {
                 before,
                 native_alias: actual_alias,
@@ -582,6 +659,17 @@ impl SourceMainNativeDurableActiveServiceV1 {
             {
                 refs.push(prior.clone());
             }
+        }
+        for raw in self.mixed_ordinary_blobs()? {
+            refs.push(ActiveServiceWalBlobV1::of(&raw)?);
+        }
+        if let Some(prior) = self
+            .pending
+            .as_ref()
+            .and_then(|p| p.mixed_ordinary_slots.as_ref())
+            .and_then(|s| s.io_prior.as_ref())
+        {
+            refs.push(prior.clone());
         }
         Ok(refs)
     }
@@ -661,6 +749,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
         if self.actual_facts.is_some() {
             self.append_actual_fact_record_fields(&mut record)?;
         }
+        self.append_mixed_ordinary_record(&mut record)?;
         self.append_segment_fields(&mut record)?;
         Ok(record)
     }
@@ -731,6 +820,14 @@ impl SourceMainNativeDurableActiveServiceV1 {
         loop {
             if self.actual_facts.as_ref().is_some_and(|f| f.needs_barrier) {
                 return Ok(self.phase);
+            }
+            if self
+                .pending
+                .as_ref()
+                .and_then(|p| p.mixed_ordinary_slots.as_ref())
+                .is_some_and(|s| s.attempt.is_some() && !s.delivered)
+            {
+                return Err(NativeMainActiveWalErrorV1::WrongAction);
             }
             match self.phase {
                 NativeMainActiveWalPhaseV1::Idle => return Ok(self.phase),
@@ -964,6 +1061,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
         if self.actual_facts.is_some() {
             self.append_actual_fact_record_fields(&mut entry_value)?;
         }
+        self.append_mixed_ordinary_record(&mut entry_value)?;
         self.append_segment_fields(&mut entry_value)?;
         let raw = active_wal_bytes(&entry_value)?;
         let entry = ActiveServiceWalBlobV1::of(&raw)?;

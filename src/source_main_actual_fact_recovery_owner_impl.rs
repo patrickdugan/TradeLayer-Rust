@@ -76,7 +76,7 @@ impl SourceMainNativeActualFactServiceV1 {
             .canonical_io_fact_bytes()
             .map_err(active_wal_backend)?;
         let pending = io.attempt.pending_fact().canonical_fact_bytes();
-        if record.get("profile") != s(ACTUAL_SOURCE_FACT_WAL_PROFILE)
+        if record.get("profile") != s(self.inner.profile())
             || record.get("stage") != s("NativeIoObserved")
             || record.get("actualIoSelection") != io.selection
             || record.get("actualNativeIoFact") != ActiveServiceWalBlobV1::of(&raw)?.value()

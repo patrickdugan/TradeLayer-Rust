@@ -551,13 +551,8 @@ impl SourceContractRuntime {
         let Some(write) = &row.write else {
             return NativeMainRowStopV1::SourceStopped(SourceRuleError::InvalidInput);
         };
-        match index.commit_prepared_validity(write) {
-            // Keep the source await unresolved until its real durable prefix
-            // acknowledgement. The evaluation is regenerated from exact post.
-            Ok(_) => return NativeMainRowStopV1::AwaitNativeWrite,
-            Err(error) => row.ambiguous = Some(error.to_string()),
-        }
-        self.native_main_rows_advance(index, frame)
+        let result = index.commit_prepared_validity(write);
+        self.native_main_rows_deliver_native_result(index, frame, &result)
     }
     #[cfg(test)]
     fn native_main_rows_commit(

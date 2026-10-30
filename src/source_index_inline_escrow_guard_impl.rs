@@ -34,6 +34,7 @@ impl SourceCompactIndex {
         self.inline_escrow_guard.is_some()
     }
     fn commit_inline_metadata(&mut self, mutations: Vec<Mutation>) -> Result<u64> {
+        self.require_unretained_metadata_write()?;
         if self.inline_escrow_guard.is_none() {
             return Ok(self.journal.commit(mutations)?);
         }

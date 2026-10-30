@@ -613,3 +613,6 @@ mod inline_wal_tests;
 
 #[path = "source_main_segmented_active_history_tests.rs"]
 mod segmented_active_history_tests;
+
+#[path = "source_main_segmented_native_fact_core_tests.rs"]
+mod segmented_native_fact_core_tests;

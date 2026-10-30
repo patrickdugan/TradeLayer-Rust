@@ -257,6 +257,12 @@ impl SourceMainNativeDurableActiveServiceV1 {
         })
     }
     fn append_actual_facts_scope_observation(raw: &mut Vec<u8>) -> ActiveWalResult<()> {
+        Self::append_actual_facts_scope_observation_for(raw, ACTUAL_SOURCE_FACT_SCOPE)
+    }
+    fn append_actual_facts_scope_observation_for(
+        raw: &mut Vec<u8>,
+        scope: &str,
+    ) -> ActiveWalResult<()> {
         let mut fields = NativeFieldCollector::new("Native13/ActualNativeFactsMode/v1", true, 1024);
         fields
             .emit(
@@ -265,7 +271,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
             )
             .map_err(active_wal_backend)?;
         fields
-            .emit("sourceScope", &s(ACTUAL_SOURCE_FACT_SCOPE))
+            .emit("sourceScope", &s(scope))
             .map_err(active_wal_backend)?;
         raw.extend_from_slice(fields.frames.as_deref().expect("retained scope"));
         Ok(())

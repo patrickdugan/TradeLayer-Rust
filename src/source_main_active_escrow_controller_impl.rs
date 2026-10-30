@@ -150,7 +150,44 @@ impl SourceMainNativeDurableActiveServiceV1 {
             ActiveWalOwner::Active(owner) => owner.owner.index.begin_inline_escrow_guard(),
         }
         .map_err(active_wal_backend)?;
+        let recorded = if self.mixed_ordinary_facts.is_some() {
+            let started = match self.owner.as_mut().expect("same mixed owner") {
+                ActiveWalOwner::Ready(owner) => owner.index.begin_recorded_native_only_scope(),
+                ActiveWalOwner::Active(owner) => {
+                    owner.owner.index.begin_recorded_native_only_scope()
+                }
+            };
+            match started {
+                Ok(scope) => Some(scope),
+                Err(error) => {
+                    match self.owner.as_mut().expect("same owner") {
+                        ActiveWalOwner::Ready(owner) => {
+                            owner.index.finish_inline_escrow_guard(scope)
+                        }
+                        ActiveWalOwner::Active(owner) => {
+                            owner.owner.index.finish_inline_escrow_guard(scope)
+                        }
+                    }
+                    .map_err(active_wal_backend)?;
+                    return Err(active_wal_backend(error));
+                }
+            }
+        } else {
+            None
+        };
         let result = self.execute_once_unscoped();
+        let recorded_cleared = if let Some(scope) = recorded {
+            match self.owner.as_mut().expect("same retained mixed owner") {
+                ActiveWalOwner::Ready(owner) => {
+                    owner.index.finish_recorded_native_only_scope(scope)
+                }
+                ActiveWalOwner::Active(owner) => {
+                    owner.owner.index.finish_recorded_native_only_scope(scope)
+                }
+            }
+        } else {
+            Ok(())
+        };
         // Clear using only the retained private token, even when the actual
         // index is poisoned. No replacement writer/snapshot is manufactured.
         let cleared = match self
@@ -162,6 +199,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
             ActiveWalOwner::Active(owner) => owner.owner.index.finish_inline_escrow_guard(scope),
         };
         cleared.map_err(active_wal_backend)?;
+        recorded_cleared.map_err(active_wal_backend)?;
         result
     }
     fn owner_observation(&self) -> ActiveWalResult<Vec<u8>> {
@@ -173,7 +211,18 @@ impl SourceMainNativeDurableActiveServiceV1 {
             )?;
         }
         if self.actual_facts.is_some() {
-            Self::append_actual_facts_scope_observation(&mut raw)?;
+            if self.mixed_ordinary_facts.is_some() {
+                Self::append_actual_facts_scope_observation_for(&mut raw, MIXED_SOURCE_FACT_SCOPE)?;
+            } else {
+                Self::append_actual_facts_scope_observation(&mut raw)?;
+            }
+        }
+        if self.mixed_ordinary_facts.is_some() {
+            Self::append_mixed_ordinary_scope_observation(&mut raw)?;
+            Self::append_mixed_recorded_scope(
+                &mut raw,
+                self.index().recorded_native_only_scope_active(),
+            )?;
         }
         self.append_segment_observation(&mut raw)?;
         Ok(raw)
@@ -274,6 +323,13 @@ impl SourceMainNativeDurableActiveServiceV1 {
                 self.phase = NativeMainActiveWalPhaseV1::Observe;
             }
             ActiveEscrowRoute::NativeReplacement => {
+                if self.mixed_ordinary_facts.is_some()
+                    && self
+                        .active_service()
+                        .is_some_and(|s| s.pending_write().is_some())
+                {
+                    return self.execute_mixed_ordinary_replacement();
+                }
                 if self.actual_facts.is_some() {
                     return self.execute_actual_fact_replacement();
                 }

@@ -563,6 +563,10 @@ include!("source_main_mode4_inline_closure_impl.rs");
 include!("source_main_actual_native_fact_binding_impl.rs");
 include!("source_main_actual_fact_source_scope_impl.rs");
 include!("source_main_actual_fact_expectation_codec_impl.rs");
+include!("source_main_mixed_native_policy_impl.rs");
+include!("source_main_segmented_native_fact_binding_impl.rs");
+include!("source_main_segmented_native_io_dto_impl.rs");
+include!("source_main_segmented_native_fact_codec_impl.rs");
 include!("source_main_actual_fact_history_profile_impl.rs");
 include!("source_main_actual_fact_trace_impl.rs");
 include!("source_main_durable_fresh_boundary_impl.rs");
@@ -590,3 +594,15 @@ mod active_history_segment_tests;
 #[cfg(test)]
 #[path = "source_main_wal_blob_pin_reuse_tests.rs"]
 mod blob_pin_reuse_tests;
+
+#[cfg(test)]
+#[path = "source_main_segmented_native_io_dto_tests.rs"]
+mod segmented_native_io_dto_tests;
+
+#[cfg(test)]
+#[path = "source_main_mixed_native_metadata_tests.rs"]
+mod mixed_native_metadata_tests;
+
+#[cfg(test)]
+#[path = "source_main_ordinary_native_metadata_tests.rs"]
+mod ordinary_native_metadata_tests;

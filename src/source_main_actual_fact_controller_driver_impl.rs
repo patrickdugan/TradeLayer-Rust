@@ -95,7 +95,7 @@ impl SourceMainNativeActualFactServiceV1 {
             .as_ref()
             .is_some_and(|f| f.needs_barrier)
         {
-            return Ok(());
+            return self.inner.deliver_mixed_ordinary_after_fact();
         }
         if !self.fact_barrier {
             // Pure retry of producer/serialization only. The executed marker
@@ -114,8 +114,14 @@ impl SourceMainNativeActualFactServiceV1 {
             .inner
             .pending
             .as_ref()
-            .and_then(|p| p.actual_fact_slots.as_ref())
-            .is_some_and(|s| s.io.is_some())
+            .and_then(|p| p.mixed_ordinary_slots.as_ref())
+            .is_some_and(|s| s.attempt.is_some())
+            || self
+                .inner
+                .pending
+                .as_ref()
+                .and_then(|p| p.actual_fact_slots.as_ref())
+                .is_some_and(|s| s.io.is_some())
         {
             "NativeIoObserved"
         } else {
@@ -133,6 +139,7 @@ impl SourceMainNativeActualFactServiceV1 {
             .expect("explicit fact mode")
             .recovery_observation = false;
         self.fact_barrier = false;
+        self.inner.deliver_mixed_ordinary_after_fact()?;
         Ok(())
     }
     pub fn advance(&mut self) -> ActiveWalResult<NativeMainActiveWalPhaseV1> {
@@ -206,6 +213,7 @@ impl SourceMainNativeActualFactServiceV1 {
                     .expect("explicit fact mode")
                     .recovery_observation = false;
                 self.fact_barrier = false;
+                self.inner.deliver_mixed_ordinary_after_fact()?;
             }
         }
         Ok(resolved)
@@ -216,6 +224,15 @@ impl SourceMainNativeActualFactServiceV1 {
 impl SourceMainNativeDurableActiveServiceV1 {
     fn complete_actual_fact_input(&mut self) -> ActiveWalResult<()> {
         self.ensure_actual_io_chain(false)?;
+        self.ensure_mixed_ordinary_io_chain(false)?;
+        let mixed_after = self.capture_mixed_ordinary_plan()?;
+        if let Some(slots) = self
+            .pending
+            .as_mut()
+            .and_then(|p| p.mixed_ordinary_slots.as_mut())
+        {
+            slots.after = mixed_after;
+        }
         let after = self.capture_actual_inline_fact_input()?;
         self.pending
             .as_mut()
@@ -303,6 +320,11 @@ impl SourceMainNativeDurableActiveServiceV1 {
             ActiveWalOwner::Active(mut service) => {
                 let result = (|| {
                     let expected = service.expectation()?;
+                    if self.mixed_ordinary_facts.is_some() {
+                        let _ = service
+                            .actual_mixed_native_selection()
+                            .map_err(|e| NativeMainActiveServiceErrorV1::Backend(e.to_string()))?;
+                    }
                     if matches!(action, NativeMainActiveServiceActionV1::AppendPending)
                         && service.pending_inline_write().is_some()
                     {
@@ -338,6 +360,16 @@ impl SourceMainNativeDurableActiveServiceV1 {
                             .expect("fact slots")
                             .io = Some(io);
                         Ok(())
+                    } else if self.mixed_ordinary_facts.is_some()
+                        && matches!(action, NativeMainActiveServiceActionV1::AppendPending)
+                        && service.pending_write().is_some()
+                    {
+                        service.escrow_append_preflight(&expected)?;
+                        self.capture_mixed_ordinary_native_once(&mut service)
+                            .map_err(|e| match e {
+                                NativeMainActiveWalErrorV1::Service(error) => error,
+                                other => NativeMainActiveServiceErrorV1::Backend(other.to_string()),
+                            })
                     } else {
                         service.stage_action(&expected, action)
                     }
@@ -376,6 +408,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
             return Ok(());
         }
         blobs.extend(self.actual_fact_blobs()?);
+        blobs.extend(self.mixed_ordinary_blobs()?);
         // New-profile preparation only. Old sixteen-blob capacity and bytes
         // are untouched. Existing dependencies must verify; corruption is not
         // treated as absence and never triggers an overwrite.

@@ -140,7 +140,9 @@ fn segment_collect(
 impl ActiveServiceWalV1 {
     fn require_segment_scope(&self) -> Result<V> {
         let origin = self.origin_context()?.get("origin");
-        if origin.get("profile") != s(SEGMENTED_ACTIVE_HISTORY_PROFILE) {
+        if origin.get("profile") != s(SEGMENTED_ACTIVE_HISTORY_PROFILE)
+            && !mixed_native_fact_origin(&origin)
+        {
             return Err(ActiveServiceWalErrorV1::WrongContext);
         }
         Ok(origin)
@@ -183,7 +185,9 @@ impl ActiveServiceWalV1 {
             } {
                 segment_collect(
                     &value,
-                    value.get("profile") == s(SEGMENTED_ACTIVE_HISTORY_PROFILE),
+                    value.get("profile") == s(SEGMENTED_ACTIVE_HISTORY_PROFILE)
+                        || mixed_native_fact_origin(&self.origin_context()?.get("origin"))
+                            && value.get("profile") == s(MIXED_SOURCE_NATIVE_FACT_WAL_PROFILE),
                     &mut pending,
                 )?;
             }
@@ -205,9 +209,7 @@ impl ActiveServiceWalV1 {
             return Err(ActiveServiceWalErrorV1::Capacity);
         }
         let record = self.record()?;
-        if record.get("profile") != s(SEGMENTED_ACTIVE_HISTORY_PROFILE)
-            || record.get("stage") != s("Ack")
-        {
+        if record.get("profile") != origin.get("profile") || record.get("stage") != s("Ack") {
             return Err(ActiveServiceWalErrorV1::WrongContext);
         }
         if let Some(previous) = previous {
@@ -238,7 +240,7 @@ impl ActiveServiceWalV1 {
                     .get(RECORD)
                     .ok_or(ActiveServiceWalErrorV1::InvalidRecord)?,
             )?;
-            if actual.get("profile") != s(SEGMENTED_ACTIVE_HISTORY_PROFILE)
+            if actual.get("profile") != origin.get("profile")
                 || actual.get("stage") != s("SegmentAck")
                 || actual.get("historySegment") != previous.segment.value()
                 || actual.get("lastEntry") != previous.last_entry.value()
@@ -274,7 +276,7 @@ impl ActiveServiceWalV1 {
         for (at, pin) in entries.iter().enumerate() {
             let entry = parse(&self.read_blob(pin)?)?;
             let sequence = from + at as u64 + 1;
-            if entry.get("profile") != s(SEGMENTED_ACTIVE_HISTORY_PROFILE)
+            if entry.get("profile") != origin.get("profile")
                 || segment_count(&entry.get("sequence"))? != sequence
                 || entry.get("previousEntry") != prior_entry
                 || segment_hash(&entry.get("previousHead"))? != head
@@ -362,7 +364,7 @@ impl ActiveServiceWalV1 {
         let ack_raw = bytes(&record)?;
         let ack_pin = ActiveServiceWalBlobV1::of(&ack_raw)?;
         let checkpoint = obj(&[
-            ("profile", s(SEGMENTED_ACTIVE_HISTORY_PROFILE)),
+            ("profile", origin.get("profile")),
             ("stage", s("SegmentAck")),
             ("sequence", s(count.to_string())),
             ("head", s(hex(&head))),

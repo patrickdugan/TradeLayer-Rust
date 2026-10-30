@@ -2995,6 +2995,7 @@ include!("source_main_fresh_input_runtime_impl.rs");
 include!("source_main_active_service_recovery_runtime_impl.rs");
 include!("source_main_service_escrow_runtime_impl.rs");
 include!("source_main_actual_fact_append_runtime_impl.rs");
+include!("source_main_ordinary_native_result_impl.rs");
 include!("source_main_actual_fact_recovery_runtime_impl.rs");
 include!("source_main_native_service_fields_impl.rs");
 include!("source_main_native_supersession_runtime_impl.rs");
@@ -3074,3 +3075,12 @@ mod ordered_bootstrap_tests;
 include!("source_main_raw_startup_live_runtime_impl.rs");
 
 include!("source_main_startup_nested_runtime_impl.rs");
+
+#[cfg(test)]
+mod startup_height_await_probe {
+    use super::*;
+    include!("source_main_startup_height_await_impl.rs");
+    mod tests {
+        include!("source_main_startup_height_await_tests.rs");
+    }
+}

@@ -1,0 +1,501 @@
+{
+  "schema": "tl-main-mixed-native-live-core-v1",
+  "verifiedAtUtc": "2026-10-30T13:48:14Z",
+  "inputCommit": "f62005d84c542de6bd3f4f170fe628d3dea16bad",
+  "sourceFiles": {
+    ".github/workflows/ci.yml": "989f5d7daa7c198d7f9e276fed8e724be5ce50b809d29631590846b9cfaa395f",
+    "docs/LOGIC_BY_TX_TYPE.json": "66f443787e3ae4cb7b84c4ba4c352371b963412a3f7435334393fd888ecf7a5d",
+    "scripts/ci-preflight.sh": "501123e6d0d197128d04244b31f46b68d713d6c0c07165c8977d84370f6cb806",
+    "src/source_compact_index_v2.rs": "f1103692ba525b63b69b659abe779f535bab78bb4ac42a32d202f631d926955c",
+    "src/source_contract_runtime.rs": "d2966420998b3fc13d67df1930c3ba51cf12e3aeff4cccba44fdbf29c5fc88bd",
+    "src/source_index_history_read_impl.rs": "bea4b56bacd5f8dbbb0ebf37a087242b6594a2a819435f2544db453f83f77f40",
+    "src/source_index_inline_escrow_guard_impl.rs": "4bff6676d08fa066385d23af814298fc59ecb1332d7214b0c7ae6d76796420fb",
+    "src/source_index_inline_recovery_impl.rs": "4e3675d31911030a1a78d888375087c80af23a9e19e74863ff8d76196896a5a1",
+    "src/source_index_mixed_recorded_guard_impl.rs": "9374f53d4ec2095be0b8b66a43546bae233a952d20495b2e8cc87e734b538fd8",
+    "src/source_index_mixed_validity_metadata_tests.rs": "aa575b97259d63a2a9c95022fb99cd5dd12c4add166cdd7d00ed533b70be7990",
+    "src/source_index_mixed_validity_rebase_impl.rs": "faa5c9e7510c13f90e95e26f4835bda0dcd556849cd8b6dd71a36e7913fc8740",
+    "src/source_index_segmented_native_fact_producer_impl.rs": "5307039634d10a5ab7bdaf4ce9b093d598ad8e45f2d4d21578b19b3db2f81e1f",
+    "src/source_index_verified_reopen_impl.rs": "f6fe4296ab8f7337224eb1820565329d2bde8815395e622d8fc5ca99730086c9",
+    "src/source_main_active_escrow_controller_impl.rs": "5b10bbac2532d7fc1e7c19368289ecf55b8b3d6c9dc1bb052e4204886d2926a9",
+    "src/source_main_active_history_segment_impl.rs": "6bd02fb8d385b7383ae36f452e6db538d621f2416a140e5f5a712bc7e29d32a6",
+    "src/source_main_active_service_durable_impl.rs": "596e1a8d6b2d6d2ad2a2b6a2b415c594aae7649dbd4b216b6bc8c5e8c1747f25",
+    "src/source_main_active_service_durable_tests.rs": "76a2a8c4278be28902d6b8633212d7e35d542518ad5b9c61a2757387af50be5b",
+    "src/source_main_active_service_recovery_impl.rs": "d46811e37f5e76b10d844ea5a28ea507b5fba6e5acbc2d606101be7c68685839",
+    "src/source_main_active_service_wal.rs": "30cd4fade7a93d4b25d341792c35a8dbe29b8320386b95f1dadef1110ca07eaf",
+    "src/source_main_actual_fact_controller_driver_impl.rs": "e1049af146ad4c0254be9d42ced80f4ad89706ba919e96ef344894a47c4047b9",
+    "src/source_main_actual_fact_controller_impl.rs": "a607aaf7fbc3940b5ea2343ce77801406867b93a98aeec0d490803a7db0ef7f4",
+    "src/source_main_actual_fact_controller_tests.rs": "b06c4f80efd7377fb4733154afaae0541759d28a8c886da5914617f61aa9d2b2",
+    "src/source_main_actual_fact_recovery_owner_impl.rs": "c80dbd877219004ea2148404b59f4a00342534d910a8c80b166dae667efa3e3c",
+    "src/source_main_actual_native_fact_binding_impl.rs": "dae897c09309a93641d686ad15e6c7a23203a07987f7c1318344f2a6e7d4b81b",
+    "src/source_main_mixed_native_capture_impl.rs": "6456abec1ed2ff7e70172e9daa31526a752c0f742a4077e6bc7916688c6da898",
+    "src/source_main_mixed_native_controller_impl.rs": "766ced38e0216c95a298c2838c25c20607aedc99576158b4f1990e04e65ec51d",
+    "src/source_main_mixed_native_core_tests.rs": "9e347ae2e50dd779e83d575a0aa4db9a0931e055e7e56526c13b479c0393c130",
+    "src/source_main_mixed_native_metadata_tests.rs": "38625f2743bbb354dbb6a651504673633c744378a73db55f41cabb36d63bfff5",
+    "src/source_main_mixed_native_policy_impl.rs": "756b91f521ad091555014ff3f6def4deeb7e9a9a036f9e5d01cd8beb612b3839",
+    "src/source_main_mixed_native_record_impl.rs": "4b7029b612810f9076f78cc3c26d5167da9c68e2b7c66fc615e67724cc6940db",
+    "src/source_main_mixed_native_recovery_impl.rs": "48dcd77a48d65edca2815a996f6925447ffef3ca24002add13db5b63b5a98415",
+    "src/source_main_mixed_native_replacement_impl.rs": "1908c7e6b3f9875460f702334dc0c2fbbc59892c162beda222ee536ba69e4a97",
+    "src/source_main_mixed_native_scope_impl.rs": "29f444f412bb15423e1bb6d51e016211cf57a42ab887a4d87e3704f59be17a68",
+    "src/source_main_mixed_native_selection_impl.rs": "2c31396320dbda2ea0ae5ca1e196ccc558407c6ffabe093ecee9b00b7d79c636",
+    "src/source_main_native_row_continuation_impl.rs": "f0aa29cac60df7d645932d82eacc83911c1525b5f5dc0c8e3d99ea60f1165f87",
+    "src/source_main_native_session.rs": "43edf8e65ade7aac05d64554bed077ef6c4aad18a47ef5ce3b334faec4e7eb1a",
+    "src/source_main_ordinary_native_metadata_tests.rs": "eb89fd8b5081a202c64a7daba51a08d2bd12666c95691851978ac623587e3b6d",
+    "src/source_main_ordinary_native_operation_impl.rs": "15ce72c5a1b4e8664fc59fc627b0ce1f66f5ae8306486ae76c3b8e9bcc2ca139",
+    "src/source_main_ordinary_native_operation_recovery_impl.rs": "b8db99bd7e9a4616c7b9b3b8e83afd330f339e0e3857d7c781785084237c915c",
+    "src/source_main_ordinary_native_operation_tests.rs": "33f3db68e77155e11e0d0b57ddfdff93f95f6bc73a55ecc5fdeffd2ab182966b",
+    "src/source_main_ordinary_native_result_impl.rs": "33a7089ef84f9415e45b1d5f57f5a2c371a32bc6277724532d5dcfdc273754e8",
+    "src/source_main_segmented_native_fact_binding_impl.rs": "c175d3fb86c8f4f6d7068ef1ebc9311c265b3d8da15c42eca3866249d1c3255c",
+    "src/source_main_segmented_native_fact_boundary_impl.rs": "687cba15e3703b19c8eb30ca400e489b17d54c83262dca58e320c9664a8fc02a",
+    "src/source_main_segmented_native_fact_codec_impl.rs": "700714f27a168914f3b69b59253da83381f912eb6b83cf2085a6844567ce142e",
+    "src/source_main_segmented_native_fact_core_tests.rs": "96d54d0e6f3f595f195fe0765c4b8f409352c73c7798bac68fe4312d6bb181b7",
+    "src/source_main_segmented_native_io_dto_impl.rs": "2a4294a3ccccbf6c817b03982c448e97fb08fb3a2b56498e568e4c652cfdd4e6",
+    "src/source_main_segmented_native_io_dto_tests.rs": "9f98df8c95f761964bde2c28fd0bd4dd9b45c02fb98f793dc0964fb01cb61556",
+    "src/source_main_segmented_origin_blob_impl.rs": "37ebab79f5dc72466168c83fa517fadb044f1327b8eb09f9fd16bd031184cbaa",
+    "src/source_main_startup_height_await_impl.rs": "5783cbdb70096df58d3a9ba9891a1d1946ed4b9fbfba8576e2494a6fdfff1482",
+    "src/source_main_startup_height_await_tests.rs": "b9585eedc23647d2b59f4fb854a3888fae064048ec37e47e0fe6ae1edde1cd39"
+  },
+  "newDistinctTests": 39,
+  "newTestsByDomain": {
+    "ordinaryPlanProducerAndOwnedBoundary": 5,
+    "ordinaryResultRecoveryAcceptedAck": 5,
+    "mixedNativeFinancialOwner": 5,
+    "typedActualIoDto": 4,
+    "ordinaryWalMetadata": 4,
+    "mixedWalBindings": 4,
+    "mixedActualIndexAndScopes": 6,
+    "actualHeightAwaitPrimitive": 6
+  },
+  "affectedActualFactControllerTestsAfterLint": 39,
+  "countsOverlap": true,
+  "publicCompatibilityPassed": 44,
+  "canonicalFieldChecksInWorkingContext": 15,
+  "committedCanonicalFieldChecks": 13,
+  "uncommittedQueuedKernelCanonicalChecks": 2,
+  "allTargetClippyWarningsDenied": true,
+  "cargoFmtPassed": true,
+  "includedWorkingRustFilesChecked": 491,
+  "includedCommittedRustFiles": 481,
+  "inventoryPassed": true,
+  "supplyPolicyPassed": true,
+  "mounts": {
+    "mixed": {
+      "inputCommit": "f62005d84c542de6bd3f4f170fe628d3dea16bad",
+      "manifests": {
+        "facts": "8097018b188b1329812b5a39e7132521de8c00f057c08459c7a3fa6f7bb7ff65",
+        "operation": "51ac8a36cd0c93815153aeaf976a695148d647cdd267e9e1377f5f85c9cbba7d",
+        "mixed": "bf8b8bd5369f717aaf9a0e51515bc7eed8393e03fcb81540ef64157a9e28adbd"
+      },
+      "payloadsVerified": {
+        "facts": 22,
+        "operation": 22,
+        "mixed": 47
+      },
+      "before": {
+        "src/source_index_segmented_native_fact_producer_impl.rs": null,
+        "src/source_main_segmented_native_fact_binding_impl.rs": null,
+        "src/source_main_segmented_native_fact_boundary_impl.rs": null,
+        "src/source_main_segmented_native_fact_codec_impl.rs": null,
+        "src/source_main_segmented_native_fact_core_tests.rs": null,
+        "src/source_main_segmented_native_io_dto_impl.rs": null,
+        "src/source_main_segmented_native_io_dto_tests.rs": null,
+        "src/source_main_active_service_wal.rs": "cf172f18dda51c2fac47e3d9f48ec49dd16eada72425df45b3a0e96427448236",
+        "src/source_compact_index_v2.rs": "b832ff1005f21f1b96da3322fb0da6cfdcbb7043ab77636f80dc2ef962e8b046",
+        "src/source_main_native_session.rs": "0ab43a12eef9431de2751e8fbf5f0279fb7b473244051a754bd7ba8645c3d250",
+        "src/source_main_active_service_durable_tests.rs": "b7eb667df5a322d0eedd656547d2338b9be9b8de480dac837a42f266ec7d58e6",
+        "src/source_main_ordinary_native_metadata_tests.rs": null,
+        "src/source_main_ordinary_native_operation_impl.rs": null,
+        "src/source_main_ordinary_native_operation_recovery_impl.rs": null,
+        "src/source_main_ordinary_native_operation_tests.rs": null,
+        "src/source_main_ordinary_native_result_impl.rs": null,
+        "src/source_main_native_row_continuation_impl.rs": "7dad2608a3294a1c5a52d596e2e1aeed79bf1917262bf72c5db773698c689cb7",
+        "src/source_contract_runtime.rs": "b6a329a7a15651f637fffeeb420a837085d98a6b7c70ddd8eaa3ca6cea12610a",
+        "src/source_index_mixed_recorded_guard_impl.rs": null,
+        "src/source_index_mixed_validity_metadata_tests.rs": null,
+        "src/source_index_mixed_validity_rebase_impl.rs": null,
+        "src/source_main_mixed_native_capture_impl.rs": null,
+        "src/source_main_mixed_native_controller_impl.rs": null,
+        "src/source_main_mixed_native_core_tests.rs": null,
+        "src/source_main_mixed_native_metadata_tests.rs": null,
+        "src/source_main_mixed_native_policy_impl.rs": null,
+        "src/source_main_mixed_native_record_impl.rs": null,
+        "src/source_main_mixed_native_recovery_impl.rs": null,
+        "src/source_main_mixed_native_replacement_impl.rs": null,
+        "src/source_main_mixed_native_scope_impl.rs": null,
+        "src/source_main_mixed_native_selection_impl.rs": null,
+        "src/source_main_active_service_durable_impl.rs": "ce8b66d26bb239cc8226fbd486c5280807b811ef5c56fa6042a7f34feb1a34cb",
+        "src/source_main_actual_fact_controller_driver_impl.rs": "1713155b72ac39f150808e6d3f0e9948ca8dbe96822ebc5b22ca3e29bc2f876c",
+        "src/source_main_actual_fact_controller_impl.rs": "667b26ce3b069c9a50779de8f8df88b5083069c63a37f82a6edc324a7f0ab49e",
+        "src/source_main_active_escrow_controller_impl.rs": "aad3f8d77ea9fa2f8079416625ee3416d7e27765aef8cd8f19cfc7b04558b78a",
+        "src/source_main_segmented_origin_blob_impl.rs": "84febca175b9bb4cd8ec6f10217326134e2e82b58e853e45f3a25bb1dc3fecf3",
+        "src/source_main_active_service_recovery_impl.rs": "074ffe1bf07145208a98f9d404a0fd26e4aa6931e6202abfec63c0f1bc69dbf6",
+        "src/source_main_actual_native_fact_binding_impl.rs": "008d2ebd37a36888da72033e18a8054887b5ee83091b878309b10fa0a77a1080",
+        "src/source_main_actual_fact_recovery_owner_impl.rs": "c63bde0aa8c9b248c0bc408d3e77992b03df9ff25d6750301941c1b2062f624f",
+        "src/source_main_active_history_segment_impl.rs": "d8322026f7164657be61a51cf9d393b0007b204bf9fc2bd150e88de71a1c84ae",
+        "src/source_index_inline_escrow_guard_impl.rs": "462ca80c924cd4055753be1070ac9818d1e31d4794c3f54114546775b8e304d7",
+        "src/source_index_history_read_impl.rs": "00b3cd6f3f18283ee4ab2bdd4064df18986ea4d408e44f3e0a3e9ae0cc677a6b",
+        "src/source_index_inline_recovery_impl.rs": "9a69266fa2cd26c8df657a17a3cbd15b487578ecf8c4cb4058081b5dc9c1daaf",
+        "src/source_index_verified_reopen_impl.rs": "0ea53f73c01439ce59659e04940672ac066214026a6f3c0a54106988214e5938",
+        "src/source_main_actual_fact_controller_tests.rs": "8b535667e9709cbb0a89a593d47dc5ffa651143b036939be7ed2a7a2d94b2f89",
+        "scripts/ci-preflight.sh": "ec3edd4f9f9406266b80306454346c2f8edb02b98f7b5bd43a5540ad8f63b312",
+        ".github/workflows/ci.yml": "5b84b0c1c7d3d031538d26929586e4add127c312261d4bf4f31171c32f85c7cd",
+        "docs/LOGIC_BY_TX_TYPE.json": "933bdbac128cb8b30d20ef98a64a0b26a54e949ffc6991e5a870d0d390501476"
+      },
+      "after": {
+        "src/source_index_segmented_native_fact_producer_impl.rs": "5307039634d10a5ab7bdaf4ce9b093d598ad8e45f2d4d21578b19b3db2f81e1f",
+        "src/source_main_segmented_native_fact_binding_impl.rs": "c175d3fb86c8f4f6d7068ef1ebc9311c265b3d8da15c42eca3866249d1c3255c",
+        "src/source_main_segmented_native_fact_boundary_impl.rs": "687cba15e3703b19c8eb30ca400e489b17d54c83262dca58e320c9664a8fc02a",
+        "src/source_main_segmented_native_fact_codec_impl.rs": "700714f27a168914f3b69b59253da83381f912eb6b83cf2085a6844567ce142e",
+        "src/source_main_segmented_native_fact_core_tests.rs": "96d54d0e6f3f595f195fe0765c4b8f409352c73c7798bac68fe4312d6bb181b7",
+        "src/source_main_segmented_native_io_dto_impl.rs": "2a4294a3ccccbf6c817b03982c448e97fb08fb3a2b56498e568e4c652cfdd4e6",
+        "src/source_main_segmented_native_io_dto_tests.rs": "9f98df8c95f761964bde2c28fd0bd4dd9b45c02fb98f793dc0964fb01cb61556",
+        "src/source_main_active_service_wal.rs": "30cd4fade7a93d4b25d341792c35a8dbe29b8320386b95f1dadef1110ca07eaf",
+        "src/source_compact_index_v2.rs": "f1103692ba525b63b69b659abe779f535bab78bb4ac42a32d202f631d926955c",
+        "src/source_main_native_session.rs": "43edf8e65ade7aac05d64554bed077ef6c4aad18a47ef5ce3b334faec4e7eb1a",
+        "src/source_main_active_service_durable_tests.rs": "76a2a8c4278be28902d6b8633212d7e35d542518ad5b9c61a2757387af50be5b",
+        "src/source_main_ordinary_native_metadata_tests.rs": "eb89fd8b5081a202c64a7daba51a08d2bd12666c95691851978ac623587e3b6d",
+        "src/source_main_ordinary_native_operation_impl.rs": "15ce72c5a1b4e8664fc59fc627b0ce1f66f5ae8306486ae76c3b8e9bcc2ca139",
+        "src/source_main_ordinary_native_operation_recovery_impl.rs": "b8db99bd7e9a4616c7b9b3b8e83afd330f339e0e3857d7c781785084237c915c",
+        "src/source_main_ordinary_native_operation_tests.rs": "33f3db68e77155e11e0d0b57ddfdff93f95f6bc73a55ecc5fdeffd2ab182966b",
+        "src/source_main_ordinary_native_result_impl.rs": "33a7089ef84f9415e45b1d5f57f5a2c371a32bc6277724532d5dcfdc273754e8",
+        "src/source_main_native_row_continuation_impl.rs": "f0aa29cac60df7d645932d82eacc83911c1525b5f5dc0c8e3d99ea60f1165f87",
+        "src/source_contract_runtime.rs": "e4a21b9f6b91daba4b4ce029d1c81c405671b2f775801213752b7cc03bfe0772",
+        "src/source_index_mixed_recorded_guard_impl.rs": "9374f53d4ec2095be0b8b66a43546bae233a952d20495b2e8cc87e734b538fd8",
+        "src/source_index_mixed_validity_metadata_tests.rs": "aa575b97259d63a2a9c95022fb99cd5dd12c4add166cdd7d00ed533b70be7990",
+        "src/source_index_mixed_validity_rebase_impl.rs": "faa5c9e7510c13f90e95e26f4835bda0dcd556849cd8b6dd71a36e7913fc8740",
+        "src/source_main_mixed_native_capture_impl.rs": "6456abec1ed2ff7e70172e9daa31526a752c0f742a4077e6bc7916688c6da898",
+        "src/source_main_mixed_native_controller_impl.rs": "766ced38e0216c95a298c2838c25c20607aedc99576158b4f1990e04e65ec51d",
+        "src/source_main_mixed_native_core_tests.rs": "9e347ae2e50dd779e83d575a0aa4db9a0931e055e7e56526c13b479c0393c130",
+        "src/source_main_mixed_native_metadata_tests.rs": "38625f2743bbb354dbb6a651504673633c744378a73db55f41cabb36d63bfff5",
+        "src/source_main_mixed_native_policy_impl.rs": "756b91f521ad091555014ff3f6def4deeb7e9a9a036f9e5d01cd8beb612b3839",
+        "src/source_main_mixed_native_record_impl.rs": "4b7029b612810f9076f78cc3c26d5167da9c68e2b7c66fc615e67724cc6940db",
+        "src/source_main_mixed_native_recovery_impl.rs": "48dcd77a48d65edca2815a996f6925447ffef3ca24002add13db5b63b5a98415",
+        "src/source_main_mixed_native_replacement_impl.rs": "1908c7e6b3f9875460f702334dc0c2fbbc59892c162beda222ee536ba69e4a97",
+        "src/source_main_mixed_native_scope_impl.rs": "29f444f412bb15423e1bb6d51e016211cf57a42ab887a4d87e3704f59be17a68",
+        "src/source_main_mixed_native_selection_impl.rs": "2c31396320dbda2ea0ae5ca1e196ccc558407c6ffabe093ecee9b00b7d79c636",
+        "src/source_main_active_service_durable_impl.rs": "596e1a8d6b2d6d2ad2a2b6a2b415c594aae7649dbd4b216b6bc8c5e8c1747f25",
+        "src/source_main_actual_fact_controller_driver_impl.rs": "0d5309fe726863bc0a3d508c74af9914e3baac3da35b7d3ceb3fa11a1d9421fd",
+        "src/source_main_actual_fact_controller_impl.rs": "a607aaf7fbc3940b5ea2343ce77801406867b93a98aeec0d490803a7db0ef7f4",
+        "src/source_main_active_escrow_controller_impl.rs": "6f0d6f7064760850b7dfb7795e68df8728f2095166d6dec492de99b47eb36368",
+        "src/source_main_segmented_origin_blob_impl.rs": "37ebab79f5dc72466168c83fa517fadb044f1327b8eb09f9fd16bd031184cbaa",
+        "src/source_main_active_service_recovery_impl.rs": "d46811e37f5e76b10d844ea5a28ea507b5fba6e5acbc2d606101be7c68685839",
+        "src/source_main_actual_native_fact_binding_impl.rs": "dae897c09309a93641d686ad15e6c7a23203a07987f7c1318344f2a6e7d4b81b",
+        "src/source_main_actual_fact_recovery_owner_impl.rs": "c80dbd877219004ea2148404b59f4a00342534d910a8c80b166dae667efa3e3c",
+        "src/source_main_active_history_segment_impl.rs": "6bd02fb8d385b7383ae36f452e6db538d621f2416a140e5f5a712bc7e29d32a6",
+        "src/source_index_inline_escrow_guard_impl.rs": "4bff6676d08fa066385d23af814298fc59ecb1332d7214b0c7ae6d76796420fb",
+        "src/source_index_history_read_impl.rs": "bea4b56bacd5f8dbbb0ebf37a087242b6594a2a819435f2544db453f83f77f40",
+        "src/source_index_inline_recovery_impl.rs": "4e3675d31911030a1a78d888375087c80af23a9e19e74863ff8d76196896a5a1",
+        "src/source_index_verified_reopen_impl.rs": "f6fe4296ab8f7337224eb1820565329d2bde8815395e622d8fc5ca99730086c9",
+        "src/source_main_actual_fact_controller_tests.rs": "b06c4f80efd7377fb4733154afaae0541759d28a8c886da5914617f61aa9d2b2",
+        "scripts/ci-preflight.sh": "5477f507d3658c051347450a763824a7acfecd241db8a15675dd34674452e86b",
+        ".github/workflows/ci.yml": "d7eaedb91746b5b956ddb81dc1775fa6317ef1bef0499ce13d9a0fa0f683f535",
+        "docs/LOGIC_BY_TX_TYPE.json": "13cdc384d608f970bdc38c332d8fb511fd9ed91134529cbdd4e9b41d14109e35"
+      },
+      "newRustLeaves": [
+        "src/source_index_segmented_native_fact_producer_impl.rs",
+        "src/source_main_segmented_native_fact_binding_impl.rs",
+        "src/source_main_segmented_native_fact_boundary_impl.rs",
+        "src/source_main_segmented_native_fact_codec_impl.rs",
+        "src/source_main_segmented_native_fact_core_tests.rs",
+        "src/source_main_segmented_native_io_dto_impl.rs",
+        "src/source_main_segmented_native_io_dto_tests.rs",
+        "src/source_main_ordinary_native_metadata_tests.rs",
+        "src/source_main_ordinary_native_operation_impl.rs",
+        "src/source_main_ordinary_native_operation_recovery_impl.rs",
+        "src/source_main_ordinary_native_operation_tests.rs",
+        "src/source_main_ordinary_native_result_impl.rs",
+        "src/source_index_mixed_recorded_guard_impl.rs",
+        "src/source_index_mixed_validity_metadata_tests.rs",
+        "src/source_index_mixed_validity_rebase_impl.rs",
+        "src/source_main_mixed_native_capture_impl.rs",
+        "src/source_main_mixed_native_controller_impl.rs",
+        "src/source_main_mixed_native_core_tests.rs",
+        "src/source_main_mixed_native_metadata_tests.rs",
+        "src/source_main_mixed_native_policy_impl.rs",
+        "src/source_main_mixed_native_record_impl.rs",
+        "src/source_main_mixed_native_recovery_impl.rs",
+        "src/source_main_mixed_native_replacement_impl.rs",
+        "src/source_main_mixed_native_scope_impl.rs",
+        "src/source_main_mixed_native_selection_impl.rs"
+      ],
+      "transforms": [
+        {
+          "path": "src/source_main_active_service_wal.rs",
+          "function": "prepare_wal"
+        },
+        {
+          "path": "src/source_compact_index_v2.rs",
+          "function": "prepare_index"
+        },
+        {
+          "path": "src/source_main_native_session.rs",
+          "function": "prepare_session"
+        },
+        {
+          "path": "src/source_main_active_service_durable_tests.rs",
+          "function": "prepare_core_tests"
+        },
+        {
+          "path": "src/source_main_native_row_continuation_impl.rs",
+          "function": "prepare_rows"
+        },
+        {
+          "path": "src/source_contract_runtime.rs",
+          "function": "prepare_runtime"
+        },
+        {
+          "path": "src/source_main_native_session.rs",
+          "function": "prepare_session"
+        },
+        {
+          "path": "src/source_main_segmented_native_fact_binding_impl.rs",
+          "function": "prepare_binding"
+        },
+        {
+          "path": "src/source_main_segmented_native_fact_boundary_impl.rs",
+          "function": "prepare_boundary"
+        },
+        {
+          "path": "src/source_main_segmented_native_fact_core_tests.rs",
+          "function": "prepare_tests"
+        },
+        {
+          "path": "src/source_main_active_service_durable_impl.rs",
+          "function": "prepare_durable"
+        },
+        {
+          "path": "src/source_main_actual_fact_controller_driver_impl.rs",
+          "function": "prepare_driver"
+        },
+        {
+          "path": "src/source_main_actual_fact_controller_impl.rs",
+          "function": "prepare_scope_helper"
+        },
+        {
+          "path": "src/source_main_active_escrow_controller_impl.rs",
+          "function": "prepare_escrow_controller"
+        },
+        {
+          "path": "src/source_main_segmented_origin_blob_impl.rs",
+          "function": "prepare_ready_origin"
+        },
+        {
+          "path": "src/source_main_active_service_recovery_impl.rs",
+          "function": "prepare_recovery_dispatch"
+        },
+        {
+          "path": "src/source_main_actual_native_fact_binding_impl.rs",
+          "function": "prepare_inline_binding"
+        },
+        {
+          "path": "src/source_main_segmented_native_fact_binding_impl.rs",
+          "function": "prepare_ordinary_binding"
+        },
+        {
+          "path": "src/source_main_actual_fact_recovery_owner_impl.rs",
+          "function": "prepare_inline_recovery_policy"
+        },
+        {
+          "path": "src/source_main_active_history_segment_impl.rs",
+          "function": "prepare_segment_writer"
+        },
+        {
+          "path": "src/source_main_native_session.rs",
+          "function": "prepare_session"
+        },
+        {
+          "path": "src/source_main_active_service_wal.rs",
+          "function": "prepare_wal"
+        },
+        {
+          "path": "src/source_compact_index_v2.rs",
+          "function": "prepare_index"
+        },
+        {
+          "path": "src/source_index_inline_escrow_guard_impl.rs",
+          "function": "prepare_inline_sink"
+        },
+        {
+          "path": "src/source_index_history_read_impl.rs",
+          "function": "prepare_index_constructor"
+        },
+        {
+          "path": "src/source_index_inline_recovery_impl.rs",
+          "function": "prepare_index_constructor"
+        },
+        {
+          "path": "src/source_index_verified_reopen_impl.rs",
+          "function": "prepare_index_constructor"
+        },
+        {
+          "path": "src/source_main_actual_fact_controller_tests.rs",
+          "function": "<lambda>"
+        },
+        {
+          "path": "src/source_main_active_service_wal.rs",
+          "function": "<lambda>"
+        }
+      ],
+      "ordinaryMetadataChildLinkedByRoot": true,
+      "newTests": {
+        "src/source_index_segmented_native_fact_producer_impl.rs": 0,
+        "src/source_main_segmented_native_fact_binding_impl.rs": 0,
+        "src/source_main_segmented_native_fact_boundary_impl.rs": 0,
+        "src/source_main_segmented_native_fact_codec_impl.rs": 0,
+        "src/source_main_segmented_native_fact_core_tests.rs": 5,
+        "src/source_main_segmented_native_io_dto_impl.rs": 0,
+        "src/source_main_segmented_native_io_dto_tests.rs": 4,
+        "src/source_main_ordinary_native_metadata_tests.rs": 4,
+        "src/source_main_ordinary_native_operation_impl.rs": 0,
+        "src/source_main_ordinary_native_operation_recovery_impl.rs": 0,
+        "src/source_main_ordinary_native_operation_tests.rs": 5,
+        "src/source_main_ordinary_native_result_impl.rs": 0,
+        "src/source_index_mixed_recorded_guard_impl.rs": 0,
+        "src/source_index_mixed_validity_metadata_tests.rs": 6,
+        "src/source_index_mixed_validity_rebase_impl.rs": 0,
+        "src/source_main_mixed_native_capture_impl.rs": 0,
+        "src/source_main_mixed_native_controller_impl.rs": 0,
+        "src/source_main_mixed_native_core_tests.rs": 5,
+        "src/source_main_mixed_native_metadata_tests.rs": 4,
+        "src/source_main_mixed_native_policy_impl.rs": 0,
+        "src/source_main_mixed_native_record_impl.rs": 0,
+        "src/source_main_mixed_native_recovery_impl.rs": 0,
+        "src/source_main_mixed_native_replacement_impl.rs": 0,
+        "src/source_main_mixed_native_scope_impl.rs": 0,
+        "src/source_main_mixed_native_selection_impl.rs": 0
+      },
+      "CoreValidated": false,
+      "existingQueuedProfileStillFailed": true
+    },
+    "height": {
+      "manifestSHA256": "cb944d582dc14e3e44548268c471727e7ea952ee4694536ff582f4c093dd97b5",
+      "verifiedPayloads": 38,
+      "before": {
+        "src/source_contract_runtime.rs": "e4a21b9f6b91daba4b4ce029d1c81c405671b2f775801213752b7cc03bfe0772",
+        "src/source_main_startup_height_await_impl.rs": null,
+        "src/source_main_startup_height_await_tests.rs": null,
+        "scripts/ci-preflight.sh": "5477f507d3658c051347450a763824a7acfecd241db8a15675dd34674452e86b",
+        ".github/workflows/ci.yml": "d7eaedb91746b5b956ddb81dc1775fa6317ef1bef0499ce13d9a0fa0f683f535",
+        "docs/LOGIC_BY_TX_TYPE.json": "13cdc384d608f970bdc38c332d8fb511fd9ed91134529cbdd4e9b41d14109e35"
+      },
+      "after": {
+        "src/source_contract_runtime.rs": "10be18f65325b3232af6a3d99e9d7cb585c1324ea9e002aba1cfe743a6137423",
+        "src/source_main_startup_height_await_impl.rs": "5783cbdb70096df58d3a9ba9891a1d1946ed4b9fbfba8576e2494a6fdfff1482",
+        "src/source_main_startup_height_await_tests.rs": "b9585eedc23647d2b59f4fb854a3888fae064048ec37e47e0fe6ae1edde1cd39",
+        "scripts/ci-preflight.sh": "de30ec9c4963a47d0b5467e3e49b762740875d715a9781f654a5656f87930b39",
+        ".github/workflows/ci.yml": "1445cbb6fa0fe501e8a7dfc1c00ba8558266bbe447a9b14eff5e0eb836512cf1",
+        "docs/LOGIC_BY_TX_TYPE.json": "81521726fb2f531064296f36ae71db582a41f39bd50946f974dc856fdd8e6081"
+      },
+      "newRustLeaves": [
+        "src/source_main_startup_height_await_impl.rs",
+        "src/source_main_startup_height_await_tests.rs"
+      ],
+      "newTests": 6,
+      "rootCapturedSourceChecksPassed": true,
+      "genuineSourceHeightCalls": 32,
+      "rootNewSourceExecutions": 0,
+      "productionAdmissionAdded": false,
+      "sameKernelBindingComplete": false,
+      "CoreValidated": false
+    },
+    "escrowCorrection": {
+      "manifestSHA256": "557e120c9412a680900c371947efc84dbb0783d4863c5df3b257ffb48e963bcc",
+      "before": {
+        "src/source_main_active_escrow_controller_impl.rs": "6f0d6f7064760850b7dfb7795e68df8728f2095166d6dec492de99b47eb36368",
+        "docs/LOGIC_BY_TX_TYPE.json": "81521726fb2f531064296f36ae71db582a41f39bd50946f974dc856fdd8e6081"
+      },
+      "after": {
+        "src/source_main_active_escrow_controller_impl.rs": "5b10bbac2532d7fc1e7c19368289ecf55b8b3d6c9dc1bb052e4204886d2926a9",
+        "docs/LOGIC_BY_TX_TYPE.json": "8aeb9e0898962caff744e2a9567308b13850cb81ccc6945a04311670afa10fb2"
+      },
+      "testsChanged": false,
+      "scope": "Mixed-only actual ordinary replacement dispatch before old inline path; required escrow route now matches non-escrow dispatcher.",
+      "CoreValidated": false
+    },
+    "lintCorrection": {
+      "before": {
+        "src/source_main_actual_fact_controller_driver_impl.rs": "0d5309fe726863bc0a3d508c74af9914e3baac3da35b7d3ceb3fa11a1d9421fd"
+      },
+      "after": {
+        "src/source_main_actual_fact_controller_driver_impl.rs": "e1049af146ad4c0254be9d42ced80f4ad89706ba919e96ef344894a47c4047b9"
+      },
+      "reason": "Clippy if_same_then_else: coalesce consecutive ordinary/inline NativeIoObserved branches using short-circuit OR, preserving evaluation order and exact returned stage.",
+      "productionPredicateFactored": true,
+      "testsOrAssertionsChanged": false,
+      "oldAndNewSourceObservationStageIdentical": true
+    }
+  },
+  "workingInputManifestSHA256": "af4b067ff74b99ecc577799552650bde455176f592943b8eea1182c56f3a3915",
+  "sourceProjection": {
+    "paths": [
+      "src/source_contract_runtime.rs",
+      "scripts/ci-preflight.sh",
+      ".github/workflows/ci.yml",
+      "docs/LOGIC_BY_TX_TYPE.json"
+    ],
+    "onlyQueuedRuntimeIncludesExcluded": true,
+    "failedQueuedProductionIncluded": false,
+    "currentWorkingTreeHasSeparateUncommittedQueuedProfile": true
+  },
+  "broadLibrary": {
+    "status": "running-not-promoted",
+    "session": 93155,
+    "log": "work/root-mixed-broad-library.log",
+    "capturedLogPrefixBytes": 112932,
+    "capturedLogPrefixSHA256": "2ec723c66ab964a3173fe4ffa584152c3fa699d5bd628165a677d5dc0d31653a",
+    "passedLinesSoFar": 0,
+    "failedLinesSoFar": 0,
+    "frozenBinarySHA256": "f77ba8b5e02503467d02cf56e2f7237ee34870f6b322329a0a93e0f467915ab1",
+    "ordinaryLongCasesSkipped": 0,
+    "knownUncommittedQueuedFailuresExcluded": 2,
+    "candidatePassed": 782,
+    "finalPassClaimed": false,
+    "laterPredicateCorrectionEquivalentAndAffected39Rerun": true
+  },
+  "logs": {
+    "root-mixed-native-third-height-await.log": "e6e3b601481e53920a043658b3ca9f1ea9f718c854632c0fd95557dec9be7d67",
+    "root-mixed-native-third-io-dto.log": "d0198ad9facdef07125f0e7b43e44e338b26aafa512c454a8dcbcdf3a61ce819",
+    "root-mixed-native-third-mixed-binding.log": "a80ea854e20a8c4aa30951fe21341a224d48532f6c5c3017f43659b12a65848d",
+    "root-mixed-native-third-mixed-index.log": "d774a44a0070b5da917ae08da0f80e59d0f1bbdcb3c5f85679e9b2bac655b685",
+    "root-mixed-native-third-mixed-owner.log": "75bf59ea413090215b1ad18e5f2673fbc0b18cd36818626b94c8ade13d1031f2",
+    "root-mixed-native-third-ordinary-metadata.log": "c78dad0029bf5fbbe35b99875e6063f631926a59edc27698bcccc4f4d4a9e809",
+    "root-mixed-native-third-ordinary-owner.log": "9ae92f4121e11fac0a7051b93f44919a808737336d75234aed9c044deaec183d",
+    "root-mixed-native-lint-final-affected-fact-controller.log": "dc055620a13f6005cb590ec7c7a1c6fd98004f150104bf5262a0ca767518b453",
+    "root-mixed-native-lint-final-clippy.log": "20b3df6c9d66dd906017e8b09052c0bbbb27c43d239d7250dbaf46a2e668cf8a",
+    "root-mixed-native-lint-final-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "root-mixed-native-final-aux-included-fmt.log": "546806ae23d2121dd34744d4a04fc3756429320932dde0f4c47187d27c0d778e",
+    "root-mixed-native-final-aux-inventory.log": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393",
+    "root-mixed-native-final-aux-supply-policy.log": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01",
+    "root-mixed-native-compat-lint-public-compatibility.log": "d1637ddccbedfb9f309880dc690e81c980f32c4e004d371d65d2cf0d53f69555"
+  },
+  "scope": {
+    "actualNativeResultOwnedBeforePostCaptureSerializationAndSourceDelivery": true,
+    "factsSyncedBeforeActualSourceObservationAcceptedAck": true,
+    "sameFinancialIndexSourceAndQueueOwnerRetained": true,
+    "firstSourceStopAndBothNativeErrorsPreservedAcrossRetries": true,
+    "nativeOnlyBeforeIntermediatePostRecoveryAndCheckpointCovered": true,
+    "oldDefaultProfilesAndReadersNotWidened": true,
+    "heightPrimitiveCompiledInTestNamespaceOnly": true,
+    "heightPromiseKernelProductionBindingComplete": false,
+    "queuedStartupPositivesFixed": false,
+    "coldMixedNativeFinancialReplayEstablished": false,
+    "killedProcessFinancialRecoveryEstablished": false,
+    "authenticationEstablished": false,
+    "completeBlockFraudProofEstablished": false
+  },
+  "initialFailures": {
+    "mixedFirstCore": "WrongAction: mandatory escrow replacement route selected inline mapping instead of ordinary mapping.557e adds exact Mixed ordinary branch; unchanged two failing tests now pass.",
+    "clippy": "Two identical NativeIoObserved stage arms combined with the same short-circuit predicate/evaluation order. No assertions changed;39affected controllers rerun."
+  },
+  "remainingGates": [
+    "Full mixed cold ordinary success/recovery actor and strict physical retry closure",
+    "Production same-Kernel Promise/RPC/database awaits and nested startup full-state/effect parity",
+    "Unacknowledged process loss/hot resume/caller/file/segmented fresh composition",
+    "Integrated RC/all-target/numeric promotion, fuzz review and intended-host durability/performance",
+    "Planned oracle-abuse exercise with separate UTXORef; authenticated context and complete-block proofs"
+  ],
+  "fullAllTargetReleasePromoted": false,
+  "verifiedAllTargetBaseline": 2204,
+  "verifiedLockedReferenceBaseline": 239,
+  "previousMainScopedLibraryPassed": 734,
+  "previousMainScopedCommit": "1ac51ada2aa623d21db978be21cb4cac20f20454"
+}
