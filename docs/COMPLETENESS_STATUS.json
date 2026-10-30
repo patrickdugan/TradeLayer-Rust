@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-30T14:46:10Z",
-  "inspectedCheckoutCommit": "1a8d2fb35f24b20dd35931f74300c919f3a6a892",
+  "verifiedAtUtc": "2026-10-30T15:24:50Z",
+  "inspectedCheckoutCommit": "33a1b49b5ecdc635c1496710c70f4e11c21d1738",
   "verifiedImplementationCommit": "a94ea4c7cdf4677d7d48455d65363edd263a16c1",
   "verifiedReleaseTests": 2204,
   "topLevelTests": 2203,
@@ -1404,10 +1404,47 @@
       "coldFinancialPassed": 0,
       "coldFinancialFailed": 8,
       "correctionsCoreValidated": false,
-      "fullAllTargetPromotion": false
+      "fullAllTargetPromotion": false,
+      "status": "historical first-failure record, superseded by tested committed work",
+      "supersededBy": [
+        "fixtures/reference_fidelity/main-mixed-native-cold-core-integration.json",
+        "fixtures/reference_fidelity/orderbook-lifecycle-helpers-core-integration.json"
+      ]
+    },
+    "mainMixedNativeCold": {
+      "codeCommit": "33a1b49b5ecdc635c1496710c70f4e11c21d1738",
+      "record": "fixtures/reference_fidelity/main-mixed-native-cold-core-integration.json",
+      "newDistinctTests": 12,
+      "financialOwnerPassed": 8,
+      "metadataPassed": 4,
+      "exactCommittedAll12Passed": true,
+      "allTargetClippyPassed": true,
+      "unwrittenAwaitRefusesWithActualFinancialPrefix": true,
+      "mixedIntermediateCopiedPrefixClosurePending": true,
+      "productionStartupParityEstablished": false,
+      "fullAllTargetReleasePromoted": false
+    },
+    "orderbookLifecycleHelpers": {
+      "codeCommit": "6a62e3851054267da72516fe4f6f284a7bba84cb",
+      "exactCheckedCommit": "273511c4ad12c18be28c55a8e83f7ffbd643ef3e",
+      "record": "fixtures/reference_fidelity/orderbook-lifecycle-helpers-core-integration.json",
+      "newTests": 5,
+      "existingQueueTests": 8,
+      "exactCommittedPublicPassed": 13,
+      "originalSourceCalls": 35,
+      "allFourSourceRegenerationsPassed": true,
+      "originalSourceBodiesChanged": false,
+      "authenticationEstablished": false
+    },
+    "outerAndIntermediateProbe": {
+      "uncommitted": true,
+      "newTestsNotExecuted": 18,
+      "firstCompileFailed": true,
+      "reason": "Outer retained native DependencyReturn requires source-await-specific conversion; no successful new Core cases claimed",
+      "productionStartupParityEstablished": false
     }
   },
-  "scope": "Inspected committed checkpoint1a8d2fb; latest checked implementationd774f6e. Release remains2,204Rust/239numeric;782scoped library passes remain separate. Uncommitted orderbook helpers pass5new and8existing queue checks; cold-history metadata passes4checks. All8cold financial recovery checks fail on Before framing or old-error/current-IO classification. Worker fixes await actual Core tests. Startup Promise/RPC/DB/UID order, broader cold recovery, RC/fuzz, intended-host validation, authenticated history and complete-block proofs remain open.",
+  "scope": "Latest checked code33a1b49 passes8financial-owner+4metadata cold-recovery checks, also all12from its clean committed snapshot. Orderbook6a62e38/273511c passes5new+8queue checks and all four genuine source regenerations from committed files.17new checks are distinct; older39controller/782scoped regressions overlap prior evidence. Release remains2,204Rust/239numeric. Next18working probes for source query timing/outer bootstrap/compaction-copy have not run: first Core build needs a retained-result type fix. Two queued-startup positives, production Promise/RPC/DB/UID parity, full RC/fuzz/host and authentication/full-block proofs remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -1699,27 +1736,27 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Inspected committed checkpoint1a8d2fb; latest checked implementationd774f6e. Release remains2,204Rust/239numeric;782scoped library passes remain separate. Uncommitted orderbook helpers pass5new and8existing queue checks; cold-history metadata passes4checks. All8cold financial recovery checks fail on Before framing or old-error/current-IO classification. Worker fixes await actual Core tests. Startup Promise/RPC/DB/UID order, broader cold recovery, RC/fuzz, intended-host validation, authenticated history and complete-block proofs remain open.",
+  "workbookNote": "Latest checked code33a1b49 passes8financial-owner+4metadata cold-recovery checks, also all12from its clean committed snapshot. Orderbook6a62e38/273511c passes5new+8queue checks and all four genuine source regenerations from committed files.17new checks are distinct; older39controller/782scoped regressions overlap prior evidence. Release remains2,204Rust/239numeric. Next18working probes for source query timing/outer bootstrap/compaction-copy have not run: first Core build needs a retained-result type fix. Two queued-startup positives, production Promise/RPC/DB/UID parity, full RC/fuzz/host and authentication/full-block proofs remain open.",
   "savedWorkbook": {
-    "sha256": "dc4b523d9a5564dcdf3afc09d87fe9097f318d2ba4a198ba9112d753050e107e",
-    "bytes": 47950,
+    "sha256": "6a347c215a412a3b5759610a9c61271504d86187c964d8145e6a1eaae0c906e3",
+    "bytes": 47985,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-30T14:46:10Z",
+    "asOfUtc": "2026-10-30T15:24:50Z",
     "rowHashes": {
-      "modules": 119177094,
+      "modules": 2368775538,
       "logic": 1151758449
     },
-    "verifiedEdits": 13,
+    "verifiedEdits": 17,
     "layoutAndFormulaPreservationVerified": true
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-30T14:46:10Z",
-    "sha256": "dc4b523d9a5564dcdf3afc09d87fe9097f318d2ba4a198ba9112d753050e107e",
+    "verifiedAtUtc": "2026-10-30T15:24:50Z",
+    "sha256": "6a347c215a412a3b5759610a9c61271504d86187c964d8145e6a1eaae0c906e3",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 119177094,
+    "moduleRowsFNV": 2368775538,
     "logicRowsFNV": 1151758449,
-    "intentionalCellChanges": 13,
+    "intentionalCellChanges": 17,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,
@@ -1730,7 +1767,7 @@
     "releaseValidationRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json",
     "sourceDiagnosisRecord": "fixtures/reference_fidelity/main-startup-rpc-order-diagnosis.json",
     "latestBroadLibraryValidationRecord": "fixtures/reference_fidelity/main-mixed-native-broad-library-validation.json",
-    "candidateValidationRecord": "fixtures/reference_fidelity/cold-orderbook-candidate-validation.json"
+    "candidateValidationRecord": "fixtures/reference_fidelity/main-mixed-native-cold-core-integration.json"
   },
   "validationRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json",
   "knownReferenceGaps": [
@@ -1748,10 +1785,10 @@
     "lockedReferenceExecutions": 239,
     "record": "fixtures/reference_fidelity/inline-channel-release-validation.json"
   },
-  "focusedValidationRecord": "fixtures/reference_fidelity/main-mixed-native-live-core-integration.json",
-  "focusedImplementationCommit": "d774f6e6010d84367296f731ff4827f300fd974b",
-  "focusedVerifiedAtUtc": "2026-10-30T13:48:14Z",
-  "lastFocusedCodeCommit": "d774f6e6010d84367296f731ff4827f300fd974b",
+  "focusedValidationRecord": "fixtures/reference_fidelity/main-mixed-native-cold-core-integration.json",
+  "focusedImplementationCommit": "33a1b49b5ecdc635c1496710c70f4e11c21d1738",
+  "focusedVerifiedAtUtc": "2026-10-30T15:16:12Z",
+  "lastFocusedCodeCommit": "33a1b49b5ecdc635c1496710c70f4e11c21d1738",
   "recoveryPackage": {
     "commit": "9e2baa234a487c47f5a5160440b801347a668f30",
     "archiveSHA256": "acce9e5db7c65adef0246cf01581b4c06db0fd3cf356d1cdfa6528b47fff992f",

@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T15:16:12Z. Refresh this file after every tested integration or PR cycle.
+Updated: 2026-10-30T15:24:50Z. Refresh this file after every tested integration or PR cycle.
 
 ## Latest tested mixed native recovery increment (`d774f6e`)
 
@@ -122,3 +122,9 @@ Orderbook exact committed archive91385 exposed a Windows export-only proof fixtu
 All8financial-owner+4metadata controls pass through the actual normal Core. Root corrected segmented writer framing and Mixed current-IO classification; original first-error/second-native-error custody and all stronger negative financial/effects/PC/Post assertions pass. The final apparent extra decode was a test measurement issue: a thread-local total included BOTH independent executions. Independent monotonic deltas now prove exactly one decode per live/cold run; no production counter reset, suppressed call or source result change.39oldcontroller regressions, strictalltargetClippy/Cargofmt/fmt519/inventory/supply pass. Evidence:`fixtures/reference_fidelity/main-mixed-native-cold-core-integration.json`. Runtime/CI/pins exclude failed queued-startup experiments.
 
 Orderbook committed snapshot273511c now passes all13public checks and all four genuine source full/proof10 regenerations after explicit LF export attributes; exact source corpus bytes match Root. Mixed cold Intermediate/copied-prefix candidate63f6 and sourcequery54a+outer2557/per-factory-stopdd7 remain next uncompiled gates. Same-Kernel production Promise binding, two queued positives, full RC/fuzz/host/authentication and complete-block proofs remain open. Workbook baseline2204/239 is unchanged pending fresh complete validation. No push/PR.
+
+## Committed cold and orderbook completeness refresh
+
+33a1b49 exact committed snapshot passes all8cold owner+4metadata checks; orderbook273511c exact files pass13public checks and four original-source regenerations. Sidebar/workbook195 records17new distinct checked tests separately from prior39/782scoped overlapping evidence and unchanged2204/239release.17intended edits preserve48TL+1external,37transaction rows, all formulas/styles/filters/panes/geometry and zero errors. Evidence:`fixtures/reference_fidelity/mixed-cold-orderbook-completeness.json`.
+
+Current uncommitted next gate mounts18new proposals: shared-query54a, outer2557+per-factory-stopdd7, mixedIntermediate/copied-prefix63f6. Root61279 first Core compile failed only at source_main_outer_bootstrap_impl.rs703: retained DependencyReturn supplied where SourceOutcome was expected. No18cases ran. v8_main owns the source-await-specific correction. No Root/Core process remains from61279. Do not weaken retained error/Promise ordering or supply callback values. Same original Kernel Promise/NeDB c40f/0768 and Incoming/outer bindings remain isolated worker work; two queued startup positives still unpromoted. Continue actual18gate after the minimal type fix.

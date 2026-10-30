@@ -96,5 +96,19 @@
     "root-mixed-cold-regression-affected-fact-controller.log": "f0ae122825fb4e37c15336df15afc739dc48c86cdf59240a1a6d111cc0e2f416",
     "root-mixed-cold-corrected-cold-owner.log": "4f58f4381767249881d71b540284c658ecf689687fb2be2b33aa973fab7432cc",
     "root-mixed-cold-endpoint-unwritten-diagnostic.log": "1757bf8f75137cc1fa610c036b86a96d08c415f8da9cb089cb4a10d724764aa4"
+  },
+  "exactCommittedVerification": {
+    "commit": "33a1b49b5ecdc635c1496710c70f4e11c21d1738",
+    "archiveSHA256": "1eed5f0c0d6101bfec3c1e6db6ee50e56edd29399e3ff18ceafd0593506cbece",
+    "exactCommittedArchive": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\mixed-cold-33a1-exact-check",
+    "selectedTests": 12,
+    "financialOwnerPassed": 8,
+    "metadataPassed": 4,
+    "logs": {
+      "root-mixed-cold-exact-cold-owner.log": "3abad7c04b2dbfd0c7ac6ea73da480a9f45ccbdcbe3d4316dfa5d9e7900d8db3",
+      "root-mixed-cold-exact-history-metadata.log": "ab3204d615a09b801a1f3eff2a1b6c4486c9b88cb76d384c63d367cf0b4679d0",
+      "root-mixed-cold-exact-error-marker.log": "817cdc30a614578703eb2121184eb3df11b8bb9014b08c47bd235de705f7f7b1"
+    },
+    "failedQueuedProfileIncluded": false
   }
 }

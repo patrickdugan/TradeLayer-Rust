@@ -1,0 +1,38 @@
+{
+  "schema": "tl-mixed-cold-completeness-v1",
+  "verifiedAtUtc": "2026-10-30T15:24:50Z",
+  "checkoutCommit": "33a1b49b5ecdc635c1496710c70f4e11c21d1738",
+  "beforeWorkbookSHA256": "dc4b523d9a5564dcdf3afc09d87fe9097f318d2ba4a198ba9112d753050e107e",
+  "coldRecord": "fixtures/reference_fidelity/main-mixed-native-cold-core-integration.json",
+  "coldRecordSHA256": "b107e6bc999fd56c3db8ff31efeece2c982c595576bda38ffa3e73cd9921a267",
+  "orderbookRecord": "fixtures/reference_fidelity/orderbook-lifecycle-helpers-core-integration.json",
+  "orderbookRecordSHA256": "f71ae8f19e64f885fa271f0c6135e30bf1ccf584f1f0881be69cdf5195ba3e31",
+  "exactColdInput": {
+    "commit": "33a1b49b5ecdc635c1496710c70f4e11c21d1738",
+    "archiveSHA256": "1eed5f0c0d6101bfec3c1e6db6ee50e56edd29399e3ff18ceafd0593506cbece",
+    "exactCommittedArchive": "C:\\Users\\patri\\Documents\\Codex\\2026-10-26\\go\\work\\mixed-cold-33a1-exact-check",
+    "selectedTests": 12
+  },
+  "exactColdLogs": {
+    "root-mixed-cold-exact-cold-owner.log": "3abad7c04b2dbfd0c7ac6ea73da480a9f45ccbdcbe3d4316dfa5d9e7900d8db3",
+    "root-mixed-cold-exact-history-metadata.log": "ab3204d615a09b801a1f3eff2a1b6c4486c9b88cb76d384c63d367cf0b4679d0",
+    "root-mixed-cold-exact-error-marker.log": "817cdc30a614578703eb2121184eb3df11b8bb9014b08c47bd235de705f7f7b1"
+  },
+  "newDistinctCheckedTests": 17,
+  "fullAllTargetReleasePromoted": false,
+  "releaseExecutions": 2204,
+  "lockedReferenceExecutions": 239,
+  "newProbeTestsNotExecuted": 18,
+  "savedWorkbookSHA256": "6a347c215a412a3b5759610a9c61271504d86187c964d8145e6a1eaae0c906e3",
+  "savedAndSidebarRowsMatch": true,
+  "rowHashes": {
+    "modules": 2368775538,
+    "logic": 1151758449
+  },
+  "intentionalCellChanges": 17,
+  "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
+  "visualReviewPassed": true,
+  "errors": 0,
+  "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
+  "sidebarStateVersion": 195
+}
