@@ -63,7 +63,8 @@ async function observe([id, method, existing, failures]) {
       },
     },
   };
-  vm.runInNewContext(code, context, { filename: 'pinned/txIndex.js', timeout: 1000 });
+  // Infinite-loop watchdog only; a cold or loaded host can exceed 1s here.
+  vm.runInNewContext(code, context, { filename: 'pinned/txIndex.js', timeout: 30000 });
   let result;
   try {
     const returned = await module.exports[method](10);
