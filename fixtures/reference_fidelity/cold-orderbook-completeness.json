@@ -1,0 +1,25 @@
+{
+  "schema": "tl-cold-orderbook-heartbeat-v1",
+  "verifiedAtUtc": "2026-10-30T14:46:10Z",
+  "checkoutCommit": "1a8d2fb35f24b20dd35931f74300c919f3a6a892",
+  "beforeWorkbookSHA256": "47bc89c58325a532fe01ed033d4e35730346de3a8d0ed15ebbf27230414b2136",
+  "candidateRecord": "fixtures/reference_fidelity/cold-orderbook-candidate-validation.json",
+  "candidateRecordSHA256": "54a79ee28719705e848659d6f0bf426b0823e8ad1bbc80b5f699b66889a31f56",
+  "releaseExecutions": 2204,
+  "lockedReferenceExecutions": 239,
+  "priorScopedLibraryPassed": 782,
+  "candidateChecksPassed": 17,
+  "candidateFinancialChecksFailed": 8,
+  "savedWorkbookSHA256": "dc4b523d9a5564dcdf3afc09d87fe9097f318d2ba4a198ba9112d753050e107e",
+  "savedAndSidebarRowsMatch": true,
+  "rowHashes": {
+    "modules": 119177094,
+    "logic": 1151758449
+  },
+  "intentionalCellChanges": 13,
+  "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
+  "visualReviewPassed": true,
+  "errors": 0,
+  "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
+  "sidebarStateVersion": 194
+}

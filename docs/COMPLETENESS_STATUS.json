@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-30T14:08:39Z",
-  "inspectedCheckoutCommit": "c7f830008846ddbb7a0d7b79097c07908eef05f9",
+  "verifiedAtUtc": "2026-10-30T14:46:10Z",
+  "inspectedCheckoutCommit": "1a8d2fb35f24b20dd35931f74300c919f3a6a892",
   "verifiedImplementationCommit": "a94ea4c7cdf4677d7d48455d65363edd263a16c1",
   "verifiedReleaseTests": 2204,
   "topLevelTests": 2203,
@@ -1393,9 +1393,21 @@
       "scopedWorkingLibraryPassed": 782,
       "exactCommittedAllTargetsTypecheckPassed": true,
       "fullCurrentCommittedLibraryRunClaimed": false
+    },
+    "coldOrderbookWorkingCandidates": {
+      "record": "fixtures/reference_fidelity/cold-orderbook-candidate-validation.json",
+      "checkedInputCommit": "1a8d2fb35f24b20dd35931f74300c919f3a6a892",
+      "uncommittedWorkingContext": true,
+      "newOrderbookPassed": 5,
+      "existingQueuePassed": 8,
+      "metadataPassed": 4,
+      "coldFinancialPassed": 0,
+      "coldFinancialFailed": 8,
+      "correctionsCoreValidated": false,
+      "fullAllTargetPromotion": false
     }
   },
-  "scope": "Release a94ea4c remains2,204Rust/239numeric. Mixed d774f6e passes39new focused controls,44compatibility+13committed canonical,strictClippy/fmt/inventory/supply. Its frozen working-context regression passes782/fourignored, filtering only two known failed uncommitted startup cases; all ordinary long cases ran. The exact c7f8300 committed tree passes all-target typecheck. A later equivalent stage-predicate merge reran39affected controllers. Full current-library/all-target promotion remains pending. Production Promise/RPC/DB/UID order, mixed cold, RC/fuzz, host and authenticated proofs remain open.",
+  "scope": "Inspected committed checkpoint1a8d2fb; latest checked implementationd774f6e. Release remains2,204Rust/239numeric;782scoped library passes remain separate. Uncommitted orderbook helpers pass5new and8existing queue checks; cold-history metadata passes4checks. All8cold financial recovery checks fail on Before framing or old-error/current-IO classification. Worker fixes await actual Core tests. Startup Promise/RPC/DB/UID order, broader cold recovery, RC/fuzz, intended-host validation, authenticated history and complete-block proofs remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -1687,27 +1699,27 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Release a94ea4c remains2,204Rust/239numeric. Mixed d774f6e passes39new focused controls,44compatibility+13committed canonical,strictClippy/fmt/inventory/supply. Its frozen working-context regression passes782/fourignored, filtering only two known failed uncommitted startup cases; all ordinary long cases ran. The exact c7f8300 committed tree passes all-target typecheck. A later equivalent stage-predicate merge reran39affected controllers. Full current-library/all-target promotion remains pending. Production Promise/RPC/DB/UID order, mixed cold, RC/fuzz, host and authenticated proofs remain open.",
+  "workbookNote": "Inspected committed checkpoint1a8d2fb; latest checked implementationd774f6e. Release remains2,204Rust/239numeric;782scoped library passes remain separate. Uncommitted orderbook helpers pass5new and8existing queue checks; cold-history metadata passes4checks. All8cold financial recovery checks fail on Before framing or old-error/current-IO classification. Worker fixes await actual Core tests. Startup Promise/RPC/DB/UID order, broader cold recovery, RC/fuzz, intended-host validation, authenticated history and complete-block proofs remain open.",
   "savedWorkbook": {
-    "sha256": "47bc89c58325a532fe01ed033d4e35730346de3a8d0ed15ebbf27230414b2136",
-    "bytes": 48030,
+    "sha256": "dc4b523d9a5564dcdf3afc09d87fe9097f318d2ba4a198ba9112d753050e107e",
+    "bytes": 47950,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-30T14:08:39Z",
+    "asOfUtc": "2026-10-30T14:46:10Z",
     "rowHashes": {
-      "modules": 1780867387,
+      "modules": 119177094,
       "logic": 1151758449
     },
-    "verifiedEdits": 7,
+    "verifiedEdits": 13,
     "layoutAndFormulaPreservationVerified": true
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-30T14:08:39Z",
-    "sha256": "47bc89c58325a532fe01ed033d4e35730346de3a8d0ed15ebbf27230414b2136",
+    "verifiedAtUtc": "2026-10-30T14:46:10Z",
+    "sha256": "dc4b523d9a5564dcdf3afc09d87fe9097f318d2ba4a198ba9112d753050e107e",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 1780867387,
+    "moduleRowsFNV": 119177094,
     "logicRowsFNV": 1151758449,
-    "intentionalCellChanges": 7,
+    "intentionalCellChanges": 13,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,
@@ -1717,7 +1729,8 @@
     "lockedReferenceExecutions": 239,
     "releaseValidationRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json",
     "sourceDiagnosisRecord": "fixtures/reference_fidelity/main-startup-rpc-order-diagnosis.json",
-    "latestBroadLibraryValidationRecord": "fixtures/reference_fidelity/main-mixed-native-broad-library-validation.json"
+    "latestBroadLibraryValidationRecord": "fixtures/reference_fidelity/main-mixed-native-broad-library-validation.json",
+    "candidateValidationRecord": "fixtures/reference_fidelity/cold-orderbook-candidate-validation.json"
   },
   "validationRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json",
   "knownReferenceGaps": [

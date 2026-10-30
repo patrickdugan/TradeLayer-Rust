@@ -1,0 +1,77 @@
+{
+  "schema": "tl-cold-orderbook-candidate-validation-v1",
+  "verifiedAtUtc": "2026-10-30T14:46:10Z",
+  "checkoutCommit": "1a8d2fb35f24b20dd35931f74300c919f3a6a892",
+  "latestCommittedImplementation": "d774f6e6010d84367296f731ff4827f300fd974b",
+  "context": "Uncommitted working-tree candidates; no source or full-release promotion",
+  "inputManifestSHA256": "2bc113648b95e4ac61525f555e338a587ae237a24f03086d98f4bef21dcd1227",
+  "inputFiles": 2221,
+  "mountRecordSHA256": "8faeb6395b89d4efc6369fa5232afb8964496e5a11ecde15a1dc9515ee91208d",
+  "manifests": {
+    "cold": "d67e6fd040528bb8113f49c6f1642cf70373c28fcd7f16cb907b84ddee22bf5d",
+    "recovery": "46cbc3642ab0967a52b44a36e02111b1abe3f9a34891be1a2a03b47d60b3d964",
+    "orderbook": "acacdeb1ae081a3678e5f8b51736cff2554737c07ab8792b6f60c3aefe1c0712",
+    "review": "f17b302dcd1dc67ff41292b36e61146be3b314baf1cae22cbd84ec1fc10c3d16"
+  },
+  "orderbookNewTestsPassed": 5,
+  "existingQueueTestsPassed": 8,
+  "coldMetadataTestsPassed": 4,
+  "coldFinancialTestsPassed": 0,
+  "coldFinancialTestsFailed": 8,
+  "passedTestNamesByLog": {
+    "root-cold-orderbook-first-cold-owner.log": [],
+    "root-cold-orderbook-second-history-metadata.log": [
+      "source_main_active_service_wal::mixed_native_history_metadata_tests::mixed_producer_prefix_reads_actual_created_record_bad_expected_kv_keeps_lock_and_cursor",
+      "source_main_active_service_wal::mixed_native_history_metadata_tests::mixed_reader_actual_trace_window_and_metadata_pin_roundtrip_keep_old_reader_closed",
+      "source_main_active_service_wal::mixed_native_history_metadata_tests::mixed_reader_bad_trace_and_foreign_window_refuse_without_publishing"
+    ],
+    "root-cold-orderbook-second-error-marker.log": [
+      "source_compact_index_v2::mixed_validity_metadata_tests::mixed_historical_result_metadata_tests::mixed_historical_known_error_requires_actual_post_and_one_exact_resolve_marker"
+    ],
+    "root-cold-orderbook-second-orderbook.log": [
+      "absent_capability_never_manufactures_placement_or_clears_pending_queue",
+      "checkpoint_parser_charges_aggregate_nodes_depth_and_text_before_allocation",
+      "complete_recovery_and_durable_restart_preserve_their_distinct_cache_and_fault_lifecycles",
+      "checkpoint_counts_have_symmetric_domains_and_reject_valid_crc_splices",
+      "source_book_json_rejects_bounded_and_surrogate_domains_without_empty_book_success",
+      "genuine_composed_raw18_enqueue_observations_replay_original_shifted_params_and_document_writes",
+      "unchanged_pinned_queue_methods_replay_all_documents_instances_calls_and_partial_effects",
+      "local_collection_capacity_restores_documents_caches_and_failure_schedule",
+      "original_method_admission_and_local_refusal_rollback_stay_exact",
+      "first_ten_actual_original_calls_remain_a_separate_exact_proof",
+      "actual_default_entry_helpers_match_complete_source_rows_cache_outcomes_and_db_effects",
+      "new_explicit_entry_keeps_legacy_default_and_invoke_admission_unchanged",
+      "actual_same_core_queue_registry_and_tally_match_all_original_helper_scenes"
+    ]
+  },
+  "failedColdTestNames": [
+    "source_main_native_session::native_active_service_durable_tests::inline_wal_tests::actual_fact_controller_tests::mixed_native_cold_core_tests::mixed_cold_actual_inline_then_ordinary_success_keeps_finance_source_head_and_unresolved_post",
+    "source_main_native_session::native_active_service_durable_tests::inline_wal_tests::actual_fact_controller_tests::mixed_native_cold_core_tests::mixed_cold_ordinary_separate_resolve_and_segment_keep_same_actual_source_receipts",
+    "source_main_native_session::native_active_service_durable_tests::inline_wal_tests::actual_fact_controller_tests::mixed_native_cold_core_tests::mixed_cold_unwritten_final_ordinary_await_is_refused_with_real_financial_prefix_retained",
+    "source_main_native_session::native_active_service_durable_tests::inline_wal_tests::actual_fact_controller_tests::mixed_native_cold_core_tests::mixed_native_recovery_cold_core_tests::mixed_cold_before_native_only_retry_preserves_first_source_error_and_cleared_row_error",
+    "source_main_native_session::native_active_service_durable_tests::inline_wal_tests::actual_fact_controller_tests::mixed_native_cold_core_tests::mixed_native_recovery_cold_core_tests::mixed_cold_original_lost_return_post_keeps_known_error_through_advance_pause_and_real_resolve",
+    "source_main_native_session::native_active_service_durable_tests::inline_wal_tests::actual_fact_controller_tests::mixed_native_cold_core_tests::mixed_native_recovery_cold_core_tests::mixed_cold_second_native_lost_return_post_never_delivers_second_error_to_source",
+    "source_main_native_session::native_active_service_durable_tests::inline_wal_tests::actual_fact_controller_tests::mixed_native_cold_core_tests::mixed_native_recovery_cold_core_tests::mixed_native_review_core_tests::mixed_cold_rejected_reappend_does_not_consume_original_verified_post_error",
+    "source_main_native_session::native_active_service_durable_tests::inline_wal_tests::actual_fact_controller_tests::mixed_native_cold_core_tests::mixed_native_recovery_cold_core_tests::mixed_native_review_core_tests::mixed_cold_second_native_error_remains_native_only_through_advance_and_pause"
+  ],
+  "failureCauses": [
+    "Initial segmented Before framing mismatch",
+    "Old StorageStopped classified as a new native ambiguity without a current IO attempt"
+  ],
+  "workerCorrectionsCoreValidated": false,
+  "workingTreeCandidatesCommitted": false,
+  "priorScopedLibraryPassed": 782,
+  "priorScopedIgnored": 4,
+  "priorKnownUncommittedFailuresFiltered": 2,
+  "verifiedReleaseExecutions": 2204,
+  "verifiedLockedReferenceExecutions": 239,
+  "fullAllTargetPromotion": false,
+  "authenticationEstablished": false,
+  "completeBlockFraudProofEstablished": false,
+  "logs": {
+    "root-cold-orderbook-first-cold-owner.log": "1a6924c7e16212b6c16718ad64fc9c1db9c38a72b10929a1a46002c94f02ae0c",
+    "root-cold-orderbook-second-history-metadata.log": "686531777f44b74e92d418e5f80080b2372576fbef89795835d14a2542cead48",
+    "root-cold-orderbook-second-error-marker.log": "e6984191196c0cc69ec77cb164eb6b1717c963f040128b6c8101695b7183489e",
+    "root-cold-orderbook-second-orderbook.log": "deb68882b085400b4930fe3704f95cad1de8566f2777cbee1530d38a99ffedf6"
+  }
+}
