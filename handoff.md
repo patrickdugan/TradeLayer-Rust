@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T06:09:46Z. Refresh after every tested integration cycle.
+Updated: 2026-10-30T06:11:45Z. Refresh after every tested integration cycle.
 
 ## Current checkpoint
 
@@ -22,7 +22,7 @@ Later focused correction: rejected append ACKs now preserve the prior original/r
 
 ## Latest tested Initialize/cold/history work
 
-This batch covers **683 distinct library tests (four ignored), 44 public checks, strict all-target Clippy, Cargo formatting, 411 included-file formatting checks, inventory and supply policy**. Twenty-five new controls pass. The exact passed-name audit joins680 ordinary regression cases with the two long cases and corrected Initialize case; production Rust is identical across those runs. It does not claim one683-case run. Evidence: `fixtures/reference_fidelity/main-initialize-cold-core-integration.json`. Full release remains **2,204 Rust /239 numeric** at `a94ea4c7`; this is not a completed RC.
+The latest tested code is `9f901cb473313f8797ba4becc8bf550a9f5f9b08`. This batch covers **683 distinct library tests (four ignored), 44 public checks, strict all-target Clippy, Cargo formatting, 411 included-file formatting checks, inventory and supply policy**. Twenty-five new controls pass. The exact passed-name audit joins680 ordinary regression cases with the two long cases and corrected Initialize case; production Rust is identical across those runs. It does not claim one683-case run. Evidence: `fixtures/reference_fidelity/main-initialize-cold-core-integration.json`. Full release remains **2,204 Rust /239 numeric** at `a94ea4c7`; this is not a completed RC.
 
 - The actual raw startup owner/header moves into the existing Initialize/consensus body without constructor or1500/500/300 replay. Physical insert and source await resolution stay distinct. Three suffix controls plus eight inherited prefix controls pass, including warm null/undefined getTest errors. This establishes named empty caller fulfillment. Source inspection found a remaining real omission: equal-tip sync returns a nested constructOrLoadConsensus, then outer Initialize calls it again. Exact two-job/timer/full-effect parity remains open and must not be masked by the present tests.
 - The finite13-2 actual-fact cold actor reconstructs ONE financial owner using the same checked-prefix and physical verification bodies. Five real writer histories compare complete financial state, effects, Kernel, receipts and source Before/Accepted. Actual Before replacement, second lost return/Post and genuine reappend rejection pass without source/financial retry and with zero native append/copy/compaction IO. Recorded environmental facts are conditional inputs; observed state/results remain comparisons.
@@ -122,4 +122,4 @@ Actual-source controls cover ordinary append, an intervening pause and genuine B
 
 ## Latest scoped workbook refresh
 
-Saved workbook and sidebar agree on `79a30c6`: 658 library /44 public and ten new Core controls. Full release stays2,204 Rust /239 numeric at a94ea4c7. Fourteen intentional edits preserve48 TL modules, one external reference,37 transaction rows, formulas/styles/filters/panes/geometry and proof gates, with zero errors. Evidence: `fixtures/reference_fidelity/main-startup-trace-completeness.json`. Complete actual Initialize/nonempty startup, full financial cold replay, segmented history and durable new-profile composition remain open.
+Saved/sidebar agree on `9f901cb`: 683 distinct library tests /44 public,25newcontrols, exact passed-name audit and unchanged production Rust across the combined runs. Full release remains2,204 Rust /239 numeric at a94ea4c7. Seventeen intentional edits preserve48TL modules, one external reference,37transaction rows, formulas/styles/filters/panes/geometry and all proof/authentication gates. Zero formula errors. Evidence:`fixtures/reference_fidelity/main-initialize-cold-completeness.json`. Nested/nonempty/global startup and durable fresh/file/segmented cold composition remain open.
