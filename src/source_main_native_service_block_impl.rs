@@ -17,12 +17,15 @@ struct NativeMainServiceBlockCompletion {
     request: crate::source_main_step_kernel::MainServiceBlockRequest,
     result: R<V>,
     effect_start: usize,
+    file_invocation_effect_start: Option<usize>,
 }
 struct NativeMainServiceBlockFrame {
     request: crate::source_main_step_kernel::MainServiceBlockRequest,
     invocation: Option<SourceMainInvocationV1>,
     pc: NativeMainServiceBlockPc,
     inline_profile: bool,
+    file_prefix_done: bool,
+    file_invocation_effect_start: Option<usize>,
     inline_index: Option<NativeMainInlineIndexFrameV1>,
     funding: Vec<V>,
     other: Vec<V>,
@@ -58,6 +61,8 @@ impl SourceContractRuntime {
             invocation,
             pc: NativeMainServiceBlockPc::Prelude,
             inline_profile: false,
+            file_prefix_done: false,
+            file_invocation_effect_start: None,
             inline_index: None,
             funding: vec![],
             other: vec![],
@@ -332,6 +337,12 @@ impl NativeMainServiceBlockFrame {
         visitor: &mut impl FnMut(&str, &V) -> Result<(), SourceRuleError>,
     ) -> Result<(), SourceRuleError> {
         visitor("profile", &s("TL-MAIN-ACTUAL-LIVE-BLOCK-13-1"))?;
+        if self.file_prefix_done {
+            visitor(
+                "automaticFilePrefixDone",
+                &s(NATIVE_MAIN_AUTOMATIC_FILE_SERVICE_PROFILE),
+            )?;
+        }
         if self.inline_profile {
             visitor("inlineProfile", &s("TL-MAIN-RETAINED-INLINE-INDEX-13-1"))?;
             visitor("inlineIndex/present", &V::Bool(self.inline_index.is_some()))?;
@@ -385,6 +396,9 @@ impl NativeMainServiceBlockFrame {
         visitor("didWork", &V::Bool(self.did_work))?;
         visitor("midStarted", &V::Bool(self.mid_started))?;
         visitor("effectStart", &s(self.effect_start.to_string()))?;
+        if let Some(start) = self.file_invocation_effect_start {
+            visitor("automaticFileInvocationEffectStart", &s(start.to_string()))?;
+        }
         visitor("consumed", &s(self.consumed.to_string()))?;
         visitor(
             "stopped",

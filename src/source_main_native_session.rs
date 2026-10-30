@@ -576,8 +576,10 @@ include!("source_main_inline_service_session_impl.rs");
 include!("source_main_retained_caller_session_impl.rs");
 include!("source_main_retained_file_command_impl.rs");
 include!("source_main_retained_file_session_impl.rs");
+include!("source_main_automatic_file_session_impl.rs");
 include!("source_main_retained_consensus_session_impl.rs");
 include!("source_main_coercive_sync_session_impl.rs");
+include!("source_main_null_sync_session_impl.rs");
 include!("source_main_retained_caller_start_wal_impl.rs");
 include!("source_main_retained_caller_selected_dispatch_impl.rs");
 include!("source_main_retained_caller_selected_wal_impl.rs");
@@ -591,6 +593,11 @@ include!("source_main_active_service_action_codec_impl.rs");
 include!("source_main_active_service_durable_impl.rs");
 include!("source_main_active_service_recovery_impl.rs");
 include!("source_main_service_escrow_append_impl.rs");
+include!("source_main_actual_fact_append_session_impl.rs");
+include!("source_main_actual_fact_controller_impl.rs");
+include!("source_main_actual_fact_controller_driver_impl.rs");
+include!("source_main_actual_fact_recovery_owner_impl.rs");
+include!("source_main_actual_fact_replacement_impl.rs");
 include!("source_main_active_escrow_controller_impl.rs");
 include!("source_main_inline_wal_impl.rs");
 include!("source_main_mode4_trace_pin_impl.rs");
@@ -660,3 +667,7 @@ mod retained_file_command_tests;
 #[cfg(test)]
 #[path = "source_main_retained_file_tests.rs"]
 mod retained_file_tests;
+
+#[cfg(test)]
+#[path = "source_main_automatic_file_tests.rs"]
+mod automatic_native_file_tests;

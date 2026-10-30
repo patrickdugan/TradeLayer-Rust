@@ -431,3 +431,6 @@ mod mode4_closure_core_tests;
 
 #[path = "source_main_mode4_prefix_provider_tests.rs"]
 mod source_mode4_prefix_tests;
+
+#[path = "source_main_actual_fact_controller_tests.rs"]
+mod actual_fact_controller_tests;

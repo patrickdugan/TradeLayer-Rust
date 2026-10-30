@@ -1,0 +1,10 @@
+{
+  "sourceHarnessManifest": "a1d05d41b2d7a5e01db4912fee865b2b43bb0431881f451793a49dd6453de79c",
+  "sourceBaseSHA256": "509015e9124795f3adda0997d5eacc495a1b80831b68d95fc078281f78852715",
+  "observerSHA256": "1a065bdca67f3285e0b2453dd7be879b6d10ec2bc60f92ca02b83c5b72fe9809",
+  "observerChange": "Only reference to private copied base filename; all business bodies unchanged",
+  "wholeMainGlobalImportClaim": false,
+  "upstreamManifestSHA256": "6ea1221ef3907c6855b04b780cebb1e02f152baf752c700aa6dd9b2046c95023",
+  "upstreamFirst10ManifestSHA256": "8910bc069a2dd2f16bd7cdd36802a7097ee66e553df0e77d070680ba2444a543",
+  "upstreamSource20ManifestSHA256": "5298c6a574909f57d35d6e8ff5b8b65aa7c966d9a5f18e88b64d171834a6a58a"
+}

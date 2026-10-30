@@ -125,9 +125,16 @@ struct NativeMainServiceStepLoan<'a> {
     index: &'a mut SourceCompactIndex,
     documents: &'a V,
     completed_block: &'a mut Option<NativeMainServiceBlockCompletion>,
+    native_files: bool,
+    owner_effect_ranges: Option<&'a mut Vec<(usize, usize, usize)>>,
 }
 impl crate::source_main_step_kernel::sealed::Sealed for NativeMainServiceStepLoan<'_> {}
 impl crate::source_main_step_kernel::MainStepOwner for NativeMainServiceStepLoan<'_> {
+    fn record_owner_effect_range(&mut self, trace: usize, start: usize, end: usize) {
+        if let Some(ranges) = self.owner_effect_ranges.as_mut() {
+            ranges.push((trace, start, end));
+        }
+    }
     fn preflight(
         &self,
         operation: &crate::source_main_step_kernel::MainStepPrimitive,
@@ -149,8 +156,21 @@ impl crate::source_main_step_kernel::MainStepOwner for NativeMainServiceStepLoan
                 return Err(SourceRuleError::InvalidInput);
             }
         }
-        if matches!(operation, Op::File(_)) {
-            return Err(SourceRuleError::UnknownDependency);
+        if let Op::File(operation) = operation {
+            if !self.native_files {
+                return Err(SourceRuleError::UnknownDependency);
+            }
+            if let crate::source_main_step_kernel::FileStepPrimitive::BlockTail(block, height) =
+                operation.as_ref()
+            {
+                let completed = self
+                    .completed_block
+                    .as_ref()
+                    .ok_or(SourceRuleError::Backend)?;
+                if &completed.request.block != block || &completed.request.height != height {
+                    return Err(SourceRuleError::InvalidInput);
+                }
+            }
         }
         if let Op::Atomic(call) = operation {
             if ![
@@ -177,7 +197,9 @@ impl crate::source_main_step_kernel::MainStepOwner for NativeMainServiceStepLoan
             MainStepLegacyThrow, MainStepPrimitive as Op, MainStepPrimitiveExecution,
             MainStepPrimitiveOutcome,
         };
-        let before = if matches!(operation, Op::ProcessBlock { .. }) {
+        let before = if matches!(operation, Op::ProcessBlock { .. })
+            || matches!(operation,Op::File(operation) if matches!(operation.as_ref(),crate::source_main_step_kernel::FileStepPrimitive::BlockTail(..)))
+        {
             self.completed_block
                 .as_ref()
                 .expect("preflighted actual completion")
@@ -192,6 +214,18 @@ impl crate::source_main_step_kernel::MainStepOwner for NativeMainServiceStepLoan
                     .expect("preflighted actual block completion")
                     .result
             }
+            Op::File(operation)
+                if matches!(
+                    operation.as_ref(),
+                    crate::source_main_step_kernel::FileStepPrimitive::BlockTail(..)
+                ) =>
+            {
+                self.completed_block
+                    .take()
+                    .expect("preflighted actual file/native completion")
+                    .result
+            }
+            Op::File(operation) => self.runtime.native_main_retained_file_primitive(operation),
             Op::Atomic(call) => {
                 // checkBlockLag and setPause bodies use their existing owner.
                 // Reentering the nonreentrant invocation while catchup owns the
@@ -223,7 +257,10 @@ impl crate::source_main_step_kernel::MainStepOwner for NativeMainServiceStepLoan
             operation,
             Op::BlockCount | Op::FetchBlock(_) | Op::NetworkStatus
         ) || matches!(operation, Op::Atomic(call) if ["Main.checkBlockLag", "Main.getCurrentBlockHeight", "Main.checkNetworkStatus"].contains(&call.target.as_str()));
-        let code = if direct_rpc {
+        let code = if matches!(operation,Op::File(operation) if matches!(operation.as_ref(),crate::source_main_step_kernel::FileStepPrimitive::CopyOnce(..)|crate::source_main_step_kernel::FileStepPrimitive::DeleteOnce(..)))
+        {
+            self.runtime.core.source_main_fs_failure_code(before)
+        } else if direct_rpc {
             effects
                 .iter()
                 .rev()

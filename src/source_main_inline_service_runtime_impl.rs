@@ -67,20 +67,23 @@ impl SourceContractRuntime {
         ) -> NativeMainRowStopV1,
     ) -> NativeMainRowStopV1 {
         if frame.inline_index.is_none() {
-            match self.native_main_inline_block_prefix(&frame.request.block, &frame.request.height)
-            {
-                Ok(v) if matches!(v, V::Number(_)) => {
-                    self.native_main_service_block_finish(
-                        frame,
-                        Ok(obj(&[("reOrg", V::Bool(true)), ("restore", v)])),
-                    );
-                    return NativeMainRowStopV1::Complete;
+            if !frame.file_prefix_done {
+                match self
+                    .native_main_inline_block_prefix(&frame.request.block, &frame.request.height)
+                {
+                    Ok(v) if matches!(v, V::Number(_)) => {
+                        self.native_main_service_block_finish(
+                            frame,
+                            Ok(obj(&[("reOrg", V::Bool(true)), ("restore", v)])),
+                        );
+                        return NativeMainRowStopV1::Complete;
+                    }
+                    Err(e) => {
+                        self.native_main_service_block_fault(frame, e);
+                        return NativeMainRowStopV1::Complete;
+                    }
+                    Ok(_) => (),
                 }
-                Err(e) => {
-                    self.native_main_service_block_fault(frame, e);
-                    return NativeMainRowStopV1::Complete;
-                }
-                Ok(_) => (),
             }
             let Some(scope) = frame.request.job.checked_add(1) else {
                 frame.stopped = Some(SourceRuleError::Capacity);

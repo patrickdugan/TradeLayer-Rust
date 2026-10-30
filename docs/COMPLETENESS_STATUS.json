@@ -1212,6 +1212,21 @@
       "automaticFileNativeTailClosed": false,
       "nullSyncIntegrated": false,
       "commit": "bf9072c933f64b9d2fcff1968685d25beaf6cc69"
+    },
+    "mainOrchestration": {
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/main-orchestration-core-integration.json",
+      "libraryPassed": 638,
+      "libraryIgnored": 4,
+      "publicCompatibilityPassed": 44,
+      "newUnitTests": 44,
+      "nullActualCoreControls": 6,
+      "automaticActualCoreControls": 6,
+      "actualFactWriterAndRecoveryCoreControls": 12,
+      "nativeFactColdActorClosed": false,
+      "rawStartupIntegrated": false,
+      "freshFeedIntegrated": false,
+      "fullSuitePromotion": false
     }
   },
   "scope": "Full release a94ea4c remains 2,204 Rust / 239 genuine numeric checks. Later bf9072c passes 594 library (four ignored) and44 public checks, strict Clippy, formatting of 338 included files, inventory and supply policy. Selected caller WAL/recovery, primitive coercive Sync, direct file retries and ordinary Mode4 source replay through three native operations are integrated. Automatic file/native tail, null/global startup, recovery cold replay, fresh facts and history rotation remain open.",

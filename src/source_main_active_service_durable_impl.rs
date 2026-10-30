@@ -82,6 +82,7 @@ struct ActiveWalPending {
     executed: bool,
     post: Option<Vec<u8>>,
     plan: Option<PreparedActiveServiceWalWriteV1>,
+    actual_fact_slots: Option<ActualSourceActionFactSlotsV1>,
     entry: Option<Vec<u8>>,
     receipt: Option<NativeMainActiveWalReceiptV1>,
 }
@@ -117,6 +118,7 @@ pub struct SourceMainNativeDurableActiveServiceV1 {
     observation_limit: usize,
     history_enabled: bool,
     generation_escrow: Option<ActiveServiceEscrowConfigV1>,
+    actual_facts: Option<ActualSourceFactModeStateV1>,
     #[cfg(test)]
     barrier_fault: Option<(
         NativeMainActiveWalPhaseV1,
@@ -145,6 +147,27 @@ impl SourceMainNativeDurableActiveServiceV1 {
         history_enabled: bool,
         generation_escrow: Option<ActiveServiceEscrowConfigV1>,
     ) -> Result<Self, Box<RejectedNativeMainActiveWalV1>> {
+        Self::create_internal_fact_entry(
+            owner,
+            root,
+            namespace,
+            filesystem,
+            observation_limit,
+            history_enabled,
+            (generation_escrow, false),
+        )
+    }
+    fn create_internal_fact_entry(
+        owner: SourceMainNativeSessionV13,
+        root: impl AsRef<std::path::Path>,
+        namespace: crate::storage::Namespace,
+        filesystem: crate::source_contract_replay::source_durable::SourceDurableFilesystem,
+        observation_limit: usize,
+        history_enabled: bool,
+        entry: (Option<ActiveServiceEscrowConfigV1>, bool),
+    ) -> Result<Self, Box<RejectedNativeMainActiveWalV1>> {
+        let (generation_escrow, actual_fact_mode) = entry;
+
         let checked = (|| {
             if observation_limit == 0 || observation_limit > ACTIVE_WAL_OBSERVATION_LIMIT {
                 return Err(NativeMainActiveWalErrorV1::Capacity);
@@ -159,6 +182,9 @@ impl SourceMainNativeDurableActiveServiceV1 {
                     &mut observation,
                     owner.index.inline_escrow_scope_active(),
                 )?;
+            }
+            if actual_fact_mode {
+                Self::append_actual_facts_scope_observation(&mut observation)?;
             }
             let mut origin = obj(&[
                 ("profile", s(NATIVE_MAIN_DURABLE_ACTIVE_SERVICE_PROFILE)),
@@ -204,6 +230,27 @@ impl SourceMainNativeDurableActiveServiceV1 {
                     .map_err(active_wal_backend)?;
                 origin.insert("requiredInlineServiceProfile",s(crate::source_contract_runtime::NATIVE_MAIN_INLINE_ACTIVE_SERVICE_PROFILE)).map_err(active_wal_backend)?;
             }
+            if actual_fact_mode {
+                if !history_enabled
+                    || generation_escrow
+                        .as_ref()
+                        .is_none_or(|config| !config.inline_profile)
+                {
+                    return Err(NativeMainActiveWalErrorV1::WrongAction);
+                }
+                origin
+                    .insert("profile", s(ACTUAL_SOURCE_FACT_WAL_PROFILE))
+                    .map_err(active_wal_backend)?;
+                origin
+                    .insert(
+                        "requiredNativeFactProfile",
+                        s(crate::source_main_active_service_wal::ACTUAL_NATIVE_FACT_PROFILE),
+                    )
+                    .map_err(active_wal_backend)?;
+                origin
+                    .insert("actualNativeFactScope", s(ACTUAL_SOURCE_FACT_SCOPE))
+                    .map_err(active_wal_backend)?;
+            }
             let head = sha256(&active_wal_bytes(&origin)?);
             let wal = ActiveServiceWalV1::create(root.as_ref(), namespace, origin, filesystem)?;
             Ok((archive, origin_pin, origin_history, head, wal))
@@ -223,6 +270,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
                 observation_limit,
                 history_enabled,
                 generation_escrow,
+                actual_facts: actual_fact_mode.then(ActualSourceFactModeStateV1::default),
                 #[cfg(test)]
                 barrier_fault: None,
             }),
@@ -230,6 +278,9 @@ impl SourceMainNativeDurableActiveServiceV1 {
         }
     }
     pub fn profile(&self) -> &'static str {
+        if self.actual_facts.is_some() {
+            return ACTUAL_SOURCE_FACT_WAL_PROFILE;
+        }
         if self.inline_service_enabled() {
             NATIVE_MAIN_INLINE_ACTIVE_WAL_PROFILE
         } else if self.generation_escrow.is_some() {
@@ -364,6 +415,16 @@ impl SourceMainNativeDurableActiveServiceV1 {
         if NativeMainActiveServiceActionV1::from_canonical_action_bytes(&raw)? != action {
             return Err(NativeMainActiveWalErrorV1::WrongAction);
         }
+        let actual_alias = if self.actual_facts.is_some() {
+            self.actual_fact_action_alias(&action)?
+        } else {
+            None
+        };
+        let actual_before = if self.actual_facts.is_some() {
+            Some(self.capture_actual_inline_fact_input()?)
+        } else {
+            None
+        };
         let before = self.owner_observation()?;
         let history_before = if self.history_enabled {
             Some(self.capture_history_bytes()?)
@@ -412,6 +473,11 @@ impl SourceMainNativeDurableActiveServiceV1 {
             mutations,
             append_context,
             source_error: None,
+            actual_fact_slots: actual_before.map(|before| ActualSourceActionFactSlotsV1 {
+                before,
+                native_alias: actual_alias,
+                ..Default::default()
+            }),
             executed: false,
             post: None,
             plan: None,
@@ -457,6 +523,19 @@ impl SourceMainNativeDurableActiveServiceV1 {
         }
         if let Some(previous) = self.history.last() {
             refs.push(previous.entry.clone())
+        }
+        if self.actual_facts.is_some() {
+            for raw in self.actual_fact_blobs()? {
+                refs.push(ActiveServiceWalBlobV1::of(&raw)?);
+            }
+            if let Some(prior) = self
+                .pending
+                .as_ref()
+                .and_then(|p| p.actual_fact_slots.as_ref())
+                .and_then(|s| s.io_prior.as_ref())
+            {
+                refs.push(prior.clone());
+            }
         }
         Ok(refs)
     }
@@ -533,6 +612,9 @@ impl SourceMainNativeDurableActiveServiceV1 {
                 .insert("generationEscrow", ActiveServiceWalBlobV1::of(raw)?.value())
                 .map_err(active_wal_backend)?;
         }
+        if self.actual_facts.is_some() {
+            self.append_actual_fact_record_fields(&mut record)?;
+        }
         Ok(record)
     }
     fn write_barrier(&mut self, stage: &str) -> ActiveWalResult<()> {
@@ -573,6 +655,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
             {
                 blobs.push(raw.clone())
             }
+            self.add_actual_fact_blobs(&mut blobs)?;
             let plan =
                 self.wal
                     .prepare(&self.wal.pin()?, self.record(stage)?, blobs, self.pins()?)?;
@@ -596,6 +679,9 @@ impl SourceMainNativeDurableActiveServiceV1 {
     /// Promise remains the same frame; this method never synchronously drains it.
     pub fn advance(&mut self) -> ActiveWalResult<NativeMainActiveWalPhaseV1> {
         loop {
+            if self.actual_facts.as_ref().is_some_and(|f| f.needs_barrier) {
+                return Ok(self.phase);
+            }
             match self.phase {
                 NativeMainActiveWalPhaseV1::Idle => return Ok(self.phase),
                 NativeMainActiveWalPhaseV1::NativeRecoveryRequired => {
@@ -669,6 +755,9 @@ impl SourceMainNativeDurableActiveServiceV1 {
         }
     }
     fn execute_once_unscoped(&mut self) -> ActiveWalResult<()> {
+        if self.actual_facts.is_some() {
+            return self.execute_actual_fact_once();
+        }
         let pending = self
             .pending
             .as_mut()
@@ -821,6 +910,9 @@ impl SourceMainNativeDurableActiveServiceV1 {
             entry_value
                 .insert("generationEscrow", ActiveServiceWalBlobV1::of(raw)?.value())
                 .map_err(active_wal_backend)?;
+        }
+        if self.actual_facts.is_some() {
+            self.append_actual_fact_record_fields(&mut entry_value)?;
         }
         let raw = active_wal_bytes(&entry_value)?;
         let entry = ActiveServiceWalBlobV1::of(&raw)?;

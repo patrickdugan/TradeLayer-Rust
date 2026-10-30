@@ -14,6 +14,9 @@ pub(crate) struct NativeMainServiceContinuationV1 {
     catchup: NativeMainCatchupContinuationV1,
     client_binding: &'static str,
     inline_profile: bool,
+    native_file_profile: bool,
+    automatic_owner_effect_provenance: Vec<Vec<(usize, usize, usize)>>,
+    file_prefix: Option<Box<NativeMainAutomaticFilePrefixV1>>,
     borrowed_invocation: bool,
     bootstrap_start: usize,
     invocation_effect_start: usize,
@@ -152,7 +155,19 @@ impl SourceContractRuntime {
         documents: V,
         load: impl FnOnce(&mut ContractCore, &V) -> Result<(), SourceRuleError>,
     ) -> Result<NativeMainServiceContinuationV1, SourceRuleError> {
-        self.native_main_service_preflight(&documents)?;
+        self.native_main_service_begin_with_loader_profile(
+            start, generation, documents, false, load,
+        )
+    }
+    fn native_main_service_begin_with_loader_profile(
+        &mut self,
+        start: V,
+        generation: u64,
+        documents: V,
+        automatic_files: bool,
+        load: impl FnOnce(&mut ContractCore, &V) -> Result<(), SourceRuleError>,
+    ) -> Result<NativeMainServiceContinuationV1, SourceRuleError> {
+        self.native_main_service_preflight_file_profile(&documents, automatic_files)?;
         let bootstrap_start = self.core.effects.len();
         load(&mut self.core, &documents)?;
         let invocation_effect_start = self.core.effects.len();
@@ -163,6 +178,9 @@ impl SourceContractRuntime {
             bootstrap_start,
             invocation_effect_start,
             inline_profile: false,
+            native_file_profile: false,
+            automatic_owner_effect_provenance: vec![],
+            file_prefix: None,
             borrowed_invocation: false,
             kernel: crate::source_main_step_kernel::MainStepKernelV1::new(generation),
             documents,
@@ -192,12 +210,19 @@ impl SourceContractRuntime {
             &command,
             crate::source_main_step_kernel::MainStepCommandV1::Shutdown(_)
         );
+        let mut owner_effect_ranges = vec![];
         let evaluation = {
             let mut loan = NativeMainServiceStepLoan {
                 runtime: self,
                 index,
                 documents: &frame.documents,
                 completed_block: &mut frame.completed_block,
+                native_files: frame.native_file_profile,
+                owner_effect_ranges: if frame.native_file_profile {
+                    Some(&mut owner_effect_ranges)
+                } else {
+                    None
+                },
             };
             if enqueue_only {
                 frame.kernel.service_enqueue(&mut loan, command)
@@ -207,11 +232,19 @@ impl SourceContractRuntime {
         }?;
         // Authoritative DB/RPC effects already live in Core. Append only these
         // real Kernel scheduling/control events, once, in their actual order.
-        for effect in &evaluation.effects {
+        for (effect_at, effect) in evaluation.effects.iter().enumerate() {
+            if frame.automatic_owner_effect(&owner_effect_ranges, effect_at) {
+                continue;
+            }
             if matches!(effect.get("kind"),V::String(ref kind) if (["timer-scheduled", "timer-fired", "timer-cancelled", "process-exit"].contains(&kind.as_str()) || (shutdown && kind == "console")))
             {
                 self.core.emit(effect.clone());
             }
+        }
+        if frame.native_file_profile {
+            frame
+                .automatic_owner_effect_provenance
+                .push(owner_effect_ranges);
         }
         Ok(evaluation)
     }
@@ -221,6 +254,7 @@ impl SourceContractRuntime {
         evaluation: crate::source_main_step_kernel::MainStepEvaluationV1,
     ) {
         use crate::source_main_step_kernel::{MainStepSourceResult, MainStepStop};
+        self.native_main_automatic_file_accept(frame, &evaluation);
         if let Some(id) = frame.sync_job {
             if let Some((_, result)) = evaluation.completed.iter().find(|(job, _)| *job == id) {
                 let result = match result {
@@ -320,9 +354,35 @@ impl SourceContractRuntime {
                     }
                 }
             }
+            if frame.native_file_profile && frame.file_prefix.is_none() && frame.block.is_none() {
+                if let Some(request) = frame.kernel.service_next_file_prefix() {
+                    if let Err(error) = self.native_main_automatic_file_prefix_begin(frame, request)
+                    {
+                        frame.stopped = Some(error);
+                        continue;
+                    }
+                }
+            }
             if let Some(block) = &mut frame.block {
                 let stop = access.block(self, block, &frame.documents);
                 if stop != NativeMainRowStopV1::Complete {
+                    if frame.native_file_profile
+                        && stop == NativeMainRowStopV1::AwaitNativeWrite
+                        && frame.kernel.service_has_ready()
+                    {
+                        match access.kernel(
+                            self,
+                            frame,
+                            MainStepCommandV1::DrainReady { limit: 1 },
+                            false,
+                        ) {
+                            Ok(evaluation) => {
+                                self.native_main_service_accept_evaluation(frame, evaluation)
+                            }
+                            Err(error) => return NativeMainServiceStopV1::KernelStopped(error),
+                        }
+                        continue;
+                    }
                     return native_main_service_row_stop(stop);
                 }
                 let mut block = frame.block.take().expect("actual completed block");
@@ -339,7 +399,23 @@ impl SourceContractRuntime {
                     request: block.request,
                     result,
                     effect_start: block.effect_start,
+                    file_invocation_effect_start: block.file_invocation_effect_start,
                 });
+                if frame.native_file_profile {
+                    let request = &frame
+                        .completed_block
+                        .as_ref()
+                        .expect("same actual native completion")
+                        .request;
+                    if frame
+                        .kernel
+                        .service_unpark_automatic_file_tail(request)
+                        .is_err()
+                    {
+                        frame.stopped = Some(SourceRuleError::InvalidInput);
+                        continue;
+                    }
+                }
             }
             if let Some(completed) = &frame.completed_block {
                 if frame.kernel.service_next_block().as_ref() != Some(&completed.request) {
@@ -352,7 +428,9 @@ impl SourceContractRuntime {
                     frame.stopped = Some(SourceRuleError::Backend);
                     continue;
                 }
-                let begun = if frame.borrowed_invocation {
+                let begun = if frame.native_file_profile {
+                    self.native_main_automatic_file_tail_frame(frame, request)
+                } else if frame.borrowed_invocation {
                     self.native_main_service_block_frame(request, None, self.core.effects.len())
                 } else {
                     self.native_main_service_block_begin(request)

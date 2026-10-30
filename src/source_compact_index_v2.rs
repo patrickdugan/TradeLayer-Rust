@@ -899,6 +899,7 @@ include!("source_main_native_owner_access_impl.rs");
 include!("source_main_native_validity_impl.rs");
 include!("source_index_prepared_put_impl.rs");
 include!("source_index_inline_database_impl.rs");
+include!("source_index_actual_append_facts_impl.rs");
 include!("source_index_inline_recovery_impl.rs");
 #[cfg(test)]
 #[path = "source_index_inline_database_tests.rs"]
@@ -967,3 +968,11 @@ mod history_pin_codec_tests;
 #[cfg(test)]
 #[path = "source_index_historical_source_read_tests.rs"]
 mod historical_source_read_tests;
+
+#[cfg(test)]
+#[path = "source_index_actual_facts_tests.rs"]
+mod actual_native_fact_tests;
+
+#[cfg(test)]
+#[path = "source_index_actual_source_fact_tests.rs"]
+mod actual_source_fact_scope_tests;

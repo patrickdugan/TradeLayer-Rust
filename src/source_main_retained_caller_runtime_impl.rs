@@ -61,6 +61,7 @@ enum NativeMainRetainedCallerPcV1 {
 pub(crate) struct NativeMainRetainedCallerFrameV1 {
     command: NativeMainRetainedCallerV1,
     coercive_sync: bool,
+    null_group_member: bool,
     invocation: Option<SourceMainInvocationV1>,
     caller_scope: u64,
     pc: NativeMainRetainedCallerPcV1,
@@ -153,6 +154,9 @@ impl NativeMainRetainedCallerFrameV1 {
         }
         if self.coercive_sync {
             visitor("coerciveSyncProfile", &s(NATIVE_MAIN_COERCIVE_SYNC_PROFILE))?;
+        }
+        if self.null_group_member {
+            visitor("nullSyncGroupMember", &V::Bool(true))?;
         }
         visitor("callerScope", &s(self.caller_scope.to_string()))?;
         visitor("pc", &s(format!("{:?}", self.pc)))?;
@@ -298,6 +302,7 @@ impl SourceContractRuntime {
         Ok(NativeMainRetainedCallerFrameV1 {
             command,
             coercive_sync: false,
+            null_group_member: false,
             invocation: Some(invocation),
             caller_scope: scope,
             pc,
@@ -321,6 +326,15 @@ impl SourceContractRuntime {
         f: &mut NativeMainRetainedCallerFrameV1,
         result: R<V>,
     ) {
+        if f.null_group_member {
+            let result = returned(result);
+            if let Ok(value) = &result {
+                f.caller.get_or_insert(value.clone());
+            }
+            f.final_result = Some(result);
+            f.pc = NativeMainRetainedCallerPcV1::Done;
+            return;
+        }
         f.caller.get_or_insert_with(|| match &result {
             Ok(v) => DependencyReturn::Pending(v.clone()),
             Err(Fault::Thrown(e)) => DependencyReturn::PendingThrow(e.clone()),

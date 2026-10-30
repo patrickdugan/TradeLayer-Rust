@@ -294,3 +294,29 @@ scripts/coercive_sync_observer.cjs text eol=lf
 # Retain the exact pinned oracle helper, including its final empty line.
 scripts/coercive_sync_source_base.cjs text eol=lf whitespace=-blank-at-eof
 fixtures/native_main_retained_file_raw_inputs.jsonl text eol=lf
+
+# Preserve exact reproducible null Sync and live-prefix source evidence.
+fixtures/null_sync_first10.jsonl text eol=lf
+fixtures/null_sync_first10_locked.jsonl text eol=lf
+fixtures/null_sync_source_inputs.json text eol=lf
+scripts/null_sync_controls.cjs text eol=lf
+scripts/null_sync_observer.cjs text eol=lf
+scripts/null_sync_source_base.cjs text eol=lf whitespace=-blank-at-eof
+fixtures/null_live_held.jsonl text eol=lf
+fixtures/null_live_held_locked.jsonl text eol=lf
+fixtures/null_live_source_inputs.json text eol=lf
+scripts/null_live_controls.cjs text eol=lf
+scripts/null_live_observer.cjs text eol=lf
+scripts/null_live_source_base.cjs text eol=lf whitespace=-blank-at-eof
+
+# Preserve whole-original automatic file/native source evidence.
+fixtures/automatic_empty_service_source.jsonl text eol=lf
+fixtures/automatic_empty_service_source_locked.jsonl text eol=lf
+fixtures/automatic_exhausted_service_source.jsonl text eol=lf
+fixtures/automatic_exhausted_service_source_locked.jsonl text eol=lf
+fixtures/automatic_financial_source.jsonl text eol=lf
+fixtures/automatic_financial_source_locked.jsonl text eol=lf
+fixtures/automatic_restore_service_source.jsonl text eol=lf
+fixtures/automatic_restore_service_source_locked.jsonl text eol=lf
+fixtures/automatic_parallel_file_source.jsonl text eol=lf
+fixtures/automatic_parallel_file_source_locked.jsonl text eol=lf

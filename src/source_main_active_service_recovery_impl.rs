@@ -240,6 +240,9 @@ impl SourceMainNativeDurableActiveServiceV1 {
                 self.after_native_supersession_intent()?;
             }
             NativeMainActiveWalPhaseV1::NativeSupersessionAppend => {
+                if self.actual_facts.is_some() {
+                    return self.execute_actual_fact_replacement();
+                }
                 // One native attempt only. Any error, including a post-write
                 // observation error, requires another sealed file reopen.
                 self.phase = NativeMainActiveWalPhaseV1::NativeRecoveryRequired;

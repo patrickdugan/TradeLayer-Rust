@@ -412,3 +412,6 @@ fn inline_pending_write_cannot_redecode_or_change_scope_before_resolution() {
 
 #[path = "txindex_extract_continuation_tests.rs"]
 mod retained_extract_tests;
+
+#[path = "txindex_find_max_continuation_tests.rs"]
+mod null_read_tests;

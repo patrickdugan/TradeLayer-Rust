@@ -25,16 +25,31 @@ impl SourceContractRuntime {
         {
             return Err(SourceRuleError::InvalidInput);
         }
-        let catchup = self.native_main_catchup_frame(caller.genesis.clone(), None)?;
-        let generation = caller.kernel.generation();
-        let bootstrap_start = caller.effect_start;
-        let invocation_effect_start = caller.effect_start;
+        self.native_main_retained_service_frame_fields(
+            caller.genesis.clone(),
+            caller.kernel.generation(),
+            caller.effect_start,
+            documents,
+        )
+    }
+    fn native_main_retained_service_frame_fields(
+        &self,
+        genesis: V,
+        generation: u64,
+        bootstrap_start: usize,
+        documents: V,
+    ) -> Result<NativeMainServiceContinuationV1, SourceRuleError> {
+        let catchup = self.native_main_catchup_frame(genesis, None)?;
+        let invocation_effect_start = bootstrap_start;
         Ok(NativeMainServiceContinuationV1 {
             catchup,
             client_binding: NATIVE_MAIN_ACTIVE_SERVICE_CLIENT_BINDING,
             bootstrap_start,
             invocation_effect_start,
             inline_profile: true,
+            native_file_profile: false,
+            automatic_owner_effect_provenance: vec![],
+            file_prefix: None,
             borrowed_invocation: true,
             kernel: crate::source_main_step_kernel::MainStepKernelV1::new(generation),
             documents,

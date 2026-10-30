@@ -171,6 +171,7 @@ impl MainStepKernelV1 {
     ) -> FieldResult {
         emit("profile", &s(CANONICAL_FIELD_PROFILE))?;
         emit("sourceProfile", &s(self.source_profile()))?;
+        self.visit_automatic_file_parked(emit)?;
         emit("source", &s(MAIN_SOURCE_SHA256))?;
         for (key, value) in [
             ("generation", self.generation),

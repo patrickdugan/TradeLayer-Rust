@@ -55,6 +55,19 @@ impl SourceContractRuntime {
         consensus_factory?;
         self.core
             .find("consensus", obj(&[("_id", s("MaxProcessedHeight"))]))?;
+        self.native_main_catchup_prepare_after_bootstrap(start, access, grouping, storage_stop)
+    }
+    fn native_main_catchup_prepare_after_bootstrap(
+        &mut self,
+        start: V,
+        access: &mut impl NativeMainSourceMetadataAccess,
+        grouping: &mut Option<crate::source_compact_index_v2::RowStreamReceipt>,
+        storage_stop: &mut Option<String>,
+    ) -> R<Option<NativeMainCatchupPreparedV1>> {
+        if !matches!(&start,V::Number(bits) if f64::from_bits(*bits).is_finite() && f64::from_bits(*bits)>=0. && f64::from_bits(*bits).fract()==0.)
+        {
+            return Err(SourceRuleError::UnsupportedNumericDomain.into());
+        }
         self.core.check_failure("txIndex", "findAsync")?;
         let read = access
             .read_view()

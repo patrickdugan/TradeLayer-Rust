@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T01:40:55Z. Refresh after every tested integration cycle.
+Updated: 2026-10-30T03:59:52Z. Refresh after every tested integration cycle.
 
 ## Current checkpoint
 
@@ -20,15 +20,17 @@ Later focused correction: rejected append ACKs now preserve the prior original/r
 
 **This is a passing development checkpoint, not a completed RC.** The source-composition and operational gates below remain open.
 
-## Latest tested composition
+## Latest tested orchestration
 
-The latest focused batch, `bf9072c933f64b9d2fcff1968685d25beaf6cc69`, passes **594 library tests (four ignored), 44 public checks, all-target Clippy with warnings denied, Cargo formatting, 338 included-file formatting checks, inventory and supply policy**. Its 37 new unit tests cover selected caller WAL/native recovery, primitive coercive Sync, direct retained file retries and ordinary Mode4 raw-source reexecution through three successive native operations. Counts overlap with the full release; do not add them to it.
+The latest batch passes **638 library tests (four ignored), 44 public checks, all-target Clippy with warnings denied, Cargo formatting, 372 included-file formatting checks, inventory and supply policy**. All 44 new unit tests pass. Counts overlap with earlier/full runs; do not add focused runs to the full release total. Evidence: `fixtures/reference_fidelity/main-orchestration-core-integration.json`.
 
-The original JavaScript coercive corpus regenerates identically under genuine BigNumber 9.3.1 and9.1.2: 26 calls/78 observations per profile, including the independently checked first10. The source numeric comparisons preserve literal string/number/boolean/undefined behavior and the special primitive string equality branch. Null and object inputs remain outside this explicit profile.
+- Null Sync preserves separate parent/detached source fulfillment and the same actual financial header/index/queue. A header cannot close while its borrowed block or unadopted completion remains. It closes once at the safe boundary while a future timer may remain pending.
+- Automatic Incoming/file/native execution preserves partial work, all five retries and the final50ms wait, same native plan through distinct Append/Resolve, shutdown and literal physical restore without an invented balance rollback. Its new automatic-only parked tail allows an independent file retry while financial/native work remains held. Actual trace ranges distinguish already-owned effects from direct Kernel events; no value deduplication is used. Legacy/default queue rules and visitor bytes remain unchanged.
+- Explicit13-2 actual-fact journaling syncs the real pending plan/selector and typed native IO result before source observation or Accepted/ACK. Native-only Before/Intermediate/Post recovery, real mapped replacement/escrow and a second applied/lost return retain one actual owner. Every IO result remains in an ordered chain; verified Post is not reappended and no source prefix/constructor/decoder is repeated.
 
-Root corrected a real cold dispatch fault: catchup ResolvePost resumed through the older helper that refused live inline blocks. The new Mode4 path resolves the same row and resumes through its own metadata access; full Before/Accepted comparisons and old HISTORY behavior stay intact. Failed gates are retained. Test-only corrections distinguish child completions from parent fulfillment and preserve the exact recovery-phase assertions after an applied/lost return.
+Source checks preserve the original JavaScript: null first-ten10calls/36records, held-live1call/3records, four automatic scenes/21records and the parallel two-timer8record scene under both genuine numeric profiles. The old probe's NotQuiescent refusal is retained; extending the unreleased automatic domain was explicit. Empty processBlockData legitimately makes no native write. Failed gates, wrong test filter/corpus selection and precise corrections are recorded; zero-test runs count as no coverage.
 
-Evidence: `fixtures/reference_fidelity/main-composition-core-integration.json`. The complete release baseline remains **2,204 Rust/239 numeric**, tested at `a94ea4c7`, until another full release run. Automatic Incoming/file/native-tail composition, null/global startup, recovery cold replay, fresh factual live inputs and history rotation remain pending.
+This remains a development checkpoint. Full release evidence is still **2,204 Rust /239 numeric** at `a94ea4c7`. The complete13-2 cold source actor, fresh feed, raw/global startup, history continuation and authenticated proof gates remain open.
 
 ## Rules and ownership
 
@@ -60,23 +62,21 @@ Root fixed a real Mode4 writer mismatch: its initial observation omitted the esc
 
 | Agent | Current isolated work | Boundary |
 | --- | --- | --- |
-| `row_continuation_impl` | Automatic Incoming/FileStepFrame to the actual native block tail, including nonempty financial rows and50ms retry/rejection interleavings | Direct borrower is integrated; automatic source evidence alone does not close this composition. |
-| `v8_main` | Independently produced pending-plan/native-IO facts, new active WAL wiring and cold replay of recovery histories | Ordinary Mode4 replay is integrated; missing facts in older histories remain refusals. |
-| `v8_clearlist` | Null Sync's actual detached initOrLoad child, source read/RPC release ordering and nonempty borrowed-header controls | Frozen candidate and genuine source extensions await Root Core gating; global startup remains open. |
+| `row_continuation_impl` | Typed fresh future RPC/document feed, source10/44 plus service-chain evidence; frozen1064 Core controls await Root | No old action/WAL/cold admission and no invented fine-grained RPC suspension. |
+| `v8_main` | Complete checked13-2 physical trace/fact reader and one-owner raw-source cold actor | Actual-fact writer/native recovery are integrated; no Before/Accepted reconstruction or implicit old-reader admission. |
+| `v8_clearlist` | Explicit unconfigured raw startup foundation, literal shared DB promises/retry and Initialize suffix | f495/a70 prefix proposals and genuine source evidence remain outside Root until Core integration. Configured owners are never reset. |
 
 ## RC closure checklist
 
-The independent static audit pins 58 read inputs and 23 source citation targets: `main-rc-gap-audit.json`, worker manifest `084726a002202b8e1622472baf600f2f257bc0a1103fa560bee7b62990258d6b`. It confirms row/catchup/recovery/publication and same-invocation consensus as implemented within their named domains. It adds no runtime coverage claim.
+1. Preserve the already-tested selected caller WAL/recovery and same-invocation consensus. New startup/feed/file profiles need their own explicit durable admission.
+2. Finish complete13-2 physical trace/ACK/escrow validation and raw-source/financial cold replay using independently produced facts. Old missing IO/plan facts remain refusals; Before/Accepted are comparisons.
+3. Integrate the raw/global startup and actual Initialize suffix, including original module versus internal shared DB promise identity, legitimate DB retries, constructor/static init and500/300/1500 waits. Null/primitive Sync cover their named tested domains; further startup is not synchronous success.
+4. Complete automatic-file native ambiguity, durable action history and cold playback. The same-process timed file/native/parallel source path is tested; no cross-profile recovery admission is implied.
+5. Gate the typed fresh factual tip/block/transaction/document feed, preserving current counters, actual captured awaits and the same financial/index/source owner. Frozen1064 remains a candidate.
+6. Rotate/publish acknowledged active-service history beyond the separate4096-action limit while retaining source/physical heads and one owner. Native paging alone does not close this.
+7. Run integrated RC checks and consume collaborator fuzz findings, then the planned oracle-abuse exercise with UTXORef as a separate consumer.
 
-1. **Durable controls beyond Start.** Selected caller actions now pass their integrated WAL/recovery controls; broader admission remains explicit. Journal actual caller advance, delay, consensus, detached and timer actions with executed-once retention. Keep caller fulfillment separate from its child.
-2. **Selected native recovery.** The selected controller passes actual Before/Intermediate/Post and second lost-return recovery controls. Bind exact origin, operation kind, job, method scope, ordinal, role and context. Reopen/supersede only that native operation, sync the mapping, then resolve Post once. Never choose the first pending operation implicitly.
-3. **Remaining literal source branches.** Global/module initialization and notifications; uninitialized/no-chain Initialize and its 300 ms wait; The explicit primitive coercive Sync profile is tested; finish null SyncIndex and genuine detached jobs.
-4. **File retry composition.** The direct retained borrower now passes five attempts/final50ms, partial snapshot/restore, literal errors and shutdown checks. Compose it with the active native service on the same Core/index/queue, including EBUSY/EPERM, ENOENT, partial file work, pause/height/shutdown interleavings and reorg behavior. Do not invent a financial rollback absent from the source.
-5. **Mode4/caller cold source replay.** Ordinary Mode4 raw actions now reexecute through three actual native operations with full observations compared; finish caller/recovery domains. Rejected-append metadata and same-process recovery are tested; cold replay must still reexecute those raw rejected actions. New explicit producers may retain actual-stop IO facts or never-appended native-plan metadata before source observation; old Before/Accepted data must not supply those inputs.
-6. **Fresh factual live input.** Start currently captures fixed RPC/documents facts. Add an explicit bounded recorded input action for fresh raw tip/block/transaction facts; preserve counters, active frames and financial state. The existing strict `source_main_step_update_io` is a useful primitive, not current active-service admission.
-7. **Active-history continuation.** Rotate/publish acknowledged history past the actual 4,096-action limit while retaining the same owner and source/physical head. Native index paging alone does not remove this separate limit.
-
-Then run the integrated RC path, consume collaborator fuzz results and perform the planned oracle-abuse fraud-proof exercise with UTXORef. Intended-host real-block CPU/RSS, directory/power-loss and actual killed-process financial recovery remain separate evidence gates. New standalone fee/reward matcher/payout wiring needs its named economic policy. The externally owned HashMap reducer candidate still needs representative host measurements.
+Intended-host real-block CPU/RSS, directory/power-loss, actual killed-process financial recovery, authenticated input/actor/UTXO context and complete-block proofs remain separate evidence gates. Standalone fee/reward policy wiring remains explicit. The externally owned HashMap promotion candidate still needs representative intended-host measurements. No hash establishes authentication.
 
 ## Resume details
 
@@ -86,14 +86,8 @@ Then run the integrated RC path, consume collaborator fuzz results and perform t
 - Exact current runner/log/provider pointers are in `work/root-resume-current.json`. Refresh the workbook/sidebar every 30 minutes when state changes, preserving layout and proof gates.
 - Finished public-support provider: `work/providers/retained-callers-mode4-a94ea4c/libtradelayer_core.rlib`, SHA-256 `7f9b78d5169202225dee1aed5a03f8eeff6c189e6ea5ae98be062633c1de5560`; immutable provenance is adjacent. Candidate private Core tests still require Root execution.
 - Root gates use `work/cargo-check.ps1 -CargoArguments @(...)`, the pinned 1.90 toolchain and one Cargo process. Debug target: `work/main-v12-target`; release target: `work/source-settlement-target`. Use the existing runners' temp and genuine numeric settings.
-- Next action: gate the null Sync/automatic file and actual-fact milestones against current source, commit tested work and refresh this handoff. No pending worker result is complete merely because its files or helper tests exist.
+- Next action: gate frozen fresh-input/startup and complete source-fact cold replay milestones against current source, commit tested work and refresh this handoff. No pending worker result is complete merely because its files or helper tests exist.
 
 ## Latest rejected-append correction
 
 Actual-source controls cover ordinary append, an intervening pause and genuine Before/Intermediate/Post recovery. They retain the full source observation, RPC/effect prefix, original financial/index owner and unresolved await after rejection. Metadata controls reject missing prior ACK, changed configuration/TLNM/observation, wrong error, an already resolved prior action and a false rejection masking a real extra native publication. A supported unmatched update checks the no-write case and one-time computed zero result; rejected ACKs never supply an inline closure. The original failed gates are retained. No new JavaScript oracle cases, transaction rows or authenticated proof claims are added.
-
-## Latest scoped workbook refresh
-
-The saved workbook and sidebar show `bf9072c`: **594 library tests / 44 public checks**. The complete release remains **2,204 Rust / 239 numeric checks**. Thirteen intentional edits preserve all 48 TL modules, one external reference, 37 transaction rows, formulas, styles, filters, panes and geometry. Zero formula errors. Evidence: `fixtures/reference_fidelity/main-composition-completeness.json`.
-
-Automatic file/native-tail composition, null/global startup and broader recovery replay remain pending. Frozen next candidates include null Sync `962c7897` and its independent nonempty live-prefix control `03c4ff78`; neither has passed Root Core integration. Current worker stages and next-run pointers are maintained in `work/root-resume-current.json` outside the repository.

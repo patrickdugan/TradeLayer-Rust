@@ -41,7 +41,30 @@ impl SourceMainNativeDurableActiveServiceV1 {
             bool,
         ),
     ) -> Result<Self, Box<RejectedNativeMainActiveWalV1>> {
-        let (escrow_root, durability, inline_profile) = entry;
+        let (root, durability, inline) = entry;
+        Self::create_generation_escrow_fact_entry(
+            owner,
+            wal_root,
+            namespace,
+            filesystem,
+            observation_limit,
+            (root, durability, inline, false),
+        )
+    }
+    fn create_generation_escrow_fact_entry(
+        owner: SourceMainNativeSessionV13,
+        wal_root: impl AsRef<std::path::Path>,
+        namespace: crate::storage::Namespace,
+        filesystem: crate::source_contract_replay::source_durable::SourceDurableFilesystem,
+        observation_limit: usize,
+        entry: (
+            PathBuf,
+            crate::compact_journal::GenerationEscrowDurabilityV1,
+            bool,
+            bool,
+        ),
+    ) -> Result<Self, Box<RejectedNativeMainActiveWalV1>> {
+        let (escrow_root, durability, inline_profile, actual_fact_mode) = entry;
         let checked = (|| {
             let metadata = std::fs::symlink_metadata(&escrow_root).map_err(active_wal_backend)?;
             if !metadata.is_dir()
@@ -80,14 +103,14 @@ impl SourceMainNativeDurableActiveServiceV1 {
             })
         })();
         match checked {
-            Ok(config) => Self::create_internal(
+            Ok(config) => Self::create_internal_fact_entry(
                 owner,
                 wal_root,
                 namespace,
                 filesystem,
                 observation_limit,
                 true,
-                Some(config),
+                (Some(config), actual_fact_mode),
             ),
             Err(error) => Err(Box::new(RejectedNativeMainActiveWalV1 { error, owner })),
         }
@@ -148,6 +171,9 @@ impl SourceMainNativeDurableActiveServiceV1 {
                 &mut raw,
                 self.index().inline_escrow_scope_active(),
             )?;
+        }
+        if self.actual_facts.is_some() {
+            Self::append_actual_facts_scope_observation(&mut raw)?;
         }
         Ok(raw)
     }
@@ -247,6 +273,9 @@ impl SourceMainNativeDurableActiveServiceV1 {
                 self.phase = NativeMainActiveWalPhaseV1::Observe;
             }
             ActiveEscrowRoute::NativeReplacement => {
+                if self.actual_facts.is_some() {
+                    return self.execute_actual_fact_replacement();
+                }
                 // Mark attempted before native IO; no error permits blind retry.
                 self.phase = NativeMainActiveWalPhaseV1::NativeRecoveryRequired;
                 let Some(ActiveWalOwner::Active(service)) = self.owner.as_mut() else {

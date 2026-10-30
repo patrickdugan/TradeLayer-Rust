@@ -94,6 +94,8 @@ pub(crate) trait MainStepOwner: sealed::Sealed {
     /// Must establish absence of hidden timers BEFORE running an atomic body.
     fn preflight(&self, operation: &MainStepPrimitive) -> Result<(), SourceRuleError>;
     fn execute(&mut self, operation: &MainStepPrimitive) -> MainStepPrimitiveExecution;
+    // Only a sealed actual owner loan records its effect-origin ranges.
+    fn record_owner_effect_range(&mut self, _trace: usize, _start: usize, _end: usize) {}
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -159,6 +161,8 @@ struct Timer {
 #[derive(Debug, PartialEq, Eq)]
 pub struct MainStepKernelV1 {
     file_retries: bool,
+    native_file_blocks: bool,
+    native_file_tail_parked: Option<MainServiceBlockRequest>,
     generation: u64,
     next_job: u64,
     next_timer: u64,
@@ -285,6 +289,8 @@ impl MainStepKernelV1 {
         Self {
             generation,
             file_retries: false,
+            native_file_blocks: false,
+            native_file_tail_parked: None,
             next_job: 1,
             next_timer: 1,
             logical_time: n(0.),
@@ -302,6 +308,9 @@ impl MainStepKernelV1 {
         kernel
     }
     pub fn source_profile(&self) -> &'static str {
+        if self.native_file_blocks {
+            return AUTOMATIC_NATIVE_FILE_KERNEL_PROFILE;
+        }
         if self.file_retries {
             FILE_RETRY_PROFILE
         } else {
@@ -437,7 +446,13 @@ impl MainStepKernelV1 {
             MainStepPrimitiveOutcome::Thrown(e) => obj(&[("thrown", throw_value(e))]),
             MainStepPrimitiveOutcome::Stopped(e) => obj(&[("ownerStop", s(e.to_string()))]),
         };
+        let owner_start = evaluation.effects.len();
         evaluation.effects.extend(actual.effects.iter().cloned());
+        owner.record_owner_effect_range(
+            evaluation.trace.len(),
+            owner_start,
+            evaluation.effects.len(),
+        );
         evaluation.trace.push(MainStepTraceV1 {
             job,
             phase: phase.into(),
@@ -1339,3 +1354,11 @@ include!("source_main_step_fields_impl.rs");
 include!("source_main_step_file_kernel_impl.rs");
 
 include!("source_main_service_kernel_impl.rs");
+include!("source_main_automatic_file_kernel_impl.rs");
+include!("source_main_automatic_parallel_kernel_impl.rs");
+#[cfg(test)]
+#[path = "source_main_automatic_file_kernel_tests.rs"]
+mod automatic_file_kernel_tests;
+#[cfg(test)]
+#[path = "source_main_automatic_parallel_kernel_tests.rs"]
+mod automatic_parallel_kernel_tests;

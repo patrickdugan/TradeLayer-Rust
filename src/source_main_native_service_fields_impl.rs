@@ -5,6 +5,7 @@ impl NativeMainServiceContinuationV1 {
         visitor: &mut impl FnMut(&str, &V) -> Result<(), SourceRuleError>,
     ) -> Result<(), SourceRuleError> {
         visitor("profile", &s(NATIVE_MAIN_ACTIVE_SERVICE_PROFILE))?;
+        self.visit_automatic_file_fields(visitor)?;
         if self.inline_profile {
             visitor(
                 "inlineProfile",
@@ -66,6 +67,12 @@ impl NativeMainServiceContinuationV1 {
                 "completedBlock/effectStart",
                 &s(block.effect_start.to_string()),
             )?;
+            if let Some(start) = block.file_invocation_effect_start {
+                visitor(
+                    "completedBlock/automaticFileInvocationEffectStart",
+                    &s(start.to_string()),
+                )?;
+            }
             match &block.result {
                 Ok(value) => {
                     visitor("completedBlock/result/kind", &s("Returned"))?;

@@ -195,14 +195,62 @@ impl SourceMainNativeSessionV13 {
         )
     }
     fn into_active_service_internal(
-        mut self,
+        self,
         expected: &NativeMainSessionExpectation,
         start: V,
         generation: u64,
         documents: V,
         entry: (usize, bool),
     ) -> Result<SourceMainNativeActiveServiceV1, Box<RejectedNativeMainActiveServiceV1>> {
-        let (observation_limit, inline_profile) = entry;
+        self.into_active_service_profile(
+            expected,
+            start,
+            generation,
+            documents,
+            (entry.0, entry.1, false),
+        )
+    }
+    fn into_active_service_profile(
+        self,
+        expected: &NativeMainSessionExpectation,
+        start: V,
+        generation: u64,
+        documents: V,
+        entry: (usize, bool, bool),
+    ) -> Result<SourceMainNativeActiveServiceV1, Box<RejectedNativeMainActiveServiceV1>> {
+        self.into_active_service_profile_deferred(
+            expected, start, generation, documents, entry, false,
+        )
+    }
+
+    fn into_active_service_fact_entry(
+        self,
+        expected: &NativeMainSessionExpectation,
+        start: V,
+        generation: u64,
+        documents: V,
+        entry: (usize, bool),
+        defer_observation: bool,
+    ) -> Result<SourceMainNativeActiveServiceV1, Box<RejectedNativeMainActiveServiceV1>> {
+        self.into_active_service_profile_deferred(
+            expected,
+            start,
+            generation,
+            documents,
+            (entry.0, entry.1, false),
+            defer_observation,
+        )
+    }
+    fn into_active_service_profile_deferred(
+        mut self,
+        expected: &NativeMainSessionExpectation,
+        start: V,
+        generation: u64,
+        documents: V,
+        entry: (usize, bool, bool),
+        defer_observation: bool,
+    ) -> Result<SourceMainNativeActiveServiceV1, Box<RejectedNativeMainActiveServiceV1>> {
+        let (observation_limit, inline_profile, automatic_files) = entry;
         let checked = (|| {
             if self.halted
                 || self
@@ -218,10 +266,16 @@ impl SourceMainNativeSessionV13 {
             start
                 .validate()
                 .map_err(|_| NativeMainActiveServiceErrorV1::InvalidInput)?;
-            self.financial
-                .runtime()
-                .native_main_service_preflight(&documents)
-                .map_err(|e| NativeMainActiveServiceErrorV1::Backend(e.to_string()))?;
+            (if automatic_files {
+                self.financial
+                    .runtime()
+                    .native_main_automatic_file_preflight(&documents)
+            } else {
+                self.financial
+                    .runtime()
+                    .native_main_service_preflight(&documents)
+            })
+            .map_err(|e| NativeMainActiveServiceErrorV1::Backend(e.to_string()))?;
             let mut history = Vec::new();
             history
                 .try_reserve(1)
@@ -237,7 +291,9 @@ impl SourceMainNativeSessionV13 {
                 }))
             }
         };
-        let mut origin_bytes = (if inline_profile {
+        let mut origin_bytes = (if automatic_files {
+            crate::source_contract_runtime::NATIVE_MAIN_AUTOMATIC_FILE_SERVICE_PROFILE
+        } else if inline_profile {
             crate::source_contract_runtime::NATIVE_MAIN_INLINE_ACTIVE_SERVICE_PROFILE
         } else {
             NATIVE_ACTIVE_SERVICE_SESSION_PROFILE
@@ -251,10 +307,12 @@ impl SourceMainNativeSessionV13 {
             generation,
             documents: documents.clone(),
         };
-        let begun = self
-            .financial
-            .native_main_runtime_mut()
-            .native_main_service_begin(&mut self.index, start, generation, documents);
+        let runtime = self.financial.native_main_runtime_mut();
+        let begun = if automatic_files {
+            runtime.native_main_automatic_file_begin(&mut self.index, start, generation, documents)
+        } else {
+            runtime.native_main_service_begin(&mut self.index, start, generation, documents)
+        };
         let (frame, source_start_error, result) = match begun {
             Ok(mut frame) => {
                 if inline_profile {
@@ -293,12 +351,21 @@ impl SourceMainNativeSessionV13 {
         };
         // A post-execution observation refusal retains the actual changed
         // owner/result. Only observation may retry, never this source entry.
-        let _ = service.retry_observation();
+        if !defer_observation {
+            let _ = service.retry_observation();
+        }
         Ok(service)
     }
 }
 impl SourceMainNativeActiveServiceV1 {
     pub fn profile(&self) -> &'static str {
+        if self
+            .frame
+            .as_ref()
+            .is_some_and(|f| f.automatic_file_profile())
+        {
+            return crate::source_contract_runtime::NATIVE_MAIN_AUTOMATIC_FILE_SERVICE_PROFILE;
+        }
         if self.inline_profile {
             crate::source_contract_runtime::NATIVE_MAIN_INLINE_ACTIVE_SERVICE_PROFILE
         } else {
@@ -502,6 +569,14 @@ impl SourceMainNativeActiveServiceV1 {
         expected: &NativeMainActiveServiceExpectationV1,
         action: NativeMainActiveServiceActionV1,
     ) -> Result<&NativeMainActiveServiceReceiptV1, NativeMainActiveServiceErrorV1> {
+        self.stage_action(expected, action)?;
+        self.retry_observation()
+    }
+    fn stage_action(
+        &mut self,
+        expected: &NativeMainActiveServiceExpectationV1,
+        action: NativeMainActiveServiceActionV1,
+    ) -> Result<(), NativeMainActiveServiceErrorV1> {
         if self.expectation()? != *expected {
             return Err(NativeMainActiveServiceErrorV1::WrongExpectation);
         }
@@ -615,6 +690,6 @@ impl SourceMainNativeActiveServiceV1 {
             result,
             before: expected.physical.clone(),
         });
-        self.retry_observation()
+        Ok(())
     }
 }

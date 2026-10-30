@@ -21,6 +21,9 @@ impl MainStepKernelV1 {
         self.apply_with_drain_bound(owner, MainStepCommandV1::DrainReady { limit: 1 }, Some(1))
     }
     pub(crate) fn service_next_block(&self) -> Option<MainServiceBlockRequest> {
+        if self.native_file_blocks {
+            return self.service_next_file_tail();
+        }
         if self.file_retries || self.owner_stopped.is_some() || self.terminal.is_some() {
             return None;
         }

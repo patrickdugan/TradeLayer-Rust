@@ -555,6 +555,9 @@ impl ActiveServiceWalV1 {
 include!("source_main_active_service_cold_history_impl.rs");
 include!("source_main_mode4_cold_history_impl.rs");
 include!("source_main_mode4_inline_closure_impl.rs");
+include!("source_main_actual_native_fact_binding_impl.rs");
+include!("source_main_actual_fact_source_scope_impl.rs");
+include!("source_main_actual_fact_expectation_codec_impl.rs");
 include!("source_main_mode4_checked_read_impl.rs");
 include!("source_main_mode4_pending_facts_impl.rs");
 #[cfg(test)]
