@@ -5,6 +5,10 @@ pub(crate) struct NativeMainStartupIoStateV1 {
     automatic_settled: bool,
     global_requested: bool,
     errors: Vec<crate::source_main_startup_prefix::StartupThrowV1>,
+    invocation: Option<SourceMainInvocationV1>,
+    main_outcome: Option<Result<DependencyReturn, SourceRuleError>>,
+    main_effect_start: Option<usize>,
+    suffix_attempted: bool,
 }
 impl NativeMainStartupIoStateV1 {
     pub(crate) fn new(inputs: crate::source_main_raw_startup::NativeStartupInputsV1) -> Self {
@@ -14,7 +18,14 @@ impl NativeMainStartupIoStateV1 {
             automatic_settled: false,
             global_requested: false,
             errors: vec![],
+            invocation: None,
+            main_outcome: None,
+            main_effect_start: None,
+            suffix_attempted: false,
         }
+    }
+    pub(crate) fn main_outcome(&self) -> Option<&Result<DependencyReturn, SourceRuleError>> {
+        self.main_outcome.as_ref()
     }
     fn error(
         &mut self,
@@ -39,6 +50,43 @@ impl NativeMainStartupIoStateV1 {
         visitor("io/automaticSettled", &V::Bool(self.automatic_settled))?;
         visitor("io/globalRequested", &V::Bool(self.global_requested))?;
         visitor("io/errors/count", &s(self.errors.len().to_string()))?;
+        visitor("io/suffixAttempted", &V::Bool(self.suffix_attempted))?;
+        visitor(
+            "io/mainEffectStart",
+            &self
+                .main_effect_start
+                .map_or(V::Null, |at| s(at.to_string())),
+        )?;
+        visitor("io/invocation/present", &V::Bool(self.invocation.is_some()))?;
+        if let Some(invocation) = &self.invocation {
+            visitor("io/invocation/target", &s(&invocation.target))?;
+            visitor("io/invocation/spotMain", &V::Bool(invocation.spot_main))?;
+            visitor(
+                "io/invocation/rejectedBefore",
+                &s(invocation.rejected_before.to_string()),
+            )?;
+            visitor(
+                "io/invocation/transferRejectedBefore",
+                &s(invocation.transfer_rejected_before.to_string()),
+            )?;
+        }
+        visitor(
+            "io/mainOutcome/present",
+            &V::Bool(self.main_outcome.is_some()),
+        )?;
+        if let Some(result) = &self.main_outcome {
+            match result {
+                Ok(value) => native_main_row_visit_value(
+                    "io/mainOutcome/value",
+                    &crate::source_contract_replay::SourceContractCommandOutcome::Dependency(
+                        value.clone(),
+                    )
+                    .value(),
+                    visitor,
+                )?,
+                Err(error) => visitor("io/mainOutcome/local", &s(format!("{error:?}")))?,
+            }
+        }
         for (i, error) in self.errors.iter().enumerate() {
             visitor(
                 &format!("io/errors/{i}/identity"),
@@ -55,7 +103,7 @@ impl NativeMainStartupIoStateV1 {
     }
 }
 struct NativeMainRawStartupLoanV1<'a> {
-    core: &'a mut ContractCore,
+    runtime: &'a mut SourceContractRuntime,
     index: &'a mut crate::source_compact_index_v2::SourceCompactIndex,
     io: &'a mut NativeMainStartupIoStateV1,
 }
@@ -89,23 +137,38 @@ impl crate::source_main_startup_prefix::StartupOwnerV1 for NativeMainRawStartupL
                     return Err(SourceRuleError::InvalidInput);
                 }
                 self.io.automatic_requested = true;
-                self.core
+                self.runtime
+                    .core
                     .source_main_raw_startup_sdk_request(&self.io.inputs.sdk_client_fields)
                     .map_err(raw_startup_local)?;
                 return Ok(Completion::Held(1));
             }
             Site::DatabaseRetryClient => self
+                .runtime
                 .core
                 .source_main_raw_startup_sdk_request(&self.io.inputs.sdk_client_fields),
+            Site::EnterMainInitialize => {
+                if self.io.invocation.is_some() || self.io.main_outcome.is_some() {
+                    return Err(SourceRuleError::InvalidInput);
+                }
+                self.io.main_effect_start = Some(self.runtime.core.effects.len());
+                self.io.invocation =
+                    Some(self.runtime.source_main_invocation_begin(&DependencyCall {
+                        target: "Main.initialize".into(),
+                        arguments: vec![],
+                    })?);
+                Ok(V::Undefined)
+            }
             Site::MainConstructor => {
                 let p = self
+                    .runtime
                     .core
                     .main_production
                     .as_mut()
                     .ok_or(SourceRuleError::InvalidInput)?;
                 p.genesis = n(600000.);
                 p.parse_block = n(0.);
-                self.core.source_main_raw_startup_sdk_index(
+                self.runtime.core.source_main_raw_startup_sdk_index(
                     self.index,
                     &self.io.inputs.sdk_client_fields,
                 )
@@ -115,7 +178,8 @@ impl crate::source_main_startup_prefix::StartupOwnerV1 for NativeMainRawStartupL
                     return Err(SourceRuleError::InvalidInput);
                 }
                 self.io.global_requested = true;
-                self.core
+                self.runtime
+                    .core
                     .source_main_raw_startup_sdk_request(&self.io.inputs.sdk_client_fields)
                     .map_err(raw_startup_local)?;
                 if let Some(error) = self.io.inputs.global_client_error.clone() {
@@ -123,8 +187,14 @@ impl crate::source_main_startup_prefix::StartupOwnerV1 for NativeMainRawStartupL
                 }
                 Ok(obj(&[("$rpcClient", n(1.))]))
             }
-            Site::DatabaseChain => self.core.source_main_production_io("Client.getChain", &[]),
-            Site::DatabaseTest => self.core.source_main_production_io("Client.getTest", &[]),
+            Site::DatabaseChain => self
+                .runtime
+                .core
+                .source_main_production_io("Client.getChain", &[]),
+            Site::DatabaseTest => self
+                .runtime
+                .core
+                .source_main_production_io("Client.getTest", &[]),
             Site::Datastore {
                 category,
                 directory,
@@ -154,17 +224,20 @@ impl crate::source_main_startup_prefix::StartupOwnerV1 for NativeMainRawStartupL
                         ]),
                     )
                     .map_err(raw_startup_local)?;
-                    self.core.emit(event);
+                    self.runtime.core.emit(event);
                     return Ok(Completion::Thrown(error));
                 }
                 // A handle/slot only: txIndex's authoritative rows stay on the
                 // actual native index; orderBooks stays on its existing Queue.
                 if *category == "orderBooks" {
-                    self.core.source_shared_orderbook_slot()?;
+                    self.runtime.core.source_shared_orderbook_slot()?;
                 } else {
-                    self.core.table(category).map_err(raw_startup_local)?;
+                    self.runtime
+                        .core
+                        .table(category)
+                        .map_err(raw_startup_local)?;
                 }
-                self.core.emit(event);
+                self.runtime.core.emit(event);
                 Ok(obj(&[("$database", s(*category))]))
             }
         };
@@ -290,7 +363,7 @@ impl SourceContractRuntime {
             .source_main_raw_startup_sdk_import(index, &io.inputs.sdk_client_fields)?;
         crate::source_main_startup_prefix::MainStartupPrefixV1::import_database(
             &mut NativeMainRawStartupLoanV1 {
-                core: &mut self.core,
+                runtime: self,
                 index,
                 io,
             },
@@ -310,7 +383,7 @@ impl SourceContractRuntime {
         let before = prefix.events().len();
         let result = prefix.apply(
             &mut NativeMainRawStartupLoanV1 {
-                core: &mut self.core,
+                runtime: self,
                 index,
                 io,
             },
@@ -318,6 +391,14 @@ impl SourceContractRuntime {
         );
         for event in &prefix.events()[before..] {
             self.core.emit(event.clone());
+        }
+        if let crate::source_main_startup_prefix::StartupStopV1::Thrown(error) = prefix.stop() {
+            if let Some(invocation) = io.invocation.take() {
+                io.main_outcome = Some(self.source_main_invocation_finish(
+                    invocation,
+                    Err(Fault::Thrown(error.exception)),
+                ));
+            }
         }
         result
     }

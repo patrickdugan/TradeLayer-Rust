@@ -119,6 +119,7 @@ pub struct SourceMainNativeDurableActiveServiceV1 {
     history_enabled: bool,
     generation_escrow: Option<ActiveServiceEscrowConfigV1>,
     actual_facts: Option<ActualSourceFactModeStateV1>,
+    segmented_history: Option<ActiveHistoryLiveStateV1>,
     #[cfg(test)]
     barrier_fault: Option<(
         NativeMainActiveWalPhaseV1,
@@ -166,8 +167,26 @@ impl SourceMainNativeDurableActiveServiceV1 {
         history_enabled: bool,
         entry: (Option<ActiveServiceEscrowConfigV1>, bool),
     ) -> Result<Self, Box<RejectedNativeMainActiveWalV1>> {
-        let (generation_escrow, actual_fact_mode) = entry;
-
+        Self::create_internal_segmented_entry(
+            owner,
+            root,
+            namespace,
+            filesystem,
+            observation_limit,
+            history_enabled,
+            (entry.0, entry.1, false),
+        )
+    }
+    fn create_internal_segmented_entry(
+        owner: SourceMainNativeSessionV13,
+        root: impl AsRef<std::path::Path>,
+        namespace: crate::storage::Namespace,
+        filesystem: crate::source_contract_replay::source_durable::SourceDurableFilesystem,
+        observation_limit: usize,
+        history_enabled: bool,
+        entry: (Option<ActiveServiceEscrowConfigV1>, bool, bool),
+    ) -> Result<Self, Box<RejectedNativeMainActiveWalV1>> {
+        let (generation_escrow, actual_fact_mode, segmented) = entry;
         let checked = (|| {
             if observation_limit == 0 || observation_limit > ACTIVE_WAL_OBSERVATION_LIMIT {
                 return Err(NativeMainActiveWalErrorV1::Capacity);
@@ -251,6 +270,26 @@ impl SourceMainNativeDurableActiveServiceV1 {
                     .insert("actualNativeFactScope", s(ACTUAL_SOURCE_FACT_SCOPE))
                     .map_err(active_wal_backend)?;
             }
+            if segmented {
+                if !history_enabled || generation_escrow.is_some() || actual_fact_mode {
+                    return Err(NativeMainActiveWalErrorV1::WrongAction);
+                }
+                origin
+                    .insert(
+                        "underlyingSourceHistoryProfile",
+                        s("TL-MAIN-ACTIVE-SERVICE-HISTORY-WAL-13-1"),
+                    )
+                    .map_err(active_wal_backend)?;
+                origin
+                    .insert(
+                        "profile",
+                        s(crate::source_main_active_service_wal::SEGMENTED_ACTIVE_HISTORY_PROFILE),
+                    )
+                    .map_err(active_wal_backend)?;
+                origin
+                    .insert("acknowledgedWindowLimit", s("256"))
+                    .map_err(active_wal_backend)?;
+            }
             let head = sha256(&active_wal_bytes(&origin)?);
             let wal = ActiveServiceWalV1::create(root.as_ref(), namespace, origin, filesystem)?;
             Ok((archive, origin_pin, origin_history, head, wal))
@@ -271,6 +310,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
                 history_enabled,
                 generation_escrow,
                 actual_facts: actual_fact_mode.then(ActualSourceFactModeStateV1::default),
+                segmented_history: segmented.then(ActiveHistoryLiveStateV1::default),
                 #[cfg(test)]
                 barrier_fault: None,
             }),
@@ -278,6 +318,9 @@ impl SourceMainNativeDurableActiveServiceV1 {
         }
     }
     pub fn profile(&self) -> &'static str {
+        if self.segmented_history.is_some() {
+            return crate::source_main_active_service_wal::SEGMENTED_ACTIVE_HISTORY_PROFILE;
+        }
         if self.actual_facts.is_some() {
             return ACTUAL_SOURCE_FACT_WAL_PROFILE;
         }
@@ -396,7 +439,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
         if self.phase != NativeMainActiveWalPhaseV1::Idle || self.pending.is_some() {
             return Err(NativeMainActiveWalErrorV1::Busy);
         }
-        if self.history.len() >= MAX_SERVICE_ACTIONS {
+        if self.history.len() >= self.active_ack_window_limit() {
             return Err(NativeMainActiveWalErrorV1::Capacity);
         }
         self.history
@@ -547,7 +590,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
         let mut record = obj(&[
             ("profile", s(self.profile())),
             ("stage", s(stage)),
-            ("sequence", s(&(self.history.len() + 1).to_string())),
+            ("sequence", s(&self.next_active_ack_sequence()?.to_string())),
             ("previousHead", s(&hex(&self.head))),
             (
                 "head",
@@ -615,6 +658,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
         if self.actual_facts.is_some() {
             self.append_actual_fact_record_fields(&mut record)?;
         }
+        self.append_segment_fields(&mut record)?;
         Ok(record)
     }
     fn write_barrier(&mut self, stage: &str) -> ActiveWalResult<()> {
@@ -869,8 +913,8 @@ impl SourceMainNativeDurableActiveServiceV1 {
             .as_ref()
             .map(|v| ActiveServiceWalBlobV1::of(v))
             .transpose()?;
-        let sequence = self.history.len() as u64 + 1;
-        let previous = self.history.last().map_or(V::Null, |r| r.entry.value());
+        let sequence = self.next_active_ack_sequence()?;
+        let previous = self.active_previous_entry();
         let mut entry_value = obj(&[
             ("profile", s(self.profile())),
             ("sequence", s(&sequence.to_string())),
@@ -914,6 +958,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
         if self.actual_facts.is_some() {
             self.append_actual_fact_record_fields(&mut entry_value)?;
         }
+        self.append_segment_fields(&mut entry_value)?;
         let raw = active_wal_bytes(&entry_value)?;
         let entry = ActiveServiceWalBlobV1::of(&raw)?;
         let mut chain = b"Native13/ActiveWalPhysicalAck/v1".to_vec();

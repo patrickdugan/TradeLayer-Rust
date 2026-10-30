@@ -175,6 +175,7 @@ impl SourceMainNativeDurableActiveServiceV1 {
         if self.actual_facts.is_some() {
             Self::append_actual_facts_scope_observation(&mut raw)?;
         }
+        self.append_segment_observation(&mut raw)?;
         Ok(raw)
     }
     fn append_escrow_scope_observation(raw: &mut Vec<u8>, active: bool) -> ActiveWalResult<()> {

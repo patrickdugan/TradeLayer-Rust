@@ -1259,6 +1259,21 @@
       "fullFinancialColdActorIntegrated": false,
       "fullSuitePromotion": false,
       "commit": "79a30c6f4ec0ec321ad0968123cab910f77a4978"
+    },
+    "mainInitializeColdHistory": {
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/main-initialize-cold-core-integration.json",
+      "libraryDistinctPassed": 683,
+      "libraryIgnored": 4,
+      "publicCompatibilityPassed": 44,
+      "newUnitTests": 25,
+      "financialColdActorControls": 5,
+      "segmentedLiveActorControls": 4,
+      "livePauseCalls": 4097,
+      "liveTotalActionsIncludingStart": 4098,
+      "completeInitializeEffects": false,
+      "segmentedColdIntegrated": false,
+      "fullSuitePromotion": false
     }
   },
   "scope": "Full release a94ea4c remains 2,204 Rust / 239 genuine numeric checks. Later 79a30c6 passes 658 library tests (four ignored), 44 public checks and ten new Core controls, strict Clippy, formatting, inventory and supply policy. Raw startup preserves named DB promise/timer/retry behavior and SDK-vs-RPC fields. Strict13-2 trace/producer facts are checked; complete Initialize, financial cold replay, durable new-profile composition, history continuation and authentication/proof gates remain open.",

@@ -51,6 +51,7 @@ pub enum StartupSiteV1 {
     AutomaticDatabaseClient,
     DatabaseRetryClient,
     MainConstructor,
+    EnterMainInitialize,
     GlobalInitializeClient,
     DatabaseChain,
     DatabaseTest,
@@ -265,6 +266,9 @@ impl MainStartupPrefixV1 {
     pub fn events(&self) -> &[V] {
         &self.events
     }
+    pub(crate) fn database_complete(&self) -> bool {
+        self.database == DbState::Complete
+    }
     fn timer(&mut self, delay: u64, site: &'static str, continuation: Job) {
         let id = self.next_timer;
         self.next_timer += 1;
@@ -308,6 +312,18 @@ impl MainStartupPrefixV1 {
             StartupCommandV1::EnterInitialize => {
                 if self.main != MainState::Constructed {
                     return Err(StartupErrorV1::InvalidInput);
+                }
+                match owner.invoke(&StartupSiteV1::EnterMainInitialize) {
+                    Ok(StartupCompletionV1::Returned(_)) => (),
+                    Ok(StartupCompletionV1::Thrown(error)) => {
+                        self.main = MainState::Thrown(error);
+                        return Ok(self.stop());
+                    }
+                    Ok(StartupCompletionV1::Held(_)) => return Err(StartupErrorV1::InvalidInput),
+                    Err(error) => {
+                        self.stopped = Some(error);
+                        return Ok(self.stop());
+                    }
                 }
                 self.main = MainState::Timer1500;
                 self.timer(1500, "Main.delay", Job::After1500);

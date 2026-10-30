@@ -2963,6 +2963,9 @@ include!("source_main_native_historical_row_bridge_impl.rs");
 include!("source_main_native_cold_historical_index_impl.rs");
 include!("source_main_native_cold_service_access_impl.rs");
 include!("source_main_mode4_historical_runtime_impl.rs");
+include!("source_main_actual_fact_descriptor_runtime_impl.rs");
+include!("source_main_actual_fact_runtime_impl.rs");
+include!("source_main_actual_fact_append_cold_impl.rs");
 include!("source_main_native_completed_runtime_test_impl.rs");
 include!("source_main_native_no_index_runtime_tests_impl.rs");
 include!("source_main_native_catchup_prepare_impl.rs");
@@ -3061,6 +3064,7 @@ include!("source_main_bootstrap_promises_state_impl.rs");
 include!("source_main_bootstrap_promises_core_impl.rs");
 include!("source_main_bootstrap_promises_runtime_impl.rs");
 include!("source_main_raw_startup_runtime_impl.rs");
+include!("source_main_raw_startup_suffix_runtime_impl.rs");
 include!("source_main_raw_startup_sdk_impl.rs");
 #[cfg(test)]
 #[path = "source_main_bootstrap_tests.rs"]

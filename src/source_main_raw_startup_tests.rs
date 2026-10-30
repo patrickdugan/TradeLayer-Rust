@@ -420,3 +420,8 @@ mod startup_sdk_review {
     use super::*;
     include!("source_main_startup_sdk_tests.rs");
 }
+
+mod raw_startup_empty_suffix {
+    use super::*;
+    include!("source_main_raw_startup_suffix_tests.rs");
+}

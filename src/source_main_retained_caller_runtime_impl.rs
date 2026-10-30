@@ -756,7 +756,29 @@ impl SourceContractRuntime {
         {
             return Err(SourceRuleError::UnknownDependency.into());
         }
-        let instance = self.core.native_main_index(index, "getInstance", vec![])?;
+        self.native_main_retained_initialize_suffix(index, None, None)
+    }
+    fn native_main_retained_initialize_suffix(
+        &mut self,
+        index: &mut SourceCompactIndex,
+        raw_client: Option<&V>,
+        raw_sdk_fields: Option<&V>,
+    ) -> R<(V, V)> {
+        let instance = if let Some(fields) = raw_sdk_fields {
+            self.core.source_main_raw_startup_sdk_index(index, fields)?
+        } else {
+            self.core.native_main_index(index, "getInstance", vec![])?
+        };
+        if let Some(raw_client @ (V::Null | V::Undefined)) = raw_client {
+            return Err(type_error(format!(
+                "Cannot read properties of {} (reading 'getTest')",
+                if *raw_client == V::Null {
+                    "null"
+                } else {
+                    "undefined"
+                }
+            )));
+        }
         let test = self.core.source_main_production_io("Client.getTest", &[])?;
         let mut extra = self.core.source_main_service_get("extraOwn")?;
         set(&mut extra, "test", test.clone())?;

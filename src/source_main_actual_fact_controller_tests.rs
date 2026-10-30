@@ -275,3 +275,6 @@ mod actual_fact_native_recovery_tests;
 
 #[path = "source_main_actual_fact_trace_core_tests.rs"]
 mod actual_fact_trace_core_tests;
+
+#[path = "source_main_actual_fact_reexecution_core_tests.rs"]
+mod actual_fact_source_reexecution_core_tests;

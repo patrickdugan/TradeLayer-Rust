@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T04:55:31Z. Refresh after every tested integration cycle.
+Updated: 2026-10-30T06:09:46Z. Refresh after every tested integration cycle.
 
 ## Current checkpoint
 
@@ -19,6 +19,16 @@ The saved completeness workbook and existing sidebar agree on this release. Sixt
 Later focused correction: rejected append ACKs now preserve the prior original/replacement native relation, while a current API rejection cannot reuse an older StorageStopped result. Five new actual source and three metadata controls pass; library **557/four ignored**, 44 public checks, Clippy/fmt304/inventory/supply pass. Evidence: `mode4-rejected-append-core-integration.json`. The full release remains 2,204/239 until the next complete run.
 
 **This is a passing development checkpoint, not a completed RC.** The source-composition and operational gates below remain open.
+
+## Latest tested Initialize/cold/history work
+
+This batch covers **683 distinct library tests (four ignored), 44 public checks, strict all-target Clippy, Cargo formatting, 411 included-file formatting checks, inventory and supply policy**. Twenty-five new controls pass. The exact passed-name audit joins680 ordinary regression cases with the two long cases and corrected Initialize case; production Rust is identical across those runs. It does not claim one683-case run. Evidence: `fixtures/reference_fidelity/main-initialize-cold-core-integration.json`. Full release remains **2,204 Rust /239 numeric** at `a94ea4c7`; this is not a completed RC.
+
+- The actual raw startup owner/header moves into the existing Initialize/consensus body without constructor or1500/500/300 replay. Physical insert and source await resolution stay distinct. Three suffix controls plus eight inherited prefix controls pass, including warm null/undefined getTest errors. This establishes named empty caller fulfillment. Source inspection found a remaining real omission: equal-tip sync returns a nested constructOrLoadConsensus, then outer Initialize calls it again. Exact two-job/timer/full-effect parity remains open and must not be masked by the present tests.
+- The finite13-2 actual-fact cold actor reconstructs ONE financial owner using the same checked-prefix and physical verification bodies. Five real writer histories compare complete financial state, effects, Kernel, receipts and source Before/Accepted. Actual Before replacement, second lost return/Post and genuine reappend rejection pass without source/financial retry and with zero native append/copy/compaction IO. Recorded environmental facts are conditional inputs; observed state/results remain comparisons.
+- The new ordinary-HISTORY segmented live owner passes4,097 actual Pause calls plus Start:4,098 total actions over16sealedsegments, full raw action/entry/physical-ACK head chain retained. Same owner/plan survives checkpoints before/after append and actual nativePost reopen. Receipt RAM leaves only after a same-owner checkpoint proof. Nine metadata controls separately cover4,352ACKs/17segments and real failures. The source-count wall is removed in this explicit profile; disk/effects/Kernel bounds and cold/fresh/caller/file/13-2 composition are still separate.
+
+JavaScript17calls/92records reproduce under both genuine numeric profiles. Genuine nonempty source runs additionally expose NeDB random IDs; their captured crypto draws and complete outputs remain outside this Root batch. A proposed synthetic RNG hook was rejected by automatic review and was not applied. Transparent observation forwards genuine crypto unchanged. Full entropy replay/table equality and nested/nonempty/global startup are unfinished.
 
 ## Latest tested startup and trace prerequisite
 
@@ -104,7 +114,7 @@ Intended-host real-block CPU/RSS, directory/power-loss, actual killed-process fi
 - Exact current runner/log/provider pointers are in `work/root-resume-current.json`. Refresh the workbook/sidebar every 30 minutes when state changes, preserving layout and proof gates.
 - Finished public-support provider: `work/providers/retained-callers-mode4-a94ea4c/libtradelayer_core.rlib`, SHA-256 `7f9b78d5169202225dee1aed5a03f8eeff6c189e6ea5ae98be062633c1de5560`; immutable provenance is adjacent. Candidate private Core tests still require Root execution.
 - Root gates use `work/cargo-check.ps1 -CargoArguments @(...)`, the pinned 1.90 toolchain and one Cargo process. Debug target: `work/main-v12-target`; release target: `work/source-settlement-target`. Use the existing runners' temp and genuine numeric settings.
-- Next action: finish and gate actual Initialize/nonempty startup, full financial cold actor and active-history milestones against current source, then commit tested work and refresh this handoff. No pending worker result is complete merely because its files or helper tests exist.
+- Next action: gate the queued WAL pin-reuse optimization, durable fresh coordinator/cold interleave, nonempty/nested startup and segmented cold/native-fact milestones; then run integrated RC/fuzz checks. Preserve exact old profiles and one actual owner. No pending worker result is complete merely because its files or helper tests exist.
 
 ## Latest rejected-append correction
 

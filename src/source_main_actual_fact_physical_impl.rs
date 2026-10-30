@@ -80,8 +80,8 @@ impl VerifiedActualSourceFactTraceV1 {
         }
         self.mode4_view(index, pin, &self.mode4_all_escrows()?)
     }
-    // Physical proof publication remains private until the new exact fact
-    // barrier/IO-chain checker and source recomputation are composed.
+    // Public conditional metadata proof only: actual recorded barrier/IO-chain
+    // and physical closure checks grant no live permit or financial replay.
     pub fn verify_inline_operation(
         &self,
         index: &mut SourceCompactIndex,

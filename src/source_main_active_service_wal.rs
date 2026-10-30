@@ -552,6 +552,7 @@ impl ActiveServiceWalV1 {
     }
 }
 
+include!("source_main_active_history_segment_impl.rs");
 include!("source_main_active_service_cold_history_impl.rs");
 include!("source_main_mode4_cold_history_impl.rs");
 include!("source_main_mode4_inline_closure_impl.rs");
@@ -562,6 +563,8 @@ include!("source_main_actual_fact_history_profile_impl.rs");
 include!("source_main_actual_fact_trace_impl.rs");
 include!("source_main_actual_fact_barriers_impl.rs");
 include!("source_main_actual_fact_physical_impl.rs");
+include!("source_main_actual_fact_pending_impl.rs");
+include!("source_main_actual_fact_actor_metadata_impl.rs");
 include!("source_main_mode4_checked_read_impl.rs");
 include!("source_main_mode4_pending_facts_impl.rs");
 #[cfg(test)]
@@ -571,3 +574,7 @@ mod mode4_cold_history_tests;
 #[cfg(test)]
 #[path = "source_main_active_service_wal_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "source_main_active_history_segment_tests.rs"]
+mod active_history_segment_tests;

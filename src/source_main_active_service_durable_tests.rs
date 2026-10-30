@@ -610,3 +610,6 @@ mod cold_active_reexecution_tests;
 
 #[path = "source_main_inline_wal_tests.rs"]
 mod inline_wal_tests;
+
+#[path = "source_main_segmented_active_history_tests.rs"]
+mod segmented_active_history_tests;

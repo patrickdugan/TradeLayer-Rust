@@ -220,3 +220,5 @@ impl SourceMainRawStartupV1 {
 #[cfg(test)]
 #[path = "source_main_raw_startup_tests.rs"]
 mod tests;
+
+include!("source_main_raw_startup_suffix_impl.rs");

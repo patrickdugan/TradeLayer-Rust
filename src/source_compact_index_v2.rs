@@ -912,6 +912,7 @@ include!("source_index_cold_execution_impl.rs");
 include!("source_index_historical_validity_impl.rs");
 include!("source_index_verified_view_playback_impl.rs");
 include!("source_index_historical_inline_post_impl.rs");
+include!("source_index_actual_fact_reopen_view_impl.rs");
 include!("source_index_historical_source_read_impl.rs");
 include!("source_index_row_binding_impl.rs");
 include!("source_main_native_no_index_index_tests_impl.rs");
