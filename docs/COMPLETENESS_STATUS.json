@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-30T08:32:08Z",
-  "inspectedCheckoutCommit": "d6f090add7ba0bc815e3ee3b84f8831b43e0b695",
+  "verifiedAtUtc": "2026-10-30T10:25:44Z",
+  "inspectedCheckoutCommit": "1ac51ada2aa623d21db978be21cb4cac20f20454",
   "verifiedImplementationCommit": "a94ea4c7cdf4677d7d48455d65363edd263a16c1",
   "verifiedReleaseTests": 2204,
   "topLevelTests": 2203,
@@ -1305,10 +1305,11 @@
       "pairedFreshColdControls": 8,
       "queuedMetadataControls": 9,
       "startupQueuedFinancialBinding": false,
-      "allTargetReleasePromoted": false
+      "allTargetReleasePromoted": false,
+      "commit": "1ac51ada2aa623d21db978be21cb4cac20f20454"
     }
   },
-  "scope": "Full release a94ea4c remains 2,204 Rust / 239 genuine numeric checks. Later d6f090a passes one full 715-test library run (four ignored), 44 public and 32 new controls; strict Clippy/fmt441/inventory/supply. Durable fresh-input recovery, ordinary segmented cold replay of4,098 actions and selected literal nested/outer startup pass. Broader startup concurrency, genuine entropy/effects, paired fresh/file cold composition, host evidence and authentication/proof gates remain open.",
+  "scope": "Release a94ea4c remains2,204 Rust/239 numeric checks. Later 1ac51ad:734 scoped library passes (four ignored; three unchanged ordinary long tests filtered),44 compatibility+13 canonical,22new controls,strict Clippy/fmt454/inventory/supply. Prior full715/d6 remains separate. Paired raw-feed cold replay and late metadata result custody pass. Queued startup, exact RPC/microtask/UID parity, mixed recovery, host and authenticated proof gates stay open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -1600,14 +1601,14 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Full release a94ea4c remains 2,204 Rust / 239 genuine numeric checks. Later d6f090a passes one full 715-test library run (four ignored), 44 public and 32 new controls; strict Clippy/fmt441/inventory/supply. Durable fresh-input recovery, ordinary segmented cold replay of4,098 actions and selected literal nested/outer startup pass. Broader startup concurrency, genuine entropy/effects, paired fresh/file cold composition, host evidence and authentication/proof gates remain open.",
+  "workbookNote": "Release a94ea4c remains2,204 Rust/239 numeric checks. Later 1ac51ad:734 scoped library passes (four ignored; three unchanged ordinary long tests filtered),44 compatibility+13 canonical,22new controls,strict Clippy/fmt454/inventory/supply. Prior full715/d6 remains separate. Paired raw-feed cold replay and late metadata result custody pass. Queued startup, exact RPC/microtask/UID parity, mixed recovery, host and authenticated proof gates stay open.",
   "savedWorkbook": {
-    "sha256": "f338414f3e5c84925b5ee6c7896653b622ea0a29bcb1cd7eb08db981e7537f99",
-    "bytes": 47718,
+    "sha256": "a903af1166c75622d42c993a6d484c83fcb63911dc72c2e2ae615eef4fe0b65f",
+    "bytes": 47771,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-30T08:32:08Z",
+    "asOfUtc": "2026-10-30T10:25:44Z",
     "rowHashes": {
-      "modules": 1901936588,
+      "modules": 3050241063,
       "logic": 1151758449
     },
     "verifiedEdits": 17,
@@ -1615,18 +1616,17 @@
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-30T08:32:08Z",
-    "sha256": "f338414f3e5c84925b5ee6c7896653b622ea0a29bcb1cd7eb08db981e7537f99",
+    "verifiedAtUtc": "2026-10-30T10:25:44Z",
+    "sha256": "a903af1166c75622d42c993a6d484c83fcb63911dc72c2e2ae615eef4fe0b65f",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 1901936588,
+    "moduleRowsFNV": 3050241063,
     "logicRowsFNV": 1151758449,
     "intentionalCellChanges": 17,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,
     "laterScopedFullReleasePromotionPending": true,
-    "lastFocusedCodeCommit": "d6f090add7ba0bc815e3ee3b84f8831b43e0b695",
-    "releaseBaselinePromoted": true,
+    "lastFocusedCodeCommit": "1ac51ada2aa623d21db978be21cb4cac20f20454",
     "releaseExecutions": 2204,
     "lockedReferenceExecutions": 239,
     "releaseValidationRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json"
@@ -1647,10 +1647,10 @@
     "lockedReferenceExecutions": 239,
     "record": "fixtures/reference_fidelity/inline-channel-release-validation.json"
   },
-  "focusedValidationRecord": "fixtures/reference_fidelity/main-pin-fresh-cold-core-integration.json",
-  "focusedImplementationCommit": "d6f090add7ba0bc815e3ee3b84f8831b43e0b695",
-  "focusedVerifiedAtUtc": "2026-10-30T08:31:26Z",
-  "lastFocusedCodeCommit": "d6f090add7ba0bc815e3ee3b84f8831b43e0b695",
+  "focusedValidationRecord": "fixtures/reference_fidelity/main-paired-fresh-cold-core-integration.json",
+  "focusedImplementationCommit": "1ac51ada2aa623d21db978be21cb4cac20f20454",
+  "focusedVerifiedAtUtc": "2026-10-30T10:21:49Z",
+  "lastFocusedCodeCommit": "1ac51ada2aa623d21db978be21cb4cac20f20454",
   "recoveryPackage": {
     "commit": "9e2baa234a487c47f5a5160440b801347a668f30",
     "archiveSHA256": "acce9e5db7c65adef0246cf01581b4c06db0fd3cf356d1cdfa6528b47fff992f",

@@ -1,10 +1,10 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T10:21:49Z. Refresh this file after every tested integration or PR cycle.
+Updated: 2026-10-30T10:25:44Z. Refresh this file after every tested integration or PR cycle.
 
 ## Latest local checkpoint
 
-The current branch contains tested paired fresh-input cold replay and queued metadata custody. **734 scoped library tests pass (four ignored, three unchanged ordinary long tests filtered), 44 compatibility checks, 13 canonical-field checks, strict all-target Clippy, Cargo formatting,454 included Rust files, inventory and supply policy**. All22new controls pass. Evidence:`fixtures/reference_fidelity/main-paired-fresh-cold-core-integration.json`. This is not a full737-test current-library run. The previous full715 library run is at `d6f090add7ba0bc815e3ee3b84f8831b43e0b695`; its three ordinary long domains are retained as historical evidence, with unchanged relevant leaves verified.
+The latest tested implementation is `1ac51ada2aa623d21db978be21cb4cac20f20454`: paired fresh-input cold replay and queued metadata custody. **734 scoped library tests pass (four ignored, three unchanged ordinary long tests filtered), 44 compatibility checks, 13 canonical-field checks, strict all-target Clippy, Cargo formatting,454 included Rust files, inventory and supply policy**. All22new controls pass. Evidence:`fixtures/reference_fidelity/main-paired-fresh-cold-core-integration.json`. This is not a full737-test current-library run. The previous full715 library run is at `d6f090add7ba0bc815e3ee3b84f8831b43e0b695`; its three ordinary long domains are retained as historical evidence, with unchanged relevant leaves verified.
 
 The complete all-target release baseline remains `a94ea4c7cdf4677d7d48455d65363edd263a16c1`:2,204 Rust executions/239 genuine9.1.2 checks,283targets/87numeric targets,1,888frozen inputs. Evidence:`fixtures/reference_fidelity/retained-callers-mode4-release-validation.json`. Counts overlap; never add scoped checks to this baseline. **The RC remains unfinished.** No push, PR or merge.
 
@@ -57,6 +57,6 @@ Commit completed checked work on this branch; leave unrelated changes untouched.
 - Immutable public provider: `work/providers/retained-callers-mode4-a94ea4c/libtradelayer_core.rlib`, SHA256 `7f9b78d5169202225dee1aed5a03f8eeff6c189e6ea5ae98be062633c1de5560`, provenance adjacent. It is older public support, not new private-Core validation.
 - Saved workbook: `outputs/completeness-6b9c6c5f/TradeLayer-completeness.xlsx` relative to task root. Existing sidebar: `artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU`. Keep both consistent and refresh after meaningful verified changes, approximately every30minutes. Preserve48TL module rows, one external reference,37transaction rows, formulas/styles/filters/panes/geometry and all remaining gates. The saved workbook/sidebar now match `d6f090a`:715 library tests/44 public,32new controls. Seventeen intentional edits preserve all rows, formulas/styles/filters/panes/geometry; zero formula errors. Evidence:`fixtures/reference_fidelity/main-pin-fresh-cold-completeness.json`.
 
-## Tracker pending this commit
+## Latest tracker verification
 
-Saved workbook/sidebar last verified d6f090a/715library. Refresh to this checked code only after the code commit, preserving48TL+one external reference/37transaction rows and all remaining gates.
+Saved workbook/sidebar match `1ac51ad`:734 scoped library passes/four ignored/three unchanged long cases filtered;44 compatibility+13 canonical;22new controls. The prior full715/d6 remains separate. Seventeen intended edits preserve48TL+one external row/37transaction rows, formulas/styles/filters/panes/geometry; zero formula errors. Evidence:`fixtures/reference_fidelity/main-paired-fresh-cold-completeness.json`. No full-reference/authenticated/full-block proof gate is promoted.
