@@ -82,14 +82,17 @@ fn complete_composition_encoders_and_explicit_typed_restrictions() {
         methods.insert(row[4]);
         let result = source_encode_method_unverified(row[4], &input);
         match row[6] {
-            "ascii-reject" => {
+            // Recorded before the literal dispatcher kept Unicode text
+            // (aeebb65) and fractional radix36 (125e63d); both now reproduce
+            // the source output exactly.
+            "ascii-reject" | "radix-reject" if row[1] != "unsafe-contract-id" => {
+                assert_eq!(row[7], "ok", "{}", row[1]);
                 assert_eq!(
-                    result,
-                    Err(LegacyEncoderError::NonPrintableAscii),
+                    result.unwrap().source_string().unwrap(),
+                    string(&expected),
                     "{}",
                     row[1]
                 );
-                assert_eq!(row[7], "ok", "source still emits Unicode");
             }
             "radix-reject" => {
                 assert_eq!(
