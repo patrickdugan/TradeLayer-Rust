@@ -1,8 +1,8 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T13:48:14Z. Refresh this file after every tested integration or PR cycle.
+Updated: 2026-10-30T13:53:51Z. Refresh this file after every tested integration or PR cycle.
 
-## Latest tested mixed native recovery increment (this commit)
+## Latest tested mixed native recovery increment (`d774f6e`)
 
 All39new controls pass:15actual financial-owner+18metadata/DTO+6height-await primitive.44public compatibility and13committed canonical checks pass; the working context also passes2uncommitted queued Kernel checks. Strict all-target Clippy/Cargofmt/fmt491/inventory/supply pass. Both actual native plan kinds now retain original typed outcomes through fact sync, native-only Before/Intermediate/Post/escrow recovery and segmented checkpoints. Root caught and corrected a real escrow dispatch bug; both unchanged failures now pass. The height primitive is test-only, not production Promise admission.
 
@@ -92,3 +92,7 @@ Workbook/sidebar now include the diagnosis with six intended cell edits, preserv
 ## Fractional wire tracker verification
 
 Saved workbook/sidebar match `125e63d`:5fractional+5Unicode+13previous encoder tests, with4,470admitted original-source Number comparisons. Eight intended edits preserve all48TL+one external row/37transaction rows, formulas/styles/filters/panes/geometry, zero errors. Release2204/239 and prior Main734 scoped remain separate. Startup positives are failed/unpromoted; neither authentication nor whole-block proofs are promoted. Evidence:`fixtures/reference_fidelity/literal-txencoder-fraction-completeness.json`.
+
+## Mixed live tracker verification
+
+Saved workbook/sidebar match `d774f6e`:39new focused controls/44compatibility/13committed canonical, strictClippy/fmt/inventory/supply. Fourteen intended edits preserve48TL+one external row/37transaction rows, formulas/styles/filters/panes/geometry, zero formula errors. Broad782 regression93155 is still running at this refresh,780top-level cases passed and two long cases pending; no final library count is promoted. PriorMain734/wire23/release2204/239 remain separate. Two queued startup positives still fail; height-await is test-only. Evidence:`fixtures/reference_fidelity/main-mixed-native-live-completeness.json`.
