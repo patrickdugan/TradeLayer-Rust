@@ -423,3 +423,6 @@ fn actual_static_initialization_failure_escapes_but_instance_failure_is_caught()
 
 #[path = "source_main_retained_caller_review_tests.rs"]
 mod independent_review;
+
+#[path = "source_main_coercive_sync_core_tests.rs"]
+mod coercive_sync_review;

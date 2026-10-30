@@ -552,8 +552,10 @@ impl SourceMainNativeSessionV13 {
 }
 include!("source_main_native_checkpoint_impl.rs");
 include!("source_main_native_historical_replay_impl.rs");
+include!("source_main_checked_history_provider_impl.rs");
 include!("source_main_native_cold_prefix_impl.rs");
 include!("source_main_native_cold_active_reexecution_impl.rs");
+include!("source_main_mode4_source_reexecution_impl.rs");
 include!("source_main_native_cold_active_observation_impl.rs");
 include!("source_main_native_step_session_impl.rs");
 include!("source_main_native_step_segment_impl.rs");
@@ -572,8 +574,16 @@ include!("source_main_native_no_control_store_impl.rs");
 include!("source_main_native_service_session_impl.rs");
 include!("source_main_inline_service_session_impl.rs");
 include!("source_main_retained_caller_session_impl.rs");
+include!("source_main_retained_file_command_impl.rs");
+include!("source_main_retained_file_session_impl.rs");
 include!("source_main_retained_consensus_session_impl.rs");
+include!("source_main_coercive_sync_session_impl.rs");
 include!("source_main_retained_caller_start_wal_impl.rs");
+include!("source_main_retained_caller_selected_dispatch_impl.rs");
+include!("source_main_retained_caller_selected_wal_impl.rs");
+include!("source_main_retained_caller_selected_no_index_impl.rs");
+include!("source_main_retained_caller_selected_replacement_impl.rs");
+include!("source_main_retained_caller_selected_escrow_impl.rs");
 #[cfg(test)]
 #[path = "source_main_inline_service_tests.rs"]
 mod native_inline_service_tests;
@@ -639,3 +649,14 @@ mod retained_consensus_tests;
 #[cfg(test)]
 #[path = "source_main_retained_caller_start_wal_tests.rs"]
 mod retained_caller_start_wal_tests;
+
+#[cfg(test)]
+#[path = "source_main_retained_caller_selected_wal_tests.rs"]
+mod retained_caller_selected_wal_tests;
+
+#[cfg(test)]
+#[path = "source_main_retained_file_command_tests.rs"]
+mod retained_file_command_tests;
+#[cfg(test)]
+#[path = "source_main_retained_file_tests.rs"]
+mod retained_file_tests;

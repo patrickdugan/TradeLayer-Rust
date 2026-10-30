@@ -866,3 +866,6 @@ fn mode4_rejected_append_cannot_hide_a_real_extra_native_publication() {
 
 #[path = "source_main_mode4_independent_review_tests.rs"]
 mod independent_review;
+
+#[path = "source_main_mode4_pending_facts_tests.rs"]
+mod pending_facts_tests;

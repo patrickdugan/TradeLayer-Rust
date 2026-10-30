@@ -282,3 +282,15 @@ fixtures/bitcoin_context_free_raw.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/bitcoin_supported_input_core.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/bitcoin_supported_input_core_outcomes.tsv text eol=lf whitespace=-blank-at-eol
 fixtures/bitcoin_supported_transaction.tsv text eol=lf whitespace=-blank-at-eol
+
+# Preserve the new reproducible Main source corpus and raw file inputs.
+fixtures/coercive_sync_first10.jsonl text eol=lf
+fixtures/coercive_sync_first10_locked.jsonl text eol=lf
+fixtures/coercive_sync_source_inputs.json text eol=lf
+fixtures/coercive_sync_vectors.jsonl text eol=lf
+fixtures/coercive_sync_vectors_locked.jsonl text eol=lf
+scripts/coercive_sync_controls.cjs text eol=lf
+scripts/coercive_sync_observer.cjs text eol=lf
+# Retain the exact pinned oracle helper, including its final empty line.
+scripts/coercive_sync_source_base.cjs text eol=lf whitespace=-blank-at-eof
+fixtures/native_main_retained_file_raw_inputs.jsonl text eol=lf

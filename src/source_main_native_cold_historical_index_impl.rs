@@ -1,7 +1,7 @@
 // Mechanically derived original source owner IO/catchup prefix.
 struct NativeMainHistoricalIndexBackend<'a> {
     core: &'a mut ContractCore,
-    view: &'a crate::source_compact_index_v2::SourceIndexReadSnapshot,
+    view: &'a crate::source_compact_index_v2::MainIndexReadViewV1,
 }
 impl SourceBackend for NativeMainHistoricalIndexBackend<'_> {
     fn invoke(&mut self, call: &DependencyCall) -> Result<DependencyReturn, SourceRuleError> {
@@ -70,7 +70,7 @@ impl SourceBackend for NativeMainHistoricalIndexBackend<'_> {
 impl ContractCore {
     fn native_main_index_historical_scope(
         &mut self,
-        view: &crate::source_compact_index_v2::SourceIndexReadSnapshot,
+        view: &crate::source_compact_index_v2::MainIndexReadViewV1,
         instance: Option<u64>,
         method: &str,
         args: Vec<V>,

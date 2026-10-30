@@ -17,7 +17,7 @@ struct RowGroup {
     trade: Vec<RowLocation>,
 }
 pub struct MainIndexStreamPlan {
-    snapshot: SourceIndexReadSnapshot,
+    snapshot: MainIndexReadViewV1,
     receipt: RowStreamReceipt,
     groups: std::collections::BTreeMap<HeightKey, RowGroup>,
 }
@@ -29,7 +29,7 @@ pub enum MainIndexPlanningOutcome {
     },
 }
 pub struct MainIndexPhaseCursor {
-    snapshot: SourceIndexReadSnapshot,
+    snapshot: MainIndexReadViewV1,
     locations: Vec<RowLocation>,
     at: usize,
     page: Option<usize>,
@@ -241,7 +241,7 @@ fn source_height(id: &str) -> Result<HeightKey> {
         HeightKey::Nan
     })
 }
-impl SourceIndexReadSnapshot {
+impl MainIndexReadViewV1 {
     pub fn plan_main_groups(&self) -> Result<MainIndexPlanningOutcome> {
         let mut cursor = self.cursor();
         let mut groups = std::collections::BTreeMap::<HeightKey, RowGroup>::new();
@@ -290,5 +290,11 @@ impl SourceIndexReadSnapshot {
                 groups,
             },
         )))
+    }
+}
+
+impl SourceIndexReadSnapshot {
+    pub fn plan_main_groups(&self) -> Result<MainIndexPlanningOutcome> {
+        MainIndexReadViewV1::from_original(self.clone()).plan_main_groups()
     }
 }

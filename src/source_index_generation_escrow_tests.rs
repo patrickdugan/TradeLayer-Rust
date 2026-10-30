@@ -150,3 +150,6 @@ mod inline_escrow_guard_tests;
 
 #[path = "source_index_verified_old_view_tests.rs"]
 mod verified_old_view_tests;
+
+#[path = "source_index_main_read_view_tests.rs"]
+mod main_read_view_tests;

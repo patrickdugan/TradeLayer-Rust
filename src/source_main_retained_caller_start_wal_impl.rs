@@ -82,6 +82,8 @@ pub struct SourceMainNativeDurableCallerStartV1 {
     phase: RetainedCallerStartWalPhaseV1,
     plan: Option<CallerStartPlan>,
     observation_limit: usize,
+    profile: &'static str,
+    selected_entry: Option<Vec<u8>>,
     #[cfg(test)]
     barrier_fault: Option<(
         RetainedCallerStartWalPhaseV1,
@@ -98,6 +100,27 @@ impl SourceMainNativeDurableCallerStartV1 {
         action: crate::source_main_retained_caller_action::RetainedMainCallerActionV1,
         observation_limit: usize,
     ) -> Result<Self, Box<RejectedRetainedCallerStartWalV1>> {
+        Self::create_profile(
+            owner,
+            expected,
+            root,
+            namespace,
+            filesystem,
+            action,
+            (observation_limit, RETAINED_CALLER_START_WAL_PROFILE, None),
+        )
+    }
+    fn create_profile(
+        owner: SourceMainNativeSessionV13,
+        expected: &NativeMainSessionExpectation,
+        root: impl AsRef<std::path::Path>,
+        namespace: crate::storage::Namespace,
+        filesystem: crate::source_contract_replay::source_durable::SourceDurableFilesystem,
+        action: crate::source_main_retained_caller_action::RetainedMainCallerActionV1,
+        entry: (usize, &'static str, Option<V>),
+    ) -> Result<Self, Box<RejectedRetainedCallerStartWalV1>> {
+        let (observation_limit, profile, configuration) = entry;
+
         let checked = (|| -> CallerStartResult<_> {
             use crate::source_main_retained_caller_action::RetainedMainCallerActionV1 as Action;
             let actual_entry = owner.expectation().map_err(caller_start_backend)?;
@@ -130,8 +153,8 @@ impl SourceMainNativeDurableCallerStartV1 {
             if crate::source_main_retained_caller_action::RetainedMainCallerActionV1::from_canonical_action_bytes(&raw)?!=action{return Err(RetainedCallerStartWalErrorV1::InvalidInput)}
             let (archive, _) = owner.checkpoint().map_err(caller_start_backend)?;
             let before = Self::ready_observation(&owner, observation_limit)?;
-            let origin = obj(&[
-                ("profile", s(RETAINED_CALLER_START_WAL_PROFILE)),
+            let mut origin = obj(&[
+                ("profile", s(profile)),
                 (
                     "requiredCallerSource",
                     s("TL-MAIN-RETAINED-CALLER-SOURCE-13-1"),
@@ -144,7 +167,14 @@ impl SourceMainNativeDurableCallerStartV1 {
                     "requiredRawAction",
                     s(crate::source_main_retained_caller_action::PROFILE),
                 ),
-                ("admittedActions", s("StartOnly")),
+                (
+                    "admittedActions",
+                    s(if profile == RETAINED_CALLER_START_WAL_PROFILE {
+                        "StartOnly"
+                    } else {
+                        "SelectedActions"
+                    }),
+                ),
                 ("actualEntryHead", s(&hex(&owner.head.commitment))),
                 ("actualEntryCommands", s(&owner.head.commands.to_string())),
                 ("actualEntryBefore", physical_value(&actual_entry.physical)),
@@ -156,6 +186,11 @@ impl SourceMainNativeDurableCallerStartV1 {
             ]);
             // Generic metadata Store commits this NEW immutable origin before
             // any load_module/header/body action on the retained source owner.
+            if let Some(configuration) = &configuration {
+                origin
+                    .insert("selectedConfiguration", configuration.clone())
+                    .map_err(caller_start_backend)?;
+            }
             let wal = CallerStartWal::create(root.as_ref(), namespace, origin.clone(), filesystem)?;
             Ok((raw, archive, before, origin, wal))
         })();
@@ -175,6 +210,8 @@ impl SourceMainNativeDurableCallerStartV1 {
                 phase: RetainedCallerStartWalPhaseV1::Intent,
                 plan: None,
                 observation_limit,
+                profile,
+                selected_entry: None,
                 #[cfg(test)]
                 barrier_fault: None,
             }),
@@ -261,8 +298,8 @@ impl SourceMainNativeDurableCallerStartV1 {
         }
     }
     fn record(&self, stage: &str) -> CallerStartResult<V> {
-        Ok(obj(&[
-            ("profile", s(RETAINED_CALLER_START_WAL_PROFILE)),
+        let mut record = obj(&[
+            ("profile", s(self.profile)),
             ("stage", s(stage)),
             ("sequence", s("1")),
             ("rawAction", CallerStartBlob::of(&self.raw)?.value()),
@@ -281,7 +318,13 @@ impl SourceMainNativeDurableCallerStartV1 {
                 "apiRejection",
                 self.source_error.as_deref().map_or(V::Null, s),
             ),
-        ]))
+        ]);
+        if let Some(entry) = &self.selected_entry {
+            record
+                .insert("selectedStartEntry", CallerStartBlob::of(entry)?.value())
+                .map_err(caller_start_backend)?;
+        }
+        Ok(record)
     }
     fn write_barrier(&mut self, stage: &str) -> CallerStartResult<()> {
         #[cfg(test)]
@@ -297,6 +340,9 @@ impl SourceMainNativeDurableCallerStartV1 {
             let mut blobs = vec![self.raw.clone(), self.before.clone(), self.archive.clone()];
             if let Some(post) = &self.post {
                 blobs.push(post.clone());
+            }
+            if let Some(entry) = &self.selected_entry {
+                blobs.push(entry.clone());
             }
             let refs = blobs
                 .iter()
@@ -392,6 +438,21 @@ impl SourceMainNativeDurableCallerStartV1 {
                     post.extend_from_slice(&(diagnostic.len() as u64).to_be_bytes());
                     post.extend_from_slice(&diagnostic);
                     self.post = Some(post);
+                    if self.profile == RETAINED_CALLER_SELECTED_WAL_PROFILE {
+                        self.selected_entry = Some(caller_start_bytes(&obj(&[
+                            ("profile", s(self.profile)),
+                            ("sequence", s("1")),
+                            ("rawAction", CallerStartBlob::of(&self.raw)?.value()),
+                            ("before", CallerStartBlob::of(&self.before)?.value()),
+                            (
+                                "accepted",
+                                CallerStartBlob::of(self.post.as_ref().expect("actual post"))?
+                                    .value(),
+                            ),
+                            ("origin", self.origin.clone()),
+                        ]))?);
+                    }
+
                     self.phase = RetainedCallerStartWalPhaseV1::Accepted;
                 }
                 RetainedCallerStartWalPhaseV1::Accepted => {

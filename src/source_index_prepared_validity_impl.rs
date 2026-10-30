@@ -76,7 +76,7 @@ pub enum NativePreparedValidityOperationV1 {
     Write(Box<NativePreparedValidityWriteV1>),
 }
 pub struct NativePreparedValiditySelectionV1 {
-    read: SourceIndexReadSnapshot,
+    read: MainIndexReadViewV1,
     query: PrefixQueryReceipt,
     selected: V,
     arguments: Vec<V>,
@@ -84,7 +84,7 @@ pub struct NativePreparedValiditySelectionV1 {
     before_state: NativeMetadataStateReceiptV1,
 }
 pub struct NativePreparedValidityWriteV1 {
-    read: SourceIndexReadSnapshot,
+    read: MainIndexReadViewV1,
     query: PrefixQueryReceipt,
     arguments: Vec<V>,
     context: (String, std::path::PathBuf),
@@ -150,7 +150,8 @@ impl NativePreparedValiditySelectionV1 {
             }
         };
         let put = index.native_prepare_metadata_put(write_expected, row)?;
-        let after_state = prepared_metadata_state(&self.read.data, put.append.mutations())?;
+        let after_state =
+            prepared_metadata_state_entries(self.read.raw_entries(), put.append.mutations())?;
         let recovery_before =
             index.native_capture_validity_recovery(&put.append, &self.before_state)?;
         Ok(NativePreparedValidityOperationV1::Write(Box::new(
@@ -325,6 +326,24 @@ fn prepared_validity_read_snapshot(
     valid: V,
     reason: V,
 ) -> Result<NativePreparedValidityQueryV1> {
+    prepared_validity_read_view(
+        MainIndexReadViewV1::from_original(snapshot),
+        context,
+        txid,
+        ty,
+        valid,
+        reason,
+    )
+}
+
+fn prepared_validity_read_view(
+    snapshot: MainIndexReadViewV1,
+    context: impl FnOnce() -> Result<(String, std::path::PathBuf)>,
+    txid: V,
+    ty: V,
+    valid: V,
+    reason: V,
+) -> Result<NativePreparedValidityQueryV1> {
     for value in [&txid, &ty, &valid, &reason] {
         value.validate()?;
     }
@@ -399,7 +418,7 @@ fn prepared_validity_read_snapshot(
         )]),
         V::Object(vec![("upsert".into(), V::Bool(true))]),
     ];
-    let before_state = prepared_metadata_state(&snapshot.data, &[])?;
+    let before_state = prepared_metadata_state_entries(snapshot.raw_entries(), &[])?;
     Ok(NativePreparedValidityQueryV1::Selected(Box::new(
         NativePreparedValiditySelectionV1 {
             read: snapshot,

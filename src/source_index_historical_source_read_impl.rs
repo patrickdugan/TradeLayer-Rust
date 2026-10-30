@@ -1,11 +1,7 @@
-impl SourceIndexReadSnapshot {
+impl MainIndexReadViewV1 {
     /// Bounded source reads from the actual independently checked historical
     /// Directory/page bytes. This grants no mutable index or write permit.
-    pub(crate) fn source_database_read(
-        &self,
-        method: &str,
-        args: &[V],
-    ) -> Result<DependencyReturn> {
+    fn source_database_read_from_view(&self, method: &str, args: &[V]) -> Result<DependencyReturn> {
         let one = match method {
             "findOneAsync" => true,
             "findAsync" => false,
@@ -16,7 +12,7 @@ impl SourceIndexReadSnapshot {
         if let Query::Id(id) = &matcher {
             valid_id(id)?;
             let page = self
-                .directory
+                .directory()
                 .pages
                 .partition_point(|p| p.first.as_str() <= id);
             let row = if page == 0 {
@@ -60,7 +56,7 @@ impl NativeHistoricalValidityPlaybackV1<'_> {
         while cursor.next_row()?.is_some() {}
         Ok(cursor.receipt())
     }
-    pub(crate) fn source_read_view(&self) -> &SourceIndexReadSnapshot {
+    pub(crate) fn source_read_view(&self) -> &MainIndexReadViewV1 {
         &self.current
     }
     pub(crate) fn source_history_pin(&self) -> &SourceIndexHistoryPinV1 {
@@ -74,5 +70,28 @@ impl NativeHistoricalValidityPlaybackV1<'_> {
             return Err(CompactIndexError::ColdWriteRefused);
         }
         Ok(self.index)
+    }
+}
+
+impl MainIndexReadViewV1 {
+    pub(crate) fn source_database_read(
+        &self,
+        method: &str,
+        args: &[V],
+    ) -> Result<DependencyReturn> {
+        match &self.data {
+            MainIndexReadDataV1::Original(data) => data.source_database_read(method, args),
+            MainIndexReadDataV1::Verified(_) => self.source_database_read_from_view(method, args),
+        }
+    }
+}
+impl SourceIndexReadSnapshot {
+    pub(crate) fn source_database_read(
+        &self,
+        method: &str,
+        args: &[V],
+    ) -> Result<DependencyReturn> {
+        MainIndexReadViewV1::from_original(self.clone())
+            .source_database_read_from_view(method, args)
     }
 }

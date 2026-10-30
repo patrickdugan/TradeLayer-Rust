@@ -20,7 +20,7 @@ impl SourceIndexReadSnapshot {
     }
     pub fn cursor(&self) -> SourceIndexCursor {
         SourceIndexCursor {
-            snapshot: self.clone(),
+            snapshot: MainIndexReadViewV1::from_original(self.clone()),
             page: 0,
             position: 0,
             buffer: vec![],
@@ -47,7 +47,7 @@ impl SourceIndexReadSnapshot {
     }
 }
 pub struct SourceIndexCursor {
-    snapshot: SourceIndexReadSnapshot,
+    snapshot: MainIndexReadViewV1,
     page: usize,
     position: usize,
     buffer: Vec<V>,
@@ -61,8 +61,8 @@ impl SourceIndexCursor {
             return Ok(None);
         }
         if self.position == self.buffer.len() {
-            if self.page == self.snapshot.directory.pages.len() {
-                if self.seen != self.snapshot.directory.rows {
+            if self.page == self.snapshot.directory().pages.len() {
+                if self.seen != self.snapshot.directory().rows {
                     return Err(CompactIndexError::Corrupt);
                 }
                 self.complete = true;
@@ -86,7 +86,7 @@ impl SourceIndexCursor {
     pub fn receipt(&self) -> RowStreamReceipt {
         RowStreamReceipt {
             profile: STREAM_PROFILE.into(),
-            snapshot: self.snapshot.pin.clone(),
+            snapshot: self.snapshot.pin().clone(),
             rows: self.seen,
             chain_sha256d: self.chain,
             complete: self.complete,

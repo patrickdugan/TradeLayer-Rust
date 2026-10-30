@@ -41,9 +41,10 @@ impl SourceCompactIndex {
             || replacement.context != original.context
             || replacement.before_state != original.before_state
             || replacement.after_state != original.after_state
-            || replacement.read.pin != original.read.pin
-            || replacement.read.directory.encode()? != original.read.directory.encode()?
-            || prepared_metadata_state(&replacement.read.data, &[])? != original.before_state
+            || replacement.read.pin() != original.read.pin()
+            || replacement.read.directory().encode()? != original.read.directory().encode()?
+            || prepared_metadata_state_entries(replacement.read.raw_entries(), &[])?
+                != original.before_state
             || replacement.put.directory.encode()? != original.put.directory.encode()?
             || replacement.put.append.mutations() != original.put.append.mutations()
             || replacement.put.append.configuration().target_log_bytes

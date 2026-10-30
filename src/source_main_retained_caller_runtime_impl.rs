@@ -60,6 +60,7 @@ enum NativeMainRetainedCallerPcV1 {
 }
 pub(crate) struct NativeMainRetainedCallerFrameV1 {
     command: NativeMainRetainedCallerV1,
+    coercive_sync: bool,
     invocation: Option<SourceMainInvocationV1>,
     caller_scope: u64,
     pc: NativeMainRetainedCallerPcV1,
@@ -149,6 +150,9 @@ impl NativeMainRetainedCallerFrameV1 {
         visitor("command", &s(self.command.kind()))?;
         if let NativeMainRetainedCallerV1::SyncIndex { max } = &self.command {
             native_main_row_visit_value("command/max", max, visitor)?;
+        }
+        if self.coercive_sync {
+            visitor("coerciveSyncProfile", &s(NATIVE_MAIN_COERCIVE_SYNC_PROFILE))?;
         }
         visitor("callerScope", &s(self.caller_scope.to_string()))?;
         visitor("pc", &s(format!("{:?}", self.pc)))?;
@@ -293,6 +297,7 @@ impl SourceContractRuntime {
         })?;
         Ok(NativeMainRetainedCallerFrameV1 {
             command,
+            coercive_sync: false,
             invocation: Some(invocation),
             caller_scope: scope,
             pc,
@@ -483,6 +488,10 @@ impl SourceContractRuntime {
                         }
                     }
                     NativeMainRetainedCallerPcV1::Sync => {
+                        if f.coercive_sync {
+                            self.native_main_coercive_sync_step(f)?;
+                            continue;
+                        }
                         let max = native_main_retained_height(&f.max)?;
                         let tip = match self
                             .core

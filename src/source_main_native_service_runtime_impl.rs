@@ -81,6 +81,13 @@ impl SourceContractRuntime {
         &self,
         documents: &V,
     ) -> Result<(), SourceRuleError> {
+        self.native_main_service_preflight_file_profile(documents, false)
+    }
+    fn native_main_service_preflight_file_profile(
+        &self,
+        documents: &V,
+        allow_file_retries: bool,
+    ) -> Result<(), SourceRuleError> {
         if self.policy() != SourceContractRuntimePolicy::MainOrchestrationV12
             || self.core.native_main_binding.is_none()
             || !self.core.source_main_service_enabled()
@@ -104,20 +111,22 @@ impl SourceContractRuntime {
                 return Err(SourceRuleError::InvalidInput);
             }
         }
-        let failures = self
-            .core
-            .main_production
-            .as_ref()
-            .and_then(|production| production.service.as_ref())
-            .ok_or(SourceRuleError::UnknownDependency)?
-            .get("fileIO")
-            .get("facts")
-            .get("failures");
-        if let V::Array(rows) = failures {
-            if rows.iter().any(|row| matches!(row.get("method"),V::String(ref name) if ["copyFile", "unlink"].contains(&name.as_str())) && [s("EBUSY"), s("EPERM")].contains(&row.get("code"))) {
+        if !allow_file_retries {
+            let failures = self
+                .core
+                .main_production
+                .as_ref()
+                .and_then(|production| production.service.as_ref())
+                .ok_or(SourceRuleError::UnknownDependency)?
+                .get("fileIO")
+                .get("facts")
+                .get("failures");
+            if let V::Array(rows) = failures {
+                if rows.iter().any(|row| matches!(row.get("method"),V::String(ref name) if ["copyFile", "unlink"].contains(&name.as_str())) && [s("EBUSY"), s("EPERM")].contains(&row.get("code"))) {
                 // This new profile explicitly uses immediate recorded file IO;
                 // actual 50ms retry frames remain in the existing file profile.
                 return Err(SourceRuleError::UnknownDependency);
+            }
             }
         }
         Ok(())
@@ -129,10 +138,23 @@ impl SourceContractRuntime {
         generation: u64,
         documents: V,
     ) -> Result<NativeMainServiceContinuationV1, SourceRuleError> {
+        self.native_main_service_begin_with_loader(
+            start,
+            generation,
+            documents,
+            |core, documents| core.native_main_service_load_module(index, documents),
+        )
+    }
+    fn native_main_service_begin_with_loader(
+        &mut self,
+        start: V,
+        generation: u64,
+        documents: V,
+        load: impl FnOnce(&mut ContractCore, &V) -> Result<(), SourceRuleError>,
+    ) -> Result<NativeMainServiceContinuationV1, SourceRuleError> {
         self.native_main_service_preflight(&documents)?;
         let bootstrap_start = self.core.effects.len();
-        self.core
-            .native_main_service_load_module(index, &documents)?;
+        load(&mut self.core, &documents)?;
         let invocation_effect_start = self.core.effects.len();
         let catchup = self.native_main_catchup_begin_owned(start)?;
         Ok(NativeMainServiceContinuationV1 {

@@ -14,6 +14,7 @@ struct NativeMainColdServiceStateV1 {
     attempted_write: Option<V>,
     observation_limit: usize,
     started: bool,
+    inline_profile: bool,
 }
 /// Read-only verified financial/source reexecution of an entire acknowledged
 /// HISTORY-WAL transcript. No live Session/head, writer or replay owner escapes.
@@ -122,6 +123,7 @@ impl NativeMainColdAcknowledgedServiceV1 {
             attempted_write: None,
             observation_limit,
             started: false,
+            inline_profile: false,
         };
         let mut owner = Self {
             state,
@@ -331,7 +333,7 @@ impl NativeMainColdAcknowledgedServiceV1 {
 }
 
 fn cold_service_pending_context(frame: &NativeMainServiceContinuationV1) -> Option<V> {
-    frame.pending_historical_context()
+    frame.pending_mode4_historical_context()
 }
 fn cold_service_native_pin(pin: &SourceIndexHistoryPinV1) -> V {
     let p = &pin.metadata.publication;
@@ -349,7 +351,11 @@ fn cold_service_native_pin(pin: &SourceIndexHistoryPinV1) -> V {
 }
 impl NativeMainColdServiceStateV1 {
     fn profile(&self) -> &'static str {
-        NATIVE_ACTIVE_SERVICE_SESSION_PROFILE
+        if self.inline_profile {
+            crate::source_contract_runtime::NATIVE_MAIN_INLINE_ACTIVE_SERVICE_PROFILE
+        } else {
+            NATIVE_ACTIVE_SERVICE_SESSION_PROFILE
+        }
     }
     fn effects(&self) -> &[V] {
         self.owner.financial.runtime().native_main_row_effects()
@@ -403,7 +409,14 @@ impl NativeMainColdServiceStateV1 {
             &mut fields,
         )
         .map_err(|e| e.to_string())?;
-        Ok(fields.frames.expect("retained actual source fields"))
+        let mut raw = fields.frames.expect("retained actual source fields");
+        if self.inline_profile {
+            SourceMainNativeDurableActiveServiceV1::append_escrow_scope_observation(
+                &mut raw, false,
+            )
+            .map_err(|e| e.to_string())?;
+        }
+        Ok(raw)
     }
     fn verify_candidates(
         &self,
@@ -484,6 +497,19 @@ impl NativeMainColdServiceStateV1 {
         action: NativeMainActiveServiceActionV1,
         mutations: Option<&[u8]>,
     ) -> Result<(), NativeMainActiveServiceErrorV1> {
+        self.execute_with_mode4(history, capability, action, mutations, None)
+    }
+    fn execute_with_mode4(
+        &mut self,
+        history: &mut NativeHistoricalValidityPlaybackV1<'_>,
+        capability: &NativeColdIndexExecutionV1,
+        action: NativeMainActiveServiceActionV1,
+        mutations: Option<&[u8]>,
+        mode4: Option<(
+            &crate::source_main_active_service_wal::VerifiedInlineActiveServiceAckHistoryV1,
+            u64,
+        )>,
+    ) -> Result<(), NativeMainActiveServiceErrorV1> {
         let before = cold_prefix_physical(history.source_history_pin());
         if let NativeMainActiveServiceActionV1::Start {
             start,
@@ -505,7 +531,7 @@ impl NativeMainColdServiceStateV1 {
             self.history
                 .try_reserve(1)
                 .map_err(|_| NativeMainActiveServiceErrorV1::Capacity)?;
-            let mut seed = NATIVE_ACTIVE_SERVICE_SESSION_PROFILE.as_bytes().to_vec();
+            let mut seed = self.profile().as_bytes().to_vec();
             seed.extend_from_slice(&self.origin.session.commands.to_be_bytes());
             seed.extend_from_slice(&self.origin.session.commitment);
             self.head = NativeMainActiveServiceHeadV1 {
@@ -516,12 +542,13 @@ impl NativeMainColdServiceStateV1 {
                 .owner
                 .financial
                 .native_main_runtime_mut()
-                .native_main_service_begin_historical(
+                .native_main_service_begin_cold_selected(
                     history,
                     capability,
                     start.clone(),
                     *generation,
                     documents.clone(),
+                    mode4,
                 );
             let result = match begun {
                 Ok(frame) => {
@@ -589,8 +616,8 @@ impl NativeMainColdServiceStateV1 {
             let result = match &action {
                 NativeMainActiveServiceActionV1::Advance { limit } => {
                     NativeMainActiveServiceActionResultV1::Stop(
-                        runtime.native_main_service_advance_historical(
-                            history, capability, frame, *limit,
+                        runtime.native_main_service_advance_cold_selected(
+                            history, capability, frame, *limit, mode4,
                         ),
                     )
                 }
@@ -602,16 +629,20 @@ impl NativeMainColdServiceStateV1 {
                 NativeMainActiveServiceActionV1::AppendPending => {
                     self.attempted_write = cold_service_pending_context(frame);
                     NativeMainActiveServiceActionResultV1::Stop(
-                        runtime.native_main_service_append_historical(
+                        runtime.native_main_service_append_cold_selected(
                             history,
+                            capability,
                             frame,
                             mutations.ok_or(NativeMainActiveServiceErrorV1::NoAttemptedWrite)?,
+                            mode4,
                         ),
                     )
                 }
                 NativeMainActiveServiceActionV1::ResolvePost => {
                     NativeMainActiveServiceActionResultV1::Stop(
-                        runtime.native_main_service_resolve_historical(history, capability, frame),
+                        runtime.native_main_service_resolve_cold_selected(
+                            history, capability, frame, mode4,
+                        ),
                     )
                 }
                 NativeMainActiveServiceActionV1::FireTimer { id, generation } => {

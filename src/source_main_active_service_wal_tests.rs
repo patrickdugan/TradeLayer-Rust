@@ -219,3 +219,7 @@ mod cold_ack_history_tests;
 
 #[path = "source_main_retained_caller_wal_metadata_tests.rs"]
 mod retained_start_metadata;
+
+#[cfg(test)]
+#[path = "source_main_retained_caller_selected_metadata_tests.rs"]
+mod retained_caller_selected_metadata_tests;

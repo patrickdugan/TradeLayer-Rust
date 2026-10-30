@@ -71,7 +71,22 @@ impl SourceMainNativeSessionV13 {
         bytes: &[u8],
         expected: &NativeMainHistoricalRowsExpectationV1,
         actual_post: &crate::source_compact_index_v2::SourceIndexHistoryPinV1,
+        index: SourceCompactIndex,
+    ) -> Result<NativeMainHistoricalColdPartsV1, Box<RejectedNativeMainHistoricalRowsV1>> {
+        Self::rebuild_historical_rows_prefix_with_provider(
+            bytes,
+            expected,
+            actual_post,
+            index,
+            &NativeMainOriginalHistoryProviderV1,
+        )
+    }
+    fn rebuild_historical_rows_prefix_with_provider(
+        bytes: &[u8],
+        expected: &NativeMainHistoricalRowsExpectationV1,
+        actual_post: &crate::source_compact_index_v2::SourceIndexHistoryPinV1,
         mut index: SourceCompactIndex,
+        provider: &impl NativeMainActualHistoryProviderV1,
     ) -> Result<NativeMainHistoricalColdPartsV1, Box<RejectedNativeMainHistoricalRowsV1>> {
         let mut financial = None;
         let mut history = vec![];
@@ -91,16 +106,16 @@ impl SourceMainNativeSessionV13 {
             }
             // Independently verify the historical completed endpoint before
             // constructing the one financial owner. It can precede actual Post.
-            index
-                .read_verified_history_generation(&expected.current)
+            provider
+                .read(&mut index, &expected.current)
                 .map_err(cold_history_error)?;
             let origin_pin = expected
                 .commands
                 .first()
                 .and_then(|pins| pins.first())
                 .unwrap_or(&expected.current);
-            let origin = index
-                .read_verified_history_generation(origin_pin)
+            let origin = provider
+                .read(&mut index, origin_pin)
                 .map_err(cold_history_error)?;
             let origin_physical = NativePhysicalBinding {
                 persistent_identity: origin_pin.storage.persistent_identity.clone(),
@@ -176,10 +191,8 @@ impl SourceMainNativeSessionV13 {
                 .zip(&expected.commands)
                 .enumerate()
             {
-                let mut playback =
-                    crate::source_compact_index_v2::NativeHistoricalValidityPlaybackV1::open(
-                        &mut index, pins,
-                    )
+                let mut playback = provider
+                    .playback(&mut index, pins)
                     .map_err(cold_history_error)?;
                 let before = NativePhysicalBinding {
                     persistent_identity: pins[0].storage.persistent_identity.clone(),
@@ -250,8 +263,8 @@ impl SourceMainNativeSessionV13 {
                 }
                 previous = after;
             }
-            index
-                .read_verified_history_generation(&expected.current)
+            provider
+                .read(&mut index, &expected.current)
                 .map_err(cold_history_error)?;
             if head != expected.archive.head
                 || previous != expected.archive.current

@@ -5,6 +5,7 @@ struct NativeMainInlineIndexFrameV1 {
     scope: u64,
     source: crate::txindex_source_owner::TxIndexInlineContinuationV1,
     write: Option<Box<crate::source_compact_index_v2::NativePreparedInlineDatabaseV1>>,
+    historical: Option<Box<crate::source_main_active_service_wal::VerifiedMode4InlinePendingV1>>,
     attempted: bool,
     storage_stop: Option<String>,
     local_stop: Option<SourceRuleError>,
@@ -40,11 +41,26 @@ impl NativeMainInlineIndexFrameV1 {
                 .as_ref()
                 .map_or(V::Null, |e| s(format!("{e:?}"))),
         )?;
-        visitor("write/present", &V::Bool(self.write.is_some()))?;
+        visitor(
+            "write/present",
+            &V::Bool(self.write.is_some() || self.historical.is_some()),
+        )?;
         if let Some(write) = &self.write {
             let mut error = Ok(());
             write
                 .visit_canonical_fields(&mut |path, value| {
+                    if error.is_ok() {
+                        error =
+                            native_main_row_visit_value(&format!("write/{path}"), value, visitor);
+                    }
+                })
+                .map_err(|_| SourceRuleError::Backend)?;
+            error?;
+        }
+        if let Some(write) = &self.historical {
+            let mut error = Ok(());
+            write
+                .visit_live_fields(&mut |path, value| {
                     if error.is_ok() {
                         error =
                             native_main_row_visit_value(&format!("write/{path}"), value, visitor);
@@ -115,6 +131,7 @@ impl ContractCore {
             scope,
             source: owner.begin_inline_source(scope, method, arguments)?,
             write: None,
+            historical: None,
             attempted: false,
             storage_stop: None,
             local_stop: None,

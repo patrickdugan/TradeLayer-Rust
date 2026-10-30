@@ -428,3 +428,6 @@ fn inline_foreign_and_corrupt_native_files_leave_the_same_financial_owner_parked
 
 #[path = "source_main_mode4_closure_core_tests.rs"]
 mod mode4_closure_core_tests;
+
+#[path = "source_main_mode4_prefix_provider_tests.rs"]
+mod source_mode4_prefix_tests;

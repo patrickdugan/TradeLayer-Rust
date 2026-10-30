@@ -67,7 +67,7 @@ impl NativePreparedValidityWriteV1 {
             || pin.logical_sequence != self.put.append.before().logical_sequence
             || pin.content != prepared_storage_receipt(&self.before_state)
             || self.put.expected.profile != METADATA_PROFILE
-            || self.put.expected.context != self.read.directory.context
+            || self.put.expected.context != self.read.directory().context
             || self.put.expected.publication != pin.publication
             || self.put.expected.sequence != pin.logical_sequence
             || self.context.0 != identity
@@ -141,7 +141,7 @@ impl SourceCompactIndex {
         let expected_directory = if candidate == NativePreparedValidityCandidateV1::Post {
             &plan.put.directory
         } else {
-            &plan.read.directory
+            plan.read.directory()
         };
         if directory.context != plan.put.expected.context
             || directory.encode()? != expected_directory.encode()?

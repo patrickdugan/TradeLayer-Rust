@@ -31,12 +31,25 @@ impl RejectedNativeMainRetainedCallerV1 {
 }
 impl SourceMainNativeSessionV13 {
     pub fn into_retained_main_caller(
+        self,
+        expected: &NativeMainSessionExpectation,
+        command: NativeMainRetainedCallerV1,
+        scope: u64,
+        generation: u64,
+        documents: V,
+    ) -> Result<SourceMainNativeRetainedCallerV1, Box<RejectedNativeMainRetainedCallerV1>> {
+        self.into_retained_main_caller_profile(
+            expected, command, scope, generation, documents, false,
+        )
+    }
+    fn into_retained_main_caller_profile(
         mut self,
         expected: &NativeMainSessionExpectation,
         command: NativeMainRetainedCallerV1,
         scope: u64,
         generation: u64,
         documents: V,
+        file_retries: bool,
     ) -> Result<SourceMainNativeRetainedCallerV1, Box<RejectedNativeMainRetainedCallerV1>> {
         let checked = (|| {
             if self.halted {
@@ -48,10 +61,13 @@ impl SourceMainNativeSessionV13 {
             if scope == 0 || scope > u64::MAX - 4096 {
                 return Err(NativeMainSessionError::Capacity);
             }
-            self.financial
-                .runtime()
-                .native_main_retained_caller_preflight(&command, &documents)
-                .map_err(|e| NativeMainSessionError::Backend(e.to_string()))
+            let runtime = self.financial.runtime();
+            (if file_retries {
+                runtime.native_main_retained_file_preflight(&command, &documents)
+            } else {
+                runtime.native_main_retained_caller_preflight(&command, &documents)
+            })
+            .map_err(|e| NativeMainSessionError::Backend(e.to_string()))
         })();
         if let Err(error) = checked {
             return Err(Box::new(RejectedNativeMainRetainedCallerV1 {

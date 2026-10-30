@@ -52,6 +52,20 @@ impl SourceContractRuntime {
         frame: &mut NativeMainServiceBlockFrame,
         documents: &V,
     ) -> NativeMainRowStopV1 {
+        self.native_main_inline_block_advance_with(frame, documents, |core, frame, documents| {
+            core.native_main_inline_index_advance(index, frame, documents)
+        })
+    }
+    fn native_main_inline_block_advance_with(
+        &mut self,
+        frame: &mut NativeMainServiceBlockFrame,
+        documents: &V,
+        mut advance: impl FnMut(
+            &mut ContractCore,
+            &mut NativeMainInlineIndexFrameV1,
+            &V,
+        ) -> NativeMainRowStopV1,
+    ) -> NativeMainRowStopV1 {
         if frame.inline_index.is_none() {
             match self.native_main_inline_block_prefix(&frame.request.block, &frame.request.height)
             {
@@ -88,9 +102,7 @@ impl SourceContractRuntime {
             .inline_index
             .as_mut()
             .expect("same retained source method");
-        let stop = self
-            .core
-            .native_main_inline_index_advance(index, method, documents);
+        let stop = advance(&mut self.core, method, documents);
         if stop != NativeMainRowStopV1::Complete {
             return stop;
         }

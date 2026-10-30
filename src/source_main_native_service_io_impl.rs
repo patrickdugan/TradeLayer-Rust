@@ -1,10 +1,12 @@
 // Data-only additional RPC capability for the explicit active-service profile.
 // The original TxIndex owner executes sender/output/decoder logic itself.
-struct NativeMainServiceIndexBackend<'a> {
-    base: NativeMainIndexBackend<'a>,
+struct NativeMainServiceIndexBackend<'a, B> {
+    base: B,
     documents: &'a V,
 }
-impl SourceBackend for NativeMainServiceIndexBackend<'_> {
+impl<B: SourceBackend + NativeMainServiceBackendCoreV1> SourceBackend
+    for NativeMainServiceIndexBackend<'_, B>
+{
     fn invoke(&mut self, call: &DependencyCall) -> Result<DependencyReturn, SourceRuleError> {
         let Some(method) = call.target.strip_prefix("client.") else {
             return self.base.invoke(call);
@@ -39,7 +41,7 @@ impl SourceBackend for NativeMainServiceIndexBackend<'_> {
         if method == "getRawTransaction" && recorded.len() == 1 {
             recorded.push(V::Undefined);
         }
-        self.base.core.emit(obj(&[
+        self.base.service_core().emit(obj(&[
             ("kind", s("rpc-data")),
             ("method", s(format!("Client.{method}"))),
             ("args", V::Array(recorded)),

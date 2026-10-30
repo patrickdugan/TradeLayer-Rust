@@ -1,0 +1,301 @@
+{
+  "schema": "tl-main-composition-core-v1",
+  "verifiedAtUtc": "2026-10-30T01:38:11Z",
+  "inputCommit": "b5be5f3ac743e3a224c7f733eca6cfa365f28029",
+  "frozenGateInputs": {
+    "src/source_compact_index_v2.rs": "4c87e7f42cf045d59b7be75dbe5d70ff7d3b9afffa38ff7ad6613fa4e9d20a09",
+    "src/source_compact_stream_impl.rs": "3cc35ebaeda738c67e33c25d831a08307d7f8063a434a76615c79237948394a1",
+    "src/source_main_index_stream_impl.rs": "fad61e0981fc336af9c0f9fa36926eba59a4fc7020e36c32a2128bedd11302bd",
+    "src/source_index_historical_source_read_impl.rs": "5d8ea8afad242baa9e385c62ec61307aa51e3871a145e4e5be854902d30e04d5",
+    "src/source_index_prepared_validity_impl.rs": "d5d8b344f15b28ed55f576691a30ad4339da43d1c99ed7bc17b27c791e28ad12",
+    "src/source_index_historical_validity_impl.rs": "4b4e006fc39674d51624c76f17b57a7f89d08bf03383edc271c7341137685832",
+    "src/source_index_verified_reopen_impl.rs": "0ea53f73c01439ce59659e04940672ac066214026a6f3c0a54106988214e5938",
+    "src/source_index_supersession_binding_impl.rs": "83ac89547fc5e93253693dea626c1ce7e06c2e755671bef2ece93c16b10397ee",
+    "src/source_index_generation_escrow_tests.rs": "8c9e2e6266c04ae2653535863cce8a3de728c70c2d018b5a86eddef926a130c3",
+    "src/source_main_mode4_cold_history_tests.rs": "a1789dc5282ad79817784c509d3379a8528a06da514faff6c43999e955189133",
+    "src/source_main_active_service_wal.rs": "74a616883a161ae069a8f35de1b8674f0c40cdd608978749aee87c96ccdcd7f5",
+    "src/source_main_native_session.rs": "11e870c1dc6430c7608ffd620d26af08f201272da933f42442ebf44fe49b5b41",
+    "src/source_main_native_historical_replay_impl.rs": "2e0f68eebfb31760439032cf6cf0f5ad6a7b4f535bb4512c1a3b3a5a0a119bb8",
+    "src/source_main_native_cold_service_access_impl.rs": "c378afe6e24b73b623223b05dd96142d4d9f6df45763d951efefb34236b4f63b",
+    "src/source_main_native_cold_historical_index_impl.rs": "040db150e5389c939249e0f1bf12c88ea5257e2064dce69b8cd9078d5dd4e954",
+    "src/source_main_native_service_io_impl.rs": "4d13b77e096e8e01e2283ba2947824363ba5c4f8405af94c044f702199b16f9f",
+    "src/source_main_inline_index_runtime_impl.rs": "ce05e7ad2cc760edbc91878b2a51c1e68595d5341dcb025790c0accdd4ae45d2",
+    "src/source_main_native_service_block_impl.rs": "879133f2a81467337a7ffaa72c06c411dc817bca0876882e6c9c4e926189e29c",
+    "src/source_main_inline_service_runtime_impl.rs": "66369f52ed46af0ebc26464c4f33f22fd6a0d847865f9882b5c29517632daba8",
+    "src/source_main_native_service_runtime_impl.rs": "306fa3541050186f0b7f6c22f7cb1c69ddfdce7fe823e679c9a479e97412f108",
+    "src/source_main_native_cold_active_reexecution_impl.rs": "47c1b612eb79bb70bf50cdb59431082f52ce1f693ca3e615306ab2106e27ae8e",
+    "src/source_contract_runtime.rs": "a22a705ef8976f49803a30072ba8f5af4ce3c41ea7c904e2a59942633d15059a",
+    "src/source_main_inline_wal_tests.rs": "999fed91277cc7ac31575a570f2361f2add6532fadbe0e00c7819b3d00ff60eb",
+    "src/source_main_retained_caller_start_wal_impl.rs": "1ffefa9d147ac37bcb573a39d889421c602135aaf9f2f55ce199f20534115583",
+    "src/source_main_active_service_wal_tests.rs": "4aa9fbb4aabf9ece539657a9ca65db3b5c0d14e86a06c1575ed3774741343910",
+    "src/source_main_retained_caller_runtime_impl.rs": "30917b3537034da36098be347e3883d2a57e9c89cee66f3fe09321eb40609a81",
+    "src/source_main_retained_caller_tests.rs": "313deca954357e67960cd44e4fc6055e7c7ddea3f332f837f3c984841e6ec4d2",
+    "src/source_main_retained_consensus_factory_impl.rs": "44d73b3ebdc4696855f58ef1282705b49bc8f0f6e9762a5359db2971ce5c4a04",
+    "src/source_main_retained_consensus_runtime_impl.rs": "bc72122e7bf1392ea9d7c0246912c665b871dc7c12bb857700351814848ac4ca",
+    "src/source_main_retained_caller_session_impl.rs": "e8d92c82c9c6708690a1e358e71acde06abb2501ba879ba1ea4aad06c312c6c3",
+    "src/source_index_historical_inline_post_impl.rs": "50c1b5c1825ac04c691586da4e136250e49cb98e7d9bcffb65df53f33e330a03",
+    "src/source_index_historical_inline_projection_impl.rs": "c678880bc5e37dfc1a80a04fcee9190fe0c14ec715c8597861d943e01af96738",
+    "src/source_index_main_read_view_impl.rs": "9a7fab0f345f2f143eb6bf0bc998f90f6854cd74d2cfc28bf19c04081e62c584",
+    "src/source_index_main_read_view_tests.rs": "8336439b19fd87f541c42ec6d80519c88ccecef537e7fbebcfa460e8c974bbc3",
+    "src/source_index_verified_view_playback_impl.rs": "7ded5b8cefde7efa3e57a38f83a6ae7f52a87f8275ba58ba61a7800412e053fb",
+    "src/source_main_checked_history_provider_impl.rs": "35f771f3ff1766bc427b05ee4efd1ff8cca066511ccd968ea98bbe6bc5b0eec2",
+    "src/source_main_mode4_checked_read_impl.rs": "20fdb11750dffcb15fab8bf76514e3051bcc2bbef8bce6ab7d123ee1ef9194fa",
+    "src/source_main_mode4_historical_runtime_impl.rs": "427f2df0fc3ccd70b19cefcc6b0bb91568a098deaa716e8cd4d15f57a15bb26d",
+    "src/source_main_mode4_pending_facts_impl.rs": "4c3ab43570f2fc3300f5e86a9817c5150bfa0c6d3ec7bdb765e557d080f91035",
+    "src/source_main_mode4_pending_facts_tests.rs": "e9949a8ec2dda6619426110f3234f2aa7958ad46c187dc8dc9b02adf6336e850",
+    "src/source_main_mode4_prefix_provider_tests.rs": "41d4c878fb3321407957d4cf9f2cf4229cccf835cd121ad0eb96d42cba96f298",
+    "src/source_main_mode4_source_reexecution_impl.rs": "a0069b8fc4c3b9e05927d961a9ba470e2e324529d67586ccde140994680b11e5",
+    "src/source_main_retained_caller_selected_dispatch_impl.rs": "af39f6c12505456b8daca9c937be697734fcd7dc4f8cd4072e0d5729f06aa7b2",
+    "src/source_main_retained_caller_selected_escrow_impl.rs": "33be27f5391f692ec2c8c8cafd9815a17e1f3a5c8656c903e7a96e778e9deed5",
+    "src/source_main_retained_caller_selected_metadata_tests.rs": "3793fa2f3dbe42f1c4865127d94389c4d128f7fd2f64bdf6cbb83b9826b827d2",
+    "src/source_main_retained_caller_selected_no_index_impl.rs": "c4dd2c32ec7f34a30ea0b3cb846bc9665c832e691a38ce1e893f107e330e5478",
+    "src/source_main_retained_caller_selected_replacement_impl.rs": "d2ec95f4a00c37f703fbaab7891a1492fb299d1c7b884241db4cdf519d39c21c",
+    "src/source_main_retained_caller_selected_runtime_impl.rs": "f6951cbec7eb4f7721ed5f60acf6216b9a72c2a048600f3452d289a5cb7852ff",
+    "src/source_main_retained_caller_selected_wal_impl.rs": "66bb13d8352af97727e8bb933d286eccb0b6c1f6afb09ce73479b6a575cff2cf",
+    "src/source_main_retained_caller_selected_wal_tests.rs": "77aa900cefb668d25157ab981bea01d8325093acc2fb1d5156c2ac7f4ec3652a",
+    "src/source_main_coercive_sync_core_tests.rs": "e12da1519c430a854d77fe9a3838fa4b45ecf12b09598300b0c8f28f1a0a88ea",
+    "src/source_main_coercive_sync_runtime_impl.rs": "0cf869c4a9f7b89aa2ee64bfda7e6c053ff770ed6302811755029c3c72570846",
+    "src/source_main_coercive_sync_session_impl.rs": "134d9089d8ac39f2f7e56ac8e7489b2fdefe6d310e89ab9b544ba891a900c302",
+    "src/source_main_coercive_sync_values_impl.rs": "d4396472cfca78385dedf4a20a58f608081f8fae806944ae0202487b043afe98",
+    "src/source_main_retained_file_command_impl.rs": "41b4b39b939ec6793f033236c505b0f1ce2f7d93a033344a5957d05b03e04ab8",
+    "src/source_main_retained_file_command_tests.rs": "67b5fdbce2f3c2d07a52d9a4c2a48feb46922fd5f97c22c99f444f34ec9642b7",
+    "src/source_main_retained_file_primitive_impl.rs": "3d21b4a9a47bbda9f3cfee25908267e4108c59e89881f09c2b5c4fb35615a059",
+    "src/source_main_retained_file_runtime_impl.rs": "32afe5b3a0ec5c847138a8e63a51e0267486aa6fd8d0ddb0dee0da6db474c4b4",
+    "src/source_main_retained_file_session_impl.rs": "f96007f2d4e7a817ef2aa36c942f27e4002c970196fdf1de7fa66712bbb1234f",
+    "src/source_main_retained_file_test_transport.rs": "7b7d53e938dd6a384ffac3431b44930719deb6e5344f698ef7251d90b115dfcc",
+    "src/source_main_retained_file_tests.rs": "7ed1047da58779969dcf1dcf28a50dc57453a1164d18dc9783c8e456098ba905",
+    "fixtures/coercive_sync_first10.jsonl": "62d4218203049000562ad5338ea1742aa43d7debc9aeaa9c030bccdb9fa7a405",
+    "fixtures/coercive_sync_first10_locked.jsonl": "62d4218203049000562ad5338ea1742aa43d7debc9aeaa9c030bccdb9fa7a405",
+    "fixtures/coercive_sync_source_inputs.json": "c42a2ae58659bbc0df1dd4ae2c6b8f8a1c1869c168913931a85d333fa205f09c",
+    "fixtures/coercive_sync_vectors.jsonl": "3b2bc79abc4c3129ecadeab5f580eeb3bfc543673321caaebfc142f3533f0dfa",
+    "fixtures/coercive_sync_vectors_locked.jsonl": "3b2bc79abc4c3129ecadeab5f580eeb3bfc543673321caaebfc142f3533f0dfa",
+    "scripts/coercive_sync_controls.cjs": "6625ea39846ec973b235306c532f245a3fd6ed692e194a7e0e2b68302f98e5d9",
+    "scripts/coercive_sync_observer.cjs": "0508880427ac38b5dc4fe47f67fdf34006d90ebcb5153096bd3ad302bd880886",
+    "scripts/coercive_sync_source_base.cjs": "509015e9124795f3adda0997d5eacc495a1b80831b68d95fc078281f78852715",
+    "fixtures/native_main_retained_file_raw_inputs.jsonl": "c72fbba20732b8e49e7156616ef0e7a0f0ea6baacdafa057775ef7f4792b5639",
+    "src/independent_selected_core_tests.rs": "224b09aa7019c622fba9429dd876dcd6cc5585e748bf7c21eac5c9644a325b0e",
+    "src/source_index_mode4_review_tests.rs": "8796b706891dbdee60aef4da43558382e437b8b295a9e98a78ff2164b98ed511",
+    "src/source_main_mode4_resolve_tests.rs": "3d56ff8c61ffb45bc67c663b6c26f6528eb8194e499066a30980b606ad23bddb",
+    "scripts/ci-preflight.sh": "0e331e8a8bc7ee32715c055b5ee8d1d4af88427666a3c8033e1f1294401cc83d",
+    ".github/workflows/ci.yml": "836f35df933f8069201e1adce11ab111ebd088a8b199ff86bc4570157098c177",
+    ".gitattributes": "4e9600f3ab98ed1c9cdf09720e15ffd96c3a9e8a4c0d8875a3333e90da27b4c4",
+    "docs/LOGIC_BY_TX_TYPE.json": "e99cf71b6f34fef6a5e7606c3c998ef918e75e6a86a846874da75f5b8a3cc054"
+  },
+  "mountedFiles": 77,
+  "changedFiles": 75,
+  "newRustLeaves": 34,
+  "newUnitTests": 37,
+  "libraryPassed": 594,
+  "libraryIgnored": 4,
+  "publicCompatibilityPassed": 44,
+  "focusedChecks": {
+    "root-main-composition-third-selected-core.log": 10,
+    "root-main-composition-fifth-file-core.log": 6,
+    "root-main-composition-fifth-coercive-core.log": 4,
+    "root-main-composition-seventh-mode4-source-core.log": 3,
+    "root-main-composition-seventh-main-read-metadata.log": 6,
+    "root-main-composition-seventh-pending-projection-metadata.log": 2,
+    "root-main-composition-seventh-selected-metadata.log": 3,
+    "root-main-composition-seventh-file-command-metadata.log": 3
+  },
+  "countsOverlap": true,
+  "allTargetClippyWarningsDenied": true,
+  "cargoFmtPassed": true,
+  "includedRustFilesChecked": 338,
+  "inventoryPassed": true,
+  "supplyPolicyPassed": true,
+  "sourceRegeneration": [
+    {
+      "profile": "TL-ORIGINAL-MAIN-COERCIVE-SYNC-SCALAR-1",
+      "node": "v24.22.1",
+      "numeric": "genuine9.3.1",
+      "sourceCalls": 26,
+      "records": 78,
+      "fixtureSHA256": "3b2bc79abc4c3129ecadeab5f580eeb3bfc543673321caaebfc142f3533f0dfa"
+    },
+    {
+      "profile": "TL-ORIGINAL-MAIN-COERCIVE-SYNC-SCALAR-1",
+      "node": "v24.22.1",
+      "numeric": "genuine9.1.2",
+      "sourceCalls": 26,
+      "records": 78,
+      "fixtureSHA256": "3b2bc79abc4c3129ecadeab5f580eeb3bfc543673321caaebfc142f3533f0dfa"
+    },
+    {
+      "profile": "TL-ORIGINAL-MAIN-COERCIVE-SYNC-SCALAR-1",
+      "node": "v24.22.1",
+      "numeric": "genuine9.3.1",
+      "sourceCalls": 10,
+      "records": 30,
+      "fixtureSHA256": "62d4218203049000562ad5338ea1742aa43d7debc9aeaa9c030bccdb9fa7a405"
+    },
+    {
+      "profile": "TL-ORIGINAL-MAIN-COERCIVE-SYNC-SCALAR-1",
+      "node": "v24.22.1",
+      "numeric": "genuine9.1.2",
+      "sourceCalls": 10,
+      "records": 30,
+      "fixtureSHA256": "62d4218203049000562ad5338ea1742aa43d7debc9aeaa9c030bccdb9fa7a405"
+    }
+  ],
+  "workerManifests": {
+    "main": {
+      "workerManifestSHA256": "fd64b4677bfa52ca94e119f92004fe4f7c1a603682f1ce8476c5854b4ff03524",
+      "payloadFilesVerified": 197
+    },
+    "selected": {
+      "workerManifestSHA256": "1a761c395f8d381fadd6bd3ebb4b715157d916de26ba6dca61bc7f66d975b837",
+      "payloadFilesVerified": 22
+    },
+    "coercive": {
+      "workerManifestSHA256": "6ea1221ef3907c6855b04b780cebb1e02f152baf752c700aa6dd9b2046c95023",
+      "payloadFilesVerified": 125
+    },
+    "file": {
+      "workerManifestSHA256": "4b3afbce2484f465a575bc9ed72c1af3f41a527e11a5df260f17d2346592bea3",
+      "payloadFilesVerified": 26
+    },
+    "selected_review": {
+      "workerManifestSHA256": "9195dbe7d78128572cebe9b82daaca996c28f3af2bc22feaff2fc4d2fb033ec4",
+      "payloadFilesVerified": 45
+    },
+    "main_review": {
+      "workerManifestSHA256": "68c03e54928493b3aab62ba48493245532fb7bf6cfda33c0887d2e48e6c56e1d",
+      "payloadFilesVerified": 233
+    },
+    "resolve": {
+      "workerManifestSHA256": "b29857f67aee14159d4752c920ff4db94d0f5c30f26478952fef392b206e8b8c",
+      "payloadFilesVerified": 3
+    },
+    "mode4_dispatch_fix": {
+      "workerManifestSHA256": "1d1412971f995c2e35d5d605f010d45e94977560c400d6ce25645dabd0e50e8b",
+      "payloadFilesVerified": 4
+    }
+  },
+  "rootCorrections": [
+    {
+      "reason": "Borrow the diagnostic format String for the existing NativeSession s(&str); no source/native behavior or expected fixture changes.",
+      "after": {
+        "src/source_main_mode4_source_reexecution_impl.rs": "a0069b8fc4c3b9e05927d961a9ba470e2e324529d67586ccde140994680b11e5",
+        "docs/LOGIC_BY_TX_TYPE.json": "14e5719e8810e8b15aa02be8db5d161e3b8573093e7e467873cd77483a4f6bbb"
+      },
+      "failedLog": "root-main-composition-first-selected-core.log"
+    },
+    {
+      "reason": "The second native append already sets NativeRecoveryRequired phase before IO; its immediate error can be Backend from verifying a poisoned index. Assert failure plus exact recovery phase, then require genuine Post reopen, retained original result/action/effects/finance and zero reappend before explicit source resolution. No production or expected source data changed.",
+      "after": {
+        "src/independent_selected_core_tests.rs": "224b09aa7019c622fba9429dd876dcd6cc5585e748bf7c21eac5c9644a325b0e",
+        "docs/LOGIC_BY_TX_TYPE.json": "db36f0e5e21ff3a000e3d8a3d3c1d98abc9c9dd50ea260b7b7b422be947ac1cd"
+      },
+      "failedLog": "root-main-composition-second-selected-core.log"
+    },
+    {
+      "reason": "Use existing genuine copy/input reset and safeCopy call for shutdown; exit/input never existed. Add actual completion/stop diagnostics to snapshot/restore assertions. No production or fixture changes.",
+      "after": {
+        "src/source_main_retained_file_tests.rs": "8f3a4ca6d8a949a20180adc746ee1bdcbe061cdc055cddd41c30a2232625088f",
+        "docs/LOGIC_BY_TX_TYPE.json": "bb8db320ab1fa7c17a21d306cc9342bfaa9709924ee24385272f66413941bf81"
+      }
+    },
+    {
+      "reason": "Track actual parent job completion separately from completed child jobs; preserve pending 50ms timer and require exact parent fulfillment later. No production or fixture changes.",
+      "after": {
+        "src/source_main_retained_file_tests.rs": "7ed1047da58779969dcf1dcf28a50dc57453a1164d18dc9783c8e456098ba905",
+        "docs/LOGIC_BY_TX_TYPE.json": "07a3e1823bbad7dad616b4c751ef82e95e2b50e68ddf53ce59b727b644f29d36"
+      }
+    },
+    {
+      "reason": "Mode4 catchup ResolvePost must resume through Mode4 access to the same actual block/queue; preserve old e0 helper and strict full source comparisons. Non-inline Append retains same client guard.",
+      "workerManifestSHA256": "1d1412971f995c2e35d5d605f010d45e94977560c400d6ce25645dabd0e50e8b",
+      "before": "b6144961816fca323dcea50f127d88c0819feb8e43b9d57712afa4ea04aa28f0",
+      "after": {
+        "src/source_main_mode4_historical_runtime_impl.rs": "427f2df0fc3ccd70b19cefcc6b0bb91568a098deaa716e8cd4d15f57a15bb26d"
+      },
+      "diagnosticLogs": [
+        "root-main-composition-fifth-mode4-source-core.log",
+        "root-main-composition-mode4-diagnostic.log",
+        "root-main-composition-mode4-fields-diagnostic.log",
+        "root-main-composition-sixth-mode4-source-core.log",
+        "root-main-composition-mode4-postfix-diagnostic.log"
+      ],
+      "diagnosticCodeRemoved": true,
+      "rootGuardCorrection": "Resume through native_main_service_advance_with_access inside the existing non-reentrant client guard; never enter the guard twice. The guard remains strict.",
+      "beforeGuardCorrection": "31c1bb753c4f846f680be51ad8185b14ff3526a166e22f523e632144421c116e",
+      "correctedPortableOverlay": {
+        "workerManifestSHA256": "9458d1c12ed6ccb804ef7b9f9ab4310a6c2e8bb9b6265bf1ef9d1d6b102c3786",
+        "allPayloadHashesVerified": true,
+        "rootCodeAlreadyCorrected": true
+      }
+    }
+  ],
+  "logs": {
+    "root-main-composition-coercive-default.log": "888a5a063033d2f9d8d89c379c8bb4e6bebeb193bf1e5032e8e74a5b97097cdc",
+    "root-main-composition-coercive-first10-default.log": "e5ca0a55da29912a3a96f87bffc3be3ffacde431cba7aa96ec91c63c3844e093",
+    "root-main-composition-coercive-first10-locked.log": "b3106a2d2877e3f52e6a9d8d1965930854becc02166ff09e3ff3b3af6926a13f",
+    "root-main-composition-coercive-locked.log": "d514f49a5635e2e2faa16949d63d4a4261492f1c15639aa8e24d8fcc0d203559",
+    "root-main-composition-fifth-coercive-core.log": "c1280856feded61e519f7c1b08f648eb01a30330a07494252e07a843674d9a7f",
+    "root-main-composition-fifth-file-core.log": "bee54d4a56b62b13d2e70fd2d8ffd647cb25ef39b29f4d4feb43902a732d62e3",
+    "root-main-composition-fifth-mode4-source-core.log": "1a4458e5f230538f139fa167ed067e6fd11f13bbc02bda994b11cd46d19b7e0d",
+    "root-main-composition-first-orchestrator.log": "27cad4c41279a9ba759fb20bf4914ebdfe7ed3c050b41047672e17d0d75cb295",
+    "root-main-composition-first-selected-core.log": "27cad4c41279a9ba759fb20bf4914ebdfe7ed3c050b41047672e17d0d75cb295",
+    "root-main-composition-fourth-file-core.log": "8e90386742c8039884ae9215be8021abd0870c76d08226d9039070cd56f6ac78",
+    "root-main-composition-mode4-diagnostic.log": "6960e3e9e69012d18f7c59c7022ded3ebed10a6f782dd69467761981ca8c4291",
+    "root-main-composition-mode4-fields-diagnostic.log": "6fac59e8860a1e457773ee19f30aaaa927428681b24c2dde2ee48fde5a1fb83d",
+    "root-main-composition-mode4-postfix-diagnostic.log": "e75a068093a1e07953091b3ef966b497d5f03097f62cb37cdcd2cdce017ef438",
+    "root-main-composition-second-selected-core.log": "f787afaf3eadc8ed44185a334aa85330f46d385737fbcc9fe4aa6fe0f3daddc7",
+    "root-main-composition-seventh-clippy.log": "b2d2079afbdd14968c60dcb5d7881ece6cef27a0f8bc2b71e2ede9b561a3af31",
+    "root-main-composition-seventh-file-command-metadata.log": "fcf85f17db3d136c7e5a17e7a81f20ec3a468153cceb5468ade488eb76d270cd",
+    "root-main-composition-seventh-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "root-main-composition-seventh-included-fmt.log": "e91e7cafb16f8ddc7a4d39b8055e8cc2d2f0779d17ae8054379651fc7d078b31",
+    "root-main-composition-seventh-inventory.log": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393",
+    "root-main-composition-seventh-library.log": "12f0b842bc899436daf1ecd7b7337e23095e9f61991153663d8599531de02dd7",
+    "root-main-composition-seventh-main-read-metadata.log": "97eb7e3be70c67d4427d8bea70c7c3fcb58bddaf37ccdda48e648ac6249b6129",
+    "root-main-composition-seventh-mode4-source-core.log": "d4f92caee16ad1813047f99868bc61485c93143c30257c4b6e5dfa6c5167b747",
+    "root-main-composition-seventh-orchestrator.log": "ae170a1f62b25010b8ccced4989556fb428c1455ce2dbd79425b2fa6086c6d9a",
+    "root-main-composition-seventh-pending-projection-metadata.log": "12a70429ea21377bb50c0166522a8cfa8757a37fcefabfca624007606b397429",
+    "root-main-composition-seventh-public-compatibility.log": "26fbbaab4b2156f9e62293f732cb58be33996fded9aaa0c3532494da5f9704aa",
+    "root-main-composition-seventh-selected-metadata.log": "ca0491bb12aba7e4b1fe296bae9c15b64b447713251400742b8b8c0c02a5026b",
+    "root-main-composition-seventh-supply-policy.log": "4b36e1cd0388155684067421f7364916a7ef877e67a6c78f8712f3640d4dfd01",
+    "root-main-composition-sixth-mode4-source-core.log": "44816a1806a7ddf8fb6761cc6aa7322456936bf572f54b253f03b1328733daf0",
+    "root-main-composition-third-file-core.log": "d1af1fe17bab4b26baa9e1b54a2af882a04f8076ce3b14bfd79ff8238fb5ad08",
+    "root-main-composition-third-selected-core.log": "2d9ea3ca8b73da9e521fe2f67149413a7f1b56187f6fa034b85e71d3074be3a9"
+  },
+  "scope": {
+    "selectedCallerDurableActions": true,
+    "selectedNativeOnlyRecovery": true,
+    "primitiveCoerciveSync": true,
+    "directRetainedFileRetries": true,
+    "ordinaryMode4SourceReexecution": true,
+    "successiveInlineOperationsCompared": 3,
+    "sameFinancialIndexAndQueueRetained": true,
+    "expectedStateUsedAsExecutionInput": false,
+    "sourcePrefixRepeatedOnNativeRetry": false,
+    "automaticIncomingFileNativeTail": false,
+    "nullSyncIntegrated": false,
+    "globalStartupClosed": false,
+    "mode4RecoveryColdSourceReplayClosed": false,
+    "freshLiveInputAdmitted": false,
+    "activeHistoryBeyond4096Closed": false
+  },
+  "mode4Correction": "Resolve a catchup row using its existing historical operation, then resume the same actual frame through Mode4 metadata access. Preserve old HISTORY helper and every full observation comparison. Same-client guarded append likewise uses the actual selected row.",
+  "testCorrections": "Distinguish completed child jobs from the started parent; assert its exact eventual fulfillment and pending timer. Use an existing raw file reset for shutdown. Lost-return retry may report Backend while retaining NativeRecoveryRequired; phase and no-reappend checks stay strict.",
+  "fullSuitePromotion": false,
+  "verifiedAllTargetBaseline": 2204,
+  "verifiedLockedReferenceBaseline": 239,
+  "fullReferenceParityEstablished": false,
+  "authenticationEstablished": false,
+  "completeBlockFraudProofEstablished": false,
+  "pinnedHelperWhitespacePolicy": {
+    "path": "scripts/coercive_sync_source_base.cjs",
+    "exactTestedBytesRetained": true,
+    "gitattributesAfterSHA256": "396665aaa840d17322d782439bef69baa3d193c339cd5fbf37433d1318bf7a69",
+    "rule": "whitespace=-blank-at-eof for this pinned helper only",
+    "reason": "Pinned helper includes its original final empty line. Removing it correctly fails its exact source digest guard; preserve that guard and those source bytes.",
+    "postRestorationSourceCheck": {
+      "sourceCalls": 26,
+      "records": 78,
+      "fixtureSHA256": "3b2bc79abc4c3129ecadeab5f580eeb3bfc543673321caaebfc142f3533f0dfa",
+      "logSHA256": "888a5a063033d2f9d8d89c379c8bb4e6bebeb193bf1e5032e8e74a5b97097cdc"
+    },
+    "failedTrimCheckSHA256": "2f3c54a994fa340c963142973c2f0df9f23e9e14767f26f6e37e6b998e1daf7e"
+  }
+}

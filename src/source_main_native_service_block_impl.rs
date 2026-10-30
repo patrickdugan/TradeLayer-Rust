@@ -118,6 +118,18 @@ impl SourceContractRuntime {
         frame: &mut NativeMainServiceBlockFrame,
         documents: &V,
     ) -> NativeMainRowStopV1 {
+        self.native_main_service_block_advance_with_metadata(
+            frame,
+            documents,
+            &mut NativeMainLiveSourceMetadataAccess { index },
+        )
+    }
+    fn native_main_service_block_advance_with_metadata(
+        &mut self,
+        frame: &mut NativeMainServiceBlockFrame,
+        documents: &V,
+        access: &mut impl NativeMainSourceMetadataAccess,
+    ) -> NativeMainRowStopV1 {
         loop {
             if frame.result.is_some() {
                 return NativeMainRowStopV1::Complete;
@@ -131,18 +143,14 @@ impl SourceContractRuntime {
                     frame.pc = NativeMainServiceBlockPc::InlineIndex;
                 }
                 NativeMainServiceBlockPc::InlineIndex => {
-                    let stop = self.native_main_inline_block_advance(index, frame, documents);
+                    let stop = access.inline_block(self, frame, documents);
                     if stop != NativeMainRowStopV1::Complete {
                         return stop;
                     }
                 }
                 NativeMainServiceBlockPc::Prelude => {
-                    match self.source_main_service_block_prelude(
-                        index,
-                        frame.request.block.clone(),
-                        height,
-                        documents,
-                    ) {
+                    match access.block_prelude(self, frame.request.block.clone(), height, documents)
+                    {
                         Ok(v) if matches!(v, V::Number(_)) => self
                             .native_main_service_block_finish(
                                 frame,
@@ -197,8 +205,7 @@ impl SourceContractRuntime {
                             height.clone(),
                         ));
                     }
-                    let stop = self
-                        .native_main_rows_advance(index, frame.row.as_mut().expect("live rows"));
+                    let stop = access.rows(self, frame.row.as_mut().expect("live rows"));
                     frame
                         .validity
                         .append(&mut frame.row.as_mut().expect("live rows").validity);

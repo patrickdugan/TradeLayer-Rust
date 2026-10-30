@@ -87,7 +87,8 @@ static NEXT_HISTORICAL_NATIVE_SCOPE: std::sync::atomic::AtomicU64 =
 /// Its original historical view advances only at a verified raw append action.
 pub struct NativeHistoricalValidityPlaybackV1<'a> {
     index: &'a mut SourceCompactIndex,
-    current: SourceIndexReadSnapshot,
+    current: MainIndexReadViewV1,
+    verified_views: Option<Vec<MainIndexReadViewV1>>,
     boundaries: Vec<SourceIndexHistoryPinV1>,
     context: (String, std::path::PathBuf),
     next: usize,
@@ -106,15 +107,16 @@ impl<'a> NativeHistoricalValidityPlaybackV1<'a> {
         let mut first = None;
         let mut previous: Option<MetadataSnapshot> = None;
         for pin in boundaries {
-            let view = index.read_verified_history_generation(pin)?;
+            let view =
+                MainIndexReadViewV1::from_original(index.read_verified_history_generation(pin)?);
             if previous.as_ref().is_some_and(|prior| {
-                prior.publication != view.pin.publication
-                    || prior.context != view.pin.context
-                    || prior.sequence.checked_add(1) != Some(view.pin.sequence)
+                prior.publication != view.pin().publication
+                    || prior.context != view.pin().context
+                    || prior.sequence.checked_add(1) != Some(view.pin().sequence)
             }) {
                 return Err(CompactIndexError::WrongContext);
             }
-            previous = Some(view.pin.clone());
+            previous = Some(view.pin().clone());
             if first.is_none() {
                 first = Some(view);
             }
@@ -129,6 +131,7 @@ impl<'a> NativeHistoricalValidityPlaybackV1<'a> {
         Ok(Self {
             index,
             current: first.expect("nonempty checked"),
+            verified_views: None,
             boundaries: boundaries.to_vec(),
             context,
             next: 0,
@@ -184,7 +187,7 @@ impl<'a> NativeHistoricalValidityPlaybackV1<'a> {
             return Err(CompactIndexError::StaleSnapshot);
         }
         let before = self.current.clone();
-        let selected = match prepared_validity_read_snapshot(
+        let selected = match prepared_validity_read_view(
             before.clone(),
             || Ok(self.context.clone()),
             txid,
@@ -209,7 +212,7 @@ impl<'a> NativeHistoricalValidityPlaybackV1<'a> {
                     selected.query,
                     selected.arguments,
                     returned,
-                    before.pin.clone(),
+                    before.pin().clone(),
                 ),
             )));
         }
@@ -229,16 +232,16 @@ impl<'a> NativeHistoricalValidityPlaybackV1<'a> {
                         selected.query,
                         selected.arguments,
                         DependencyReturn::PendingThrow(error),
-                        before.pin.clone(),
+                        before.pin().clone(),
                     ),
                 )))
             }
         };
         let (directory, mutations) =
-            prepared_metadata_mutations(&before.directory, row, |position, _| {
+            prepared_metadata_mutations(before.directory(), row, |position, _| {
                 before.page(position)
             })?;
-        let after_state = prepared_metadata_state(&before.data, &mutations)?;
+        let after_state = prepared_metadata_state_entries(before.raw_entries(), &mutations)?;
         let raw_mutations =
             crate::source_main_native_intent_store::native_prepared_mutation_bytes(&mutations)
                 .map_err(|_| CompactIndexError::Limit)?;
@@ -281,11 +284,19 @@ impl<'a> NativeHistoricalValidityPlaybackV1<'a> {
         {
             return Err(CompactIndexError::WrongContext);
         }
-        let post = self
-            .index
-            .read_verified_history_generation(&awaiting.post)?;
-        if prepared_metadata_state(&post.data, &[])? != awaiting.after_state
-            || post.directory.encode()? != awaiting.directory.encode()?
+        let post = if let Some(views) = &self.verified_views {
+            views
+                .get(self.next + 1)
+                .ok_or(CompactIndexError::WrongContext)?
+                .clone()
+        } else {
+            MainIndexReadViewV1::from_original(
+                self.index
+                    .read_verified_history_generation(&awaiting.post)?,
+            )
+        };
+        if prepared_metadata_state_entries(post.raw_entries(), &[])? != awaiting.after_state
+            || post.directory().encode()? != awaiting.directory.encode()?
         {
             return Err(CompactIndexError::WrongContext);
         }

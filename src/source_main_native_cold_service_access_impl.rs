@@ -1,9 +1,27 @@
 trait NativeMainSourceMetadataAccess {
+    fn inline_block(
+        &mut self,
+        _runtime: &mut SourceContractRuntime,
+        _block: &mut NativeMainServiceBlockFrame,
+        _documents: &V,
+    ) -> NativeMainRowStopV1 {
+        NativeMainRowStopV1::SourceStopped(SourceRuleError::UnknownDependency)
+    }
+    fn block_prelude(
+        &mut self,
+        _runtime: &mut SourceContractRuntime,
+        _block: V,
+        _height: V,
+        _documents: &V,
+    ) -> R<V> {
+        Err(SourceRuleError::UnknownDependency.into())
+    }
+
     fn find_max(&mut self, core: &mut ContractCore) -> R<V>;
     fn read_view(
         &mut self,
     ) -> Result<
-        crate::source_compact_index_v2::SourceIndexReadSnapshot,
+        crate::source_compact_index_v2::MainIndexReadViewV1,
         crate::source_compact_index_v2::CompactIndexError,
     >;
 
@@ -40,18 +58,37 @@ struct NativeMainLiveSourceMetadataAccess<'a> {
     index: &'a mut SourceCompactIndex,
 }
 impl NativeMainSourceMetadataAccess for NativeMainLiveSourceMetadataAccess<'_> {
+    fn inline_block(
+        &mut self,
+        runtime: &mut SourceContractRuntime,
+        block: &mut NativeMainServiceBlockFrame,
+        documents: &V,
+    ) -> NativeMainRowStopV1 {
+        runtime.native_main_inline_block_advance(self.index, block, documents)
+    }
+    fn block_prelude(
+        &mut self,
+        runtime: &mut SourceContractRuntime,
+        block: V,
+        height: V,
+        documents: &V,
+    ) -> R<V> {
+        runtime.source_main_service_block_prelude(self.index, block, height, documents)
+    }
+
     fn find_max(&mut self, core: &mut ContractCore) -> R<V> {
         core.native_main_index(self.index, "findMaxIndexedBlock", vec![])
     }
     fn read_view(
         &mut self,
     ) -> Result<
-        crate::source_compact_index_v2::SourceIndexReadSnapshot,
+        crate::source_compact_index_v2::MainIndexReadViewV1,
         crate::source_compact_index_v2::CompactIndexError,
     > {
         self.index
             .snapshot()
             .and_then(|pin| self.index.read_generation(&pin))
+            .map(crate::source_compact_index_v2::MainIndexReadViewV1::from_original)
     }
 
     fn prepare(
@@ -116,7 +153,7 @@ impl NativeMainSourceMetadataAccess for NativeMainHistoricalSourceMetadataAccess
     fn read_view(
         &mut self,
     ) -> Result<
-        crate::source_compact_index_v2::SourceIndexReadSnapshot,
+        crate::source_compact_index_v2::MainIndexReadViewV1,
         crate::source_compact_index_v2::CompactIndexError,
     > {
         Ok(self.history.source_read_view().clone())

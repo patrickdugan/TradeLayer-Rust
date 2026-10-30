@@ -1197,6 +1197,20 @@
       "rejectedActionCanVerifyInlineOperation": false,
       "fullSuitePromotion": false,
       "commit": "58b89a8759f6c818c638934b65f68cc2ed688ff9"
+    },
+    "mainComposition": {
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/main-composition-core-integration.json",
+      "libraryPassed": 594,
+      "libraryIgnored": 4,
+      "publicCompatibilityPassed": 44,
+      "newUnitTests": 37,
+      "sourceRegenerationCallsPerNumericProfile": 26,
+      "sourceRegenerationRecordsPerNumericProfile": 78,
+      "fullSuitePromotion": false,
+      "ordinaryMode4SourceReexecutionOnly": true,
+      "automaticFileNativeTailClosed": false,
+      "nullSyncIntegrated": false
     }
   },
   "scope": "Full release a94ea4c remains 2,204 Rust /239 genuine numeric checks. Later 58b89a8 passes 557 library and44 public checks, with five new actual-source and three metadata controls. Rejected appends retain prior native lineage without another publication or source return. Current API rejection no longer reuses an older storage failure. Selected caller recovery, ordinary Mode4 source replay and coercive Sync candidates await Root integration.",

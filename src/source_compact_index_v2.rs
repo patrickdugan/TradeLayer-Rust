@@ -909,6 +909,8 @@ mod inline_recovery_tests;
 include!("source_index_prepared_validity_impl.rs");
 include!("source_index_cold_execution_impl.rs");
 include!("source_index_historical_validity_impl.rs");
+include!("source_index_verified_view_playback_impl.rs");
+include!("source_index_historical_inline_post_impl.rs");
 include!("source_index_historical_source_read_impl.rs");
 include!("source_index_row_binding_impl.rs");
 include!("source_main_native_no_index_index_tests_impl.rs");
@@ -917,9 +919,11 @@ include!("source_index_supersession_binding_impl.rs");
 include!("source_index_generation_escrow_impl.rs");
 include!("source_index_escrow_descriptor_codec_impl.rs");
 include!("source_index_verified_old_view_impl.rs");
+include!("source_index_main_read_view_impl.rs");
 include!("source_index_inline_source_outcome_impl.rs");
 include!("source_index_metadata_state_entries_impl.rs");
 include!("source_index_historical_inline_database_impl.rs");
+include!("source_index_historical_inline_projection_impl.rs");
 include!("source_index_inline_escrow_guard_impl.rs");
 #[cfg(test)]
 #[path = "source_index_prepared_validity_tests.rs"]
