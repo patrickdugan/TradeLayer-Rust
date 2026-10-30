@@ -1,7 +1,7 @@
 {
   "schema": "tl-completeness-refresh-v1",
-  "verifiedAtUtc": "2026-10-30T12:20:01Z",
-  "inspectedCheckoutCommit": "717b319d649fb013870489ff0c4dede795862e90",
+  "verifiedAtUtc": "2026-10-30T12:54:13Z",
+  "inspectedCheckoutCommit": "125e63d522a49c3462ef1ab7386466c80d0f9b02",
   "verifiedImplementationCommit": "a94ea4c7cdf4677d7d48455d65363edd263a16c1",
   "verifiedReleaseTests": 2204,
   "topLevelTests": 2203,
@@ -1343,9 +1343,32 @@
       "sourceOrderGapConfirmed": true,
       "productionCorrectionIncluded": false,
       "newRustPasses": 0
+    },
+    "literalTxEncoderFraction": {
+      "commit": "125e63d522a49c3462ef1ab7386466c80d0f9b02",
+      "record": "fixtures/reference_fidelity/literal-txencoder-fraction-core-integration.json",
+      "newIntegrationTests": 5,
+      "existingUnicodeTests": 5,
+      "oldEncoderRegressionTests": 13,
+      "actualSourceCallsPerNumericProfile": 4474,
+      "admittedStringComparisons": 4470,
+      "retainedGuards": 4,
+      "genuineNumericProfiles": [
+        "9.3.1",
+        "9.1.2"
+      ],
+      "allTargetClippyPassed": true,
+      "formattingPassed": true,
+      "fullSuitePromotion": false,
+      "fullSourceParityEstablished": false,
+      "remaining": [
+        "Guarded unsafe/nonfinite/custom object and lone UTF16 domains",
+        "Historical wire corpus and authenticated acceptance",
+        "New all-target release promotion"
+      ]
     }
   },
-  "scope": "Release a94ea4c remains2,204 Rust/239 numeric. Main1ac51ad retains734 scoped library checks (four ignored, three unchanged long cases filtered),44compatibility+13canonical. Wire aeebb65 passes5new+13old encoder tests. Queued startup still fails two positive checks: actual Rust captures four outer rows where the pinned JS captures three before the live transaction RPC. Captured source and Promise evidence confirm missing adoption/RPC/DB awaits within the named host/VM profile. No production fix or new Rust passes are claimed. Full RC, UID parity, mixed recovery, host validation and authenticated proofs remain open.",
+  "scope": "Release a94ea4c remains2,204 Rust/239 numeric. Main1ac51ad retains734 scoped library (four ignored, three unchanged long cases filtered),44compatibility+13canonical. Later wire 125e63d passes5fractional+5Unicode+13previous encoder tests and eight source regenerations. The fractional corpus has4,474 actual calls/4,470 admitted strings under genuine9.3.1/9.1.2. Queued startup still fails two positives: its outer snapshot includes a live row absent from the earlier JS snapshot. Explicit Promise/RPC/DB awaits, UID parity, mixed recovery, RC/fuzz, host and authenticated proofs remain open.",
   "oracleAbuseExercise": "Deferred until integration is nearly complete; UTXORef is the separate consumer repository.",
   "logs": {
     "v8-main-lower-release-full.log": {
@@ -1637,32 +1660,32 @@
       "payloadFiles": 41
     }
   },
-  "workbookNote": "Release a94ea4c remains2,204 Rust/239 numeric. Main1ac51ad retains734 scoped library checks (four ignored, three unchanged long cases filtered),44compatibility+13canonical. Wire aeebb65 passes5new+13old encoder tests. Queued startup still fails two positive checks: actual Rust captures four outer rows where the pinned JS captures three before the live transaction RPC. Captured source and Promise evidence confirm missing adoption/RPC/DB awaits within the named host/VM profile. No production fix or new Rust passes are claimed. Full RC, UID parity, mixed recovery, host validation and authenticated proofs remain open.",
+  "workbookNote": "Release a94ea4c remains2,204 Rust/239 numeric. Main1ac51ad retains734 scoped library (four ignored, three unchanged long cases filtered),44compatibility+13canonical. Later wire 125e63d passes5fractional+5Unicode+13previous encoder tests and eight source regenerations. The fractional corpus has4,474 actual calls/4,470 admitted strings under genuine9.3.1/9.1.2. Queued startup still fails two positives: its outer snapshot includes a live row absent from the earlier JS snapshot. Explicit Promise/RPC/DB awaits, UID parity, mixed recovery, RC/fuzz, host and authenticated proofs remain open.",
   "savedWorkbook": {
-    "sha256": "a9589c405d5d1e8ad75cebfa5f156360bbe7e6d0f5d1c68ede9b59842efc547a",
-    "bytes": 48050,
+    "sha256": "f6e4797f4157787c532d6dea0981efba3ce1b8613d577217a2642a0315069999",
+    "bytes": 48018,
     "artifactRef": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
-    "asOfUtc": "2026-10-30T12:20:01Z",
+    "asOfUtc": "2026-10-30T12:54:13Z",
     "rowHashes": {
-      "modules": 3223156088,
+      "modules": 572832568,
       "logic": 1151758449
     },
-    "verifiedEdits": 6,
+    "verifiedEdits": 8,
     "layoutAndFormulaPreservationVerified": true
   },
   "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
   "workbookVerification": {
-    "verifiedAtUtc": "2026-10-30T12:20:01Z",
-    "sha256": "a9589c405d5d1e8ad75cebfa5f156360bbe7e6d0f5d1c68ede9b59842efc547a",
+    "verifiedAtUtc": "2026-10-30T12:54:13Z",
+    "sha256": "f6e4797f4157787c532d6dea0981efba3ce1b8613d577217a2642a0315069999",
     "savedAndSidebarRowsMatch": true,
-    "moduleRowsFNV": 3223156088,
+    "moduleRowsFNV": 572832568,
     "logicRowsFNV": 1151758449,
-    "intentionalCellChanges": 6,
+    "intentionalCellChanges": 8,
     "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
     "visualReviewPassed": true,
     "errors": 0,
     "laterScopedFullReleasePromotionPending": true,
-    "lastFocusedCodeCommit": "aeebb65cc2623b5379b157458d611b1cd0930623",
+    "lastFocusedCodeCommit": "125e63d522a49c3462ef1ab7386466c80d0f9b02",
     "releaseExecutions": 2204,
     "lockedReferenceExecutions": 239,
     "releaseValidationRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json",
@@ -1684,10 +1707,10 @@
     "lockedReferenceExecutions": 239,
     "record": "fixtures/reference_fidelity/inline-channel-release-validation.json"
   },
-  "focusedValidationRecord": "fixtures/reference_fidelity/literal-txencoder-unicode-core-integration.json",
-  "focusedImplementationCommit": "aeebb65cc2623b5379b157458d611b1cd0930623",
-  "focusedVerifiedAtUtc": "2026-10-30T11:40:12Z",
-  "lastFocusedCodeCommit": "aeebb65cc2623b5379b157458d611b1cd0930623",
+  "focusedValidationRecord": "fixtures/reference_fidelity/literal-txencoder-fraction-core-integration.json",
+  "focusedImplementationCommit": "125e63d522a49c3462ef1ab7386466c80d0f9b02",
+  "focusedVerifiedAtUtc": "2026-10-30T12:53:04Z",
+  "lastFocusedCodeCommit": "125e63d522a49c3462ef1ab7386466c80d0f9b02",
   "recoveryPackage": {
     "commit": "9e2baa234a487c47f5a5160440b801347a668f30",
     "archiveSHA256": "acce9e5db7c65adef0246cf01581b4c06db0fd3cf356d1cdfa6528b47fff992f",

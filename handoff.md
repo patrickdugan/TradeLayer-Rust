@@ -1,8 +1,8 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T12:53:04Z. Refresh this file after every tested integration or PR cycle.
+Updated: 2026-10-30T12:54:13Z. Refresh this file after every tested integration or PR cycle.
 
-## Latest tested fractional wire increment (this commit)
+## Latest tested fractional wire increment (`125e63d`)
 
 Literal finite Number radix36 fractions now preserve the pinned source output, including subnormals, negative zero, neighbors and carry. All5new fractional+13existing encoder+5Unicode Core tests pass. Four fractional source regenerations cover4,474actualcalls/4,470admitted strings under genuine9.3.1/9.1.2; four Unicode checks also reproduce. Strict all-target Clippy/Cargofmt/fmt464/inventory/supply pass. Two formerly refused literal fractional test scenes now assert their exact original source return; other guards and typed wrapper prefix stay unchanged. Evidence:`fixtures/reference_fidelity/literal-txencoder-fraction-core-integration.json`. Queued startup remains failed/uncommitted and recovery packages8097/51ac/bf8b await the next Core gate. Full release2204/239 and prior Main734 remain separate historical evidence. No push/PR.
 
@@ -82,3 +82,7 @@ Root verified all26causal,33Promise-notification and44review payloads, recompute
 The fix requires same-owner source Promise return/adoption readiness and separate RPC/database await continuations, including outer bootstrap. The observed host-IO/VM-business Promise assimilation is an explicit harness profile, not a universal same-realm production schedule. Never import notification graphs, operation numbers, expected row sets or tick counts as execution inputs; do not move one yield point to make the tests pass. Evidence:`fixtures/reference_fidelity/main-startup-rpc-order-diagnosis.json`. Captured analyzers were rerun; source random IDs and Core were not rerun in this tracker cycle.
 
 Workbook/sidebar now include the diagnosis with six intended cell edits, preserved layout/formulas/filters and zero formula errors. Test counts remain2,204release/239numeric, priorMain734scoped, and wire5new+13old. Fractional wireb50c and mixed livebf8b remain isolated/unintegrated; all authentication/complete-block proof and separateUTXORef gates stay open.
+
+## Fractional wire tracker verification
+
+Saved workbook/sidebar match `125e63d`:5fractional+5Unicode+13previous encoder tests, with4,470admitted original-source Number comparisons. Eight intended edits preserve all48TL+one external row/37transaction rows, formulas/styles/filters/panes/geometry, zero errors. Release2204/239 and prior Main734 scoped remain separate. Startup positives are failed/unpromoted; neither authentication nor whole-block proofs are promoted. Evidence:`fixtures/reference_fidelity/literal-txencoder-fraction-completeness.json`.

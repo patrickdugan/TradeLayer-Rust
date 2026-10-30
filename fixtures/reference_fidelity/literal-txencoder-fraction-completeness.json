@@ -1,0 +1,38 @@
+{
+  "schema": "tl-literal-wire-fraction-completeness-v1",
+  "verifiedAtUtc": "2026-10-30T12:54:13Z",
+  "checkoutCommit": "125e63d522a49c3462ef1ab7386466c80d0f9b02",
+  "beforeWorkbookSHA256": "a9589c405d5d1e8ad75cebfa5f156360bbe7e6d0f5d1c68ede9b59842efc547a",
+  "releaseRecord": "fixtures/reference_fidelity/retained-callers-mode4-release-validation.json",
+  "releaseRecordSHA256": "55a183f033a19d4e75e238cbc59cca12785610d1ba6c35d32774c313635f9aa7",
+  "scopedRecord": "fixtures/reference_fidelity/literal-txencoder-fraction-core-integration.json",
+  "scopedRecordSHA256": "2733dc3d89e83de083762fd57cf2acba4ecd32f9cf4641fc28015ee31ddc0120",
+  "releaseExecutions": 2204,
+  "lockedReferenceExecutions": 239,
+  "priorMainScopedLibraryPassed": 734,
+  "newFractionalTests": 5,
+  "existingUnicodeTests": 5,
+  "oldEncoderRegressionTests": 13,
+  "newCurrentLibraryRunClaimed": false,
+  "fullSuitePromotion": false,
+  "queuedStartupPositivePassed": false,
+  "trackedTransactionRowsChanged": false,
+  "authenticationEstablished": false,
+  "completeBlockFraudProofEstablished": false,
+  "savedWorkbookSHA256": "f6e4797f4157787c532d6dea0981efba3ce1b8613d577217a2642a0315069999",
+  "savedAndSidebarRowsMatch": true,
+  "rowHashes": {
+    "modules": 572832568,
+    "logic": 1151758449
+  },
+  "intentionalCellChanges": 8,
+  "formulasStylesFiltersPanesAndUnrelatedCellsPreserved": true,
+  "visualReviewPassed": true,
+  "errors": 0,
+  "sidebarArtifact": "artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU",
+  "sidebarStateVersion": 191,
+  "visualReviewRanges": [
+    "C20:G20",
+    "A2:H4"
+  ]
+}
