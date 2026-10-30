@@ -1,5 +1,15 @@
 impl VerifiedActualSourceFactTraceV1 {
     pub fn original_observation_bytes(&self) -> Result<Vec<u8>> {
+        if let Some(raw) = &self.paired_origin_observation {
+            // Created has no child Intent/blob publication. These bytes
+            // came from the actual outer store and were bound to the
+            // immutable child origin. They remain comparisons only.
+            if ActiveServiceWalBlobV1::of(raw)? != history_blob(&self.origin().get("observation"))?
+            {
+                return Err(ActiveServiceWalErrorV1::WrongPin);
+            }
+            return Ok(raw.clone());
+        }
         self.read_reference(&history_blob(&self.origin().get("observation"))?)
     }
     pub fn decoded_action(

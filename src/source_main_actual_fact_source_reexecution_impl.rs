@@ -72,6 +72,19 @@ impl NativeMainColdActualFactServiceV1 {
         transcript: crate::source_main_active_service_wal::VerifiedActualSourceFactTraceV1,
         observation_limit: usize,
     ) -> Result<Self, Box<RejectedNativeMainColdActualFactServiceV1>> {
+        Self::reexecute_with_interleave(
+            prefix,
+            transcript,
+            observation_limit,
+            &mut NativeMainNoActualFactInterleaveV1,
+        )
+    }
+    fn reexecute_with_interleave(
+        prefix: NativeMainColdPrefixV1,
+        transcript: crate::source_main_active_service_wal::VerifiedActualSourceFactTraceV1,
+        observation_limit: usize,
+        interleave: &mut impl NativeMainActualFactInterleaveV1,
+    ) -> Result<Self, Box<RejectedNativeMainColdActualFactServiceV1>> {
         let NativeMainColdPrefixV1 {
             parts,
             capability,
@@ -126,7 +139,7 @@ impl NativeMainColdActualFactServiceV1 {
             verified_actions: 0,
             verified_inline_operations: 0,
         };
-        match owner.run(&completed_tip) {
+        match owner.run_with_interleave(&completed_tip, interleave) {
             Ok(()) => Ok(owner),
             Err(cause) => Err(Box::new(RejectedNativeMainColdActualFactServiceV1 {
                 cause,
@@ -134,7 +147,11 @@ impl NativeMainColdActualFactServiceV1 {
             })),
         }
     }
-    fn run(&mut self, completed_tip: &SourceIndexHistoryPinV1) -> Result<(), String> {
+    fn run_with_interleave(
+        &mut self,
+        completed_tip: &SourceIndexHistoryPinV1,
+        interleave: &mut impl NativeMainActualFactInterleaveV1,
+    ) -> Result<(), String> {
         if self.state.observation_limit == 0
             || self.state.observation_limit > ACTIVE_WAL_OBSERVATION_LIMIT
         {
@@ -238,6 +255,13 @@ impl NativeMainColdActualFactServiceV1 {
             .zip(points)
             .enumerate()
         {
+            interleave.before_source(
+                &mut self.state,
+                &mut history,
+                &self.capability,
+                &self.transcript,
+                entry.sequence,
+            )?;
             if history.source_history_pin() != &before
                 || self
                     .state
@@ -332,7 +356,21 @@ impl NativeMainColdActualFactServiceV1 {
             if inline && post != before {
                 self.verified_inline_operations += 1;
             }
+            interleave.after_source(
+                &mut self.state,
+                &mut history,
+                &self.capability,
+                &self.transcript,
+                entry.sequence,
+            )?;
         }
+        interleave.finish(
+            &mut self.state,
+            &mut history,
+            &self.capability,
+            &self.transcript,
+            self.verified_actions as u64,
+        )?;
         if !history.complete() {
             return Err("historical native transitions remain".into());
         }

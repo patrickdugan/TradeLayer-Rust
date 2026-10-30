@@ -1,14 +1,22 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T08:32:08Z. Refresh this file after every tested integration or PR cycle.
+Updated: 2026-10-30T10:21:49Z. Refresh this file after every tested integration or PR cycle.
 
 ## Latest local checkpoint
 
-The latest tested implementation is `d6f090add7ba0bc815e3ee3b84f8831b43e0b695`, the pin/fresh/cold/startup batch described in `fixtures/reference_fidelity/main-pin-fresh-cold-core-integration.json`. Validation: **715 library tests passed, four ignored, 44 public compatibility checks, 32 new controls, strict all-target Clippy, Cargo formatting, 441 included Rust files, inventory and supply policy**. This is one complete715-case library run. Failed and interrupted attempts are preserved in the record and do not count as passed suites. No push, publication, PR or merge was requested or performed.
+The current branch contains tested paired fresh-input cold replay and queued metadata custody. **734 scoped library tests pass (four ignored, three unchanged ordinary long tests filtered), 44 compatibility checks, 13 canonical-field checks, strict all-target Clippy, Cargo formatting,454 included Rust files, inventory and supply policy**. All22new controls pass. Evidence:`fixtures/reference_fidelity/main-paired-fresh-cold-core-integration.json`. This is not a full737-test current-library run. The previous full715 library run is at `d6f090add7ba0bc815e3ee3b84f8831b43e0b695`; its three ordinary long domains are retained as historical evidence, with unchanged relevant leaves verified.
 
-The last full all-target release remains implementation `a94ea4c7cdf4677d7d48455d65363edd263a16c1`, evidence `4a85b00e8a5365e018e5b1f50fb347058e4af473`: **2,204 Rust executions** (2,203 top-level plus one storage child) across283targets, **239 genuine BigNumber9.1.2 checks** from the exact87-target numeric list. All1,888 frozen inputs matched. Evidence: `fixtures/reference_fidelity/retained-callers-mode4-release-validation.json`. Do not add focused counts to that baseline or treat the latest library run as an all-target release. **This is a development checkpoint; the RC is unfinished.**
+The complete all-target release baseline remains `a94ea4c7cdf4677d7d48455d65363edd263a16c1`:2,204 Rust executions/239 genuine9.1.2 checks,283targets/87numeric targets,1,888frozen inputs. Evidence:`fixtures/reference_fidelity/retained-callers-mode4-release-validation.json`. Counts overlap; never add scoped checks to this baseline. **The RC remains unfinished.** No push, PR or merge.
 
-## What this batch establishes
+## New tested behavior
+
+- Paired outer/child ACK histories reexecute raw Feed and SourceAction on one actual financial/index/source owner through the same checked prefix/physical/source bodies. Complete state/effects/receipts/Kernel/observations compare; native append/copy/compaction IO stays zero. Old public13-2 financial continuity stays strict; only the new private paired path closes its gaps through real feed execution.
+- Created children with no source ACKs retain exact actual outer observation bytes, hash-bound to the immutable real child context, as comparisons. No inner blob, ACK, permit or financial result is synthesized. Pre-Start child API errors preserve the original writer's exact error layer.
+- Missing/reordered feeds refuse. The strongest repaired-CRC/hash/head substitution must reach its exact altered raw feed after a genuine source prefix; it no longer passes through an unrelated earlier error. The first failed positive/false-positive logs and narrow fixes are preserved.
+- Seven actual queued database controls plus two reviewer controls prove late evaluation of raw queries, stale-append refusal without requery, and original outcome/read-lease custody across32later writes and genuine escrow-backed compaction. A duplicate-key source exception remains that same once-only result after later row removal. This is a live metadata prerequisite; full financial startup binding is still unverified.
+
+## Previous startup/segmented checkpoint (`d6f090a`)
+
 
 - WAL preparation reuses pins computed from the same immutable new blobs within that call. Three comparisons preserve exact old-body output bytes, error precedence, existing-file read order and sync barriers. No cross-call cache, benchmark speedup or peak-RSS claim is added.
 - The explicit durable fresh-input coordinator syncs an outer raw Intent before publishing a factual feed or running a source action/constructor. Seven actual-owner controls retain the same financial runtime, native index, held plan, route and feed history through ambiguous control writes and native Before/Post recovery. Observation/control retry never repeats source or feed. Paired fresh-input cold replay is still separate.
@@ -19,9 +27,9 @@ Two checks exposed real boundaries. The fresh test attempted a blob read through
 
 ## Mandatory next logic
 
-1. Complete the paired fresh-feed cold interleave: independently retained outer raw Feed links must justify every inner observation gap. Old public13-2 readers remain strict. No expected financial state/result is an execution input.
+1. Extend tested finite paired ACK cold replay to unacknowledged process-loss/hot resume and caller/file/segmented fresh domains. Old public13-2 readers stay strict and all observed outputs remain comparisons.
 2. Add independently produced ordinary segmented pending-plan/native-IO facts and recovery/cold composition. Preserve the complete owner and original actual result if post-IO serialization fails. Never retry the source prefix or financial action.
-3. Close genuine first-live-await startup concurrency. New genuine source evidence shows outer Initialize may fulfill while a discarded native-row await remains held; outer writes can advance the index in that interval. The required late operation is the original captured metadata query/update only, with sealed actual commit-result resolution after later commits. Do not rerun finance, decoders or failure hooks, nor weaken old prepared-plan/current-Post contracts. Simultaneous live block capacity, early pending DB factory and exact broader Promise ordering remain explicit gates.
+3. Close genuine first-live-await startup concurrency. The queued metadata prerequisite and independent review now pass. The next per-job runtime probe is uncompiled; review found controller-stop and incomplete canonical-custody paths that must be fixed before admission. New genuine source evidence shows outer Initialize may fulfill while a discarded native-row await remains held; outer writes can advance the index in that interval. The required late operation is the original captured metadata query/update only, with sealed actual commit-result resolution after later commits. Do not rerun finance, decoders or failure hooks, nor weaken old prepared-plan/current-Post contracts. Simultaneous live block capacity, early pending DB factory and exact broader Promise ordering remain explicit gates.
 4. Finish genuine NeDB entropy/ID/full-effect replay and raw/global initializer composition. Actual crypto draws must pass unchanged into NeDB. A prior synthetic RNG proposal was rejected and was not applied; do not normalize IDs or derive inputs from expected outputs.
 5. Complete automatic-file native ambiguity/durable cold composition, actual killed-process financial recovery, intended-host directory/power-loss and representative real-block CPU/RSS measurements. The externally owned HashMap promotion candidate still needs host evidence. Standalone fee/reward policy wiring stays explicit.
 6. Run fresh integrated RC/all-target/numeric checks, consume collaborator fuzz findings, then perform the planned mock oracle-abuse fraud-proof exercise. TL supplies checkable oracle state; **UTXORef is a separate consumer repository**, and optional Binohash belongs there. Authentication and complete-block proofs remain separate open gates.
@@ -30,9 +38,9 @@ Two checks exposed real boundaries. The fresh test attempted a blob read through
 
 | Worker | Isolated next work |
 | --- | --- |
-| `row_continuation_impl` | Independently typed ordinary native IO facts and segmented cold recovery. |
-| `v8_main` | Paired durable fresh-feed cold replay with actual outer facts and strict older readers. |
-| `v8_clearlist` | Genuine held-first-await/outer concurrency, late metadata operation/results, early DB factory and full entropy replay. |
+| `row_continuation_impl` | Frozen8097/51ac producer/result/recovery prerequisites await Root; full mixed typed writer/trace/segmented cold is in separate WIP. |
+| `v8_main` | Paired cold integrated; queued metadata/startup independent review, preserving exact failure and result-custody boundaries. |
+| `v8_clearlist` | Per-job queued startup runtime/controller fence/full canonical custody; exact RPC/microtask/UID/effect parity remains open. |
 
 The external web worker is independent; unavailable handoff text or unexecuted source code is not integrated work. Root owns repository writes and commits. Apply immutable worker manifests through pure transforms of CURRENT source; never overlay stale whole files. Run one whole-Core Cargo process at a time. Agents use isolated stages and must not run Root/private Core.
 
@@ -44,7 +52,11 @@ Commit completed checked work on this branch; leave unrelated changes untouched.
 
 - Repository: `C:/Users/patri/Documents/Codex/2026-10-26/go/outputs/TradeLayer-Rust`.
 - Work/runners/logs: `C:/Users/patri/Documents/Codex/2026-10-26/go/work`; exact session state is in `work/root-resume-current.json`.
-- Frozen current build inputs: `work/root-pin-fresh-cold-final-inputs.json`; runner `work/check-pin-fresh-cold-final.ps1`. Finished scripts/mounters are one-time operations. Do not restart completed long checks merely for a status update.
+- Frozen current build inputs: `work/root-paired-fresh-cold-final-checked-inputs.json`; runner `work/check-paired-fresh-cold-final.ps1`. Finished scripts/mounters are one-time operations. Do not restart completed long checks merely for a status update.
 - Root gate wrapper: `work/cargo-check.ps1`, pinned Rust1.90/MSVC; debug target `work/main-v12-target`, release target `work/source-settlement-target`. Reuse the recorded task TMP and genuine numeric settings. Separate scratch directories for concurrent direct test binaries; only one Core Cargo.
 - Immutable public provider: `work/providers/retained-callers-mode4-a94ea4c/libtradelayer_core.rlib`, SHA256 `7f9b78d5169202225dee1aed5a03f8eeff6c189e6ea5ae98be062633c1de5560`, provenance adjacent. It is older public support, not new private-Core validation.
 - Saved workbook: `outputs/completeness-6b9c6c5f/TradeLayer-completeness.xlsx` relative to task root. Existing sidebar: `artifact_g5Fs57Ux0BfP2n9VYK2wTTRQEDW2QMDU`. Keep both consistent and refresh after meaningful verified changes, approximately every30minutes. Preserve48TL module rows, one external reference,37transaction rows, formulas/styles/filters/panes/geometry and all remaining gates. The saved workbook/sidebar now match `d6f090a`:715 library tests/44 public,32new controls. Seventeen intentional edits preserve all rows, formulas/styles/filters/panes/geometry; zero formula errors. Evidence:`fixtures/reference_fidelity/main-pin-fresh-cold-completeness.json`.
+
+## Tracker pending this commit
+
+Saved workbook/sidebar last verified d6f090a/715library. Refresh to this checked code only after the code commit, preserving48TL+one external reference/37transaction rows and all remaining gates.

@@ -52,6 +52,8 @@ pub struct VerifiedActualSourceFactTraceV1 {
     independent: ActualSourceFactColdPinV1,
     records: Vec<(u64, V)>,
     prefixes: BTreeMap<u64, ActualSourceFactPastPrefixV1>,
+    paired_empty_post: Option<SourceIndexHistoryPinV1>,
+    paired_origin_observation: Option<Vec<u8>>,
 }
 impl ActiveServiceWalV1 {
     pub fn capture_actual_source_fact_cold_pin(
@@ -91,18 +93,39 @@ impl VerifiedActualSourceFactTraceV1 {
         namespace: Namespace,
         expected: &ActualSourceFactColdPinV1,
     ) -> Result<Self> {
+        Self::open_bound_continuity(root, namespace, expected, AckFinancialContinuityV1::Strict)
+    }
+    fn open_for_paired_fresh(
+        root: &Path,
+        namespace: Namespace,
+        expected: &ActualSourceFactColdPinV1,
+    ) -> Result<Self> {
+        Self::open_bound_continuity(
+            root,
+            namespace,
+            expected,
+            AckFinancialContinuityV1::PairedFreshPending,
+        )
+    }
+    fn open_bound_continuity(
+        root: &Path,
+        namespace: Namespace,
+        expected: &ActualSourceFactColdPinV1,
+        continuity: AckFinancialContinuityV1,
+    ) -> Result<Self> {
         if expected.profile != ACTUAL_SOURCE_FACT_COLD_PIN_PROFILE
             || expected.trace.profile != crate::storage::VERIFIED_COMMIT_TRACE_PROFILE
         {
             return Err(ActiveServiceWalErrorV1::WrongPin);
         }
         mode4_namespace(&namespace, &expected.metadata_namespace)?;
-        let mut inner = VerifiedActiveServiceAckHistoryV1::open_profile_exact(
+        let mut inner = VerifiedActiveServiceAckHistoryV1::open_profile_exact_with_continuity(
             root,
             namespace,
             &expected.wal,
             ExactAckHistoryProfileV1::ActualSourceFacts,
             Some(&expected.metadata_namespace),
+            continuity,
         )?;
         let actual = inner
             .store
@@ -222,6 +245,8 @@ impl VerifiedActualSourceFactTraceV1 {
             independent: expected.clone(),
             records,
             prefixes,
+            paired_empty_post: None,
+            paired_origin_observation: None,
         };
         result.require_actual_fact_dependencies()?;
         result.require_actual_recorded_barriers()?;

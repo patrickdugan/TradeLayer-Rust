@@ -59,6 +59,9 @@ impl InlinePhysicalHistoryAccessV1 for VerifiedActualSourceFactTraceV1 {
 }
 impl VerifiedActualSourceFactTraceV1 {
     pub fn checked_metadata_post(&self) -> Result<SourceIndexHistoryPinV1> {
+        if let Some(point) = &self.paired_empty_post {
+            return Ok(point.clone());
+        }
         self.mode4_pin(
             self.entries()
                 .last()

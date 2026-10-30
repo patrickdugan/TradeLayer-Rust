@@ -2964,6 +2964,7 @@ include!("source_main_native_cold_historical_index_impl.rs");
 include!("source_main_native_cold_service_access_impl.rs");
 include!("source_main_mode4_historical_runtime_impl.rs");
 include!("source_main_actual_fact_descriptor_runtime_impl.rs");
+include!("source_main_durable_fresh_cold_runtime_impl.rs");
 include!("source_main_actual_fact_runtime_impl.rs");
 include!("source_main_actual_fact_append_cold_impl.rs");
 include!("source_main_native_completed_runtime_test_impl.rs");

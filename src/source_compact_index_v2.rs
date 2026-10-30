@@ -977,3 +977,9 @@ mod actual_native_fact_tests;
 #[cfg(test)]
 #[path = "source_index_actual_source_fact_tests.rs"]
 mod actual_source_fact_scope_tests;
+
+include!("source_index_queued_database_impl.rs");
+
+#[cfg(test)]
+#[path = "source_index_queued_database_tests.rs"]
+mod queued_source_database_tests;

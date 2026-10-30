@@ -389,3 +389,6 @@ fn durable_fresh_outer_start_intent_is_synced_before_constructor_and_lost_return
     assert_eq!(owner.history().len(), 1);
     assert!(owner.source.inner.active_service().is_some());
 }
+
+#[path = "source_main_durable_fresh_cold_core_tests.rs"]
+mod durable_fresh_cold_core_tests;

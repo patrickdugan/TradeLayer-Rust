@@ -1290,6 +1290,22 @@
       "pairedFreshColdIntegrated": false,
       "ordinaryTypedNativeRecoveryColdIntegrated": false,
       "commit": "d6f090add7ba0bc815e3ee3b84f8831b43e0b695"
+    },
+    "mainPairedFreshColdQueuedMetadata": {
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/main-paired-fresh-cold-core-integration.json",
+      "scopedLibraryPassed": 734,
+      "libraryIgnored": 4,
+      "filteredLongTests": 3,
+      "fullCurrentLibraryRun": false,
+      "previousFullLibraryPassed": 715,
+      "newUnitTests": 22,
+      "publicCompatibilityPassed": 44,
+      "canonicalFieldDriverPassed": 13,
+      "pairedFreshColdControls": 8,
+      "queuedMetadataControls": 9,
+      "startupQueuedFinancialBinding": false,
+      "allTargetReleasePromoted": false
     }
   },
   "scope": "Full release a94ea4c remains 2,204 Rust / 239 genuine numeric checks. Later d6f090a passes one full 715-test library run (four ignored), 44 public and 32 new controls; strict Clippy/fmt441/inventory/supply. Durable fresh-input recovery, ordinary segmented cold replay of4,098 actions and selected literal nested/outer startup pass. Broader startup concurrency, genuine entropy/effects, paired fresh/file cold composition, host evidence and authentication/proof gates remain open.",

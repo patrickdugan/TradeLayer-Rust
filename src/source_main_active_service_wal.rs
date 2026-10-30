@@ -566,6 +566,9 @@ include!("source_main_actual_fact_expectation_codec_impl.rs");
 include!("source_main_actual_fact_history_profile_impl.rs");
 include!("source_main_actual_fact_trace_impl.rs");
 include!("source_main_durable_fresh_boundary_impl.rs");
+include!("source_main_durable_fresh_cold_reader_impl.rs");
+#[cfg(test)]
+include!("source_main_durable_fresh_cold_corruption_tests_impl.rs");
 include!("source_main_actual_fact_barriers_impl.rs");
 include!("source_main_actual_fact_physical_impl.rs");
 include!("source_main_actual_fact_pending_impl.rs");

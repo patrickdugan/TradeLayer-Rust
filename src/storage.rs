@@ -765,6 +765,7 @@ mod verified_prefix_tests;
 
 include!("storage_history_prefix_impl.rs");
 include!("storage_verified_commit_trace_impl.rs");
+include!("storage_durable_fresh_trace_point_impl.rs");
 include!("storage_active_history_window_impl.rs");
 include!("storage_verified_commit_range_impl.rs");
 #[cfg(test)]

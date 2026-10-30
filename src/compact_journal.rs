@@ -1012,3 +1012,5 @@ mod source_native_append_plan_tests;
 #[cfg(test)]
 #[path = "compact_generation_escrow_tests.rs"]
 mod generation_escrow_tests;
+
+include!("compact_source_queued_owner_impl.rs");

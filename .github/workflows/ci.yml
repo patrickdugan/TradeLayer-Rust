@@ -38,6 +38,10 @@ jobs:
         run: python3 -m unittest discover -s tests -p test_rust_supply_chain.py -v
       - name: Check formatting
         run: cargo fmt --all -- --check
+      - name: Check queued source metadata formatting
+        run: rustfmt --check --edition 2021 src/compact_source_queued_owner_impl.rs src/source_index_queued_database_impl.rs src/source_index_queued_database_tests.rs
+      - name: Check paired fresh cold formatting
+        run: rustfmt --check --edition 2021 src/source_main_durable_fresh_capture_session_impl.rs src/source_main_durable_fresh_cold_core_tests.rs src/source_main_durable_fresh_cold_corruption_tests_impl.rs src/source_main_durable_fresh_cold_hooks_impl.rs src/source_main_durable_fresh_cold_reader_impl.rs src/source_main_durable_fresh_cold_reader_tests.rs src/source_main_durable_fresh_cold_runtime_impl.rs src/source_main_durable_fresh_cold_session_impl.rs src/storage_durable_fresh_trace_point_impl.rs src/storage_durable_fresh_trace_point_tests.rs
       - name: Check segmented origin blob formatting
         run: rustfmt --check --edition 2021 src/source_main_segmented_origin_blob_impl.rs
       - name: Check literal nested startup formatting

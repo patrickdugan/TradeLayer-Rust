@@ -216,6 +216,23 @@ impl VerifiedActiveServiceAckHistoryV1 {
         exact: ExactAckHistoryProfileV1,
         metadata_namespace: Option<&Namespace>,
     ) -> Result<Self> {
+        Self::open_profile_exact_with_continuity(
+            root,
+            namespace,
+            expected,
+            exact,
+            metadata_namespace,
+            AckFinancialContinuityV1::Strict,
+        )
+    }
+    fn open_profile_exact_with_continuity(
+        root: &Path,
+        namespace: Namespace,
+        expected: &ActiveServiceWalPinV1,
+        exact: ExactAckHistoryProfileV1,
+        metadata_namespace: Option<&Namespace>,
+        continuity: AckFinancialContinuityV1,
+    ) -> Result<Self> {
         let inline = exact.inline();
         let facts = exact.facts();
         let history_profile = exact.profile();
@@ -507,7 +524,8 @@ impl VerifiedActiveServiceAckHistoryV1 {
                 }
             }
             if let Some(next) = entries.get(at + 1) {
-                if post_fields != next.actual_before()
+                if (matches!(continuity, AckFinancialContinuityV1::Strict)
+                    && post_fields != next.actual_before())
                     || entry.verified_history_post() != next.verified_history_before()
                 {
                     return Err(ActiveServiceWalErrorV1::WrongPin);
