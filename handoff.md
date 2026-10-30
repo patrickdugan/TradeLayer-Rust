@@ -1,6 +1,10 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T18:00:52Z. Refresh this file after every tested integration or PR cycle.
+Updated: 2026-10-30T18:08:27Z. Refresh this file after every tested integration or PR cycle.
+
+## Early parent routes (Claude integration)
+
+Parent awaits on findMaxIndexedBlock, loadFromDB (Tally child) and loadMaxProcessedHeight now subscribe on the same Kernel when the async call returns its pending Promise; the frame's actual result descriptor is attached later. Genuine request order still matches; 17 outer probe controls, strict Clippy/fmt/inventory/supply pass (full library not rerun: test-domain-only change). Evidence:`fixtures/reference_fidelity/main-outer-kernel-early-routes-integration.json`. No push/PR.
 
 ## Outer frame driven by the same Kernel (Claude integration)
 

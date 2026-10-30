@@ -63,11 +63,11 @@ The c40f/f476/6e94 components now live in Root as a cfg(test) domain of `MainSte
 
 The binding lane's native raw-request capture (anchor fixed for the current one-line visitor call), its outer hooks factor and hook/access leaves are mounted with Claude's driver `NativeMainOuterKernelDriverV1` (`src/source_main_outer_bootstrap_kernel_driver_impl.rs`, test domain). Microtasks drain fully, then one NeDB immediate runs. The outer request order equals the genuine projection (`fixtures/startup_outer_request_order_genuine.txt`). Inputs and gates: `work/claude-outer-kernel-binding-1/`. Evidence: `fixtures/reference_fidelity/main-outer-kernel-binding-integration.json`.
 
-Known simplifications: result awaits (FindMax/Tally load/MaxProcessed) are routed when the frame installs them, not at the async call's return. For the outer lanes alone this gives the same FIFO position, but it must change before the Incoming lane shares the queue. Request-time rejections deliver their callback at registration without an executor job.
+Result awaits (FindMax/Tally load/MaxProcessed) now subscribe at the async call's return and attach the actual result later (`fixtures/reference_fidelity/main-outer-kernel-early-routes-integration.json`). Known simplification: Request-time rejections deliver their callback at registration without an executor job.
 
 ### First next action
 
-Put the Incoming/Sync/checkBlockLag lane on the same driver loop (raw RPC as RecordedHostIo Promises, its NeDB operations through the same executor), switch result awaits to early routes reserved at call return, then compare the combined operation order with the genuine ordinals 125-138 (outer fixed read before the first transaction RPC/upsert). Only then revisit the two queued positives.
+Put the Incoming/Sync/checkBlockLag lane on the same driver loop (raw RPC as RecordedHostIo Promises, its NeDB operations through the same executor), then compare the combined operation order with the genuine ordinals 125-138 (outer fixed read before the first transaction RPC/upsert). Only then revisit the two queued positives.
 
 ## Main remaining blocker: actual startup scheduling
 

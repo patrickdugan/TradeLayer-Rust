@@ -157,10 +157,12 @@ fn kernel_hooks_refuse_a_foreign_parent_or_a_second_tally_child() {
         .allocate_source_job("Main.constructConsensusFromIndex")
         .unwrap();
     let mut routes = vec![];
+    let mut early = vec![];
     let mut tally_job = None;
     let mut hooks = NativeMainOuterKernelHooksV1 {
         promises,
         routes: &mut routes,
+        early: &mut early,
         main_job,
         tally_job: &mut tally_job,
     };
@@ -176,4 +178,37 @@ fn kernel_hooks_refuse_a_foreign_parent_or_a_second_tally_child() {
         Err(SourceRuleError::InvalidInput)
     );
     assert_eq!(tally_job.map(SourceJobKey::serial), Some(child));
+}
+#[test]
+fn kernel_parent_awaits_subscribe_at_async_call_return_and_attach_later_results() {
+    use NativeMainOuterBootstrapSiteV1 as Site;
+    let temp = Temp::new();
+    let (mut runtime, index) = seeded(&temp);
+    let (driver, frame) = kernel_driven(&mut runtime, &index);
+    let early = driver.early_routes();
+    // One subscription per awaited async call, in call-return order: Main's
+    // findMaxIndexedBlock, Tally.getInstance's loadFromDB, then Main's
+    // loadMaxProcessedHeight (both factories run in one segment).
+    assert_eq!(
+        early.iter().map(|(site, _, _)| *site).collect::<Vec<_>>(),
+        vec![
+            Site::FindMaxResult,
+            Site::TallyLoadResult,
+            Site::MaxProcessedResult
+        ]
+    );
+    for (site, call, attached) in &early {
+        let attached = attached.unwrap_or_else(|| panic!("{site:?} never attached"));
+        assert!(*call < attached, "{site:?} result attached after its call");
+    }
+    // The actual result descriptors are those the frame issued.
+    for (site, _, attached) in &early {
+        let resumed = driver
+            .resumed()
+            .iter()
+            .find(|await_| await_.site() == *site)
+            .unwrap();
+        assert_eq!(Some(resumed.ordinal()), *attached);
+    }
+    assert!(frame.prepared_ready() && frame.tally_child_complete());
 }

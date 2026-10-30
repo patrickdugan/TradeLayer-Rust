@@ -1,0 +1,37 @@
+{
+  "schema": "tl-main-outer-kernel-early-routes-v1",
+  "verifiedAtUtc": "2026-10-30T18:08:27Z",
+  "inputCommit": "2daf24774d4d34f2bc5a38066f6c1672a25b0922",
+  "validatedIn": "clean export of HEAD blobs plus the exact projected files below",
+  "newDistinctTests": 1,
+  "newTests": [
+    "kernel_parent_awaits_subscribe_at_async_call_return_and_attach_later_results"
+  ],
+  "outerProbeTestsPassed": 17,
+  "genuineRequestOrderStillMatches": true,
+  "allTargetClippyWarningsDenied": true,
+  "cargoFmtPassed": true,
+  "inventoryPassed": true,
+  "supplyPolicyPassed": true,
+  "fullLibraryRun": null,
+  "fullLibraryNote": "not rerun: change is confined to the cfg(test) outer driver and its tests; all-target Clippy compiled every target",
+  "sourceFiles": {
+    "docs/LOGIC_BY_TX_TYPE.json": "60ea1e76ef46d405521432228d366f6f3237c0f3b129f550a0913cd200196744",
+    "src/source_main_outer_bootstrap_kernel_driver_impl.rs": "c1df947e6e956410735617c665e24bb7a4f3437914f90d52d9142bdf4a249118",
+    "src/source_main_outer_bootstrap_kernel_tests.rs": "24abde6c1789406afd89c2c7f2a004b2d69e13735d2953dd05992ca1efcbbb4d"
+  },
+  "scope": {
+    "earlyParentSubscriptionAtAsyncCallReturn": true,
+    "incomingSyncLaneInterleaved": false,
+    "productionAdmission": false,
+    "queuedStartupPositivesPass": false
+  },
+  "logs": {
+    "claude-early-r1-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "claude-early-r1-inventory.log": "62d1a9d04f389b722f2b7264f636d4f8d8fb9caf2842a2eef6c7eb7899287393",
+    "claude-early-r1-supply.log": "3d9deebee4140a6f27a04d400a1980b3b67b3424decac5b3265df1c8a2e78614",
+    "claude-early-r1-clippy.log": "795f32cc6b2559a01fbc17eacf1cdf19303bcb98c48c257a13438dd8dbefdbd3",
+    "claude-early-r1-included-fmt.log": "6a33f860492c805238e167f71174d486edc6818faf96cf0e5bbe993adbb7a47f",
+    "claude-early-r1-test-actual_outer_bootstrap_await_probe.log": "28e1fc3d4434e01e0db56e889308acf8fda12b0e27d95771de23284a48849748"
+  }
+}

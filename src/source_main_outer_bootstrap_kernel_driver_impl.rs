@@ -17,6 +17,17 @@ struct NativeMainOuterKernelRouteV1 {
     continuation: SourceContinuationKey,
     request: Option<NedbRequestKey>,
 }
+// A parent await on an async call's still-pending Promise, subscribed when the
+// call returned it. The frame's result descriptor is attached only later.
+struct NativeMainOuterKernelEarlyRouteV1 {
+    job: SourceJobKey,
+    lane: NativeMainOuterBootstrapLaneV1,
+    site: NativeMainOuterBootstrapSiteV1,
+    call_ordinal: u64,
+    promise: PromiseKey,
+    continuation: SourceContinuationKey,
+    attached: Option<u64>,
+}
 /// Raw request identity in actual issue order (collection, method, arguments).
 pub(crate) struct NativeMainOuterKernelRequestV1 {
     pub(crate) collection: &'static str,
@@ -28,8 +39,35 @@ pub(crate) struct NativeMainOuterKernelDriverV1 {
     main_job: SourceJobKey,
     tally_job: Option<SourceJobKey>,
     routes: Vec<NativeMainOuterKernelRouteV1>,
+    early: Vec<NativeMainOuterKernelEarlyRouteV1>,
     requests: Vec<NativeMainOuterKernelRequestV1>,
     resumed: Vec<NativeMainOuterBootstrapAwaitV1>,
+}
+// The async call whose first await is this factory, with its awaiting caller:
+// Main awaits findMaxIndexedBlock and loadMaxProcessedHeight; Tally.getInstance
+// awaits loadFromDB on the independent child job.
+fn outer_kernel_parent_site(
+    factory: NativeMainOuterBootstrapSiteV1,
+) -> Option<(NativeMainOuterBootstrapSiteV1, &'static str, &'static str)> {
+    use NativeMainOuterBootstrapSiteV1 as Site;
+    match factory {
+        Site::FindMaxFactory => Some((
+            Site::FindMaxResult,
+            "FindMaxResult",
+            "Main.constructConsensusFromIndex",
+        )),
+        Site::TallyFactory => Some((
+            Site::TallyLoadResult,
+            "TallyLoadResult",
+            "TallyMap.getInstance",
+        )),
+        Site::ConsensusFactory => Some((
+            Site::MaxProcessedResult,
+            "MaxProcessedResult",
+            "Main.constructConsensusFromIndex",
+        )),
+        _ => None,
+    }
 }
 fn outer_kernel_job(
     main_job: SourceJobKey,
@@ -108,6 +146,7 @@ fn outer_kernel_settle(
 struct NativeMainOuterKernelHooksV1<'a> {
     promises: &'a mut StartupPromiseQueue,
     routes: &'a mut Vec<NativeMainOuterKernelRouteV1>,
+    early: &'a mut Vec<NativeMainOuterKernelEarlyRouteV1>,
     main_job: SourceJobKey,
     tally_job: &'a mut Option<SourceJobKey>,
 }
@@ -143,7 +182,42 @@ impl NativeMainOuterFactoryHooksV1 for NativeMainOuterKernelHooksV1<'_> {
         frame: &NativeMainOuterBootstrapV1,
         await_: NativeMainOuterBootstrapAwaitV1,
     ) -> Result<(), SourceRuleError> {
-        outer_kernel_settle(self.promises, self.routes, frame, await_)
+        outer_kernel_settle(self.promises, self.routes, frame, await_)?;
+        // The async call awaited this factory and returned its still-pending
+        // Promise; its caller subscribes now, before any later reaction runs.
+        let Some((site, site_name, scope)) = outer_kernel_parent_site(await_.site()) else {
+            return Ok(());
+        };
+        let job = outer_kernel_job(self.main_job, *self.tally_job, await_)?;
+        if self
+            .early
+            .iter()
+            .any(|early| early.job == job && early.site == site)
+        {
+            return Err(SourceRuleError::InvalidInput);
+        }
+        let continuation = self
+            .promises
+            .reserve_source_continuation(ActualPayloadBinding {
+                job,
+                method_scope: scope,
+                source_site: site_name,
+                lane: await_.lane_name(),
+                await_ordinal: await_.ordinal(),
+            })?;
+        let promise = self.promises.create(Realm::SourceBusiness)?;
+        self.promises
+            .await_routed(Realm::SourceBusiness, promise, continuation)?;
+        self.early.push(NativeMainOuterKernelEarlyRouteV1 {
+            job,
+            lane: await_.lane(),
+            site,
+            call_ordinal: await_.ordinal(),
+            promise,
+            continuation,
+            attached: None,
+        });
+        Ok(())
     }
 }
 impl NativeMainOuterKernelDriverV1 {
@@ -168,6 +242,7 @@ impl NativeMainOuterKernelDriverV1 {
                 main_job,
                 tally_job: None,
                 routes: vec![],
+                early: vec![],
                 requests: vec![],
                 resumed: vec![],
             },
@@ -186,6 +261,14 @@ impl NativeMainOuterKernelDriverV1 {
     pub(crate) fn tally_job(&self) -> Option<u64> {
         self.tally_job.map(SourceJobKey::serial)
     }
+    /// (result site, ordinal of the call that returned the pending Promise,
+    /// ordinal of the result descriptor later attached), in subscription order.
+    pub(crate) fn early_routes(&self) -> Vec<(NativeMainOuterBootstrapSiteV1, u64, Option<u64>)> {
+        self.early
+            .iter()
+            .map(|early| (early.site, early.call_ordinal, early.attached))
+            .collect()
+    }
     /// Begin, then let only the Kernel's queues choose continuations until both
     /// are empty: every ready microtask, then exactly one NeDB immediate.
     pub(crate) fn run(
@@ -199,6 +282,7 @@ impl NativeMainOuterKernelDriverV1 {
             main_job,
             tally_job,
             routes,
+            early,
             requests,
             resumed,
         } = self;
@@ -208,6 +292,7 @@ impl NativeMainOuterKernelDriverV1 {
         let mut hooks = NativeMainOuterKernelHooksV1 {
             promises,
             routes,
+            early,
             main_job: *main_job,
             tally_job,
         };
@@ -289,13 +374,32 @@ fn outer_kernel_register(
             | Site::TallyFactory
             | Site::ConsensusFactory => return Err(SourceRuleError::InvalidInput),
             Site::FindMaxResult | Site::TallyLoadResult | Site::MaxProcessedResult => {
-                outer_kernel_open(
-                    hooks.promises,
-                    hooks.routes,
-                    job,
+                // Attach the actual result to the route its caller subscribed
+                // at call return; never open a fresh late subscription.
+                let early = hooks
+                    .early
+                    .iter_mut()
+                    .find(|early| {
+                        early.job == job
+                            && early.lane == await_.lane()
+                            && early.site == await_.site()
+                            && early.attached.is_none()
+                    })
+                    .ok_or(SourceRuleError::InvalidInput)?;
+                if early.call_ordinal >= await_.ordinal() {
+                    return Err(SourceRuleError::InvalidInput);
+                }
+                let payload = hooks
+                    .promises
+                    .reserve_actual_payload(outer_kernel_binding(job, await_))?;
+                early.attached = Some(await_.ordinal());
+                hooks.routes.push(NativeMainOuterKernelRouteV1 {
                     await_,
-                    Realm::SourceBusiness,
-                )?;
+                    payload,
+                    promise: early.promise,
+                    continuation: early.continuation,
+                    request: None,
+                });
                 outer_kernel_settle(hooks.promises, hooks.routes, frame, await_)?;
             }
             Site::FindMaxQuery | Site::TallyQuery | Site::MaxProcessedQuery | Site::FixedRead => {

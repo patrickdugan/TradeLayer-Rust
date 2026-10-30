@@ -2710,12 +2710,12 @@
     },
     {
       "path": "src/source_main_outer_bootstrap_kernel_driver_impl.rs",
-      "sha256": "c1049074510da8a9abc46f8382099015efc0c54fc8682579c6739f8672b3b805",
+      "sha256": "c1df947e6e956410735617c665e24bb7a4f3437914f90d52d9142bdf4a249118",
       "lfNormalized": true
     },
     {
       "path": "src/source_main_outer_bootstrap_kernel_tests.rs",
-      "sha256": "6ca7e0cd42911b6df9eb2871a3edefef4bdb38f8553658c2219420f97c89a54c",
+      "sha256": "24abde6c1789406afd89c2c7f2a004b2d69e13735d2953dd05992ca1efcbbb4d",
       "lfNormalized": true
     }
   ],
