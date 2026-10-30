@@ -1,6 +1,16 @@
 # Agent development instructions
 
-TradeLayer's Rust CI runs after each pull-request update. Frequent pushes while formatting or Clippy is failing generate a separate failure notification for each intermediate commit.
+## Default workflow: checked local commits
+
+Work on the current branch. Complete the implementation, run the relevant checks, and commit the completed work locally before reporting it done. Stage only task-owned files and preserve unrelated changes.
+
+Create a branch or pull request only when the user explicitly requests one for that specific work. A general request to build, fix, continue, parallelize, or use subagents authorizes local work and commits. It does not authorize branches, draft PRs, merge-preview branches, or a separate PR for each stage, agent, experiment, or check.
+
+Keep a coherent change together in local commits. Use local staging directories for parallel workers and experiments. Record unfinished work and remaining checks in the handoff; a draft PR is not the default way to package incomplete work.
+
+Push, publish, or merge only when explicitly authorized. Never delete branches with unique work based solely on their name or age. Verify containment or preserve a recoverable backup before authorized cleanup.
+
+## Checks before an authorized push
 
 Before **each GitHub push that changes Rust source**, run `bash scripts/ci-preflight.sh --full` in the repository root. This checks the pinned Rust formatting, the included implementation files that Cargo fmt does not cover, Clippy with warnings denied, and Rust tests. Fix the local errors and amend or update the commit before publishing the branch. For local iterations, `--fast` omits the Rust test run; the full command remains required before pushing.
 
