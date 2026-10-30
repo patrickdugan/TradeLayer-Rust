@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T04:01:16Z. Refresh after every tested integration cycle.
+Updated: 2026-10-30T04:26:23Z. Refresh after every tested integration cycle.
 
 ## Current checkpoint
 
@@ -19,6 +19,14 @@ The saved completeness workbook and existing sidebar agree on this release. Sixt
 Later focused correction: rejected append ACKs now preserve the prior original/replacement native relation, while a current API rejection cannot reuse an older StorageStopped result. Five new actual source and three metadata controls pass; library **557/four ignored**, 44 public checks, Clippy/fmt304/inventory/supply pass. Evidence: `mode4-rejected-append-core-integration.json`. The full release remains 2,204/239 until the next complete run.
 
 **This is a passing development checkpoint, not a completed RC.** The source-composition and operational gates below remain open.
+
+## Latest tested fresh input
+
+The latest batch passes **648 library tests (four ignored), 44 public checks, all-target Clippy with warnings denied, Cargo formatting, 378 included-file formatting checks, inventory and supply policy**. Ten new controls cover the new canonical raw-fact codec and actual financial owners. Evidence: `fixtures/reference_fidelity/main-fresh-input-core-integration.json`. The complete release baseline remains **2,204 Rust /239 numeric** at `a94ea4c7`; do not add overlapping focused counts or promote this to a completed RC.
+
+The typed fresh-input service/caller consumes the existing owner. It changes only future tip/block/network/transaction-document facts, preserving counters, client, captured source locals, actual prepared native plan, physical index, route, pending timer and borrowed financial queue. Retained caller and service future document sets change together. Invalid, observation-pending and terminal feeds refuse before publication. Six codec and four actual-Core controls pass. Original JavaScript reproduces ten cases/44 records plus one service-chain case/four records under genuine BigNumber 9.3.1 and 9.1.2. Record counts include raw inputs.
+
+This is in-memory factual admission. Durable feed actions/cold replay, native ambiguity through this wrapper and fine-grained raw-RPC Promise suspension remain open. Existing old codecs/readers/default bodies are unchanged; no authentication or new state-import authority is established.
 
 ## Latest tested orchestration
 
@@ -62,7 +70,7 @@ Root fixed a real Mode4 writer mismatch: its initial observation omitted the esc
 
 | Agent | Current isolated work | Boundary |
 | --- | --- | --- |
-| `row_continuation_impl` | Typed fresh future RPC/document feed, source10/44 plus service-chain evidence; frozen1064 Core controls await Root | No old action/WAL/cold admission and no invented fine-grained RPC suspension. |
+| `row_continuation_impl` | Fresh input integrated; extending acknowledged active history beyond 4096 on the same owner | No old action/WAL/cold admission and no invented fine-grained RPC suspension. |
 | `v8_main` | Complete checked13-2 physical trace/fact reader and one-owner raw-source cold actor | Actual-fact writer/native recovery are integrated; no Before/Accepted reconstruction or implicit old-reader admission. |
 | `v8_clearlist` | Explicit unconfigured raw startup foundation, literal shared DB promises/retry and Initialize suffix | f495/a70 prefix proposals and genuine source evidence remain outside Root until Core integration. Configured owners are never reset. |
 
@@ -72,7 +80,7 @@ Root fixed a real Mode4 writer mismatch: its initial observation omitted the esc
 2. Finish complete13-2 physical trace/ACK/escrow validation and raw-source/financial cold replay using independently produced facts. Old missing IO/plan facts remain refusals; Before/Accepted are comparisons.
 3. Integrate the raw/global startup and actual Initialize suffix, including original module versus internal shared DB promise identity, legitimate DB retries, constructor/static init and500/300/1500 waits. Null/primitive Sync cover their named tested domains; further startup is not synchronous success.
 4. Complete automatic-file native ambiguity, durable action history and cold playback. The same-process timed file/native/parallel source path is tested; no cross-profile recovery admission is implied.
-5. Gate the typed fresh factual tip/block/transaction/document feed, preserving current counters, actual captured awaits and the same financial/index/source owner. Frozen1064 remains a candidate.
+5. Complete durable fresh-feed actions/cold composition and fine-grained raw-RPC continuation. The same-owner in-memory factual feed is tested; it preserves current counters, captured awaits and financial/index/source ownership.
 6. Rotate/publish acknowledged active-service history beyond the separate4096-action limit while retaining source/physical heads and one owner. Native paging alone does not close this.
 7. Run integrated RC checks and consume collaborator fuzz findings, then the planned oracle-abuse exercise with UTXORef as a separate consumer.
 
@@ -86,7 +94,7 @@ Intended-host real-block CPU/RSS, directory/power-loss, actual killed-process fi
 - Exact current runner/log/provider pointers are in `work/root-resume-current.json`. Refresh the workbook/sidebar every 30 minutes when state changes, preserving layout and proof gates.
 - Finished public-support provider: `work/providers/retained-callers-mode4-a94ea4c/libtradelayer_core.rlib`, SHA-256 `7f9b78d5169202225dee1aed5a03f8eeff6c189e6ea5ae98be062633c1de5560`; immutable provenance is adjacent. Candidate private Core tests still require Root execution.
 - Root gates use `work/cargo-check.ps1 -CargoArguments @(...)`, the pinned 1.90 toolchain and one Cargo process. Debug target: `work/main-v12-target`; release target: `work/source-settlement-target`. Use the existing runners' temp and genuine numeric settings.
-- Next action: gate frozen fresh-input/startup and complete source-fact cold replay milestones against current source, commit tested work and refresh this handoff. No pending worker result is complete merely because its files or helper tests exist.
+- Next action: gate corrected raw startup, complete source-fact cold replay and active-history milestones against current source, commit tested work and refresh this handoff. No pending worker result is complete merely because its files or helper tests exist.
 
 ## Latest rejected-append correction
 

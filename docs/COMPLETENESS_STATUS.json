@@ -1228,6 +1228,20 @@
       "freshFeedIntegrated": false,
       "fullSuitePromotion": false,
       "commit": "b8546b3fa7624b22d2b3853951104198429ce77f"
+    },
+    "mainFreshInput": {
+      "RootIntegrated": true,
+      "record": "fixtures/reference_fidelity/main-fresh-input-core-integration.json",
+      "libraryPassed": 648,
+      "libraryIgnored": 4,
+      "publicCompatibilityPassed": 44,
+      "newUnitTests": 10,
+      "actualCoreControls": 4,
+      "sourceCallsPerNumericProfile": 11,
+      "sourceRecordsPerNumericProfile": 48,
+      "durableFeedIntegrated": false,
+      "fineRpcAwaitContinuationIntegrated": false,
+      "fullSuitePromotion": false
     }
   },
   "scope": "Full release a94ea4c remains 2,204 Rust / 239 genuine numeric checks. Later b8546b3 passes 638 library tests (four ignored), 44 public checks and 44 new tests, strict Clippy, formatting, inventory and supply policy. Null source/header continuation, automatic file/native and parallel retries, actual fact journaling and native-only recovery are integrated. Cold replay, fresh feed, raw startup, history continuation and authenticated proof gates remain open.",

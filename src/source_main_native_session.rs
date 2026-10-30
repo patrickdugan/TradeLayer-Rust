@@ -578,6 +578,7 @@ include!("source_main_retained_file_command_impl.rs");
 include!("source_main_retained_file_session_impl.rs");
 include!("source_main_automatic_file_session_impl.rs");
 include!("source_main_retained_consensus_session_impl.rs");
+include!("source_main_fresh_input_session_impl.rs");
 include!("source_main_coercive_sync_session_impl.rs");
 include!("source_main_null_sync_session_impl.rs");
 include!("source_main_retained_caller_start_wal_impl.rs");
@@ -671,3 +672,7 @@ mod retained_file_tests;
 #[cfg(test)]
 #[path = "source_main_automatic_file_tests.rs"]
 mod automatic_native_file_tests;
+
+#[cfg(test)]
+#[path = "source_main_fresh_input_core_tests.rs"]
+mod fresh_rpc_input_tests;

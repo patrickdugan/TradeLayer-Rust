@@ -2987,6 +2987,7 @@ include!("source_main_retained_caller_selected_runtime_impl.rs");
 include!("source_main_retained_consensus_factory_impl.rs");
 include!("source_main_inline_install_runtime_impl.rs");
 include!("source_main_inline_service_runtime_impl.rs");
+include!("source_main_fresh_input_runtime_impl.rs");
 include!("source_main_active_service_recovery_runtime_impl.rs");
 include!("source_main_service_escrow_runtime_impl.rs");
 include!("source_main_actual_fact_append_runtime_impl.rs");

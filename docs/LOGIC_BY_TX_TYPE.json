@@ -2,8 +2,8 @@
   "schema": "tl-logic-reference-review-v1",
   "jsCommit": "dca0888b827c5bc28fa9189bc9e1d507f5c5670c",
   "rustCommit": "70f568ad703bef189c01c989631692fdf75235bb",
-  "rustCommitScope": "Full frozen release of implementation239c340/tested216377f passes2,120 Rust executions (2,119top-level +one successful storage child),238 locked numeric checks across281targets; all1,776inputs unchanged. Actual WAL/history/validity recovery, bounded cold rows/prefix, Promise continuations and explicit inline live service are covered. Inline durable WAL/recovery, full acknowledged action/startup/catchup/historical inline and cross-publication finance, host validation and authenticated complete-block proofs remain open. All37transaction rows retain their source parity and proof gates. Cold acknowledged HISTORY-WAL source actions now execute on one actual retained financial/index owner:3 Core+2metadata newcontrols,475combined library/44public pass. All Before/Accepted comparisons and native Append/Resolve are recomputed. Mode4/inline/recovery/cross-publication/hot-resume/killedfinance remain open; full baseline stays2,120Rust/238numeric. Explicit Mode4 inline WAL/native same-process recovery passes6 Core+4metadata controls,485library/44public checks. Original held source PCs survive exact Before/Intermediate/Post with synced replacement mapping; no source action retry. Detached callers/coldMode4/process-loss finance remain open; full baseline2,120Rust/238numeric unchanged. Channel64+ sort gap closes within existing1024-row bound using identical sharedV8helper/comparator:4unit+1actualfinancial control,489library/16existingpublic/5lockedfinancial pass. Two complete financial scenes preserve successful settlement and later-error Tally prefix; no MainIO or economics policy change. Full release remains2,120/238. Copied original metadata views/strict escrow expectations now pass5 new actual Core metadata controls and19combined escrow cases;272includeformat/Clippy pass. Original/copy identities remain distinct,1100old rows survive actual prune, no writerpermit/coldadmission is granted. Full baseline2,142Rust/239numeric; later5notfullpromoted. Retained Main caller/TxIndex extractor component passes4+4new Core controls,7oldinline+6Mode4,504library beforeunused-test-helper cleanup and44public; final8focused +Clippy/fmt279/inventory pass. Actual owner/queue/index held, detached child separate, explicitselector. ConsensusReady remains unfulfilled; no fullInitialize/WAL/coldcaller claim. Baseline2,142/239 unchanged. Historical inline metadata5+2independent controls and Bitcoin complete-supported-transaction4public controls pass;511library,18Bitcoinpublic,6SourceOwner,7inline+6Mode4,Clippy/fmt285/inventory/supply. Genuine133Script/72Corebasic calls regenerate5fixtures exactly. No parent/chain/TL authority, livepermit or cold/caller admission is added; full baseline2,142/239 unchanged. Retained same-invocation consensus composition passes5Core+1job+3independent caller controls,520library/44public/7inline/6Mode4 andClippy/fmt291/inventory. ActualInitialize canfulfill whilefinalsaveheld; oneowner/header remainsheld, actual-origin route refuses crossowner keys. Narrow readiness/visitor-test corrections recorded. WAL/recovery/cold/arbitraryconcurrency/fullstartup notestablished; fullbaseline2,142/239 unchanged. Mode4 physicalACK/native metadata closure and callerStartOnly WAL pass25new controls,545library/44public,Clippy/fmt303/inventory/supply. Mode4 initial observation now shares the exact actual scope encoding after Core tests exposed a missing unscoped blob; strict reader unchanged. Same owner/source await retained. Start Intent sync precedes actual constructor; uncertain WAL retries never rerun it. RawsourceMode4 cold replay/selectedcaller actions/native recovery remain open. Fullbaseline2,142/239 unchanged. Independent exact3cc Mode4 review now passes4newRoot controls/10combinedmetadata (eightadversarial scenarios),161copied tests/oneignored; strictClippy/fmt304/inventory. PastCRCvalidbarrier reorder, missing/duplicate/late supersession, realalternate mutation and sameKVforeigncopy refuse. No prodbodychange, financialreplay/authclaim or fullrelease promotion. Later rejected-append correction passes 5 new actual source and 3 metadata controls; 557 library/44 public, Clippy/fmt304/inventory/supply pass. Genuine no-publication rejection ACKs preserve prior original/replacement lineage and cannot verify/resolve a source operation. Current-action API rejection no longer reuses a stale StorageStopped result. Full baseline remains 2,204 Rust/239 numeric; raw-source Mode4 replay remains open. Later Main composition passes 594 library/four ignored and44 public checks, strict Clippy/fmt338/inventory/supply. Selected caller WAL/recovery, primitive coercive Sync, direct file retries and ordinary Mode4 raw-source replay through three native operations are tested on one owner. Automatic file/native tail, null/global startup, recovery cold replay, fresh facts and history rotation remain open. Full baseline remains2,204/239. Later orchestration batch passes 638 library/four ignored, 44 public checks, strict Clippy/fmt372/inventory/supply. Null source/header continuation, automatic file/native and parallel retries, actual inline fact journaling and native-only recovery are tested. Full release remains2,204/239; fresh feed, raw startup, cold source-fact actor, history continuation and authentication gates stay open.",
-  "reviewedAtUtc": "2026-10-30T03:59:52Z",
+  "rustCommitScope": "Full frozen release of implementation239c340/tested216377f passes2,120 Rust executions (2,119top-level +one successful storage child),238 locked numeric checks across281targets; all1,776inputs unchanged. Actual WAL/history/validity recovery, bounded cold rows/prefix, Promise continuations and explicit inline live service are covered. Inline durable WAL/recovery, full acknowledged action/startup/catchup/historical inline and cross-publication finance, host validation and authenticated complete-block proofs remain open. All37transaction rows retain their source parity and proof gates. Cold acknowledged HISTORY-WAL source actions now execute on one actual retained financial/index owner:3 Core+2metadata newcontrols,475combined library/44public pass. All Before/Accepted comparisons and native Append/Resolve are recomputed. Mode4/inline/recovery/cross-publication/hot-resume/killedfinance remain open; full baseline stays2,120Rust/238numeric. Explicit Mode4 inline WAL/native same-process recovery passes6 Core+4metadata controls,485library/44public checks. Original held source PCs survive exact Before/Intermediate/Post with synced replacement mapping; no source action retry. Detached callers/coldMode4/process-loss finance remain open; full baseline2,120Rust/238numeric unchanged. Channel64+ sort gap closes within existing1024-row bound using identical sharedV8helper/comparator:4unit+1actualfinancial control,489library/16existingpublic/5lockedfinancial pass. Two complete financial scenes preserve successful settlement and later-error Tally prefix; no MainIO or economics policy change. Full release remains2,120/238. Copied original metadata views/strict escrow expectations now pass5 new actual Core metadata controls and19combined escrow cases;272includeformat/Clippy pass. Original/copy identities remain distinct,1100old rows survive actual prune, no writerpermit/coldadmission is granted. Full baseline2,142Rust/239numeric; later5notfullpromoted. Retained Main caller/TxIndex extractor component passes4+4new Core controls,7oldinline+6Mode4,504library beforeunused-test-helper cleanup and44public; final8focused +Clippy/fmt279/inventory pass. Actual owner/queue/index held, detached child separate, explicitselector. ConsensusReady remains unfulfilled; no fullInitialize/WAL/coldcaller claim. Baseline2,142/239 unchanged. Historical inline metadata5+2independent controls and Bitcoin complete-supported-transaction4public controls pass;511library,18Bitcoinpublic,6SourceOwner,7inline+6Mode4,Clippy/fmt285/inventory/supply. Genuine133Script/72Corebasic calls regenerate5fixtures exactly. No parent/chain/TL authority, livepermit or cold/caller admission is added; full baseline2,142/239 unchanged. Retained same-invocation consensus composition passes5Core+1job+3independent caller controls,520library/44public/7inline/6Mode4 andClippy/fmt291/inventory. ActualInitialize canfulfill whilefinalsaveheld; oneowner/header remainsheld, actual-origin route refuses crossowner keys. Narrow readiness/visitor-test corrections recorded. WAL/recovery/cold/arbitraryconcurrency/fullstartup notestablished; fullbaseline2,142/239 unchanged. Mode4 physicalACK/native metadata closure and callerStartOnly WAL pass25new controls,545library/44public,Clippy/fmt303/inventory/supply. Mode4 initial observation now shares the exact actual scope encoding after Core tests exposed a missing unscoped blob; strict reader unchanged. Same owner/source await retained. Start Intent sync precedes actual constructor; uncertain WAL retries never rerun it. RawsourceMode4 cold replay/selectedcaller actions/native recovery remain open. Fullbaseline2,142/239 unchanged. Independent exact3cc Mode4 review now passes4newRoot controls/10combinedmetadata (eightadversarial scenarios),161copied tests/oneignored; strictClippy/fmt304/inventory. PastCRCvalidbarrier reorder, missing/duplicate/late supersession, realalternate mutation and sameKVforeigncopy refuse. No prodbodychange, financialreplay/authclaim or fullrelease promotion. Later rejected-append correction passes 5 new actual source and 3 metadata controls; 557 library/44 public, Clippy/fmt304/inventory/supply pass. Genuine no-publication rejection ACKs preserve prior original/replacement lineage and cannot verify/resolve a source operation. Current-action API rejection no longer reuses a stale StorageStopped result. Full baseline remains 2,204 Rust/239 numeric; raw-source Mode4 replay remains open. Later Main composition passes 594 library/four ignored and44 public checks, strict Clippy/fmt338/inventory/supply. Selected caller WAL/recovery, primitive coercive Sync, direct file retries and ordinary Mode4 raw-source replay through three native operations are tested on one owner. Automatic file/native tail, null/global startup, recovery cold replay, fresh facts and history rotation remain open. Full baseline remains2,204/239. Later orchestration batch passes 638 library/four ignored, 44 public checks, strict Clippy/fmt372/inventory/supply. Null source/header continuation, automatic file/native and parallel retries, actual inline fact journaling and native-only recovery are tested. Full release remains2,204/239; fresh feed, raw startup, cold source-fact actor, history continuation and authentication gates stay open. Fresh factual tip/block/document input now passes 648library/four ignored,44 public,10 new controls,strictClippy/fmt 378/inventory/supply. Same actual owner/plan/timer/counters preserved; durability/cold/fine-RPC/startup/history/authentication gates remain open.",
+  "reviewedAtUtc": "2026-10-30T04:26:23Z",
   "evidenceScope": "static per-type inventory; executed property, clearlist, send, oracle and contract checks are recorded separately",
   "sourcePins": [
     {
@@ -166,7 +166,7 @@
     {
       "path": "src/source_contract_runtime.rs",
       "lfNormalized": true,
-      "sha256": "95c8aa25feddd2ba0a9bafa7cfa73a561bc336b230795f74a0b6de42d7f57d9d"
+      "sha256": "dffe403df05719fa5eb09705fba5d8f2729b725dd10cd9f5cef2610080a18976"
     },
     {
       "path": "src/source_contract_values.rs",
@@ -525,7 +525,7 @@
     },
     {
       "path": "src/lib.rs",
-      "sha256": "ef1fed51ee72134c159228203ea6c74c9911672f0a7e2792eddb89e72ac7174d",
+      "sha256": "db8ed7312e2d6969fc2c7441153613ef0f1dc68ebb964cb7409b0a517bda1bb4",
       "lfNormalized": true
     },
     {
@@ -540,7 +540,7 @@
     },
     {
       "path": "src/source_main_native_session.rs",
-      "sha256": "7e8c0011dd7430176da629389b38d0933cc6c3175268ec4975e3fd7e793ec36e",
+      "sha256": "8b11db71ad4ba5191ae2a6ffcba30de7505bea4ff3ac014dd3536156c9d34163",
       "lfNormalized": true
     },
     {
@@ -1901,6 +1901,36 @@
     {
       "path": "src/source_main_automatic_provenance_runtime_impl.rs",
       "sha256": "85ace5ec913ed4c4241532ca000fcde7eb63cdf30530f9fd578bf19194576ef1",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_fresh_input.rs",
+      "sha256": "1a73d2dfc8141849c7d10784beccbf6bd05640f696e21c71310d9ee3592e793c",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_fresh_input_core_tests.rs",
+      "sha256": "d6145b85c92a4a9941c9353f9cc916ae7f9e83df4768d5de06d8d7736ac54379",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_fresh_input_runtime_impl.rs",
+      "sha256": "192b3a762d2e17e54e15e324b36bb40419cda1e6f8fddd3377fcda64f192183f",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_fresh_input_session_impl.rs",
+      "sha256": "0e351deadd566d95fb1b0987857f0aa94e0a8cae7de70478e78f4015d36c86e6",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_fresh_input_test_transport.rs",
+      "sha256": "9bf0d528e1dd343a50e9abf26646797542cc5c079e095ed28fba69cf1d974d9d",
+      "lfNormalized": true
+    },
+    {
+      "path": "src/source_main_fresh_input_tests.rs",
+      "sha256": "302b1171fc5a032d7c2c62e5723464a30cbeec89b73b53c78732758bb93e1cc4",
       "lfNormalized": true
     }
   ],
