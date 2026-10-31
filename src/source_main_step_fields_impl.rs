@@ -197,11 +197,14 @@ impl MainStepKernelV1 {
                 MainStepJobStatus::Ready => "Ready",
                 MainStepJobStatus::WaitingTimer(_) => "WaitingTimer",
                 MainStepJobStatus::WaitingChild(_) => "WaitingChild",
+                MainStepJobStatus::WaitingDatabase(_) => "WaitingDatabase",
                 MainStepJobStatus::Completed(_) => "Completed",
             };
             emit(&format!("{path}/status/kind"), &s(kind))?;
             match &job.status {
-                MainStepJobStatus::WaitingTimer(id) | MainStepJobStatus::WaitingChild(id) => {
+                MainStepJobStatus::WaitingTimer(id)
+                | MainStepJobStatus::WaitingChild(id)
+                | MainStepJobStatus::WaitingDatabase(id) => {
                     field_uint(&format!("{path}/status/id"), *id, emit)?
                 }
                 MainStepJobStatus::Completed(result) => {

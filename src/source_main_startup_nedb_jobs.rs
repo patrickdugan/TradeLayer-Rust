@@ -61,6 +61,11 @@ pub(crate) struct RequestKey {
     generation: u64,
     serial: u64,
 }
+impl RequestKey {
+    pub(crate) fn serial(self) -> u64 {
+        self.serial
+    }
+}
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Phase {
     Requested,

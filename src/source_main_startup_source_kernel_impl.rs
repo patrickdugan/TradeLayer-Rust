@@ -74,6 +74,9 @@ impl MainStepKernelV1 {
             queue
                 .visit_fields(&mut |path, value| visitor(&format!("startupNedb/{path}"), value))?;
         }
+        if self.startup_source_promises.is_some() {
+            self.startup_visit_legacy(visitor)?;
+        }
         Ok(())
     }
 }
