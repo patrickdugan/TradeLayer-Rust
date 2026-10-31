@@ -21,7 +21,7 @@ import tomllib
 
 EXPECTED_TOOLCHAIN = "1.90.0"
 EXPECTED_PACKAGE = "tradelayer-core"
-EXPECTED_VERSION = "0.1.0"
+EXPECTED_VERSION = "0.1.0-rc.1"
 
 
 class SupplyChainError(ValueError):

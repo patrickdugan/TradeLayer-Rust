@@ -1,6 +1,6 @@
 # Claude handoff — conserve Codex
 
-Prepared 2026-10-30 UTC at the user's request. Continue the full TradeLayer-Rust port; it is **not an RC or a completed faithful port**. Codex workers have stopped, and the periodic Codex spreadsheet refresh is paused. No push, PR or merge was performed.
+Prepared 2026-10-30 UTC at the user's request. RC-1 (`tradelayer-core 0.1.0-rc.1`) gates, commands and results: `docs/RC.md`. Codex workers have stopped, and the periodic Codex spreadsheet refresh is paused. No push, PR or merge was performed.
 
 ## Open this checkout
 

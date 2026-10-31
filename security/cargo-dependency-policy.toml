@@ -3,7 +3,7 @@
 schema = 1
 policy = "deny-all-external-rust-crates"
 package = "tradelayer-core"
-package_version = "0.1.0"
+package_version = "0.1.0-rc.1"
 toolchain = "1.90.0"
 require_offline = true
 deny_build_scripts = true

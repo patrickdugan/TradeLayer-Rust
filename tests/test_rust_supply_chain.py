@@ -84,7 +84,7 @@ class SupplyChainGateTests(unittest.TestCase):
             "\n[[package]]\nname = \"malicious-crate\"\nversion = \"1.0.0\"\n"
             "source = \"registry+https://github.com/rust-lang/crates.io-index\"\n"
             "checksum = \"0\"\n",
-            "\n[[package]]\nname = \"tradelayer-core\"\nversion = \"0.1.0\"\n",
+            "\n[[package]]\nname = \"tradelayer-core\"\nversion = \"0.1.0-rc.1\"\n",
             "\n[metadata]\nextra = \"unreviewed\"\n",
         ]:
             with self.subTest(change=change):

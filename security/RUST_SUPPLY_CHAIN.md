@@ -2,12 +2,12 @@
 
 ## Decision: zero third-party crates inside the TradeLayer consensus kernel
 
-**Security posture: locked at `tradelayer-core@0.1.0`, Rust 1.90.0,
+**Security posture: locked at `tradelayer-core@0.1.0-rc.1`, Rust 1.90.0,
 zero external Rust crates.** This is enforced by the standard-library-only
 `scripts/check_rust_supply_chain.py` and `.cargo/config.toml`.
 
 The dependency graph at the time of this change contains only
-`tradelayer-core 0.1.0`, and `Cargo.lock` format v4 records no third-party
+`tradelayer-core 0.1.0-rc.1`, and `Cargo.lock` format v4 records no third-party
 checksum because it contains no third-party package.
 
 The policy deliberately avoids pretending that a pinned version is risk-free.

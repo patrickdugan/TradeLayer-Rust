@@ -1,0 +1,58 @@
+{
+  "schema": "tl-rc-validation-v1",
+  "version": "0.1.0-rc.1",
+  "verifiedAtUtc": "2026-10-31T13:15:22Z",
+  "parentCommit": "0a8a7b7c1d46d849679456201b6f766db107b2f1",
+  "validatedIn": "clean export of the parent commit plus exactly the files below",
+  "host": {
+    "cpu": "AMD Ryzen AI 9 365 (10 cores / 20 threads)",
+    "os": "Windows 11",
+    "rust": "1.90.0-x86_64-pc-windows-msvc"
+  },
+  "gate1Preflight": {
+    "command": "bash scripts/ci-preflight.sh --full",
+    "testTargetsOk": 307,
+    "testsPassed": 2645,
+    "testsIgnored": 5,
+    "failed": 0,
+    "walletOrderOracle": "PASS"
+  },
+  "gate2HistoryParity": {
+    "rustTests": [
+      "genuine_seeded_histories_match_under_global_clearing",
+      "genuine_seeded_histories_match_under_option_lifecycle",
+      "genuine_seeded_histories_match_under_proof_lifecycle"
+    ],
+    "observations": 171,
+    "histories": 3,
+    "blocksEach": 15,
+    "jsCheck": "node scripts/source_contract_history_vectors.cjs --check",
+    "bigNumberProfiles": [
+      "9.3.1",
+      "9.1.2 source lock"
+    ],
+    "mutationCheck": "one balance digit changed in history-seed-2/60 fails at tallyMap available"
+  },
+  "gate3CrashRecovery": [
+    "actual_child_crash_boundaries_recover_retry_and_support_witnesses",
+    "real_child_crashes_recover_only_before_intermediate_or_prepared_after",
+    "actual_process_exit_matrix_generation_current_and_retention",
+    "active_wal_real_exit_matrix"
+  ],
+  "gate4SupplyChain": "PASS: one first-party Rust package, zero third-party crates",
+  "gate6GitHubCi": "runs only on main or a pull request",
+  "files": {
+    "scripts/source_contract_history_vectors.cjs": "085ad5b93ed5d18e6b0279be9ea6dede40fcfd6b06325a0039bb1c4f3f8be98f",
+    "fixtures/source_contract_history_vectors.tsv.gz": "2460c46272fcbe2417f2ab1099bcdec096ea45069a03cd90db1996863a58e8c0",
+    "tests/source_contract_runtime.rs": "fe1fe433dd35161053ac21fdf1324c67c62ada35fa5ac3827debd58176a5665a",
+    ".github/workflows/ci.yml": "4cb2355878e636ca0882eab5bb177565fb9cd590eaea1f3d2e46ad4c6e9b3c61",
+    "Cargo.toml": "c59b229bb9e4e98eb66e1343b1b57baa35faebfc3a2246090e08ad0ee0797f76",
+    "Cargo.lock": "fe79405b6a29ff2ea1607cb68a0f76e0aa42fb8c43eeda829af28467f7808a6e",
+    "scripts/check_rust_supply_chain.py": "0354e7be1ab02dd2bbce32df259d953bf0e83696a629e8bf288b959605d16aa1",
+    "tests/test_rust_supply_chain.py": "86526b8405f586fed5619731acb74dd1d2c2b0e4e3758797f433362e78f5942e",
+    "security/cargo-dependency-policy.toml": "8ed01ec47ce61b43f442e51f79984d2491511686b98f693d702b090316425f5e",
+    "security/RUST_SUPPLY_CHAIN.md": "5f9ed2c70ff3780ef30636930b0a622fa64474dab2baf669728d8c6cbd38b19d",
+    "docs/RC.md": "c1e6d111458d8396e419b6b17ef7f03bc56805b1c952c638756560e5c3be1a00"
+  },
+  "logSha256": "4d82d57065ceecaea2b45f0d417b96fc9c548462a67dbdf8e755c3e7330be937"
+}

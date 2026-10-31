@@ -118,7 +118,8 @@ fn outcome(v: SourceOutcome) -> V {
 }
 const PROJECT: &str = r#"
 const fs=require('node:fs');
-const rows=fs.readFileSync('fixtures/source_contract_execution_vectors.tsv','utf8').trimEnd().split('\n').filter(x=>x.startsWith('V\t'));
+const file=process.argv[1],raw=fs.readFileSync(file);
+const rows=(file.endsWith('.gz')?require('node:zlib').gunzipSync(raw):raw).toString('utf8').trimEnd().split('\n').filter(x=>x.startsWith('V\t'));
 const norm=x=>x[0]==='map'?['array',x[1].map(([k,v])=>['array',[norm(k),norm(v)]])]:x[0]==='object'?['object',x[1].map(([k,v])=>[k,norm(v)])]:x[0]==='array'?['array',x[1].map(norm)]:x;
 const get=(v,k)=>v[1].find(([key])=>key===k)?.[1]??['undefined'];
 const hex=x=>Buffer.from(JSON.stringify(norm(x))).toString('hex');
@@ -389,8 +390,15 @@ fn apply_case(runtime: &mut SourceContractRuntime, c: &Case) {
     }
 }
 fn run_source_composition(policy: P) {
+    run_fixture(
+        policy,
+        "fixtures/source_contract_execution_vectors.tsv",
+        135,
+    );
+}
+fn run_fixture(policy: P, fixture: &str, observations: usize) {
     let result = std::process::Command::new("node")
-        .args(["-e", PROJECT])
+        .args(["-e", PROJECT, fixture])
         .current_dir(env!("CARGO_MANIFEST_DIR"))
         .output()
         .unwrap();
@@ -429,7 +437,7 @@ fn run_source_composition(policy: P) {
     }
     apply_case(&mut runtime, &current);
     count += 1;
-    assert_eq!(count, 135);
+    assert_eq!(count, observations);
 }
 
 #[test]
@@ -445,4 +453,23 @@ fn v4_retains_all_original_genuine_onchain_settlement_comparisons() {
 #[test]
 fn v6_retains_all_original_genuine_onchain_settlement_comparisons() {
     run_source_composition(P::ProofLifecycleV6);
+}
+
+// Three seeded 15-block contract histories (oracle walk, random A/B orders,
+// drains, fee flushes) from the genuine pinned source; every action's state.
+const HISTORY: &str = "fixtures/source_contract_history_vectors.tsv.gz";
+
+#[test]
+fn genuine_seeded_histories_match_under_global_clearing() {
+    run_fixture(P::GlobalClearingV2, HISTORY, 171);
+}
+
+#[test]
+fn genuine_seeded_histories_match_under_option_lifecycle() {
+    run_fixture(P::OptionLifecycleV4, HISTORY, 171);
+}
+
+#[test]
+fn genuine_seeded_histories_match_under_proof_lifecycle() {
+    run_fixture(P::ProofLifecycleV6, HISTORY, 171);
 }

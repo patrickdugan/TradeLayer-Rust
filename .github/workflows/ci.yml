@@ -270,7 +270,9 @@ jobs:
           python3 scripts/source_full_dispatch_main_inputs.py --check
           node scripts/full_dispatch_witness_command_pins.cjs
       - name: Genuine composed source contract execution observations
-        run: node scripts/source_contract_execution_vectors.cjs --check --module-root "$RUNNER_TEMP/tl-secp-reference"
+        run: |
+          node scripts/source_contract_execution_vectors.cjs --check --module-root "$RUNNER_TEMP/tl-secp-reference"
+          node scripts/source_contract_history_vectors.cjs --check --module-root "$RUNNER_TEMP/tl-secp-reference"
       - name: Original ordered Main bootstrap source observations
         env:
           TRADELAYER_JS_ROOT: ${{ runner.temp }}/tl-secp-reference
@@ -304,6 +306,7 @@ jobs:
           TL_BIGNUMBER_LOCK_ROOT: ${{ runner.temp }}/tl-bignumber-lock
         run: |
           node --require ./scripts/bignumber_lock_reference.cjs scripts/source_contract_execution_vectors.cjs --check --module-root "$RUNNER_TEMP/tl-secp-reference"
+          node --require ./scripts/bignumber_lock_reference.cjs scripts/source_contract_history_vectors.cjs --check --module-root "$RUNNER_TEMP/tl-secp-reference"
           node --require ./scripts/bignumber_lock_reference.cjs scripts/source_send_vectors.cjs --check
           node --require ./scripts/bignumber_lock_reference.cjs scripts/oracle_source_owner_vectors.cjs --check --module-root "$RUNNER_TEMP/tl-secp-reference"
       - name: Literal contract runtime with exact source-lock BigNumber
