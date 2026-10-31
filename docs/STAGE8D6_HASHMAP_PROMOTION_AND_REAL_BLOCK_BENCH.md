@@ -79,4 +79,27 @@ On blocks of 1,000 or more transactions the BTreeMap reference takes 6 to 14% lo
 
 Running the corpus found a defect: the bench decoded the block with `read_only::decode_hex`, which is bounded by one raw transaction (1,000,000 bytes), so every block above 1 MB raw failed with `InvalidHex`. It now decodes up to `MAX_UNVERIFIED_RAW_BLOCK_BYTES` (4,000,000). CI's block-1 smoke (215 bytes) could not catch this. The harness also records the Windows peak working set and every trial's scan time.
 
+### Same corpus under Linux (WSL2)
+
+The same seven files and the same commit, built with Rust 1.90.0 for `x86_64-unknown-linux-gnu` inside WSL2 (kernel 6.18.54.1-microsoft-standard-WSL2, 20 vCPUs, 19 GB) on the same host, measured with the unchanged Linux path: peak memory is each process's own `VmHWM`. Raw rows: `fixtures/bench/stage8d6_testnet4_corpus_wsl.jsonl`.
+
+| Height | TX | Workers | BTreeMap ms | HashMap ms | Tree/Hash | VmHWM KiB (tree / hash) |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 72200 | 5,715 | 8 | 7.006 | 6.757 | 1.037 | 9,916 / 9,572 |
+| 66700 | 3,856 | 8 | 5.111 | 4.905 | 1.042 | 8,344 / 8,244 |
+| 74800 | 3,337 | 8 | 5.196 | 4.774 | 1.088 | 8,308 / 8,124 |
+| 55700 | 2,516 | 8 | 3.968 | 3.850 | 1.031 | 5,808 / 5,512 |
+| 69500 | 1,009 | 8 | 2.174 | 1.972 | 1.102 | 4,464 / 4,388 |
+| 30500 | 296 | 8 | 1.344 | 1.204 | 1.116 | 3,092 / 3,064 |
+| 95000 | 152 | 8 | 1.078 | 1.130 | 0.954 | 3,064 / 2,932 |
+| 72200 | 5,715 | 16 | 7.925 | 7.240 | 1.095 | 10,040 / 9,632 |
+| 66700 | 3,856 | 16 | 5.873 | 5.547 | 1.059 | 8,340 / 8,080 |
+| 74800 | 3,337 | 16 | 5.216 | 5.090 | 1.025 | 8,552 / 7,996 |
+| 55700 | 2,516 | 16 | 4.196 | 4.131 | 1.016 | 5,916 / 5,500 |
+| 69500 | 1,009 | 16 | 2.816 | 2.769 | 1.017 | 4,600 / 4,476 |
+| 30500 | 296 | 16 | 2.138 | 2.102 | 1.017 | 3,156 / 3,148 |
+| 95000 | 152 | 16 | 1.828 | 1.755 | 1.042 | 3,052 / 3,012 |
+
+Under Linux the BTreeMap reference takes 2 to 12% longer than the HashMap reducer on every block except the 152-transaction block at 8 workers, where it is 5% shorter. The HashMap reducer's peak RSS is lower in all 14 rows, by 0.3 to 7.6%, and peak RSS ranges from 2.9 MB to 10.0 MB. Sixteen workers are slower than eight on every block. Scan times under WSL2 are higher than the Windows-native run on the same CPU for every block, so the two tables compare reducers within one OS, not the two OSes against each other.
+
 These are testnet4 blocks. Their transaction and witness mix is not mainnet's, and the scan measures TXID hashing and duplicate detection, not script validation or state application.
