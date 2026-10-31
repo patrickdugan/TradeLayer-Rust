@@ -20,7 +20,8 @@ Claude is now the integration owner. Historical worker statements such as "no Ro
 
 ## User rules and architectural constraints
 
-- Commit completed, checked local work on the current branch. Stage only task-owned files; preserve unrelated changes. Never push, publish, merge or open a PR without explicit user authorization.
+- Commit checked work to a branch and push that branch (user's standing rule, 2026-10-31). Never push to `main`, merge, or open a PR unless the user asks. Stage by path only.
+- **NeDB is not consensus** (user, 2026-10-31). Do not model NeDB 1.8/async 0.2.10 executor turns or JS startup interleavings that depend on them. Storage is the Rust fast store (compact index, durable candidate store). Consensus parity is the state produced by processing blocks in order, compared on state outputs.
 - Preserve pinned JS behavior, including throws, ordering, partial writes and source bugs. Keep explicit repaired policies separate. Unsupported domains and bounded component checks do not establish full parity.
 - One actual financial Ledger/Core/index/queue owner. Never execute from expected state, recorded Before/Accepted, a supplied verdict, or an observed scheduling trace. Actual IO results must remain owned through observation/callback failures. Native retry must not repeat the financial/source prefix or fabricate a Post.
 - Preserve old/default APIs, codecs, readers and admission unless a change is explicitly justified and checked. Apply pure transforms to **current** text; do not replace current files with old full-file previews. Frozen packages are immutable.
@@ -65,48 +66,14 @@ The binding lane's native raw-request capture (anchor fixed for the current one-
 
 Result awaits (FindMax/Tally load/MaxProcessed) now subscribe at the async call's return and attach the actual result later (`fixtures/reference_fidelity/main-outer-kernel-early-routes-integration.json`). Known simplification: Request-time rejections deliver their callback at registration without an executor job.
 
-### First next action
+## Startup ordering (decided 2026-10-31)
 
-Put the Incoming/Sync/checkBlockLag lane on the same driver loop (raw RPC as RecordedHostIo Promises, its NeDB operations through the same executor), then compare the combined operation order with the genuine ordinals 125-138 (outer fixed read before the first transaction RPC/upsert). Only then revisit the two queued positives.
+Startup order is deterministic. The committed literal nested drive (`src/source_main_startup_nested_runtime_impl.rs`) parks the first live block at its first native write, runs the outer `constructConsensusFromIndex` on the pre-write index, then releases the block. The outer read therefore sees the same three txIndex rows as genuine JS, without any NeDB model.
 
-Diagnosis behind this (Claude, 2026-10-31, from code and the dc7d6dbf evidence, not yet executed):
-
-- In the genuine run NeDB is the real library (32 genuine NeDB 1.8 memory handles), so every `findOne`/`update` costs per-collection executor `setImmediate` turns. The recorded client's RPC methods are async functions that return already-resolved Promises, so `getBlockCount`/`getNetworkInfo` cost microtask turns only (`startup_init_source_base.cjs` `io()`).
-- The legacy step Kernel's `Frame::Incoming`/`Sync`/`Recovery` run `HeightRead`, `HeightWrite` and the persistence/txIndex writes as synchronous primitives inside one `ready` turn (`src/source_main_step_kernel.rs`, `advance` and `apply_with_drain_bound`). That lets the live lane's first upsert happen before the outer fixed read's NeDB sample, which is exactly the observed four-versus-three-rows failure.
-- Required work, in order: (1) DONE for persistence/upsert/update/field findOne (`fixtures/reference_fidelity/main-startup-nedb-kinds-integration.json`; insert is not modeled): extend `StartupNedbQueue` with the remaining collections (persistence and the others the Incoming lane touches), non-`_id` `findOne`, and `update`/upsert executor jobs, re-deriving each job shape from the genuine NeDB executor reference (`nedb_executor_reference.cjs` in the source-kernel package) and refreezing its fixture; (2) under the startup profile only, make the legacy Kernel's DB primitives park the job and request the executor, executing the actual primitive at the sample delivery and readying the job at the callback; design note: Frame::Incoming/Sync/Recovery call DB primitives mid-phase (e.g. phase 1 runs HeightRead, Greater, Add), so parking needs each DB call moved to the end of its own phase with its result consumed by the next phase, under the startup profile only. Re-running a phase from its stored results was considered and rejected because it replays a source prefix; (3) route every legacy `ready.push_back` in that profile through the same `StartupPromiseQueue` reaction FIFO, so legacy jobs and outer routes share one microtask order; (4) run Main's outer and Incoming lanes together and compare with genuine ordinals 125-138.
-
-## Main remaining blocker: actual startup scheduling
-
-Two uncommitted queued positives still fail: the proposed Rust scheduler samples an outer fixed index view **after** the first live upsert, yielding four rows; genuine pinned JS samples three rows **before** the first transaction RPC/upsert. Later live writes are therefore absent. The old assertions have not been weakened or ignored in CI.
-
-The correction requires the actual same Kernel to own intrinsic Promise adoption, caller-return subscriptions, Incoming/Sync/checkBlockLag, named NeDB request/executor/candidate/callback jobs and the real nonclone financial/index/header/query frames. Modeling NeDB's observable scheduling is reference compatibility; durable production storage remains the compact-index architecture.
-
-No recorded delay, phase count, operation/effect offset, expected result, financial snapshot or extra owner may drive execution. Request-time hooks, row sampling, callback delivery and source reactions are distinct. Register parent awaits at actual async-call return, not only at eventual child completion. Retain the independent unawaited Tally child. The actual outer prefix/prepared plan is not completed Main execution.
-
-Read these **local** detailed handoffs:
-
-1. `work/native-main-outer-bootstrap-kernel-binding-v13/CLAUDE_HANDOFF.md`: exact hooks/registry/API seams. Hook leaves are parse-only WIP; the native raw-request transform fails a strict multiline-vs-one-line visitor anchor. No completed outer Kernel registry exists.
-2. `work/native-main-startup-source-kernel-v13/CLAUDE_CHECKPOINT.md`: same-Kernel Promise/NeDB components and the still-unimplemented Incoming/return-chain controller.
-3. `work/review-main-startup-source-kernel-v13/root-ready-review-1/REVIEW.md`: independently reproduced notification-order defects and custody review.
-
-Useful frozen manifests (resolve under `work/`; verify full payload hashes):
-
-| Package | Manifest SHA256 |
-|---|---|
-| `native-main-startup-query-await-v13/root-ready-source-query-await-1` | `54a94229f992c45b9d5e703f536f373e955bada6b3c6e6e7f0af022f4eaa5da2` |
-| `native-main-outer-bootstrap-await-v13/root-ready-outer-bootstrap-await-3` | `25573cb771b6a993d807984b383e9e5cf9c266830857f6f537c7141b69edd16e` |
-| Outer `root-ready-per-factory-stop-1` | `dd7b992235187346d4c71fed0ed178f54cb089e94e0ea6fe52c3956b5dc3d28e` |
-| Outer `root-ready-native-return-conversion-1` | `c0e83a76c7f9f978deb789d219f9d6023a4d3d3a3aad81448603c8d8177bbc4b` |
-| `native-main-mixed-cold-intermediate-v13/root-ready-mixed-cold-intermediate-1` | `63f688d4f3e6efeb1fc405f7afddd8a9ff91aa8161a90edbb1349a5d334eb3f8` |
-| `native-main-startup-source-kernel-v13/root-ready-source-kernel-1` | `07687ab53d680888194ac96fee638112b503bab1ca663aa440e2ccd2a9d385ed` |
-| Same directory `root-ready-source-kernel-nedb-1` | `c40f3a1e5ee1a6cd5671930bd35e5a72ac36af9ce5daa0b2292656555e1eb3d0` |
-| `native-main-startup-key-visitors-v13/root-ready-key-visitors-1` | `f47629e53fe11276e68c0805eba999b205f8ab1c34eca95a290e1001cbcd76f0` |
-| `native-main-startup-notification-order-v13/root-ready-notification-order-1` | `6e9430fb95b39276009806416b3d139b69d92cf2317751ed023a181b0f6ebc85` |
-| `review-main-startup-source-kernel-v13/root-ready-review-1` | `17c4b6e15f025a304d146d439b4f7587b00e07324898c85994cfceb59fdad0c2` |
-
-**Use the notification-order successor.** The older 0768/c40f queues emit Unhandled by Promise creation order and HandledLater too late. Independent genuine Node/Rust reproductions are preserved. The new successor retains rejection-occurrence FIFO and emits HandledLater first; author log says **45 metadata tests + strict Clippy pass**, while its immutable manifest mistakenly says 43. Read `work/native-main-startup-notification-order-v13/CHECKPOINT_COUNT_ADDENDUM.md`. This correction has author metadata evidence, not a peer rerun or financial-Core/full-scheduler validation.
-
-Original causal evidence: `native-main-startup-rpc-order-v13/root-ready-rpc-order-causal-1` (`dc7d6dbf…`), `root-ready-promise-notifications-1` (`1c95c2b7…`), and `review-queued-rpc-adoption-v13/root-ready-review-1` (`afdf1b3b…`). Use complete source observations as comparisons, never an executable schedule.
+- The uncommitted queued-startup proposal (genuine queued-IO interleavings; its two positives failed on NeDB ordering) is retired. Its exact files are preserved on the local branch `archive/queued-startup-proposal` (`fb16f7f`), and the checkout is clean.
+- The committed cfg(test) `StartupPromiseQueue`/`StartupNedbQueue` model and the outer Kernel driver stay as test-domain code. Do not extend them.
+- Local branch `feat/startup-legacy-height-parking` (`6e75f40`, not pushed, not for merge) parks the legacy Incoming/Recovery height reads and writes on that queue: 5 controls pass, and the full preflight passed at that commit (306 targets, 2,649 tests).
+- Remaining known gaps, in order: (1) parent UTXO/all-input/chain and economic/proof-verifier admission and complete-block proof composition; (2) mode4/inline/recovery/supersession histories and actual process-loss financial recovery; (3) intended-host power-loss and representative real-block CPU/RSS on the fast store; (4) opted-in fee/reward policy and provenance; (5) full-release promotion and collaborator fuzz review.
 
 ## Tools and checks
 
@@ -123,7 +90,7 @@ Runner environment and affected commands are in `work/check-outer-intermediate-s
 
 No Cargo run is live. Completed handles include 6219 (26 checks), 50299 (exact committed cold12), 57067 (exact committed orderbook13), 56685 (cold12+strict lint), and 52099 (older39+public+lint). Do not restart completed broad regression93155. Heavy build outputs are reusable but are not evidence without matching input hashes.
 
-Before any future **authorized** Rust push, run `bash scripts/ci-preflight.sh --full`; GitHub-only Lean/Kani/audit gates remain separate. Nothing is currently authorized to push.
+Before pushing a branch, run `bash scripts/ci-preflight.sh --full`; GitHub-only Lean/Kani/audit gates remain separate. Its last step (`scripts/audit_native_wallet_order.py`) needs `python3` on PATH and calls `cargo +1.90.0`, so put the rustup proxy (`C:/Users/patri/.cargo/bin`) ahead of the toolchain directory; the runner `work/claude-run-rustup.sh <export> <command>` does both.
 
 ## Completeness and end state
 

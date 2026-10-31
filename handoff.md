@@ -1,6 +1,6 @@
 # TradeLayer-Rust live handoff
 
-Updated: 2026-10-30T23:04:37.190489+00:00. Refresh this file after every tested integration or PR cycle.
+Updated: 2026-10-31T04:08:49Z. Refresh this file after every tested integration or PR cycle.
 
 ## Local branch consolidation: focused checks passed, broad rebuild pending
 
@@ -11,6 +11,10 @@ Completed local gate: 575 focused Rust executions across 73 integration targets 
 The cold full preflight remains running in the isolated integration checkout, session64217, log `work/branch-integration-logs/full-preflight-final.log`. Its test build uses opt-level1 with debug assertions/overflow checks, one compiler worker/test thread. Complete that run, the protected contract CLI and native wallet oracle before any authorized push; no publication is authorized here. `docs/branch-integration/validation.json` records completed and pending checks precisely. Lean/Kani, Linux durability, real-host CPU/peakRSS and node-backed Litecoin remain separate gates. This is not an RC or authentication claim.
 
 Current native validation, default windowed scanner and authority denials remain intact. Litecoin MWEB parsing is explicit, administrator chronology is prechecked, and fixture byte preservation is the default while existing LF rules remain. TL exports checkable state-oracle data to a separate UTXORef consumer. The primary checkout's24 unrelated queued-startup files are preserved separately and remain unpromoted.
+
+## NeDB is not consensus (decision)
+
+The Rust port does not reproduce NeDB executor scheduling or the JS startup interleavings that depend on it. Startup order is the committed literal nested drive (first live block parked at its first write; outer bootstrap on the pre-write index). The queued-startup proposal is retired and archived on local branch `archive/queued-startup-proposal`. Details and the remaining gap order: `CLAUDE_HANDOFF.md`, "Startup ordering".
 
 ## NeDB request kinds (Claude integration)
 
