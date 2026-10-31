@@ -5,14 +5,34 @@ use std::fs;
 use std::hint::black_box;
 use std::time::{Duration, Instant};
 use tradelayer_core::parallel_txindex::ParallelIndexConfig;
-use tradelayer_core::raw_block_ingest::UnverifiedRawBlockView;
-use tradelayer_core::read_only::{decode_hex, id_hex};
+use tradelayer_core::raw_block_ingest::{UnverifiedRawBlockView, MAX_UNVERIFIED_RAW_BLOCK_BYTES};
+use tradelayer_core::read_only::id_hex;
 
 const MAX_HEX_FILE_BYTES: u64 = 8_100_000;
 
 fn median(mut values: Vec<Duration>) -> f64 {
     values.sort_unstable();
     values[values.len() / 2].as_secs_f64() * 1_000.0
+}
+
+// read_only::decode_hex is bounded by one raw transaction (1,000,000 bytes);
+// a real block may be up to the raw-block bound.
+fn decode_block_hex(hex: &str) -> Option<Vec<u8>> {
+    fn nibble(b: u8) -> Option<u8> {
+        match b {
+            b'0'..=b'9' => Some(b - b'0'),
+            b'a'..=b'f' => Some(b - b'a' + 10),
+            b'A'..=b'F' => Some(b - b'A' + 10),
+            _ => None,
+        }
+    }
+    if !hex.len().is_multiple_of(2) || hex.len() / 2 > MAX_UNVERIFIED_RAW_BLOCK_BYTES {
+        return None;
+    }
+    hex.as_bytes()
+        .chunks_exact(2)
+        .map(|pair| Some((nibble(pair[0])? << 4) | nibble(pair[1])?))
+        .collect()
 }
 
 fn peak_rss_kib() -> Option<u64> {
@@ -45,7 +65,7 @@ fn main() {
         "hex file exceeds research input bound"
     );
     let contents = fs::read_to_string(path).expect("UTF-8 hex file");
-    let bytes = decode_hex(contents.trim()).expect("canonical raw-block hex");
+    let bytes = decode_block_hex(contents.trim()).expect("canonical raw-block hex");
     let view = UnverifiedRawBlockView::parse(&bytes, None)
         .expect("bounded raw block with valid transaction syntax");
     let config = ParallelIndexConfig {
@@ -107,4 +127,33 @@ fn main() {
     println!("txid_merkle=LOCAL_CHECK_ONLY");
     println!("full_bitcoin_consensus=UNVERIFIED");
     println!("tradelayer_state=UNVERIFIED");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn block_hex_above_the_transaction_bound_decodes() {
+        let bytes = vec![0xabu8; 1_500_000];
+        let hex = "aB".repeat(bytes.len());
+        assert_eq!(decode_block_hex(&hex), Some(bytes));
+        let max = "00".repeat(MAX_UNVERIFIED_RAW_BLOCK_BYTES);
+        assert_eq!(
+            decode_block_hex(&max).map(|b| b.len()),
+            Some(MAX_UNVERIFIED_RAW_BLOCK_BYTES)
+        );
+    }
+
+    #[test]
+    fn block_hex_rejects_odd_noncanonical_and_oversized_input() {
+        assert_eq!(decode_block_hex("abc"), None);
+        assert_eq!(decode_block_hex("+f"), None);
+        assert_eq!(decode_block_hex("0g"), None);
+        assert_eq!(
+            decode_block_hex(&"00".repeat(MAX_UNVERIFIED_RAW_BLOCK_BYTES + 1)),
+            None
+        );
+        assert_eq!(decode_block_hex(""), Some(vec![]));
+    }
 }

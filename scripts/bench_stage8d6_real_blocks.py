@@ -8,13 +8,53 @@ import argparse
 import json
 import statistics
 import subprocess
+import sys
 from pathlib import Path
+
+
+def windows_peak_working_set_kib(process):
+    """Peak working set of an exited child, read through its still-open handle.
+
+    The Windows counterpart of VmHWM: the child's own high-water mark, taken
+    by the parent after exit, so the child needs no unsafe code.
+    """
+    import ctypes
+    from ctypes import wintypes
+
+    class Counters(ctypes.Structure):
+        _fields_ = [
+            ("cb", wintypes.DWORD),
+            ("PageFaultCount", wintypes.DWORD),
+            ("PeakWorkingSetSize", ctypes.c_size_t),
+            ("WorkingSetSize", ctypes.c_size_t),
+            ("QuotaPeakPagedPoolUsage", ctypes.c_size_t),
+            ("QuotaPagedPoolUsage", ctypes.c_size_t),
+            ("QuotaPeakNonPagedPoolUsage", ctypes.c_size_t),
+            ("QuotaNonPagedPoolUsage", ctypes.c_size_t),
+            ("PagefileUsage", ctypes.c_size_t),
+            ("PeakPagefileUsage", ctypes.c_size_t),
+        ]
+
+    counters = Counters()
+    counters.cb = ctypes.sizeof(Counters)
+    query = ctypes.WinDLL("kernel32", use_last_error=True).K32GetProcessMemoryInfo
+    query.argtypes = [wintypes.HANDLE, ctypes.POINTER(Counters), wintypes.DWORD]
+    query.restype = wintypes.BOOL
+    if not query(wintypes.HANDLE(int(process._handle)), ctypes.byref(counters), counters.cb):
+        raise OSError(ctypes.get_last_error(), "K32GetProcessMemoryInfo failed")
+    return counters.PeakWorkingSetSize // 1024
 
 
 def bench(binary, block, workers, repeats, variant):
     cmd = [str(binary), str(block), str(workers), str(repeats), variant]
-    result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-    output = dict(line.split("=", 1) for line in result.stdout.splitlines() if "=" in line)
+    with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True) as process:
+        stdout, stderr = process.communicate()
+        if process.returncode:
+            raise subprocess.CalledProcessError(process.returncode, cmd, stdout, stderr)
+        working_set = windows_peak_working_set_kib(process) if sys.platform == "win32" else None
+    output = dict(line.split("=", 1) for line in stdout.splitlines() if "=" in line)
+    if working_set is not None:
+        output["process_peak_working_set_kib"] = str(working_set)
     required = {
         "variant",
         "block_hash",
@@ -73,8 +113,10 @@ def main():
             raise ValueError("source file changed or parity metadata differs during trials")
         block_hash, count, byte_size = next(iter(identities))
         def median_metric(variant, key):
-            values = [row[key] for row in measurements[variant]]
+            values = [row[key] for row in measurements[variant] if key in row]
             if key == "process_peak_rss_kib" and "UNAVAILABLE" in values:
+                return None
+            if key == "process_peak_working_set_kib" and len(values) != len(measurements[variant]):
                 return None
             return statistics.median(float(value) for value in values)
 
@@ -93,6 +135,10 @@ def main():
             "tree_over_hash_ratio": round(tree_ms / hash_ms, 4),
             "tree_peak_rss_kib": median_metric("tree", "process_peak_rss_kib"),
             "hash_peak_rss_kib": median_metric("hash", "process_peak_rss_kib"),
+            "tree_peak_working_set_kib": median_metric("tree", "process_peak_working_set_kib"),
+            "hash_peak_working_set_kib": median_metric("hash", "process_peak_working_set_kib"),
+            "tree_ms_samples": sorted(float(row["prepared_only_median_ms"]) for row in measurements["tree"]),
+            "hash_ms_samples": sorted(float(row["prepared_only_median_ms"]) for row in measurements["hash"]),
             "source_trust": "LOCAL_MERKLE_ONLY",
         }
         print(json.dumps(record, sort_keys=True))
