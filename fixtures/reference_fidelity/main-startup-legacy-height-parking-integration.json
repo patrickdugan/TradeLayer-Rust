@@ -1,0 +1,53 @@
+{
+  "schema": "tl-main-startup-legacy-height-parking-v1",
+  "verifiedAtUtc": "2026-10-31T04:02:47Z",
+  "inputCommit": "e3579d67bd0a9a4d6b0ea0db9052b13789786534",
+  "validatedIn": "clean export of the input commit plus exactly the source files below",
+  "newDistinctTests": 5,
+  "newTests": [
+    "parked_heights_run_the_same_source_prefix_as_the_synchronous_kernel",
+    "each_height_primitive_runs_at_its_nedb_sample_and_resumes_at_callback",
+    "a_foreign_request_on_another_database_samples_before_the_lanes_first_write",
+    "a_thrown_parked_write_completes_the_job_as_the_synchronous_kernel_does",
+    "the_parked_lane_refuses_outside_the_startup_profile_and_after_a_stop"
+  ],
+  "fullPreflight": {
+    "command": "bash scripts/ci-preflight.sh --full",
+    "testTargetsOk": 306,
+    "testsPassed": 2649,
+    "failed": 0,
+    "walletOrderAudit": "passed on rerun with python3 and rustup cargo on PATH"
+  },
+  "genuineReference": {
+    "record": "fixtures/reference_fidelity/main-startup-nedb-kinds-integration.json",
+    "compared": {
+      "firstTrackHeightRead": "findOne/find sample@1 callback@2 on the idle consensus database",
+      "upsertInsertSamples": 1,
+      "upsertModifySamples": 2
+    },
+    "usedAsScheduleInput": false
+  },
+  "scope": {
+    "incomingAndRecoveryHeightReadsWrites": true,
+    "checkBlockLagDecomposed": false,
+    "processBlockWritesParked": false,
+    "rpcAsRecordedHostIoPromises": false,
+    "readyJobsThroughPromiseFifo": false,
+    "outerAndIncomingLanesCombined": false,
+    "queuedStartupPositivesPass": false,
+    "production": "cfg(test) startup profile only"
+  },
+  "sourceFiles": {
+    "src/source_main_startup_legacy_park_impl.rs": "e8ea9d33f8fc88dbe34cb41727d85581d8503bab7e9ff2ad8f20c18792cb5dc6",
+    "src/source_main_startup_legacy_park_tests.rs": "7c432e0b141bd48c1108a56094e024d5da67dd4e107f28ba25d378300b488fd7",
+    "src/source_main_startup_nedb_jobs.rs": "115dc7e883c10b0ae57f11ed64a058cd274411251500698fae7703672bdae60f",
+    "src/source_main_startup_source_kernel_impl.rs": "9c84fd03297d7ef8d5d7c28a2b48bcd242bcabc0088558c78c4a6ee3fcfa024c",
+    "src/source_main_step_fields_impl.rs": "178597c4247fd69ceeadc3363709f63d07959b8c2cd3db4683543d96e291a521",
+    "src/source_main_step_kernel.rs": "ca65e6c33ad6b5bea945c7a8d63b00e186bb8cc23ca45651462e83069c1ecdd5"
+  },
+  "logs": {
+    "claude-park-1.log": "71f6ead3a66dbbc99722e0d40b25502e0ad3d27c4f38374a4133165efb6b2e17",
+    "claude-park-preflight-1.log": "6c1ee4409ca1ae3167c489bc3b017be4ce04c87a955866daec94da90ff10b9ac",
+    "claude-park-preflight-1-python3.log": "b8c37648e51c6297575d52890547036663e116c07aea4d5e0fb7b150be4b46a9"
+  }
+}

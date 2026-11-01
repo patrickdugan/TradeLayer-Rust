@@ -72,7 +72,7 @@ Startup order is deterministic. The committed literal nested drive (`src/source_
 
 - The uncommitted queued-startup proposal (genuine queued-IO interleavings; its two positives failed on NeDB ordering) is retired. Its exact files are preserved on the local branch `archive/queued-startup-proposal` (`fb16f7f`), and the checkout is clean.
 - The committed cfg(test) `StartupPromiseQueue`/`StartupNedbQueue` model and the outer Kernel driver stay as test-domain code. Do not extend them.
-- Local branch `feat/startup-legacy-height-parking` (`6e75f40`, not pushed, not for merge) parks the legacy Incoming/Recovery height reads and writes on that queue: 5 controls pass, and the full preflight passed at that commit (306 targets, 2,649 tests).
+- `feat/startup-legacy-height-parking` (`6e75f40`, merged 2026-11-01) parks the legacy Incoming/Recovery height reads and writes on that queue in the test domain: 5 controls (`src/source_main_startup_legacy_park_tests.rs`); evidence `fixtures/reference_fidelity/main-startup-legacy-height-parking-integration.json`.
 - Remaining known gaps, in order: (1) parent UTXO/all-input/chain and economic/proof-verifier admission and complete-block proof composition; (2) mode4/inline/recovery/supersession histories and actual process-loss financial recovery; (3) intended-host power-loss and representative real-block CPU/RSS on the fast store; (4) opted-in fee/reward policy and provenance; (5) full-release promotion and collaborator fuzz review.
 
 ## Tools and checks

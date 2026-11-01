@@ -35,6 +35,8 @@ pub enum MainStepJobStatus {
     Ready,
     WaitingTimer(u64),
     WaitingChild(u64),
+    /// Parked on a startup-profile NeDB request (its request serial).
+    WaitingDatabase(u64),
     Completed(MainStepSourceResult),
 }
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -96,6 +98,12 @@ pub(crate) trait MainStepOwner: sealed::Sealed {
     fn execute(&mut self, operation: &MainStepPrimitive) -> MainStepPrimitiveExecution;
     // Only a sealed actual owner loan records its effect-origin ranges.
     fn record_owner_effect_range(&mut self, _trace: usize, _start: usize, _end: usize) {}
+    /// Startup profile only: whether the actual consensus document exists at
+    /// an upsert's existence sample. Owners without that read refuse.
+    #[cfg(test)]
+    fn startup_height_present(&self, _name: &str) -> Result<bool, SourceRuleError> {
+        Err(SourceRuleError::UnknownDependency)
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -167,6 +175,8 @@ pub struct MainStepKernelV1 {
     startup_source_promises: Option<startup_source_promise_queue::StartupPromiseQueue>,
     #[cfg(test)]
     startup_source_nedb_jobs: Option<startup_source_nedb_jobs::StartupNedbQueue>,
+    #[cfg(test)]
+    startup_legacy: StartupLegacyLane,
     generation: u64,
     next_job: u64,
     next_timer: u64,
@@ -299,6 +309,8 @@ impl MainStepKernelV1 {
             startup_source_promises: None,
             #[cfg(test)]
             startup_source_nedb_jobs: None,
+            #[cfg(test)]
+            startup_legacy: StartupLegacyLane::default(),
             next_job: 1,
             next_timer: 1,
             logical_time: n(0.),
@@ -649,13 +661,24 @@ impl MainStepKernelV1 {
                     }
                     Ok(None)
                 }
-                1 => {
-                    *saved = call(Op::HeightRead("TrackHeight"))?;
+                1 | 3 => {
+                    let read = Op::HeightRead("TrackHeight");
+                    let Some(value) = self.startup_db(id, phase, 3, RECOVERY, read, &mut call)?
+                    else {
+                        return Ok(None);
+                    };
+                    *saved = value;
                     *phase = 2;
                     Ok(None)
                 }
-                2 => {
-                    call(Op::HeightRead("MaxProcessedHeight"))?;
+                2 | 4 => {
+                    let read = Op::HeightRead("MaxProcessedHeight");
+                    if self
+                        .startup_db(id, phase, 4, RECOVERY, read, &mut call)?
+                        .is_none()
+                    {
+                        return Ok(None);
+                    }
                     Ok(Some(saved.clone()))
                 }
                 _ => Err(AdvanceError::Stop(SourceRuleError::Backend)),
@@ -707,8 +730,12 @@ impl MainStepKernelV1 {
                     *phase = 1;
                     Ok(None)
                 }
-                1 => {
-                    let track = call(Op::HeightRead("TrackHeight"))?;
+                1 | 13 => {
+                    let read = Op::HeightRead("TrackHeight");
+                    let Some(track) = self.startup_db(id, phase, 13, INCOMING, read, &mut call)?
+                    else {
+                        return Ok(None);
+                    };
                     if truth(&call(Op::Greater(track.clone(), latest.clone()))?) {
                         *latest = track;
                     }
@@ -830,21 +857,33 @@ impl MainStepKernelV1 {
                     }
                     Ok(None)
                 }
-                9 => {
-                    call(Op::HeightWrite {
+                9 | 14 => {
+                    let write = Op::HeightWrite {
                         name: "TrackHeight",
                         value: number.clone(),
-                    })?;
+                    };
+                    if self
+                        .startup_db(id, phase, 14, INCOMING, write, &mut call)?
+                        .is_none()
+                    {
+                        return Ok(None);
+                    }
                     let numeric = call(Op::Number(number.clone()))?;
                     *number = call(Op::Add(numeric, n(1.)))?;
                     *phase = 2;
                     Ok(None)
                 }
-                10 => {
-                    call(Op::HeightWrite {
+                10 | 15 => {
+                    let write = Op::HeightWrite {
                         name: "TrackHeight",
                         value: tip.clone(),
-                    })?;
+                    };
+                    if self
+                        .startup_db(id, phase, 15, INCOMING, write, &mut call)?
+                        .is_none()
+                    {
+                        return Ok(None);
+                    }
                     *phase = 0;
                     Ok(None)
                 }
@@ -1003,36 +1042,8 @@ impl MainStepKernelV1 {
                 self.prune_completed();
                 return Ok(evaluation);
             };
-            let at = self.position(id);
-            if self.jobs[at].status != MainStepJobStatus::Ready {
-                self.owner_stopped = Some(SourceRuleError::Backend);
-                evaluation.stop = MainStepStop::SourceOwnerStopped(SourceRuleError::Backend);
-                return Ok(evaluation);
-            }
-            let mut frame = self.jobs[at].frame.clone();
-            if let Frame::Finish(result) = frame {
-                self.complete(id, result, &mut evaluation);
-                continue;
-            }
-            match self.advance(id, &mut frame, owner, &mut evaluation) {
-                Ok(Some(value)) => {
-                    self.jobs[at].frame = Frame::Finish(MainStepSourceResult::Fulfilled(value));
-                    self.ready.push_back(id);
-                }
-                Ok(None) => {
-                    self.jobs[at].frame = frame;
-                    if self.jobs[at].status == MainStepJobStatus::Ready {
-                        self.ready.push_back(id);
-                    }
-                }
-                Err(AdvanceError::Throw(error)) => {
-                    self.jobs[at].frame = Frame::Finish(MainStepSourceResult::Thrown(error));
-                    self.ready.push_back(id);
-                }
-                Err(fault) => {
-                    self.jobs[at].frame = frame;
-                    return Ok(self.stop_on_fault(fault, evaluation));
-                }
+            if let Err(fault) = self.step_ready(id, owner, &mut evaluation) {
+                return Ok(self.stop_on_fault(fault, evaluation));
             }
         }
         self.prune_completed();
@@ -1042,6 +1053,67 @@ impl MainStepKernelV1 {
             MainStepStop::DrainBound
         };
         Ok(evaluation)
+    }
+    // One ready job's turn. A fault leaves its frame at the faulting phase.
+    fn step_ready(
+        &mut self,
+        id: u64,
+        owner: &mut impl MainStepOwner,
+        evaluation: &mut MainStepEvaluationV1,
+    ) -> Advance<()> {
+        let at = self.position(id);
+        if self.jobs[at].status != MainStepJobStatus::Ready {
+            return Err(AdvanceError::Stop(SourceRuleError::Backend));
+        }
+        let mut frame = self.jobs[at].frame.clone();
+        if let Frame::Finish(result) = frame {
+            self.complete(id, result, evaluation);
+            return Ok(());
+        }
+        match self.advance(id, &mut frame, owner, evaluation) {
+            Ok(Some(value)) => {
+                self.jobs[at].frame = Frame::Finish(MainStepSourceResult::Fulfilled(value));
+                self.ready.push_back(id);
+            }
+            Ok(None) => {
+                self.jobs[at].frame = frame;
+                if self.jobs[at].status == MainStepJobStatus::Ready {
+                    self.ready.push_back(id);
+                }
+            }
+            Err(AdvanceError::Throw(error)) => {
+                self.jobs[at].frame = Frame::Finish(MainStepSourceResult::Thrown(error));
+                self.ready.push_back(id);
+            }
+            Err(fault) => {
+                self.jobs[at].frame = frame;
+                return Err(fault);
+            }
+        }
+        Ok(())
+    }
+    // A height DB call ends its phase. Under the startup profile the job parks
+    // on its NeDB request and resumes at `parked` with the retained result;
+    // otherwise the primitive runs synchronously as before.
+    fn startup_db(
+        &mut self,
+        job: u64,
+        phase: &mut u8,
+        parked: u8,
+        scope: &'static str,
+        operation: MainStepPrimitive,
+        call: &mut impl FnMut(MainStepPrimitive) -> Advance<V>,
+    ) -> Advance<Option<V>> {
+        if *phase == parked {
+            return self.startup_take(job).map(Some);
+        }
+        if self.startup_source_profile_active() {
+            let origin = *phase;
+            *phase = parked;
+            self.startup_park(job, scope, origin, operation)?;
+            return Ok(None);
+        }
+        call(operation).map(Some)
     }
     fn stop_on_fault(
         &mut self,
@@ -1177,6 +1249,9 @@ impl MainStepKernelV1 {
                                         }
                                         MainStepJobStatus::WaitingChild(c) => {
                                             obj(&[("waitingChild", s(c.to_string()))])
+                                        }
+                                        MainStepJobStatus::WaitingDatabase(r) => {
+                                            obj(&[("waitingDatabase", s(r.to_string()))])
                                         }
                                         MainStepJobStatus::Completed(r) => result_value(r),
                                     },
@@ -1403,3 +1478,7 @@ pub(crate) mod startup_source_promise_queue;
 #[cfg(test)]
 include!("source_main_startup_source_kernel_impl.rs");
 include!("source_main_startup_source_kernel_gate_impl.rs");
+include!("source_main_startup_legacy_park_impl.rs");
+#[cfg(test)]
+#[path = "source_main_startup_legacy_park_tests.rs"]
+mod startup_legacy_park_tests;
