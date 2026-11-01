@@ -114,6 +114,7 @@ pub mod reorg; // Source RPC tip observations; never authorization to roll back.
 pub mod reporting; // Atomic network-scoped offline spot history and volume observations.
 pub mod rewards; // In-memory atomic accounting primitives; not chain consensus.
 pub mod root_reconciliation; // Read-only TLPT and zkTL metadata consistency.
+pub mod rpc_server; // Read-only JSON-RPC 2.0 over std::net for a restored TLJP checkpoint; DRAFT shapes.
 pub mod runtime; // Concrete RPC/startup adapters with independent durable expectations.
 pub mod scaling; // Bounded L2 settlement lifecycle and checked channel custody plans.
 pub mod secp256k1; // Public ECDSA verification; no private-key or Bitcoin script API.
