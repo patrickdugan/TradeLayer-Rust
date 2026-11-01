@@ -425,7 +425,8 @@ impl Ledger {
     /// Stored available balances of one property in ascending account order.
     pub fn holders_of(&self, id: PropertyId) -> Vec<(&AccountId, u128)> {
         self.available
-            .range((id, AccountId(String::new()))..)
+            .iter()
+            .skip_while(|((property, _), _)| *property < id)
             .take_while(|((property, _), _)| *property == id)
             .map(|((_, owner), atoms)| (owner, *atoms))
             .collect()
