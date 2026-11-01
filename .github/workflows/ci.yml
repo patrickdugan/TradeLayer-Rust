@@ -164,11 +164,20 @@ jobs:
         run: node scripts/legacy_base_vectors.cjs
       - name: Genuine BIP32 and complete source catalog owner vectors
         run: |
-          node scripts/bip32_public_vectors.cjs --check --lib-root "$RUNNER_TEMP/tl-secp-reference"
-          node scripts/clearlist_source_owner_vectors.cjs --check --module-root "$RUNNER_TEMP/tl-secp-reference"
-          node scripts/property_catalog_vectors.cjs --check
-          node scripts/oracle_source_owner_vectors.cjs --check --module-root "$RUNNER_TEMP/tl-secp-reference"
-          node scripts/source_send_vectors.cjs --check
+          # A failing check also becomes an annotation carrying its output tail.
+          check() {
+            if ! out=$("$@" 2>&1); then
+              echo "$out"
+              echo "::error title=$2::$(echo "$out" | tail -c 1500 | tr -s '[:space:]' ' ')"
+              return 1
+            fi
+            echo "$out"
+          }
+          check node scripts/bip32_public_vectors.cjs --check --lib-root "$RUNNER_TEMP/tl-secp-reference"
+          check node scripts/clearlist_source_owner_vectors.cjs --check --module-root "$RUNNER_TEMP/tl-secp-reference"
+          check node scripts/property_catalog_vectors.cjs --check
+          check node scripts/oracle_source_owner_vectors.cjs --check --module-root "$RUNNER_TEMP/tl-secp-reference"
+          check node scripts/source_send_vectors.cjs --check
       - name: Bitcoin Core discovery bridge source tests
         run: python3 -m unittest discover -s tests -p test_bitcoin_core_rpc_stream.py -v
       - name: Genuine complete txIndex metadata lifecycle
