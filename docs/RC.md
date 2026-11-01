@@ -11,7 +11,7 @@ RC-1 is the `tradelayer-core` library at the commit that carries this file. It i
 | 3 | Real child-process crash recovery | part of gate 1: `actual_child_crash_boundaries_recover_retry_and_support_witnesses`, `real_child_crashes_recover_only_before_intermediate_or_prepared_after`, `actual_process_exit_matrix_generation_current_and_retention`, `active_wal_real_exit_matrix` | pass in gate 1 |
 | 4 | Zero third-party crates, offline, pinned toolchain | `python3 scripts/check_rust_supply_chain.py` | PASS: one first-party package, zero third-party crates |
 | 5 | Real-block scan CPU and peak memory recorded | `scripts/bench_stage8d6_real_blocks.py` on the testnet4 corpus | `docs/STAGE8D6_HASHMAP_PROMOTION_AND_REAL_BLOCK_BENCH.md`, Windows and Linux tables |
-| 6 | GitHub CI green on the RC commit | `ci.yml`, `kani.yml`, `lean.yml` on a pull request or `main` | runs only on `main` or a pull request |
+| 6 | GitHub CI green on the RC commit | `ci.yml`, `kani.yml`, `lean.yml` on a pull request or `main` | green on `730c8d4`: Rust CI run 41333912212; Kani run 41290812720 at `6bbea86` and Lean run 41279512556 at `8c5d68d`, whose path-filtered inputs are byte-identical at `730c8d4` |
 
 ## Gate 2 in detail
 

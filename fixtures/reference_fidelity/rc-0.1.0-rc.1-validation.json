@@ -40,7 +40,7 @@
     "active_wal_real_exit_matrix"
   ],
   "gate4SupplyChain": "PASS: one first-party Rust package, zero third-party crates",
-  "gate6GitHubCi": "runs only on main or a pull request",
+  "gate6GitHubCi": {"commit": "730c8d4", "ciYml": "run 41333912212 success", "kaniYml": "run 41290812720 success at 6bbea86, inputs unchanged at 730c8d4", "leanYml": "run 41279512556 success at 8c5d68d, inputs unchanged at 730c8d4"},
   "files": {
     "scripts/source_contract_history_vectors.cjs": "085ad5b93ed5d18e6b0279be9ea6dede40fcfd6b06325a0039bb1c4f3f8be98f",
     "fixtures/source_contract_history_vectors.tsv.gz": "2460c46272fcbe2417f2ab1099bcdec096ea45069a03cd90db1996863a58e8c0",
