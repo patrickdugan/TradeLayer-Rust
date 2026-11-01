@@ -159,7 +159,14 @@ jobs:
       - name: Run tests
         env:
           TRADELAYER_JS_ROOT: ${{ runner.temp }}/tl-secp-reference
-        run: cargo test --frozen
+        run: |
+          # A failure also becomes an annotation naming each failing test and its panic.
+          set -o pipefail
+          if ! cargo test --frozen 2>&1 | tee "$RUNNER_TEMP/cargo-test.log"; then
+            grep -E "^test .* FAILED$|panicked at|^error: test failed" "$RUNNER_TEMP/cargo-test.log" | head -40 > "$RUNNER_TEMP/cargo-failures.txt"
+            echo "::error title=cargo test::$(tr -s '[:space:]' ' ' < "$RUNNER_TEMP/cargo-failures.txt" | head -c 3000)"
+            exit 1
+          fi
       - name: Pinned Base94 and Base256 source compatibility vectors
         run: node scripts/legacy_base_vectors.cjs
       - name: Genuine BIP32 and complete source catalog owner vectors
