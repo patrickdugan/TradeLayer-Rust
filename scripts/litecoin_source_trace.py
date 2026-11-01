@@ -133,6 +133,25 @@ def inspect_node(rpc, network: str) -> dict:
     return record
 
 
+def address_schema_summary(candidates: list[dict]) -> dict:
+    """Which decoded-script address schema this node actually returned.
+
+    Litecoin Core 0.21 emits addresses[] (what the legacy JS reads); newer
+    RPC schemas emit a singular address. Counted over every decoded output
+    the trace recorded, sender parents included.
+    """
+    counts = {"addresses_array_only": 0, "address_singular_only": 0, "both": 0, "neither": 0}
+    for cand in candidates:
+        st = cand["source_trace"]
+        for out in st["decoded_outputs"] + [st["sender_prevout"]]:
+            older = out["address"]["legacy_addresses"] is not None
+            newer = out["address"]["modern_address"] is not None
+            key = ("both" if newer else "addresses_array_only") if older else \
+                ("address_singular_only" if newer else "neither")
+            counts[key] += 1
+    return counts
+
+
 def script_address(script: dict) -> dict:
     """Keep the older addresses[0] and current address RPC schemas distinct."""
     if not isinstance(script, dict) or not isinstance(script.get("hex"), str):
@@ -348,6 +367,7 @@ def augment_with_sources(rpc, tsv: str, manifest: dict) -> dict:
     data["joint_replay_authorized"] = False
     data["txindex_required"] = True
     data["node_inspection"] = node
+    data["rpc_address_schema"] = address_schema_summary(data["transactions"])
     data["corpus_sha256"] = hashlib.sha256(tsv.encode("utf-8")).hexdigest()
     return data
 

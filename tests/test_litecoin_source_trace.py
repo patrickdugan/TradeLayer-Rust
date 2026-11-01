@@ -249,6 +249,8 @@ class NodeInspectionTests(unittest.TestCase):
         corpus, manifest = collector.scan_blocks(node, "test", 101, 101, confirmations=6)
         result = trace.augment_with_sources(node, corpus, manifest)
         self.assertEqual(result["node_inspection"]["genesis"], trace.PINNED_GENESIS["test"])
+        self.assertEqual(result["rpc_address_schema"], {
+            "addresses_array_only": 2, "address_singular_only": 1, "both": 0, "neither": 1})
         decoded = result["transactions"][0]["source_trace"]["decoded_outputs"]
         self.assertEqual([o["vout"] for o in decoded], [0, 1, 2])
         self.assertEqual(decoded[0]["script_type"], "nulldata")
