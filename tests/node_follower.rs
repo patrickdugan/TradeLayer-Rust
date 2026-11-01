@@ -928,7 +928,13 @@ fn rpc_reports_refused_connections_without_address_or_credentials() {
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
     let addr = listener.local_addr().unwrap();
     drop(listener);
-    let err = rpc_to(addr).best_height().unwrap_err();
+    // Windows retries the SYN to a closed loopback port for about two seconds
+    // before reporting the refusal, so the connect timeout must outlast it.
+    let config = RpcConfig::new(addr, creds(), EndpointPolicy::LoopbackOnly)
+        .unwrap()
+        .with_timeouts(Duration::from_secs(10), Duration::from_secs(2))
+        .unwrap();
+    let err = RpcBlockSource::new(config).best_height().unwrap_err();
     assert_eq!(err, SourceError::Io(std::io::ErrorKind::ConnectionRefused));
 }
 
