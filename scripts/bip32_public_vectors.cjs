@@ -232,10 +232,10 @@ function generate() {
   }
   return rows.join('\n') + '\n';
 }
-let result;
 if (workerLibrary) {
+  // No process.exit here: pipe writes are asynchronous on Linux, and exiting
+  // before stdout drains truncates the corpus at the 64 KiB pipe buffer.
   process.stdout.write(generate());
-  process.exit(0);
 } else {
   const all = [];
   for (const library of ['ltc', 'btc']) {
@@ -243,10 +243,10 @@ if (workerLibrary) {
     assert.equal(child.status, 0, child.stderr);
     all.push(...child.stdout.trimEnd().split('\n'));
   }
-  result = [...new Set(all)].join('\n') + '\n';
+  const result = [...new Set(all)].join('\n') + '\n';
+  if (process.argv.includes('--write')) fs.writeFileSync(output, result);
+  else assert.equal(fs.readFileSync(output, 'utf8'), result, 'Stored BIP32 corpus differs; inspect before regeneration');
+  const counts = {};
+  for (const line of result.split('\n')) if (line && !line.startsWith('#')) counts[line[0]] = (counts[line[0]] || 0) + 1;
+  console.log(JSON.stringify({genuineLibraries: true, operation: process.argv.includes('--write') ? 'wrote' : 'checked', counts}));
 }
-if (process.argv.includes('--write')) fs.writeFileSync(output, result);
-else assert.equal(fs.readFileSync(output, 'utf8'), result, 'Stored BIP32 corpus differs; inspect before regeneration');
-const counts = {};
-for (const line of result.split('\n')) if (line && !line.startsWith('#')) counts[line[0]] = (counts[line[0]] || 0) + 1;
-console.log(JSON.stringify({genuineLibraries: true, operation: process.argv.includes('--write') ? 'wrote' : 'checked', counts}));

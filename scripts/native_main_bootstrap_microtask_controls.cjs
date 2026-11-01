@@ -2,7 +2,7 @@
 // Full unchanged TxUtils/TxIndex imports + exact unchanged Main class. No
 // promise observer is attached to Main.txIndex unless the input asks for one.
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),Module=require('node:module'),crypto=require('node:crypto'),cp=require('node:child_process'),assert=require('node:assert/strict');
-const stage=path.resolve(__dirname,'..'),repo=path.resolve(process.env.PROOF_REPO||stage);
+const stage=path.resolve(__dirname,'..'),repo=path.resolve(process.env.PROOF_REPO||stage);process.env.PROOF_REPO=repo;
 const sha=x=>crypto.createHash('sha256').update(x).digest('hex');
 const base=fs.readFileSync(path.join(stage,'scripts/ordered_bootstrap_original_source_base.cjs'),'utf8').replace(/\r\n/g,'\n');
 assert.equal(sha(base),'509015e9124795f3adda0997d5eacc495a1b80831b68d95fc078281f78852715');
