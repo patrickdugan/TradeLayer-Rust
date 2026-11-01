@@ -100,6 +100,7 @@ mod ordered_columns; // Sorted Vec backend for wallet and channel accounting col
 pub mod parallel_txindex; // Bounded parallel read-only runtime TXID/OP_RETURN scan and ordered fetch; never consensus.
 pub mod parent_funding_evidence; // Stage8D5 raw prevout transaction/value/script consistency only, not active-chain proof.
 pub mod parent_utxo_snapshot; // Stage8D4 parent witness coverage, no trusted Bitcoin UTXO root or Script validation.
+pub mod payload_builders; // Pure direct legacy txEncoder payloads for types 2/4/9; byte parity only where fixture-proven.
 pub mod persistence; // Atomic persisted joint replay and rollback, no chain authentication.
 pub mod procedural; // Source procedural metadata and context gates, no proof authority.
 pub mod property_catalog; // Owned source-compatible property metadata and effect replay.

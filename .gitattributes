@@ -372,3 +372,6 @@ fixtures/main_file_retry_vectors.jsonl text eol=lf
 
 # Preserve original historical preview blobs without rewriting their bytes.
 docs/branch-integration/retired-previews/** -text -whitespace
+fixtures/payload_builder_js_vectors.tsv -text
+fixtures/js_vendor/bignumber-9.1.2.js -text
+fixtures/js_vendor/bignumber-9.1.2.LICENCE.md -text
