@@ -93,6 +93,8 @@ pub mod margin_map_source_owner; // Literal source instance maps and position id
 pub mod mark_basis; // Exact settled basis and subatom carry; no separate Ledger.
 pub mod network_bound; // Stage 21 profile-bound replay and versioned checkpoint envelopes; unverified.
 pub mod network_profile; // Independent Bitcoin/Litecoin/Dogecoin mainnet identities and proof capabilities.
+pub mod node_follower; // Phase 3 block-source follower over JointChainState; trusted node, no PoW/consensus.
+pub mod node_rpc; // std::net HTTP/1.1 JSON-RPC block source; loopback-only, bounded, credentials from env.
 pub mod options; // Source options ticker, PnL, pricing and portfolio calculations.
 pub mod oracle;
 pub mod oracle_source_owner; // Actual source documents, cache and publication watermarks.
