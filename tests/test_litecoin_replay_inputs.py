@@ -33,6 +33,8 @@ class RecorderTests(unittest.TestCase):
         self.assertEqual(out["unrecordable_requests"], ["getblockcount"])
         answer = out["validateaddress"][synthetic.RECIPIENT]
         self.assertEqual(answer, {"isvalid": True, "address": synthetic.RECIPIENT, "iswitness": True})
+        self.assertEqual(out["recorded_at_tip_height"], chain.tip)
+        self.assertIn("CONTINGENT", out["temporal_status"])
         with self.assertRaisesRegex(base.EvidenceError, "unsuitable"):
             recorder.record(chain, "main", [])
         with self.assertRaisesRegex(base.EvidenceError, "too many"):
@@ -52,7 +54,7 @@ class SyntheticChainTests(unittest.TestCase):
             report = synthetic.write_fixture(Path(tmp), synthetic.DEFAULT_PAYLOADS)
             manifest = json.loads((Path(tmp) / "manifest.json").read_text())
         self.assertEqual(report["counts"], {"ACCEPTED_FOR_PARITY": 3, "INCONCLUSIVE": 0, "REJECTED": 0})
-        self.assertEqual(report["coverage"]["prior_state"], "COMPLETE_FROM_LEGACY_JS_GENESIS")
+        self.assertEqual(report["coverage"]["prior_state"], "COVERS_PLACEHOLDER_GENESIS")
         self.assertIn("never chain evidence", manifest["SYNTHETIC"])
         self.assertEqual(report["scrypt_header_check"], "skipped")
         self.assertEqual(manifest["node_inspection"]["subversion"], "/synthetic-fake-rpc/")

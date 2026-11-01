@@ -91,8 +91,10 @@ function loadEvidence(manifest, corpusText, verification) {
   }
   const statuses = new Map();
   let priorState = 'INCOMPLETE';
+  let genesisStatus = 'UNCONFIRMED';
   if (verification) {
     priorState = verification.coverage.prior_state;
+    genesisStatus = verification.coverage.genesis_status || genesisStatus;
     for (const m of verification.manifests) for (const c of m.candidates) statuses.set(c.txid, c.parity_input);
   }
   const candidates = [];
@@ -118,7 +120,7 @@ function loadEvidence(manifest, corpusText, verification) {
     candidates.push({ ...c, raw: raw.get(c.txid), evidence: statuses.get(c.txid) ?? 'UNVERIFIED' });
   }
   return { network: manifest.network, start: manifest.start_height, end: manifest.end_height,
-    candidates, decoded, parents, priorState };
+    candidates, decoded, parents, priorState, genesisStatus };
 }
 
 class RecordedClient {
@@ -127,6 +129,10 @@ class RecordedClient {
     this.testnet = testnet;
     this.chain = 'LTC';
     this.misses = [];
+    // Recorded answers actually consulted. They come from a present-day node,
+    // not the node the legacy deployment used, so they make a decision
+    // contingent rather than decided.
+    this.contingent = [];
     // Node answers recorded by scripts/litecoin_record_rpc.py; only
     // validateaddress is accepted, keyed by the exact address string.
     this.recorded = new Map(Object.entries((recordings && recordings.validateaddress) || {}));
@@ -138,6 +144,7 @@ class RecordedClient {
   }
   async answer(method, args) {
     if (method === 'validateAddress' && args.length === 1 && this.recorded.has(String(args[0]))) {
+      this.contingent.push(`validateAddress ${JSON.stringify(args)}`);
       return structuredClone(this.recorded.get(String(args[0])));
     }
     return this.miss(method, JSON.stringify(args));
@@ -355,6 +362,7 @@ async function legacyConsensus(L, ev, client, start, end, ordering = 'legacy') {
 
 async function processOne(L, txData, blockHeight, client, activation) {
   const before = client.misses.length;
+  const contingentBefore = client.contingent.length;
   const valueData = txData.value;
   const txId = valueData.txId;
   let type = -1;
@@ -396,6 +404,7 @@ async function processOne(L, txData, blockHeight, client, activation) {
   const activationBlock = type > 0 ? activation.getActivationBlock(type) : null;
   return { txid: txId, height: blockHeight, type, valid: decodedParams.valid === true,
     reason: decodedParams.reason ?? null, fatal, misses: client.misses.slice(before),
+    contingent_on: client.contingent.slice(contingentBefore),
     // processTx (real-time mode) additionally rejects blockHeight < activation block.
     realtime_mode_differs: decodedParams.valid === true && activationBlock != null && blockHeight < activationBlock,
     sender_was_error_object: valueData.sender && valueData.sender.senderAddress === undefined,
@@ -422,7 +431,9 @@ function classifyDecisions(raw, ev) {
   return raw.map((d) => {
     const reasons = [];
     if (evidence.get(d.txid) !== 'ACCEPTED_FOR_PARITY') reasons.push(`evidence ${evidence.get(d.txid)}`);
-    if (ev.priorState !== 'COMPLETE_FROM_LEGACY_JS_GENESIS') reasons.push('prior state incomplete');
+    // Even full coverage only reaches the placeholder genesis; the report's
+    // genesis_status and the Rust gate keep that caveat for every decision.
+    if (ev.priorState !== 'COVERS_PLACEHOLDER_GENESIS') reasons.push('prior state incomplete');
     if (d.misses.length) reasons.push(`unrecorded RPC: ${[...new Set(d.misses)].join(', ')}`);
     if (tainted) reasons.push(`state tainted by ${tainted}`);
     if (!ORACLE_TYPES.has(d.type)) {
@@ -432,7 +443,13 @@ function classifyDecisions(raw, ev) {
     if (Object.values(d.numeric_fields).some((f) => f.precision === 'PRECISION_SUSPECT')) {
       reasons.push('JS Number amount not exactly representable in atoms');
     }
-    return { ...d, oracle: reasons.length ? 'INCONCLUSIVE' : 'DECIDED', inconclusive_reasons: reasons };
+    if (reasons.length) return { ...d, oracle: 'INCONCLUSIVE', inconclusive_reasons: reasons };
+    const contingent = d.contingent_on || [];
+    if (contingent.length) {
+      return { ...d, oracle: 'CONTINGENT', inconclusive_reasons: [
+        `present-day RPC answer: ${[...new Set(contingent)].join(', ')}`] };
+    }
+    return { ...d, oracle: 'DECIDED', inconclusive_reasons: reasons };
   });
 }
 
@@ -503,6 +520,7 @@ async function run({ jsRoot, manifest, corpus, verification, rustFields, nedbRoo
     rpc_requests: [...new Set(client.misses)].sort(),
     legacy_js: provenance,
     network: ev.network, scanned: [ev.start, ev.end], prior_state: ev.priorState,
+    genesis_status: ev.genesisStatus,
     ordering: ordering === 'legacy' ? 'LEGACY (funding types 4/20 first, then NeDB _id = txid order)'
       : 'CANONICAL_COUNTERFACTUAL (block position; NOT legacy behaviour)',
     legacy_js_genesis: genesis, before_legacy_genesis_not_indexed: beforeGenesis,

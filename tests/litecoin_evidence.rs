@@ -515,7 +515,7 @@ fn parent_below_attested_segment_is_node_attested_only() {
 fn perfect_report(digest: [u8; 32]) -> ParityReportSummary {
     ParityReportSummary {
         corpus_sha256: digest,
-        prior_state_complete: true,
+        covers_placeholder_genesis: true,
         evidence_accepted: 3,
         syntax_match: 3,
         actor_reference_match: 3,
@@ -530,6 +530,7 @@ fn stage23c_gate_never_authorizes_in_this_stage() {
     let digest = [7; 32];
     let unconditional: BTreeSet<GateBlocker> = [
         GateBlocker::ActivationSameBlockSemanticsDiffer,
+        GateBlocker::GenesisUnconfirmed,
         GateBlocker::RustDecisionReplayMissing,
     ]
     .into_iter()
@@ -557,11 +558,12 @@ fn stage23c_gate_reports_each_parity_gap() {
     let digest = [7; 32];
     let mut r = perfect_report(digest);
     r.corpus_sha256 = [8; 32];
-    r.prior_state_complete = false;
+    r.covers_placeholder_genesis = false;
     r.evidence_inconclusive = 1;
     r.syntax_other = 1;
     r.actor_reference_other = 1;
     r.decisions_other = 1;
+    r.decisions_contingent = 1;
     r.order_divergent_blocks = 1;
     r.observed_types.extend([3, 5, 23, 31]);
     let blockers = stage23c_gate(LitecoinChain::Mainnet, digest, Some(&r));
@@ -572,6 +574,7 @@ fn stage23c_gate_reports_each_parity_gap() {
         GateBlocker::SyntaxParityNotExact,
         GateBlocker::ActorReferenceParityNotExact,
         GateBlocker::DecisionsNotAllDecided,
+        GateBlocker::DecisionsContingentOnPresentDayRpc,
         GateBlocker::LegacyIntraBlockOrderDiverges,
         GateBlocker::ProhibitedType(3),
         GateBlocker::ProhibitedType(23),

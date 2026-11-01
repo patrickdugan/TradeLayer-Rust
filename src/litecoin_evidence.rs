@@ -721,7 +721,9 @@ pub fn authenticate_block(
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct ParityReportSummary {
     pub corpus_sha256: [u8; 32],
-    pub prior_state_complete: bool,
+    /// Hash-linked coverage contains the pinned GENESIS_BLOCK_HEIGHTS.LTC.
+    /// That constant is a placeholder, so this is necessary, not sufficient.
+    pub covers_placeholder_genesis: bool,
     pub evidence_accepted: u32,
     pub evidence_inconclusive: u32,
     pub evidence_rejected: u32,
@@ -730,6 +732,8 @@ pub struct ParityReportSummary {
     pub actor_reference_match: u32,
     pub actor_reference_other: u32,
     pub decisions_decided: u32,
+    /// Decisions that consulted a recorded present-day RPC answer.
+    pub decisions_contingent: u32,
     pub decisions_other: u32,
     pub order_divergent_blocks: u32,
     pub observed_types: BTreeSet<u8>,
@@ -748,6 +752,9 @@ pub enum GateBlocker {
     SyntaxParityNotExact,
     ActorReferenceParityNotExact,
     DecisionsNotAllDecided,
+    /// A legacy decision depended on a present-day RPC answer (validateaddress)
+    /// that need not equal what the historical deployment's node returned.
+    DecisionsContingentOnPresentDayRpc,
     /// Legacy catch-up orders a block by txid after types 4/20; Rust applies
     /// block position. Needs a ratified rule before any affected block.
     LegacyIntraBlockOrderDiverges,
@@ -756,14 +763,20 @@ pub enum GateBlocker {
     /// JS lets a type be used in its activation block; Stage 22 rejects it
     /// (JointError::ActivatedInSameBlock).
     ActivationSameBlockSemanticsDiffer,
+    /// The actual legacy deployment genesis, and any state import at it, is
+    /// not evidenced; GENESIS_BLOCK_HEIGHTS.LTC in the pinned main.js is a
+    /// placeholder. Covering it cannot establish complete historical state.
+    GenesisUnconfirmed,
     /// No Rust replay from AuthenticatedObservation exists to compare
     /// decisions and state digests with the legacy oracle.
     RustDecisionReplayMissing,
 }
 
 /// The narrow Stage 23C gate. An empty result would mean "eligible for
-/// human review", never automatic authority; in this stage the last two
-/// blockers are unconditional.
+/// human review", never automatic authority. In this stage three blockers
+/// are unconditional: same-block activation semantics, the unconfirmed
+/// deployment genesis (no evidence type for it exists yet, and a caller
+/// flag must not be able to clear it), and the missing Rust replay.
 pub fn stage23c_gate(
     chain: LitecoinChain,
     authenticated_corpus_sha256: [u8; 32],
@@ -784,7 +797,7 @@ pub fn stage23c_gate(
             if r.decisions_decided == 0 {
                 blockers.insert(GateBlocker::EmptyParityCorpus);
             }
-            if !r.prior_state_complete {
+            if !r.covers_placeholder_genesis {
                 blockers.insert(GateBlocker::PriorStateIncomplete);
             }
             if r.evidence_inconclusive + r.evidence_rejected > 0 {
@@ -799,6 +812,9 @@ pub fn stage23c_gate(
             if r.decisions_other > 0 {
                 blockers.insert(GateBlocker::DecisionsNotAllDecided);
             }
+            if r.decisions_contingent > 0 {
+                blockers.insert(GateBlocker::DecisionsContingentOnPresentDayRpc);
+            }
             if r.order_divergent_blocks > 0 {
                 blockers.insert(GateBlocker::LegacyIntraBlockOrderDiverges);
             }
@@ -812,6 +828,7 @@ pub fn stage23c_gate(
         }
     }
     blockers.insert(GateBlocker::ActivationSameBlockSemanticsDiffer);
+    blockers.insert(GateBlocker::GenesisUnconfirmed);
     blockers.insert(GateBlocker::RustDecisionReplayMissing);
     blockers
 }

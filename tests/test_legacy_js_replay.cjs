@@ -80,6 +80,7 @@ function manifest(candidates) {
     assert.equal(client.then, undefined); // awaiting the proxy must not call a fake RPC
     assert.deepEqual(client.misses, ['validateAddress ["tltc1unknown"]', 'getrawtransaction pp',
       'dumpprivkey ["x"]', 'getrawtransaction zz']);
+    assert.deepEqual(client.contingent, ['validateAddress ["tltc1ok"]']);
   });
 
   await test('conflicting records for one parent output are refused', () => {
@@ -99,7 +100,7 @@ function manifest(candidates) {
   });
 
   await test('decision oracle: incomplete prior state, misses, taint and precision are inconclusive', () => {
-    const ev = { priorState: 'COMPLETE_FROM_LEGACY_JS_GENESIS', candidates: [
+    const ev = { priorState: 'COVERS_PLACEHOLDER_GENESIS', candidates: [
       { txid: 'a', evidence: 'ACCEPTED_FOR_PARITY' }, { txid: 'b', evidence: 'ACCEPTED_FOR_PARITY' },
       { txid: 'c', evidence: 'ACCEPTED_FOR_PARITY' }, { txid: 'd', evidence: 'INCONCLUSIVE' },
       { txid: 'e', evidence: 'ACCEPTED_FOR_PARITY' }] };
@@ -116,6 +117,22 @@ function manifest(candidates) {
     assert.match(out[4].inconclusive_reasons.join(), /evidence INCONCLUSIVE.*tainted by valid unsupported type 5/);
     const incomplete = H.classifyDecisions([d('a', 0, true)], { ...ev, priorState: 'INCOMPLETE' });
     assert.deepEqual(incomplete[0].inconclusive_reasons, ['prior state incomplete']);
+    // The old label is not accepted as coverage any more.
+    const stale = H.classifyDecisions([d('a', 0, true)], { ...ev, priorState: 'COMPLETE_FROM_LEGACY_JS_GENESIS' });
+    assert.equal(stale[0].oracle, 'INCONCLUSIVE');
+  });
+
+  await test('a decision that consulted a present-day recorded RPC answer is contingent', () => {
+    const ev = { priorState: 'COVERS_PLACEHOLDER_GENESIS', candidates: [
+      { txid: 'a', evidence: 'ACCEPTED_FOR_PARITY' }, { txid: 'b', evidence: 'ACCEPTED_FOR_PARITY' }] };
+    const out = H.classifyDecisions([
+      { txid: 'a', type: 2, valid: false, misses: [], numeric_fields: {},
+        contingent_on: ['validateAddress ["tltc1x"]', 'validateAddress ["tltc1x"]'] },
+      { txid: 'b', type: 2, valid: true, misses: ['validateAddress ["tltc1y"]'], numeric_fields: {},
+        contingent_on: ['validateAddress ["tltc1x"]'] }], ev);
+    assert.equal(out[0].oracle, 'CONTINGENT');
+    assert.deepEqual(out[0].inconclusive_reasons, ['present-day RPC answer: validateAddress ["tltc1x"]']);
+    assert.equal(out[1].oracle, 'INCONCLUSIVE'); // a miss outranks a recorded answer
   });
 
   await test('numeric fields flag amounts that are not safe integers in atoms', () => {
@@ -171,7 +188,9 @@ function manifest(candidates) {
       const legacy = replay('replay2.json', rec);
       const counter = replay('replay3.json', [...rec, '--ordering', 'canonical-counterfactual']);
       const byType = (r) => Object.fromEntries(r.decisions.records.map((d) => [d.type, d.valid]));
-      assert.deepEqual(legacy.decisions.counts, { DECIDED: 3 });
+      // The send consulted a recorded present-day validateaddress answer.
+      assert.deepEqual(legacy.decisions.counts, { DECIDED: 2, CONTINGENT: 1 });
+      assert.match(legacy.genesis_status, /^UNCONFIRMED/);
       assert.deepEqual(byType(legacy), { 0: true, 1: true, 2: false });   // send processed before issue
       assert.deepEqual(byType(counter), { 0: true, 1: true, 2: true });   // block-position order
       assert.notEqual(legacy.blocks[0].state_digest, counter.blocks[0].state_digest);

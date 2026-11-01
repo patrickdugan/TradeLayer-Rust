@@ -57,6 +57,9 @@ def record(rpc, network: str, requests: list[str]) -> dict:
     return {"format": "litecoin-rpc-recordings-v1", "network": LABELS[network],
             "pinned_litecoin_genesis": node["genesis"], "node_inspection": node,
             "validateaddress": answers, "unrecordable_requests": unrecordable,
+            "recorded_at_tip_height": node["blocks"],
+            "temporal_status": ("present-day answers; the historical deployment's node may have "
+                                "answered differently, so replay decisions using them are CONTINGENT"),
             "authority": "node answers for legacy JS replay only; no TradeLayer authority"}
 
 

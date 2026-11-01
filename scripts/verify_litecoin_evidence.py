@@ -249,6 +249,7 @@ def verify_manifest(manifest: dict, corpus: str, commit: str, check_scrypt: bool
                             "reasons": [str(err) or type(err).__name__]})
     return {"network": network, "start_height": manifest["start_height"],
             "end_height": manifest["end_height"], "node_version": node.get("subversion"),
+            "rpc_address_schema": manifest.get("rpc_address_schema"),
             "previous_block_hash": manifest.get("previous_block_hash"),
             "last_block_hash": manifest["last_block_hash"], "candidates": results,
             "header_hashes": {h: v["hash"] for h, v in headers.items()}}
@@ -268,11 +269,14 @@ def coverage(reports: list[dict]) -> dict:
             intervals[-1][1] = r["end_height"]
         else:
             intervals.append([r["start_height"], r["end_height"]])
-    complete = (contiguous and legacy_genesis is not None
-                and reports[0]["start_height"] <= legacy_genesis <= reports[-1]["end_height"])
+    covered = (contiguous and legacy_genesis is not None
+               and reports[0]["start_height"] <= legacy_genesis <= reports[-1]["end_height"])
+    # Covering the pinned constant is necessary, not sufficient: the actual
+    # deployment genesis and any state import are not evidenced anywhere.
     return {"network": networks.pop(), "intervals": intervals, "contiguous_hash_linked": contiguous,
             "pinned_legacy_js_genesis": legacy_genesis,
-            "prior_state": "COMPLETE_FROM_LEGACY_JS_GENESIS" if complete else "INCOMPLETE"}
+            "genesis_status": "UNCONFIRMED (main.js GENESIS_BLOCK_HEIGHTS is a placeholder)",
+            "prior_state": "COVERS_PLACEHOLDER_GENESIS" if covered else "INCOMPLETE"}
 
 
 def recheck_active_chain(rpc, reports: list[dict]) -> int:

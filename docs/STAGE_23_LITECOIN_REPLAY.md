@@ -84,10 +84,13 @@ candidate carries `carrier_class`. Manifests now hold the raw headers of
 every scanned block, a Merkle branch and tx count per candidate, and the
 sender parent's raw bytes, header and branch.
 
-A **complete prior state** needs hash-linked coverage that contains the
-pinned legacy genesis (`GENESIS_BLOCK_HEIGHTS.LTC`: testnet 3,082,500,
-mainnet 2,819,000). For a testnet lead near 3,432,676 that is about 700
-consecutive runs:
+Prior-state coverage needs hash-linked coverage that contains the pinned
+legacy genesis (`GENESIS_BLOCK_HEIGHTS.LTC`: testnet 3,082,500, mainnet
+2,819,000). Those constants are placeholders in the pinned `main.js`, so
+covering them is necessary but does not establish complete historical
+state: the actual deployment genesis, and any state imported at it, still
+has to be evidenced (`GenesisUnconfirmed` below). For a testnet lead near
+3,432,676 the coverage is about 700 consecutive runs:
 
 ```sh
 for s in $(seq 3082500 500 3432999); do
@@ -110,7 +113,10 @@ candidate becomes `ACCEPTED_FOR_PARITY`, `INCONCLUSIVE` (unresolved sender or
 reference address: `modern-only`, `schema-conflict`, `ambiguous`,
 `unresolved`) or `REJECTED` (any byte, header, Merkle, parent, nulldata
 typing or reorg failure). `coverage.prior_state` is
-`COMPLETE_FROM_LEGACY_JS_GENESIS` or `INCOMPLETE`.
+`COVERS_PLACEHOLDER_GENESIS` or `INCOMPLETE`, and `coverage.genesis_status`
+is always `UNCONFIRMED` in this stage. Each manifest's
+`rpc_address_schema` counts outputs the node decoded with `addresses[]`
+only, `address` only, both, or neither.
 
 ### 4. Rust syntax tools
 
@@ -228,11 +234,11 @@ tests/test_legacy_js_replay.cjs`):
 
 | Report | Result |
 |---|---|
-| evidence | 3 `ACCEPTED_FOR_PARITY`, prior state complete (synthetic block at 3,082,500) |
+| evidence | 3 `ACCEPTED_FOR_PARITY`, coverage contains the placeholder genesis (synthetic block at 3,082,500); genesis `UNCONFIRMED` |
 | syntax | 3 `MATCH` |
 | actor/reference | 3 `MATCH`; Rust script-derived addresses 3/3 equal to node JSON |
 | decisions, pass 1 | 2 `DECIDED`, 1 `INCONCLUSIVE` (unrecorded `validateaddress`) |
-| decisions, pass 2 | 3 `DECIDED`: activate valid, issue valid, send **invalid** |
+| decisions, pass 2 | 2 `DECIDED` (activate valid, issue valid), 1 `CONTINGENT` (send **invalid**, after a recorded present-day `validateaddress` answer) |
 | canonical counterfactual | send valid; state digest differs |
 | intra-block order divergence | 1 block |
 
@@ -245,11 +251,14 @@ Real-chain counts: **none**, no evidence collected.
 2. `GENESIS_BLOCK_HEIGHTS.LTC` (3,082,500 / 2,819,000) is commented
    "Replace with actual" in `src/main.js:70`; the `Main` constructor also
    sets `genesisBlock = 600000`, and `const genesisBlock = 3082500` exists.
+   The gate reports `GenesisUnconfirmed` until the deployment genesis and
+   any state import are evidenced.
 3. Which Litecoin Core version and RPC schema the legacy indexer ran
    against (`addresses[]` versus `address`); the tests use port 18332,
    Bitcoin's testnet default, on a Litecoin client.
 4. Whether historical nodes answered `validateaddress` identically to the
-   node used for recording.
+   node used for recording. Recordings carry `recorded_at_tip_height`; any
+   decision that consulted one is `CONTINGENT`, not `DECIDED`.
 5. Whether the legacy operator ran catch-up or real-time mode for a given
    height (finding 4), and whether any operator restarted mid-block
    (`checkIfTxProcessed` skips).
@@ -266,21 +275,23 @@ Real-chain counts: **none**, no evidence collected.
 
 `tradelayer_core::litecoin_evidence::stage23c_gate` returns the blockers.
 It can only add blockers; summaries it reads are caller-supplied. In this
-stage two blockers are unconditional, and no API converts an
+stage three blockers are unconditional, and no API converts an
 `AuthenticatedObservation` into a `UnverifiedJointTx`:
 
 | Blocker | Clears when |
 |---|---|
 | `NoTradeLayerInstance` | evidence is Litecoin **mainnet** (testnet has no TradeLayer/JointChainState) |
 | `NoParityReport`, `ParityReportUnbound`, `EmptyParityCorpus` | a report bound to the authenticated corpus SHA-256 with decided transactions |
-| `PriorStateIncomplete` | hash-linked coverage contains the pinned legacy genesis |
+| `PriorStateIncomplete` | hash-linked coverage contains the pinned (placeholder) legacy genesis |
 | `EvidenceNotAccepted` | every candidate `ACCEPTED_FOR_PARITY` |
 | `SyntaxParityNotExact`, `ActorReferenceParityNotExact` | zero non-`MATCH` records, including Rust-vs-node address comparison |
 | `DecisionsNotAllDecided` | zero `INCONCLUSIVE`/`UNSUPPORTED_BY_ORACLE` decisions |
+| `DecisionsContingentOnPresentDayRpc` | zero `CONTINGENT` decisions, i.e. no decision rests on a present-day `validateaddress` answer |
 | `LegacyIntraBlockOrderDiverges` | an explicitly ratified ordering rule, or no divergent blocks |
 | `ProhibitedType(3/23/31)` | never in this stage |
 | `TypeOutsideOracle(t)` | the oracle covers type `t` |
 | `ActivationSameBlockSemanticsDiffer` | **unconditional**: ratify one rule and align Rust or the record |
+| `GenesisUnconfirmed` | **unconditional**: no evidence type yet establishes the actual deployment genesis or a state import; covering the placeholder constants does not |
 | `RustDecisionReplayMissing` | **unconditional**: a Rust replay from authenticated observations into a separate Litecoin `JointChainState`, compared transaction by transaction and block by block (state digests, rollback on late failure, reorgs) |
 
 An empty blocker set would mean *eligible for human review*, never
