@@ -5,6 +5,7 @@ use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::{Condvar, Mutex, PoisonError};
 use tradelayer_core::chain::{BlockHeader, BlockId, Tip};
 use tradelayer_core::contract_orderbook::{Order, Side};
 use tradelayer_core::contract_registry::ContractId;
@@ -25,9 +26,59 @@ use tradelayer_core::tally::FeeRoute;
 const ATOMS: u128 = 100_000_000;
 const LOCK_PROBE_ROOT: &str = "TL_ECONOMIC_CHAIN_LOCK_PROBE_ROOT";
 static NEXT: AtomicU64 = AtomicU64::new(0);
-struct Directory(PathBuf);
+// A spawned child holds copies of every open fd between fork and exec, so a
+// sibling test's journal flock outlives its drop. Children spawn only while no
+// guarded store is open, and opening a store waits only for an in-flight spawn,
+// so a test holding several stores cannot deadlock against a waiting spawner.
+static GATE: Mutex<(usize, bool)> = Mutex::new((0, false));
+static GATE_CHANGED: Condvar = Condvar::new();
+struct StoreGuard;
+impl StoreGuard {
+    fn acquire() -> Self {
+        let mut gate = GATE.lock().unwrap_or_else(PoisonError::into_inner);
+        while gate.1 {
+            gate = GATE_CHANGED
+                .wait(gate)
+                .unwrap_or_else(PoisonError::into_inner);
+        }
+        gate.0 += 1;
+        Self
+    }
+}
+impl Drop for StoreGuard {
+    fn drop(&mut self) {
+        GATE.lock().unwrap_or_else(PoisonError::into_inner).0 -= 1;
+        GATE_CHANGED.notify_all();
+    }
+}
+struct Spawning;
+impl Drop for Spawning {
+    fn drop(&mut self) {
+        GATE.lock().unwrap_or_else(PoisonError::into_inner).1 = false;
+        GATE_CHANGED.notify_all();
+    }
+}
+fn spawn_alone<T>(spawn: impl FnOnce() -> T) -> T {
+    let mut gate = GATE.lock().unwrap_or_else(PoisonError::into_inner);
+    while gate.0 > 0 || gate.1 {
+        gate = GATE_CHANGED
+            .wait(gate)
+            .unwrap_or_else(PoisonError::into_inner);
+    }
+    gate.1 = true;
+    drop(gate);
+    let _spawning = Spawning;
+    spawn()
+}
+struct Directory(PathBuf, #[allow(dead_code)] Option<StoreGuard>);
 impl Directory {
     fn new() -> Self {
+        Self::create(Some(StoreGuard::acquire()))
+    }
+    fn unguarded() -> Self {
+        Self::create(None)
+    }
+    fn create(guard: Option<StoreGuard>) -> Self {
         let path = std::env::temp_dir().join(format!(
             "tl-economic-chain-{}-{}-{}",
             std::process::id(),
@@ -38,7 +89,7 @@ impl Directory {
             NEXT.fetch_add(1, Ordering::Relaxed),
         ));
         fs::create_dir(&path).unwrap();
-        Self(path)
+        Self(path, guard)
     }
 }
 impl Drop for Directory {
@@ -600,7 +651,7 @@ fn durable_incomplete_tail_requires_explicit_recovery_and_preserves_expected_hea
 
 #[test]
 fn durable_os_lock_excludes_second_process_and_release_allows_reopen() {
-    let dir = Directory::new();
+    let dir = Directory::unguarded();
     let chain = with_claim(TradeLayerMainnet::Litecoin, 4);
     let cfg = chain.config().clone();
     let owner = DurableEconomicChain::initialize(&dir.0, chain.clone(), chain.tip()).unwrap();
@@ -609,13 +660,15 @@ fn durable_os_lock_excludes_second_process_and_release_allows_reopen() {
         DurableEconomicChain::load(&dir.0, cfg.clone(), head, Recovery::RejectIncompleteTail),
         Err(DurableEconomicError::Storage(StorageError::Locked))
     ));
-    let probe = std::process::Command::new(std::env::current_exe().unwrap())
-        .arg("--exact")
-        .arg("economic_lock_probe_child")
-        .arg("--nocapture")
-        .env(LOCK_PROBE_ROOT, &dir.0)
-        .output()
-        .unwrap();
+    let probe = spawn_alone(|| {
+        std::process::Command::new(std::env::current_exe().unwrap())
+            .arg("--exact")
+            .arg("economic_lock_probe_child")
+            .arg("--nocapture")
+            .env(LOCK_PROBE_ROOT, &dir.0)
+            .output()
+            .unwrap()
+    });
     assert!(
         probe.status.success(),
         "child stdout={} stderr={}",

@@ -3,6 +3,7 @@ use std::io::{Read, Write};
 use std::net::TcpListener;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::{Condvar, Mutex, PoisonError};
 use std::time::{Duration, Instant};
 use tradelayer_core::bootstrap::*;
 use tradelayer_core::bootstrap_storage::*;
@@ -19,17 +20,70 @@ use tradelayer_core::storage::{Journal, Namespace, Recovery, StorageError};
 use tradelayer_core::tally::FeeRoute;
 
 static NEXT: AtomicU64 = AtomicU64::new(0);
-struct Directory(PathBuf);
+// A spawned child holds copies of every open fd between fork and exec, so a
+// sibling test's journal flock outlives its drop. Children spawn only while no
+// guarded store is open, and opening a store waits only for an in-flight spawn,
+// so a test holding several stores cannot deadlock against a waiting spawner.
+static GATE: Mutex<(usize, bool)> = Mutex::new((0, false));
+static GATE_CHANGED: Condvar = Condvar::new();
+struct StoreGuard;
+impl StoreGuard {
+    fn acquire() -> Self {
+        let mut gate = GATE.lock().unwrap_or_else(PoisonError::into_inner);
+        while gate.1 {
+            gate = GATE_CHANGED
+                .wait(gate)
+                .unwrap_or_else(PoisonError::into_inner);
+        }
+        gate.0 += 1;
+        Self
+    }
+}
+impl Drop for StoreGuard {
+    fn drop(&mut self) {
+        GATE.lock().unwrap_or_else(PoisonError::into_inner).0 -= 1;
+        GATE_CHANGED.notify_all();
+    }
+}
+struct Spawning;
+impl Drop for Spawning {
+    fn drop(&mut self) {
+        GATE.lock().unwrap_or_else(PoisonError::into_inner).1 = false;
+        GATE_CHANGED.notify_all();
+    }
+}
+fn spawn_alone<T>(spawn: impl FnOnce() -> T) -> T {
+    let mut gate = GATE.lock().unwrap_or_else(PoisonError::into_inner);
+    while gate.0 > 0 || gate.1 {
+        gate = GATE_CHANGED
+            .wait(gate)
+            .unwrap_or_else(PoisonError::into_inner);
+    }
+    gate.1 = true;
+    drop(gate);
+    let _spawning = Spawning;
+    spawn()
+}
+struct Directory(PathBuf, #[allow(dead_code)] Option<StoreGuard>);
 impl Directory {
     fn new() -> Self {
+        Self::create(Some(StoreGuard::acquire()))
+    }
+    fn unguarded() -> Self {
+        Self::create(None)
+    }
+    fn create(guard: Option<StoreGuard>) -> Self {
         let path = std::env::temp_dir().join(format!(
             "tl-runtime-{}-{}",
             std::process::id(),
             NEXT.fetch_add(1, Ordering::Relaxed)
         ));
         std::fs::create_dir(&path).unwrap();
-        Self(path)
+        Self(path, guard)
     }
+}
+fn spawn_output(command: &mut std::process::Command) -> std::process::Output {
+    spawn_alone(|| command.output().unwrap())
 }
 impl Drop for Directory {
     fn drop(&mut self) {
@@ -506,22 +560,22 @@ fn cancellation_arriving_during_the_first_rpc_prevents_later_identity_requests()
 }
 
 fn observe_cli(root: &std::path::Path, endpoint: &str, tail: &[&str]) -> std::process::Output {
-    std::process::Command::new(env!("CARGO_BIN_EXE_tl_observe"))
-        .arg("--root")
-        .arg(root)
-        .args([
-            "--network",
-            "BTC",
-            "--rpc-address",
-            endpoint,
-            "--rpc-timeout-ms",
-            "300",
-        ])
-        .args(tail)
-        .env("RPC_USER", "test")
-        .env("RPC_PASS", "private-cli-password")
-        .output()
-        .unwrap()
+    spawn_output(
+        std::process::Command::new(env!("CARGO_BIN_EXE_tl_observe"))
+            .arg("--root")
+            .arg(root)
+            .args([
+                "--network",
+                "BTC",
+                "--rpc-address",
+                endpoint,
+                "--rpc-timeout-ms",
+                "300",
+            ])
+            .args(tail)
+            .env("RPC_USER", "test")
+            .env("RPC_PASS", "private-cli-password"),
+    )
 }
 fn cli_status(output: &std::process::Output) -> tradelayer_core::client::RpcValue {
     assert!(
@@ -542,7 +596,7 @@ fn cli_exact_restart_tokens_control_modes_and_cooperative_shutdown_are_durable()
         ObservationHead, ObservationStore, ObserverConfig, ObserverMode,
     };
     use tradelayer_core::runtime::parse_block_id;
-    let directory = Directory::new();
+    let directory = Directory::unguarded();
     let (endpoint, server) = mock_endpoint(identity_replies(TradeLayerMainnet::Bitcoin));
     let output = observe_cli(
         &directory.0,
@@ -644,7 +698,7 @@ fn cli_exact_restart_tokens_control_modes_and_cooperative_shutdown_are_durable()
 }
 #[test]
 fn cli_invalid_arguments_never_create_a_store_or_expose_credentials() {
-    let directory = Directory::new();
+    let directory = Directory::unguarded();
     for tail in [
         vec!["--initialize", "--reconcile", "invalid"],
         vec!["--initialize", "--reconcile", "3:not-a-hash"],
@@ -663,10 +717,8 @@ fn cli_invalid_arguments_never_create_a_store_or_expose_credentials() {
         );
         assert!(!String::from_utf8_lossy(&output.stderr).contains("private-cli-password"));
     }
-    let output = std::process::Command::new(env!("CARGO_BIN_EXE_tl_observe"))
-        .arg("--help")
-        .output()
-        .unwrap();
+    let output =
+        spawn_output(std::process::Command::new(env!("CARGO_BIN_EXE_tl_observe")).arg("--help"));
     assert!(output.status.success());
     assert!(String::from_utf8_lossy(&output.stdout).contains("--expected-head"));
 }

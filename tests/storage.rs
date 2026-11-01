@@ -1,5 +1,6 @@
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::{Condvar, Mutex, PoisonError};
 use tradelayer_core::decimal::Decimal;
 use tradelayer_core::iou::{Claim, IouKey, IouStore};
 use tradelayer_core::iou_ledger::{FundedIouLedger, IouInput, PayoutAtomPolicy};
@@ -8,9 +9,59 @@ use tradelayer_core::network_profile::TradeLayerMainnet;
 use tradelayer_core::storage::{Journal, Mutation, Namespace, Recovery, StorageError, CATEGORIES};
 
 static NEXT: AtomicU64 = AtomicU64::new(0);
-struct Temp(PathBuf);
+// A spawned child holds copies of every open fd between fork and exec, so a
+// sibling test's journal flock outlives its drop. Children spawn only while no
+// guarded store is open, and opening a store waits only for an in-flight spawn,
+// so a test holding several stores cannot deadlock against a waiting spawner.
+static GATE: Mutex<(usize, bool)> = Mutex::new((0, false));
+static GATE_CHANGED: Condvar = Condvar::new();
+struct StoreGuard;
+impl StoreGuard {
+    fn acquire() -> Self {
+        let mut gate = GATE.lock().unwrap_or_else(PoisonError::into_inner);
+        while gate.1 {
+            gate = GATE_CHANGED
+                .wait(gate)
+                .unwrap_or_else(PoisonError::into_inner);
+        }
+        gate.0 += 1;
+        Self
+    }
+}
+impl Drop for StoreGuard {
+    fn drop(&mut self) {
+        GATE.lock().unwrap_or_else(PoisonError::into_inner).0 -= 1;
+        GATE_CHANGED.notify_all();
+    }
+}
+struct Spawning;
+impl Drop for Spawning {
+    fn drop(&mut self) {
+        GATE.lock().unwrap_or_else(PoisonError::into_inner).1 = false;
+        GATE_CHANGED.notify_all();
+    }
+}
+fn spawn_alone<T>(spawn: impl FnOnce() -> T) -> T {
+    let mut gate = GATE.lock().unwrap_or_else(PoisonError::into_inner);
+    while gate.0 > 0 || gate.1 {
+        gate = GATE_CHANGED
+            .wait(gate)
+            .unwrap_or_else(PoisonError::into_inner);
+    }
+    gate.1 = true;
+    drop(gate);
+    let _spawning = Spawning;
+    spawn()
+}
+struct Temp(PathBuf, #[allow(dead_code)] Option<StoreGuard>);
 impl Temp {
     fn new() -> Self {
+        Self::create(Some(StoreGuard::acquire()))
+    }
+    fn unguarded() -> Self {
+        Self::create(None)
+    }
+    fn create(guard: Option<StoreGuard>) -> Self {
         let root = std::env::temp_dir().join(format!(
             "tl-storage-{}-{}-{}",
             std::process::id(),
@@ -21,7 +72,7 @@ impl Temp {
             NEXT.fetch_add(1, Ordering::Relaxed)
         ));
         std::fs::create_dir(&root).unwrap();
-        Self(root)
+        Self(root, guard)
     }
 }
 impl Drop for Temp {
@@ -231,13 +282,15 @@ fn os_lock_child() {
 
 #[test]
 fn os_lock_excludes_another_process() {
-    let root = Temp::new();
+    let root = Temp::unguarded();
     let journal = open(&root.0);
-    let status = std::process::Command::new(std::env::current_exe().unwrap())
-        .args(["--exact", "os_lock_child", "--nocapture"])
-        .env("TL_STORAGE_LOCK_CHILD_ROOT", &root.0)
-        .status()
-        .unwrap();
+    let status = spawn_alone(|| {
+        std::process::Command::new(std::env::current_exe().unwrap())
+            .args(["--exact", "os_lock_child", "--nocapture"])
+            .env("TL_STORAGE_LOCK_CHILD_ROOT", &root.0)
+            .status()
+            .unwrap()
+    });
     assert!(status.success());
     drop(journal);
     assert_eq!(open(&root.0).sequence().unwrap(), 0);
