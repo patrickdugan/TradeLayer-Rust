@@ -160,10 +160,12 @@ jobs:
         env:
           TRADELAYER_JS_ROOT: ${{ runner.temp }}/tl-secp-reference
         run: |
-          # A failure also becomes an annotation naming each failing test and its panic.
+          # A failure also becomes an annotation naming each failing test, its
+          # panic message (the line after "panicked at") and the free disk.
           set -o pipefail
           if ! cargo test --frozen 2>&1 | tee "$RUNNER_TEMP/cargo-test.log"; then
-            grep -E "^test .* FAILED$|panicked at|^error: test failed" "$RUNNER_TEMP/cargo-test.log" | head -40 > "$RUNNER_TEMP/cargo-failures.txt"
+            grep -A1 -E "^test .* FAILED$|panicked at|^error: test failed" "$RUNNER_TEMP/cargo-test.log" | grep -v '^--$' | head -60 > "$RUNNER_TEMP/cargo-failures.txt"
+            df -h / "$RUNNER_TEMP" | tail -n +2 | sed 's/^/disk /' >> "$RUNNER_TEMP/cargo-failures.txt"
             echo "::error title=cargo test::$(tr -s '[:space:]' ' ' < "$RUNNER_TEMP/cargo-failures.txt" | head -c 3000)"
             exit 1
           fi
