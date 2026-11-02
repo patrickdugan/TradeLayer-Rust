@@ -776,6 +776,55 @@ fn cli_head_log_restarts_after_a_kill_at_any_point_of_a_commit() {
     assert!(String::from_utf8_lossy(&relative.stderr).contains("must be absolute"));
 }
 #[test]
+fn cli_head_log_recover_write_restart_discards_incomplete_tail() {
+    let directory = Directory::unguarded();
+    let log = directory.0.join("heads.log");
+    let log_arg = log.to_str().unwrap().to_owned();
+    let cli = |tail: &[&str]| {
+        let mut args = vec!["--head-log", log_arg.as_str()];
+        args.extend_from_slice(tail);
+        observe_cli(&directory.0, "127.0.0.1:1", &args)
+    };
+
+    let initial = status_text(&cli_status(&cli(&["--initialize", "--steps", "0"])), "head");
+    let paused = status_text(&cli_status(&cli(&["--pause"])), "head");
+    assert_ne!(initial, paused);
+    let complete = std::fs::read(&log).unwrap();
+    assert_eq!(complete.last(), Some(&b'\n'));
+
+    // Restart from the committed head with a torn trailing record, then
+    // write new records before restarting again. The old implementation
+    // appended straight onto "committed 999:" and poisoned the next load.
+    let mut torn = complete.clone();
+    torn.extend_from_slice(b"committed 999:");
+    std::fs::write(&log, torn).unwrap();
+    let resumed = status_text(&cli_status(&cli(&["--resume"])), "head");
+    assert_ne!(resumed, paused);
+    let mut expected = complete;
+    expected.extend_from_slice(format!("prepared {resumed}\ncommitted {resumed}\n").as_bytes());
+    assert_eq!(std::fs::read(&log).unwrap(), expected);
+    let restarted = cli_status(&cli(&["--steps", "0"]));
+    assert_eq!(status_text(&restarted, "head"), resumed);
+    assert_eq!(status_text(&restarted, "mode"), "Observing");
+
+    // Explicit --expected-head bypasses logged_heads(), but its writer
+    // must still repair the torn suffix before the next state transition.
+    let mut torn = expected.clone();
+    torn.extend_from_slice(b"prepared 100:");
+    std::fs::write(&log, torn).unwrap();
+    let paused_again = status_text(
+        &cli_status(&cli(&["--expected-head", &resumed, "--pause"])),
+        "head",
+    );
+    expected.extend_from_slice(
+        format!("prepared {paused_again}\ncommitted {paused_again}\n").as_bytes(),
+    );
+    assert_eq!(std::fs::read(&log).unwrap(), expected);
+    let restarted = cli_status(&cli(&["--steps", "0"]));
+    assert_eq!(status_text(&restarted, "head"), paused_again);
+    assert_eq!(status_text(&restarted, "mode"), "Paused");
+}
+#[test]
 fn cli_invalid_arguments_never_create_a_store_or_expose_credentials() {
     let directory = Directory::unguarded();
     for tail in [
