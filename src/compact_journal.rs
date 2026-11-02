@@ -3,12 +3,12 @@
 use crate::codec::crc32;
 use crate::hash256::double_sha256;
 use crate::storage::{
-    Journal, JournalReadSnapshot, Mutation, Namespace, Recovery, RecoveryReport, StorageError,
-    MAX_BATCH_BYTES, MAX_BATCH_OPERATIONS, MAX_LOG_BYTES,
+    try_lock_file, Journal, JournalReadSnapshot, Mutation, Namespace, Recovery, RecoveryReport,
+    StorageError, MAX_BATCH_BYTES, MAX_BATCH_OPERATIONS, MAX_LOG_BYTES,
 };
 use std::{
     collections::BTreeMap,
-    fs::{self, File, OpenOptions, TryLockError},
+    fs::{self, File, OpenOptions},
     io::Write,
     path::{Path, PathBuf},
     sync::{Arc, Mutex, Weak},
@@ -417,10 +417,8 @@ impl CompactingJournal {
                 .write(true)
                 .open(&lease_path)?
         };
-        match lease.try_lock() {
-            Ok(()) => (),
-            Err(TryLockError::WouldBlock) => return Err(StorageError::Locked),
-            Err(TryLockError::Error(e)) => return Err(e.into()),
+        if !try_lock_file(&lease, false)? {
+            return Err(StorageError::Locked);
         }
         lease.sync_all()?;
         sync_dir(&catalog)?;
@@ -571,10 +569,8 @@ impl CompactingJournal {
             let path = gen_path(&self.catalog, self.publication.generation).join("READERS");
             real_file(&path)?;
             let file = File::open(path)?;
-            match file.try_lock_shared() {
-                Ok(()) => (),
-                Err(TryLockError::WouldBlock) => return Err(StorageError::Locked),
-                Err(TryLockError::Error(e)) => return Err(e.into()),
+            if !try_lock_file(&file, true)? {
+                return Err(StorageError::Locked);
             }
             let a = Arc::new(ReaderLease { _file: file });
             reads.insert(self.publication.generation, Arc::downgrade(&a));
@@ -857,27 +853,21 @@ impl CompactingJournal {
             if readers.exists() {
                 real_file(&readers)?;
                 let f = OpenOptions::new().read(true).write(true).open(&readers)?;
-                match f.try_lock() {
-                    Ok(()) => reader_guard = Some(f),
-                    Err(TryLockError::WouldBlock) => {
-                        pinned.push(g);
-                        continue;
-                    }
-                    Err(TryLockError::Error(e)) => return Err(e.into()),
+                if !try_lock_file(&f, false)? {
+                    pinned.push(g);
+                    continue;
                 }
+                reader_guard = Some(f);
             }
             let mut data_guard = None;
             if data.exists() {
                 real_file(&data)?;
                 let f = OpenOptions::new().read(true).write(true).open(&data)?;
-                match f.try_lock() {
-                    Ok(()) => data_guard = Some(f),
-                    Err(TryLockError::WouldBlock) => {
-                        pinned.push(g);
-                        continue;
-                    }
-                    Err(TryLockError::Error(e)) => return Err(e.into()),
+                if !try_lock_file(&f, false)? {
+                    pinned.push(g);
+                    continue;
                 }
+                data_guard = Some(f);
                 fs::remove_file(&data)?;
             }
             self.hit(FaultPoint::DuringRetention)?;

@@ -194,6 +194,37 @@ enum TestCommitFault {
     AfterSync,
 }
 
+/// Non-blocking OS lock; `Ok(false)` means another holder has it. Unit-test
+/// builds retry a held lock for one second: a sibling test's spawned child
+/// holds copies of every open fd between fork and exec, so a lock its owner
+/// just released can stay held for that window.
+pub(crate) fn try_lock_file(file: &File, shared: bool) -> Result<bool, std::io::Error> {
+    let attempt = || {
+        let result = if shared {
+            file.try_lock_shared()
+        } else {
+            file.try_lock()
+        };
+        match result {
+            Ok(()) => Ok(true),
+            Err(TryLockError::WouldBlock) => Ok(false),
+            Err(TryLockError::Error(error)) => Err(error),
+        }
+    };
+    let acquired = attempt()?;
+    #[cfg(test)]
+    let acquired = {
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(1);
+        let mut acquired = acquired;
+        while !acquired && std::time::Instant::now() < deadline {
+            std::thread::sleep(std::time::Duration::from_millis(5));
+            acquired = attempt()?;
+        }
+        acquired
+    };
+    Ok(acquired)
+}
+
 impl Journal {
     pub fn open(
         root: &Path,
@@ -272,12 +303,8 @@ impl Journal {
             // its creator. It will reject its short header and release it.
             // Waiting here keeps the creator from abandoning an empty store.
             file.lock()?;
-        } else {
-            match file.try_lock() {
-                Ok(()) => {}
-                Err(TryLockError::WouldBlock) => return Err(StorageError::Locked),
-                Err(TryLockError::Error(error)) => return Err(error.into()),
-            }
+        } else if !try_lock_file(&file, false)? {
+            return Err(StorageError::Locked);
         }
         let expected = namespace.header();
         if created {

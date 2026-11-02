@@ -530,7 +530,7 @@
     },
     {
       "path": "src/compact_journal.rs",
-      "sha256": "8483c6c0c006d0ebe50c6ae30d86b1a9f2ab3efeddefedba78f55ce537ac328e",
+      "sha256": "7c0c0cfd4703c72678f429d4507a25ef3cd4ef8eee7a41f3737a6d75d1f63afc",
       "lfNormalized": true
     },
     {
@@ -625,7 +625,7 @@
     },
     {
       "path": "src/storage.rs",
-      "sha256": "ae2e3c059d91d522a74f4ed283963525baceceebfbd05a0560c28798c3495600",
+      "sha256": "c1b05265bc74ef3f42700a471a0d49717d1bac23972522cbd78fbcf8fca7c50b",
       "lfNormalized": true
     },
     {
