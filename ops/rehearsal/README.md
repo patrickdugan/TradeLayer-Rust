@@ -13,7 +13,7 @@ so nothing here applies blocks to a Ledger, and nothing touches a wallet.
 | `~/rehearsal/bin/tl_observe` | release build of this tree |
 | `~/rehearsal/ltc/` | Litecoin Core 0.21.5.8 `litecoind`, `litecoin-cli` |
 | `~/rehearsal/ltc-data/` | pruned mainnet datadir, `litecoin.conf`, RPC `.cookie` |
-| `~/rehearsal/kit/` | `observe.sh`, `drills.sh`, `status.sh` |
+| `~/rehearsal/kit/` | `observe.sh`, `drills.sh`, `status.sh`, `start-long-run.sh` |
 | `~/rehearsal/observer/` | the long-running store, `anchor`, `heads.log`, `head.token`, `sessions.log`, `errors.log` |
 | `~/rehearsal/drills/<name>/` | one throwaway store per drill |
 
@@ -60,6 +60,14 @@ not authenticate; take the anchor hash from a source independent of this node.
 ~/rehearsal/kit/observe.sh init HEIGHT HASH
 sudo systemctl start rehearsal-observe
 sudo systemctl stop rehearsal-observe    # graceful: stop file, head recorded
+```
+
+`start-long-run.sh` does both unattended: it waits for the node to leave IBD,
+anchors 6 blocks below the tip only when the node and litecoinspace.org report
+the same hash, and logs to `~/rehearsal/long-run.log`.
+
+```bash
+nohup setsid ~/rehearsal/kit/start-long-run.sh < /dev/null > /dev/null 2>&1 &
 ```
 
 The spool holds at most 64 raw blocks and then quarantines instead of evicting
