@@ -14,7 +14,7 @@ so nothing here applies blocks to a Ledger, and nothing touches a wallet.
 | `~/rehearsal/ltc/` | Litecoin Core 0.21.5.8 `litecoind`, `litecoin-cli` |
 | `~/rehearsal/ltc-data/` | pruned mainnet datadir, `litecoin.conf`, RPC `.cookie` |
 | `~/rehearsal/kit/` | `observe.sh`, `drills.sh`, `status.sh` |
-| `~/rehearsal/observer/` | the long-running store, `heads.log`, `head.token`, `sessions.log`, `errors.log` |
+| `~/rehearsal/observer/` | the long-running store, `anchor`, `heads.log`, `head.token`, `sessions.log`, `errors.log` |
 | `~/rehearsal/drills/<name>/` | one throwaway store per drill |
 
 The node is mainnet, pruned to 2 GB of block files, `blocksonly`, no inbound
@@ -68,32 +68,41 @@ hours of observation per store.
 
 ## Results, 2026-11-02
 
-Box: 1 vCPU, 2 GB RAM + 1 GB swap, 19 GB disk. `tl_observe` built from
-`1a077c1` (release, 7 min 39 s; sha256 `151b7f3d…a965f539ae`). Litecoin Core
-0.21.5.8, signature valid from the repository's `davidburkett38` key. Drills ran
-at node heights 11,645 to 33,218 of IBD: 15 PASS, 0 FAIL, 2 OBSERVED.
+Box: 1 vCPU, 2 GB RAM + 1 GB swap, 19 GB disk. Litecoin Core 0.21.5.8,
+signature valid from the repository's `davidburkett38` key.
+
+First run: `tl_observe` from `1a077c1`, drills anchored at genesis during IBD
+(node heights 11,645 to 33,218): 15 PASS, 0 FAIL, 2 OBSERVED. The hard kill
+was OBSERVED: the last printed head was refused with `StaleHead` and the CLI
+had no way to recover the store (finding 1).
+
+Second run: `tl_observe` from `8689b5a` (release, 7 min 29 s; sha256
+`15cd2517…72d08c1c993`), node at 1,751,615 and pruned below 1,678,146, drills
+anchored at 1,737,649: 17 PASS, 0 FAIL, 1 OBSERVED.
 
 | Drill | Result |
 |---|---|
-| observe from genesis | 60 steps reach height 9, mode `Observing` |
+| observe | 60 steps advance 9 blocks, mode `Observing` |
 | status load | head unchanged |
 | tampered expected head | refused; the real head still loads |
 | second process during a session | refused (store lock) |
 | stop file | exit 0, mode `Stopped`, head recorded |
 | restart after stop | resumes and advances |
 | pause | runner refuses a paused store; resume advances |
-| hard kill (SIGKILL after 10 s) | OBSERVED: the last recorded head is refused with `StaleHead` |
+| hard kill (SIGKILL after 10 s) | the printed head (1,737,650) is stale; `heads.log` restarts the store at 1,737,664 and observation continues; no orphaned process |
 | RPC outage (refused port) | `Quarantined(RetryExhausted)`; OBSERVED: resume against the live node returns to `Observing` |
 | capacity | stops at 64 blocks in `Quarantined(SpoolFull)`; not resumable |
 
 Findings:
 
-1. **Hard-kill recovery.** `tl_observe` prints the observation head only when a
-   session ends. After SIGKILL, OOM kill or power loss, the store has committed
-   frames past the last recorded head, the store refuses that head
-   (`StaleHead`), and the CLI has no operation that reveals the current head
-   without one. Recovery needs an independent record of each committed head,
-   for example a per-commit head line on stdout that the supervisor persists.
+1. **Hard-kill recovery (fixed in `8689b5a`).** `tl_observe` printed the head
+   only when a session ended, so after SIGKILL, OOM kill or power loss the
+   store refused the last recorded head (`StaleHead`). `--head-log` now records
+   every head around each commit, and the second run's hard-kill drill
+   restarts from it. The second run also caught a kit bug: operations after
+   `init HEIGHT HASH` omitted the anchor and the store refused the changed
+   configuration (`InvalidSnapshot`). `observe.sh` now keeps the anchor in
+   `anchor` and passes it to every operation.
 2. **Spool lifetime.** The 64-block cap ends a store in under three hours on
    Litecoin mainnet. Continuous observation needs the externally reviewed
    archival/new-store process `docs/DAEMON.md` leaves open.
@@ -101,3 +110,6 @@ Findings:
    header sync (about 3.2 million headers). With `dbcache=100` and a 1,700 MB
    cap it has run without restarts. The observer met that node crash
    unattended: bounded retries, then `Quarantined(RetryExhausted)`, resumable.
+   A release build of `tl_observe` is OOM-killed while `litecoind` holds
+   that memory mid-IBD: stop `rehearsal-litecoind` for the build (about
+   8 minutes) and start it again afterwards.

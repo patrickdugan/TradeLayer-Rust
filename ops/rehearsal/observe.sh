@@ -12,7 +12,10 @@
 # store write, committed after it) and restarts from that log, so a session
 # killed at any point stays loadable. EXPECTED_HEAD=SEQ:HEIGHT:HASH:COMMITMENT
 # presents an explicit head instead. The head printed by each successful
-# operation is also copied to head.token for reading.
+# operation is also copied to head.token for reading. A declared anchor is
+# kept in the file anchor and passed to every later operation: the store
+# refuses (InvalidSnapshot) a configuration other than the one it was created
+# with.
 set -euo pipefail
 R=${REHEARSAL_HOME:-$HOME/rehearsal}
 STATE=${OBSERVER_STATE:-$R/observer}
@@ -20,11 +23,24 @@ STORE=$STATE/store
 TOKEN=$STATE/head.token
 HEADS=$STATE/heads.log
 STOP=$STATE/stop
+ANCHOR_FILE=$STATE/anchor
 mkdir -p "$STORE"
+if [ "${1:-}" = init ] && [ -n "${2:-}" ]; then
+  [ ! -e "$HEADS" ] || { echo "$STATE already has a heads.log" >&2; exit 2; }
+  printf '%s %s\n' "$2" "$3" > "$ANCHOR_FILE"
+  sync "$ANCHOR_FILE"
+elif [ "${1:-}" = init ]; then
+  rm -f "$ANCHOR_FILE"
+fi
+ANCHOR=()
+if [ -s "$ANCHOR_FILE" ]; then
+  read -r anchor_height anchor_hash < "$ANCHOR_FILE"
+  ANCHOR=(--anchor-height "$anchor_height" --anchor-hash "$anchor_hash")
+fi
 BASE=(
   "$R/bin/tl_observe" --root "$STORE" --network LTC
   --rpc-address "${RPC_ADDRESS:-127.0.0.1:9332}" --cookie-file "$R/ltc-data/.cookie"
-  --head-log "$HEADS"
+  --head-log "$HEADS" "${ANCHOR[@]}"
 )
 EXPECT=()
 [ -z "${EXPECTED_HEAD:-}" ] || EXPECT=(--expected-head "$EXPECTED_HEAD")
@@ -51,11 +67,7 @@ mode() { python3 -c 'import json,sys; print(json.loads(sys.stdin.read().splitlin
 case ${1:-} in
   init)
     [ ! -e "$HEADS" ] || { echo "$STATE already has a heads.log" >&2; exit 2; }
-    if [ -n "${2:-}" ]; then
-      invoke init --initialize --anchor-height "$2" --anchor-hash "$3" --steps 0
-    else
-      invoke init --initialize --steps 0
-    fi
+    invoke init --initialize --steps 0
     ;;
   status)
     need_log
