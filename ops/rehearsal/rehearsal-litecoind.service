@@ -1,0 +1,15 @@
+[Unit]
+Description=Pruned Litecoin mainnet node (tl_observe dress rehearsal)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=ubuntu
+ExecStart=/home/ubuntu/rehearsal/ltc/litecoind -datadir=/home/ubuntu/rehearsal/ltc-data -printtoconsole=0
+ExecStop=/home/ubuntu/rehearsal/ltc/litecoin-cli -datadir=/home/ubuntu/rehearsal/ltc-data stop
+Restart=on-failure
+TimeoutStopSec=600
+MemoryMax=1700M
+
+[Install]
+WantedBy=multi-user.target

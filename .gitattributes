@@ -2,6 +2,7 @@
 # default. More specific LF text rules below remain in force for generators.
 fixtures/** -text
 scripts/** -text
+ops/** -text
 
 # Preserve audited JavaScript blob bytes, including their existing LF endings.
 fixtures/legacy_adjuster_source.txt -text -whitespace

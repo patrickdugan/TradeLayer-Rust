@@ -1,0 +1,19 @@
+[Unit]
+Description=tl_observe dress rehearsal (Litecoin mainnet, observation only)
+After=rehearsal-litecoind.service
+Requires=rehearsal-litecoind.service
+
+[Service]
+User=ubuntu
+Environment=REHEARSAL_HOME=/home/ubuntu/rehearsal
+ExecStart=/home/ubuntu/rehearsal/kit/observe.sh run
+# Graceful stop goes through the stop file so the session prints and records
+# its head; systemd waits for the run loop to exit.
+ExecStop=/home/ubuntu/rehearsal/kit/observe.sh stop
+KillMode=mixed
+TimeoutStopSec=120
+# A failed session fails closed: the store needs inspection before rerunning.
+Restart=no
+
+[Install]
+WantedBy=multi-user.target
