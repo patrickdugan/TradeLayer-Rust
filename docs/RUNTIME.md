@@ -5,9 +5,13 @@ durable observation state machine described in [DAEMON.md](DAEMON.md).
 `tl_observe` is a runnable observation service. It records raw blocks from a
 configured node and reports its independently scoped observation head.
 
-The runner requires an existing absolute root, an explicit mainnet, a literal
+The runner requires an existing absolute root, an explicit network, a literal
 IP/socket address, and either deliberate initialization or a complete expected
-head token. Authentication uses an explicit cookie file or `RPC_USER`/`RPC_PASS`
+head token. `--network` is `BTC`, `LTC` or `DOGE` (mainnets) or `BTC-TESTNET4`.
+Bitcoin testnet4 is observation only: it has no TradeLayerMainnet, its store
+lives in the BTC test namespace, and identity requires Core to report chain
+`testnet4` and the testnet4 genesis pinned from Core v29.0 chainparams. A
+testnet4 store and a mainnet store refuse each other's nodes. Authentication uses an explicit cookie file or `RPC_USER`/`RPC_PASS`
 environment values. Passwords are not command-line arguments. Source default
 credentials still apply if no environment values are supplied. RPCs issued by
 the observer are read-only; the client library's separate wallet wrappers are

@@ -10,11 +10,11 @@ use tradelayer_core::daemon::{
     Daemon, DaemonError, HeadRecord, HeadSink, ObservationHead, ObservationStore, ObserverConfig,
     ObserverMode,
 };
-use tradelayer_core::network_profile::TradeLayerMainnet;
+use tradelayer_core::network_profile::{TradeLayerMainnet, BITCOIN_TESTNET4_GENESIS};
 use tradelayer_core::runtime::{block_id_text, parse_block_id, RpcObservationClient};
 use tradelayer_core::storage::Recovery;
 
-const USAGE:&str="tl_observe --root ABSOLUTE_DIR --network BTC|LTC|DOGE --rpc-address IP:PORT [--cookie-file PATH] (--initialize | --expected-head SEQUENCE:HEIGHT:HASH:COMMITMENT | --head-log PATH) [--head-log ABSOLUTE_PATH] [--anchor-height HEIGHT --anchor-hash HASH] [--steps COUNT | --run --stop-file PATH] [--rpc-timeout-ms MS] [--workers COUNT] [--stop|--pause|--resume|--reconcile HEIGHT:HASH]";
+const USAGE:&str="tl_observe --root ABSOLUTE_DIR --network BTC|LTC|DOGE|BTC-TESTNET4 --rpc-address IP:PORT [--cookie-file PATH] (--initialize | --expected-head SEQUENCE:HEIGHT:HASH:COMMITMENT | --head-log PATH) [--head-log ABSOLUTE_PATH] [--anchor-height HEIGHT --anchor-hash HASH] [--steps COUNT | --run --stop-file PATH] [--rpc-timeout-ms MS] [--workers COUNT] [--stop|--pause|--resume|--reconcile HEIGHT:HASH]";
 fn main() {
     if let Err(error) = run() {
         eprintln!("tl_observe: {error}");
@@ -83,11 +83,13 @@ fn run() -> Result<(), String> {
     if !root.is_absolute() || !root.is_dir() {
         return Err("--root must name an existing absolute directory".into());
     }
-    let network = match required("--network")? {
-        "BTC" => TradeLayerMainnet::Bitcoin,
-        "LTC" => TradeLayerMainnet::Litecoin,
-        "DOGE" => TradeLayerMainnet::Dogecoin,
-        _ => return Err("Unknown mainnet".into()),
+    // BTC-TESTNET4 is observation only; it shares the Bitcoin family.
+    let (network, testnet4) = match required("--network")? {
+        "BTC" => (TradeLayerMainnet::Bitcoin, false),
+        "LTC" => (TradeLayerMainnet::Litecoin, false),
+        "DOGE" => (TradeLayerMainnet::Dogecoin, false),
+        "BTC-TESTNET4" => (TradeLayerMainnet::Bitcoin, true),
+        _ => return Err("Unknown network".into()),
     };
     let rpc_address = required("--rpc-address")?
         .parse()
@@ -95,16 +97,19 @@ fn run() -> Result<(), String> {
     let anchor_height = number(values.get("--anchor-height"), 0)?;
     let anchor_hash = match values.get("--anchor-hash") {
         Some(hash) => parse_block_id(hash).map_err(|_| "Invalid anchor hash")?,
+        None if anchor_height == 0 && testnet4 => BITCOIN_TESTNET4_GENESIS,
         None if anchor_height == 0 => network.genesis(),
         None => return Err("Nonzero anchor requires --anchor-hash".into()),
     };
-    let mut config = ObserverConfig::new(
-        network,
-        Tip {
-            height: anchor_height,
-            id: anchor_hash,
-        },
-    )
+    let anchor = Tip {
+        height: anchor_height,
+        id: anchor_hash,
+    };
+    let mut config = if testnet4 {
+        ObserverConfig::testnet4(anchor)
+    } else {
+        ObserverConfig::new(network, anchor)
+    }
     .map_err(|e| e.to_string())?;
     config.scan.workers =
         usize::try_from(number(values.get("--workers"), config.scan.workers as u64)?)
@@ -211,7 +216,12 @@ fn run() -> Result<(), String> {
         }
         store
     };
-    let mut daemon = Daemon::new(RpcObservationClient::new(client, control.clone()), store);
+    let source = if testnet4 {
+        RpcObservationClient::testnet4(client, control.clone())
+    } else {
+        RpcObservationClient::new(client, control.clone())
+    };
+    let mut daemon = Daemon::new(source, store);
     let expected = daemon.head().map_err(|e| e.to_string())?;
     if values.contains_key("--stop") {
         daemon.stop(expected).map_err(|e| e.to_string())?;

@@ -12,15 +12,30 @@ use crate::daemon::{ObservationRpc, ObservationRpcError};
 use crate::economic_chain::{
     DurableEconomicChain, DurableEconomicError, EconomicChain, EconomicHead,
 };
+use crate::network_profile::BITCOIN_TESTNET4_GENESIS;
 
 #[derive(Debug)]
 pub struct RpcObservationClient {
     client: RpcClient,
     control: BootstrapControl,
+    testnet4: bool,
 }
 impl RpcObservationClient {
     pub fn new(client: RpcClient, control: BootstrapControl) -> Self {
-        Self { client, control }
+        Self {
+            client,
+            control,
+            testnet4: false,
+        }
+    }
+    /// Claims Bitcoin testnet4 only after Core reports chain `testnet4` and
+    /// its genesis; for a store from `ObserverConfig::testnet4`.
+    pub fn testnet4(client: RpcClient, control: BootstrapControl) -> Self {
+        Self {
+            client,
+            control,
+            testnet4: true,
+        }
     }
     pub fn into_client(self) -> RpcClient {
         self.client
@@ -67,10 +82,20 @@ pub fn block_id_text(id: BlockId) -> String {
 }
 impl ObservationRpc for RpcObservationClient {
     fn verify_identity(&mut self) -> Result<ClaimedNodeIdentity, ObservationRpcError> {
+        let network = self.client.expected_network();
+        if self.testnet4 {
+            self.client
+                .verify_testnet4_controlled(&self.control)
+                .map_err(observation_error)?;
+            return Ok(ClaimedNodeIdentity {
+                network,
+                test: true,
+                genesis: BITCOIN_TESTNET4_GENESIS,
+            });
+        }
         self.client
             .verify_network_controlled(&self.control)
             .map_err(observation_error)?;
-        let network = self.client.expected_network();
         Ok(ClaimedNodeIdentity {
             network,
             test: false,

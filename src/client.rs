@@ -1,7 +1,8 @@
 //! Bounded Core JSON-RPC over HTTP, with explicit credentials and network checks.
 //! The transport is independent of protocol admission and never retries a call.
 use crate::bootstrap::{BootstrapControl, StopReason};
-use crate::network_profile::TradeLayerMainnet;
+use crate::chain::BlockId;
+use crate::network_profile::{TradeLayerMainnet, BITCOIN_TESTNET4_GENESIS};
 use std::collections::BTreeMap;
 use std::io::{Read, Write};
 use std::net::{SocketAddr, TcpStream};
@@ -565,14 +566,32 @@ impl RpcClient {
     /// Readiness is independently bound to chain family, mainnet and genesis.
     /// A mismatch does not rewrite the expected network or redirect the endpoint.
     pub fn verify_network(&mut self) -> Result<()> {
-        self.verify_network_inner(None)
+        let genesis = self.expected_network.genesis();
+        self.verify_network_inner(None, "main", genesis)
     }
     pub fn verify_network_controlled(&mut self, control: &BootstrapControl) -> Result<()> {
-        let result = self.verify_network_inner(Some(control));
+        let genesis = self.expected_network.genesis();
+        let result = self.verify_network_inner(Some(control), "main", genesis);
         rpc_check_control(Some(control))?;
         result
     }
-    fn verify_network_inner(&mut self, control: Option<&BootstrapControl>) -> Result<()> {
+    /// Observation-only readiness for Bitcoin testnet4: Bitcoin family, Core
+    /// chain `testnet4` and the testnet4 genesis. Other expected networks are
+    /// refused before any call.
+    pub fn verify_testnet4_controlled(&mut self, control: &BootstrapControl) -> Result<()> {
+        if self.expected_network != TradeLayerMainnet::Bitcoin {
+            return Err(RpcError::WrongChain);
+        }
+        let result = self.verify_network_inner(Some(control), "testnet4", BITCOIN_TESTNET4_GENESIS);
+        rpc_check_control(Some(control))?;
+        result
+    }
+    fn verify_network_inner(
+        &mut self,
+        control: Option<&BootstrapControl>,
+        chain: &str,
+        genesis: BlockId,
+    ) -> Result<()> {
         let network = self.call_inner("getnetworkinfo", &[], false, control)?;
         let version = network
             .field("subversion")?
@@ -598,21 +617,19 @@ impl RpcClient {
             .field("chain")?
             .ok_or(RpcError::InvalidResponse)?
             .as_string()?
-            != "main"
+            != chain
         {
             return Err(RpcError::WrongChain);
         }
-        let genesis = self
+        let reported = self
             .call_inner("getblockhash", &[RpcValue::unsigned(0)], false, control)?
             .as_string()?;
-        let expected = self
-            .expected_network
-            .genesis()
+        let expected = genesis
             .0
             .iter()
             .map(|b| format!("{b:02x}"))
             .collect::<String>();
-        if genesis != expected {
+        if reported != expected {
             return Err(RpcError::WrongGenesis);
         }
         rpc_check_control(control)?;

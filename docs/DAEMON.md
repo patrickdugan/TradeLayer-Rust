@@ -6,7 +6,7 @@ The configured node's family/mainnet/genesis checks establish identity consisten
 
 ## Construction and composition
 
-`ObserverConfig::new(network, anchor)` takes an explicit mainnet and independent observation anchor. A height-zero anchor must match that network's pinned genesis. A higher anchor is a caller declaration; it is not authenticated by querying the same node. Defaults are a 10-second poll interval, one-second initial retry delay, 60-second maximum delay, three retries, 64 retained blocks and 16 MiB of raw material. The scanner configuration is bounded by the existing worker/window limits. Configuration is persisted and compared exactly on reopen, including scanner settings.
+`ObserverConfig::new(network, anchor)` takes an explicit mainnet and independent observation anchor. `ObserverConfig::testnet4(anchor)` observes Bitcoin testnet4 instead: `test` is set, the store uses the BTC test namespace, the persisted network tag carries the high bit, and identity requires a node claiming Bitcoin, `test` and the testnet4 genesis (`RpcObservationClient::testnet4`). A height-zero anchor must match that network's pinned genesis. A higher anchor is a caller declaration; it is not authenticated by querying the same node. Defaults are a 10-second poll interval, one-second initial retry delay, 60-second maximum delay, three retries, 64 retained blocks and 16 MiB of raw material. The scanner configuration is bounded by the existing worker/window limits. Configuration is persisted and compared exactly on reopen, including scanner settings.
 
 ```text
 ObservationStore::initialize(root, config)

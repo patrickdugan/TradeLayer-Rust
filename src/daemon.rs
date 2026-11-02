@@ -3,7 +3,7 @@
 use crate::bootstrap::{BootstrapControl, ClaimedNodeIdentity};
 use crate::chain::{BlockHeader, BlockId, Tip};
 use crate::codec::{verify_crc, with_crc, Cursor};
-use crate::network_profile::TradeLayerMainnet;
+use crate::network_profile::{TradeLayerMainnet, BITCOIN_TESTNET4_GENESIS};
 use crate::parallel_txindex::ParallelIndexConfig;
 use crate::raw_block_ingest::{UnverifiedRawBlockView, MAX_UNVERIFIED_RAW_BLOCK_BYTES};
 use crate::storage::{Journal, Mutation, Namespace, Recovery, RecoveryReport, StorageError};
@@ -15,6 +15,8 @@ pub const MAX_SPOOL_BYTES: u64 = 16 * 1024 * 1024;
 const MAX_STATE_BYTES: usize = MAX_SPOOL_BYTES as usize + 128 * 1024;
 const KEY: &str = "observer/full-v1";
 const MAGIC: &[u8; 5] = b"TLOB\x01";
+/// High bit of the stored network tag: Bitcoin testnet4 (observation only).
+const TESTNET4_TAG: u8 = 0x80;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ObservationRpcError {
     Transient,
@@ -32,6 +34,8 @@ pub trait ObservationRpc {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ObserverConfig {
     pub network: TradeLayerMainnet,
+    /// Bitcoin testnet4, observation only; `network` is then Bitcoin.
+    pub test: bool,
     pub anchor: Tip,
     pub poll_interval_ms: u64,
     pub retry_base_ms: u64,
@@ -43,8 +47,17 @@ pub struct ObserverConfig {
 }
 impl ObserverConfig {
     pub fn new(network: TradeLayerMainnet, anchor: Tip) -> Result<Self, DaemonError> {
+        Self::build(network, false, anchor)
+    }
+    /// Observes Bitcoin testnet4 in the BTC test namespace. Such a store holds
+    /// no TradeLayer identity and its node must report Core chain `testnet4`.
+    pub fn testnet4(anchor: Tip) -> Result<Self, DaemonError> {
+        Self::build(TradeLayerMainnet::Bitcoin, true, anchor)
+    }
+    fn build(network: TradeLayerMainnet, test: bool, anchor: Tip) -> Result<Self, DaemonError> {
         let config = Self {
             network,
+            test,
             anchor,
             poll_interval_ms: 10_000,
             retry_base_ms: 1_000,
@@ -57,8 +70,23 @@ impl ObserverConfig {
         config.validate()?;
         Ok(config)
     }
+    pub fn genesis(&self) -> BlockId {
+        if self.test {
+            BITCOIN_TESTNET4_GENESIS
+        } else {
+            self.network.genesis()
+        }
+    }
+    fn namespace(&self) -> Result<Namespace, StorageError> {
+        if self.test {
+            Namespace::new("BTC", true, "consensus")
+        } else {
+            Namespace::for_mainnet(self.network, "consensus")
+        }
+    }
     fn validate(&self) -> Result<(), DaemonError> {
-        if self.anchor.height == 0 && self.anchor.id != self.network.genesis()
+        if self.test && self.network != TradeLayerMainnet::Bitcoin
+            || self.anchor.height == 0 && self.anchor.id != self.genesis()
             || self.anchor.height == u64::MAX
             || self.poll_interval_ms == 0
             || self.poll_interval_ms > 300_000
@@ -289,7 +317,7 @@ impl ObservationStore {
         sink: Option<HeadSink>,
     ) -> Result<Self> {
         config.validate()?;
-        let namespace = Namespace::for_mainnet(config.network, "consensus")?;
+        let namespace = config.namespace()?;
         let (journal, _) = Journal::open(root, namespace, Recovery::RejectIncompleteTail)?;
         if journal.sequence()? != 0 || journal.entries()?.next().is_some() {
             return Err(DaemonError::InvalidSnapshot);
@@ -320,11 +348,7 @@ impl ObservationStore {
         recovery: Recovery,
     ) -> Result<(Self, RecoveryReport)> {
         config.validate()?;
-        let (journal, report) = Journal::open_existing(
-            root,
-            Namespace::for_mainnet(config.network, "consensus")?,
-            recovery,
-        )?;
+        let (journal, report) = Journal::open_existing(root, config.namespace()?, recovery)?;
         if journal.entries()?.count() != 1 {
             return Err(DaemonError::InvalidSnapshot);
         }
@@ -764,9 +788,9 @@ impl<R: ObservationRpc> Daemon<R> {
                     if let Some(outcome) = self.stop_if_cancelled(control)? {
                         return Ok(outcome);
                     }
-                    let expected = self.store.state.config.network;
-                    if identity.network != expected
-                        || identity.test
+                    let expected = &self.store.state.config;
+                    if identity.network != expected.network
+                        || identity.test != expected.test
                         || identity.genesis != expected.genesis()
                     {
                         return self.quarantine(QuarantineReason::WrongIdentity);
@@ -1086,7 +1110,7 @@ impl Writer {
         Ok(())
     }
     fn config(&mut self, c: &ObserverConfig) -> Result<()> {
-        self.u8(c.network.tag())?;
+        self.u8(c.network.tag() | if c.test { TESTNET4_TAG } else { 0 })?;
         self.tip(c.anchor)?;
         for n in [c.poll_interval_ms, c.retry_base_ms, c.retry_max_ms] {
             self.u64(n)?;
@@ -1184,9 +1208,11 @@ impl<'a> Reader<'a> {
         }
     }
     fn config(&mut self) -> Result<ObserverConfig> {
+        let tag = self.u8()?;
         Ok(ObserverConfig {
-            network: TradeLayerMainnet::from_tag(self.u8()?)
+            network: TradeLayerMainnet::from_tag(tag & !TESTNET4_TAG)
                 .map_err(|_| DaemonError::InvalidSnapshot)?,
+            test: tag & TESTNET4_TAG != 0,
             anchor: self.tip()?,
             poll_interval_ms: self.u64()?,
             retry_base_ms: self.u64()?,

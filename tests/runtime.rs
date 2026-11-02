@@ -560,13 +560,21 @@ fn cancellation_arriving_during_the_first_rpc_prevents_later_identity_requests()
 }
 
 fn observe_cli(root: &std::path::Path, endpoint: &str, tail: &[&str]) -> std::process::Output {
+    observe_cli_on("BTC", root, endpoint, tail)
+}
+fn observe_cli_on(
+    network: &str,
+    root: &std::path::Path,
+    endpoint: &str,
+    tail: &[&str],
+) -> std::process::Output {
     spawn_output(
         std::process::Command::new(env!("CARGO_BIN_EXE_tl_observe"))
             .arg("--root")
             .arg(root)
             .args([
                 "--network",
-                "BTC",
+                network,
                 "--rpc-address",
                 endpoint,
                 "--rpc-timeout-ms",
@@ -588,6 +596,126 @@ fn cli_status(output: &std::process::Output) -> tradelayer_core::client::RpcValu
 }
 fn status_text(value: &tradelayer_core::client::RpcValue, field: &str) -> String {
     value.field(field).unwrap().unwrap().as_string().unwrap()
+}
+#[test]
+fn cli_testnet4_requires_core_testnet4_and_keeps_its_own_test_store() {
+    use tradelayer_core::chain::Tip;
+    use tradelayer_core::daemon::{DaemonError, ObservationStore, ObserverConfig};
+    use tradelayer_core::network_profile::BITCOIN_TESTNET4_GENESIS;
+    use tradelayer_core::runtime::block_id_text;
+    let genesis = block_id_text(BITCOIN_TESTNET4_GENESIS);
+    assert_eq!(
+        genesis,
+        "00000000da84f2bafbbc53dee25a72ae507ff4914b867c565be350b0da8bf043"
+    );
+    let testnet4 = vec![
+        "{\"subversion\":\"/Satoshi:31.1.0/\"}".to_string(),
+        "{\"chain\":\"testnet4\"}".into(),
+        format!("\"{genesis}\""),
+    ];
+
+    // A testnet4 store accepts only a node reporting testnet4 and its genesis.
+    let directory = Directory::unguarded();
+    let (endpoint, server) = mock_endpoint(testnet4.clone());
+    let started = cli_status(&observe_cli_on(
+        "BTC-TESTNET4",
+        &directory.0,
+        &endpoint.to_string(),
+        &["--initialize", "--steps", "1"],
+    ));
+    server.join().unwrap();
+    assert_eq!(
+        started
+            .field("identity_checked")
+            .unwrap()
+            .unwrap()
+            .as_json(),
+        "true"
+    );
+    assert_eq!(status_text(&started, "mode"), "Observing");
+    let head = status_text(&started, "head");
+    assert_eq!(head.split(':').nth(2), Some(genesis.as_str()));
+    assert!(Namespace::new("BTC", true, "consensus")
+        .unwrap()
+        .path(&directory.0)
+        .exists());
+    assert!(
+        !Namespace::for_mainnet(TradeLayerMainnet::Bitcoin, "consensus")
+            .unwrap()
+            .path(&directory.0)
+            .exists()
+    );
+    let reloaded = cli_status(&observe_cli_on(
+        "BTC-TESTNET4",
+        &directory.0,
+        "127.0.0.1:1",
+        &["--expected-head", &head, "--steps", "0"],
+    ));
+    assert_eq!(status_text(&reloaded, "head"), head);
+    let as_mainnet = observe_cli(
+        &directory.0,
+        "127.0.0.1:1",
+        &["--expected-head", &head, "--steps", "0"],
+    );
+    assert!(!as_mainnet.status.success());
+
+    // A mainnet node, or testnet4 with another genesis, quarantines it.
+    for replies in [
+        identity_replies(TradeLayerMainnet::Bitcoin)[..2].to_vec(),
+        vec![
+            testnet4[0].clone(),
+            testnet4[1].clone(),
+            format!(
+                "\"{}\"",
+                block_id_text(TradeLayerMainnet::Bitcoin.genesis())
+            ),
+        ],
+    ] {
+        let directory = Directory::unguarded();
+        let (endpoint, server) = mock_endpoint(replies);
+        let refused = cli_status(&observe_cli_on(
+            "BTC-TESTNET4",
+            &directory.0,
+            &endpoint.to_string(),
+            &["--initialize", "--steps", "1"],
+        ));
+        server.join().unwrap();
+        assert_eq!(status_text(&refused, "mode"), "Quarantined(WrongIdentity)");
+    }
+
+    // A mainnet store refuses a testnet4 node.
+    let directory = Directory::unguarded();
+    let (endpoint, server) = mock_endpoint(testnet4[..2].to_vec());
+    let refused = cli_status(&observe_cli(
+        &directory.0,
+        &endpoint.to_string(),
+        &["--initialize", "--steps", "1"],
+    ));
+    server.join().unwrap();
+    assert_eq!(status_text(&refused, "mode"), "Quarantined(WrongIdentity)");
+
+    // testnet4 shares only the Bitcoin family.
+    let directory = Directory::unguarded();
+    let mut litecoin = ObserverConfig::new(
+        TradeLayerMainnet::Litecoin,
+        Tip {
+            height: 0,
+            id: TradeLayerMainnet::Litecoin.genesis(),
+        },
+    )
+    .unwrap();
+    litecoin.test = true;
+    assert!(matches!(
+        ObservationStore::initialize(&directory.0, litecoin),
+        Err(DaemonError::InvalidConfig)
+    ));
+    assert!(matches!(
+        ObserverConfig::testnet4(Tip {
+            height: 0,
+            id: TradeLayerMainnet::Bitcoin.genesis(),
+        }),
+        Err(DaemonError::InvalidConfig)
+    ));
 }
 #[test]
 fn cli_exact_restart_tokens_control_modes_and_cooperative_shutdown_are_durable() {
