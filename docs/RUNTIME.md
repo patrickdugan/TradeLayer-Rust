@@ -37,6 +37,16 @@ There is no implicit latest-head discovery, checkpoint replacement, genesis
 fallback or automatic torn-tail repair. Library callers can explicitly select
 the journal's documented recovery policy; the CLI rejects incomplete tails.
 
+`--head-log ABSOLUTE_PATH` keeps that token current across a kill. Every store
+commit appends `prepared HEAD` before the journal write and `committed HEAD`
+after it, each synced to disk. `--initialize --head-log` refuses an existing
+file. A restart with `--head-log` and no `--expected-head` presents the last
+committed head and then a prepared head recorded after it, so a SIGKILL, OOM
+kill or power loss at any point of a commit leaves a loadable token. A final
+line without a newline was cut off before its sync and is ignored. The log is
+an operator record outside the store: it must live where an attacker able to
+replace the store cannot also rewrite it, as with any other expected head.
+
 `--pause`, `--resume`, `--stop` and `--reconcile HEIGHT:HASH` compare the supplied
 head before changing durable state. Controls perform no RPC. Malformed option
 values reject before opening a store. Semantic reconciliation still requires a

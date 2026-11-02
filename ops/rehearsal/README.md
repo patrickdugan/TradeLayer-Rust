@@ -14,7 +14,7 @@ so nothing here applies blocks to a Ledger, and nothing touches a wallet.
 | `~/rehearsal/ltc/` | Litecoin Core 0.21.5.8 `litecoind`, `litecoin-cli` |
 | `~/rehearsal/ltc-data/` | pruned mainnet datadir, `litecoin.conf`, RPC `.cookie` |
 | `~/rehearsal/kit/` | `observe.sh`, `drills.sh`, `status.sh` |
-| `~/rehearsal/observer/` | the long-running store, `head.token`, `sessions.log`, `errors.log` |
+| `~/rehearsal/observer/` | the long-running store, `heads.log`, `head.token`, `sessions.log`, `errors.log` |
 | `~/rehearsal/drills/<name>/` | one throwaway store per drill |
 
 The node is mainnet, pruned to 2 GB of block files, `blocksonly`, no inbound
@@ -33,11 +33,18 @@ sudo systemctl start rehearsal-litecoind
 valid signature from a key in the Litecoin repository's `contrib/gitian-keys`
 at the release tag, and the tarball's hash matches it.
 
+Every operation passes `--head-log ~/rehearsal/observer/heads.log`: tl_observe
+appends each head it commits (`prepared` before the store write, `committed`
+after it) and restarts from that log, so a SIGKILL, OOM kill or power loss
+mid-session leaves the store loadable. `head.token` holds the head printed by
+the last operation that exited normally.
+
 ## Drills
 
-`drills.sh` anchors each drill store at the pinned Litecoin genesis, so it needs
-the node's earliest blocks: run it in the first part of the pruned IBD, before
-the node prunes `blk00000.dat`.
+`drills.sh` anchors each drill store at the pinned Litecoin genesis while the
+node still holds `blk00000.dat`. On a pruned node it anchors 3,000 blocks below
+the tip using that node's hash, which suits a runner drill but is not an
+independent anchor declaration.
 
 ```bash
 ~/rehearsal/kit/drills.sh

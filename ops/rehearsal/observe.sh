@@ -8,20 +8,26 @@
 #   observe.sh pause|resume    durable pause / resume
 #   observe.sh status          load the store and print its status (no RPC step)
 #
-# The head printed by every successful operation is written to head.token. The
-# next operation must present it; the store refuses any other head. A session
-# killed before it prints leaves head.token behind the store.
+# tl_observe appends every head it commits to heads.log (prepared before the
+# store write, committed after it) and restarts from that log, so a session
+# killed at any point stays loadable. EXPECTED_HEAD=SEQ:HEIGHT:HASH:COMMITMENT
+# presents an explicit head instead. The head printed by each successful
+# operation is also copied to head.token for reading.
 set -euo pipefail
 R=${REHEARSAL_HOME:-$HOME/rehearsal}
 STATE=${OBSERVER_STATE:-$R/observer}
 STORE=$STATE/store
 TOKEN=$STATE/head.token
+HEADS=$STATE/heads.log
 STOP=$STATE/stop
 mkdir -p "$STORE"
 BASE=(
   "$R/bin/tl_observe" --root "$STORE" --network LTC
   --rpc-address "${RPC_ADDRESS:-127.0.0.1:9332}" --cookie-file "$R/ltc-data/.cookie"
+  --head-log "$HEADS"
 )
+EXPECT=()
+[ -z "${EXPECTED_HEAD:-}" ] || EXPECT=(--expected-head "$EXPECTED_HEAD")
 
 invoke() { # label, tl_observe arguments...
   local label=$1 out status=0
@@ -37,14 +43,14 @@ invoke() { # label, tl_observe arguments...
   sync "$STATE"
   printf '%s\n' "$out"
 }
-need_token() {
-  [ -s "$TOKEN" ] || { echo "no head.token in $STATE; run init first" >&2; exit 2; }
+need_log() {
+  [ -s "$HEADS" ] || { echo "no heads.log in $STATE; run init first" >&2; exit 2; }
 }
 mode() { python3 -c 'import json,sys; print(json.loads(sys.stdin.read().splitlines()[-1])["mode"])'; }
 
 case ${1:-} in
   init)
-    [ ! -e "$TOKEN" ] || { echo "$STATE already has a head.token" >&2; exit 2; }
+    [ ! -e "$HEADS" ] || { echo "$STATE already has a heads.log" >&2; exit 2; }
     if [ -n "${2:-}" ]; then
       invoke init --initialize --anchor-height "$2" --anchor-hash "$3" --steps 0
     else
@@ -52,33 +58,34 @@ case ${1:-} in
     fi
     ;;
   status)
-    need_token
-    invoke status --expected-head "$(cat "$TOKEN")" --steps 0
+    need_log
+    invoke status "${EXPECT[@]}" --steps 0
     ;;
   pause | resume)
-    need_token
-    invoke "$1" --expected-head "$(cat "$TOKEN")" "--$1"
+    need_log
+    invoke "$1" "${EXPECT[@]}" "--$1"
     ;;
   stop)
     touch "$STOP"
     ;;
   run)
-    need_token
+    need_log
     rm -f "$STOP"
-    current=$(invoke status --expected-head "$(cat "$TOKEN")" --steps 0 | mode)
+    current=$(invoke status "${EXPECT[@]}" --steps 0 | mode)
     case $current in
       Observing) ;;
-      Stopped) invoke resume --expected-head "$(cat "$TOKEN")" --resume > /dev/null ;;
+      Stopped) invoke resume "${EXPECT[@]}" --resume > /dev/null ;;
       *) echo "store is in mode $current; inspect it before running" >&2; exit 3 ;;
     esac
+    EXPECT=() # the explicit head is spent; the session continues from heads.log
     if [ -n "${2:-}" ]; then
-      invoke run --expected-head "$(cat "$TOKEN")" --steps "$2"
+      invoke run "${EXPECT[@]}" --steps "$2"
     else
-      invoke run --expected-head "$(cat "$TOKEN")" --run --stop-file "$STOP"
+      invoke run "${EXPECT[@]}" --run --stop-file "$STOP"
     fi
     ;;
   *)
-    sed -n '2,11p' "$0" >&2
+    sed -n '2,9p' "$0" >&2
     exit 2
     ;;
 esac

@@ -15,4 +15,5 @@ free -m | awk '/^Mem/ {print "mem   used=" $3 "M available=" $7 "M"}'
 systemctl is-active rehearsal-litecoind.service rehearsal-observe.service 2> /dev/null \
   | paste -sd' ' | sed 's/^/units litecoind,observe = /'
 [ -s "$STATE/head.token" ] && echo "token $(cat "$STATE/head.token")"
+[ -s "$STATE/heads.log" ] && echo "heads.log $(tail -n 1 "$STATE/heads.log")"
 [ -f "$STATE/sessions.log" ] && tail -3 "$STATE/sessions.log"

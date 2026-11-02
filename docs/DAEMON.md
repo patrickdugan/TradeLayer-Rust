@@ -17,6 +17,8 @@ Daemon::step(monotonic_milliseconds, control)
 
 The root directory must preexist. Initialization requires an empty sequence-zero journal; it never replaces a populated observer store. Load never creates missing paths and requires the expected sequence, observed tip and complete-state commitment. Callers must obtain the comparison token independently of that load. A checksum or token is still not authentication against a malicious party able to replace both data and expectations.
 
+`ObservationStore::initialize_recorded(root, config, sink)` and `record_heads(sink)` attach a `HeadSink` that receives `HeadRecord::Prepared(head)` before each journal write and `HeadRecord::Committed(head)` after it. A prepared-record failure aborts the commit; a committed-record failure is returned after the commit. After a crash anywhere in a commit, the store's head is the last committed head or a prepared head recorded after it, which is how a runner keeps an independent token without waiting for an orderly exit.
+
 The concrete RPC adapter, bootstrap restoration adapters, command-line runner and listener are separate composition layers. A service can hold the sole restored `DurableEconomicChain` alongside this observer without copying its Ledger. Observation and economic journals are separate transactions. This module makes no cross-namespace atomicity claim and supplies no route from an observed block to `apply_unverified_block` or a trusted adapter. An attached economic owner must retain its own health checks and independently expected configuration/head on restoration.
 
 ## RPC and incremental work

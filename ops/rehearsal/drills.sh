@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Operator drills for tl_observe against the rehearsal's Litecoin node. Each
 # drill gets a fresh store under $R/drills/<name>, anchored at the pinned LTC
-# genesis, so the node must still hold its earliest blocks (run this during the
-# first part of a pruned IBD, or against an unpruned node).
+# genesis while the node still holds it. Once the node has pruned its earliest
+# blocks, the drills anchor 3,000 blocks below its tip with this node's hash:
+# they exercise the runner, and that anchor is not an independent declaration.
 #
-# Early Litecoin blocks are tiny and one block takes about six steps, so each
+# Litecoin blocks are small and one block takes about six steps, so each
 # stateful drill uses its own store and step budgets stay well under the
 # 64-block spool (drill 9 fills it on purpose).
 #
@@ -24,7 +25,7 @@ fresh() {
   export OBSERVER_STATE=$R/drills/$1
   rm -rf "$OBSERVER_STATE"
   mkdir -p "$OBSERVER_STATE"
-  "$OBS" init > /dev/null
+  "$OBS" init "${ANCHOR[@]}" > /dev/null
 }
 wait_exit() { # pid, seconds
   local i
@@ -34,6 +35,14 @@ wait_exit() { # pid, seconds
 
 tip=$("$R/ltc/litecoin-cli" -datadir="$R/ltc-data" getblockcount)
 [ "$tip" -ge 200 ] || { echo "node tip $tip: wait for at least 200 blocks" >&2; exit 100; }
+ANCHOR=()
+pruned=$("$R/ltc/litecoin-cli" -datadir="$R/ltc-data" getblockchaininfo \
+  | python3 -c 'import json,sys; print(json.load(sys.stdin).get("pruneheight", 0))')
+if [ "$pruned" -gt 0 ]; then
+  a=$((tip - 3000))
+  ANCHOR=("$a" "$("$R/ltc/litecoin-cli" -datadir="$R/ltc-data" getblockhash "$a")")
+  echo "NOTE     node pruned below $pruned: drills anchor at $a with this node's hash"
+fi
 
 # 1. Initialize and observe from genesis.
 fresh observe
@@ -49,17 +58,12 @@ before=$(cat "$OBSERVER_STATE/head.token")
   && pass "status: head unchanged by a load" || fail "status: head moved"
 
 # 3. A wrong expected head is refused and the store stays loadable.
-cp "$OBSERVER_STATE/head.token" "$OBSERVER_STATE/real.token"
-python3 - "$OBSERVER_STATE/head.token" <<'EOF'
-import sys
-p = sys.argv[1]
-s = open(p).read().strip()
-open(p, 'w').write(s[:-1] + ('0' if s[-1] != '0' else '1') + '\n')
-EOF
-if "$OBS" status > /dev/null 2>&1; then fail "wrong token: tampered commitment accepted"
+real=$(cat "$OBSERVER_STATE/head.token")
+tampered=${real%?}$([ "${real: -1}" = 0 ] && echo 1 || echo 0)
+if EXPECTED_HEAD=$tampered "$OBS" status > /dev/null 2>&1; then
+  fail "wrong token: tampered commitment accepted"
 else pass "wrong token: tampered commitment refused"; fi
-cp "$OBSERVER_STATE/real.token" "$OBSERVER_STATE/head.token"
-"$OBS" status > /dev/null 2>&1 && pass "wrong token: real head still loads" \
+EXPECTED_HEAD=$real "$OBS" status > /dev/null 2>&1 && pass "wrong token: real head still loads" \
   || fail "wrong token: real head no longer loads"
 
 # 4. A running session holds the store lock; the stop file stops it cleanly.
@@ -97,19 +101,26 @@ else pass "pause: runner refuses a paused store"; fi
 [ "$(height "$OBSERVER_STATE")" -gt "$h0" ] && pass "pause: resume advances from $h0" \
   || fail "pause: resume did not advance"
 
-# 7. Hard kill mid-session (no printed head).
+# 7. Hard kill mid-session: the printed head goes stale, heads.log restarts it.
 fresh kill
 "$OBS" run 12 > /dev/null
+printed=$(cat "$OBSERVER_STATE/head.token")
+h0=$(echo "$printed" | cut -d: -f2)
 "$OBS" run > "$OBSERVER_STATE/bg.out" 2>&1 &
 bg=$!
 sleep 10
 pkill -9 -f "bin/tl_observe --root $OBSERVER_STATE/store"
 wait "$bg" 2> /dev/null
-if err=$("$OBS" status 2>&1 > /dev/null); then
-  seen "hard kill: last printed head still loads (no frame committed after it)"
-else
-  seen "hard kill: last printed head refused after the kill: ${err##*tl_observe: }"
-fi
+if EXPECTED_HEAD=$printed "$OBS" status > /dev/null 2>&1; then
+  fail "hard kill: nothing committed during the killed session; the drill proves nothing"
+else pass "hard kill: last printed head (height $h0) is stale"; fi
+if "$OBS" status > /dev/null 2>&1 && [ "$(height "$OBSERVER_STATE")" -gt "$h0" ]; then
+  pass "hard kill: heads.log restarts the store at height $(height "$OBSERVER_STATE")"
+else fail "hard kill: heads.log did not restart the store"; fi
+h1=$(height "$OBSERVER_STATE")
+out=$("$OBS" run 30)
+[ "$(height "$OBSERVER_STATE")" -gt "$h1" ] && pass "hard kill: observation continues past $h1" \
+  || fail "hard kill: no progress after the restart: $out"
 pgrep -f "bin/tl_observe --root $OBSERVER_STATE/store" > /dev/null \
   && fail "hard kill: tl_observe still running" || pass "hard kill: no orphaned tl_observe"
 

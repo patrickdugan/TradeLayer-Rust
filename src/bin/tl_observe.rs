@@ -1,18 +1,20 @@
 //! Explicit local observation service. RPC data never applies economic inputs.
 use std::collections::BTreeMap;
-use std::path::PathBuf;
+use std::io::Write;
+use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 use tradelayer_core::bootstrap::BootstrapControl;
 use tradelayer_core::chain::Tip;
 use tradelayer_core::client::{RpcAuth, RpcClient, RpcValue};
 use tradelayer_core::daemon::{
-    Daemon, ObservationHead, ObservationStore, ObserverConfig, ObserverMode,
+    Daemon, DaemonError, HeadRecord, HeadSink, ObservationHead, ObservationStore, ObserverConfig,
+    ObserverMode,
 };
 use tradelayer_core::network_profile::TradeLayerMainnet;
 use tradelayer_core::runtime::{block_id_text, parse_block_id, RpcObservationClient};
 use tradelayer_core::storage::Recovery;
 
-const USAGE:&str="tl_observe --root ABSOLUTE_DIR --network BTC|LTC|DOGE --rpc-address IP:PORT [--cookie-file PATH] (--initialize | --expected-head SEQUENCE:HEIGHT:HASH:COMMITMENT) [--anchor-height HEIGHT --anchor-hash HASH] [--steps COUNT | --run --stop-file PATH] [--rpc-timeout-ms MS] [--workers COUNT] [--stop|--pause|--resume|--reconcile HEIGHT:HASH]";
+const USAGE:&str="tl_observe --root ABSOLUTE_DIR --network BTC|LTC|DOGE --rpc-address IP:PORT [--cookie-file PATH] (--initialize | --expected-head SEQUENCE:HEIGHT:HASH:COMMITMENT | --head-log PATH) [--head-log ABSOLUTE_PATH] [--anchor-height HEIGHT --anchor-hash HASH] [--steps COUNT | --run --stop-file PATH] [--rpc-timeout-ms MS] [--workers COUNT] [--stop|--pause|--resume|--reconcile HEIGHT:HASH]";
 fn main() {
     if let Err(error) = run() {
         eprintln!("tl_observe: {error}");
@@ -40,6 +42,7 @@ fn run() -> Result<(), String> {
             "--rpc-address",
             "--cookie-file",
             "--expected-head",
+            "--head-log",
             "--anchor-height",
             "--anchor-hash",
             "--steps",
@@ -106,8 +109,14 @@ fn run() -> Result<(), String> {
     config.scan.workers =
         usize::try_from(number(values.get("--workers"), config.scan.workers as u64)?)
             .map_err(|_| "Invalid workers")?;
-    if values.contains_key("--initialize") == values.contains_key("--expected-head") {
-        return Err("Choose exactly one of --initialize and --expected-head".into());
+    let head_log = values.get("--head-log").map(PathBuf::from);
+    if head_log.as_ref().is_some_and(|p| !p.is_absolute()) {
+        return Err("Head log path must be absolute".into());
+    }
+    let initialize = values.contains_key("--initialize");
+    let expected_head = values.contains_key("--expected-head");
+    if initialize && expected_head || !initialize && !expected_head && head_log.is_none() {
+        return Err("Choose --initialize, or --expected-head or --head-log to restart".into());
     }
     let run_forever = values.contains_key("--run");
     if run_forever && values.contains_key("--steps") {
@@ -169,12 +178,38 @@ fn run() -> Result<(), String> {
     .map_err(|e| e.to_string())?;
     let control = BootstrapControl::default();
     let store = if values.contains_key("--initialize") {
-        ObservationStore::initialize(&root, config).map_err(|e| e.to_string())?
+        let sink = match &head_log {
+            Some(path) => Some(head_sink(path, true)?),
+            None => None,
+        };
+        ObservationStore::initialize_recorded(&root, config, sink).map_err(|e| e.to_string())?
     } else {
-        let expected = parse_head(required("--expected-head")?)?;
-        ObservationStore::load(&root, config, expected, Recovery::RejectIncompleteTail)
-            .map_err(|e| e.to_string())?
-            .0
+        let candidates = match (values.get("--expected-head"), &head_log) {
+            (Some(text), _) => vec![parse_head(text)?],
+            (None, Some(path)) => logged_heads(path)?,
+            (None, None) => unreachable!("checked above"),
+        };
+        let mut loaded = None;
+        for expected in candidates {
+            match ObservationStore::load(
+                &root,
+                config.clone(),
+                expected,
+                Recovery::RejectIncompleteTail,
+            ) {
+                Ok((store, _)) => {
+                    loaded = Some(store);
+                    break;
+                }
+                Err(DaemonError::StaleHead) => {}
+                Err(error) => return Err(error.to_string()),
+            }
+        }
+        let mut store = loaded.ok_or("StaleHead")?;
+        if let Some(path) = &head_log {
+            store.record_heads(head_sink(path, false)?);
+        }
+        store
     };
     let mut daemon = Daemon::new(RpcObservationClient::new(client, control.clone()), store);
     let expected = daemon.head().map_err(|e| e.to_string())?;
@@ -209,13 +244,7 @@ fn run() -> Result<(), String> {
         }
     }
     let status = daemon.status().map_err(|e| e.to_string())?;
-    let head = format!(
-        "{}:{}:{}:{}",
-        status.head.sequence,
-        status.head.tip.height,
-        block_id_text(status.head.tip.id),
-        block_id_text(tradelayer_core::chain::BlockId(status.head.commitment))
-    );
+    let head = head_text(status.head);
     let quote = |text: &str| {
         RpcValue::string(text)
             .map(|v| v.as_json().to_owned())
@@ -229,6 +258,67 @@ fn number(value: Option<&String>, default: u64) -> Result<u64, String> {
         Some(value) => value.parse().map_err(|_| "Invalid unsigned option".into()),
         None => Ok(default),
     }
+}
+fn head_text(head: ObservationHead) -> String {
+    format!(
+        "{}:{}:{}:{}",
+        head.sequence,
+        head.tip.height,
+        block_id_text(head.tip.id),
+        block_id_text(tradelayer_core::chain::BlockId(head.commitment))
+    )
+}
+/// Appends `prepared HEAD` before and `committed HEAD` after each store commit,
+/// each synced before the store continues.
+fn head_sink(path: &Path, create: bool) -> Result<HeadSink, String> {
+    let mut file = std::fs::OpenOptions::new()
+        .append(true)
+        .create_new(create)
+        .open(path)
+        .map_err(|e| format!("Head log {}: {e}", path.display()))?;
+    #[cfg(unix)]
+    if create {
+        let parent = path.parent().ok_or("Head log has no parent directory")?;
+        std::fs::File::open(parent)
+            .and_then(|dir| dir.sync_all())
+            .map_err(|e| format!("Head log directory: {e}"))?;
+    }
+    Ok(Box::new(move |record| {
+        let line = match record {
+            HeadRecord::Prepared(head) => format!("prepared {}\n", head_text(head)),
+            HeadRecord::Committed(head) => format!("committed {}\n", head_text(head)),
+        };
+        file.write_all(line.as_bytes())?;
+        file.sync_data()
+    }))
+}
+/// Restart candidates from a head log: the last committed head, then a
+/// prepared head recorded after it. A final line without a newline was cut off
+/// before its sync, so its commit never started; it is ignored.
+fn logged_heads(path: &Path) -> Result<Vec<ObservationHead>, String> {
+    let error = |e: std::io::Error| format!("Head log {}: {e}", path.display());
+    if std::fs::metadata(path).map_err(error)?.len() > 16 * 1024 * 1024 {
+        return Err("Head log exceeds 16 MiB".into());
+    }
+    let text = std::fs::read_to_string(path).map_err(error)?;
+    let complete = text.rfind('\n').map_or("", |end| &text[..end]);
+    let (mut committed, mut prepared) = (None, None);
+    for (number, line) in complete.lines().enumerate() {
+        let invalid = || format!("Invalid head log line {}", number + 1);
+        match line.split_once(' ').ok_or_else(invalid)? {
+            ("prepared", head) => prepared = Some(parse_head(head).map_err(|_| invalid())?),
+            ("committed", head) => {
+                committed = Some(parse_head(head).map_err(|_| invalid())?);
+                prepared = None;
+            }
+            _ => return Err(invalid()),
+        }
+    }
+    let heads: Vec<_> = committed.into_iter().chain(prepared).collect();
+    if heads.is_empty() {
+        return Err("Head log records no head".into());
+    }
+    Ok(heads)
 }
 fn parse_head(text: &str) -> Result<ObservationHead, String> {
     let parts = text.split(':').collect::<Vec<_>>();

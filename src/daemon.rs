@@ -85,6 +85,7 @@ pub enum DaemonError {
     StaleHead,
     InvalidTransition,
     ClockOverflow,
+    HeadRecord(std::io::Error),
 }
 impl From<StorageError> for DaemonError {
     fn from(value: StorageError) -> Self {
@@ -158,6 +159,18 @@ pub struct ObservationHead {
     pub tip: Tip,
     pub commitment: [u8; 32],
 }
+/// One head handed to a caller's independent head record. `Prepared` is
+/// delivered before the journal write and `Committed` after it, so after a
+/// crash at any point the store's head is the last `Committed` head or a
+/// `Prepared` head recorded after it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum HeadRecord {
+    Prepared(ObservationHead),
+    Committed(ObservationHead),
+}
+/// Durably records a head outside the store. A `Prepared` failure aborts the
+/// commit; a `Committed` failure is returned after the commit has happened.
+pub type HeadSink = Box<dyn FnMut(HeadRecord) -> std::io::Result<()> + Send>;
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct State {
     config: ObserverConfig,
@@ -263,12 +276,21 @@ impl State {
 pub struct ObservationStore {
     journal: Journal,
     state: State,
+    sink: Option<HeadSink>,
 }
 impl ObservationStore {
     pub fn initialize(root: &Path, config: ObserverConfig) -> Result<Self> {
+        Self::initialize_recorded(root, config, None)
+    }
+    /// `initialize` whose first head, and every later one, goes to `sink`.
+    pub fn initialize_recorded(
+        root: &Path,
+        config: ObserverConfig,
+        sink: Option<HeadSink>,
+    ) -> Result<Self> {
         config.validate()?;
         let namespace = Namespace::for_mainnet(config.network, "consensus")?;
-        let (mut journal, _) = Journal::open(root, namespace, Recovery::RejectIncompleteTail)?;
+        let (journal, _) = Journal::open(root, namespace, Recovery::RejectIncompleteTail)?;
         if journal.sequence()? != 0 || journal.entries()?.next().is_some() {
             return Err(DaemonError::InvalidSnapshot);
         }
@@ -279,11 +301,17 @@ impl ObservationStore {
             mode: ObserverMode::Observing,
             fork: None,
         };
-        journal.commit(vec![Mutation::Put {
-            key: KEY.into(),
-            value: encode(&state)?,
-        }])?;
-        Ok(Self { journal, state })
+        let mut store = Self {
+            journal,
+            state: state.clone(),
+            sink,
+        };
+        store.publish(state)?;
+        Ok(store)
+    }
+    /// Sends every later head to `sink`; see [`HeadRecord`].
+    pub fn record_heads(&mut self, sink: HeadSink) {
+        self.sink = Some(sink);
     }
     pub fn load(
         root: &Path,
@@ -308,7 +336,14 @@ impl ObservationStore {
         if state.tip() != expected.tip {
             return Err(DaemonError::StaleHead);
         }
-        Ok((Self { journal, state }, report))
+        Ok((
+            Self {
+                journal,
+                state,
+                sink: None,
+            },
+            report,
+        ))
     }
     fn check(&self) -> Result<()> {
         self.journal.sequence()?;
@@ -359,12 +394,28 @@ impl ObservationStore {
     }
     fn publish(&mut self, next: State) -> Result<ObservationHead> {
         let bytes = encode(&next)?;
+        if let Some(sink) = self.sink.as_mut() {
+            let prepared = ObservationHead {
+                sequence: self
+                    .journal
+                    .sequence()?
+                    .checked_add(1)
+                    .ok_or(StorageError::LimitExceeded)?,
+                tip: next.tip(),
+                commitment: commitment(&bytes),
+            };
+            sink(HeadRecord::Prepared(prepared)).map_err(DaemonError::HeadRecord)?;
+        }
         self.journal.commit(vec![Mutation::Put {
             key: KEY.into(),
             value: bytes,
         }])?;
         self.state = next;
-        self.head()
+        let head = self.head()?;
+        if let Some(sink) = self.sink.as_mut() {
+            sink(HeadRecord::Committed(head)).map_err(DaemonError::HeadRecord)?;
+        }
+        Ok(head)
     }
     fn mode_change(&mut self, mode: ObserverMode) -> Result<ObservationHead> {
         self.check()?;

@@ -678,3 +678,63 @@ fn cancellation_returned_as_rpc_error_stops_in_every_rpc_phase() {
         assert_eq!(source.0.borrow().calls.len(), calls);
     }
 }
+
+#[test]
+fn head_sink_records_prepared_before_and_committed_after_every_commit() {
+    use std::sync::{Arc, Mutex};
+    let n = TradeLayerMainnet::Bitcoin;
+    let root = Directory::new();
+    let source = Mock::new(n);
+    source.add(1, n.genesis(), 1);
+    let log = Arc::new(Mutex::new(Vec::new()));
+    let sink_log = log.clone();
+    let mut c = ObserverConfig::new(n, anchor(n)).unwrap();
+    c.scan.workers = 1;
+    let store = ObservationStore::initialize_recorded(
+        &root.0,
+        c.clone(),
+        Some(Box::new(move |record| {
+            sink_log.lock().unwrap().push(record);
+            Ok(())
+        })),
+    )
+    .unwrap();
+    let initial = store.head().unwrap();
+    assert_eq!(
+        *log.lock().unwrap(),
+        [
+            HeadRecord::Prepared(initial),
+            HeadRecord::Committed(initial)
+        ]
+    );
+    let mut d = Daemon::new(source.clone(), store);
+    let mut now = 0;
+    let head = recorded(&mut d, &source, &mut now);
+    let paused = d.pause(head).unwrap();
+    let records = log.lock().unwrap().clone();
+    assert_eq!(
+        records[records.len() - 4..],
+        [
+            HeadRecord::Prepared(head),
+            HeadRecord::Committed(head),
+            HeadRecord::Prepared(paused),
+            HeadRecord::Committed(paused)
+        ]
+    );
+    for pair in records.chunks(2) {
+        match pair {
+            [HeadRecord::Prepared(a), HeadRecord::Committed(b)] => assert_eq!(a, b),
+            other => panic!("unpaired records {other:?}"),
+        }
+    }
+    // A sink that cannot record the prepared head stops the commit.
+    let (_, mut store) = d.into_parts();
+    store.record_heads(Box::new(|_| Err(std::io::Error::other("disk full"))));
+    let mut d = Daemon::new(source, store);
+    assert!(matches!(d.resume(paused), Err(DaemonError::HeadRecord(_))));
+    let (_, store) = d.into_parts();
+    drop(store);
+    let (store, _) =
+        ObservationStore::load(&root.0, c, paused, Recovery::RejectIncompleteTail).unwrap();
+    assert_eq!(store.mode().unwrap(), ObserverMode::Paused);
+}

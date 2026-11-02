@@ -697,6 +697,85 @@ fn cli_exact_restart_tokens_control_modes_and_cooperative_shutdown_are_durable()
     );
 }
 #[test]
+fn cli_head_log_restarts_after_a_kill_at_any_point_of_a_commit() {
+    let directory = Directory::unguarded();
+    let log = directory.0.join("heads.log");
+    let log_arg = log.to_str().unwrap().to_owned();
+    let cli = |tail: &[&str]| {
+        let mut args = vec!["--head-log", log_arg.as_str()];
+        args.extend_from_slice(tail);
+        observe_cli(&directory.0, "127.0.0.1:1", &args)
+    };
+    let lines = || {
+        std::fs::read_to_string(&log)
+            .unwrap()
+            .lines()
+            .map(str::to_owned)
+            .collect::<Vec<_>>()
+    };
+    let initial = status_text(&cli_status(&cli(&["--initialize", "--steps", "0"])), "head");
+    assert_eq!(
+        lines(),
+        [
+            format!("prepared {initial}"),
+            format!("committed {initial}")
+        ]
+    );
+    // An existing log is never reused for a new store.
+    let other = Directory::unguarded();
+    let refused = observe_cli(
+        &other.0,
+        "127.0.0.1:1",
+        &["--head-log", &log_arg, "--initialize", "--steps", "0"],
+    );
+    assert!(!refused.status.success());
+    assert!(std::fs::read_dir(&other.0).unwrap().next().is_none());
+    let paused = status_text(&cli_status(&cli(&["--pause"])), "head");
+    assert_ne!(paused, initial);
+    assert_eq!(lines().len(), 4);
+    assert_eq!(lines()[3], format!("committed {paused}"));
+
+    // Killed after the commit, before its `committed` line: the trailing
+    // prepared head matches the store.
+    let all = lines();
+    std::fs::write(&log, format!("{}\n", all[..3].join("\n"))).unwrap();
+    let status = cli_status(&cli(&["--steps", "0"]));
+    assert_eq!(status_text(&status, "head"), paused);
+    assert_eq!(status_text(&status, "mode"), "Paused");
+    let resumed = status_text(&cli_status(&cli(&["--resume"])), "head");
+
+    // Killed after a `prepared` line, before the commit: the last committed
+    // head matches.
+    let mut fields: Vec<String> = resumed.split(':').map(str::to_owned).collect();
+    fields[0] = (fields[0].parse::<u64>().unwrap() + 1).to_string();
+    let mut text = std::fs::read_to_string(&log).unwrap();
+    text.push_str(&format!("prepared {}\n", fields.join(":")));
+    // A line cut off before its sync is ignored.
+    text.push_str("committed 99:");
+    std::fs::write(&log, &text).unwrap();
+    let status = cli_status(&cli(&["--steps", "0"]));
+    assert_eq!(status_text(&status, "head"), resumed);
+
+    // A log behind the store, or a damaged line, never loads.
+    std::fs::write(&log, format!("prepared {initial}\ncommitted {initial}\n")).unwrap();
+    let stale = cli(&["--steps", "0"]);
+    assert!(!stale.status.success());
+    assert!(String::from_utf8_lossy(&stale.stderr).contains("StaleHead"));
+    std::fs::write(
+        &log,
+        format!("committed {resumed}\ngarbage\nprepared {resumed}\n"),
+    )
+    .unwrap();
+    let damaged = cli(&["--steps", "0"]);
+    assert!(String::from_utf8_lossy(&damaged.stderr).contains("Invalid head log line 2"));
+    let relative = observe_cli(
+        &directory.0,
+        "127.0.0.1:1",
+        &["--head-log", "heads.log", "--steps", "0"],
+    );
+    assert!(String::from_utf8_lossy(&relative.stderr).contains("must be absolute"));
+}
+#[test]
 fn cli_invalid_arguments_never_create_a_store_or_expose_credentials() {
     let directory = Directory::unguarded();
     for tail in [
