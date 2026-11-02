@@ -1,37 +1,40 @@
 # tl_observe dress rehearsal
 
 Runs the RC-1 observation service (`tl_observe`, built from this tree) as an
-operator would: against a real mainnet node, under systemd, with scripted
-operator drills. It exercises what RC-1 ships, the durable observation
-daemon. RC-1 has no authenticated economic admission (see `docs/RC.md`, Scope),
-so nothing here applies blocks to a Ledger, and nothing touches a wallet.
+operator would: against a real Bitcoin testnet4 node, under systemd, with
+scripted operator drills. It exercises what RC-1 ships, the durable
+observation daemon. RC-1 has no authenticated economic admission (see
+`docs/RC.md`, Scope), so nothing here applies blocks to a Ledger, and nothing
+touches a wallet. Testnet4 observation is observation only
+(`--network BTC-TESTNET4`, `docs/RUNTIME.md`).
 
 ## Layout on the box
 
 | Path | Contents |
 |---|---|
 | `~/rehearsal/bin/tl_observe` | release build of this tree |
-| `~/rehearsal/ltc/` | Litecoin Core 0.21.5.8 `litecoind`, `litecoin-cli` |
-| `~/rehearsal/ltc-data/` | pruned mainnet datadir, `litecoin.conf`, RPC `.cookie` |
+| `~/rehearsal/btc/` | Bitcoin Core 31.1 `bitcoind`, `bitcoin-cli` |
+| `~/rehearsal/btc-data/` | pruned testnet4 datadir, `bitcoin.conf`, RPC cookie in `testnet4/.cookie` |
 | `~/rehearsal/kit/` | `observe.sh`, `drills.sh`, `status.sh`, `start-long-run.sh` |
 | `~/rehearsal/observer/` | the long-running store, `anchor`, `heads.log`, `head.token`, `sessions.log`, `errors.log` |
 | `~/rehearsal/drills/<name>/` | one throwaway store per drill |
 
-The node is mainnet, pruned to 2 GB of block files, `blocksonly`, no inbound
-listener, RPC on 127.0.0.1:9332 with cookie auth. `tl_observe` reads the cookie
-file, so no RPC password exists anywhere.
+The node is testnet4, pruned to 2 GB of block files, `blocksonly`, no inbound
+listener, RPC on 127.0.0.1:48332 with cookie auth. `tl_observe` reads the
+cookie file, so no RPC password exists anywhere.
 
 ## Staging
 
 ```bash
 bash ops/rehearsal/install.sh /path/to/TradeLayer-Rust
-sudo systemctl start rehearsal-litecoind
+sudo systemctl start rehearsal-bitcoind
 ~/rehearsal/kit/status.sh
 ```
 
-`install.sh` accepts the Litecoin tarball only when `SHA256SUMS.asc` carries a
-valid signature from a key in the Litecoin repository's `contrib/gitian-keys`
-at the release tag, and the tarball's hash matches it.
+`install.sh` accepts the Bitcoin Core tarball only when at least 3 keys from
+`bitcoin-core/guix.sigs` `builder-keys` validly sign `SHA256SUMS` and the
+tarball's hash matches it. Build `tl_observe` before starting `bitcoind`: on a
+2 GB box a release build alongside a syncing node runs out of memory.
 
 Every operation passes `--head-log ~/rehearsal/observer/heads.log`: tl_observe
 appends each head it commits (`prepared` before the store write, `committed`
@@ -41,10 +44,10 @@ the last operation that exited normally.
 
 ## Drills
 
-`drills.sh` anchors each drill store at the pinned Litecoin genesis while the
-node still holds `blk00000.dat`. On a pruned node it anchors 3,000 blocks below
-the tip using that node's hash, which suits a runner drill but is not an
-independent anchor declaration.
+`drills.sh` anchors each drill store at the pinned testnet4 genesis while the
+node still holds its first block file. On a pruned node it anchors 3,000
+blocks below the tip using that node's hash, which suits a runner drill but is
+not an independent anchor declaration.
 
 ```bash
 ~/rehearsal/kit/drills.sh
@@ -63,61 +66,54 @@ sudo systemctl stop rehearsal-observe    # graceful: stop file, head recorded
 ```
 
 `start-long-run.sh` does both unattended: it waits for the node to leave IBD,
-anchors 6 blocks below the tip only when the node and litecoinspace.org report
-the same hash, and logs to `~/rehearsal/long-run.log`.
+anchors 6 blocks below the tip only when the node and mempool.space's
+testnet4 API report the same hash, and logs to `~/rehearsal/long-run.log`.
 
 ```bash
 nohup setsid ~/rehearsal/kit/start-long-run.sh < /dev/null > /dev/null 2>&1 &
 ```
 
 The spool holds at most 64 raw blocks and then quarantines instead of evicting
-(`docs/DAEMON.md`, Bounds). On Litecoin's 2.5-minute blocks that is under three
-hours of observation per store.
+(`docs/DAEMON.md`, Bounds): about ten hours of testnet4 at its 10-minute
+target, less when blocks come faster.
 
-## Results, 2026-11-02
+## Results, 2026-11-02 (testnet4)
 
-Box: 1 vCPU, 2 GB RAM + 1 GB swap, 19 GB disk. Litecoin Core 0.21.5.8,
-signature valid from the repository's `davidburkett38` key.
-
-First run: `tl_observe` from `1a077c1`, drills anchored at genesis during IBD
-(node heights 11,645 to 33,218): 15 PASS, 0 FAIL, 2 OBSERVED. The hard kill
-was OBSERVED: the last printed head was refused with `StaleHead` and the CLI
-had no way to recover the store (finding 1).
-
-Second run: `tl_observe` from `8689b5a` (release, 7 min 29 s; sha256
-`15cd2517…72d08c1c993`), node at 1,751,615 and pruned below 1,678,146, drills
-anchored at 1,737,649: 17 PASS, 0 FAIL, 1 OBSERVED.
+Box: 1 vCPU, 2 GB RAM + 1 GB swap, 19 GB disk. `tl_observe` from `a8e5ac8`
+(release, 7 min 35 s; sha256 `49b519dc…a06888a08`). Bitcoin Core 31.1, 11
+valid builder signatures. Drills anchored at the testnet4 genesis while the
+node was syncing (tip above 10,800 of 158,625 headers): 17 PASS, 0 FAIL,
+1 OBSERVED.
 
 | Drill | Result |
 |---|---|
-| observe | 60 steps advance 9 blocks, mode `Observing` |
+| observe from genesis | 60 steps reach height 9, mode `Observing` |
 | status load | head unchanged |
 | tampered expected head | refused; the real head still loads |
 | second process during a session | refused (store lock) |
 | stop file | exit 0, mode `Stopped`, head recorded |
 | restart after stop | resumes and advances |
 | pause | runner refuses a paused store; resume advances |
-| hard kill (SIGKILL after 10 s) | the printed head (1,737,650) is stale; `heads.log` restarts the store at 1,737,664 and observation continues; no orphaned process |
+| hard kill (SIGKILL after 10 s) | the printed head (height 1) is stale; `heads.log` restarts the store at 17 and observation continues; no orphaned process |
 | RPC outage (refused port) | `Quarantined(RetryExhausted)`; OBSERVED: resume against the live node returns to `Observing` |
 | capacity | stops at 64 blocks in `Quarantined(SpoolFull)`; not resumable |
+
+Earlier runs the same day used a pruned Litecoin mainnet node, the wrong
+network for this rehearsal; `tl_observe` then accepted only mainnets. They
+produced findings 1 and 3, which carry over.
 
 Findings:
 
 1. **Hard-kill recovery (fixed in `8689b5a`).** `tl_observe` printed the head
    only when a session ended, so after SIGKILL, OOM kill or power loss the
-   store refused the last recorded head (`StaleHead`). `--head-log` now records
-   every head around each commit, and the second run's hard-kill drill
-   restarts from it. The second run also caught a kit bug: operations after
-   `init HEIGHT HASH` omitted the anchor and the store refused the changed
-   configuration (`InvalidSnapshot`). `observe.sh` now keeps the anchor in
-   `anchor` and passes it to every operation.
-2. **Spool lifetime.** The 64-block cap ends a store in under three hours on
-   Litecoin mainnet. Continuous observation needs the externally reviewed
+   store refused the last recorded head (`StaleHead`). `--head-log` records
+   every head around each commit, and the hard-kill drill restarts from it.
+   A kit bug surfaced alongside it: operations after `init HEIGHT HASH`
+   omitted the anchor and the store refused the changed configuration
+   (`InvalidSnapshot`); `observe.sh` keeps the anchor in `anchor`.
+2. **Spool lifetime.** The 64-block cap ends a store after about ten hours of
+   testnet4. Continuous observation needs the externally reviewed
    archival/new-store process `docs/DAEMON.md` leaves open.
-3. **Node memory.** `litecoind` was OOM-killed at a 1,300 MB cgroup cap during
-   header sync (about 3.2 million headers). With `dbcache=100` and a 1,700 MB
-   cap it has run without restarts. The observer met that node crash
-   unattended: bounded retries, then `Quarantined(RetryExhausted)`, resumable.
-   A release build of `tl_observe` is OOM-killed while `litecoind` holds
-   that memory mid-IBD: stop `rehearsal-litecoind` for the build (about
-   8 minutes) and start it again afterwards.
+3. **Memory on a 2 GB box.** A release build of `tl_observe` is OOM-killed
+   while a syncing node holds most of the RAM. Build first, or stop the node
+   unit for the build (about 8 minutes).

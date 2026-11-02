@@ -1,7 +1,7 @@
 [Unit]
-Description=tl_observe dress rehearsal (Litecoin mainnet, observation only)
-After=rehearsal-litecoind.service
-Requires=rehearsal-litecoind.service
+Description=tl_observe dress rehearsal (Bitcoin testnet4, observation only)
+After=rehearsal-bitcoind.service
+Requires=rehearsal-bitcoind.service
 
 [Service]
 User=ubuntu

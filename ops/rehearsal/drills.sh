@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# Operator drills for tl_observe against the rehearsal's Litecoin node. Each
-# drill gets a fresh store under $R/drills/<name>, anchored at the pinned LTC
-# genesis while the node still holds it. Once the node has pruned its earliest
-# blocks, the drills anchor 3,000 blocks below its tip with this node's hash:
-# they exercise the runner, and that anchor is not an independent declaration.
+# Operator drills for tl_observe against the rehearsal's Bitcoin testnet4 node.
+# Each drill gets a fresh store under $R/drills/<name>, anchored at the pinned
+# testnet4 genesis while the node still holds it. Once the node has pruned its
+# earliest blocks, the drills anchor 3,000 blocks below its tip with this
+# node's hash: they exercise the runner, and that anchor is not an independent
+# declaration.
 #
-# Litecoin blocks are small and one block takes about six steps, so each
+# Early testnet4 blocks are small and one block takes about six steps, so each
 # stateful drill uses its own store and step budgets stay well under the
 # 64-block spool (drill 9 fills it on purpose).
 #
@@ -33,14 +34,15 @@ wait_exit() { # pid, seconds
   return 1
 }
 
-tip=$("$R/ltc/litecoin-cli" -datadir="$R/ltc-data" getblockcount)
+cli() { "$R/btc/bitcoin-cli" -datadir="$R/btc-data" "$@"; }
+tip=$(cli getblockcount)
 [ "$tip" -ge 200 ] || { echo "node tip $tip: wait for at least 200 blocks" >&2; exit 100; }
 ANCHOR=()
-pruned=$("$R/ltc/litecoin-cli" -datadir="$R/ltc-data" getblockchaininfo \
+pruned=$(cli getblockchaininfo \
   | python3 -c 'import json,sys; print(json.load(sys.stdin).get("pruneheight", 0))')
 if [ "$pruned" -gt 0 ]; then
   a=$((tip - 3000))
-  ANCHOR=("$a" "$("$R/ltc/litecoin-cli" -datadir="$R/ltc-data" getblockhash "$a")")
+  ANCHOR=("$a" "$(cli getblockhash "$a")")
   echo "NOTE     node pruned below $pruned: drills anchor at $a with this node's hash"
 fi
 

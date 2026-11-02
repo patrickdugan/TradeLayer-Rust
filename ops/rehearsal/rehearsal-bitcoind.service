@@ -1,0 +1,15 @@
+[Unit]
+Description=Pruned Bitcoin testnet4 node (tl_observe dress rehearsal)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=ubuntu
+ExecStart=/home/ubuntu/rehearsal/btc/bitcoind -datadir=/home/ubuntu/rehearsal/btc-data -printtoconsole=0
+ExecStop=/home/ubuntu/rehearsal/btc/bitcoin-cli -datadir=/home/ubuntu/rehearsal/btc-data stop
+Restart=on-failure
+TimeoutStopSec=600
+MemoryMax=1500M
+
+[Install]
+WantedBy=multi-user.target

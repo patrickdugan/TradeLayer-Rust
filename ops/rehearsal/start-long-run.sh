@@ -11,9 +11,9 @@
 set -uo pipefail
 R=${REHEARSAL_HOME:-$HOME/rehearsal}
 HERE=$(cd "$(dirname "$0")" && pwd)
-EXPLORER=${EXPLORER:-https://litecoinspace.org/api}
+EXPLORER=${EXPLORER:-https://mempool.space/testnet4/api}
 LOG=$R/long-run.log
-cli() { "$R/ltc/litecoin-cli" -datadir="$R/ltc-data" "$@"; }
+cli() { "$R/btc/bitcoin-cli" -datadir="$R/btc-data" "$@"; }
 say() { echo "$(date -u +%FT%TZ) $*" >> "$LOG"; }
 
 say "waiting for the node to leave IBD"

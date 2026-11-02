@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# One tl_observe operation against the rehearsal's pruned Litecoin node.
+# One tl_observe operation against the rehearsal's pruned Bitcoin testnet4 node.
 #
-#   observe.sh init [H HASH]   create the store, anchored at the pinned LTC genesis
+#   observe.sh init [H HASH]   create the store, anchored at the pinned testnet4 genesis
 #                              or at the declared height H with block hash HASH
 #   observe.sh run [STEPS]     observe (forever with no STEPS) until stopped
 #   observe.sh stop            ask a running session to stop (stop file)
@@ -38,8 +38,8 @@ if [ -s "$ANCHOR_FILE" ]; then
   ANCHOR=(--anchor-height "$anchor_height" --anchor-hash "$anchor_hash")
 fi
 BASE=(
-  "$R/bin/tl_observe" --root "$STORE" --network LTC
-  --rpc-address "${RPC_ADDRESS:-127.0.0.1:9332}" --cookie-file "$R/ltc-data/.cookie"
+  "$R/bin/tl_observe" --root "$STORE" --network BTC-TESTNET4
+  --rpc-address "${RPC_ADDRESS:-127.0.0.1:48332}" --cookie-file "$R/btc-data/testnet4/.cookie"
   --head-log "$HEADS" "${ANCHOR[@]}"
 )
 EXPECT=()
