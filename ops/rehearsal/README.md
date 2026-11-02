@@ -75,7 +75,22 @@ nohup setsid ~/rehearsal/kit/start-long-run.sh < /dev/null > /dev/null 2>&1 &
 
 The spool holds at most 64 raw blocks and then quarantines instead of evicting
 (`docs/DAEMON.md`, Bounds): about ten hours of testnet4 at its 10-minute
-target, less when blocks come faster.
+target, less when blocks come faster. Orphaned blocks stay in the spool and
+count against the cap.
+
+When the node reorganizes below the observer's cursor, the session ends in
+`Quarantined(ForkDetected)` and the unit stops. The observer never picks a
+branch itself: reconcile to the highest stored block that is still on the
+node's active chain, then start the unit again. `reconcile` refuses
+(`InvalidTransition`, no state change) any height whose stored block differs.
+
+```bash
+c() { ~/rehearsal/btc/bitcoin-cli -datadir=$HOME/rehearsal/btc-data "$@"; }
+for h in $(seq $((CURSOR - 1)) -1 $ANCHOR_HEIGHT); do
+  ~/rehearsal/kit/observe.sh reconcile "$h:$(c getblockhash $h)" && break
+done
+sudo systemctl start rehearsal-observe
+```
 
 ## Results, 2026-11-02 (testnet4)
 
@@ -98,6 +113,14 @@ node was syncing (tip above 10,800 of 158,625 headers): 17 PASS, 0 FAIL,
 | RPC outage (refused port) | `Quarantined(RetryExhausted)`; OBSERVED: resume against the live node returns to `Observing` |
 | capacity | stops at 64 blocks in `Quarantined(SpoolFull)`; not resumable |
 
+Long run: the node left IBD at 158,627 after about 30 minutes;
+`start-long-run.sh` anchored at 158,621 (node and mempool.space agreed) and
+started the unit at 15:52 UTC. At 16:11 testnet4 replaced 158,626-158,627
+(the node then showed nine competing tips above 158,625) and the session
+ended `Quarantined(ForkDetected)` in phase `ForkSearch` with the cursor at
+158,627. `reconcile` refused 158,626 and accepted 158,625; the restarted unit
+reached the tip, 158,630, within a minute.
+
 Earlier runs the same day used a pruned Litecoin mainnet node, the wrong
 network for this rehearsal; `tl_observe` then accepted only mainnets. They
 produced findings 1 and 3, which carry over.
@@ -117,3 +140,9 @@ Findings:
 3. **Memory on a 2 GB box.** A release build of `tl_observe` is OOM-killed
    while a syncing node holds most of the RAM. Build first, or stop the node
    unit for the build (about 8 minutes).
+4. **Forks stop the service.** On testnet4, short reorganizations are routine,
+   and each one below the cursor ends the session until an operator
+   reconciles. The CLI exits on the quarantine, so it never runs the bounded
+   fork search that would record a candidate ancestor; the operator finds the
+   common block by asking the node. Unattended operation needs either that
+   fork search in the CLI or a reviewed reconciliation policy.

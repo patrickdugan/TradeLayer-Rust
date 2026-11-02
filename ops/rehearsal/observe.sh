@@ -7,6 +7,8 @@
 #   observe.sh stop            ask a running session to stop (stop file)
 #   observe.sh pause|resume    durable pause / resume
 #   observe.sh status          load the store and print its status (no RPC step)
+#   observe.sh reconcile H:HASH  after a fork, keep the stored selected path up to
+#                              block H (HASH must be the stored block there)
 #
 # tl_observe appends every head it commits to heads.log (prepared before the
 # store write, committed after it) and restarts from that log, so a session
@@ -77,6 +79,11 @@ case ${1:-} in
     need_log
     invoke "$1" "${EXPECT[@]}" "--$1"
     ;;
+  reconcile)
+    need_log
+    [ -n "${2:-}" ] || { echo "usage: observe.sh reconcile HEIGHT:HASH" >&2; exit 2; }
+    invoke reconcile "${EXPECT[@]}" --reconcile "$2"
+    ;;
   stop)
     touch "$STOP"
     ;;
@@ -97,7 +104,7 @@ case ${1:-} in
     fi
     ;;
   *)
-    sed -n '2,9p' "$0" >&2
+    sed -n '2,11p' "$0" >&2
     exit 2
     ;;
 esac
