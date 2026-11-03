@@ -7,8 +7,8 @@ use tradelayer_core::bootstrap::BootstrapControl;
 use tradelayer_core::chain::Tip;
 use tradelayer_core::client::{RpcAuth, RpcClient, RpcValue};
 use tradelayer_core::daemon::{
-    Daemon, DaemonError, HeadRecord, HeadSink, ObservationHead, ObservationStore, ObserverConfig,
-    ObserverMode,
+    Daemon, DaemonError, ForkEvidence, HeadRecord, HeadSink, ObservationHead, ObservationStore,
+    ObserverConfig, ObserverMode, ObserverPhase,
 };
 use tradelayer_core::network_profile::{TradeLayerMainnet, BITCOIN_TESTNET4_GENESIS};
 use tradelayer_core::runtime::{block_id_text, parse_block_id, RpcObservationClient};
@@ -253,14 +253,34 @@ fn run() -> Result<(), String> {
             std::thread::sleep(Duration::from_millis(100));
         }
     }
+    // A fork quarantine leaves the daemon's search for the common ancestor
+    // pending: one getblockhash per selected block, down to the anchor at
+    // most. Finish it so the printed evidence names the reconciliation target.
+    let mut budget = u64::from(daemon.status().map_err(|e| e.to_string())?.stored_blocks) + 1;
+    while budget > 0
+        && daemon.status().map_err(|e| e.to_string())?.phase == ObserverPhase::ForkSearch
+    {
+        if stop_file.as_ref().is_some_and(|p| p.exists()) {
+            control.cancel();
+        }
+        let millis =
+            u64::try_from(start.elapsed().as_millis()).map_err(|_| "Clock limit exceeded")?;
+        let _ = daemon.step(millis, &control).map_err(|e| e.to_string())?;
+        budget -= 1;
+    }
     let status = daemon.status().map_err(|e| e.to_string())?;
+    let fork = daemon
+        .store()
+        .fork_evidence()
+        .map_err(|e| e.to_string())?
+        .map_or_else(|| "null".to_owned(), fork_json);
     let head = head_text(status.head);
     let quote = |text: &str| {
         RpcValue::string(text)
             .map(|v| v.as_json().to_owned())
             .map_err(|e| e.to_string())
     };
-    println!("{{\"head\":{},\"mode\":{},\"phase\":{},\"stored_blocks\":{},\"stored_raw_bytes\":{},\"identity_checked\":{},\"authenticated_admission\":false}}",quote(&head)?,quote(&format!("{:?}",status.mode))?,quote(&format!("{:?}",status.phase))?,status.stored_blocks,status.stored_raw_bytes,status.identity_checked);
+    println!("{{\"head\":{},\"mode\":{},\"phase\":{},\"stored_blocks\":{},\"stored_raw_bytes\":{},\"identity_checked\":{},\"fork\":{fork},\"authenticated_admission\":false}}",quote(&head)?,quote(&format!("{:?}",status.mode))?,quote(&format!("{:?}",status.phase))?,status.stored_blocks,status.stored_raw_bytes,status.identity_checked);
     Ok(())
 }
 fn number(value: Option<&String>, default: u64) -> Result<u64, String> {
@@ -268,6 +288,26 @@ fn number(value: Option<&String>, default: u64) -> Result<u64, String> {
         Some(value) => value.parse().map_err(|_| "Invalid unsigned option".into()),
         None => Ok(default),
     }
+}
+fn tip_text(tip: Tip) -> String {
+    format!("\"{}:{}\"", tip.height, block_id_text(tip.id))
+}
+/// Fork evidence as JSON. `common_ancestor` is the highest selected block the
+/// node still reports, the target for `--reconcile`; null when the search
+/// reached the anchor (`history_exhausted`) or an RPC failed (`probe_failed`).
+fn fork_json(f: ForkEvidence) -> String {
+    format!(
+        "{{\"old_tip\":{},\"reported_tip\":{},\"mismatch_height\":{},\"expected\":\"{}\",\"reported\":{},\"common_ancestor\":{},\"history_exhausted\":{},\"probe_failed\":{}}}",
+        tip_text(f.old_tip),
+        tip_text(f.reported_tip),
+        f.mismatch_height,
+        block_id_text(f.expected),
+        f.reported
+            .map_or_else(|| "null".to_owned(), |id| format!("\"{}\"", block_id_text(id))),
+        f.common_ancestor.map_or_else(|| "null".to_owned(), tip_text),
+        f.history_exhausted,
+        f.probe_failed
+    )
 }
 fn head_text(head: ObservationHead) -> String {
     format!(

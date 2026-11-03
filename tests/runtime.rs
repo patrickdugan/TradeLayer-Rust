@@ -904,6 +904,96 @@ fn cli_head_log_restarts_after_a_kill_at_any_point_of_a_commit() {
     assert!(String::from_utf8_lossy(&relative.stderr).contains("must be absolute"));
 }
 #[test]
+fn cli_finishes_the_fork_search_and_prints_the_reconciliation_target() {
+    let directory = Directory::unguarded();
+    let network = TradeLayerMainnet::Bitcoin;
+    let header = include_str!("../fixtures/bitcoin_mainnet_genesis_block1_headers.txt")
+        .lines()
+        .nth(1)
+        .unwrap();
+    let raw = format!(
+        "{header}01{}",
+        include_str!("../fixtures/bitcoin_mainnet_block1_coinbase.hex").trim()
+    );
+    let bytes = tradelayer_core::read_only::decode_hex(&raw).unwrap();
+    let mut hash = tradelayer_core::raw_block_ingest::UnverifiedRawBlockView::parse(&bytes, None)
+        .unwrap()
+        .header_hash_raw();
+    hash.reverse();
+    let block1 = tradelayer_core::runtime::block_id_text(tradelayer_core::chain::BlockId(hash));
+    let genesis = tradelayer_core::runtime::block_id_text(network.genesis());
+    let other = "ab".repeat(32);
+    let mut replies = identity_replies(network);
+    replies.extend([
+        // Observe block 1.
+        format!("{{\"blocks\":1,\"bestblockhash\":\"{block1}\"}}"),
+        format!("\"{genesis}\""),
+        format!("\"{block1}\""),
+        format!("\"{raw}\""),
+        format!("\"{block1}\""),
+        // The node replaces block 1: the cursor check quarantines, and the
+        // search probes heights 1 and 0 before the CLI exits.
+        format!("{{\"blocks\":1,\"bestblockhash\":\"{other}\"}}"),
+        format!("\"{other}\""),
+        format!("\"{other}\""),
+        format!("\"{genesis}\""),
+    ]);
+    let (endpoint, server) = mock_endpoint(replies);
+    let output = observe_cli(
+        &directory.0,
+        &endpoint.to_string(),
+        &["--initialize", "--steps", "1000"],
+    );
+    let status = cli_status(&output);
+    server.join().unwrap();
+    assert_eq!(status_text(&status, "mode"), "Quarantined(ForkDetected)");
+    assert_eq!(status_text(&status, "phase"), "Idle");
+    let fork = status.field("fork").unwrap().unwrap();
+    let text = |name: &str| fork.field(name).unwrap().unwrap().as_string().unwrap();
+    let target = format!("0:{genesis}");
+    assert_eq!(text("old_tip"), format!("1:{block1}"));
+    assert_eq!(text("reported_tip"), format!("1:{other}"));
+    assert_eq!(text("reported"), other);
+    assert_eq!(text("common_ancestor"), target);
+    assert_eq!(
+        fork.field("history_exhausted").unwrap().unwrap().as_json(),
+        "false"
+    );
+    assert_eq!(
+        fork.field("probe_failed").unwrap().unwrap().as_json(),
+        "false"
+    );
+
+    // A status load prints the stored evidence without RPC, and the printed
+    // ancestor reconciles.
+    let head = status_text(&status, "head");
+    let loaded = cli_status(&observe_cli(
+        &directory.0,
+        "127.0.0.1:1",
+        &["--expected-head", &head, "--steps", "0"],
+    ));
+    assert_eq!(
+        loaded.field("fork").unwrap().unwrap().as_json(),
+        fork.as_json()
+    );
+    let reconciled = cli_status(&observe_cli(
+        &directory.0,
+        "127.0.0.1:1",
+        &["--expected-head", &head, "--reconcile", &target],
+    ));
+    assert_eq!(status_text(&reconciled, "mode"), "Observing");
+    assert_eq!(reconciled.field("fork").unwrap().unwrap().as_json(), "null");
+    assert_eq!(
+        reconciled
+            .field("stored_blocks")
+            .unwrap()
+            .unwrap()
+            .as_u64()
+            .unwrap(),
+        1
+    );
+}
+#[test]
 fn cli_invalid_arguments_never_create_a_store_or_expose_credentials() {
     let directory = Directory::unguarded();
     for tail in [

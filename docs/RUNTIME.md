@@ -34,7 +34,11 @@ up to the configured per-call timeout to return; cancellation checks do not
 interrupt an OS read in progress.
 
 The final JSON includes `head` in `SEQUENCE:HEIGHT:HASH:COMMITMENT` form, mode,
-phase, retained counts, identity status and `authenticated_admission:false`.
+phase, retained counts, identity status, `fork` and `authenticated_admission:false`.
+`fork` is null or the stored fork evidence: `old_tip`, `reported_tip`
+and `common_ancestor` as `HEIGHT:HASH` (the ancestor null when none was found),
+`mismatch_height`, `expected`, `reported`, `history_exhausted` and
+`probe_failed`.
 Restart supplies that complete independently retained token via
 `--expected-head`. The original anchor and scanner settings must also match.
 There is no implicit latest-head discovery, checkpoint replacement, genesis
@@ -54,10 +58,15 @@ replace the store cannot also rewrite it, as with any other expected head.
 `--pause`, `--resume`, `--stop` and `--reconcile HEIGHT:HASH` compare the supplied
 head before changing durable state. Controls perform no RPC. Malformed option
 values reject before opening a store. Semantic reconciliation still requires a
-retained target and the daemon's permitted fork state. A quarantine causes the
-CLI to exit; a just-discovered fork may still have `ForkSearch` phase with no
-candidate ancestor. Library callers may continue bounded fork-search steps for
-observational evidence. No node report grants economic rollback authority.
+retained target and the daemon's permitted fork state. A quarantine ends the
+session, but a fork quarantine first finishes the daemon's fork search: one
+`getblockhash` per selected block, descending to the anchor at most, whatever
+`--steps` remains. The printed `common_ancestor` is then the highest selected
+block the node still reports, a valid `--reconcile` target. A stop file still
+ends the search; the stored evidence then has no ancestor. A cursor race caught
+at the final recheck quarantines `ForkDetected` without evidence. Choosing to
+reconcile stays with the operator. No node report grants economic rollback
+authority.
 
 Retention is capped at 64 blocks including old branches, 16MiB raw material and
 the independent journal byte limit. Capacity stops ingestion without eviction.
