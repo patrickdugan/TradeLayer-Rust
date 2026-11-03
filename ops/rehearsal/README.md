@@ -125,7 +125,17 @@ started the unit at 15:52 UTC. At 16:11 testnet4 replaced 158,626-158,627
 (the node then showed nine competing tips above 158,625) and the session
 ended `Quarantined(ForkDetected)` in phase `ForkSearch` with the cursor at
 158,627. `reconcile` refused 158,626 and accepted 158,625; the restarted unit
-reached the tip, 158,630, within a minute.
+reached the tip, 158,630, within a minute. At 17:11 a second reorganization
+replaced 158,630, and the unit stayed stopped overnight: that binary exited
+before its fork search. On 2026-11-03 `reconcile` accepted 158,629 (one block
+deep); the restarted unit then filled the 64-block spool at 158,682 and ended
+in `Quarantined(SpoolFull)`, finding 2. That store is kept in
+`~/rehearsal/observer-20261102`.
+
+Second long run, 2026-11-03: `tl_observe` rebuilt from `ec3e409` (sha256
+`af9d3282…cb380675b`), the unit with `AUTO_RECONCILE_DEPTH=6`;
+`start-long-run.sh` anchored at 158,685 (node and mempool.space agreed) at
+05:55 UTC and the observer reached the tip, 158,692, within a minute.
 
 Earlier runs the same day used a pruned Litecoin mainnet node, the wrong
 network for this rehearsal; `tl_observe` then accepted only mainnets. They
