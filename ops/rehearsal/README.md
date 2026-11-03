@@ -79,18 +79,24 @@ target, less when blocks come faster. Orphaned blocks stay in the spool and
 count against the cap.
 
 When the node reorganizes below the observer's cursor, the session ends in
-`Quarantined(ForkDetected)` and the unit stops. The observer never picks a
-branch itself: reconcile to the highest stored block that is still on the
-node's active chain, then start the unit again. `reconcile` refuses
-(`InvalidTransition`, no state change) any height whose stored block differs.
+`Quarantined(ForkDetected)`. Before exiting, `tl_observe` finishes its fork
+search and prints the evidence; `fork.common_ancestor` is the highest stored
+block still on the node's active chain. The observer never picks a branch
+itself. `observe.sh reconcile` with no target reconciles to that ancestor;
+`reconcile HEIGHT:HASH` names one explicitly, and `tl_observe` refuses
+(`InvalidTransition`, no state change) a height whose stored block differs.
 
 ```bash
-c() { ~/rehearsal/btc/bitcoin-cli -datadir=$HOME/rehearsal/btc-data "$@"; }
-for h in $(seq $((CURSOR - 1)) -1 $ANCHOR_HEIGHT); do
-  ~/rehearsal/kit/observe.sh reconcile "$h:$(c getblockhash $h)" && break
-done
+~/rehearsal/kit/observe.sh reconcile
 sudo systemctl start rehearsal-observe
 ```
+
+The unit sets `AUTO_RECONCILE_DEPTH=6`: `observe.sh run` reconciles a fork
+whose ancestor is at most 6 blocks below the old tip, records it in
+`sessions.log` and the journal, and runs on. A deeper fork, a fork without an
+ancestor (the search hit the anchor, an RPC probe failed, or the hash changed
+during the final recheck) or any other quarantine stops the unit for an
+operator.
 
 ## Results, 2026-11-02 (testnet4)
 
@@ -140,9 +146,9 @@ Findings:
 3. **Memory on a 2 GB box.** A release build of `tl_observe` is OOM-killed
    while a syncing node holds most of the RAM. Build first, or stop the node
    unit for the build (about 8 minutes).
-4. **Forks stop the service.** On testnet4, short reorganizations are routine,
-   and each one below the cursor ends the session until an operator
-   reconciles. The CLI exits on the quarantine, so it never runs the bounded
-   fork search that would record a candidate ancestor; the operator finds the
-   common block by asking the node. Unattended operation needs either that
-   fork search in the CLI or a reviewed reconciliation policy.
+4. **Forks stopped the service (fixed in this kit and `tl_observe`).** On
+   testnet4, short reorganizations are routine, and each one below the
+   cursor ended the session until an operator found the common block by
+   asking the node: the CLI exited on the quarantine before the daemon's fork
+   search ran. `tl_observe` now finishes that search before exiting and
+   prints the evidence, and the kit reconciles forks up to 6 blocks deep.

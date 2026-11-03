@@ -6,6 +6,9 @@ Requires=rehearsal-bitcoind.service
 [Service]
 User=ubuntu
 Environment=REHEARSAL_HOME=/home/ubuntu/rehearsal
+# Reorganizations up to 6 blocks deep reconcile to the common ancestor
+# tl_observe found; a deeper one stops the unit for an operator.
+Environment=AUTO_RECONCILE_DEPTH=6
 ExecStart=/home/ubuntu/rehearsal/kit/observe.sh run
 # Graceful stop goes through the stop file so the session prints and records
 # its head; systemd waits for the run loop to exit.

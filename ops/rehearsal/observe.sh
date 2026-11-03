@@ -7,8 +7,13 @@
 #   observe.sh stop            ask a running session to stop (stop file)
 #   observe.sh pause|resume    durable pause / resume
 #   observe.sh status          load the store and print its status (no RPC step)
-#   observe.sh reconcile H:HASH  after a fork, keep the stored selected path up to
-#                              block H (HASH must be the stored block there)
+#   observe.sh reconcile [H:HASH]  after a fork, keep the stored selected path up
+#                              to block H (HASH must be the stored block there);
+#                              with no target, the common ancestor tl_observe found
+#
+# With AUTO_RECONCILE_DEPTH=N (N > 0), `run` without STEPS reconciles a fork whose
+# common ancestor is at most N blocks below the old tip and runs on; a deeper
+# fork, or one without an ancestor, ends the run as before.
 #
 # tl_observe appends every head it commits to heads.log (prepared before the
 # store write, committed after it) and restarts from that log, so a session
@@ -65,6 +70,14 @@ need_log() {
   [ -s "$HEADS" ] || { echo "no heads.log in $STATE; run init first" >&2; exit 2; }
 }
 mode() { python3 -c 'import json,sys; print(json.loads(sys.stdin.read().splitlines()[-1])["mode"])'; }
+# Prints "ANCESTOR OLD_TIP_HEIGHT" from the fork evidence, or nothing.
+ancestor() {
+  python3 -c '
+import json, sys
+f = json.loads(sys.stdin.read().splitlines()[-1])["fork"]
+if f and f["common_ancestor"]:
+    print(f["common_ancestor"], f["old_tip"].split(":")[0])'
+}
 
 case ${1:-} in
   init)
@@ -81,8 +94,13 @@ case ${1:-} in
     ;;
   reconcile)
     need_log
-    [ -n "${2:-}" ] || { echo "usage: observe.sh reconcile HEIGHT:HASH" >&2; exit 2; }
-    invoke reconcile "${EXPECT[@]}" --reconcile "$2"
+    target=${2:-}
+    if [ -z "$target" ]; then
+      found=$(invoke status "${EXPECT[@]}" --steps 0 | ancestor)
+      target=${found%% *}
+      [ -n "$target" ] || { echo "the fork evidence names no common ancestor; give HEIGHT:HASH" >&2; exit 2; }
+    fi
+    invoke reconcile "${EXPECT[@]}" --reconcile "$target"
     ;;
   stop)
     touch "$STOP"
@@ -100,11 +118,31 @@ case ${1:-} in
     if [ -n "${2:-}" ]; then
       invoke run "${EXPECT[@]}" --steps "$2"
     else
-      invoke run "${EXPECT[@]}" --run --stop-file "$STOP"
+      depth=${AUTO_RECONCILE_DEPTH:-0}
+      while :; do
+        out=$(invoke run --run --stop-file "$STOP")
+        printf '%s
+' "$out"
+        [ "$depth" -gt 0 ] && [ ! -e "$STOP" ] || break
+        case $(printf '%s' "$out" | mode) in
+          'Quarantined(ForkDetected)' | 'Quarantined(CursorAboveTip)') ;;
+          *) break ;;
+        esac
+        found=$(printf '%s' "$out" | ancestor)
+        [ -n "$found" ] || { echo "fork without a common ancestor; inspect the store" >&2; break; }
+        target=${found%% *}
+        old=${found##* }
+        if [ $((old - ${target%%:*})) -gt "$depth" ]; then
+          echo "fork reaches below $target, deeper than AUTO_RECONCILE_DEPTH=$depth" >&2
+          break
+        fi
+        invoke reconcile --reconcile "$target" > /dev/null
+        echo "auto-reconciled to $target (old tip $old)" >&2
+      done
     fi
     ;;
   *)
-    sed -n '2,11p' "$0" >&2
+    sed -n '2,17p' "$0" >&2
     exit 2
     ;;
 esac
