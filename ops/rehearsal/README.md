@@ -135,7 +135,16 @@ in `Quarantined(SpoolFull)`, finding 2. That store is kept in
 Second long run, 2026-11-03: `tl_observe` rebuilt from `ec3e409` (sha256
 `af9d3282…cb380675b`), the unit with `AUTO_RECONCILE_DEPTH=6`;
 `start-long-run.sh` anchored at 158,685 (node and mempool.space agreed) at
-05:55 UTC and the observer reached the tip, 158,692, within a minute.
+05:55 UTC and the observer reached the tip, 158,692, within a minute. In the
+first hour testnet4 reorganized under it three times; each session ended with
+`fork.common_ancestor` set and the unit reconciled and ran on without an
+operator:
+
+| UTC | Old tip | Reconciled to | Depth |
+|---|---|---|---|
+| 05:56 | 158,691 | 158,689 | 2 |
+| 06:06 | 158,692 | 158,689 | 3 |
+| 06:56 | 158,700 | 158,698 | 2 |
 
 Earlier runs the same day used a pruned Litecoin mainnet node, the wrong
 network for this rehearsal; `tl_observe` then accepted only mainnets. They
