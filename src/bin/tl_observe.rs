@@ -1,6 +1,6 @@
 //! Explicit local observation service. RPC data never applies economic inputs.
 use std::collections::BTreeMap;
-use std::io::Write;
+use std::io::{Read, Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 use tradelayer_core::bootstrap::BootstrapControl;
@@ -278,9 +278,53 @@ fn head_text(head: ObservationHead) -> String {
         block_id_text(tradelayer_core::chain::BlockId(head.commitment))
     )
 }
+/// A torn last line was never synced. Preserve the last full record
+/// boundary before the append-only writer adds another record.
+fn trim_incomplete_head_log_tail(file: &mut std::fs::File) -> std::io::Result<()> {
+    let mut remaining = file.metadata()?.len();
+    if remaining == 0 {
+        return Ok(());
+    }
+    let mut last = [0u8; 1];
+    file.seek(SeekFrom::End(-1))?;
+    file.read_exact(&mut last)?;
+    if last[0] == b'\n' {
+        return Ok(());
+    }
+
+    // Scan backwards in bounded chunks so even a long interrupted write
+    // cannot force an unbounded allocation during restart.
+    let mut chunk = [0u8; 4096];
+    while remaining > 0 {
+        let count = remaining.min(chunk.len() as u64) as usize;
+        remaining -= count as u64;
+        file.seek(SeekFrom::Start(remaining))?;
+        file.read_exact(&mut chunk[..count])?;
+        if let Some(index) = chunk[..count].iter().rposition(|&byte| byte == b'\n') {
+            file.set_len(remaining + index as u64 + 1)?;
+            return file.sync_data();
+        }
+    }
+    Err(std::io::Error::new(
+        std::io::ErrorKind::InvalidData,
+        "Head log has no complete record",
+    ))
+}
+
 /// Appends `prepared HEAD` before and `committed HEAD` after each store commit,
 /// each synced before the store continues.
 fn head_sink(path: &Path, create: bool) -> Result<HeadSink, String> {
+    if !create {
+        // Use a read/write handle for truncation, then reopen with append
+        // semantics for subsequent synced records (including on Windows).
+        let mut repair = std::fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(path)
+            .map_err(|e| format!("Head log {}: {e}", path.display()))?;
+        trim_incomplete_head_log_tail(&mut repair)
+            .map_err(|e| format!("Head log {}: {e}", path.display()))?;
+    }
     let mut file = std::fs::OpenOptions::new()
         .append(true)
         .create_new(create)
