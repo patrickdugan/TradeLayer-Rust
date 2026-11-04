@@ -1,0 +1,23 @@
+[package]
+name = "tradelayer-wasm"
+version = "0.1.0-rc.1"
+edition = "2021"
+rust-version = "1.90"
+description = "Raw-ABI WebAssembly binding of tradelayer-core: codec, block and economic playground operations"
+publish = false
+
+[lib]
+name = "tradelayer_wasm"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+tradelayer-core = { path = ".." }
+
+# Standalone crate: not a member of the tradelayer-core package build.
+[workspace]
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
