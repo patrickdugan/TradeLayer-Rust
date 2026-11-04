@@ -9,3 +9,6 @@ require_offline = true
 deny_build_scripts = true
 deny_git_path_registry_dependencies = true
 approved_external_crates = []
+# Reviewed 2026-11-05: the first-party WebAssembly binding (no external crates;
+# its only dependency is this crate by path). See scripts/check_rust_supply_chain.py.
+first_party_binding_packages = ["wasm/Cargo.toml"]

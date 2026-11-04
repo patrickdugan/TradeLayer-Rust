@@ -102,6 +102,40 @@ class SupplyChainGateTests(unittest.TestCase):
         self.assert_denied()
         path.unlink()
 
+    def test_wasm_binding_admitted_only_as_pinned(self):
+        for relative in ["wasm/Cargo.toml", "wasm/Cargo.lock"]:
+            target = self.root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / relative, target)
+        gate.validate_files(self.root)
+        for filename, before, after in [
+            ("wasm/Cargo.toml", '[dependencies]\n', '[dependencies]\nserde = "1"\n'),
+            ("wasm/Cargo.toml", 'path = ".."', 'git = "https://example.invalid/x"'),
+            ("wasm/Cargo.toml", '[workspace]\n', '[workspace]\nmembers = [".."]\n'),
+            ("wasm/Cargo.toml", 'publish = false', 'publish = true'),
+            ("wasm/Cargo.toml", 'panic = "abort"', 'panic = "abort"\n\n[build-dependencies]\ncc = "1"'),
+            (
+                "wasm/Cargo.lock",
+                'version = "0.1.0-rc.1"\n',
+                'version = "0.1.0-rc.1"\nsource = "registry+https://github.com/rust-lang/crates.io-index"\n',
+            ),
+        ]:
+            with self.subTest(filename=filename, after=after):
+                self.overwrite(filename, before, after)
+                self.assert_denied()
+                self.overwrite(filename, after, before)
+                gate.validate_files(self.root)
+        (self.root / "wasm" / "build.rs").write_text("fn main() {}\n")
+        self.assert_denied()
+        (self.root / "wasm" / "build.rs").unlink()
+        (self.root / "wasm" / ".cargo").mkdir()
+        self.assert_denied()
+        (self.root / "wasm" / ".cargo").rmdir()
+        path = self.root / "wasm" / "inner" / "Cargo.toml"
+        path.parent.mkdir()
+        path.write_text("[package]\nname = 'hidden'\nversion = '1.0.0'\n")
+        self.assert_denied()
+
     def test_toolchain_replacement_denied(self):
         self.overwrite("rust-toolchain.toml", "1.90.0", "stable")
         self.assert_denied()

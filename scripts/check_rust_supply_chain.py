@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """Fail-closed, dependency-free audit of the consensus crate's Cargo inputs.
 
-Current admission policy: exactly ONE first-party Cargo package and ZERO
+Current admission policy: exactly ONE first-party consensus package and ZERO
 external crates of any kind. No build.rs, proc-macros, alternate registries,
 Git/path packages, target-specific dependencies, patches, or vendored code.
+The only other admitted manifest is the first-party WebAssembly binding at
+wasm/Cargo.toml, a separate non-member package whose sole dependency is the
+consensus crate by path ".." and whose lockfile names exactly those two
+packages.
 
 Cargo's --frozen independently validates lockfile resolution and prevents
 network access. This script also checks manifest omissions/extra packages
@@ -22,6 +26,8 @@ import tomllib
 EXPECTED_TOOLCHAIN = "1.90.0"
 EXPECTED_PACKAGE = "tradelayer-core"
 EXPECTED_VERSION = "0.1.0-rc.1"
+BINDING_MANIFEST = "wasm/Cargo.toml"
+BINDING_PACKAGE = "tradelayer-wasm"
 
 
 class SupplyChainError(ValueError):
@@ -57,6 +63,7 @@ def validate_files(root: Path) -> None:
             "deny_build_scripts": True,
             "deny_git_path_registry_dependencies": True,
             "approved_external_crates": [],
+            "first_party_binding_packages": [BINDING_MANIFEST],
         },
         "supply-chain policy changed: requires explicit policy/security review",
     )
@@ -87,7 +94,12 @@ def validate_files(root: Path) -> None:
         if ".git" not in p.relative_to(root).parts
         and "target" not in p.relative_to(root).parts
     )
-    require(manifests == ["Cargo.toml"], f"unexpected additional Cargo package/workspace: {manifests}")
+    require(
+        manifests in (["Cargo.toml"], ["Cargo.toml", BINDING_MANIFEST]),
+        f"unexpected additional Cargo package/workspace: {manifests}",
+    )
+    if BINDING_MANIFEST in manifests:
+        validate_binding(root)
     build_scripts = sorted(
         p.relative_to(root).as_posix()
         for p in root.rglob("build.rs")
@@ -125,6 +137,52 @@ def validate_files(root: Path) -> None:
     require(
         lock["package"] == [{"name": EXPECTED_PACKAGE, "version": EXPECTED_VERSION}],
         "Cargo.lock dependency graph no longer contains exactly the root crate",
+    )
+
+
+def validate_binding(root: Path) -> None:
+    """The WebAssembly binding: first-party, its own empty workspace, one path edge."""
+    binding = root / "wasm"
+    require(not (binding / ".cargo").exists(), "binding package carries its own .cargo configuration")
+    manifest = read_toml(binding / "Cargo.toml")
+    require(
+        set(manifest) == {"package", "lib", "dependencies", "workspace", "profile"},
+        f"unexpected binding manifest sections: {sorted(manifest)}",
+    )
+    package = manifest["package"]
+    require(
+        package.get("name") == BINDING_PACKAGE
+        and package.get("version") == EXPECTED_VERSION
+        and package.get("edition") == "2021"
+        and package.get("rust-version") == "1.90"
+        and package.get("publish") is False
+        and set(package) == {"name", "version", "edition", "rust-version", "description", "publish"},
+        "binding package metadata differs from baseline",
+    )
+    require(
+        manifest["lib"] == {"name": "tradelayer_wasm", "crate-type": ["cdylib", "rlib"]},
+        "binding library entry point differs from baseline",
+    )
+    require(
+        manifest["dependencies"] == {EXPECTED_PACKAGE: {"path": ".."}},
+        "binding dependencies must be exactly the consensus crate by path",
+    )
+    require(manifest["workspace"] == {}, "binding must be a standalone workspace with no members")
+    require(
+        manifest["profile"] == {"release": {
+            "opt-level": 3, "lto": True, "codegen-units": 1, "panic": "abort",
+        }},
+        "binding profile differs from baseline",
+    )
+    lock = read_toml(binding / "Cargo.lock")
+    require(set(lock) == {"version", "package"}, "binding Cargo.lock acquired unauthorized entries")
+    require(lock["version"] == 4, "binding Cargo.lock version changed")
+    require(
+        lock["package"] == [
+            {"name": EXPECTED_PACKAGE, "version": EXPECTED_VERSION},
+            {"name": BINDING_PACKAGE, "version": EXPECTED_VERSION, "dependencies": [EXPECTED_PACKAGE]},
+        ],
+        "binding Cargo.lock graph is not exactly the binding and the consensus crate",
     )
 
 
@@ -195,7 +253,7 @@ def main(argv: list[str] | None = None) -> int:
     except SupplyChainError as exc:
         print(f"DENY: {exc}", file=sys.stderr)
         return 1
-    print("PASS: one first-party Rust package, zero third-party crates; offline, pinned and frozen")
+    print("PASS: one first-party consensus package (plus the pinned wasm binding), zero third-party crates; offline, pinned and frozen")
     return 0
 
 
