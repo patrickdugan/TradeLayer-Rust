@@ -750,20 +750,56 @@ jobs:
           grep -Fxq 'consensus_admission=UNVERIFIED' /tmp/tradelayer-txindex-bench.txt
           grep -Fxq 'state_application=NOT_PERFORMED' /tmp/tradelayer-txindex-bench.txt
 
+  # The first-party WebAssembly binding (wasm/, admitted by the supply-chain
+  # gate): its own tests and lints natively, then the wasm32 library build.
+  wasm_binding:
+    runs-on: ubuntu-24.04
+    env:
+      CARGO_NET_OFFLINE: "true"
+    defaults:
+      run:
+        working-directory: wasm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Install pinned Rust toolchain with the wasm32 target
+        run: |
+          rustup toolchain install 1.90.0 --profile minimal --component rustfmt --component clippy
+          rustup target add --toolchain 1.90.0 wasm32-unknown-unknown
+      - name: Enforce zero external Rust crates and the pinned binding
+        working-directory: .
+        run: python3 scripts/check_rust_supply_chain.py
+      - name: Binding formatting
+        run: cargo fmt --all -- --check
+      - name: Binding lints (native and wasm32)
+        run: |
+          cargo clippy --frozen --all-targets -- -D warnings
+          cargo clippy --frozen --lib --target wasm32-unknown-unknown -- -D warnings
+      - name: Binding tests (ABI, codec corpora, economic playground)
+        run: cargo test --frozen
+      - name: Release wasm32 module
+        run: |
+          cargo build --frozen --release --target wasm32-unknown-unknown
+          ls -l target/wasm32-unknown-unknown/release/tradelayer_wasm.wasm
+
   # Preserve the preexisting required "check" job name, but make it an
-  # explicit AND over both independent jobs. A test or release failure,
+  # explicit AND over the independent jobs. A test or release failure,
   # cancellation, skipped check or superseded run MUST block promotion.
   check:
-    needs: [tests, release, executable_contract]
+    needs: [tests, release, executable_contract, wasm_binding]
     if: ${{ always() }}
     runs-on: ubuntu-24.04
     steps:
-      - name: Enforce tests, release and executable contract success
+      - name: Enforce tests, release, executable contract and wasm binding success
         env:
           TESTS_RESULT: ${{ needs.tests.result }}
           RELEASE_RESULT: ${{ needs.release.result }}
           CONTRACT_RESULT: ${{ needs.executable_contract.result }}
+          WASM_RESULT: ${{ needs.wasm_binding.result }}
         run: |
           test "$TESTS_RESULT" = success
           test "$RELEASE_RESULT" = success
           test "$CONTRACT_RESULT" = success
+          test "$WASM_RESULT" = success
