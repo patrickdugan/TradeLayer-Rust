@@ -545,6 +545,80 @@ fn witness_digest(
     }
     Ok(double_sha256(&bytes))
 }
+struct Verified {
+    template: BitcoinInputTemplate,
+    keys: Vec<Vec<u8>>,
+    signatures: Vec<BitcoinSignatureSatisfaction>,
+    witness: bool,
+}
+/// Executes the signature relation of one selected input against one claimed
+/// parent output. `all_single_key_only` restricts the relation to the P2PKH and
+/// P2WPKH templates under SIGHASH_ALL (a hash type of exactly 1), checked
+/// before any digest or curve operation.
+fn verify_selected(
+    spending_tx: &Transaction<'_>,
+    vin: usize,
+    output: &Output<'_>,
+    all_single_key_only: bool,
+) -> R<Verified> {
+    let input = spending_tx
+        .inputs
+        .get(vin)
+        .ok_or(BitcoinInputError::SpendingIndex)?;
+    let unlock = unlocking(output, input)?;
+    if all_single_key_only
+        && !matches!(
+            unlock.template,
+            BitcoinInputTemplate::P2pkh | BitcoinInputTemplate::P2wpkh
+        )
+    {
+        return Err(BitcoinInputError::UnsupportedFundingScript);
+    }
+    let legacy_code = if unlock.witness {
+        Vec::new()
+    } else {
+        legacy_script_code(&unlock.script, &unlock.signatures)?
+    };
+    let mut signatures = vec![];
+    for (slot, (item, key)) in unlock.signatures.iter().zip(&unlock.keys).enumerate() {
+        if !matches!((key.len(), key.first()), (33, Some(2 | 3)) | (65, Some(4))) {
+            return Err(BitcoinInputError::UnsupportedPublicKeyEncoding);
+        }
+        let (compact, kind) = signature(item)?;
+        if all_single_key_only && kind != 1 {
+            return Err(BitcoinInputError::UnsupportedHashType);
+        }
+        let (digest, bug) = if unlock.witness {
+            (
+                witness_digest(spending_tx, vin, &unlock.script, output.amount, kind)?,
+                false,
+            )
+        } else {
+            legacy_digest(spending_tx, vin, &legacy_code, kind)?
+        };
+        match verify_ecdsa_digest(&digest, key, &compact) {
+            Ok(true) => (),
+            Ok(false) | Err(SecpError::InvalidSignature) => {
+                return Err(BitcoinInputError::InvalidSignature { slot })
+            }
+            Err(SecpError::InvalidPublicKey) => {
+                return Err(BitcoinInputError::InvalidPublicKey { slot })
+            }
+            Err(e) => return Err(BitcoinInputError::Cryptography(e)),
+        }
+        signatures.push(BitcoinSignatureSatisfaction {
+            hash_type: kind,
+            digest_raw: digest,
+            legacy_single_bug: bug,
+        });
+    }
+    Ok(Verified {
+        template: unlock.template,
+        keys: unlock.keys,
+        signatures,
+        witness: unlock.witness,
+    })
+}
 /// Real mathematical signature satisfaction for the explicit supported input
 /// template and flag profile. NONE/SINGLE/ANYONECANPAY retain their actual
 /// limited commitments; even a valid legacy SINGLE-bug signature is not an
@@ -572,58 +646,99 @@ pub fn check_bitcoin_standard_input<'a>(
     if input.outpoint[..32] != funding_tx.txid || input.outpoint[32..] != vout.to_le_bytes() {
         return Err(BitcoinInputError::WrongPrevout);
     }
-    let unlock = unlocking(output, input)?;
-    let legacy_code = if unlock.witness {
-        Vec::new()
-    } else {
-        legacy_script_code(&unlock.script, &unlock.signatures)?
-    };
-    let mut signatures = vec![];
-    for (slot, (item, key)) in unlock.signatures.iter().zip(&unlock.keys).enumerate() {
-        if !matches!((key.len(), key.first()), (33, Some(2 | 3)) | (65, Some(4))) {
-            return Err(BitcoinInputError::UnsupportedPublicKeyEncoding);
-        }
-        let (compact, kind) = signature(item)?;
-        let (digest, bug) = if unlock.witness {
-            (
-                witness_digest(
-                    &spending_tx,
-                    vin as usize,
-                    &unlock.script,
-                    output.amount,
-                    kind,
-                )?,
-                false,
-            )
-        } else {
-            legacy_digest(&spending_tx, vin as usize, &legacy_code, kind)?
-        };
-        match verify_ecdsa_digest(&digest, key, &compact) {
-            Ok(true) => (),
-            Ok(false) | Err(SecpError::InvalidSignature) => {
-                return Err(BitcoinInputError::InvalidSignature { slot })
-            }
-            Err(SecpError::InvalidPublicKey) => {
-                return Err(BitcoinInputError::InvalidPublicKey { slot })
-            }
-            Err(e) => return Err(BitcoinInputError::Cryptography(e)),
-        }
-        signatures.push(BitcoinSignatureSatisfaction {
-            hash_type: kind,
-            digest_raw: digest,
-            legacy_single_bug: bug,
-        });
-    }
+    let verified = verify_selected(&spending_tx, vin as usize, output, false)?;
     Ok(BitcoinInputSatisfaction {
         funding,
         spending,
         funding_vout: vout,
         spending_vin: vin,
         amount: output.amount,
-        template: unlock.template,
-        keys: unlock.keys,
-        signatures,
-        witness_amount: unlock.witness,
+        template: verified.template,
+        keys: verified.keys,
+        signatures: verified.signatures,
+        witness_amount: verified.witness,
+    })
+}
+
+/// The outpoint (internal-order txid, output index) that input `vin` of a raw
+/// transaction spends. Syntax only: it names a parent, it does not prove one.
+pub fn bitcoin_input_outpoint(spending: &[u8], vin: u32) -> R<([u8; 32], u32)> {
+    let tx = transaction(spending, Some(vin as usize))?;
+    let input = tx
+        .inputs
+        .get(vin as usize)
+        .ok_or(BitcoinInputError::SpendingIndex)?;
+    Ok((
+        input.outpoint[..32].try_into().expect("32-byte txid"),
+        u32::from_le_bytes(input.outpoint[32..].try_into().expect("4-byte index")),
+    ))
+}
+
+/// One input verified against a parent output that the caller only claims.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BitcoinClaimedParentSatisfaction {
+    template: BitcoinInputTemplate,
+    public_key: Vec<u8>,
+    signature: BitcoinSignatureSatisfaction,
+    amount: u64,
+    amount_signed: bool,
+}
+impl BitcoinClaimedParentSatisfaction {
+    pub const fn template(&self) -> BitcoinInputTemplate {
+        self.template
+    }
+    /// The public key whose signature verified over the digest.
+    pub fn public_key(&self) -> &[u8] {
+        &self.public_key
+    }
+    pub fn signature(&self) -> &BitcoinSignatureSatisfaction {
+        &self.signature
+    }
+    /// The claimed parent amount. It is a verified commitment only when
+    /// `amount_is_signed` is true.
+    pub const fn claimed_amount(&self) -> u64 {
+        self.amount
+    }
+    /// BIP143 digests commit to the spent amount; legacy digests do not.
+    pub const fn amount_is_signed(&self) -> bool {
+        self.amount_signed
+    }
+}
+
+/// Verifies input `vin` of a raw spending transaction against a CLAIMED parent
+/// output (amount and scriptPubKey), for P2PKH and P2WPKH under SIGHASH_ALL
+/// only. No parent transaction bytes are needed: the signed digest commits to
+/// the spending transaction's every output, its prevouts, the script code
+/// derived from the key, and (P2WPKH) the amount. A wrong claimed script or
+/// P2WPKH amount changes the digest and fails verification; no claim can make
+/// a key that did not sign the spending transaction verify. Parent existence,
+/// unspentness and inclusion are NOT established here.
+pub fn check_bitcoin_input_against_claimed_parent_output(
+    flags: u32,
+    spending: &[u8],
+    vin: u32,
+    parent_amount: u64,
+    parent_script: &[u8],
+) -> R<BitcoinClaimedParentSatisfaction> {
+    if flags != BITCOIN_STANDARD_INPUT_FLAGS {
+        return Err(BitcoinInputError::UnsupportedFlags);
+    }
+    let spending_tx = transaction(spending, Some(vin as usize))?;
+    let output = Output {
+        amount: parent_amount,
+        script: parent_script,
+        serial: &[],
+    };
+    let mut verified = verify_selected(&spending_tx, vin as usize, &output, true)?;
+    if verified.keys.len() != 1 || verified.signatures.len() != 1 {
+        return Err(BitcoinInputError::UnlockingShape);
+    }
+    Ok(BitcoinClaimedParentSatisfaction {
+        template: verified.template,
+        public_key: verified.keys.remove(0),
+        signature: verified.signatures.remove(0),
+        amount: parent_amount,
+        amount_signed: verified.witness,
     })
 }
 

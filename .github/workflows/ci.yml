@@ -491,6 +491,8 @@ jobs:
         run: python3 scripts/audit_txindex_hash_vectors.py
       - name: Allocation-free SegWit TXID hashing and mixed-block parallel equality
         run: cargo test --frozen --test txindex_hash_fastpath
+      - name: Admission vectors match their independent Python signing reference
+        run: python3 scripts/generate_admission_vectors.py --check
       - name: Stage 8C independent Python raw block SHA256d Merkle and weight vectors
         run: python3 scripts/audit_raw_block_ingest_vectors.py
       - name: Stage 8C borrowed raw block bounds, one-call RPC, 10k mixed TX order and no authority

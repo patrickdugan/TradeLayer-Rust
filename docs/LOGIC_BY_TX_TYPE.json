@@ -476,7 +476,7 @@
     {
       "path": "src/bitcoin_standard_input.rs",
       "lfNormalized": true,
-      "sha256": "fbf5c77da3658183d0270af46b87ebd1b4a1a1a9b2a9bad9b8be50dbc2b8c1f3"
+      "sha256": "4cc330a1747fd5fac4193fab5605fbc3a2860de5cbeb8628bf80548b68328a2d"
     },
     {
       "path": "src/bitcoin_block_input.rs",
@@ -525,7 +525,7 @@
     },
     {
       "path": "src/lib.rs",
-      "sha256": "196af6a7d647492375818e331d0c28cc76697a29c79b72106e1d3512506147ef",
+      "sha256": "072c71776f076d7f650963789042d73b4559dfe215b658855279f2b5474c0e53",
       "lfNormalized": true
     },
     {

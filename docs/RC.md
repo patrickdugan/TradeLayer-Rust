@@ -25,9 +25,20 @@ The genuine source throws `ContractRegistry.isNativeContract is not a function` 
 
 RC-1 covers the library's ledger, contract-trading, clearing, wire codec, index and durable-store paths as exercised by gates 1 to 5. These are separate work items, outside RC-1:
 
-- Authenticated chain admission: parent UTXO/all-input checks and complete-block proof composition.
+- Authenticated chain admission, beyond the first slice below: all-input and parent checks, other input templates, applying candidates to the economic chain, and reorg handling.
 - A production daemon that owns the Ledger; `docs/DAEMON.md` describes the current observation service.
 - Mainnet real-block measurements; the recorded corpus is testnet4.
 - Power-loss durability on Windows, where directory fsync is a no-op (`src/storage.rs`).
 - The mock oracle-abuse exercise against the separate UTXORef consumer repository.
 - Reproducing NeDB executor scheduling: NeDB is not consensus (`CLAUDE_HANDOFF.md`, "Startup ordering").
+
+## Chain admission: first slice done, remainder outside RC-1
+
+`src/admission.rs` (`docs/ADMISSION.md`) turns an observed raw Bitcoin block into candidates whose sender is proven by a verified input-0 signature (P2WPKH or P2PKH, SIGHASH_ALL, parent output taken from the node's `getblock <hash> 3` as an untrusted claim) and whose transaction is proven included against the header's Merkle root and the BIP141 witness commitment. It is read-only (`tl_admit` prints the outcomes). Verification: `cargo test --test admission`.
+
+Remaining for admission:
+
+- Every input and its parent: parent transaction inclusion and unspentness, the other inputs' signatures, complete transaction and block consensus.
+- Other templates: P2SH, wrapped segwit, multisig, P2WSH, taproot, and the sender conventions the legacy source applies to them.
+- Applying authenticated candidates to the economic chain, through a trusted adapter that owns the ledger.
+- Reorg handling: reverting applied candidates when the observer reports a fork.
