@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>TradeLayer Playground</title>
+<style>
+  :root {
+    --bg: #0e1116; --panel: #161b22; --line: #2a313c; --text: #e6edf3; --dim: #8b96a3;
+    --accent: #3fb6ff; --buy: #2ea043; --sell: #f85149; --warn: #d29922; --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: light) {
+    :root { --bg: #f4f6f8; --panel: #fff; --line: #d6dce3; --text: #1b2430; --dim: #5d6a78; --accent: #0969da; --buy: #1a7f37; --sell: #cf222e; --warn: #9a6700; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  .banner { color: var(--warn); font-size: 13px; }
+  main { display: grid; gap: 12px; padding: 12px 16px 32px; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; min-width: 0; }
+  section.wide { grid-column: 1 / -1; }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); margin: 0 0 8px; }
+  label { display: inline-flex; flex-direction: column; font-size: 11px; color: var(--dim); gap: 2px; margin: 0 8px 6px 0; }
+  label.inline { flex-direction: row; align-items: center; gap: 6px; font-size: 13px; color: var(--text); }
+  input, select, button { font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 4px 6px; }
+  input[type=number], input[type=text] { width: 96px; }
+  input[type=checkbox] { width: auto; }
+  button { cursor: pointer; background: var(--panel); }
+  button:hover:not(:disabled) { border-color: var(--accent); }
+  button:disabled { opacity: .45; cursor: default; }
+  button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  button.buy { border-color: var(--buy); color: var(--buy); }
+  button.sell { border-color: var(--sell); color: var(--sell); }
+  .row { display: flex; flex-wrap: wrap; align-items: flex-end; }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; font-family: var(--mono); font-size: 12px; }
+  .kv span:nth-child(odd) { color: var(--dim); }
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+  th { color: var(--dim); font-weight: 500; text-align: right; padding: 2px 4px; border-bottom: 1px solid var(--line); }
+  td { text-align: right; padding: 2px 4px; }
+  th:first-child, td:first-child { text-align: left; }
+  td.bid { color: var(--buy); } td.ask { color: var(--sell); }
+  .pos { color: var(--buy); } .neg { color: var(--sell); }
+  .tablewrap { overflow-x: auto; }
+  #log { height: 220px; overflow-y: auto; font-family: var(--mono); font-size: 12px; white-space: pre-wrap; border: 1px solid var(--line); border-radius: 5px; padding: 6px; background: var(--bg); }
+  #log .err { color: var(--sell); } #log .fill { color: var(--accent); } #log .info { color: var(--dim); }
+  canvas { width: 100%; height: 70px; display: block; }
+  .pill { display: inline-block; padding: 1px 8px; border-radius: 10px; border: 1px solid var(--line); font-size: 12px; font-family: var(--mono); }
+  .ok { color: var(--buy); } .bad { color: var(--sell); }
+  .hint { color: var(--dim); font-size: 12px; margin: 4px 0 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>TradeLayer Playground</h1>
+  <div class="banner">Off-chain simulation anchored to Bitcoin testnet4 block heights. The economic engine is the TradeLayer Rust core compiled to WebAssembly. Nothing is broadcast and no keys exist; every input is an unverified caller assertion.</div>
+</header>
+<main>
+  <section id="clock">
+    <h2>Chain clock and oracle</h2>
+    <div class="row">
+      <label>Heights
+        <select id="mode"><option value="live">Live testnet4</option><option value="local">Local (fast-forward)</option></select>
+      </label>
+      <label>&nbsp;<button id="startstop" class="primary">Start</button></label>
+      <label>&nbsp;<button id="step">Step 1 block</button></label>
+      <label>Run interval ms <input id="interval" type="number" value="250" min="0" step="50"></label>
+    </div>
+    <div class="row">
+      <label>Fast-forward blocks <input id="ffn" type="number" value="200" min="1" max="5000"></label>
+      <label>&nbsp;<button id="ff">Fast-forward</button></label>
+      <label>&nbsp;<button id="ffstop" disabled>Stop</button></label>
+      <label>&nbsp;<button id="reset">New session</button></label>
+    </div>
+    <div class="row">
+      <label>Oracle source
+        <select id="osrc"><option value="walk">Seeded random walk</option><option value="mempool">mempool.space USD</option></select>
+      </label>
+      <label>Seed <input id="seed" type="number" value="1" min="0"></label>
+      <label>Step vol (bps) <input id="vol" type="number" value="8" min="0" max="100"></label>
+    </div>
+    <label class="inline"><input type="checkbox" id="noise" checked> Random taker flow (alice, bob, carol)</label>
+    <label class="inline"><input type="checkbox" id="marks"> Settle marks on every oracle publication (new session; cost per block grows with history)</label>
+    <div class="kv" id="clockinfo"></div>
+    <canvas id="chart" width="600" height="70"></canvas>
+  </section>
+
+  <section id="issuer">
+    <h2>Issuer: tUSD</h2>
+    <div class="row">
+      <label>To <select id="grantTo"></select></label>
+      <label>tUSD <input id="grantAmt" type="number" value="10000" min="0"></label>
+      <label>&nbsp;<button id="grant">Grant</button></label>
+    </div>
+    <div class="row">
+      <label>From <select id="redeemFrom"></select></label>
+      <label>tUSD <input id="redeemAmt" type="number" value="1000" min="0"></label>
+      <label>&nbsp;<button id="redeem">Redeem</button></label>
+    </div>
+    <div class="kv" id="supplyinfo"></div>
+    <p class="hint">Grant mints new tUSD to the account; redeem sends it back to the issuer and burns it. Inputs apply in the next block.</p>
+  </section>
+
+  <section id="trader">
+    <h2>Trader</h2>
+    <div class="row">
+      <label>Account <select id="tacct"></select></label>
+      <label>Deposit tUSD <input id="depAmt" type="number" value="50000" min="0"></label>
+      <label>&nbsp;<button id="deposit">Deposit</button></label>
+    </div>
+    <div class="row">
+      <label>Type <select id="otype"><option value="market">Market</option><option value="limit">Limit</option></select></label>
+      <label>Contracts (1 BTC) <input id="oqty" type="number" value="0.1" min="0" step="0.1"></label>
+      <label>Limit price <input id="oprice" type="number" step="0.01"></label>
+    </div>
+    <div class="row">
+      <label>&nbsp;<button id="buy" class="buy">Buy</button></label>
+      <label>&nbsp;<button id="sell" class="sell">Sell</button></label>
+      <label>&nbsp;<button id="close">Close position</button></label>
+    </div>
+    <div class="tablewrap"><table id="myorders"><thead><tr><th>Open order</th><th>Side</th><th>Price</th><th>Qty</th><th></th></tr></thead><tbody></tbody></table></div>
+    <label class="inline"><input type="checkbox" id="auto" checked> Local mode: apply each action in an immediate block</label>
+  </section>
+
+  <section id="mm">
+    <h2>Market maker</h2>
+    <div class="row">
+      <label class="inline"><input type="checkbox" id="mmOn" checked> Quoting</label>
+      <label>Half-spread bps <input id="mmSpread" type="number" value="5" min="1"></label>
+      <label>Level step bps <input id="mmStep" type="number" value="5" min="0"></label>
+      <label>Levels <input id="mmLevels" type="number" value="3" min="1" max="20"></label>
+      <label>Size (contracts) <input id="mmSize" type="number" value="0.5" min="0.01" step="0.1"></label>
+    </div>
+    <div class="row">
+      <label>Fund MM tUSD <input id="mmFundAmt" type="number" value="500000" min="0"></label>
+      <label>&nbsp;<button id="mmFund">Grant to MM</button></label>
+    </div>
+    <div class="kv" id="mminfo"></div>
+    <p class="hint">Each block the MM reads the oracle price, cancels its stale orders and posts a symmetric ladder. Levels shrink to what its tUSD can reserve.</p>
+  </section>
+
+  <section id="bookpanel">
+    <h2>Order book</h2>
+    <div class="tablewrap"><table id="book"><thead><tr><th>Price</th><th>Qty</th><th>Orders</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section id="posanel">
+    <h2>Positions and PnL</h2>
+    <div class="tablewrap"><table id="positions"><thead><tr><th>Account</th><th>Contracts</th><th>Entry</th><th>Margin</th><th>Unrealized</th><th>Settled</th></tr></thead><tbody></tbody></table></div>
+    <div class="kv" id="posinfo"></div>
+  </section>
+
+  <section id="acctpanel">
+    <h2>Balances (tUSD)</h2>
+    <div class="tablewrap"><table id="accounts"><thead><tr><th>Account</th><th>Available</th><th>Margin</th><th>Orders</th><th>Equity</th></tr></thead><tbody></tbody></table></div>
+    <div class="kv" id="custody"></div>
+  </section>
+
+  <section id="timing">
+    <h2>pg_block timing</h2>
+    <div class="kv" id="timinginfo"></div>
+    <canvas id="tchart" width="600" height="70"></canvas>
+  </section>
+
+  <section class="wide">
+    <h2>Event log</h2>
+    <div id="log"></div>
+  </section>
+</main>
+<script type="module" src="./app.mjs"></script>
+</body>
+</html>

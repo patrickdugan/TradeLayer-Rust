@@ -2,7 +2,7 @@
 
 Raw-ABI WebAssembly binding of `tradelayer-core`. One JSON request goes in, one JSON response comes out. The module has no imports, runs in browsers and in Node 18 or later, and the core crate stays free of third-party dependencies. The same handler (`tradelayer_wasm::handle`) runs natively in tests and benchmarks.
 
-This package covers the stateless codec and raw-block operations. Operations whose name starts with `pg_` belong to the economic playground and are documented with it.
+This package covers the stateless codec and raw-block operations. Operations whose name starts with `pg_` belong to the economic playground and are documented in [PLAYGROUND.md](PLAYGROUND.md).
 
 ## ABI
 
