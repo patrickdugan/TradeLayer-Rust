@@ -1037,7 +1037,7 @@ impl EconomicState {
                     || leg.counterparty == pool
                     || leg.sequence >= self.internal_sequence
                     || last_sequence.is_some_and(|previous| leg.sequence <= previous)
-                    || !self.ledger().is_processed(self.leg_id(leg.sequence))
+                    || !self.leg_is_processed(leg.sequence)
                 {
                     return Err(EconomicError::Invariant);
                 }

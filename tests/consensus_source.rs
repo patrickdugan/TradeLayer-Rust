@@ -666,12 +666,42 @@ fn rollback_snapshot_cannot_splice_valid_alternate_source_history_at_the_same_ti
     );
     let b2 = block(&branch_b, 2, Vec::new());
     branch_b.apply_source_unverified_block(&b2).unwrap();
-    let bytes = branch_b.checkpoint_bytes().unwrap();
+    let current = branch_b.checkpoint_bytes().unwrap();
     assert_eq!(
-        EconomicChain::from_checkpoint_bytes(&bytes, branch_b.config().clone(), branch_b.tip(),)
+        EconomicChain::from_checkpoint_bytes(&current, branch_b.config().clone(), branch_b.tip(),)
             .unwrap(),
         branch_b
     );
+    // TLEHv2 holds the floor state; replacing it with the alternate history
+    // breaks the replay of the retained frames.
+    let mut cursor = 5 + 1 + 32 + 1 + 40 + 40;
+    cursor += 4 + read_u32(&current, cursor);
+    let frame_count = current[cursor] as usize;
+    cursor += 1;
+    assert_eq!(frame_count, 2);
+    for _ in 0..frame_count {
+        cursor += 8 + 32 + 32;
+        assert_eq!(current[cursor], 2, "source frames carry no inputs");
+        cursor += 1;
+    }
+    let mut forged = current[..cursor].to_vec();
+    forged.extend_from_slice(&(alternate_before.len() as u32).to_be_bytes());
+    forged.extend_from_slice(&alternate_before);
+    crc(&mut forged);
+    assert!(EconomicChain::from_checkpoint_bytes(
+        &forged,
+        branch_b.config().clone(),
+        branch_b.tip(),
+    )
+    .is_err());
+
+    // TLEHv1 (written by `checkpoint_bytes_v1`):
+    let bytes = branch_b.checkpoint_bytes_v1().unwrap();
+    let loaded =
+        EconomicChain::from_checkpoint_bytes(&bytes, branch_b.config().clone(), branch_b.tip())
+            .unwrap();
+    assert_eq!(loaded.state(), branch_b.state());
+    assert_eq!(loaded.checkpoint_bytes_v1().unwrap(), bytes);
 
     // TLEHv1: magic/network/genesis/rollback-limit, floor+tip, owner, then frames.
     // Replace only height 2's `before` owner, allowing a different byte length;

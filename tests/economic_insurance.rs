@@ -831,12 +831,44 @@ fn two_valid_insurance_branches_cannot_splice_a_different_rollback_history() {
             InsuranceAction::Backstop { max_atoms: 30 * A },
         )]),
     );
-    let original = branch_a.checkpoint_bytes().unwrap();
+    let current = branch_a.checkpoint_bytes().unwrap();
     assert_eq!(
-        EconomicChain::from_checkpoint_bytes(&original, branch_a.config().clone(), branch_a.tip())
+        EconomicChain::from_checkpoint_bytes(&current, branch_a.config().clone(), branch_a.tip())
             .unwrap(),
         branch_a
     );
+    // The version 2 checkpoint holds the floor state and the frame inputs; a
+    // floor from the other branch is not the start of the retained history.
+    let mut at = 5 + 1 + 32 + 1 + 40 + 40;
+    at += 4 + u32::from_be_bytes(current[at..at + 4].try_into().unwrap()) as usize;
+    let frames = current[at] as usize;
+    at += 1;
+    for _ in 0..frames {
+        at += 8 + 32 + 32;
+        let flags = current[at];
+        at += 1;
+        for bit in [1, 4] {
+            if flags & bit != 0 {
+                at += 4 + u32::from_be_bytes(current[at..at + 4].try_into().unwrap()) as usize;
+            }
+        }
+    }
+    let mut floor_forged = current[..at].to_vec();
+    floor_forged.extend_from_slice(&(b_before.len() as u32).to_be_bytes());
+    floor_forged.extend_from_slice(&b_before);
+    seal(&mut floor_forged);
+    assert!(EconomicChain::from_checkpoint_bytes(
+        &floor_forged,
+        branch_a.config().clone(),
+        branch_a.tip()
+    )
+    .is_err());
+    // The version 1 layout stores each before-state.
+    let original = branch_a.checkpoint_bytes_v1().unwrap();
+    let loaded =
+        EconomicChain::from_checkpoint_bytes(&original, branch_a.config().clone(), branch_a.tip())
+            .unwrap();
+    assert_eq!(loaded.state(), branch_a.state());
     let mut offset = 5 + 1 + 32 + 1 + 40 + 40;
     let state_len = u32::from_be_bytes(original[offset..offset + 4].try_into().unwrap()) as usize;
     offset += 4 + state_len;
@@ -872,7 +904,7 @@ fn two_valid_insurance_branches_cannot_splice_a_different_rollback_history() {
     )
     .is_err());
     assert_eq!(
-        EconomicChain::from_checkpoint_bytes(&original, branch_a.config().clone(), branch_a.tip())
+        EconomicChain::from_checkpoint_bytes(&current, branch_a.config().clone(), branch_a.tip())
             .unwrap(),
         branch_a
     );

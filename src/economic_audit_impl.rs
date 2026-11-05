@@ -194,14 +194,23 @@ impl EconomicState {
         Ok(())
     }
 
-    /// Every leg created by this block is a processed ledger transfer.
+    /// The legs of this block extend the audited sequence. A leg is processed
+    /// by the high-water mark, and a state of the earlier layout still encodes
+    /// exactly the legs below the sequence.
     fn verify_legs_delta(&self, delta: &AuditDelta<'_>) -> Result<()> {
-        if self.internal_sequence < delta.before.internal_sequence {
+        if self.internal_sequence < delta.before.internal_sequence
+            || self
+                .joint
+                .stored_leg_count_unverified()
+                .is_some_and(|stored| stored != self.internal_sequence)
+        {
             return Err(EconomicError::Invariant);
         }
-        for sequence in delta.before.internal_sequence..self.internal_sequence {
-            if !self.ledger().is_processed(self.leg_id(sequence)) {
-                return Err(EconomicError::Invariant);
+        if self.legs_stored() {
+            for sequence in delta.before.internal_sequence..self.internal_sequence {
+                if !self.leg_is_processed(sequence) {
+                    return Err(EconomicError::Invariant);
+                }
             }
         }
         Ok(())

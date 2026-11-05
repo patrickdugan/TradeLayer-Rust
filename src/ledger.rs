@@ -364,6 +364,37 @@ fn checked_move_for_property(
     })
 }
 
+/// Runtime-only record of the internal leg ids that a snapshot of the earlier
+/// layout stored among the replay markers. The ids leave `processed` when the
+/// snapshot is decoded and return to the encoding until the owner's first
+/// block, so that such a snapshot re-encodes byte for byte. It is never part of
+/// `Eq` or `Debug`.
+#[derive(Clone, Default)]
+struct StoredLegs(Option<StoredLegIds>);
+#[derive(Clone)]
+struct StoredLegIds {
+    /// The hash input before the sequence: the owner's leg domain.
+    domain: Vec<u8>,
+    count: u64,
+}
+impl PartialEq for StoredLegs {
+    fn eq(&self, _: &Self) -> bool {
+        true
+    }
+}
+impl Eq for StoredLegs {}
+impl fmt::Debug for StoredLegs {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("StoredLegs")
+    }
+}
+
+/// The id of internal leg `sequence` in the leg domain `domain`.
+pub(crate) fn internal_leg_id(domain: &[u8], sequence: u64) -> TxId {
+    let mut bytes = domain.to_vec();
+    bytes.extend_from_slice(&sequence.to_be_bytes());
+    TxId::from_bytes(crate::hash256::double_sha256(&bytes))
+}
 /// Sorted vector columns and the remaining BTree collections provide stable
 /// iteration and structural equality independent of HashMap seeds.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
@@ -378,6 +409,7 @@ pub struct Ledger {
     processed: BTreeSet<TxId>,
     channel_revisions: BTreeMap<AccountId, EnrolledChannelRevision>,
     native: Option<NativeState>,
+    stored_legs: StoredLegs,
 }
 
 impl Ledger {
@@ -454,6 +486,78 @@ impl Ledger {
 
     pub fn is_processed(&self, txid: TxId) -> bool {
         self.processed.contains(&txid)
+    }
+
+    /// Apply one internal leg of the economic owner. The leg is identified by
+    /// the owner's sequence high-water mark, not by a replay marker, so it
+    /// leaves nothing in `processed`; `leg` only labels native events. Atomic
+    /// like `apply`.
+    pub(crate) fn apply_internal_leg_unverified(
+        &mut self,
+        leg: TxId,
+        op: Operation,
+    ) -> Result<(), LedgerError> {
+        crate::atomic_batch::stage_validate_commit(self, |pending| {
+            pending.execute(leg, op)?;
+            pending.verify_conservation()?;
+            if pending.native.is_some() {
+                pending
+                    .snapshot_bytes_verified()
+                    .map_err(native_application_snapshot)?;
+            }
+            Ok(())
+        })
+    }
+
+    /// Takes the internal leg ids `0..count` of the leg domain out of a decoded
+    /// ledger that stored them as replay markers (the earlier layout). A ledger
+    /// without the id of leg 0 is already in the current layout. The removed ids
+    /// are remembered so that the ledger re-encodes in the layout it came in
+    /// until `forget_stored_legs_unverified`.
+    pub(crate) fn take_stored_legs_unverified(&mut self, domain: &[u8], count: u64) -> bool {
+        if count == 0 || !self.processed.contains(&internal_leg_id(domain, 0)) {
+            return true;
+        }
+        for sequence in 0..count {
+            if !self.processed.remove(&internal_leg_id(domain, sequence)) {
+                return false;
+            }
+        }
+        self.stored_legs = StoredLegs(Some(StoredLegIds {
+            domain: domain.to_vec(),
+            count,
+        }));
+        true
+    }
+
+    /// The number of leg ids the ledger still encodes as replay markers.
+    pub(crate) fn stored_leg_count_unverified(&self) -> Option<u64> {
+        self.stored_legs.0.as_ref().map(|stored| stored.count)
+    }
+
+    pub(crate) fn forget_stored_legs_unverified(&mut self) {
+        self.stored_legs = StoredLegs(None);
+    }
+
+    /// Encode the first `count` legs of `domain` as replay markers again.
+    pub(crate) fn remember_stored_legs_unverified(&mut self, domain: &[u8], count: u64) {
+        self.stored_legs = StoredLegs(Some(StoredLegIds {
+            domain: domain.to_vec(),
+            count,
+        }));
+    }
+
+    /// Replay markers as the snapshot encodes them: `processed`, plus the leg
+    /// ids of a ledger decoded from the earlier layout, in ascending order.
+    fn encoded_markers(&self) -> std::borrow::Cow<'_, BTreeSet<TxId>> {
+        match &self.stored_legs.0 {
+            None => std::borrow::Cow::Borrowed(&self.processed),
+            Some(stored) => {
+                let mut all = self.processed.clone();
+                all.extend((0..stored.count).map(|s| internal_leg_id(&stored.domain, s)));
+                std::borrow::Cow::Owned(all)
+            }
+        }
     }
 
     pub fn processed_count(&self) -> usize {
@@ -1010,7 +1114,8 @@ impl Ledger {
         processed_limit: usize,
     ) -> Result<Vec<u8>, SnapshotError> {
         use crate::codec::{with_crc, MAX_CHECKPOINT_BYTES};
-        if self.processed.len() > processed_limit {
+        let markers = self.encoded_markers();
+        if markers.len() > processed_limit {
             return Err(SnapshotError::InvalidFormat("too many ledger records"));
         }
         if [
@@ -1060,8 +1165,8 @@ impl Ledger {
             push_account(&mut bytes, account);
             bytes.extend_from_slice(&amount.to_be_bytes());
         }
-        bytes.extend_from_slice(&(self.processed.len() as u32).to_be_bytes());
-        for txid in &self.processed {
+        bytes.extend_from_slice(&(markers.len() as u32).to_be_bytes());
+        for txid in markers.iter() {
             bytes.extend_from_slice(&txid.as_bytes());
         }
         if channel_version {

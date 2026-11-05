@@ -511,7 +511,7 @@ fn replace_binding(
 fn disabled_binding_preserves_genuine_active_v5_with_amm_forced_fill() {
     let mut chain = prepared(TradeLayerMainnet::Bitcoin, true);
     apply(&mut chain, vec![publication(13, 1000)]);
-    let bytes = chain.state().snapshot_bytes().unwrap();
+    let bytes = chain.state().snapshot_bytes_with_stored_legs().unwrap();
     assert_eq!(&bytes[..5], b"TLEC\x05");
     assert_eq!(bytes.len(), 8840);
     // Captured from committed69a72c7's actual rlib before binding fields existed.

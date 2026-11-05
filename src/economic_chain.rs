@@ -9,8 +9,16 @@ use crate::ledger::{AccountId, Ledger, PropertyId};
 use crate::storage::{Journal, Mutation, Namespace, Recovery, RecoveryReport, StorageError};
 use std::collections::{BTreeSet, VecDeque};
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 
-const MAGIC: &[u8; 5] = b"TLEH\x01";
+/// Version 1 holds one complete before-state per rollback frame.
+const MAGIC_V1: &[u8; 5] = b"TLEH\x01";
+/// Version 2 holds the state at the rollback floor and the exact inputs of
+/// every block in the window; the frame states are rebuilt from them.
+const MAGIC: &[u8; 5] = b"TLEH\x02";
+const FRAME_ECONOMIC: u8 = 1;
+const FRAME_SOURCE: u8 = 2;
+const FRAME_BEFORE: u8 = 4;
 const STATE_KEY: &str = "economic/full-chain-v1";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -53,10 +61,41 @@ pub struct UnverifiedEconomicBlock {
     pub inputs: Vec<EconomicInput>,
 }
 
+/// What a retained block needs to be applied again.
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum Replay {
+    /// The block's inputs in the TLEC input codec.
+    Economic(Vec<u8>),
+    /// The block's raw source frame, which the state itself retains.
+    Source,
+}
+
+/// A retained block. A block without a replay record comes from a version 1
+/// checkpoint; the block after it then keeps the state before it.
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct Frame {
     header: BlockHeader,
-    before: Vec<u8>,
+    replay: Option<Replay>,
+    before: Option<Vec<u8>>,
+}
+
+/// The state at the rollback floor and its encoding.
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct FloorState {
+    state: EconomicState,
+    bytes: Vec<u8>,
+}
+impl FloorState {
+    fn new(state: EconomicState) -> Result<Self, EconomicError> {
+        let bytes = state.snapshot_bytes()?;
+        Ok(Self { state, bytes })
+    }
+}
+impl FloorState {
+    fn from_applied(state: EconomicState) -> Result<Self, EconomicError> {
+        let bytes = state.snapshot_bytes_of_applied_block()?;
+        Ok(Self { state, bytes })
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -65,6 +104,7 @@ pub struct EconomicChain {
     state: EconomicState,
     tip: Tip,
     floor: Tip,
+    floor_state: Arc<FloorState>,
     history: VecDeque<Frame>,
 }
 impl EconomicChain {
@@ -128,11 +168,13 @@ impl EconomicChain {
         state: EconomicState,
     ) -> Result<Self, EconomicError> {
         let anchor = config.anchor();
+        let floor_state = Arc::new(FloorState::new(state.clone())?);
         let chain = Self {
             config,
             state,
             tip: anchor,
             floor: anchor,
+            floor_state,
             history: VecDeque::new(),
         };
         chain.checkpoint_bytes()?;
@@ -183,22 +225,47 @@ impl EconomicChain {
         block: &UnverifiedEconomicBlock,
     ) -> Result<Tip, EconomicError> {
         self.preflight_block(block)?;
-        let h = block.header;
-        let mut next = self.clone();
-        let before = next.state.snapshot_bytes()?;
-        next.state
-            .apply_block_unverified(h.height, block.inputs.clone())?;
-        next.history.push_back(Frame { header: h, before });
-        if next.history.len() > next.config.rollback_limit {
-            let evicted = next.history.pop_front().ok_or(EconomicError::Invariant)?;
-            next.floor = Tip {
-                height: evicted.header.height,
-                id: evicted.header.id,
-            };
+        let inputs = EconomicState::encode_window_inputs(&block.inputs)?;
+        let mut state = self.state.clone();
+        state.apply_block_unverified(block.header.height, block.inputs.clone())?;
+        self.commit_block(state, block.header, Replay::Economic(inputs))?;
+        Ok(self.tip)
+    }
+
+    /// Restore the state after the block `target`, which is the floor or the
+    /// tip of a retained block below the current tip. The state is rebuilt from
+    /// the nearest stored state by applying the recorded blocks again.
+    pub fn rollback_to_tip(&mut self, target: Tip) -> Result<Tip, EconomicError> {
+        if target.height >= self.tip.height || target.height < self.floor.height {
+            return Err(EconomicError::WrongTip);
         }
-        next.tip = Tip {
-            height: h.height,
-            id: h.id,
+        let retained = (target.height - self.floor.height) as usize;
+        let retained_tip = match retained.checked_sub(1) {
+            None => self.floor,
+            Some(index) => {
+                let frame = self.history.get(index).ok_or(EconomicError::Invariant)?;
+                Tip {
+                    height: frame.header.height,
+                    id: frame.header.id,
+                }
+            }
+        };
+        if retained_tip != target {
+            return Err(EconomicError::WrongTip);
+        }
+        let mut restored = self.state_at(target.height)?;
+        restored.inherit_receipt_log(&self.state);
+        let mut history: VecDeque<Frame> = self.history.iter().take(retained).cloned().collect();
+        if let Some(oldest) = history.front_mut() {
+            oldest.before = None;
+        }
+        let next = Self {
+            config: self.config.clone(),
+            state: restored,
+            tip: target,
+            floor: self.floor,
+            floor_state: Arc::clone(&self.floor_state),
+            history,
         };
         next.checkpoint_bytes()?;
         *self = next;
@@ -209,26 +276,209 @@ impl EconomicChain {
         if expected_tip != self.tip {
             return Err(EconomicError::WrongTip);
         }
-        let mut next = self.clone();
-        let frame = next.history.pop_back().ok_or(EconomicError::WrongTip)?;
-        if frame.header.height != next.tip.height || frame.header.id != next.tip.id {
+        let frame = self.history.back().ok_or(EconomicError::WrongTip)?;
+        if frame.header.height != self.tip.height || frame.header.id != self.tip.id {
             return Err(EconomicError::Invariant);
         }
-        let mut restored = next.config.decode(&frame.before)?;
-        restored.inherit_receipt_log(&next.state);
-        next.state = restored;
-        next.tip = Tip {
+        let target = Tip {
             height: frame.header.height - 1,
             id: frame.header.parent,
         };
+        self.rollback_to_tip(target)
+    }
+
+    /// Publish `state` as the result of the block `header`: record the block,
+    /// move the floor when the window is full, and validate the checkpoint.
+    fn commit_block(
+        &mut self,
+        state: EconomicState,
+        header: BlockHeader,
+        replay: Replay,
+    ) -> Result<(), EconomicError> {
+        let parent = self.tip;
+        Self::check_transition(&self.config, &self.state, &state, parent, header)?;
+        // The block after one without a replay record keeps the state before it.
+        let before = match self.history.back() {
+            Some(frame) if frame.replay.is_none() => Some(self.state.snapshot_bytes()?),
+            _ => None,
+        };
+        let mut history = self.history.clone();
+        history.push_back(Frame {
+            header,
+            replay: Some(replay),
+            before,
+        });
+        let mut floor = self.floor;
+        let mut floor_state = Arc::clone(&self.floor_state);
+        if history.len() > self.config.rollback_limit {
+            let evicted = history.pop_front().ok_or(EconomicError::Invariant)?;
+            let known = match history.front() {
+                Some(next) => match &next.before {
+                    Some(bytes) => Known::Bytes(bytes),
+                    None => Known::Missing,
+                },
+                None => Known::Current,
+            };
+            let after = replay_block(
+                &self.config,
+                floor_state.state.clone(),
+                &evicted,
+                known,
+                &state,
+            )?;
+            floor = Tip {
+                height: evicted.header.height,
+                id: evicted.header.id,
+            };
+            floor_state = Arc::new(FloorState::from_applied(after)?);
+            if let Some(oldest) = history.front_mut() {
+                oldest.before = None;
+            }
+        }
+        let next = Self {
+            config: self.config.clone(),
+            state,
+            tip: Tip {
+                height: header.height,
+                id: header.id,
+            },
+            floor,
+            floor_state,
+            history,
+        };
         next.checkpoint_bytes()?;
         *self = next;
-        Ok(self.tip)
+        Ok(())
+    }
+
+    /// The linkage a block must keep with the state before it: the source
+    /// frames only grow, and the native and contract histories continue.
+    fn check_transition(
+        config: &EconomicChainConfig,
+        prior: &EconomicState,
+        next: &EconomicState,
+        parent: Tip,
+        header: BlockHeader,
+    ) -> Result<(), EconomicError> {
+        if (config.economics.source_consensus.is_some()
+            && prior
+                .source_parent_unverified()
+                .map_err(|_| EconomicError::Invariant)?
+                != parent)
+            || prior.tip_height() != parent.height
+        {
+            return Err(EconomicError::Invariant);
+        }
+        if config.economics.source_consensus.is_some() {
+            let current = next.source_consensus_state();
+            let previous = prior.source_consensus_state();
+            if previous.bootstrap != current.bootstrap
+                || !current.frames.starts_with(&previous.frames)
+            {
+                return Err(EconomicError::Invariant);
+            }
+        }
+        if config.economics.native_entitlements.is_some()
+            || config.economics.contract_binding.is_some()
+        {
+            prior.native_history_transition(next, header.height)?;
+            prior.contract_history_transition(next, header.height)?;
+        }
+        Ok(())
+    }
+
+    /// The state after the block at `height`, when it is stored.
+    fn known_state(&self, height: u64) -> Result<Option<EconomicState>, EconomicError> {
+        if height == self.tip.height {
+            return Ok(Some(self.state.clone()));
+        }
+        if height == self.floor.height {
+            return Ok(Some(self.floor_state.state.clone()));
+        }
+        let successor = height
+            .checked_sub(self.floor.height)
+            .and_then(|index| self.history.get(index as usize));
+        match successor.and_then(|frame| frame.before.as_ref()) {
+            Some(bytes) => Ok(Some(self.config.decode(bytes)?)),
+            None => Ok(None),
+        }
+    }
+
+    /// The state after the block at `target`, from the closest stored state.
+    fn state_at(&self, target: u64) -> Result<EconomicState, EconomicError> {
+        let mut start = target;
+        let mut state = loop {
+            if let Some(state) = self.known_state(start)? {
+                break state;
+            }
+            if start <= self.floor.height {
+                return Err(EconomicError::Invariant);
+            }
+            start -= 1;
+        };
+        for height in start + 1..=target {
+            let index = (height - self.floor.height - 1) as usize;
+            state = replay_block(
+                &self.config,
+                state,
+                self.history.get(index).ok_or(EconomicError::Invariant)?,
+                self.known_after(index),
+                &self.state,
+            )?;
+        }
+        Ok(state)
+    }
+
+    fn known_after(&self, index: usize) -> Known<'_> {
+        match self.history.get(index + 1) {
+            Some(next) => match &next.before {
+                Some(bytes) => Known::Bytes(bytes),
+                None => Known::Missing,
+            },
+            None => Known::Current,
+        }
+    }
+
+    /// Rebuild every retained state from the floor and check that the replay
+    /// reaches the current state. The checkpoint reader runs it once; the
+    /// per-block checkpoint relies on the transition checks of each block.
+    fn verify_window(&self) -> Result<(), EconomicError> {
+        let floor = &self.floor_state.state;
+        if floor.tip_height() != self.floor.height
+            || (self.config.economics.source_consensus.is_some()
+                && floor
+                    .source_parent_unverified()
+                    .map_err(|_| EconomicError::Invariant)?
+                    != self.floor)
+            || floor.snapshot_bytes()? != self.floor_state.bytes
+        {
+            return Err(EconomicError::Invariant);
+        }
+        let mut prior = floor.clone();
+        let mut parent = self.floor;
+        for (index, frame) in self.history.iter().enumerate() {
+            let next = replay_block(
+                &self.config,
+                prior.clone(),
+                frame,
+                self.known_after(index),
+                &self.state,
+            )?;
+            Self::check_transition(&self.config, &prior, &next, parent, frame.header)?;
+            parent = Tip {
+                height: frame.header.height,
+                id: frame.header.id,
+            };
+            prior = next;
+        }
+        if parent != self.tip || prior != self.state {
+            return Err(EconomicError::Invariant);
+        }
+        Ok(())
     }
 
     fn verified_state_bytes(&self) -> Result<Vec<u8>, EconomicError> {
         self.config.validate()?;
-        self.state.verify()?;
         if self.state.config() != &self.config.economics
             || self.history.len() > self.config.rollback_limit
             || self.floor.height < self.config.anchor().height
@@ -239,6 +489,9 @@ impl EconomicChain {
             || (self.floor.height > self.config.anchor().height
                 && self.floor.id == self.config.anchor().id)
             || self.tip.height.checked_sub(self.floor.height) != Some(self.history.len() as u64)
+            || self.floor_state.state.config() != &self.config.economics
+            || self.floor_state.state.tip_height() != self.floor.height
+            || (self.history.is_empty() && self.floor_state.state != self.state)
         {
             return Err(EconomicError::Invariant);
         }
@@ -257,51 +510,26 @@ impl EconomicChain {
             return Err(EconomicError::Invariant);
         }
         let mut cursor = self.floor;
-        let mut native_previous: Option<(EconomicState, u64)> = None;
         let mut ids = BTreeSet::from([self.config.anchor().id, self.floor.id]);
+        let mut previous_replays = true;
         for frame in &self.history {
             if frame.header.height != cursor.height + 1
                 || frame.header.parent != cursor.id
                 || !ids.insert(frame.header.id)
+                || frame.before.is_some() == previous_replays
+                || match &frame.replay {
+                    Some(Replay::Economic(_)) => self.config.economics.source_consensus.is_some(),
+                    Some(Replay::Source) => self.config.economics.source_consensus.is_none(),
+                    None => false,
+                }
             {
                 return Err(EconomicError::Invariant);
             }
-            let before = self.config.decode(&frame.before)?;
-            if (self.config.economics.source_consensus.is_some()
-                && before
-                    .source_parent_unverified()
-                    .map_err(|_| EconomicError::Invariant)?
-                    != cursor)
-                || before.tip_height() != cursor.height
-            {
-                return Err(EconomicError::Invariant);
-            }
-            if self.config.economics.source_consensus.is_some() {
-                let current = self.state.source_consensus_state();
-                let previous = before.source_consensus_state();
-                if previous.bootstrap != current.bootstrap
-                    || !current.frames.starts_with(&previous.frames)
-                {
-                    return Err(EconomicError::Invariant);
-                }
-            }
-            if self.config.economics.native_entitlements.is_some()
-                || self.config.economics.contract_binding.is_some()
-            {
-                if let Some((prior, height)) = native_previous.take() {
-                    prior.native_history_transition(&before, height)?;
-                    prior.contract_history_transition(&before, height)?;
-                }
-                native_previous = Some((before, frame.header.height));
-            }
+            previous_replays = frame.replay.is_some();
             cursor = Tip {
                 height: frame.header.height,
                 id: frame.header.id,
             };
-        }
-        if let Some((prior, height)) = native_previous {
-            prior.native_history_transition(&self.state, height)?;
-            prior.contract_history_transition(&self.state, height)?;
         }
         if cursor != self.tip {
             return Err(EconomicError::Invariant);
@@ -309,27 +537,74 @@ impl EconomicChain {
         Ok(state_bytes)
     }
 
-    pub fn checkpoint_bytes(&self) -> Result<Vec<u8>, EconomicError> {
-        let state_bytes = self.verified_state_bytes()?;
-        let mut out = MAGIC.to_vec();
+    fn checkpoint_header(&self, magic: &[u8; 5]) -> Vec<u8> {
+        let mut out = magic.to_vec();
         out.push(self.config.economics.network.tag());
         out.extend_from_slice(&self.config.economics.network.genesis().0);
         out.push(self.config.rollback_limit as u8);
         write_tip(&mut out, self.floor);
         write_tip(&mut out, self.tip);
+        out
+    }
+
+    pub fn checkpoint_bytes(&self) -> Result<Vec<u8>, EconomicError> {
+        let state_bytes = self.verified_state_bytes()?;
+        let mut out = self.checkpoint_header(MAGIC);
         embedded(&mut out, &state_bytes)?;
         out.push(self.history.len() as u8);
         for frame in &self.history {
             out.extend_from_slice(&frame.header.height.to_be_bytes());
             out.extend_from_slice(&frame.header.id.0);
             out.extend_from_slice(&frame.header.parent.0);
-            embedded(&mut out, &frame.before)?;
+            let mut flags = match &frame.replay {
+                Some(Replay::Economic(_)) => FRAME_ECONOMIC,
+                Some(Replay::Source) => FRAME_SOURCE,
+                None => 0,
+            };
+            if frame.before.is_some() {
+                flags |= FRAME_BEFORE;
+            }
+            out.push(flags);
+            if let Some(Replay::Economic(inputs)) = &frame.replay {
+                embedded(&mut out, inputs)?;
+            }
+            if let Some(before) = &frame.before {
+                embedded(&mut out, before)?;
+            }
+        }
+        if !self.history.is_empty() {
+            embedded(&mut out, &self.floor_state.bytes)?;
+        }
+        with_crc(out).map_err(|_| EconomicError::Capacity)
+    }
+
+    /// The version 1 encoding: one complete before-state per retained block,
+    /// rebuilt from the floor state and the recorded blocks.
+    pub fn checkpoint_bytes_v1(&self) -> Result<Vec<u8>, EconomicError> {
+        let state_bytes = self.verified_state_bytes()?;
+        let mut out = self.checkpoint_header(MAGIC_V1);
+        embedded(&mut out, &state_bytes)?;
+        out.push(self.history.len() as u8);
+        let mut before = self.floor_state.state.clone();
+        for (index, frame) in self.history.iter().enumerate() {
+            out.extend_from_slice(&frame.header.height.to_be_bytes());
+            out.extend_from_slice(&frame.header.id.0);
+            out.extend_from_slice(&frame.header.parent.0);
+            embedded(&mut out, &before.snapshot_bytes()?)?;
+            before = replay_block(
+                &self.config,
+                before,
+                frame,
+                self.known_after(index),
+                &self.state,
+            )?;
         }
         with_crc(out).map_err(|_| EconomicError::Capacity)
     }
 
     /// The expected policy and exact tip must be supplied independently. The
     /// history proves internal linkage only, not that any block was valid.
+    /// Version 1 and version 2 checkpoints load; the chain writes version 2.
     pub fn from_checkpoint_bytes(
         bytes: &[u8],
         config: EconomicChainConfig,
@@ -339,7 +614,9 @@ impl EconomicChain {
         let bad = |_| EconomicError::InvalidSnapshot;
         let raw = verify_crc(bytes).map_err(bad)?;
         let mut r = Cursor::new(raw);
-        if r.fixed::<5>().map_err(bad)? != *MAGIC
+        let magic = r.fixed::<5>().map_err(bad)?;
+        let legacy = magic == *MAGIC_V1;
+        if (!legacy && magic != *MAGIC)
             || r.u8().map_err(bad)? != config.economics.network.tag()
             || r.fixed::<32>().map_err(bad)? != config.economics.network.genesis().0
             || r.u8().map_err(bad)? as usize != config.rollback_limit
@@ -357,24 +634,83 @@ impl EconomicChain {
             return Err(EconomicError::Capacity);
         }
         let mut history = VecDeque::new();
-        for _ in 0..count {
+        let mut floor_state = None;
+        for index in 0..count {
             let header = BlockHeader {
                 height: r.u64().map_err(bad)?,
                 id: BlockId(r.fixed().map_err(bad)?),
                 parent: BlockId(r.fixed().map_err(bad)?),
             };
-            let before = read_embedded(&mut r)?.to_vec();
-            history.push_back(Frame { header, before });
+            if legacy {
+                // The oldest before-state is the floor state itself.
+                let before = read_embedded(&mut r)?;
+                if index == 0 {
+                    floor_state = Some(FloorState {
+                        state: config.decode(before)?,
+                        bytes: before.to_vec(),
+                    });
+                }
+                history.push_back(Frame {
+                    header,
+                    replay: None,
+                    before: (index != 0).then(|| before.to_vec()),
+                });
+                continue;
+            }
+            let flags = r.u8().map_err(bad)?;
+            if flags & !(FRAME_ECONOMIC | FRAME_SOURCE | FRAME_BEFORE) != 0
+                || flags & (FRAME_ECONOMIC | FRAME_SOURCE) == (FRAME_ECONOMIC | FRAME_SOURCE)
+            {
+                return Err(EconomicError::InvalidSnapshot);
+            }
+            let replay = if flags & FRAME_ECONOMIC != 0 {
+                let inputs = read_embedded(&mut r)?;
+                EconomicState::decode_window_inputs(inputs)?;
+                Some(Replay::Economic(inputs.to_vec()))
+            } else if flags & FRAME_SOURCE != 0 {
+                Some(Replay::Source)
+            } else {
+                None
+            };
+            let before = if flags & FRAME_BEFORE != 0 {
+                Some(read_embedded(&mut r)?.to_vec())
+            } else {
+                None
+            };
+            history.push_back(Frame {
+                header,
+                replay,
+                before,
+            });
+        }
+        if !legacy && count > 0 {
+            let floor_bytes = read_embedded(&mut r)?;
+            floor_state = Some(FloorState {
+                state: config.decode(floor_bytes)?,
+                bytes: floor_bytes.to_vec(),
+            });
         }
         r.end().map_err(bad)?;
+        let floor_state = match floor_state {
+            Some(floor_state) => floor_state,
+            None => FloorState::new(state.clone())?,
+        };
         let chain = Self {
             config,
             state,
             tip,
             floor,
+            floor_state: Arc::new(floor_state),
             history,
         };
-        if chain.checkpoint_bytes()? != bytes {
+        chain.verified_state_bytes()?;
+        chain.verify_window()?;
+        let canonical = if legacy {
+            chain.checkpoint_bytes_v1()?
+        } else {
+            chain.checkpoint_bytes()?
+        };
+        if canonical != bytes {
             return Err(EconomicError::InvalidSnapshot);
         }
         Ok(chain)
@@ -506,12 +842,7 @@ impl DurableEconomicChain {
             return Err(DurableEconomicError::Economic(EconomicError::WrongTip));
         }
         let mut next = self.chain.clone();
-        while next.tip().height > target.height {
-            next.rollback_tip(next.tip())?;
-        }
-        if next.tip() != target {
-            return Err(DurableEconomicError::Economic(EconomicError::WrongTip));
-        }
+        next.rollback_to_tip(target)?;
         self.publish(next)
     }
     fn check_head(&self, expected: EconomicHead) -> Result<(), DurableEconomicError> {
@@ -530,6 +861,48 @@ impl DurableEconomicChain {
         }])?;
         self.chain = next;
         self.head()
+    }
+}
+
+/// Where the state after a block without a replay record is found.
+enum Known<'a> {
+    Bytes(&'a [u8]),
+    Current,
+    Missing,
+}
+
+/// The state after `frame`, applied to the state before it. A block without a
+/// replay record takes its result from the stored state that follows it.
+fn replay_block(
+    config: &EconomicChainConfig,
+    mut prior: EconomicState,
+    frame: &Frame,
+    known: Known<'_>,
+    current: &EconomicState,
+) -> Result<EconomicState, EconomicError> {
+    let height = frame.header.height;
+    match &frame.replay {
+        Some(Replay::Economic(bytes)) => {
+            prior.apply_block_unverified(height, EconomicState::decode_window_inputs(bytes)?)?;
+            Ok(prior)
+        }
+        Some(Replay::Source) => {
+            // The tip state holds one source frame per block after the anchor.
+            let source = height
+                .checked_sub(current.config().anchor.height + 1)
+                .and_then(|index| current.source_consensus_state().frames.get(index as usize))
+                .filter(|source| source.header == frame.header)
+                .ok_or(EconomicError::Invariant)?;
+            prior
+                .apply_source_block_unverified(source.header, source.mode, &source.transactions)
+                .map_err(|_| EconomicError::Invariant)?;
+            Ok(prior)
+        }
+        None => match known {
+            Known::Bytes(bytes) => config.decode(bytes),
+            Known::Current => Ok(current.clone()),
+            Known::Missing => Err(EconomicError::Invariant),
+        },
     }
 }
 
@@ -596,25 +969,9 @@ impl EconomicChain {
         }
         self.state
             .preflight_source_frame(h, block.mode, &block.transactions)?;
-        let mut next = self.clone();
-        let before = next.state.snapshot_bytes()?;
-        let report =
-            next.state
-                .apply_source_block_unverified(h, block.mode, &block.transactions)?;
-        next.history.push_back(Frame { header: h, before });
-        if next.history.len() > next.config.rollback_limit {
-            let evicted = next.history.pop_front().ok_or(EconomicError::Invariant)?;
-            next.floor = Tip {
-                height: evicted.header.height,
-                id: evicted.header.id,
-            };
-        }
-        next.tip = Tip {
-            height: h.height,
-            id: h.id,
-        };
-        next.checkpoint_bytes()?;
-        *self = next;
+        let mut state = self.state.clone();
+        let report = state.apply_source_block_unverified(h, block.mode, &block.transactions)?;
+        self.commit_block(state, h, Replay::Source)?;
         Ok(report)
     }
 }

@@ -285,7 +285,7 @@ impl EconomicStateOracleExport {
             TradeLayerMainnet::Litecoin => "litecoin",
             TradeLayerMainnet::Dogecoin => "dogecoin",
         };
-        format!("{{\"schema\":\"{SCHEMA}\",\"scope\":\"single-economic-owner\",\"authenticatedAdmission\":false,\"network\":\"{network}\",\"genesis\":\"{}\",\"tip\":{{\"height\":\"{}\",\"blockId\":\"{}\"}},\"rollbackFloor\":{{\"height\":\"{}\",\"blockId\":\"{}\"}},\"durableSequence\":\"{}\",\"stateCodec\":\"TLEC\",\"stateCodecVersion\":{},\"stateBytes\":{},\"checkpointCodec\":\"TLEH\",\"checkpointCodecVersion\":1,\"checkpointBytes\":{},\"commitmentScheme\":\"sha256d-domain-separated-v1\",\"stateCommitment\":\"{}\",\"checkpointCommitment\":\"{}\",\"exportCommitment\":\"{}\",\"transitionWitness\":\"not-exported\"}}",hex(&self.genesis().0),self.head.tip.height,hex(&self.head.tip.id.0),self.floor.height,hex(&self.floor.id.0),self.head.sequence,self.state_version,self.state_range.len(),self.checkpoint.len(),hex(&self.state_commitment),hex(&self.head.commitment),hex(&self.export_commitment))
+        format!("{{\"schema\":\"{SCHEMA}\",\"scope\":\"single-economic-owner\",\"authenticatedAdmission\":false,\"network\":\"{network}\",\"genesis\":\"{}\",\"tip\":{{\"height\":\"{}\",\"blockId\":\"{}\"}},\"rollbackFloor\":{{\"height\":\"{}\",\"blockId\":\"{}\"}},\"durableSequence\":\"{}\",\"stateCodec\":\"TLEC\",\"stateCodecVersion\":{},\"stateBytes\":{},\"checkpointCodec\":\"TLEH\",\"checkpointCodecVersion\":{},\"checkpointBytes\":{},\"commitmentScheme\":\"sha256d-domain-separated-v1\",\"stateCommitment\":\"{}\",\"checkpointCommitment\":\"{}\",\"exportCommitment\":\"{}\",\"transitionWitness\":\"not-exported\"}}",hex(&self.genesis().0),self.head.tip.height,hex(&self.head.tip.id.0),self.floor.height,hex(&self.floor.id.0),self.head.sequence,self.state_version,self.state_range.len(),self.checkpoint[4],self.checkpoint.len(),hex(&self.state_commitment),hex(&self.head.commitment),hex(&self.export_commitment))
     }
 
     /// Creates only a new explicitly named absolute file in an existing
@@ -460,7 +460,8 @@ fn state_range(
     }
     let raw = crate::codec::verify_crc(checkpoint).map_err(|_| bad("checkpoint CRC/size"))?;
     let mut reader = crate::codec::Cursor::new(raw);
-    if reader.fixed::<5>().map_err(|_| bad("checkpoint version"))? != *b"TLEH\x01" {
+    let magic = reader.fixed::<5>().map_err(|_| bad("checkpoint version"))?;
+    if magic[..4] != *b"TLEH" || !matches!(magic[4], 1 | 2) {
         return Err(bad("checkpoint version"));
     }
     if reader.u8().map_err(|_| bad("checkpoint network"))? != config.economics.network.tag()
@@ -494,7 +495,7 @@ fn state_range(
         .checked_add(length)
         .ok_or(EconomicOracleError::Capacity)?;
     if checkpoint.get(TLEH_STATE_OFFSET..end) != Some(state) {
-        return Err(bad("TLEH v1 state offset"));
+        return Err(bad("TLEH state offset"));
     }
     Ok((TLEH_STATE_OFFSET..end, state[4]))
 }

@@ -3062,7 +3062,7 @@ impl EconomicState {
         };
         reader.end().map_err(|_| econ_snapshot_bad())?;
         let history = HistoryRuntime::pruned_at(&receipt_archive);
-        let result = Self {
+        let mut result = Self {
             config,
             joint,
             book,
@@ -3095,6 +3095,7 @@ impl EconomicState {
             replaying_native_history: false,
             audit: AuditRuntime::default(),
         };
+        result.take_stored_legs_unverified()?;
         result.verify()?;
         if result.snapshot_bytes()?.as_slice() != bytes {
             return Err(econ_snapshot_bad());

@@ -377,7 +377,7 @@ fn active(network: TradeLayerMainnet) -> EconomicChain {
 fn disabled_amm_preserves_genuine_active_v4_bytes_with_forced_fill_and_full_frames() {
     let mut chain = prepared(TradeLayerMainnet::Bitcoin, false);
     apply(&mut chain, vec![publication(13, 1000)]);
-    let bytes = chain.state().snapshot_bytes().unwrap();
+    let bytes = chain.state().snapshot_bytes_with_stored_legs().unwrap();
     assert_eq!(&bytes[..5], b"TLEC\x04");
     assert_eq!(bytes.len(), 5681);
     // Captured from cfdd8ec's compiled owner, before AMM fields existed.

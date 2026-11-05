@@ -196,6 +196,41 @@ impl JointProtocolState {
         Ok(())
     }
 
+    /// One internal leg of the economic owner. Legs are identified by the
+    /// owner's sequence high-water mark in their own hash domain, so no replay
+    /// set of the joint state holds them or is consulted for them.
+    pub(crate) fn apply_economic_leg_unverified(
+        &mut self,
+        leg: TxId,
+        property: PropertyId,
+        from: AccountId,
+        to: AccountId,
+        amount_atoms: u128,
+    ) -> Result<(), JointError> {
+        if self.economic_pending_height.is_none() || self.economic_pending_input.is_none() {
+            return Err(JointError::InconsistentComponents);
+        }
+        self.spot
+            .apply_economic_leg_unverified(leg, property, from, to, amount_atoms)?;
+        Ok(())
+    }
+
+    pub(crate) fn take_stored_legs_unverified(&mut self, domain: &[u8], count: u64) -> bool {
+        self.spot.take_stored_legs_unverified(domain, count)
+    }
+
+    pub(crate) fn stored_leg_count_unverified(&self) -> Option<u64> {
+        self.ledger().stored_leg_count_unverified()
+    }
+
+    pub(crate) fn forget_stored_legs_unverified(&mut self) {
+        self.spot.forget_stored_legs_unverified();
+    }
+
+    pub(crate) fn remember_stored_legs_unverified(&mut self, domain: &[u8], count: u64) {
+        self.spot.remember_stored_legs_unverified(domain, count);
+    }
+
     pub(crate) fn economic_input_ids_unverified(&self) -> &BTreeSet<TxId> {
         &self.economic_input_ids
     }

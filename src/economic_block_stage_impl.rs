@@ -311,6 +311,7 @@ impl EconomicBlockStage {
             self.state.source_consensus.frames.push(frame);
         }
         let receipt_count = self.state.receipts.len() - self.receipt_count_before;
+        self.state.migrate_leg_history_unverified();
         if self.audit.periodic {
             let replay = match &self.audit.before {
                 Some(before) => self.state.verify_audit(Some(&AuditDelta {

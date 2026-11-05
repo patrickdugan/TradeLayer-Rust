@@ -455,6 +455,55 @@ impl SpotExchange {
         Ok(())
     }
 
+    /// One internal leg of the combined-economic owner. The owner's sequence
+    /// high-water mark identifies the leg, so the leg leaves no replay marker
+    /// and `leg` consults no replay set; the reserved-account rules are those
+    /// of `apply_economic_transfer_unverified`.
+    pub(crate) fn apply_economic_leg_unverified(
+        &mut self,
+        leg: TxId,
+        property: PropertyId,
+        from: AccountId,
+        to: AccountId,
+        amount_atoms: u128,
+    ) -> Result<(), SpotError> {
+        let economic_from = from.as_str().starts_with("~econ:");
+        let economic_to = to.as_str().starts_with("~econ:");
+        if amount_atoms == 0
+            || !(economic_from || economic_to)
+            || (from.as_str().starts_with('~') && !economic_from)
+            || (to.as_str().starts_with('~') && !economic_to)
+        {
+            return Err(SpotError::ReservedAccount);
+        }
+        let mut staged = self.clone();
+        staged.ledger.apply_internal_leg_unverified(
+            leg,
+            Operation::Transfer {
+                id: property,
+                from,
+                to,
+                amount_atoms,
+            },
+        )?;
+        staged.verify_reserves()?;
+        staged.clearing_activity = true;
+        *self = staged;
+        Ok(())
+    }
+
+    pub(crate) fn take_stored_legs_unverified(&mut self, domain: &[u8], count: u64) -> bool {
+        self.ledger.take_stored_legs_unverified(domain, count)
+    }
+
+    pub(crate) fn forget_stored_legs_unverified(&mut self) {
+        self.ledger.forget_stored_legs_unverified();
+    }
+
+    pub(crate) fn remember_stored_legs_unverified(&mut self, domain: &[u8], count: u64) {
+        self.ledger.remember_stored_legs_unverified(domain, count);
+    }
+
     /// A completed clearing event may have zero transfer legs. Persist the
     /// in-memory research-history fence even when no margin atoms move;
     /// otherwise TLSP or an old joint checkpoint can orphan its replay ID.

@@ -567,7 +567,8 @@ fn genesis_anchored_bytes_keep_their_layout() {
     }
     let checkpoint = genesis.checkpoint_bytes().unwrap();
     let state = genesis.state().snapshot_bytes().unwrap();
-    // Pinned from the tree before the anchor existed.
+    // Pinned from the tree before the anchor existed (2b18d7f, the rollback
+    // window layout); the genesis anchor reproduces it byte for byte.
     assert_eq!(
         (fingerprint(&checkpoint), fingerprint(&state)),
         GENESIS_FINGERPRINT,
@@ -577,4 +578,4 @@ fn genesis_anchored_bytes_keep_their_layout() {
 }
 
 const GENESIS_FINGERPRINT: ((usize, u64), (usize, u64)) =
-    ((10998, 18014078772672211621), (3730, 9363959089641769727));
+    ((4928, 6080595740348829894), (3154, 15067779687084736509));

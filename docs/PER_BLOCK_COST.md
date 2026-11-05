@@ -260,8 +260,8 @@ grow the state by 1,136 bytes per block: 342 bytes in the ledger replay markers 
 and 794 bytes in input-id sets and other per-input records (92 bytes per input id). Before step 2
 the growth was 1,319 bytes per block.
 
-An `EconomicChain` checkpoint embeds the state and one complete before-state per rollback frame, so
-it holds `1 + rollback_limit` copies of the state:
+An `EconomicChain` checkpoint of version 1 (`TLEH\x01`) embedded the state and one complete
+before-state per rollback frame, so it held `1 + rollback_limit` copies of the state:
 
 | copies in the checkpoint | blocks until 64 MiB, before | after |
 |---|---:|---:|
@@ -272,10 +272,127 @@ it holds `1 + rollback_limit` copies of the state:
 
 The count bounds before step 2 stopped this schedule at about 6,100 blocks (legs), 9,900 blocks
 (order ids) and 13,400 blocks (receipts). After it they stop it at about 98,000 (legs), 79,000
-(order ids) and 122,000 (markers), so the byte budget decides. A chain with `rollback_limit` 64
-halts at about 900 blocks on this schedule, before and after: the frames duplicate the replay
-markers 65 times. Removing that limit needs the frames to share the markers (a delta layout for
-`TLEH`) or leg ids to stop being stored; neither is part of step 2.
+(order ids) and 122,000 (markers), so the byte budget decided. A chain with `rollback_limit` 64
+halted at 908 blocks on this schedule: the frames duplicated the replay markers 65 times. The next
+section removes that halt.
+
+## Rollback window and internal legs (step 2b, as built)
+
+### The window
+
+`TLEH\x02` keeps one state, the state at the rollback floor, and the exact inputs of every block
+between the floor and the tip, in place of one before-state per block. The checkpoint holds the tip
+state, the retained block headers, each block's inputs in the TLEC input codec (flag 1) or, for a
+source-consensus chain, a marker that the block is replayed from the raw frame the tip state itself
+retains (flag 2), and the floor state. A chain whose history is empty holds the tip state once.
+
+- Applying a block clones the state, applies the block, appends the encoded inputs, and when the
+  window is full applies the oldest block to the floor state to move the floor. The encoder checks
+  that the inputs decode to exactly the inputs applied, so a replay applies what the block applied.
+- `rollback_to_tip(target)` (and `rollback_tip`, `DurableEconomicChain::rollback_to`) rebuilds the
+  state at the target from the floor by applying the recorded blocks again, then re-attaches the
+  receipt log that still chains to it. The rebuilt state is byte for byte the state the chain held
+  when it applied that block: `tests/economic_chain_window.rs` runs 200 applied blocks with random
+  rollbacks at `rollback_limit` 64, 5 and 1, compares every rebuilt state with the snapshot taken
+  when the block was applied, and compares `checkpoint_bytes_v1` (the version 1 layout, rebuilt)
+  with a version 1 checkpoint assembled from those snapshots.
+- Loading replays the whole window from the floor, runs the native, contract and source-history
+  transition checks of every block, and requires the replay to reach the stored tip state. The
+  version 1 loader checked each stored before-state; the version 2 loader is stronger, and a
+  checkpoint whose floor or inputs are not the history of its tip state is refused.
+- Version 1 checkpoints load and migrate. Their blocks keep the stored before-states (a block
+  without inputs, and the block after it carries the state before it) until they leave the window,
+  after which the chain holds only version 2 data. `checkpoint_bytes_v1()` writes the old layout,
+  byte for byte, for any chain.
+- `economic_state_oracle` reads either version; the embedded tip state is at the same offset.
+
+Cost, measured with the schedule above in a release build in Windows (`tests/economic_chain_window.rs`,
+`rollback_limit` 64, native toolchain, a loaded machine): see the table below. The steady-state
+apply replays one block (the one leaving the window) next to the new block, and no longer decodes
+64 stored states in every checkpoint. Rolling back one block replays up to 63 blocks, so it costs
+about 63 applies; rolling back to the floor replays none. This is the price of the layout: reorgs
+are rare and shallow, and the checkpoint is 2 copies of the state instead of 65.
+
+### Internal legs
+
+Every internal transfer leg has the id `sha256d("TradeLayer/ConservingV1/leg" | network tag |
+genesis | contract | collateral | sequence)`. Before this change each id was one replay marker in
+the ledger (32 bytes per leg). Now the owner's `internal_sequence` is the only record: leg `s` is
+processed exactly when `s < internal_sequence`, and `apply_leg` rejects `s <` the mark with
+`Replay(leg_id(s))`, any `s >` it with `Invariant`, and accepts only the next sequence. The leg
+leaves nothing in `Ledger::processed`, `ledger_input_ids`, the spot `seen` set or the joint
+`global_input_ids`; it reaches the ledger through `apply_internal_leg_unverified`, which skips the
+marker.
+
+No external id can collide with or exhaust the leg namespace:
+
+- An external id is a transaction id, the double SHA-256 of a serialized transaction `Q`. A leg id
+  is the double SHA-256 of `P`, the leg domain string followed by the sequence. The ids are equal
+  only if `P = Q` or a SHA-256 collision exists. `P` is 76 bytes, begins with the ASCII bytes
+  `TradeLayer/`, whose first four bytes read as a little-endian version, then a one-byte input count
+  of 0x65 (101 inputs); 101 inputs need more than 4,000 bytes, so `P` is not a serialized
+  transaction and no transaction id equals a leg id.
+- No other id is derived in this domain: every other derived id in the owner hashes a different
+  label (`escrow`, receipt log, and so on) in the same `TradeLayer/ConservingV1/` family, and
+  distinct preimages give distinct ids up to a SHA-256 collision.
+- Even a raw 32-byte id that a caller asserts, equal to any leg id, is harmless: the legs consult
+  no replay set, and an external id equal to a leg id only occupies the external set.
+  `src/economic_legs_tests.rs` applies blocks whose order ids are the next leg id, a past leg id
+  and a leg id 1,000 ahead; the legs of every later block succeed.
+
+Layout and migration: the ledger snapshot keeps its format. A state with `internal_sequence` > 0
+now writes a ledger whose marker list holds no leg id, so its TLEC bytes are 32 bytes per leg
+shorter than before. A snapshot of the earlier layout decodes: when the id of leg 0 is among the
+markers, the owner removes the ids of legs `0..internal_sequence` (each must be present) and the
+ledger re-encodes them, so the decoded state writes the earlier layout byte for byte until its
+first block, which writes the current layout (the same step as the receipt archive: after it the
+snapshot is the snapshot of a node that never stored legs). `EconomicState::
+snapshot_bytes_with_stored_legs()` writes the earlier layout for any plain-owner state, for fixtures
+that pin it (`economic_amm_snapshot`, `economic_contract_snapshot`). The full audit checks that a
+state of the earlier layout holds exactly the ids below the sequence.
+
+Configurations with native entitlements keep one replay marker per leg: their ledger records each
+leg id in its native event history and replays it, so they keep the earlier behavior and bytes.
+
+### Ceiling
+
+Measured on the schedule above (`tests/economic_chain_window.rs`, 5,000 blocks, `rollback_limit`
+64, no `Capacity`):
+
+| height | state bytes | bytes per block (marginal) | checkpoint bytes |
+|---:|---:|---:|---:|
+| 1,000 | 808,854 | | 1,604,633 |
+| 2,500 | 1,905,362 | | 3,797,585 |
+| 5,000 | 3,729,630 | 730 | 7,446,520 |
+
+The state grows by 730 bytes per block (it was 1,136 with the leg markers). The checkpoint holds
+the tip state and the floor state, so at any `rollback_limit` from 1 to 64 it grows by about 1,460
+bytes per block:
+
+| copies in the checkpoint | blocks until 64 MiB, before step 2b | after |
+|---|---:|---:|
+| 1 (state alone) | 59,074 | 91,800 |
+| 2 (any `rollback_limit`) | 29,537 (limit 1) | 45,900 |
+| 65 (`rollback_limit` 64) | 908 | 45,900 |
+
+The count bounds are not reached first: legs no longer count, order ids stop this schedule at about
+79,000 blocks and replay markers at about 122,000.
+
+Time per block on the same run (the test host was also compiling other work, so the figures show
+the growth, not an absolute speed):
+
+| height | ms per block (mean of the last 500) |
+|---:|---:|
+| 500 | 25.5 |
+| 1,000 | 102.4 |
+| 2,000 | 176.2 |
+| 3,000 | 292.3 |
+| 4,000 | 384.0 |
+| 5,000 | 484.9 |
+
+Most of it is the per-block checkpoint (full audit, encode, decode of the tip state), which grows
+with the state and which the step 2 text above lists. Rollback at height 5,000: 64 blocks (to the
+floor) 0.3 s, 1 block 4.8 s.
 
 ### Tests
 

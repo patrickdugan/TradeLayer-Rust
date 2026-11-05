@@ -856,28 +856,93 @@ impl EconomicState {
         out.extend_from_slice(&self.config.collateral.get().to_be_bytes());
         out
     }
+    fn leg_domain(&self) -> Vec<u8> {
+        self.domain(b"leg")
+    }
     fn leg_id(&self, sequence: u64) -> TxId {
-        let mut bytes = self.domain(b"leg");
-        bytes.extend_from_slice(&sequence.to_be_bytes());
-        TxId::from_bytes(double_sha256(&bytes))
+        crate::ledger::internal_leg_id(&self.leg_domain(), sequence)
+    }
+    /// Native entitlement ledgers record each leg id in their own event
+    /// history, so they keep one ledger replay marker per leg.
+    fn legs_stored(&self) -> bool {
+        self.config.native_entitlements.is_some()
+    }
+    /// Internal legs are identified by the sequence high-water mark: leg `s`
+    /// is processed exactly when `s < internal_sequence`. Their ids live in
+    /// their own hash domain, which no external id is drawn from, so the
+    /// ledger and joint replay sets hold no marker for them.
+    fn leg_is_processed(&self, sequence: u64) -> bool {
+        if self.legs_stored() {
+            return self.ledger().is_processed(self.leg_id(sequence));
+        }
+        sequence < self.internal_sequence
     }
     fn transfer(&mut self, from: AccountId, to: AccountId, atoms: u128) -> Result<()> {
         if atoms == 0 {
             return Ok(());
         }
-        if self.internal_sequence >= MAX_ECONOMIC_LEGS {
+        self.apply_leg(self.internal_sequence, from, to, atoms)
+    }
+    /// Applies internal leg `sequence`, which must be the next unprocessed one.
+    fn apply_leg(
+        &mut self,
+        sequence: u64,
+        from: AccountId,
+        to: AccountId,
+        atoms: u128,
+    ) -> Result<()> {
+        if self.leg_is_processed(sequence) {
+            return Err(EconomicError::Joint(JointError::Replay(
+                self.leg_id(sequence),
+            )));
+        }
+        if sequence >= MAX_ECONOMIC_LEGS {
             return Err(EconomicError::Capacity);
         }
-        self.joint.apply_economic_transfer_unverified(
-            self.leg_id(self.internal_sequence),
-            self.config.collateral,
-            from.clone(),
-            to.clone(),
-            atoms,
-        )?;
-        self.record_amm_cash_leg(self.internal_sequence, &from, &to, atoms)?;
+        if sequence != self.internal_sequence {
+            return Err(EconomicError::Invariant);
+        }
+        if self.legs_stored() {
+            self.joint.apply_economic_transfer_unverified(
+                self.leg_id(sequence),
+                self.config.collateral,
+                from.clone(),
+                to.clone(),
+                atoms,
+            )?;
+        } else {
+            self.joint.apply_economic_leg_unverified(
+                self.leg_id(sequence),
+                self.config.collateral,
+                from.clone(),
+                to.clone(),
+                atoms,
+            )?;
+        }
+        self.record_amm_cash_leg(sequence, &from, &to, atoms)?;
         self.internal_sequence += 1;
         Ok(())
+    }
+    /// A state decoded from the earlier layout carries its leg ids among the
+    /// ledger's replay markers. They move out when the snapshot is decoded and
+    /// the ledger re-encodes them until the first block, after which the state
+    /// writes the layout that holds only the sequence.
+    fn take_stored_legs_unverified(&mut self) -> Result<()> {
+        if self.legs_stored() {
+            return Ok(());
+        }
+        let domain = self.leg_domain();
+        if self
+            .joint
+            .take_stored_legs_unverified(&domain, self.internal_sequence)
+        {
+            Ok(())
+        } else {
+            Err(EconomicError::Invariant)
+        }
+    }
+    pub fn migrate_leg_history_unverified(&mut self) {
+        self.joint.forget_stored_legs_unverified();
     }
 
     pub fn verify(&self) -> Result<()> {
@@ -974,9 +1039,22 @@ impl EconomicState {
             if &inputs != self.joint.economic_input_ids_unverified() {
                 return Err(EconomicError::Invariant);
             }
-            for sequence in 0..self.internal_sequence {
-                if !self.ledger().is_processed(self.leg_id(sequence)) {
-                    return Err(EconomicError::Invariant);
+            // Every leg below the sequence is processed by definition. A state
+            // decoded from the earlier layout still encodes its leg ids, and
+            // they must be exactly the legs below the sequence.
+            if self
+                .joint
+                .stored_leg_count_unverified()
+                .is_some_and(|stored| stored != self.internal_sequence)
+            {
+                return Err(EconomicError::Invariant);
+            }
+            // Native entitlement ledgers keep one replay marker per leg.
+            if self.legs_stored() {
+                for sequence in 0..self.internal_sequence {
+                    if !self.leg_is_processed(sequence) {
+                        return Err(EconomicError::Invariant);
+                    }
                 }
             }
         }
@@ -1220,6 +1298,7 @@ fn atoms_exact(value: &Decimal) -> Result<u128> {
 
 include!("economic_audit_impl.rs");
 include!("economic_history_impl.rs");
+include!("economic_window_impl.rs");
 include!("economic_snapshot_impl.rs");
 include!("economic_funding_impl.rs");
 include!("economic_mark_impl.rs");
@@ -1248,3 +1327,6 @@ mod economic_history_tests;
 #[cfg(test)]
 #[path = "economic_insurance_poison_tests.rs"]
 mod economic_insurance_poison_tests;
+#[cfg(test)]
+#[path = "economic_legs_tests.rs"]
+mod economic_legs_tests;

@@ -224,11 +224,16 @@ fn both_catalog_and_joint_pins_are_required_by_the_new_chain_constructor() {
         Err(EconomicError::InvalidConfig)
     ));
     let bytes = chain.checkpoint_bytes().unwrap();
-    assert_eq!(&bytes[..5], b"TLEH\x01");
+    assert_eq!(&bytes[..5], b"TLEH\x02");
     assert_eq!(
-        EconomicChain::from_checkpoint_bytes(&bytes, config, chain.tip()).unwrap(),
+        EconomicChain::from_checkpoint_bytes(&bytes, config.clone(), chain.tip()).unwrap(),
         chain
     );
+    let earlier = chain.checkpoint_bytes_v1().unwrap();
+    assert_eq!(&earlier[..5], b"TLEH\x01");
+    let loaded = EconomicChain::from_checkpoint_bytes(&earlier, config, chain.tip()).unwrap();
+    assert_eq!(loaded.state(), chain.state());
+    assert_eq!(loaded.checkpoint_bytes_v1().unwrap(), earlier);
 }
 
 #[test]

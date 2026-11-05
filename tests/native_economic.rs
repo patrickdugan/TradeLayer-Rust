@@ -533,6 +533,6 @@ fn valid_crc_branch_splice_cannot_retroactively_insert_native_input_history() {
             inputs: vec![],
         })
         .unwrap();
-    let forged = replace_embedded(&chain.checkpoint_bytes().unwrap(), &old, &replacement);
+    let forged = replace_embedded(&chain.checkpoint_bytes_v1().unwrap(), &old, &replacement);
     assert!(EconomicChain::from_checkpoint_bytes(&forged, cfg, chain.tip()).is_err());
 }
