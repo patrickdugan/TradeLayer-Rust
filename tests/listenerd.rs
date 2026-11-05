@@ -281,16 +281,25 @@ fn the_demo_is_labelled_and_serves_its_seeded_history_over_http() {
         "4"
     );
 
-    // tl_check_kyc and tl_check_commits are node RPC methods: typed unsupported, never empty.
-    for (route, capability) in [
-        ("/tl_check_kyc", "node_kyc_attestation_rpc"),
-        ("/tl_check_commits", "node_channel_commit_rpc"),
-    ] {
-        let (status, body) = http(&daemon.addr, "POST", route, r#"{"address":"DemoAlice"}"#);
-        assert_eq!(status, 503, "{body}");
-        assert_eq!(field(&body, "error"), "unavailable");
-        assert_eq!(field(&body, "capability"), capability);
-    }
+    // tl_check_kyc and tl_check_commits are protocol queries answered from TradeLayer state. The
+    // demo store holds no attestation, clearlist admin or channel commit, so the verdict is
+    // "disabled" (the key keeps its trailing space) and the commit list is empty.
+    let (status, body) = http(
+        &daemon.addr,
+        "POST",
+        "/tl_check_kyc",
+        r#"{"address":"DemoAlice"}"#,
+    );
+    assert_eq!(status, 200, "{body}");
+    assert_eq!(body, "{\"result: \":\"disabled\"}");
+    let (status, body) = http(
+        &daemon.addr,
+        "POST",
+        "/tl_check_commits",
+        r#"{"address":"DemoAlice"}"#,
+    );
+    assert_eq!(status, 200, "{body}");
+    assert_eq!(body, "[]");
     // A mutating or unmapped call stays refused.
     let (status, _) = http(&daemon.addr, "POST", "/tl_initmain", r#"{"test":true}"#);
     assert_eq!(status, 503);

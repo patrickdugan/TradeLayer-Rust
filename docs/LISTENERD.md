@@ -186,21 +186,55 @@ Routes whose capability the store does not hold answer
 
 ### `tl_check_kyc` and `tl_check_commits`
 
-The pinned `listener.js` and `walletListener.js` register neither name, and no
-pinned source defines them. They are JSON-RPC methods of the TradeLayer-patched
-Litecoin Core node, called by `tradelayer-wallet` through its node RPC
-(`tl_check_kyc [address]`, `tl_check_commits [address]`); their semantics live in
-that node's C++ and are not part of this repository. The current Rust state does
-not back them: it records attestations by list id and per-channel balance
-aggregates, but not the node's KYC verdict (which list the wallet's `enabled(kyc_0)`
-reply is derived from) and not per-commit records with block and sender. Inventing
-either shape would hand the wallet a made-up answer.
+Both are TradeLayer protocol queries, not Litecoin Core RPC methods. The pinned
+`listener.js` and `walletListener.js` do not register them, but `tradelayer-wallet`
+sends them as `tl_check_kyc` / `tl_check_commits` with body `{"address":"<addr>"}`
+(tradelayer-wallet 56361db `rust/tl-desktop/docs/listener-map.md`, "KYC and commit
+checks"). `POST /tl_check_kyc` and `POST /tl_check_commits` parse the address
+(`address` or `params`, the same rules as `/tl_getAllBalancesForAddress`; private
+`~` accounts and malformed addresses are `400`) and answer `200` with raw JSON.
+They never answer `503` and work on any chain, Bitcoin included.
 
-`POST /tl_check_kyc` and `POST /tl_check_commits` therefore parse their address
-(`address` or `params`, the same rules as `/tl_getAllBalancesForAddress`) and
-answer `503 {"error":"unavailable","capability":"node_kyc_attestation_rpc"}` and
-`"node_channel_commit_rpc"`. Callers keep these two methods on a node RPC
-connection.
+`/tl_check_kyc` replies `{"result: ":V}` with the trailing space kept in the key
+(tradelayer-core 9a9c27e0 `rpc.cpp:2710`):
+
+| `V` | When | tradelayer.js source (`fixtures/legacy_clearlist_audit_reference.txt`) |
+| --- | --- | --- |
+| `enabled(kyc_0)` | the address has an active attestation on any list | `isAddressInClearlist` 561-571 (`data.address`, `data.status == 'active'`, `data.listId` or `data.clearlistId`); `revokeAttestation` 415-445 sets `revoked` |
+| `enabled` | the address is a clearlist admin (and holds no active attestation) | `createClearlist` 10-30 stores `admin`; `updateAdmin` 112-130 replaces `admin`/`adminAddress` |
+| `disabled` | neither | |
+
+Both clearlist representations are read: the registry (`Registry` attestations
+and whitelists, `registry.rs`) and, when the economic state carries them, the
+tradelayer.js `clearlists` and `attestations` rows of the source catalog owner.
+C++ cross-check: `tl_check_kyc` tests `checkAttestationReg` (tradelayer.cpp:5622-5675,
+any attestation record for the address, no `kyc_id` filter) first, then
+`checkKYCRegister` (5566-5620, the id register). Mapping decisions: the C++
+attestation record maps to a tradelayer.js active attestation row; the C++ id
+register has no tradelayer.js counterpart, and its "registered, not attested"
+verdict `enabled` maps to clearlist administration. The registry rejects list 0
+(`UnsupportedSelfCertification`, `registry.rs`), so a list 0 self-certification is
+visible only through the source catalog rows. `updateAdmin` writes the string key
+`"1"` next to the number key `1` from `createClearlist` (reference line 113), so
+the stored rows keep the original admin too; the reply follows the stored rows.
+
+`/tl_check_commits` replies `[{sender, channel, propertyId, amount, block}]`: one
+entry per commit record whose `senderAddress` is the address, across all channels
+(tradelayer.js `Channels.recordCommitToChannel`, `fixtures/legacy_channels_source.txt`
+802-870, pushes `{senderAddress, propertyId, tokenAmount, block, columnAssigned,
+payEnabled, commitClearlistId}` onto `channel.commits`). Field formats follow
+`getAllCommits` (tradelayer.cpp:7198-7254): `propertyId` is a decimal string,
+`amount` an 8-decimal string, `block` a number. `block_index` is not emitted because
+tradelayer.js keeps no transaction index in a commit record. Rows are newest first
+by block and capped at 101, the C++ cap (`tradeArray.size() <= 100`, line 7236).
+
+Where commits live: the tradelayer.js channel registry, `SourceChannels::state()`.
+`EconomicReadBackend::with_source_channels(&ChannelsState)` attaches it. The joint
+and economic state cannot hold commits: `verify_economic_custody_fence_unverified`
+(`joint_economic_impl.rs`) rejects any ledger with channel liabilities. A backend without an attached channel owner
+therefore answers `[]`, the exact set of commits its state contains.
+`tradelayer-listenerd` does not attach a channel owner, so it answers `[]` until a
+durable store carries one; no snapshot format changed.
 
 ## Build
 

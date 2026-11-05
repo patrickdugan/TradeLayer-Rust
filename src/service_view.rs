@@ -1,5 +1,6 @@
 //! Immutable, bounded projections of the sole economic owner. This facade is
 //! not an RPC validator, indexer, wallet, consensus-hash store or signer.
+use crate::channels_source::ChannelsState;
 use crate::client::RpcValue;
 use crate::contract_orderbook::{Order, Side};
 use crate::contract_registry::{ContractId, ContractSeries};
@@ -16,6 +17,7 @@ use crate::registry::MAX_ACTIVATION_TYPE;
 use crate::service::{ServiceBackend, ServiceCall, ServiceError, MAX_SERVICE_RESPONSE};
 use crate::spot::SpotPair;
 use crate::trade_history::ContractEventOrigin;
+use crate::validity_source::SourceValue as V;
 
 pub const READ_POLICY: &str = "ImmutableEconomicReadV1";
 pub const AUDIT_POLICY: &str = "LosslessJsonAuditV1";
@@ -27,6 +29,7 @@ type Result<T> = core::result::Result<T, ServiceError>;
 pub struct EconomicReadBackend<'a> {
     chain: &'a EconomicChain,
     durable_sequence: Option<u64>,
+    channels: Option<&'a ChannelsState>,
 }
 impl<'a> EconomicReadBackend<'a> {
     pub fn from_chain(chain: &'a EconomicChain) -> Result<Self> {
@@ -37,6 +40,7 @@ impl<'a> EconomicReadBackend<'a> {
         Ok(Self {
             chain,
             durable_sequence: None,
+            channels: None,
         })
     }
     pub fn from_durable(owner: &'a DurableEconomicChain) -> Result<Self> {
@@ -45,11 +49,118 @@ impl<'a> EconomicReadBackend<'a> {
             .map_err(|_| ServiceError::Backend("durable_health"))?;
         Self::from_chain(chain)
     }
+    /// Attaches the tradelayer.js channel registry (`SourceChannels::state`) that
+    /// `tl_check_commits` reads. The economic chain refuses channel liabilities
+    /// (joint_economic_impl.rs `verify_economic_custody_fence_unverified`), so its
+    /// own ledger never holds a commit and, without this owner, the reply is empty.
+    pub fn with_source_channels(mut self, channels: &'a ChannelsState) -> Self {
+        self.channels = Some(channels);
+        self
+    }
     pub fn chain(&self) -> &'a EconomicChain {
         self.chain
     }
     fn state(&self) -> &'a EconomicState {
         self.chain.state()
+    }
+    /// "enabled(kyc_0)" for an active attestation on any list, "enabled" for a clearlist
+    /// admin, otherwise "disabled". Both clearlist representations are read: the registry
+    /// (`attestation_rows`, `whitelist_rows`) and, when the economic state carries them, the
+    /// tradelayer.js clearlist rows (`clearlists`, `attestations` collections).
+    fn kyc_verdict(&self, who: &AccountId) -> &'static str {
+        let state = self.state();
+        let registry = state.joint().registry();
+        let rows = state.source_catalog_owners().map(|c| &c.clearlists);
+        let text_is = |v: V, expected: &str| matches!(v, V::String(s) if s == expected);
+        let attested = registry
+            .attestation_rows()
+            .any(|(_, subject, row)| subject == who && row.active)
+            || rows.is_some_and(|c| {
+                c.rows("attestations").is_ok_and(|rows| {
+                    rows.iter().any(|r| {
+                        let d = r.get("data");
+                        text_is(d.get("address"), who.as_str())
+                            && text_is(d.get("status"), "active")
+                    })
+                })
+            });
+        if attested {
+            return "enabled(kyc_0)";
+        }
+        let admin = registry.whitelist_rows().any(|(_, w)| &w.admin == who)
+            || rows.is_some_and(|c| {
+                c.rows("clearlists").is_ok_and(|rows| {
+                    rows.iter().any(|r| {
+                        let d = r.get("data");
+                        let primary = match d.get("adminAddress") {
+                            V::String(s) if !s.is_empty() => V::String(s),
+                            _ => d.get("admin"),
+                        };
+                        text_is(primary, who.as_str())
+                    })
+                })
+            });
+        if admin {
+            "enabled"
+        } else {
+            "disabled"
+        }
+    }
+    /// One row per commit record whose sender is `who`, newest first, at most 101
+    /// (tradelayer.cpp:7236 admits rows while the array holds 100 or fewer).
+    fn commit_rows(&self, who: &AccountId) -> Result<RpcValue> {
+        const CAP: usize = 101;
+        let malformed = || ServiceError::Backend("channel_commit_record");
+        let Some(channels) = self.channels else {
+            return array(std::iter::empty());
+        };
+        let number = |v: V| match v {
+            V::Number(bits) => Some(f64::from_bits(bits)),
+            V::String(s) | V::BigNumber(s) => s.trim().parse::<f64>().ok(),
+            _ => None,
+        };
+        let whole = |v: f64, max: f64| {
+            (v.is_finite() && v >= 0.0 && v.fract() == 0.0 && v <= max).then_some(v as u64)
+        };
+        let mut found: Vec<(u64, RpcValue)> = Vec::new();
+        for (key, channel) in &channels.registry {
+            let V::Array(commits) = channel.get("commits") else {
+                continue;
+            };
+            let name = match (channel.get("channel"), key) {
+                (V::String(s), _) => s,
+                (_, V::String(s)) => s.clone(),
+                _ => return Err(malformed()),
+            };
+            for commit in commits {
+                if !matches!(commit.get("senderAddress"), V::String(s) if s == who.as_str()) {
+                    continue;
+                }
+                let property = number(commit.get("propertyId"))
+                    .and_then(|v| whole(v, f64::from(u32::MAX)))
+                    .ok_or_else(malformed)?;
+                let block = number(commit.get("block"))
+                    .and_then(|v| whole(v, 9_007_199_254_740_991.0))
+                    .ok_or_else(malformed)?;
+                let amount = number(commit.get("tokenAmount"))
+                    .filter(|v| v.is_finite() && *v >= 0.0)
+                    .ok_or_else(malformed)?;
+                found.push((
+                    block,
+                    object(vec![
+                        ("sender", string(who.as_str())?),
+                        ("channel", string(&name)?),
+                        ("propertyId", string(&property.to_string())?),
+                        ("amount", string(&format!("{amount:.8}"))?),
+                        ("block", num(block)),
+                    ])?,
+                ));
+            }
+        }
+        found.reverse();
+        found.sort_by_key(|(block, _)| core::cmp::Reverse(*block));
+        found.truncate(CAP);
+        array(found.into_iter().map(|(_, row)| Ok(row)))
     }
     fn selected(&self, id: u32) -> Result<()> {
         if id == self.state().config().contract.get() {
@@ -875,8 +986,34 @@ impl ServiceBackend for EconomicReadBackend<'_> {
             "node.validate_address" | "wallet.load" | "wallet.add_op_return" => {
                 Err(ServiceError::Unavailable("wallet_rpc"))
             }
-            "node.check_kyc" => Err(ServiceError::Unavailable("node_kyc_attestation_rpc")),
-            "node.check_commits" => Err(ServiceError::Unavailable("node_channel_commit_rpc")),
+            // tl_check_kyc. Primary reference tradelayer.js, fixtures/legacy_clearlist_audit_reference.txt:
+            // isAddressInClearlist (561-571) matches `data.address`, `data.status == 'active'` and
+            // `data.listId | data.clearlistId`; revokeAttestation (415-445) sets the status to
+            // 'revoked'; createClearlist (10-30) and updateAdmin (112-130) write `admin` and
+            // `adminAddress`. Cross-check tradelayer-core 9a9c27e0 rpc.cpp:2676-2713 with
+            // checkAttestationReg (tradelayer.cpp:5622-5675) and checkKYCRegister (5566-5620):
+            // attestation gives "enabled(kyc_0)", the id register gives "enabled", else "disabled".
+            // The reply key is "result: " with its trailing space (rpc.cpp:2710).
+            "node.check_kyc" => {
+                args.count(1)?;
+                let owner = args.owner(0)?;
+                if private(&owner) {
+                    return Err(ServiceError::Unavailable("private_custody_account"));
+                }
+                object(vec![("result: ", string(self.kyc_verdict(&owner))?)])
+            }
+            // tl_check_commits. Primary reference tradelayer.js Channels.recordCommitToChannel,
+            // fixtures/legacy_channels_source.txt:802-870, which pushes {senderAddress, propertyId,
+            // tokenAmount, block, columnAssigned, payEnabled, commitClearlistId} onto
+            // `channel.commits`. Cross-check tradelayer-core getAllCommits (tradelayer.cpp:7198-7254).
+            "node.check_commits" => {
+                args.count(1)?;
+                let owner = args.owner(0)?;
+                if private(&owner) {
+                    return Err(ServiceError::Unavailable("private_custody_account"));
+                }
+                self.commit_rows(&owner)
+            }
             "channel.get" => {
                 use crate::ledger::ChannelSide;
                 args.count(1)?;

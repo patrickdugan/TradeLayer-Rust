@@ -151,6 +151,14 @@ as a fallback only with explicit `source:"maxProcessed"`; this never makes
 the sync check successful. The route status delegates to the runtime instead
 of inventing a local initialization flag.
 
+`node.check_kyc` receives `[address]` and returns `{"result: ":V}` (trailing space
+in the key) with `V` one of `enabled(kyc_0)` (active attestation on any list),
+`enabled` (clearlist admin) or `disabled`. `node.check_commits` receives `[address]`
+and returns `[{sender,channel,propertyId,amount,block}]`, newest first, at most 101.
+`EconomicReadBackend` serves both from registry and clearlist rows and from the
+channel registry attached with `with_source_channels`; without one the commit list
+is empty. Sources and mapping decisions are in `docs/LISTENERD.md`.
+
 ## Source behavior and named repairs
 
 The source oracle preserves these concrete behaviors rather than presenting
