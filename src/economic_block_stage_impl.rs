@@ -9,6 +9,7 @@ pub(crate) struct EconomicBlockStage {
     book_frame: LiquidationBookFrame,
     mark_publication: Option<TxId>,
     insurance_requests: Vec<UnverifiedInsuranceInput>,
+    audit: StageAudit,
 }
 
 impl EconomicState {
@@ -19,8 +20,20 @@ impl EconomicState {
         {
             return Err(EconomicError::InvalidHeight);
         }
-        self.verify()?;
+        let policy = self.audit.policy;
+        let periodic = matches!(policy, AuditPolicy::Periodic(_)) && self.audit_eligible();
+        // Only the output of a block finished under this same policy in this
+        // process starts without a complete audit.
+        let replay = if periodic && self.audit.audited == Some(policy) {
+            None
+        } else {
+            self.verify_audit(None)?
+        };
+        let before = (periodic && !policy.full_due(height)).then(|| self.audit_before());
         let mut state = self.clone();
+        if let (true, Some(replay)) = (periodic, replay) {
+            state.audit.binding_replay = Some(Arc::new(*replay));
+        }
         state.begin_amm_frame(height)?;
         Ok(EconomicBlockStage {
             receipt_count_before: state.receipts.len(),
@@ -34,6 +47,13 @@ impl EconomicState {
             },
             mark_publication: None,
             insurance_requests: Vec::new(),
+            audit: StageAudit {
+                policy,
+                periodic,
+                before,
+                new_orders: Vec::new(),
+                new_cancels: Vec::new(),
+            },
         })
     }
 }
@@ -69,6 +89,7 @@ impl EconomicBlockStage {
         self.book_frame = book_frame;
         self.mark_publication = mark_publication;
         self.insurance_requests = insurance_requests;
+        self.audit.note_input(input);
         self.inputs.push(input.clone());
         Ok(())
     }
@@ -81,6 +102,7 @@ impl EconomicBlockStage {
         inputs: Vec<EconomicInput>,
     ) -> Result<()> {
         for input in inputs {
+            self.audit.note_input(&input);
             if self.state.config.contract_binding.is_some()
                 || self.state.config.native_entitlements.is_some()
             {
@@ -288,7 +310,21 @@ impl EconomicBlockStage {
         if let Some(frame) = source_frame {
             self.state.source_consensus.frames.push(frame);
         }
-        self.state.snapshot_bytes()?;
+        if self.audit.periodic {
+            let replay = match &self.audit.before {
+                Some(before) => self.state.verify_audit(Some(&AuditDelta {
+                    before,
+                    new_orders: &self.audit.new_orders,
+                    new_cancels: &self.audit.new_cancels,
+                }))?,
+                None => self.state.verify_audit(None)?,
+            };
+            self.state.snapshot_bytes_after_audit()?;
+            self.state.audit.audited = Some(self.audit.policy);
+            self.state.audit.binding_replay = replay.map(|replay| Arc::new(*replay));
+        } else {
+            self.state.snapshot_bytes()?;
+        }
         let receipt_count = self.state.receipts.len() - self.receipt_count_before;
         Ok((self.state, receipt_count))
     }

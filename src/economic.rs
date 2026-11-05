@@ -15,6 +15,7 @@ use crate::margin_map::{price_delta, MarginError, MarginMap, Position};
 use crate::network_profile::TradeLayerMainnet;
 use crate::tally::{calculate_match_fees, FeeBook, FeeRoute, MakerFlag, MatchFeeInput, TallyError};
 use std::collections::{BTreeMap, BTreeSet};
+use std::sync::Arc;
 
 pub const MAX_ECONOMIC_INPUTS: usize = 4096;
 pub const MAX_ECONOMIC_RECEIPTS: usize = 8192;
@@ -217,7 +218,7 @@ type Result<T, E = EconomicError> = core::result::Result<T, E>;
 
 /// Metadata never owns a second Ledger. Every escrow balance below is a
 /// projection reconciled to `joint.ledger()` before publishing a block.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct EconomicState {
     config: EconomicConfig,
     joint: JointProtocolState,
@@ -250,6 +251,8 @@ pub struct EconomicState {
     native_entitlements: NativeEconomicState,
     replaying_native_history: bool,
     insurance: InsuranceState,
+    // Runtime-only audit cadence and watermarks; never part of Eq, Debug or snapshots.
+    audit: AuditRuntime,
 }
 impl EconomicState {
     pub fn from_joint_unverified(
@@ -350,6 +353,7 @@ impl EconomicState {
             native_entitlements,
             replaying_native_history: replaying_native,
             insurance: InsuranceState::default(),
+            audit: AuditRuntime::default(),
         };
         state.verify()?;
         Ok(state)
@@ -844,6 +848,14 @@ impl EconomicState {
     }
 
     pub fn verify(&self) -> Result<()> {
+        self.verify_audit(None).map(|_| ())
+    }
+
+    /// The complete audit when `delta` is `None`. With a delta it runs the live
+    /// checks and extends the history checks over the block's additions only;
+    /// see `economic_audit_impl.rs`. The complete audit returns the accepted
+    /// contract replay, when it ran one.
+    fn verify_audit(&self, delta: Option<&AuditDelta<'_>>) -> Result<Option<Box<EconomicState>>> {
         if self.catalog_inner_source_verified != self.catalog_inner_oracle.is_some()
             || (self.catalog_inner_source_verified
                 && (self.config.source_consensus.is_some()
@@ -854,10 +866,14 @@ impl EconomicState {
         }
         self.config.validate()?;
         self.verify_native_entitlements()?;
-        self.verify_contract_binding()?;
+        let replay = self.verify_contract_binding_audit(delta)?;
         self.verify_source_consensus()?;
         self.verify_insurance()?;
-        self.joint.verify_for_economic_owner_unverified()?;
+        if delta.is_none() {
+            // A delta audit runs after `finalize_block_for_economic_unverified`,
+            // which audited this exact joint state, ids and ledger included.
+            self.joint.verify_for_economic_owner_unverified()?;
+        }
         self.verify_funding()?;
         self.verify_marks()?;
         self.verify_liquidations()?;
@@ -876,47 +892,53 @@ impl EconomicState {
         {
             return Err(EconomicError::Invariant);
         }
-        let book = ContractOrderbook::from_snapshot(self.book.snapshot())?;
-        if book != self.book {
-            return Err(EconomicError::Invariant);
-        }
-        let mut inputs: BTreeSet<_> = self.book.snapshot().seen.into_iter().collect();
-        for id in self.source_metadata_ids()? {
-            if !inputs.insert(id) {
+        if let Some(delta) = delta {
+            self.book.verify_structure_unverified()?;
+            self.verify_input_ids_delta(delta)?;
+            self.verify_legs_delta(delta)?;
+        } else {
+            let book = ContractOrderbook::from_snapshot(self.book.snapshot())?;
+            if book != self.book {
                 return Err(EconomicError::Invariant);
             }
-        }
-        for contract in &self.contract_binding.contracts {
-            if !inputs.insert(contract.creation_txid) {
+            let mut inputs: BTreeSet<_> = self.book.snapshot().seen.into_iter().collect();
+            for id in self.source_metadata_ids()? {
+                if !inputs.insert(id) {
+                    return Err(EconomicError::Invariant);
+                }
+            }
+            for contract in &self.contract_binding.contracts {
+                if !inputs.insert(contract.creation_txid) {
+                    return Err(EconomicError::Invariant);
+                }
+            }
+            for id in &self.cancel_ids {
+                if !inputs.insert(*id) {
+                    return Err(EconomicError::Invariant);
+                }
+            }
+            for receipt in self
+                .amm
+                .frames
+                .iter()
+                .flat_map(|frame| &frame.capital_receipts)
+            {
+                if !inputs.insert(receipt.txid) {
+                    return Err(EconomicError::Invariant);
+                }
+            }
+            for receipt in &self.insurance.receipts {
+                if !inputs.insert(receipt.input.txid) {
+                    return Err(EconomicError::Invariant);
+                }
+            }
+            if &inputs != self.joint.economic_input_ids_unverified() {
                 return Err(EconomicError::Invariant);
             }
-        }
-        for id in &self.cancel_ids {
-            if !inputs.insert(*id) {
-                return Err(EconomicError::Invariant);
-            }
-        }
-        for receipt in self
-            .amm
-            .frames
-            .iter()
-            .flat_map(|frame| &frame.capital_receipts)
-        {
-            if !inputs.insert(receipt.txid) {
-                return Err(EconomicError::Invariant);
-            }
-        }
-        for receipt in &self.insurance.receipts {
-            if !inputs.insert(receipt.input.txid) {
-                return Err(EconomicError::Invariant);
-            }
-        }
-        if &inputs != self.joint.economic_input_ids_unverified() {
-            return Err(EconomicError::Invariant);
-        }
-        for sequence in 0..self.internal_sequence {
-            if !self.ledger().is_processed(self.leg_id(sequence)) {
-                return Err(EconomicError::Invariant);
+            for sequence in 0..self.internal_sequence {
+                if !self.ledger().is_processed(self.leg_id(sequence)) {
+                    return Err(EconomicError::Invariant);
+                }
             }
         }
         let mut expected = BTreeMap::new();
@@ -997,7 +1019,11 @@ impl EconomicState {
         {
             return Err(EconomicError::Invariant);
         }
-        FeeBook::from_snapshot(self.fees.snapshot())?;
+        if let Some(delta) = delta {
+            self.fees.verify_after_mark(&delta.before.fees)?;
+        } else {
+            FeeBook::from_snapshot(self.fees.snapshot())?;
+        }
         track(
             self.escrow(b"fees", &[])?,
             self.fees.expected_custody_atoms(key)?,
@@ -1051,6 +1077,10 @@ impl EconomicState {
         self.ious
             .snapshot_bytes()
             .map_err(|_| EconomicError::InvalidSnapshot)?;
+        if let Some(delta) = delta {
+            self.verify_receipts_delta(delta)?;
+            return Ok(replay);
+        }
         let mut last = 0;
         let mut collected = 0;
         let mut paid = 0;
@@ -1100,7 +1130,7 @@ impl EconomicState {
         {
             return Err(EconomicError::Invariant);
         }
-        Ok(())
+        Ok(replay)
     }
 }
 
@@ -1159,6 +1189,7 @@ fn atoms_exact(value: &Decimal) -> Result<u128> {
     Ok(atoms)
 }
 
+include!("economic_audit_impl.rs");
 include!("economic_snapshot_impl.rs");
 include!("economic_funding_impl.rs");
 include!("economic_mark_impl.rs");
@@ -1178,6 +1209,9 @@ include!("economic_source_catalog_snapshot_impl.rs");
 include!("economic_native_impl.rs");
 include!("economic_insurance_impl.rs");
 include!("economic_insurance_snapshot_impl.rs");
+#[cfg(test)]
+#[path = "economic_audit_tests.rs"]
+mod economic_audit_tests;
 #[cfg(test)]
 #[path = "economic_insurance_poison_tests.rs"]
 mod economic_insurance_poison_tests;

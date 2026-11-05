@@ -2662,6 +2662,17 @@ impl EconomicState {
             return self.source_snapshot_bytes();
         }
         self.verify()?;
+        self.snapshot_bytes_encode(true)
+    }
+
+    /// Encodes the complete state without auditing it first. The block finisher
+    /// calls this after its own live and history checks; it is valid only for
+    /// configurations that `snapshot_bytes` routes to the plain owner encoder.
+    pub(crate) fn snapshot_bytes_after_audit(&self) -> Result<Vec<u8>> {
+        self.snapshot_bytes_encode(false)
+    }
+
+    fn snapshot_bytes_encode(&self, audit_joint: bool) -> Result<Vec<u8>> {
         let has_binding = self.config.contract_binding.is_some();
         let mut out = EconomicWriter(if has_binding {
             ECONOMIC_CONTRACT_MAGIC.to_vec()
@@ -2677,12 +2688,12 @@ impl EconomicState {
             ECONOMIC_STATE_MAGIC.to_vec()
         });
         econ_write_config(&mut out, &self.config)?;
-        out.embedded(
-            &self
-                .joint
-                .snapshot_for_economic_bytes()
-                .map_err(|_| econ_snapshot_bad())?,
-        )?;
+        let joint_bytes = if audit_joint {
+            self.joint.snapshot_for_economic_bytes()
+        } else {
+            self.joint.snapshot_for_economic_bytes_after_audit()
+        };
+        out.embedded(&joint_bytes.map_err(|_| econ_snapshot_bad())?)?;
         econ_write_book(&mut out, &self.book)?;
         econ_write_positions(&mut out, &self.positions)?;
         out.embedded(
@@ -2993,6 +3004,7 @@ impl EconomicState {
             catalog_inner_source_verified: false,
             native_entitlements: NativeEconomicState::default(),
             replaying_native_history: false,
+            audit: AuditRuntime::default(),
         };
         result.verify()?;
         if result.snapshot_bytes()?.as_slice() != bytes {

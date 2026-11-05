@@ -22,8 +22,8 @@ use tradelayer_core::contract_orderbook::{CancelCriteria, Order, RestingOrder, S
 use tradelayer_core::contract_registry::ContractId;
 use tradelayer_core::decimal::{Decimal, Rounding};
 use tradelayer_core::economic::{
-    EconomicConfig, EconomicError, EconomicInput, EconomicState, MarkConfig, MarkPolicy,
-    SettlementPolicy, TradeReceipt,
+    AuditPolicy, EconomicConfig, EconomicError, EconomicInput, EconomicState, MarkConfig,
+    MarkPolicy, SettlementPolicy, TradeReceipt,
 };
 use tradelayer_core::joint::{JointOperation, JointProtocolState, UnverifiedJointTx};
 use tradelayer_core::ledger::{AccountId, Ledger, Operation, PropertyId, PropertyKind, TxId};
@@ -428,6 +428,9 @@ fn new_session(req: &RpcValue) -> Res<Obj> {
     };
     let mut state =
         EconomicState::from_joint_unverified(config, bootstrap).map_err(|e| econ_error(&e))?;
+    // Live checks and the block's own additions every block, the complete audit at every
+    // 64th height.
+    state.set_audit_policy(AuditPolicy::default());
 
     // Block 1: activate the opcodes. Block 2: oracle, first price, initial grants.
     state

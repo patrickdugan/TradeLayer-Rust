@@ -468,6 +468,14 @@ pub struct FeeBookSnapshot {
     pub journal: Vec<FeeJournalEntry>,
 }
 
+/// Journal-free copy of a book's rows and queue; see `FeeBook::audit_mark`.
+#[derive(Debug, Clone)]
+pub(crate) struct FeeBookMark {
+    rows: BTreeMap<FeeKey, FeeRow>,
+    queued: BTreeMap<u64, Vec<QueuedFee>>,
+    journal_len: usize,
+}
+
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct FeeBook {
     rows: BTreeMap<FeeKey, FeeRow>,
@@ -495,6 +503,61 @@ impl FeeBook {
                 .ok_or(TallyError::AmountOverflow)?;
         }
         Ok((book, insurance_total))
+    }
+    /// Rows and queue of this book without its journal, with the journal length.
+    /// An incremental audit replays only the accruals added after the mark.
+    pub(crate) fn audit_mark(&self) -> FeeBookMark {
+        FeeBookMark {
+            rows: self.rows.clone(),
+            queued: self.queued.clone(),
+            journal_len: self.journal.len(),
+        }
+    }
+    /// The structural checks of `from_snapshot`, with the journal validated only
+    /// beyond the mark. Earlier entries were validated when they were appended.
+    pub(crate) fn verify_after_mark(&self, mark: &FeeBookMark) -> Result<()> {
+        if mark.journal_len > self.journal.len() {
+            return Err(TallyError::InvalidSnapshot);
+        }
+        if self.journal.len() > MAX_FEE_JOURNAL {
+            return Err(TallyError::Capacity);
+        }
+        Self::from_snapshot(FeeBookSnapshot {
+            rows: self.rows().collect(),
+            queued: self.queued().copied().collect(),
+            journal: Vec::new(),
+        })?;
+        for entry in &self.journal[mark.journal_len..] {
+            validate_journal(*entry)?;
+        }
+        Ok(())
+    }
+    /// Replays `entries` onto the marked rows with the exact accrual transition
+    /// and reports whether the result is this book: equal rows, equal queue and
+    /// a journal that is the marked prefix plus the replayed entries. The second
+    /// value is the checked sum of insurance requests of `entries`.
+    pub(crate) fn matches_accruals_after(
+        &self,
+        mark: &FeeBookMark,
+        entries: impl IntoIterator<Item = (PropertyId, FeeRoute, u128, u64)>,
+    ) -> Result<(bool, u128)> {
+        let mut book = Self {
+            rows: mark.rows.clone(),
+            queued: mark.queued.clone(),
+            journal: Vec::new(),
+        };
+        let mut insurance_total = 0_u128;
+        for (property, route, atoms, block) in entries {
+            let plan = book.accrue_inner(property, route, atoms, block, atoms)?;
+            insurance_total = insurance_total
+                .checked_add(plan.insurance_atoms)
+                .ok_or(TallyError::AmountOverflow)?;
+        }
+        let same = book.rows == self.rows
+            && book.queued == self.queued
+            && self.journal.len() >= mark.journal_len
+            && self.journal[mark.journal_len..] == book.journal[..];
+        Ok((same, insurance_total))
     }
     pub fn rows(&self) -> impl Iterator<Item = (FeeKey, FeeRow)> + '_ {
         self.rows.iter().map(|(k, v)| (*k, *v))

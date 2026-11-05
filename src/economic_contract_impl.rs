@@ -461,12 +461,14 @@ impl EconomicState {
         }
         Ok(())
     }
-    fn verify_contract_binding(&self) -> Result<()> {
+    /// Complete audit of the accepted-contract journal. Returns the replayed
+    /// state when it re-executed the frames, so the next block can extend it.
+    fn verify_contract_binding_full(&self) -> Result<Option<Box<EconomicState>>> {
         let Some(config) = &self.config.contract_binding else {
             return if self.contract_binding == ContractBindingState::default()
                 && !self.replaying_contract_history
             {
-                Ok(())
+                Ok(None)
             } else {
                 Err(EconomicError::Invariant)
             };
@@ -502,7 +504,7 @@ impl EconomicState {
             || self.catalog_inner_source_verified
             || self.config.source_consensus.is_some()
         {
-            return Ok(());
+            return Ok(None);
         }
         let bootstrap = self
             .decode_joint_bootstrap(&self.contract_binding.bootstrap)
@@ -514,9 +516,11 @@ impl EconomicState {
             if bootstrap != self.joint || !self.contract_binding.contracts.is_empty() {
                 return Err(EconomicError::Invariant);
             }
-            return Ok(());
+            return Ok(None);
         }
         let mut replay = Self::from_joint_unverified(self.config.clone(), bootstrap)?;
+        // The replay is the reference execution: it audits every block completely.
+        replay.audit.policy = AuditPolicy::EveryBlock;
         replay.replaying_contract_history = true;
         for frame in &self.contract_binding.frames {
             replay.apply_block_unverified(frame.height, frame.inputs.clone())?;
@@ -525,6 +529,6 @@ impl EconomicState {
         if replay != *self {
             return Err(EconomicError::Invariant);
         }
-        Ok(())
+        Ok(Some(Box::new(replay)))
     }
 }

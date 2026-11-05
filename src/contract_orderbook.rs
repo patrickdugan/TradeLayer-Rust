@@ -234,36 +234,15 @@ impl ContractOrderbook {
             return Err(BookError::InvalidSnapshot);
         }
         let seen: BTreeSet<_> = snapshot.seen.iter().copied().collect();
-        let mut live = BTreeSet::new();
-        for order in snapshot
-            .queued
-            .iter()
-            .chain(&snapshot.drained)
-            .chain(snapshot.resting.iter().map(|o| &o.order))
-        {
-            validate_order(order, snapshot.contract)?;
-            if !seen.contains(&order.txid) || !live.insert(order.txid) {
-                return Err(BookError::InvalidSnapshot);
-            }
-        }
-        if snapshot
-            .queued
-            .iter()
-            .chain(&snapshot.drained)
-            .any(|o| snapshot.processed_through.is_some_and(|h| o.height <= h))
-        {
-            return Err(BookError::InvalidSnapshot);
-        }
-        for o in &snapshot.resting {
-            positive(&o.remaining)?;
-            nonnegative(&o.reserve_quantity)?;
-            if o.sequence >= snapshot.next_sequence
-                || o.reserve_quantity > o.remaining
-                || o.remaining > number(&o.order.quantity)?.max(o.order.quantity.clone())
-            {
-                return Err(BookError::InvalidSnapshot);
-            }
-        }
+        Self::check_contents(
+            snapshot.contract,
+            &snapshot.queued,
+            &snapshot.drained,
+            &snapshot.resting,
+            &seen,
+            snapshot.next_sequence,
+            snapshot.processed_through,
+        )?;
         Ok(Self {
             contract: snapshot.contract,
             queued: snapshot.queued,
@@ -273,6 +252,74 @@ impl ContractOrderbook {
             next_sequence: snapshot.next_sequence,
             processed_through: snapshot.processed_through,
         })
+    }
+    /// Order-level checks shared by `from_snapshot` and `verify_structure_unverified`.
+    fn check_contents(
+        contract: ContractId,
+        queued: &[Order],
+        drained: &[Order],
+        resting: &[RestingOrder],
+        seen: &BTreeSet<TxId>,
+        next_sequence: u64,
+        processed_through: Option<u64>,
+    ) -> Result<()> {
+        let mut live = BTreeSet::new();
+        for order in queued
+            .iter()
+            .chain(drained)
+            .chain(resting.iter().map(|o| &o.order))
+        {
+            validate_order(order, contract)?;
+            if !seen.contains(&order.txid) || !live.insert(order.txid) {
+                return Err(BookError::InvalidSnapshot);
+            }
+        }
+        if queued
+            .iter()
+            .chain(drained)
+            .any(|o| processed_through.is_some_and(|h| o.height <= h))
+        {
+            return Err(BookError::InvalidSnapshot);
+        }
+        for o in resting {
+            positive(&o.remaining)?;
+            nonnegative(&o.reserve_quantity)?;
+            if o.sequence >= next_sequence
+                || o.reserve_quantity > o.remaining
+                || o.remaining > number(&o.order.quantity)?.max(o.order.quantity.clone())
+            {
+                return Err(BookError::InvalidSnapshot);
+            }
+        }
+        Ok(())
+    }
+    /// Number of distinct order ids ever admitted.
+    pub(crate) fn seen_count(&self) -> usize {
+        self.seen.len()
+    }
+    /// Exactly the checks `from_snapshot(self.snapshot())` applies, run in place:
+    /// a book is its own snapshot's reconstruction, so this is the same verdict
+    /// without copying the seen set, whose size grows with history.
+    pub(crate) fn verify_structure_unverified(&self) -> Result<()> {
+        if self.queued.len() + self.drained.len() + self.resting.len() > MAX_CONTRACT_ORDERS
+            || self.seen.len() > MAX_CONTRACT_ORDER_IDS
+            || self.processed_through.is_some_and(|h| h > MAX_ORDER_HEIGHT)
+            || self
+                .resting
+                .windows(2)
+                .any(|w| w[0].sequence >= w[1].sequence)
+        {
+            return Err(BookError::InvalidSnapshot);
+        }
+        Self::check_contents(
+            self.contract,
+            &self.queued,
+            &self.drained,
+            &self.resting,
+            &self.seen,
+            self.next_sequence,
+            self.processed_through,
+        )
     }
     fn validate_new(&self, order: &Order) -> Result<()> {
         validate_order(order, self.contract)?;

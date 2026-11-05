@@ -219,6 +219,19 @@ impl JointProtocolState {
     pub(crate) fn snapshot_for_economic_bytes(&self) -> Result<Vec<u8>, JointSnapshotError> {
         self.verify_for_economic_owner_unverified()
             .map_err(JointSnapshotError::Joint)?;
+        self.encode_for_economic_bytes()
+    }
+
+    /// Same bytes without the joint audit. The outer owner calls this only after
+    /// the joint state was audited by `finalize_block_for_economic_unverified`
+    /// or by its own full audit, with no change in between.
+    pub(crate) fn snapshot_for_economic_bytes_after_audit(
+        &self,
+    ) -> Result<Vec<u8>, JointSnapshotError> {
+        self.encode_for_economic_bytes()
+    }
+
+    fn encode_for_economic_bytes(&self) -> Result<Vec<u8>, JointSnapshotError> {
         let mut out = if self.native_policy().is_some() {
             b"TLJE\x03".to_vec()
         } else if self.system_epoch_ids.is_empty() {
