@@ -12,8 +12,11 @@ if (( $# > 1 )); then
   exit 2
 fi
 
+# cargo fmt hands every target root (lib, 16 bins, 300 tests) to one rustfmt
+# command, which exceeds the Windows command-line limit (os error 206). Check
+# the same roots in batches; rustfmt follows their mod declarations as cargo fmt does.
+printf '%s\0' src/lib.rs src/bin/*.rs tests/*.rs | xargs -0 -n 64 rustfmt --check --edition 2021
 # Cargo fmt omits files brought in through include!; check them independently.
-cargo fmt --all -- --check
 rustfmt --check --edition 2021 \
   src/registry_snapshot_impl.rs src/execution_snapshot_impl.rs \
   src/ledger_channels_impl.rs src/ledger_settlement_impl.rs \
