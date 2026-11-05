@@ -87,6 +87,8 @@ pub mod legacy_validity_audit; // Pinned validity.js source Type0/7/8/9 predicat
 pub mod liquidation_audit; // Stage 25E1 read-only maintenance, bankruptcy and insurance-deficit preflight.
 pub mod liquidation_input_gate; // Stage 25G read-only current-block provenance and mandatory authorization gap.
 pub mod liquidation_source_characterization; // Source-pinned read-only AMM priority and avg-vs-mark audit.
+pub mod listener_config; // Strict listenerd config and expected-head tokens; no authority, no defaults.
+pub mod listener_demo; // Labelled demo history for tradelayer-listenerd; synthetic ids, nothing chain-derived.
 pub mod litecoin_evidence; // Stage 23C raw-byte Litecoin evidence checks and replay gate; read-only.
 pub mod margin_map; // Local position accounting; authenticated collateral orchestration external.
 pub mod margin_map_source_owner; // Literal source instance maps and position identity.

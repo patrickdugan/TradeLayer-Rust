@@ -545,3 +545,38 @@ fn synthetic_property_keys_are_query_metadata_not_mint_authority() {
     }
     assert!(parse_value(&value(r#"{"value":"1e999"}"#)).is_err());
 }
+
+#[test]
+fn node_rpc_kyc_and_commit_checks_validate_their_address_and_reach_the_backend() {
+    for (route, target) in [
+        ("/tl_check_kyc", "node.check_kyc"),
+        ("/tl_check_commits", "node.check_commits"),
+    ] {
+        for body in [r#"{"address":"alice"}"#, r#"{"params":"alice"}"#] {
+            let mut b = Backend::default();
+            dispatch(&request(ServiceMethod::Post, route, body), &mut b).unwrap();
+            assert_eq!(b.calls.len(), 1);
+            assert_eq!(b.calls[0].target, target);
+            assert_eq!(b.calls[0].arguments, vec![value("\"alice\"")]);
+        }
+        let mut b = Backend::default();
+        for body in [
+            "{}",
+            r#"{"address":"alice","params":"bob"}"#,
+            r#"{"address":""}"#,
+            r#"{"address":"~econ:x"}"#,
+            r#"{"address":7}"#,
+        ] {
+            assert_eq!(
+                dispatch(&request(ServiceMethod::Post, route, body), &mut b),
+                Err(ServiceError::InvalidRequest),
+                "{route} {body}"
+            );
+        }
+        assert!(b.calls.is_empty());
+        assert_eq!(
+            dispatch(&request(ServiceMethod::Get, route, "{}"), &mut b),
+            Err(ServiceError::NotFound)
+        );
+    }
+}

@@ -505,6 +505,11 @@ pub fn dispatch<B: ServiceBackend>(
                 ],
             )
         }
+        // Node RPC methods of the patched Litecoin Core, not listener routes: the pinned
+        // listener sources define neither. They parse their address and report the
+        // typed unsupported error; see docs/LISTENERD.md.
+        (true, _, "tl_check_kyc") => ("node.check_kyc", vec![balance_address(request)?]),
+        (true, _, "tl_check_commits") => ("node.check_commits", vec![balance_address(request)?]),
         (true, _, "tl_loadwallet") => ("wallet.load", vec![]),
         (true, _, "tl_getchannel") => ("channel.get", vec![baddress(request, "params")?]),
         (true, _, "tl_createrawtx_opreturn") => {

@@ -875,6 +875,8 @@ impl ServiceBackend for EconomicReadBackend<'_> {
             "node.validate_address" | "wallet.load" | "wallet.add_op_return" => {
                 Err(ServiceError::Unavailable("wallet_rpc"))
             }
+            "node.check_kyc" => Err(ServiceError::Unavailable("node_kyc_attestation_rpc")),
+            "node.check_commits" => Err(ServiceError::Unavailable("node_channel_commit_rpc")),
             "channel.get" => {
                 use crate::ledger::ChannelSide;
                 args.count(1)?;
