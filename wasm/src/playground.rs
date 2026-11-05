@@ -1013,7 +1013,10 @@ fn state_view(id: &str, s: &mut Session, req: &RpcValue) -> Res<Obj> {
         )
         .raw("properties", array(properties))
         .num("fill_total", state.receipt_count())
-        .num("state_bytes", state.snapshot_bytes().map_or(0, |bytes| bytes.len()))
+        .num(
+            "state_bytes",
+            state.snapshot_bytes().map_or(0, |bytes| bytes.len()),
+        )
         .num("ledger_markers", state.ledger().processed_count())
         .num("input_ids", state.joint().processed_count())
         .raw("fills", array(fills)))
