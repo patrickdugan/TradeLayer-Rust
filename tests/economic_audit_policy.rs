@@ -4,6 +4,7 @@
 //! History audits run only on the block's additions between full-audit heights,
 //! so these runs are the evidence that the split is not observable.
 use std::collections::BTreeSet;
+use tradelayer_core::chain::{BlockId, Tip};
 use tradelayer_core::contract_orderbook::{CancelCriteria, Order, Side, MAX_CONTRACT_ORDERS};
 use tradelayer_core::contract_registry::{ContractAsset, ContractId, ContractParameters};
 use tradelayer_core::decimal::Decimal;
@@ -19,6 +20,16 @@ use tradelayer_core::registry::RegistryAction;
 use tradelayer_core::tally::FeeRoute;
 
 const ATOMS: u128 = 100_000_000;
+/// The absolute height of the anchored runs' anchor. It is a multiple of the
+/// scenarios' publication and trade cadences (5 and 10), so an anchored run
+/// repeats the genesis run at heights shifted by it.
+const ANCHOR_HEIGHT: u64 = 1_000_000;
+fn anchored(height: u64) -> Tip {
+    Tip {
+        height,
+        id: BlockId([0xA7; 32]),
+    }
+}
 const POLICIES: [AuditPolicy; 4] = [
     AuditPolicy::EveryBlock,
     AuditPolicy::Periodic(64),
@@ -117,12 +128,17 @@ fn ok_count(steps: &[Step]) -> usize {
 // ---- plain owner: fixed margin, the economic.rs fixtures -------------------
 
 fn plain_config() -> EconomicConfig {
+    plain_config_at(EconomicConfig::genesis_anchor(TradeLayerMainnet::Litecoin))
+}
+
+fn plain_config_at(anchor: Tip) -> EconomicConfig {
     EconomicConfig {
         native_entitlements: None,
         insurance: None,
         contract_binding: None,
         source_consensus: None,
         network: TradeLayerMainnet::Litecoin,
+        anchor,
         contract: c(),
         collateral: p(),
         inverse: false,
@@ -178,6 +194,14 @@ fn plain_bootstrap(holders: &[(&str, u128)], alice_keeps: u128) -> JointProtocol
 fn plain_state(holders: &[(&str, u128)], alice_keeps: u128) -> EconomicState {
     EconomicState::from_joint_unverified(plain_config(), plain_bootstrap(holders, alice_keeps))
         .unwrap()
+}
+
+fn plain_state_at(anchor: Tip, holders: &[(&str, u128)], alice_keeps: u128) -> EconomicState {
+    EconomicState::from_joint_unverified(
+        plain_config_at(anchor),
+        plain_bootstrap(holders, alice_keeps),
+    )
+    .unwrap()
 }
 
 fn activate_plain() -> EconomicInput {
@@ -396,12 +420,17 @@ fn cents(c: u64) -> String {
 /// order follows with probability 0.6. Periodically a block replays an earlier
 /// id and fails, and another sends the poor account into a funding failure.
 fn market_maker_blocks(blocks: u64) -> Vec<Block> {
+    market_maker_blocks_above(blocks, 0)
+}
+
+/// The same flow with every block `base` heights higher.
+fn market_maker_blocks_above(blocks: u64, base: u64) -> Vec<Block> {
     let mut rng = Rng(1);
     let mut price = 100.0_f64;
     let mut next_id = 1000_u64;
-    let mut out = vec![(1, vec![activate_plain()])];
+    let mut out = vec![(base + 1, vec![activate_plain()])];
     for k in 0..blocks {
-        let height = 2 + k;
+        let height = base + 2 + k;
         price *= 1.0 + (rng.next() - 0.5) * 2.0 * 0.001;
         let mid = (price * 100.0 + 0.5).floor() as u64;
         let mut inputs = vec![cancel(bump(&mut next_id), "mm", CancelCriteria::All)];
@@ -576,11 +605,19 @@ fn contract_bootstrap() -> JointProtocolState {
 }
 
 fn contract_config(input: &CreateContractInput) -> EconomicConfig {
+    contract_config_at(
+        input,
+        EconomicConfig::genesis_anchor(TradeLayerMainnet::Litecoin),
+    )
+}
+
+fn contract_config_at(input: &CreateContractInput, anchor: Tip) -> EconomicConfig {
     EconomicConfig {
         native_entitlements: None,
         insurance: None,
         source_consensus: None,
         network: TradeLayerMainnet::Litecoin,
+        anchor,
         contract: c(),
         collateral: p(),
         inverse: input.parameters.inverse,
@@ -630,9 +667,14 @@ fn publish(number: u64, price: u128) -> EconomicInput {
 }
 
 fn contract_blocks(blocks: u64) -> Vec<Block> {
+    contract_blocks_above(blocks, 0)
+}
+
+/// The same history with every block `base` heights higher.
+fn contract_blocks_above(blocks: u64, base: u64) -> Vec<Block> {
     let mut out = vec![
         (
-            1,
+            base + 1,
             vec![registry(
                 10,
                 "admin",
@@ -643,7 +685,7 @@ fn contract_blocks(blocks: u64) -> Vec<Block> {
             )],
         ),
         (
-            2,
+            base + 2,
             vec![
                 registry(
                     20,
@@ -664,7 +706,7 @@ fn contract_blocks(blocks: u64) -> Vec<Block> {
     // A mark epoch runs for each published price, so prices are published every
     // tenth block and trades happen every fifth block at the latest mark.
     let mut mark = 100_u128;
-    for height in 3..3 + blocks {
+    for height in base + 3..base + 3 + blocks {
         let mut inputs = Vec::new();
         if height.is_multiple_of(10) {
             mark = 100 + u128::from(height / 10 % 5);
@@ -684,7 +726,7 @@ fn contract_blocks(blocks: u64) -> Vec<Block> {
                 height,
             ));
         }
-        if height == 3 + blocks / 2 {
+        if height == base + 3 + blocks / 2 {
             // A failing block in the middle: replays the oracle publication id.
             out.push((height, vec![publish(21, 100)]));
         }
@@ -709,6 +751,61 @@ fn accepted_contract_mode_over_a_long_history() {
     assert_eq!(steps.iter().filter(|s| s.result.is_err()).count(), 1);
     let fills: usize = steps.iter().filter_map(|s| s.result.as_ref().ok()).sum();
     assert!(fills as u64 >= n / 10, "the flow trades: {fills}");
+}
+
+// ---- anchored runs ---------------------------------------------------------
+
+/// Heights are absolute: a chain anchored above genesis, over the same flow at
+/// shifted heights, gives the same results under every audit cadence.
+#[test]
+fn anchored_market_maker_flow_agrees_under_every_policy() {
+    let holders = [
+        ("mm", 5_000_000),
+        ("t0", 500_000),
+        ("t1", 500_000),
+        ("t2", 500_000),
+        ("t3", 500_000),
+        ("poor", 1),
+    ];
+    let n: u64 = 300;
+    let initial = plain_state_at(anchored(ANCHOR_HEIGHT), &holders, 10);
+    let blocks = market_maker_blocks_above(n, ANCHOR_HEIGHT);
+    let steps = differential("anchored market maker", &initial, &blocks);
+    // The anchored run and the genesis run apply the same blocks and fail the
+    // same blocks; only the anchor differs.
+    let genesis = plain_state(&holders, 10);
+    let reference = differential("genesis market maker", &genesis, &market_maker_blocks(n));
+    let results = |steps: &[Step]| -> Vec<Result<usize, EconomicError>> {
+        steps.iter().map(|s| s.result.clone()).collect()
+    };
+    assert_eq!(results(&steps), results(&reference));
+    assert!(
+        ok_count(&steps) > 250,
+        "the flow runs: {}",
+        ok_count(&steps)
+    );
+    let fills: usize = steps.iter().filter_map(|s| s.result.as_ref().ok()).sum();
+    assert!(fills > 100, "the flow trades: {fills}");
+    // A block stamped with a genesis-relative height is refused by the anchor.
+    let relative = differential("relative heights", &initial, &market_maker_blocks(3));
+    assert!(relative.iter().all(|s| s.result.is_err()));
+}
+
+#[test]
+fn anchored_accepted_contract_mode_agrees_under_every_policy() {
+    let input = contract_creation();
+    let initial = EconomicState::from_joint_unverified(
+        contract_config_at(&input, anchored(ANCHOR_HEIGHT)),
+        contract_bootstrap(),
+    )
+    .unwrap();
+    let n: u64 = if cfg!(debug_assertions) { 70 } else { 200 };
+    let blocks = contract_blocks_above(n, ANCHOR_HEIGHT);
+    let steps = differential("anchored accepted contract", &initial, &blocks);
+    assert_eq!(steps.iter().filter(|s| s.result.is_err()).count(), 1);
+    let fills: usize = steps.iter().filter_map(|s| s.result.as_ref().ok()).sum();
+    assert!(fills as u64 >= n / 10, "the flow trades: {fills}");
+    assert_eq!(initial.anchor(), anchored(ANCHOR_HEIGHT));
 }
 
 // ---- capacity pressure -----------------------------------------------------

@@ -30,7 +30,7 @@
     },
     {
       "path": "src/economic_validity.rs",
-      "sha256": "83dfbcf683ae993678f75462557d1e753dbb9c01ca347ed2b97cf490c4ae7a44",
+      "sha256": "7bac72ab4bc450130c5218bd09ee54bf104fc19b72b8aee6ddbf1361c3f469ce",
       "lfNormalized": true
     },
     {
@@ -70,7 +70,7 @@
     },
     {
       "path": "src/consensus_source.rs",
-      "sha256": "b40ced0f9f707f0c6c13b7d9450f249f3a67034f74749b9ac5524efece772912",
+      "sha256": "b2bedcf9f58a94475ddc2e9228927d14a1b3ae528ad202ee717bb3bc14422796",
       "lfNormalized": true
     },
     {
@@ -105,22 +105,22 @@
     },
     {
       "path": "src/economic_funding_impl.rs",
-      "sha256": "5384b5d5d55a7a76ccd9500a54ce9d0afd9004af1296eba8d2b725b43cb37be4",
+      "sha256": "d054a64d2638a58aafbb2f5412c63fed4b1394be566f9d391596d479b3b4ffc8",
       "lfNormalized": true
     },
     {
       "path": "src/economic_mark_impl.rs",
-      "sha256": "12f231d15fe856cd2652d50b07667ae393c43d5f9c60f4556f7a4688d1636d2e",
+      "sha256": "74c70d8401a0812ed2276ba58feedea9f3c0895101aa0db5cf44116ca913bba3",
       "lfNormalized": true
     },
     {
       "path": "src/economic_contract_impl.rs",
-      "sha256": "16117e04ccc31b70ada36431488808444d3cff5dc30f0e6c79578c8678ef0611",
+      "sha256": "8b10e802d93f18cf6cb460b62d67d05f51338d779e5d0519cf59049f3e3fb53d",
       "lfNormalized": true
     },
     {
       "path": "src/economic_chain.rs",
-      "sha256": "cbbc28da09fd42cae55ebd9776ecd9eae53f225322ead909efb5358a7f806cd7",
+      "sha256": "48912484aa4af05affd1f07e4919b03462d24b17c194c3c3b0d3c00ccbe000af",
       "lfNormalized": true
     },
     {

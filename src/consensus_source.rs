@@ -282,7 +282,7 @@ pub(crate) fn execute_block_unverified(
             .checked_add(1)
             .ok_or(ConsensusSourceError::WrongParent)?
         || header.parent != parent.id
-        || header.id == state.config().network.genesis()
+        || header.id == state.config().anchor.id
         || state
             .source_consensus_state()
             .frames

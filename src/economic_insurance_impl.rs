@@ -323,7 +323,7 @@ impl EconomicState {
             self.require_insurance_input(&receipt.input, receipt.height)?;
             if receipt.fund_id != fund_id
                 || receipt.height < last_height
-                || receipt.height > self.finalized_height().unwrap_or(0)
+                || receipt.height > self.tip_height()
                 || receipt.reserve_before_atoms != reserve
                 || receipt.internal_sequence_before < last_sequence
                 || receipt.internal_sequence_after > self.internal_sequence

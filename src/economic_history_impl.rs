@@ -334,7 +334,7 @@ impl EconomicState {
     /// The checks every receipt must pass, archived or not.
     fn check_receipt(&self, receipt: &TradeReceipt, last: u64) -> Result<()> {
         if receipt.height < last
-            || receipt.height == 0
+            || receipt.height <= self.config.anchor.height
             || self.finalized_height().is_none_or(|h| receipt.height > h)
             || !self.book.has_seen(receipt.buy_txid)
             || !self.book.has_seen(receipt.sell_txid)

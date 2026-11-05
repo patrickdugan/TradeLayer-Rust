@@ -112,6 +112,7 @@ fn config(input: &CreateContractInput) -> EconomicConfig {
         insurance: None,
         source_consensus: None,
         network: TradeLayerMainnet::Litecoin,
+        anchor: EconomicConfig::genesis_anchor(TradeLayerMainnet::Litecoin),
         contract: c(),
         collateral: p(),
         inverse: input.parameters.inverse,

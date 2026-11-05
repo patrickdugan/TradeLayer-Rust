@@ -54,6 +54,7 @@ fn config(network: TradeLayerMainnet) -> EconomicChainConfig {
             native_entitlements: None,
             insurance: None,
             network,
+            anchor: EconomicConfig::genesis_anchor(network),
             contract: ContractId::try_from(1).unwrap(),
             collateral: p(),
             inverse: false,

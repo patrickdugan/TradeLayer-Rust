@@ -108,7 +108,7 @@ impl<'a> EconomicSpotPrices<'a> {
         if from > to {
             return Err(SpotPriceError::InvalidRange);
         }
-        if to > self.finalized_height().unwrap_or(0) {
+        if to > self.source.tip_height() {
             return Err(SpotPriceError::BeyondFinalizedHeight);
         }
         Ok(())

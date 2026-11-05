@@ -69,7 +69,7 @@ impl EconomicState {
         let mut liquidations = self.liquidation.events.iter().peekable();
         let mut insurance_receipts = self.insurance.receipts.iter().peekable();
         for (ordinal, frame) in self.amm.frames.iter().enumerate() {
-            if frame.height != ordinal as u64 + 1 {
+            if frame.height != self.frame_height(ordinal) {
                 return Err(EconomicError::Invariant);
             }
             cash.legs.clear();
@@ -457,6 +457,7 @@ mod amm_cash_history_tests {
             insurance: None,
             source_consensus: None,
             network: TradeLayerMainnet::Bitcoin,
+            anchor: EconomicConfig::genesis_anchor(TradeLayerMainnet::Bitcoin),
             contract: ContractId::try_from(1).unwrap(),
             collateral,
             inverse: false,

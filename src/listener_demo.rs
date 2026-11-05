@@ -70,6 +70,7 @@ pub fn demo_config() -> EconomicChainConfig {
             insurance: None,
             source_consensus: None,
             network: TradeLayerMainnet::Bitcoin,
+            anchor: EconomicConfig::genesis_anchor(TradeLayerMainnet::Bitcoin),
             contract: ContractId::try_from(1).expect("nonzero"),
             collateral: property(TUSD),
             inverse: false,

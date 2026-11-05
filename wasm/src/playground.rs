@@ -410,6 +410,7 @@ fn new_session(req: &RpcValue) -> Res<Obj> {
         insurance: None,
         source_consensus: None,
         network: TradeLayerMainnet::Bitcoin,
+        anchor: EconomicConfig::genesis_anchor(TradeLayerMainnet::Bitcoin),
         contract,
         collateral: tusd,
         inverse: false,

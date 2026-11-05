@@ -10,15 +10,15 @@
 //!
 //! # Height invariant
 //!
-//! The economic chain starts at height 0 on the network's genesis tip and
-//! extends one block at a time. `NodeBinding` maps it onto the observed chain:
-//! economic height 0 is the observed `base` tip, and economic height `e` is
-//! observed height `base.height + e`. With `base` at height 0 on the network
-//! genesis the map is the identity. Before every apply the economic tip, seen
-//! through the map, must be the observer's anchor or a block on the observer's
+//! Heights are absolute. The economic chain is anchored at the node's base
+//! tip (`NodeBinding::base`, the node's `--anchor-*`), which must be the
+//! chain's own `EconomicChainConfig::anchor()`; any other anchor is
+//! `IngestError::Misaligned` and nothing is applied. The first block applied
+//! is `base.height + 1`, and every block carries its observed height, so the
+//! source rules see the heights of the observed chain. Before every apply the
+//! economic tip must be the observer's anchor or a block on the observer's
 //! selected chain, and the block applied must be that tip's child on that
 //! chain. Any other state is `IngestError::Misaligned` and nothing is applied.
-//! A nonzero `base` shifts the heights the source rules see by `base.height`.
 
 use crate::admission::{
     admit_block, sender_address, AdmissionContext, AdmissionError, AdmissionNetwork,
@@ -89,63 +89,39 @@ impl From<DaemonError> for IngestError {
 
 type Result<T> = core::result::Result<T, IngestError>;
 
-/// The map between the observed chain and the economic chain; see the module
+/// The observed base the economic chain is anchored at; see the module
 /// documentation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct NodeBinding {
     pub network: TradeLayerMainnet,
-    /// The observed tip that is economic height 0.
+    /// The observed tip the economic chain is anchored at. The chain's
+    /// configured anchor must equal it.
     pub base: Tip,
 }
 impl NodeBinding {
-    /// The economic header of an observed block. The first economic block's
-    /// parent is the network genesis tip, which stands for `base`.
+    /// Refuses a chain anchored anywhere but at the base tip.
+    pub fn require_anchor(&self, chain: &EconomicChain) -> Result<()> {
+        if chain.config().anchor() != self.base {
+            return Err(IngestError::Misaligned(
+                "the economic anchor is not the node's base tip",
+            ));
+        }
+        Ok(())
+    }
+    /// The economic header of an observed block: the same height, id and
+    /// parent. The block must lie above the base, and the first block above it
+    /// must extend it.
     pub fn economic_header(&self, observed: BlockHeader) -> Result<BlockHeader> {
-        let height = observed
-            .height
-            .checked_sub(self.base.height)
-            .filter(|h| *h > 0)
-            .ok_or(IngestError::Misaligned("block is not above the base tip"))?;
-        let parent = if height == 1 {
-            if observed.parent != self.base.id {
-                return Err(IngestError::Misaligned(
-                    "first block does not extend the base",
-                ));
-            }
-            self.network.genesis()
-        } else {
-            observed.parent
-        };
-        Ok(BlockHeader {
-            height,
-            id: observed.id,
-            parent,
-        })
-    }
-    /// The observed tip an economic tip stands for.
-    pub fn observed_tip(&self, economic: Tip) -> Tip {
-        if economic.height == 0 {
-            self.base
-        } else {
-            Tip {
-                height: economic.height.saturating_add(self.base.height),
-                id: economic.id,
-            }
+        if observed.height <= self.base.height {
+            return Err(IngestError::Misaligned("block is not above the base tip"));
         }
-    }
-    /// The economic tip an observed tip stands for; `None` below the base or
-    /// when the base height holds another block.
-    pub fn economic_tip(&self, observed: Tip) -> Option<Tip> {
-        if observed.height == self.base.height {
-            return (observed.id == self.base.id).then_some(Tip {
-                height: 0,
-                id: self.network.genesis(),
-            });
+        if observed.height == self.base.height.saturating_add(1) && observed.parent != self.base.id
+        {
+            return Err(IngestError::Misaligned(
+                "first block does not extend the base",
+            ));
         }
-        Some(Tip {
-            height: observed.height.checked_sub(self.base.height)?,
-            id: observed.id,
-        })
+        Ok(observed)
     }
 }
 
@@ -399,7 +375,8 @@ impl NodeIngest {
         anchor: Tip,
         canonical: &[BlockHeader],
     ) -> Result<Locate> {
-        let observed = self.config.binding.observed_tip(chain.tip());
+        self.config.binding.require_anchor(chain)?;
+        let observed = chain.tip();
         if observed == anchor {
             return Ok(Locate::Apply(0));
         }
@@ -423,7 +400,7 @@ impl NodeIngest {
                 Some(e) => usize::try_from(e - 1)
                     .ok()
                     .and_then(|index| frames.get(index))
-                    .is_some_and(|f| f.header.height == e && f.header.id == tip.id),
+                    .is_some_and(|f| f.header.height == tip.height && f.header.id == tip.id),
                 None => false,
             }
         };
@@ -573,7 +550,8 @@ impl NodeIngest {
         provider: &mut P,
     ) -> Result<(EconomicHead, BlockReport)> {
         let header = record.header();
-        let expected_parent = self.config.binding.observed_tip(durable.chain()?.tip());
+        self.config.binding.require_anchor(durable.chain()?)?;
+        let expected_parent = durable.chain()?.tip();
         if expected_parent.height.checked_add(1) != Some(header.height)
             || expected_parent.id != header.parent
         {
@@ -595,13 +573,14 @@ impl NodeIngest {
         durable: &mut DurableEconomicChain,
         target: Tip,
     ) -> Result<EconomicHead> {
-        let economic = self
-            .config
-            .binding
-            .economic_tip(target)
-            .ok_or(IngestError::Misaligned(
+        let base = self.config.binding.base;
+        self.config.binding.require_anchor(durable.chain()?)?;
+        if target.height < base.height || (target.height == base.height && target.id != base.id) {
+            return Err(IngestError::Misaligned(
                 "rollback target is below the base tip",
-            ))?;
+            ));
+        }
+        let economic = target;
         let tip = durable.chain()?.tip();
         let head = durable.head()?;
         if tip.height <= economic.height {

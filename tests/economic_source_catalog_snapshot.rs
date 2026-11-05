@@ -168,6 +168,7 @@ fn fixture(native: bool, label: &str) -> (EconomicState, EconomicConfig, BTreeSe
     };
     let config = EconomicConfig {
         network,
+        anchor: EconomicConfig::genesis_anchor(network),
         contract: 1.try_into().unwrap(),
         collateral,
         inverse: false,

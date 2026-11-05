@@ -161,6 +161,7 @@ fn fixture() -> (Ledger, NativeEntitlementPolicy, EconomicChainConfig) {
     let cfg = EconomicChainConfig {
         economics: EconomicConfig {
             network,
+            anchor: EconomicConfig::genesis_anchor(network),
             contract: 1.try_into().unwrap(),
             collateral: p(1),
             inverse: false,

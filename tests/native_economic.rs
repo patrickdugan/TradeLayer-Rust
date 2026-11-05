@@ -19,6 +19,7 @@ fn config(policy: NativeEntitlementPolicy) -> EconomicConfig {
     EconomicConfig {
         insurance: None,
         network: policy.network,
+        anchor: EconomicConfig::genesis_anchor(policy.network),
         contract: ContractId::try_from(1).unwrap(),
         collateral: p(1),
         inverse: false,

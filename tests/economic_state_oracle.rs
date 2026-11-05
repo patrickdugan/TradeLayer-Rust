@@ -80,6 +80,7 @@ fn config(network: TradeLayerMainnet) -> EconomicChainConfig {
             insurance: None,
             source_consensus: None,
             network,
+            anchor: EconomicConfig::genesis_anchor(network),
             contract: c(),
             collateral: p(),
             inverse: false,
@@ -356,6 +357,7 @@ fn independent_configuration_and_network_are_checked() {
     assert!(EconomicStateOracleExport::decode(&bytes, &expected(&changed, head)).is_err());
     changed = config.clone();
     changed.economics.network = TradeLayerMainnet::Dogecoin;
+    changed.economics.anchor = EconomicConfig::genesis_anchor(TradeLayerMainnet::Dogecoin);
     assert!(matches!(
         EconomicStateOracleExport::decode(&bytes, &expected(&changed, head)),
         Err(EconomicOracleError::WrongNetwork)

@@ -219,6 +219,7 @@ fn fixture(native: bool) -> (EconomicState, EconomicConfig, BTreeSet<PropertyId>
         SourceCatalogOwners::new(properties, ClearlistSourceOwner::new()).with_oracles(oracles);
     let config = EconomicConfig {
         network,
+        anchor: EconomicConfig::genesis_anchor(network),
         contract: 1.try_into().unwrap(),
         collateral: p(7),
         inverse: false,

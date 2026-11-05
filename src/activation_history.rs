@@ -79,22 +79,18 @@ impl<'a> ActivationHistoryView<'a> {
         if state.config().source_consensus.is_none() {
             return Err(ActivationHistoryError::MissingOriginHistory);
         }
-        if state.config() != &chain.config().economics
-            || state.finalized_height().unwrap_or(0) != expected_tip.height
+        if state.config() != &chain.config().economics || state.tip_height() != expected_tip.height
         {
             return Err(ActivationHistoryError::InvalidOwner);
         }
         let source = state.source_consensus_state();
-        if source.bootstrap.is_empty() || source.frames.len() as u64 != expected_tip.height {
+        if source.bootstrap.is_empty() || source.frames.len() as u64 != state.applied_blocks() {
             return Err(ActivationHistoryError::IncompleteOriginHistory);
         }
         if source.frames.len() > MAX_SOURCE_FRAMES {
             return Err(ActivationHistoryError::Capacity);
         }
-        let mut parent = Tip {
-            height: 0,
-            id: chain.config().economics.network.genesis(),
-        };
+        let mut parent = chain.config().anchor();
         let mut total = 0usize;
         for frame in &source.frames {
             if frame.header.height

@@ -128,6 +128,7 @@ fn config(network: TradeLayerMainnet, rollback_limit: usize) -> EconomicChainCon
             source_consensus: None,
             contract_binding: None,
             network,
+            anchor: EconomicConfig::genesis_anchor(network),
             contract: c(),
             collateral: p(),
             inverse: false,

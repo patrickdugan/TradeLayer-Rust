@@ -510,12 +510,14 @@ impl JointProtocolState {
 
     fn verify_components_mode_unverified(&self, economic: bool) -> Result<(), JointError> {
         if let Some(policy) = self.native_policy() {
+            // The bootstrap tip is the owner's anchor. A genesis-height anchor
+            // must be the network genesis; the owner above this state checks
+            // the policy against its own anchor.
             if policy.network != self.network
-                || policy.bootstrap
-                    != (crate::chain::Tip {
-                        height: 0,
-                        id: self.network.genesis(),
-                    })
+                || self
+                    .network
+                    .check_genesis_if_applicable(policy.bootstrap)
+                    .is_err()
             {
                 return Err(JointError::WrongNetwork);
             }

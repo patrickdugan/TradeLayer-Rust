@@ -475,7 +475,7 @@ impl EconomicState {
         };
         self.contract_record_budget()?;
         if contract_bootstrap_hash(&self.contract_binding.bootstrap) != config.bootstrap_commitment
-            || self.contract_binding.frames.len() as u64 != self.finalized_height().unwrap_or(0)
+            || self.contract_binding.frames.len() as u64 != self.applied_blocks()
         {
             return Err(EconomicError::Invariant);
         }
@@ -483,8 +483,8 @@ impl EconomicState {
         for (index, contract) in self.contract_binding.contracts.iter().enumerate() {
             if contract.definition.id.get() as usize != index + 1
                 || !ids.insert(contract.creation_txid)
-                || contract.height == 0
-                || contract.height > self.finalized_height().unwrap_or(0)
+                || contract.height <= self.config.anchor.height
+                || contract.height > self.tip_height()
             {
                 return Err(EconomicError::Invariant);
             }
@@ -493,7 +493,8 @@ impl EconomicState {
             }
         }
         for (index, frame) in self.contract_binding.frames.iter().enumerate() {
-            if frame.height != index as u64 + 1 || frame.inputs.len() > MAX_ECONOMIC_INPUTS {
+            if frame.height != self.frame_height(index) || frame.inputs.len() > MAX_ECONOMIC_INPUTS
+            {
                 return Err(EconomicError::Invariant);
             }
         }

@@ -14,9 +14,9 @@ pub(crate) struct EconomicBlockStage {
 
 impl EconomicState {
     pub(crate) fn begin_block_stage_unverified(&self, height: u64) -> Result<EconomicBlockStage> {
-        if height == 0
+        if height <= self.config.anchor.height
             || height > crate::contract_orderbook::MAX_ORDER_HEIGHT
-            || self.finalized_height().unwrap_or(0).checked_add(1) != Some(height)
+            || self.tip_height().checked_add(1) != Some(height)
         {
             return Err(EconomicError::InvalidHeight);
         }

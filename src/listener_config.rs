@@ -179,6 +179,7 @@ pub fn parse_config(text: &str) -> Result<EconomicChainConfig> {
             insurance: None,
             source_consensus: None,
             network,
+            anchor: EconomicConfig::genesis_anchor(network),
             contract,
             collateral,
             inverse,

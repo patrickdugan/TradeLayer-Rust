@@ -238,7 +238,7 @@ impl EconomicState {
             });
         for receipt in new_receipts {
             if receipt.height < last
-                || receipt.height == 0
+                || receipt.height <= self.config.anchor.height
                 || self.finalized_height().is_none_or(|h| receipt.height > h)
                 || !self.book.has_seen(receipt.buy_txid)
                 || !self.book.has_seen(receipt.sell_txid)
@@ -316,7 +316,7 @@ impl EconomicState {
         // The journal's record budget was checked on this exact journal when
         // the finisher appended the frame, so it is not encoded a second time.
         if contract_bootstrap_hash(&self.contract_binding.bootstrap) != config.bootstrap_commitment
-            || self.contract_binding.frames.len() as u64 != self.finalized_height().unwrap_or(0)
+            || self.contract_binding.frames.len() as u64 != self.applied_blocks()
         {
             return Err(EconomicError::Invariant);
         }
@@ -328,8 +328,8 @@ impl EconomicState {
             .skip(delta.before.contracts)
         {
             if contract.definition.id.get() as usize != index + 1
-                || contract.height == 0
-                || contract.height > self.finalized_height().unwrap_or(0)
+                || contract.height <= self.config.anchor.height
+                || contract.height > self.tip_height()
             {
                 return Err(EconomicError::Invariant);
             }
@@ -340,15 +340,13 @@ impl EconomicState {
         let Some(frame) = self.contract_binding.frames.last() else {
             return self.verify_contract_binding_full();
         };
-        if frame.height != self.contract_binding.frames.len() as u64
-            || frame.inputs.len() > MAX_ECONOMIC_INPUTS
-        {
+        if frame.height != self.tip_height() || frame.inputs.len() > MAX_ECONOMIC_INPUTS {
             return Err(EconomicError::Invariant);
         }
         let Some(previous) = &self.audit.binding_replay else {
             return self.verify_contract_binding_full();
         };
-        if previous.finalized_height().unwrap_or(0) + 1 != frame.height {
+        if previous.tip_height() + 1 != frame.height {
             return self.verify_contract_binding_full();
         }
         let mut replay = (**previous).clone();

@@ -19,6 +19,10 @@ const ECONOMIC_MARK_MAGIC: &[u8; 5] = b"TLEC\x03";
 const ECONOMIC_LIQUIDATION_MAGIC: &[u8; 5] = b"TLEC\x04";
 const ECONOMIC_AMM_MAGIC: &[u8; 5] = b"TLEC\x05";
 const ECONOMIC_CONTRACT_MAGIC: &[u8; 5] = b"TLEC\x06";
+/// Set on the network tag byte of an encoded configuration whose anchor is not
+/// the network genesis; the anchor height and block id follow the genesis
+/// hash. A genesis-anchored configuration encodes exactly as it always has.
+const ECONOMIC_ANCHOR_FLAG: u8 = 0x80;
 const MAX_FUNDED_AMM_QUOTES: usize = 2;
 const MAX_ECONOMIC_DECIMAL_TEXT: usize = 128;
 
@@ -218,8 +222,13 @@ fn econ_read_embedded<'a>(reader: &mut Cursor<'a>) -> Result<&'a [u8]> {
 }
 
 fn econ_write_config(out: &mut EconomicWriter, config: &EconomicConfig) -> Result<()> {
-    out.byte(config.network.tag())?;
+    let anchored = config.anchor != EconomicConfig::genesis_anchor(config.network);
+    out.byte(config.network.tag() | if anchored { ECONOMIC_ANCHOR_FLAG } else { 0 })?;
     out.put(&config.network.genesis().0)?;
+    if anchored {
+        out.u64(config.anchor.height)?;
+        out.put(&config.anchor.id.0)?;
+    }
     out.u32(config.contract.get())?;
     out.u32(config.collateral.get())?;
     out.byte(u8::from(config.inverse))?;
@@ -287,16 +296,31 @@ fn econ_read_config(
     has_amm: bool,
     has_binding: bool,
 ) -> Result<EconomicConfig> {
-    let network = TradeLayerMainnet::from_tag(reader.u8().map_err(|_| econ_snapshot_bad())?)
+    let tag = reader.u8().map_err(|_| econ_snapshot_bad())?;
+    let network = TradeLayerMainnet::from_tag(tag & !ECONOMIC_ANCHOR_FLAG)
         .map_err(|_| econ_snapshot_bad())?;
     if reader.fixed::<32>().map_err(|_| econ_snapshot_bad())? != network.genesis().0 {
         return Err(econ_snapshot_bad());
     }
+    let anchor = if tag & ECONOMIC_ANCHOR_FLAG != 0 {
+        let anchor = crate::chain::Tip {
+            height: econ_read_u64(reader)?,
+            id: crate::chain::BlockId(reader.fixed().map_err(|_| econ_snapshot_bad())?),
+        };
+        // The flag marks a non-genesis anchor; the genesis form has no flag.
+        if anchor == EconomicConfig::genesis_anchor(network) {
+            return Err(econ_snapshot_bad());
+        }
+        anchor
+    } else {
+        EconomicConfig::genesis_anchor(network)
+    };
     let mut config = EconomicConfig {
         insurance: None,
         source_consensus: None,
         native_entitlements: None,
         network,
+        anchor,
         contract: econ_read_contract(reader)?,
         collateral: econ_read_property(reader)?,
         inverse: econ_read_bool(reader)?,
@@ -3390,6 +3414,7 @@ mod funding_codec_compat_tests {
             insurance: None,
             source_consensus: None,
             network: TradeLayerMainnet::Bitcoin,
+            anchor: EconomicConfig::genesis_anchor(TradeLayerMainnet::Bitcoin),
             contract: 1.try_into().unwrap(),
             collateral: 7.try_into().unwrap(),
             inverse: false,

@@ -225,6 +225,7 @@ fn fixture(scene: &Scene) -> EconomicState {
     let owners = SourceCatalogOwners::new(properties, ClearlistSourceOwner::new());
     let config = EconomicConfig {
         network,
+        anchor: EconomicConfig::genesis_anchor(network),
         contract: 1.try_into().unwrap(),
         collateral: p(7),
         inverse: false,

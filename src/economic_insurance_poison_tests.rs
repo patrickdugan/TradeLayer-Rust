@@ -93,6 +93,7 @@ fn config(network: TradeLayerMainnet) -> EconomicChainConfig {
         economics: EconomicConfig {
             native_entitlements: None,
             network,
+            anchor: EconomicConfig::genesis_anchor(network),
             contract: 1.try_into().unwrap(),
             collateral: p(),
             inverse: false,

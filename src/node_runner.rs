@@ -186,7 +186,7 @@ impl<R: ObservationRpc, P: PrevoutProvider> NodeRunner<R, P> {
     /// stands above it. Returns the observed tip it left.
     fn rewind(&mut self, target: Tip) -> Result<Option<Tip>> {
         let before = self.service.economic_chain()?.tip();
-        let from = self.ingest.binding().observed_tip(before);
+        let from = before;
         let Self {
             service, ingest, ..
         } = self;
@@ -292,10 +292,7 @@ impl<R: ObservationRpc, P: PrevoutProvider> NodeRunner<R, P> {
             // A hash recheck failed with no search: the selected tip stands.
             None => head.tip,
         };
-        let from = self
-            .ingest
-            .binding()
-            .observed_tip(self.service.economic_chain()?.tip());
+        let from = self.service.economic_chain()?.tip();
         self.rewind(target)?;
         self.daemon_mut().reconcile(head, target)?;
         events.push(NodeEvent::Reorganized { from, to: target });
@@ -316,8 +313,7 @@ impl<R: ObservationRpc, P: PrevoutProvider> NodeRunner<R, P> {
         }
         let headers = store.canonical_headers()?;
         let anchor = store.config()?.anchor;
-        let economic = self.service.economic_chain()?.tip();
-        let observed = self.ingest.binding().observed_tip(economic);
+        let observed = self.service.economic_chain()?.tip();
         if observed != status.head.tip {
             return Ok(());
         }

@@ -352,8 +352,9 @@ fn run() -> Result<(), Failure> {
         return Err(Failure::Usage("--timeout-ms must be 1..=60000".into()));
     }
 
-    // The base tip (economic height 0) is fixed when the store is created and
-    // recorded in `node-base`; a restart reads it and refuses a different one.
+    // The base tip is the economic chain's anchor. It is fixed when the store
+    // is created and recorded in `node-base`; a restart reads it and refuses a
+    // different one.
     let base_file = root.join("node-base");
     let requested = if args.has("--anchor-height") || args.has("--anchor-hash") || initialize {
         let anchor_height = args.number("--anchor-height", 0)?;
@@ -396,6 +397,18 @@ fn run() -> Result<(), Failure> {
         }
         stored
     };
+    // Heights are absolute and the economy's height-0 anchor is the Bitcoin
+    // mainnet genesis, so testnet4 runs from a nonzero base.
+    if base.height == 0 && testnet4 {
+        return Err(Failure::Usage(
+            "BTC-TESTNET4 needs --anchor-height above 0 with its --anchor-hash:              the economy's height-0 anchor is the Bitcoin mainnet genesis"
+                .into(),
+        ));
+    }
+    config.economics.anchor = base;
+    config
+        .validate()
+        .map_err(|e| Failure::Config(format!("anchor {}: {e}", tip_text(base))))?;
 
     let auth = || match args.get("--cookie-file") {
         Some(path) => RpcAuth::Cookie(PathBuf::from(path)),

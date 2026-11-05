@@ -34,7 +34,7 @@ impl EconomicState {
                 Err(EconomicError::Invariant)
             };
         }
-        let finalized = self.finalized_height().unwrap_or(0);
+        let finalized = self.applied_blocks();
         if self.liquidation.book_frames.len() > MAX_BOOK_FRAMES {
             return Err(EconomicError::Capacity);
         }
@@ -67,7 +67,7 @@ impl EconomicState {
         let registered_pool = self.liquidation_registered_pool()?;
         let mut amm_quotes = Vec::<FundedAmmQuote>::new();
         for (index, frame) in self.liquidation.book_frames.iter().enumerate() {
-            if frame.height != index as u64 + 1 {
+            if frame.height != self.frame_height(index) {
                 return Err(EconomicError::Invariant);
             }
             let amm_frame = if registered_pool.is_some() {

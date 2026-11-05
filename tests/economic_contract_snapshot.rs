@@ -41,6 +41,7 @@ fn config(network: TradeLayerMainnet) -> EconomicChainConfig {
             insurance: None,
             source_consensus: None,
             network,
+            anchor: EconomicConfig::genesis_anchor(network),
             contract: 1.try_into().unwrap(),
             collateral: p(),
             inverse: false,

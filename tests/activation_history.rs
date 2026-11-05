@@ -61,6 +61,7 @@ fn fixture(network: Network, source: bool) -> EconomicChain {
         native_entitlements: None,
         insurance: None,
         network,
+        anchor: EconomicConfig::genesis_anchor(network),
         contract: 1.try_into().unwrap(),
         collateral: property(),
         inverse: false,

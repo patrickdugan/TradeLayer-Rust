@@ -31,6 +31,10 @@ pub enum SettlementPolicy {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EconomicConfig {
     pub network: TradeLayerMainnet,
+    /// The tip the first applied block extends. Heights are absolute: the
+    /// first block is `anchor.height + 1`. A genesis anchor is
+    /// `EconomicConfig::genesis_anchor(network)`.
+    pub anchor: crate::chain::Tip,
     pub contract: ContractId,
     pub collateral: PropertyId,
     pub inverse: bool,
@@ -48,15 +52,25 @@ pub struct EconomicConfig {
     pub insurance: Option<InsuranceConfig>,
 }
 impl EconomicConfig {
+    /// The network genesis tip: the anchor of a chain that starts at height 0.
+    pub const fn genesis_anchor(network: TradeLayerMainnet) -> crate::chain::Tip {
+        crate::chain::Tip {
+            height: 0,
+            id: network.genesis(),
+        }
+    }
     pub fn validate(&self) -> Result<(), EconomicError> {
+        self.network
+            .check_genesis_if_applicable(self.anchor)
+            .map_err(|_| EconomicError::InvalidConfig)?;
+        if self.anchor.height >= crate::contract_orderbook::MAX_ORDER_HEIGHT {
+            return Err(EconomicError::InvalidConfig);
+        }
         if let Some(p) = &self.native_entitlements {
             p.validate().map_err(|_| EconomicError::InvalidConfig)?;
+            // The policy bootstraps from the tip the chain starts on.
             if p.network != self.network
-                || p.bootstrap
-                    != (crate::chain::Tip {
-                        height: 0,
-                        id: self.network.genesis(),
-                    })
+                || p.bootstrap != self.anchor
                 || p.is_coupon(self.collateral)
             {
                 return Err(EconomicError::InvalidConfig);
@@ -401,6 +415,23 @@ impl EconomicState {
     }
     pub fn finalized_height(&self) -> Option<u64> {
         self.joint.finalized_height()
+    }
+    /// The tip the first block extends; part of the configuration.
+    pub fn anchor(&self) -> crate::chain::Tip {
+        self.config.anchor
+    }
+    /// Height of the last applied block, or the anchor height before the first.
+    pub(crate) fn tip_height(&self) -> u64 {
+        self.finalized_height().unwrap_or(self.config.anchor.height)
+    }
+    /// Blocks applied since the anchor; every per-block frame vector has this
+    /// length and frame `i` holds height `anchor.height + i + 1`.
+    pub(crate) fn applied_blocks(&self) -> u64 {
+        self.tip_height().saturating_sub(self.config.anchor.height)
+    }
+    /// The absolute height of the frame at `index`.
+    pub(crate) fn frame_height(&self, index: usize) -> u64 {
+        self.config.anchor.height.saturating_add(index as u64 + 1)
     }
 
     /// Source queue order is preserved. Each admitted order is funded and all
@@ -867,6 +898,12 @@ impl EconomicState {
             return Err(EconomicError::Invariant);
         }
         self.config.validate()?;
+        if self
+            .finalized_height()
+            .is_some_and(|h| h <= self.config.anchor.height)
+        {
+            return Err(EconomicError::Invariant);
+        }
         self.verify_native_entitlements()?;
         let replay = self.verify_contract_binding_audit(delta)?;
         self.verify_source_consensus()?;

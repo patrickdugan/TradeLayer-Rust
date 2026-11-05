@@ -11,11 +11,9 @@ impl JointProtocolState {
         policy: &crate::native_entitlement::NativeEntitlementPolicy,
     ) -> Result<Self, JointError> {
         if policy.network != network
-            || policy.bootstrap
-                != (crate::chain::Tip {
-                    height: 0,
-                    id: network.genesis(),
-                })
+            || network
+                .check_genesis_if_applicable(policy.bootstrap)
+                .is_err()
             || !ledger.has_no_channel_or_settlement_liabilities_unverified()
         {
             return Err(JointError::UnsupportedLegacyLiabilities);

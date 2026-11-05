@@ -35,8 +35,8 @@ impl EconomicState {
         }
         Ok(self.source_consensus.frames.last().map_or(
             SourceTip {
-                height: 0,
-                id: self.config.network.genesis(),
+                height: self.config.anchor.height,
+                id: self.config.anchor.id,
             },
             |f| SourceTip {
                 height: f.header.height,
@@ -101,13 +101,13 @@ impl EconomicState {
         )?;
         if consensus_source::bootstrap_commitment(&self.source_consensus.bootstrap)
             != config.bootstrap_commitment
-            || self.source_consensus.frames.len() as u64 != self.finalized_height().unwrap_or(0)
+            || self.source_consensus.frames.len() as u64 != self.applied_blocks()
         {
             return Err(EconomicError::Invariant);
         }
         let mut parent = SourceTip {
-            height: 0,
-            id: self.config.network.genesis(),
+            height: self.config.anchor.height,
+            id: self.config.anchor.id,
         };
         let mut blocks = BTreeSet::from([parent.id]);
         for frame in &self.source_consensus.frames {
@@ -589,6 +589,7 @@ mod source_consensus_poison_tests {
                 native_entitlements: None,
                 insurance: None,
                 network: TradeLayerMainnet::Bitcoin,
+                anchor: EconomicConfig::genesis_anchor(TradeLayerMainnet::Bitcoin),
                 contract: 1.try_into().unwrap(),
                 collateral: property,
                 inverse: false,

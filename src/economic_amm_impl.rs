@@ -927,7 +927,7 @@ impl EconomicState {
         }
         self.amm_record_count()?;
         self.verify_amm_cash_history()?;
-        if self.amm.frames.len() as u64 != self.finalized_height().unwrap_or(0) {
+        if self.amm.frames.len() as u64 != self.applied_blocks() {
             return Err(EconomicError::Invariant);
         }
         let mut shares = BTreeMap::<AccountId, u128>::new();
@@ -938,7 +938,7 @@ impl EconomicState {
         let pool = self.amm_owner()?;
         let mut ids = BTreeSet::new();
         for (index, frame) in self.amm.frames.iter().enumerate() {
-            if frame.height != index as u64 + 1
+            if frame.height != self.frame_height(index)
                 || frame.capital_inputs.len() != frame.capital_receipts.len()
                 || (!frame.capital_inputs.is_empty()
                     && self

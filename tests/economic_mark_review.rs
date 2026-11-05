@@ -43,6 +43,7 @@ fn config(inverse: bool, funding_oracle: Option<u32>) -> EconomicConfig {
         source_consensus: None,
         contract_binding: None,
         network: TradeLayerMainnet::Litecoin,
+        anchor: EconomicConfig::genesis_anchor(TradeLayerMainnet::Litecoin),
         contract: c(),
         collateral: p(),
         inverse,

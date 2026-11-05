@@ -99,6 +99,7 @@ mod combined_execution_review {
             source_consensus: None,
             contract_binding: None,
             network: TradeLayerMainnet::Litecoin,
+            anchor: EconomicConfig::genesis_anchor(TradeLayerMainnet::Litecoin),
             contract,
             collateral: property,
             inverse: false,

@@ -37,6 +37,7 @@ fn config(network: TradeLayerMainnet) -> EconomicConfig {
         source_consensus: None,
         contract_binding: None,
         network,
+        anchor: EconomicConfig::genesis_anchor(network),
         contract: c(),
         collateral: p(),
         inverse: false,

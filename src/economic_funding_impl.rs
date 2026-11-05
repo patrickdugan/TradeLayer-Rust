@@ -296,7 +296,7 @@ impl EconomicState {
         {
             return Err(EconomicError::Capacity);
         }
-        let finalized = self.finalized_height().unwrap_or(0);
+        let finalized = self.tip_height();
         let mut start = self
             .joint
             .registry()
@@ -332,7 +332,7 @@ impl EconomicState {
             return Err(EconomicError::Invariant);
         }
         if let Some(closure) = &self.funding.closed_at {
-            if closure.height == 0
+            if closure.height <= self.config.anchor.height
                 || closure.height > finalized
                 || !self.joint.registry().is_processed(closure.txid)
                 || self
@@ -511,7 +511,7 @@ impl EconomicState {
             } else {
                 self.joint.registry().is_processed(observation.txid)
             };
-            if observation.height == 0
+            if observation.height <= self.config.anchor.height
                 || observation.height <= last
                 || observation.height > through
                 || observation.price <= Decimal::zero()

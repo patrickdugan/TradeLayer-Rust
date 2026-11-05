@@ -391,7 +391,7 @@ impl EconomicState {
         let mut last_height = 0;
         let mut mark_height = 0;
         let mut mark_count = 0;
-        let finalized = self.finalized_height().unwrap_or(0);
+        let finalized = self.tip_height();
         let supply = self
             .ledger()
             .property(self.config.collateral)
@@ -441,7 +441,7 @@ impl EconomicState {
                     &bases,
                 )?;
             }
-            if event.height == 0
+            if event.height <= self.config.anchor.height
                 || event.height < last_height
                 || event.height > finalized
                 || (event.height == mark_height

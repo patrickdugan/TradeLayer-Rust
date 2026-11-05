@@ -94,6 +94,7 @@ fn fixture() -> EconomicState {
     let owners = initial_catalog();
     let config = EconomicConfig {
         network: TradeLayerMainnet::Bitcoin,
+        anchor: EconomicConfig::genesis_anchor(TradeLayerMainnet::Bitcoin),
         contract: 1.try_into().unwrap(),
         collateral: p(7),
         inverse: false,

@@ -127,6 +127,7 @@ fn fixture_with_policy(policy: SourceConsensusPolicy) -> EconomicState {
         .with_oracles(OracleSourceOwner::new());
     let config = EconomicConfig {
         network,
+        anchor: EconomicConfig::genesis_anchor(network),
         contract: 1.try_into().unwrap(),
         collateral: p(),
         inverse: false,

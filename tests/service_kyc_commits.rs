@@ -64,6 +64,7 @@ fn config() -> EconomicConfig {
         insurance: None,
         source_consensus: None,
         network: TradeLayerMainnet::Bitcoin,
+        anchor: EconomicConfig::genesis_anchor(TradeLayerMainnet::Bitcoin),
         contract: 1.try_into().unwrap(),
         collateral: p(),
         inverse: false,

@@ -821,7 +821,7 @@ impl EconomicState {
         let mut total_fills = 0usize;
         for (ordinal, event) in self.liquidation.events.iter().enumerate() {
             self.participant_owner(&event.owner)?;
-            if event.height == 0
+            if event.height <= self.config.anchor.height
                 || self.finalized_height().is_none_or(|h| event.height > h)
                 || event.id != self.liquidation_id(event.height, &event.owner)
                 || !seen.insert(event.id)

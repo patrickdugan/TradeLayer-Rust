@@ -569,6 +569,9 @@ mod tests {
                 insurance: None,
                 source_consensus: None,
                 network: TradeLayerMainnet::Litecoin,
+                anchor: crate::economic::EconomicConfig::genesis_anchor(
+                    TradeLayerMainnet::Litecoin,
+                ),
                 contract: ContractId::try_from(1).unwrap(),
                 collateral: property,
                 inverse: false,

@@ -406,6 +406,11 @@ fn economic_chain(actors: &Actors, network: TradeLayerMainnet) -> EconomicChain 
         native_entitlements: None,
         insurance: None,
         network,
+        // Heights are absolute: the economic chain starts at the node's base.
+        anchor: Tip {
+            height: BASE_HEIGHT,
+            id: BASE_ID,
+        },
         contract: 1.try_into().unwrap(),
         collateral: property(),
         inverse: false,
@@ -531,7 +536,7 @@ fn run_to(runner: &mut Runner, observed_height: u64, now: &mut u64) -> Vec<NodeE
     let mut events = Vec::new();
     for _ in 0..400 {
         let tip = runner.service().economic_chain().unwrap().tip();
-        if tip.height + BASE_HEIGHT == observed_height {
+        if tip.height == observed_height {
             return events;
         }
         *now += 11_000;
@@ -603,7 +608,7 @@ fn authenticated_send_changes_the_ledger_as_the_source_runner_defines() {
         })
         .collect();
     assert_eq!(reports.len(), 2);
-    assert_eq!(reports[0].economic_height, 1);
+    assert_eq!(reports[0].economic_height, BASE_HEIGHT + 1);
     assert_eq!(
         (
             reports[0].authenticated,
@@ -647,7 +652,9 @@ fn a_refused_candidate_changes_nothing() {
     let refused = events
         .iter()
         .find_map(|event| match event {
-            NodeEvent::Applied(report) if report.economic_height == 2 => Some(report.clone()),
+            NodeEvent::Applied(report) if report.economic_height == BASE_HEIGHT + 2 => {
+                Some(report.clone())
+            }
             _ => None,
         })
         .unwrap();
@@ -711,8 +718,8 @@ fn the_source_row_carries_the_documented_fields() {
     let chain = runner.service().economic_chain().unwrap();
     let frame = &chain.state().source_consensus_state().frames[0];
     assert_eq!(frame.mode, SourceBlockMode::Realtime);
-    assert_eq!(frame.header.height, 1);
-    assert_eq!(frame.header.parent, TradeLayerMainnet::Bitcoin.genesis());
+    assert_eq!(frame.header.height, BASE_HEIGHT + 1);
+    assert_eq!(frame.header.parent, BASE_ID);
     let row = &frame.transactions[0];
     let v = vector("send-p2wpkh-a");
     let (txid_raw, _) = bitcoin_input_outpoint(&v.spending, 0).unwrap();
@@ -781,7 +788,7 @@ fn a_reorg_replaces_the_applied_block_and_equals_the_winning_branch_from_scratch
                 reorganized = Some((from, to));
             }
         }
-        if runner.service().economic_chain().unwrap().tip().height == 3 {
+        if runner.service().economic_chain().unwrap().tip().height == BASE_HEIGHT + 3 {
             break;
         }
     }
@@ -897,9 +904,15 @@ fn restart_from_the_durable_stores_resumes() {
     );
     // Nothing from the first process is claimed as admitted by this one.
     assert!(!resumed.service().status().authenticated_admission);
-    assert_eq!(resumed.service().economic_chain().unwrap().tip().height, 2);
+    assert_eq!(
+        resumed.service().economic_chain().unwrap().tip().height,
+        BASE_HEIGHT + 2
+    );
     run_to(&mut resumed, BASE_HEIGHT + 3, &mut now);
-    assert_eq!(resumed.service().economic_chain().unwrap().tip().height, 3);
+    assert_eq!(
+        resumed.service().economic_chain().unwrap().tip().height,
+        BASE_HEIGHT + 3
+    );
     assert_eq!(resumed.service().status().admitted_blocks, 1);
     assert!(resumed.service().status().authenticated_admission);
 
@@ -1049,7 +1062,10 @@ fn a_height_or_chain_mismatch_is_refused() {
         matches!(&error, NodeError::Ingest(IngestError::Misaligned(why)) if why.contains("below")),
         "{error:?}"
     );
-    assert_eq!(runner.service().economic_chain().unwrap().tip().height, 1);
+    assert_eq!(
+        runner.service().economic_chain().unwrap().tip().height,
+        BASE_HEIGHT + 1
+    );
     assert_eq!(runner.service().status().admitted_blocks, 0);
 
     // A different base: the observer's anchor at the base height is another
@@ -1079,12 +1095,15 @@ fn a_height_or_chain_mismatch_is_refused() {
         matches!(&error, NodeError::Ingest(IngestError::Misaligned(why)) if why.contains("share no block")),
         "{error:?}"
     );
-    assert_eq!(runner.service().economic_chain().unwrap().tip().height, 1);
+    assert_eq!(
+        runner.service().economic_chain().unwrap().tip().height,
+        BASE_HEIGHT + 1
+    );
     assert_eq!(runner.service().status().admitted_blocks, 0);
 }
 
 #[test]
-fn binding_maps_heights_and_refuses_blocks_that_do_not_extend_the_base() {
+fn binding_keeps_absolute_heights_and_refuses_blocks_that_do_not_extend_the_base() {
     let binding = NodeBinding {
         network: TradeLayerMainnet::Bitcoin,
         base: Tip {
@@ -1097,39 +1116,23 @@ fn binding_maps_heights_and_refuses_blocks_that_do_not_extend_the_base() {
         id: BlockId([id; 32]),
         parent,
     };
+    // The economic header is the observed header: no offset, no re-parenting.
     let first = binding.economic_header(header(101, 1, BASE_ID)).unwrap();
-    assert_eq!(first.height, 1);
-    assert_eq!(first.parent, TradeLayerMainnet::Bitcoin.genesis());
+    assert_eq!((first.height, first.parent), (101, BASE_ID));
     let second = binding
         .economic_header(header(102, 2, BlockId([1; 32])))
         .unwrap();
-    assert_eq!((second.height, second.parent), (2, BlockId([1; 32])));
+    assert_eq!((second.height, second.parent), (102, BlockId([1; 32])));
     assert!(binding.economic_header(header(100, 1, BASE_ID)).is_err());
     assert!(binding.economic_header(header(50, 1, BASE_ID)).is_err());
     assert!(binding
         .economic_header(header(101, 1, BlockId([9; 32])))
         .is_err());
+    // A genesis base is the same rule with the genesis tip as the base.
     let genesis_tip = Tip {
         height: 0,
         id: TradeLayerMainnet::Bitcoin.genesis(),
     };
-    assert_eq!(binding.observed_tip(genesis_tip), binding.base);
-    assert_eq!(binding.economic_tip(binding.base), Some(genesis_tip));
-    assert_eq!(
-        binding.economic_tip(Tip {
-            height: 100,
-            id: BlockId([8; 32])
-        }),
-        None
-    );
-    assert_eq!(
-        binding.economic_tip(Tip {
-            height: 99,
-            id: BASE_ID
-        }),
-        None
-    );
-    // The identity map when the base is the genesis.
     let identity = NodeBinding {
         network: TradeLayerMainnet::Bitcoin,
         base: genesis_tip,
@@ -1138,6 +1141,77 @@ fn binding_maps_heights_and_refuses_blocks_that_do_not_extend_the_base() {
         .economic_header(header(1, 1, genesis_tip.id))
         .unwrap();
     assert_eq!((h.height, h.parent), (1, genesis_tip.id));
+}
+
+#[test]
+fn an_economic_anchor_other_than_the_base_tip_is_refused() {
+    let actors = actors();
+    let chain = economic_chain(&actors, TradeLayerMainnet::Bitcoin);
+    assert_eq!(
+        chain.config().anchor(),
+        Tip {
+            height: BASE_HEIGHT,
+            id: BASE_ID
+        }
+    );
+    // The same economic chain under a binding whose base is another block, and
+    // under one whose base is another height.
+    for base in [
+        Tip {
+            height: BASE_HEIGHT,
+            id: BlockId([0x55; 32]),
+        },
+        Tip {
+            height: 0,
+            id: TradeLayerMainnet::Bitcoin.genesis(),
+        },
+    ] {
+        let mismatched = NodeIngest::new(NodeIngestConfig {
+            binding: NodeBinding {
+                network: TradeLayerMainnet::Bitcoin,
+                base,
+            },
+            admission_network: AdmissionNetwork::Regtest,
+            pow: BitcoinPowProfile::RegtestLike,
+            rules: BitcoinWitnessRules::SegwitActive,
+            mode: SourceBlockMode::IndexedReplay,
+        });
+        let chain = economic_chain(&actors, TradeLayerMainnet::Bitcoin);
+        let tip = chain.tip();
+        let dirs = Dirs::new();
+        let durable = DurableEconomicChain::initialize(&dirs.economic(), chain, tip).unwrap();
+        let node = MockNode::default();
+        node.follow(&Branch::build(&[], 1, &[tx_block(&["admin-activate"])]));
+        let store = ObservationStore::initialize(&dirs.observer(), observer_config()).unwrap();
+        let service =
+            NodeHttpService::new(durable, None, Duration::from_secs(1), NodeStatus::new(base))
+                .unwrap();
+        let mut runner = NodeRunner::new(
+            Daemon::new(node.clone(), store),
+            service,
+            provider_for(&["admin-activate"]),
+            mismatched,
+        );
+        let error = first_error(&mut runner);
+        assert!(
+            matches!(&error, NodeError::Ingest(IngestError::Misaligned(why)) if why.contains("anchor")),
+            "{error:?}"
+        );
+        assert_eq!(
+            runner.service().economic_chain().unwrap().tip().height,
+            BASE_HEIGHT
+        );
+        assert_eq!(runner.service().status().admitted_blocks, 0);
+        // The rollback entry point checks the anchor too.
+        let chain = economic_chain(&actors, TradeLayerMainnet::Bitcoin);
+        let tip = chain.tip();
+        let dirs = Dirs::new();
+        let mut durable = DurableEconomicChain::initialize(&dirs.economic(), chain, tip).unwrap();
+        assert!(matches!(
+            mismatched.rollback_to(&mut durable, base),
+            Err(IngestError::Misaligned(why)) if why.contains("anchor")
+        ));
+    }
 }
 
 #[test]
@@ -1171,11 +1245,17 @@ fn a_prevout_outage_stops_the_block_instead_of_refusing_its_candidates() {
         ),
         "{failure:?}"
     );
-    assert_eq!(runner.service().economic_chain().unwrap().tip().height, 0);
+    assert_eq!(
+        runner.service().economic_chain().unwrap().tip().height,
+        BASE_HEIGHT
+    );
     // After the outage the same block applies.
     *provider.fail.lock().unwrap() = false;
     run_to(&mut runner, BASE_HEIGHT + 1, &mut now);
-    assert_eq!(runner.service().economic_chain().unwrap().tip().height, 1);
+    assert_eq!(
+        runner.service().economic_chain().unwrap().tip().height,
+        BASE_HEIGHT + 1
+    );
 }
 
 #[test]

@@ -114,8 +114,9 @@ impl<'a> EconomicSourceBackend<'a> {
     ) -> Result<Self, EconomicValidityError> {
         if state.config().network != context.network
             || context.parent.height.checked_add(1) != Some(context.height)
-            || state.finalized_height().unwrap_or(0) != context.parent.height
-            || (context.parent.height == 0 && context.parent.id != context.network.genesis())
+            || state.tip_height() != context.parent.height
+            || (context.parent.height == state.config().anchor.height
+                && context.parent.id != state.config().anchor.id)
         {
             return Err(EconomicValidityError::WrongContext);
         }

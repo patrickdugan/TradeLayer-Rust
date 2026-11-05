@@ -33,6 +33,7 @@ fn config(network: TradeLayerMainnet) -> EconomicConfig {
         source_consensus: None,
         contract_binding: None,
         network,
+        anchor: EconomicConfig::genesis_anchor(network),
         contract: 1.try_into().unwrap(),
         collateral: p(),
         inverse: false,

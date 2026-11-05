@@ -28,6 +28,7 @@ fn config() -> EconomicConfig {
         contract_binding: None,
         source_consensus: None,
         network: TradeLayerMainnet::Litecoin,
+        anchor: EconomicConfig::genesis_anchor(TradeLayerMainnet::Litecoin),
         contract: 1.try_into().unwrap(),
         collateral: p(),
         inverse: false,

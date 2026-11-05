@@ -148,12 +148,12 @@ impl EconomicState {
             };
         };
         if self.ledger().native_policy() != Some(policy)
-            || self.native_entitlements.frames.len() as u64 != self.finalized_height().unwrap_or(0)
+            || self.native_entitlements.frames.len() as u64 != self.applied_blocks()
         {
             return Err(EconomicError::Invariant);
         }
         for (index, f) in self.native_entitlements.frames.iter().enumerate() {
-            if f.height != index as u64 + 1
+            if f.height != self.frame_height(index)
                 || f.inputs.len() > MAX_ECONOMIC_INPUTS
                 || (self.config.source_consensus.is_some()
                     && f.inputs

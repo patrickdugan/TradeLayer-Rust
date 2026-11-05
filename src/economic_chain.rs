@@ -31,11 +31,10 @@ impl EconomicChainConfig {
         }
         Ok(())
     }
+    /// The tip the first block extends; it lives in `economics` because the
+    /// owner's snapshots and invariants bind it. Heights are absolute.
     pub fn anchor(&self) -> Tip {
-        Tip {
-            height: 0,
-            id: self.economics.network.genesis(),
-        }
+        self.economics.anchor
     }
     fn decode(&self, bytes: &[u8]) -> Result<EconomicState, EconomicError> {
         EconomicState::from_snapshot_bytes(
@@ -232,10 +231,13 @@ impl EconomicChain {
         self.state.verify()?;
         if self.state.config() != &self.config.economics
             || self.history.len() > self.config.rollback_limit
+            || self.floor.height < self.config.anchor().height
             || self.floor.height > self.tip.height
-            || self.state.finalized_height().unwrap_or(0) != self.tip.height
-            || (self.floor.height == 0 && self.floor != self.config.anchor())
-            || (self.floor.height > 0 && self.floor.id == self.config.anchor().id)
+            || self.state.tip_height() != self.tip.height
+            || (self.floor.height == self.config.anchor().height
+                && self.floor != self.config.anchor())
+            || (self.floor.height > self.config.anchor().height
+                && self.floor.id == self.config.anchor().id)
             || self.tip.height.checked_sub(self.floor.height) != Some(self.history.len() as u64)
         {
             return Err(EconomicError::Invariant);
@@ -270,7 +272,7 @@ impl EconomicChain {
                     .source_parent_unverified()
                     .map_err(|_| EconomicError::Invariant)?
                     != cursor)
-                || before.finalized_height().unwrap_or(0) != cursor.height
+                || before.tip_height() != cursor.height
             {
                 return Err(EconomicError::Invariant);
             }

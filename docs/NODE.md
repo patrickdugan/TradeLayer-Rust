@@ -83,25 +83,32 @@ candidate.
 
 ## Heights and the economic chain
 
-The economic chain starts at height 0 on the network genesis tip and extends one block at a
-time; its parent id and height are checked on every apply. `NodeBinding` maps it onto the
-observed chain: **economic height 0 is the observed base tip** (`--anchor-height`,
-`--anchor-hash`, default the network genesis), and economic height `e` is observed height
-`base.height + e`. The first economic block's parent is the economic genesis id, which
-stands for the base tip. With the default base the map is the identity.
+Heights are absolute. The economic chain is anchored at the node's base tip
+(`--anchor-height`, `--anchor-hash`, default the network genesis): its configured anchor
+(`EconomicChainConfig::anchor()`, set from the base by the node) is that tip, the first block
+applied is `base.height + 1`, and every block keeps its observed height, id and parent. There
+is no offset between the observed chain and the economic chain, so height-dependent source
+rules (activation, expiry, funding cadence) see the heights of the observed chain, as the
+legacy implementation does. `NodeBinding` carries the base and refuses any economic chain
+anchored elsewhere: a different height or block id is `Misaligned` before anything is applied
+or rolled back.
 
-Invariant, checked before every apply and after every restart: the economic tip, seen
-through the map, is the observer's anchor or a block of the observer's selected chain, and
+The anchor is part of the economic configuration and of every snapshot's configuration
+section, so a store created under one base does not load under another; the node also records
+the base in `<root>/node-base` and refuses different `--anchor-*` values on restart. A
+genesis-height anchor is the Bitcoin mainnet genesis, so `BTC-TESTNET4` needs a base above
+height 0.
+
+Invariant, checked before every apply and after every restart: the economic tip is the
+observer's anchor or a block of the observer's selected chain, and
 the block applied is that tip's child on that chain. Anything else is a refusal with
 exit code 7 and nothing is applied: a different chain, a gap, a replayed block, a base that
 does not match the store. The one tolerated state is an economic tip above the observer's
 tip, which exists only while a rotated observer re-fetches history below the tip; nothing is
 applied until the observer passes the economic tip, and then the check applies.
 
-A nonzero base shifts the heights the source rules see by `base.height`. That is correct for
-a network that starts at its base (the testnet4 smoke run) and wrong for rules that name
-absolute Bitcoin heights. Launch on mainnet from height 0 (a full replay of the observed
-chain) or add an authenticated historical bootstrap; this slice does not do either.
+The economic chain keeps no block below its base: a rollback target below the base, or at
+the base height on another block, is refused, and rollback stops at the base tip.
 
 ## Reorgs
 
@@ -109,7 +116,7 @@ The observer detects a fork (`ForkDetected` or `CursorAboveTip`), searches for t
 ancestor one `getblockhash` at a time, and records `ForkEvidence`. The runner then:
 
 1. finishes the ancestor search (bounded by the observer's stored blocks);
-2. rolls the economic chain back to the ancestor, mapped to economic height, with
+2. rolls the economic chain back to the ancestor with
    `DurableEconomicChain::rollback_to` (one synced commit; bounded by `rollback_limit` of the
    economic config);
 3. rewinds the observer's selection with `Daemon::reconcile` to the same ancestor;
@@ -180,7 +187,7 @@ tradelayer-node --print-bootstrap-commitments --config ABS_FILE --collateral-see
 | `--economic-head-log` | The economic head record, `committed` lines; default `<head-log>.economic`. |
 | `--economic-expected-head` | Overrides the economic log: the head to restore. |
 | `--initialize` | Creates the economic store from the bootstrap and the first observer store; refuses an existing store. |
-| `--anchor-height`, `--anchor-hash` | The base tip; default the network genesis. Recorded in `<root>/node-base` by `--initialize`; a restart reads the record and refuses different values. |
+| `--anchor-height`, `--anchor-hash` | The base tip and the economic anchor; default the network genesis (`BTC` only: `BTC-TESTNET4` needs a base above height 0). Recorded in `<root>/node-base` by `--initialize`; a restart reads the record and refuses different values. |
 | `--resume` | Clears a paused or quarantined observer (other than a fork, which the node resolves) at start. A store the node stopped itself resumes without it. |
 | `--max-blocks` | Exit 0 after this many blocks admitted in this run. |
 
@@ -249,6 +256,8 @@ stores over a mock node:
   from scratch;
 - a restart from both durable stores resumes and reaches the same state;
 - a height or chain mismatch is refused with nothing applied;
+- the economic chain is anchored at the base tip and applies the observed heights, and an
+  economic anchor other than the node's base is refused on locate, apply and rollback;
 - a parent-output outage stops the block, and the block applies after the outage;
 - status over loopback is `false` before and `true` after an admitted block;
 - observer rotation keeps the chains aligned and a fork after it resolves;
@@ -286,8 +295,8 @@ build. Bounding the retained history belongs to the economic snapshot format, no
 - Other inputs of a transaction and their parents; parent inclusion and unspentness; other
   input templates and the legacy source's sender conventions for them.
 - Complete Bitcoin block and transaction consensus; the active chain is Core's word.
-- An authenticated historical bootstrap, so a node can start at a launch height instead of
-  at its base; absolute-height rules under a nonzero base.
+- An authenticated historical bootstrap, so a node can start at a launch height with the
+  state that height implies; the anchor fixes the heights, not the bootstrap state.
 - The `TLR` binary carrier and the legacy non-canonical `746c` layouts.
 - A prepared line for the economic head log, which would remove the one-commit crash window.
 - Parent-output responses above the RPC body limit (very large mainnet blocks).

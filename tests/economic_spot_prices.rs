@@ -55,6 +55,7 @@ fn new(network: TradeLayerMainnet) -> EconomicChain {
                 insurance: None,
                 source_consensus: None,
                 network,
+                anchor: EconomicConfig::genesis_anchor(network),
                 contract: 1.try_into().unwrap(),
                 collateral: p(7),
                 inverse: false,
