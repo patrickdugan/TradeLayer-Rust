@@ -259,7 +259,7 @@ pub fn seed(root: &Path) -> Result<DemoSeed, String> {
         .map_err(|e| format!("demo store: {e}"))?
         .state();
     state.verify().map_err(|e| format!("demo state: {e:?}"))?;
-    let fills = state.receipts().len();
+    let fills = usize::try_from(state.receipt_count()).unwrap_or(usize::MAX);
     if fills != 2 {
         return Err(format!("demo expected 2 fills, found {fills}"));
     }

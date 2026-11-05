@@ -1003,11 +1003,19 @@ impl Ledger {
     }
 
     fn ordinary_snapshot_bytes_verified(&self) -> Result<Vec<u8>, SnapshotError> {
+        self.ordinary_snapshot_bytes_with_limit(MAX_SNAPSHOT_ENTRIES)
+    }
+    fn ordinary_snapshot_bytes_with_limit(
+        &self,
+        processed_limit: usize,
+    ) -> Result<Vec<u8>, SnapshotError> {
         use crate::codec::{with_crc, MAX_CHECKPOINT_BYTES};
+        if self.processed.len() > processed_limit {
+            return Err(SnapshotError::InvalidFormat("too many ledger records"));
+        }
         if [
             self.properties.len(),
             self.available.len(),
-            self.processed.len(),
             self.channels.len(),
             self.pending_withdrawals.len(),
             self.pending_net_settlements.len(),
@@ -1069,6 +1077,30 @@ impl Ledger {
             return Err(SnapshotError::InvalidFormat("ledger checkpoint too large"));
         }
         with_crc(bytes).map_err(|_| SnapshotError::InvalidFormat("ledger checkpoint too large"))
+    }
+
+    /// The checkpoint of a ledger embedded in the economic owner. Every internal
+    /// leg of the owner leaves one replay marker, so the marker list has the
+    /// larger `MAX_ECONOMIC_PROCESSED_ENTRIES` bound here; every other table keeps
+    /// its ordinary bound and the standalone ledger checkpoint is unchanged.
+    pub(crate) fn snapshot_bytes_economic(&self) -> Result<Vec<u8>, SnapshotError> {
+        self.verify_conservation()
+            .map_err(SnapshotError::InvalidLedger)?;
+        if self.native.is_some() {
+            return self.native_snapshot_bytes_verified();
+        }
+        self.ordinary_snapshot_bytes_with_limit(MAX_ECONOMIC_PROCESSED_ENTRIES)
+    }
+    pub(crate) fn from_snapshot_bytes_economic(input: &[u8]) -> Result<Self, SnapshotError> {
+        let mut budget = RevisionVerifyBudget {
+            processed_limit: MAX_ECONOMIC_PROCESSED_ENTRIES,
+            ..Default::default()
+        };
+        let state = Self::decode_snapshot_channel_scoped(input, None, 0, &mut budget)?;
+        state
+            .verify_native_state()
+            .map_err(SnapshotError::InvalidLedger)?;
+        Ok(state)
     }
 
     /// Decode only canonical ascending records. Unknown format versions,
@@ -1159,7 +1191,16 @@ impl Ledger {
             last = Some(key.clone());
             state.available.insert(key, amount);
         }
-        let count = revision_snapshot_count(&mut reader, expected.map(|_| &mut *budget))?;
+        let processed_limit = if budget.processed_limit == 0 {
+            MAX_SNAPSHOT_ENTRIES
+        } else {
+            budget.processed_limit
+        };
+        let count = revision_snapshot_count_limited(
+            &mut reader,
+            processed_limit,
+            expected.map(|_| &mut *budget),
+        )?;
         let mut last: Option<TxId> = None;
         for _ in 0..count {
             let id = TxId::from_bytes(reader.fixed::<32>().map_err(snapshot_codec_error)?);
@@ -1199,6 +1240,9 @@ impl Ledger {
 }
 
 const MAX_SNAPSHOT_ENTRIES: usize = 100_000;
+/// Replay-marker bound of a ledger embedded in the economic owner, whose internal
+/// legs each leave a marker. The byte budget of the checkpoint still applies.
+const MAX_ECONOMIC_PROCESSED_ENTRIES: usize = 2_097_152;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SnapshotError {

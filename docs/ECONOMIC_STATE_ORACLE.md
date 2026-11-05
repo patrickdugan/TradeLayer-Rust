@@ -57,7 +57,7 @@ retains one canonical TLEHv1 checkpoint. Its canonical TLEC state is exposed as
 a borrowed slice inside that checkpoint, rather than duplicating the large
 state bytes in the file or retaining another decoded economic owner.
 
-`state_bytes()` returns those exact TLECv1–v7 bytes. `checkpoint_bytes()` returns
+`state_bytes()` returns those exact TLECv1–v7 or TLECv11 bytes. `checkpoint_bytes()` returns
 the complete TLEH witness. TLSEv1 and TLEHv1 framing remain unchanged. Optional
 source consensus selects TLECv7; disabled source consensus preserves v1–v6 bytes.
 Older economic versions can be exported as full current state; the producer
@@ -78,7 +78,7 @@ genesis use the repository's canonical display-order bytes.
 | 54 | 32 | Exact tip block ID |
 | 86 | 8 | Rollback floor height |
 | 94 | 32 | Rollback floor block ID |
-| 126 | 1 | Embedded TLEC version, 1 through 7 |
+| 126 | 1 | Embedded TLEC version, 1 through 7 or 11 |
 | 127 | 4 | TLEC state byte length |
 | 131 | 4 | TLEH checkpoint byte length |
 | 135 | 32 | State commitment |

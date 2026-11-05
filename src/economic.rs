@@ -20,7 +20,7 @@ use std::sync::Arc;
 pub const MAX_ECONOMIC_INPUTS: usize = 4096;
 pub const MAX_ECONOMIC_RECEIPTS: usize = 8192;
 pub const MAX_ECONOMIC_POSITIONS: usize = 4096;
-pub const MAX_ECONOMIC_LEGS: u64 = 65_536;
+pub const MAX_ECONOMIC_LEGS: u64 = 1_048_576;
 pub const ATOMS_PER_TOKEN: u128 = 100_000_000;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -233,6 +233,7 @@ pub struct EconomicState {
     insurance_custody_atoms: u128,
     unfunded_loss_atoms: u128,
     receipts: Vec<TradeReceipt>,
+    receipt_archive: ReceiptArchive,
     internal_sequence: u64,
     funding: FundingState,
     marking: MarkState,
@@ -253,6 +254,8 @@ pub struct EconomicState {
     insurance: InsuranceState,
     // Runtime-only audit cadence and watermarks; never part of Eq, Debug or snapshots.
     audit: AuditRuntime,
+    // Runtime-only receipt log and history limits; never part of Eq, Debug or snapshots.
+    history: HistoryRuntime,
 }
 impl EconomicState {
     pub fn from_joint_unverified(
@@ -338,6 +341,7 @@ impl EconomicState {
             insurance_custody_atoms: 0,
             unfunded_loss_atoms: 0,
             receipts: Vec::new(),
+            receipt_archive: ReceiptArchive::default(),
             internal_sequence: 0,
             funding: FundingState::default(),
             marking: MarkState::default(),
@@ -354,6 +358,7 @@ impl EconomicState {
             replaying_native_history: replaying_native,
             insurance: InsuranceState::default(),
             audit: AuditRuntime::default(),
+            history: HistoryRuntime::default(),
         };
         state.verify()?;
         Ok(state)
@@ -378,9 +383,6 @@ impl EconomicState {
     }
     pub fn fees(&self) -> &FeeBook {
         &self.fees
-    }
-    pub fn receipts(&self) -> &[TradeReceipt] {
-        &self.receipts
     }
     pub fn margin_atoms(&self, owner: &AccountId) -> u128 {
         self.margins.get(owner).copied().unwrap_or(0)
@@ -475,7 +477,7 @@ impl EconomicState {
     }
 
     fn settle_match(&mut self, m: Match, height: u64) -> Result<()> {
-        if self.receipts.len() >= MAX_ECONOMIC_RECEIPTS {
+        if self.receipts.len() >= self.history.receipt_cap {
             return Err(EconomicError::Capacity);
         }
         let buyer_before = self.position(&m.buyer);
@@ -883,7 +885,7 @@ impl EconomicState {
             || self.ledger().property(self.config.collateral).is_none()
             || self.book.contract() != self.config.contract
             || self.positions.contract() != self.config.contract
-            || self.receipts.len() > MAX_ECONOMIC_RECEIPTS
+            || self.receipts.len() > self.history.receipt_cap
             || self.positions.positions().count() > MAX_ECONOMIC_POSITIONS
             || self.internal_sequence > MAX_ECONOMIC_LEGS
             || !self.book.queued().is_empty()
@@ -1081,10 +1083,11 @@ impl EconomicState {
             self.verify_receipts_delta(delta)?;
             return Ok(replay);
         }
-        let mut last = 0;
-        let mut collected = 0;
-        let mut paid = 0;
-        let mut bad_debt = 0;
+        self.verify_receipt_archive()?;
+        let mut last = self.receipt_archive.last_height;
+        let mut collected = self.receipt_archive.collected_atoms;
+        let mut paid = self.receipt_archive.paid_atoms;
+        let mut bad_debt = self.receipt_archive.unfunded_loss_atoms;
         for event in &self.marking.events {
             if !matches!(event.kind, MarkEventKind::Trade { .. }) {
                 collected = add(collected, event.collected_loss_atoms)?;
@@ -1094,19 +1097,7 @@ impl EconomicState {
         }
         let (expected_fees, expected_insurance) = self.expected_economic_fees()?;
         for receipt in &self.receipts {
-            if receipt.height < last
-                || receipt.height == 0
-                || self.finalized_height().is_none_or(|h| receipt.height > h)
-                || !self.book.has_seen(receipt.buy_txid)
-                || !self.book.has_seen(receipt.sell_txid)
-                || receipt.buy_txid == receipt.sell_txid
-                || receipt.quantity <= Decimal::zero()
-                || receipt.price <= Decimal::zero()
-            {
-                return Err(EconomicError::Invariant);
-            }
-            bounded(&receipt.quantity)?;
-            bounded(&receipt.price)?;
+            self.check_receipt(receipt, last)?;
             collected = add(collected, receipt.collected_loss_atoms)?;
             paid = add(paid, receipt.paid_claim_atoms)?;
             bad_debt = add(bad_debt, receipt.unfunded_loss_atoms)?;
@@ -1130,6 +1121,7 @@ impl EconomicState {
         {
             return Err(EconomicError::Invariant);
         }
+        self.verify_receipt_log()?;
         Ok(replay)
     }
 }
@@ -1190,6 +1182,7 @@ fn atoms_exact(value: &Decimal) -> Result<u128> {
 }
 
 include!("economic_audit_impl.rs");
+include!("economic_history_impl.rs");
 include!("economic_snapshot_impl.rs");
 include!("economic_funding_impl.rs");
 include!("economic_mark_impl.rs");
@@ -1212,6 +1205,9 @@ include!("economic_insurance_snapshot_impl.rs");
 #[cfg(test)]
 #[path = "economic_audit_tests.rs"]
 mod economic_audit_tests;
+#[cfg(test)]
+#[path = "economic_history_tests.rs"]
+mod economic_history_tests;
 #[cfg(test)]
 #[path = "economic_insurance_poison_tests.rs"]
 mod economic_insurance_poison_tests;

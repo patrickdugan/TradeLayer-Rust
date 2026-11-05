@@ -554,6 +554,69 @@ fn econ_read_positions(reader: &mut Cursor<'_>) -> Result<MarginMap> {
     Ok(positions)
 }
 
+fn econ_write_receipt(out: &mut EconomicWriter, receipt: &TradeReceipt) -> Result<()> {
+    out.u64(receipt.height)?;
+    out.txid(receipt.buy_txid)?;
+    out.txid(receipt.sell_txid)?;
+    for value in [
+        &receipt.quantity,
+        &receipt.price,
+        &receipt.buyer_pnl,
+        &receipt.seller_pnl,
+    ] {
+        out.decimal(value)?;
+    }
+    for atoms in [
+        receipt.retained_fee_atoms,
+        receipt.collected_loss_atoms,
+        receipt.paid_claim_atoms,
+        receipt.unfunded_loss_atoms,
+    ] {
+        out.atoms(atoms)?;
+    }
+    Ok(())
+}
+fn econ_read_receipt(reader: &mut Cursor<'_>) -> Result<TradeReceipt> {
+    Ok(TradeReceipt {
+        height: econ_read_u64(reader)?,
+        buy_txid: econ_read_txid(reader)?,
+        sell_txid: econ_read_txid(reader)?,
+        quantity: econ_read_decimal(reader)?,
+        price: econ_read_decimal(reader)?,
+        buyer_pnl: econ_read_decimal(reader)?,
+        seller_pnl: econ_read_decimal(reader)?,
+        retained_fee_atoms: econ_read_atoms(reader)?,
+        collected_loss_atoms: econ_read_atoms(reader)?,
+        paid_claim_atoms: econ_read_atoms(reader)?,
+        unfunded_loss_atoms: econ_read_atoms(reader)?,
+    })
+}
+fn econ_write_receipt_archive(out: &mut EconomicWriter, archive: &ReceiptArchive) -> Result<()> {
+    out.u64(archive.count)?;
+    out.u64(archive.last_height)?;
+    out.put(&archive.hash)?;
+    for atoms in [
+        archive.collected_atoms,
+        archive.paid_atoms,
+        archive.unfunded_loss_atoms,
+        archive.insurance_atoms,
+    ] {
+        out.atoms(atoms)?;
+    }
+    econ_write_fees(out, &archive.fees)
+}
+fn econ_read_receipt_archive(reader: &mut Cursor<'_>) -> Result<ReceiptArchive> {
+    Ok(ReceiptArchive {
+        count: econ_read_u64(reader)?,
+        last_height: econ_read_u64(reader)?,
+        hash: reader.fixed().map_err(|_| econ_snapshot_bad())?,
+        collected_atoms: econ_read_atoms(reader)?,
+        paid_atoms: econ_read_atoms(reader)?,
+        unfunded_loss_atoms: econ_read_atoms(reader)?,
+        insurance_atoms: econ_read_atoms(reader)?,
+        fees: econ_read_fees(reader)?,
+    })
+}
 fn econ_write_queued_fee(out: &mut EconomicWriter, q: QueuedFee) -> Result<()> {
     out.u64(q.block)?;
     out.fee_key(q.key)?;
@@ -2674,7 +2737,17 @@ impl EconomicState {
 
     fn snapshot_bytes_encode(&self, audit_joint: bool) -> Result<Vec<u8>> {
         let has_binding = self.config.contract_binding.is_some();
-        let mut out = EconomicWriter(if has_binding {
+        // A state that has archived receipts uses the bounded-history layout.
+        // Every state that has not keeps the layout it always had, byte for byte.
+        let archived = self.receipt_archive.count != 0;
+        if archived && self.config.marking.is_some() {
+            return Err(EconomicError::Invariant);
+        }
+        let mut out = EconomicWriter(if archived {
+            let mut magic = ECONOMIC_HISTORY_MAGIC.to_vec();
+            magic.push(u8::from(self.config.funding.is_some()));
+            magic
+        } else if has_binding {
             ECONOMIC_CONTRACT_MAGIC.to_vec()
         } else if self.config.amm.is_some() {
             ECONOMIC_AMM_MAGIC.to_vec()
@@ -2736,25 +2809,10 @@ impl EconomicState {
         }
         out.count(self.receipts.len(), MAX_ECONOMIC_RECEIPTS)?;
         for receipt in &self.receipts {
-            out.u64(receipt.height)?;
-            out.txid(receipt.buy_txid)?;
-            out.txid(receipt.sell_txid)?;
-            for value in [
-                &receipt.quantity,
-                &receipt.price,
-                &receipt.buyer_pnl,
-                &receipt.seller_pnl,
-            ] {
-                out.decimal(value)?;
-            }
-            for atoms in [
-                receipt.retained_fee_atoms,
-                receipt.collected_loss_atoms,
-                receipt.paid_claim_atoms,
-                receipt.unfunded_loss_atoms,
-            ] {
-                out.atoms(atoms)?;
-            }
+            econ_write_receipt(&mut out, receipt)?;
+        }
+        if archived {
+            econ_write_receipt_archive(&mut out, &self.receipt_archive)?;
         }
         out.u64(self.internal_sequence)?;
         if self.config.funding.is_some() {
@@ -2840,22 +2898,28 @@ impl EconomicState {
         let mut reader = Cursor::new(raw);
         let version = reader.fixed::<5>().map_err(|_| econ_snapshot_bad())?;
         let has_binding = version == *ECONOMIC_CONTRACT_MAGIC;
-        let (has_funding, has_marking, has_liquidation, has_amm) =
-            if version == *ECONOMIC_STATE_MAGIC {
-                (false, false, false, false)
-            } else if version == *ECONOMIC_FUNDING_MAGIC {
-                (true, false, false, false)
-            } else if version == *ECONOMIC_MARK_MAGIC {
-                (false, true, false, false)
-            } else if version == *ECONOMIC_LIQUIDATION_MAGIC {
-                (false, true, true, false)
-            } else if version == *ECONOMIC_AMM_MAGIC {
-                (false, true, true, true)
-            } else if has_binding {
-                (false, true, false, false)
-            } else {
-                return Err(econ_snapshot_bad());
-            };
+        let has_history = version == *ECONOMIC_HISTORY_MAGIC;
+        let (has_funding, has_marking, has_liquidation, has_amm) = if has_history {
+            match reader.u8().map_err(|_| econ_snapshot_bad())? {
+                0 => (false, false, false, false),
+                1 => (true, false, false, false),
+                _ => return Err(econ_snapshot_bad()),
+            }
+        } else if version == *ECONOMIC_STATE_MAGIC {
+            (false, false, false, false)
+        } else if version == *ECONOMIC_FUNDING_MAGIC {
+            (true, false, false, false)
+        } else if version == *ECONOMIC_MARK_MAGIC {
+            (false, true, false, false)
+        } else if version == *ECONOMIC_LIQUIDATION_MAGIC {
+            (false, true, true, false)
+        } else if version == *ECONOMIC_AMM_MAGIC {
+            (false, true, true, true)
+        } else if has_binding {
+            (false, true, false, false)
+        } else {
+            return Err(econ_snapshot_bad());
+        };
         let config = econ_read_config(
             &mut reader,
             has_funding,
@@ -2930,20 +2994,18 @@ impl EconomicState {
         let count = econ_read_count(&mut reader, MAX_ECONOMIC_RECEIPTS)?;
         let mut receipts = Vec::new();
         for _ in 0..count {
-            receipts.push(TradeReceipt {
-                height: econ_read_u64(&mut reader)?,
-                buy_txid: econ_read_txid(&mut reader)?,
-                sell_txid: econ_read_txid(&mut reader)?,
-                quantity: econ_read_decimal(&mut reader)?,
-                price: econ_read_decimal(&mut reader)?,
-                buyer_pnl: econ_read_decimal(&mut reader)?,
-                seller_pnl: econ_read_decimal(&mut reader)?,
-                retained_fee_atoms: econ_read_atoms(&mut reader)?,
-                collected_loss_atoms: econ_read_atoms(&mut reader)?,
-                paid_claim_atoms: econ_read_atoms(&mut reader)?,
-                unfunded_loss_atoms: econ_read_atoms(&mut reader)?,
-            });
+            receipts.push(econ_read_receipt(&mut reader)?);
         }
+        let receipt_archive = if has_history {
+            let archive = econ_read_receipt_archive(&mut reader)?;
+            // The layout exists only to carry a non-empty archive.
+            if archive.count == 0 {
+                return Err(econ_snapshot_bad());
+            }
+            archive
+        } else {
+            ReceiptArchive::default()
+        };
         let internal_sequence = econ_read_u64(&mut reader)?;
         let funding = if config.funding.is_some() {
             econ_read_funding(&mut reader)?
@@ -2975,6 +3037,7 @@ impl EconomicState {
             ContractBindingState::default()
         };
         reader.end().map_err(|_| econ_snapshot_bad())?;
+        let history = HistoryRuntime::pruned_at(&receipt_archive);
         let result = Self {
             config,
             joint,
@@ -2990,6 +3053,8 @@ impl EconomicState {
             insurance: InsuranceState::default(),
             unfunded_loss_atoms,
             receipts,
+            receipt_archive,
+            history,
             internal_sequence,
             funding,
             marking,

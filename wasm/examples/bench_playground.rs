@@ -152,7 +152,7 @@ fn main() {
         times[..times.len() / 10].iter().sum::<f64>() / (times.len() / 10).max(1) as f64;
     let last_tenth: f64 = times[times.len() - times.len() / 10..].iter().sum::<f64>()
         / (times.len() / 10).max(1) as f64;
-    let windows: Vec<String> = [100usize, 300, 500, 700, 1000]
+    let windows: Vec<String> = [100usize, 300, 500, 700, 1000, 2000, 3000, 4000, 5000]
         .into_iter()
         .filter(|&n| n <= times.len())
         .map(|n| {
@@ -161,11 +161,14 @@ fn main() {
         })
         .collect();
     println!(
-        "{{\"window_mean_ms\":{{{}}},\"runtime\":\"native\",\"blocks\":{blocks},\"seed\":{seed},\"marks\":{marks},\"median_ms\":{median:.3},\"mean_ms\":{:.3},\"first_tenth_ms\":{first_tenth:.3},\"last_tenth_ms\":{last_tenth:.3},\"blocks_per_s_median\":{:.1},\"blocks_per_s_total\":{:.1},\"fills\":{fills},\"checksum\":{{\"fill_total\":{},\"mm_contracts\":\"{mm_position}\",\"net\":\"{net}\",\"price_1e4\":{}}}}}",
+        "{{\"window_mean_ms\":{{{}}},\"runtime\":\"native\",\"blocks\":{blocks},\"seed\":{seed},\"marks\":{marks},\"median_ms\":{median:.3},\"mean_ms\":{:.3},\"first_tenth_ms\":{first_tenth:.3},\"last_tenth_ms\":{last_tenth:.3},\"blocks_per_s_median\":{:.1},\"blocks_per_s_total\":{:.1},\"fills\":{fills},\"state_bytes\":{},\"ledger_markers\":{},\"input_ids\":{},\"checksum\":{{\"fill_total\":{},\"mm_contracts\":\"{mm_position}\",\"net\":\"{net}\",\"price_1e4\":{}}}}}",
         windows.join(","),
         total_ms / blocks as f64,
         1000.0 / median,
         blocks as f64 / (total_ms / 1000.0),
+        state.field("state_bytes").unwrap().unwrap().as_json(),
+        state.field("ledger_markers").unwrap().unwrap().as_json(),
+        state.field("input_ids").unwrap().unwrap().as_json(),
         state.field("fill_total").unwrap().unwrap().as_json(),
         state
             .field("oracle")

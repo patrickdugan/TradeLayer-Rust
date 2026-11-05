@@ -1241,7 +1241,8 @@ mod economic_bridge_tests {
             assert!(decode(&with_crc(raw).unwrap()).is_err());
         }
         let mut raw = verify_crc(&bytes).unwrap().to_vec();
-        raw[offset..offset + 4].copy_from_slice(&100_001u32.to_be_bytes());
+        raw[offset..offset + 4]
+            .copy_from_slice(&(MAX_JOINT_REPLAY_MARKERS as u32 + 1).to_be_bytes());
         assert!(decode(&with_crc(raw).unwrap()).is_err());
         let mut raw = verify_crc(&bytes).unwrap().to_vec();
         raw[38] = 0;

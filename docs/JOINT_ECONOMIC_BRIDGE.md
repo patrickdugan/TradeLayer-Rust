@@ -77,7 +77,7 @@ An epoch permits custody legs on an empty due block. Even a zero-leg epoch
 permanently fences old public Joint, Spot, TLJP and TLJC exports. Future
 ordinary inputs, external economic inputs, epochs and custody fingerprints
 cannot reuse an epoch ID. External input and system-epoch counts together
-obey the existing 100,000 marker bound. The external replay union continues
+obey the 1,048,576 marker bound. The external replay union continues
 to exclude all system epochs.
 
 TLJE v1 bytes remain unchanged whenever the epoch set is empty. TLJE v2 adds

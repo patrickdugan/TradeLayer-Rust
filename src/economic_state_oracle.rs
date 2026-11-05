@@ -484,7 +484,10 @@ fn state_range(
     let state = reader
         .take(length)
         .map_err(|_| bad("embedded state framing"))?;
-    if state.len() < 5 || &state[..4] != b"TLEC" || !(1..=7).contains(&state[4]) {
+    if state.len() < 5
+        || &state[..4] != b"TLEC"
+        || !((1..=7).contains(&state[4]) || state[4] == 0x0b)
+    {
         return Err(bad("state codec/version"));
     }
     let end = TLEH_STATE_OFFSET

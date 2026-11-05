@@ -504,6 +504,30 @@ impl FeeBook {
         }
         Ok((book, insurance_total))
     }
+    /// Replays more accruals on this book with the exact accrual transition and
+    /// returns the checked sum of their insurance requests. The caller owns the
+    /// book; on error it is left partially advanced and must be dropped.
+    pub(crate) fn accrue_all_unchecked(
+        &mut self,
+        entries: impl IntoIterator<Item = (PropertyId, FeeRoute, u128, u64)>,
+    ) -> Result<u128> {
+        let mut insurance_total = 0_u128;
+        for (property, route, atoms, block) in entries {
+            let plan = self.accrue_inner(property, route, atoms, block, atoms)?;
+            insurance_total = insurance_total
+                .checked_add(plan.insurance_atoms)
+                .ok_or(TallyError::AmountOverflow)?;
+        }
+        Ok(insurance_total)
+    }
+    /// Removes the first `count` journal entries and returns them. Rows and the
+    /// queue are untouched; the removed entries are accounted for elsewhere.
+    pub(crate) fn drain_journal_prefix(&mut self, count: usize) -> Result<Vec<FeeJournalEntry>> {
+        if count > self.journal.len() {
+            return Err(TallyError::InvalidSnapshot);
+        }
+        Ok(self.journal.drain(..count).collect())
+    }
     /// Rows and queue of this book without its journal, with the journal length.
     /// An incremental audit replays only the accruals added after the mark.
     pub(crate) fn audit_mark(&self) -> FeeBookMark {

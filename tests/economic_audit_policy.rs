@@ -767,8 +767,9 @@ fn capacity_rejects_the_same_block_under_every_policy() {
     let pairs_start = blocks.len();
     // Pairs of crossing orders. Each fill adds a receipt and about eight legs,
     // and the staged ledger copies its replay set for every leg, so applying a
-    // block costs more as history grows. Debug builds stop well before the
-    // receipt bound; release builds run into it.
+    // block costs more as history grows. Debug builds stop well before the old
+    // receipt bound; release builds pass it: receipts leave the state for the
+    // receipt log after every block, so the lifetime fill count is not bounded.
     let trade_blocks = if cfg!(debug_assertions) { 3 } else { 10 };
     for _ in 0..trade_blocks {
         let mut inputs = Vec::new();
@@ -806,15 +807,11 @@ fn capacity_rejects_the_same_block_under_every_policy() {
         .take_while(|s| s.result.is_ok())
         .filter_map(|s| s.result.as_ref().ok())
         .sum();
+    assert!(rejected.is_empty(), "{rejected:?}");
     if cfg!(debug_assertions) {
-        assert!(rejected.is_empty(), "{rejected:?}");
         assert!(fills_before_reject > MAX_ECONOMIC_RECEIPTS / 4);
     } else {
-        // The first block whose fills would exceed the receipt bound fails and
-        // every policy fails exactly that block.
-        assert!(!rejected.is_empty(), "the receipt bound must be reached");
-        assert_eq!(rejected[0].1, Err(EconomicError::Capacity), "{rejected:?}");
-        assert!(fills_before_reject + 1000 > MAX_ECONOMIC_RECEIPTS);
-        assert!(fills_before_reject <= MAX_ECONOMIC_RECEIPTS);
+        // More fills than the state could ever hold: 10 blocks of 1,000 fills.
+        assert!(fills_before_reject > MAX_ECONOMIC_RECEIPTS);
     }
 }

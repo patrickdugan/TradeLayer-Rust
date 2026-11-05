@@ -215,7 +215,9 @@ impl EconomicChain {
         if frame.header.height != next.tip.height || frame.header.id != next.tip.id {
             return Err(EconomicError::Invariant);
         }
-        next.state = next.config.decode(&frame.before)?;
+        let mut restored = next.config.decode(&frame.before)?;
+        restored.inherit_receipt_log(&next.state);
+        next.state = restored;
         next.tip = Tip {
             height: frame.header.height - 1,
             id: frame.header.parent,

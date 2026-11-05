@@ -61,8 +61,8 @@ Skipping or batching these audits while keeping the same guarantees is not possi
 
 Steps 1 and 3 change when a corrupted state is detected: within K blocks instead of within the
 block. Every block is still validated, and the consensus result of every valid history is
-unchanged. Step 2 changes the persisted format and is not implemented. Steps 1 and 3 are
-implemented as described below, with the project owner's approval.
+unchanged. Step 2 changes the persisted format. Steps 1 and 3 are implemented as described under
+"Audit policy", and step 2 as described under "Bounded history", with the project owner's approval.
 
 ## Audit policy (steps 1 and 3, as built)
 
@@ -136,9 +136,8 @@ state without a carried replay re-executes from the bootstrap.
 - accepted-contract mode with a failing block in the history (200 blocks in release builds, 70 in
   debug builds, because the `EveryBlock` reference re-executes every frame three times per block);
 - capacity: the book filled to `MAX_CONTRACT_ORDERS` and one more order, a block with more than
-  `MAX_ECONOMIC_INPUTS` inputs, and trading blocks (release builds run into
-  `MAX_ECONOMIC_RECEIPTS` and every policy rejects the same block; debug builds stop at about 2,500
-  receipts).
+  `MAX_ECONOMIC_INPUTS` inputs, and trading blocks (release builds settle 10,000 fills, more than
+  `MAX_ECONOMIC_RECEIPTS`, with the same result under every policy; debug builds settle 3,000).
 
 `src/economic_audit_tests.rs` injects a violation with a `cfg(test)` hook: a changed fee on the
 oldest receipt, which no later block touches. `Periodic(8)` accepts blocks 3 to 7 and rejects block 8
@@ -164,7 +163,173 @@ Both builds produce the same checksum (596 fills, final oracle price 972083477).
 The cost still grows with history, at about 0.021 ms per block instead of 0.034. What remains is
 mostly requirement 2 and work outside the audit: the full-state encode (about 11 ms at block 1,000 on the market-maker test schedule),
 the joint audit at finalize, the state and joint clones, and the staged ledger copy that every
-internal leg makes. Step 2 (bounded history) is what removes the encode and the copies.
+internal leg makes. Step 2 does not remove them: the encode and the copies are proportional to the
+replay markers and legs, which stay exact (see "Bounded history").
 
 Accepted-contract mode, 200 blocks of the test schedule (a price every tenth block, a trade every
 fifth), release build, apply time only: `EveryBlock` 101.9 s, `Periodic(64)` 1.6 s.
+
+## Bounded history (step 2, as built)
+
+Step 2 bounds the trade receipts and the fee journal and raises every other history bound. It does
+not bound the replay markers or the internal legs: those stay exact, and they are now the whole of
+the state's growth.
+
+### What leaves the state
+
+When `marking` is not configured, the state keeps the `RECEIPT_WINDOW` (256) most recent receipts.
+At the end of every block, after the block's audits and before the checkpoint encode, every older
+receipt moves to the receipt log. Their fee-book journal entries leave the state with them, because
+each entry is a function of one receipt. The state commits to what left through a `ReceiptArchive`:
+
+| field | meaning |
+|---|---|
+| `count`, `last_height` | receipts archived, height of the last one |
+| `hash` | running hash: `H[i+1] = sha256d("TradeLayer/EconomicReceiptLog/v1" ‖ H[i] ‖ receipt[i])`, receipt in its TLEC encoding |
+| `collected_atoms`, `paid_atoms`, `unfunded_loss_atoms` | totals the loss-pool and bad-debt audits need |
+| `insurance_atoms` | insurance requests of the archived accruals |
+| `fees` | fee-book rows after the archived accruals, with no journal |
+
+Every reader of `receipts` keeps its result:
+
+| reader | now |
+|---|---|
+| capacity of `settle_match` and of `verify` | counts the receipts in the state (8,192) |
+| complete audit, order and bounds of receipts | the window, plus every archived receipt when the node holds the log |
+| loss pool, collected, paid, bad debt | archive totals plus the window |
+| fee-book rebuild and insurance expectation | archive rows and insurance plus the window's accruals, journal compared |
+| incremental audit | unchanged; the ordering check starts at `last_height` |
+| `EconomicHistory` reports | require `marking`, so they never read an archived receipt |
+| wasm playground, listener demo | `receipt_count()` and `receipts_since(n)` |
+
+Configurations with `marking` (marks, liquidation, funded AMM, accepted contracts, insurance,
+native entitlements, source consensus) pair every receipt with an event in a history that replays
+from the first receipt. They archive nothing and keep the 8,192-receipt bound together with the
+bounds of those histories (8,192 mark events, 4,096 liquidation events, 4,096 contract frames).
+
+### The receipt log
+
+The log is append-only node data, shared between state clones in chunks of 256 receipts. It is not
+in the snapshot, in `Eq` or in `Debug`. A state decoded from a snapshot starts with an empty log
+whose base is the archive head; `attach_receipt_log_prefix` joins the earlier receipts after
+checking that they chain to that base hash, and `prune_receipt_log` drops the node's copy. A
+rollback in `EconomicChain` keeps the log that still chains to the restored head.
+
+The complete audit checks the log against the commitment: the hash chain must reach the committed
+hash from the log's base, and every receipt must pass the bounds and ordering checks. A log that
+starts at the first receipt also recomputes the committed totals and fee rows. A tampered archived
+receipt fails the complete audit with `Invariant`; under `Periodic(K)` that is the next multiple of
+`K`. The audit costs one hash per receipt in the log, so a pruned node pays nothing.
+
+### Layout and migration
+
+TLEC v11 (`TLEC\x0b`, then one byte: 0 plain, 1 funding) is v1 or v2 with the archive after the
+receipt list. A state that has archived no receipt keeps writing v1 or v2, byte for byte, so every
+pinned fixture and every state with at most 256 receipts is unchanged. The reader decodes v1 to v10
+as before. A state decoded from v1 or v2 holds every receipt; its first block, or an explicit
+`migrate_receipt_history_unverified()`, archives down to the window, after which it writes v11 and
+has the same snapshot bytes as a node that never held more. A snapshot taken before the first
+archive therefore loads in an `EconomicChain` without re-encoding; the chain's rollback frames keep
+their original bytes. `TLSE` state export accepts versions 1 to 7 and 11.
+
+### Replay markers: kept exact
+
+Compaction into a sorted archive does not reduce what the state must hold. Exact replay protection
+for an arbitrary 32-byte id needs 32 bytes per id in the snapshot, in an archive as much as in a
+set; an archive would add a hash and a binary search and remove nothing. Nothing in the owner binds
+a txid to a block height, so an id below the rollback floor cannot be dropped without accepting a
+replayed id. Replay protection is therefore unchanged for every id, and the caps rise:
+
+| bound | before | after |
+|---|---:|---:|
+| order ids retained by the book | 65,536 | 524,288 |
+| replay markers of the joint state | 100,000 | 1,048,576 |
+| internal legs | 65,536 | 1,048,576 |
+| replay markers of a ledger inside an economic checkpoint | 100,000 | 2,097,152 |
+| receipts settled over the life of the state | 8,192 | no bound |
+| fee-book journal entries over the life of the state | 16,384 | no bound |
+
+The ledger bound applies only to the ledger embedded in an economic or clearing checkpoint; the
+standalone ledger checkpoint keeps its 100,000 bound.
+
+### Ceiling
+
+The checkpoint holds 64 MiB (`MAX_CHECKPOINT_BYTES`), and that byte budget now decides before any
+count. Measured on the playground schedule below, 8.6 input ids and 10.7 internal legs per block
+grow the state by 1,136 bytes per block: 342 bytes in the ledger replay markers (32 bytes per leg)
+and 794 bytes in input-id sets and other per-input records (92 bytes per input id). Before step 2
+the growth was 1,319 bytes per block.
+
+An `EconomicChain` checkpoint embeds the state and one complete before-state per rollback frame, so
+it holds `1 + rollback_limit` copies of the state:
+
+| copies in the checkpoint | blocks until 64 MiB, before | after |
+|---|---:|---:|
+| 1 (state alone) | 50,878 | 59,074 |
+| 2 (`rollback_limit` 1) | 25,439 | 29,537 |
+| 7 (`rollback_limit` 6) | 7,268 | 8,439 |
+| 65 (`rollback_limit` 64) | 782 | 908 |
+
+The count bounds before step 2 stopped this schedule at about 6,100 blocks (legs), 9,900 blocks
+(order ids) and 13,400 blocks (receipts). After it they stop it at about 98,000 (legs), 79,000
+(order ids) and 122,000 (markers), so the byte budget decides. A chain with `rollback_limit` 64
+halts at about 900 blocks on this schedule, before and after: the frames duplicate the replay
+markers 65 times. Removing that limit needs the frames to share the markers (a delta layout for
+`TLEH`) or leg ids to stop being stored; neither is part of step 2.
+
+### Tests
+
+`src/economic_history_tests.rs` lowers the receipt window, the receipt capacity and the order-id
+bound through a test-only setter (window 4, capacity 16) and runs under `EveryBlock`, `Periodic(1)`,
+`Periodic(7)` and the default policy, with and without funding:
+
+- 120 fills settle where the control state with the same capacity stops at fill 17 with `Capacity`;
+  the state holds 4 receipts, the log 116, and `verify()` passes;
+- the four policies write identical snapshot bytes after each of 59 blocks;
+- v1 and v2 bytes before the first archive, v11 after, round trip, rejected corrupt shape and
+  config bytes, and a v11 header without an archive;
+- a v1 or v2 snapshot with 40 receipts reaches the same snapshot bytes, ledger, positions, fee book
+  and archive commitment as a node that ran the new code from block 1, after 39 more blocks, and the
+  explicit migration gives the same state at once;
+- replayed order and cancel ids from before the first archive are rejected, also after a snapshot
+  round trip;
+- a changed archived receipt fails `verify()`, fails block 8 under `Periodic(8)` with nothing
+  published, and fails the next block under `EveryBlock`; a changed committed total fails without a
+  log; a pruned log verifies, agrees with the full node block for block, and takes back exactly its
+  own prefix;
+- a rollback keeps the log up to the restored head;
+- a book restored with 70,000 retained ids admits a new order.
+
+`tests/economic_audit_policy.rs` settles 10,000 fills in 10 blocks (release builds) under every
+policy with identical results, beyond the 8,192 receipts a state could hold before.
+
+### Measurements
+
+Playground schedule of the table above, seed 1, marks off, native release build in WSL on the same
+machine, mean ms per block over the 100 blocks ending at the listed block. Before is `b75f9cc`.
+Median of 3 runs, except before at 2,000 to 5,000 blocks (one run).
+
+| block | before | after |
+|---:|---:|---:|
+| 100 | 1.47 | 1.41 |
+| 300 | 4.90 | 5.00 |
+| 500 | 9.08 | 9.15 |
+| 700 | 13.05 | 13.56 |
+| 1,000 | 18.59 | 18.51 |
+| 2,000 | 40.29 | 38.73 |
+| 3,000 | 61.14 | 58.93 |
+| 4,000 | 83.55 | 80.22 |
+| 5,000 | 104.14 | 100.28 |
+
+| after block | state bytes before | state bytes after | fills | input ids | ledger markers |
+|---:|---:|---:|---:|---:|---:|
+| 1,000 | 1,319,020 | 1,218,503 | 596 | 8,604 | 10,781 |
+| 5,000 | 6,594,456 | 5,763,681 | 3,055 | 43,063 | 53,439 |
+
+Both builds produce the same checksum at 1,000 blocks (596 fills, oracle price 972083477) and at
+5,000 blocks (3,055 fills, oracle price 990902441). The time per block does not change beyond the
+run-to-run spread of about 3%, and still grows by about 0.02 ms per block. Receipts and the journal
+were 13% of the state at 5,000 blocks; the rest is replay markers and legs. The finisher still
+encodes the whole state in every block (requirement 2 of the audit policy), and the joint audit and
+the ledger copies of each leg run over the markers, so the time per block follows the size of the
+state. Taking the markers out of that per-block work is not part of step 2.

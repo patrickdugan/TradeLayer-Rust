@@ -717,7 +717,7 @@ fn block(s: &mut Session, req: &RpcValue) -> Res<Obj> {
         return Err(OpError::new("Capacity", "too many ops in one block"));
     }
     let built = build(s, engine, &ops)?;
-    let receipts_before = s.state.receipts().len();
+    let receipts_before = s.state.receipt_count();
     // The engine applies the block on a private clone and publishes it only on success.
     s.state
         .apply_block_unverified(engine, built.inputs)
@@ -729,8 +729,7 @@ fn block(s: &mut Session, req: &RpcValue) -> Res<Obj> {
     }
     s.order_owner.extend(built.owners);
 
-    let receipts = s.state.receipts();
-    let fills = &receipts[receipts_before..];
+    let fills = s.state.receipts_since(receipts_before);
     let shown: Vec<String> = fills
         .iter()
         .take(MAX_FILLS_IN_BLOCK)
@@ -1012,6 +1011,9 @@ fn state_view(id: &str, s: &mut Session, req: &RpcValue) -> Res<Obj> {
                 .build(),
         )
         .raw("properties", array(properties))
-        .num("fill_total", receipts.len())
+        .num("fill_total", state.receipt_count())
+        .num("state_bytes", state.snapshot_bytes().map_or(0, |bytes| bytes.len()))
+        .num("ledger_markers", state.ledger().processed_count())
+        .num("input_ids", state.joint().processed_count())
         .raw("fills", array(fills)))
 }

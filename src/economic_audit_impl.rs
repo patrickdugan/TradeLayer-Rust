@@ -233,7 +233,9 @@ impl EconomicState {
         let mut last = before
             .receipts
             .checked_sub(1)
-            .map_or(0, |index| self.receipts[index].height);
+            .map_or(self.receipt_archive.last_height, |index| {
+                self.receipts[index].height
+            });
         for receipt in new_receipts {
             if receipt.height < last
                 || receipt.height == 0
@@ -396,6 +398,7 @@ impl core::fmt::Debug for EconomicState {
             .field("insurance_custody_atoms", &self.insurance_custody_atoms)
             .field("unfunded_loss_atoms", &self.unfunded_loss_atoms)
             .field("receipts", &self.receipts)
+            .field("receipt_archive", &self.receipt_archive)
             .field("internal_sequence", &self.internal_sequence)
             .field("funding", &self.funding)
             .field("marking", &self.marking)

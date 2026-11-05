@@ -310,6 +310,7 @@ impl EconomicBlockStage {
         if let Some(frame) = source_frame {
             self.state.source_consensus.frames.push(frame);
         }
+        let receipt_count = self.state.receipts.len() - self.receipt_count_before;
         if self.audit.periodic {
             let replay = match &self.audit.before {
                 Some(before) => self.state.verify_audit(Some(&AuditDelta {
@@ -319,13 +320,14 @@ impl EconomicBlockStage {
                 }))?,
                 None => self.state.verify_audit(None)?,
             };
+            self.state.archive_receipts_unverified()?;
             self.state.snapshot_bytes_after_audit()?;
             self.state.audit.audited = Some(self.audit.policy);
             self.state.audit.binding_replay = replay.map(|replay| Arc::new(*replay));
         } else {
+            self.state.archive_receipts_unverified()?;
             self.state.snapshot_bytes()?;
         }
-        let receipt_count = self.state.receipts.len() - self.receipt_count_before;
         Ok((self.state, receipt_count))
     }
 }

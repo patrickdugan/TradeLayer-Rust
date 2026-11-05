@@ -22,7 +22,7 @@ use crate::spot::{
 use std::collections::BTreeSet;
 
 pub const MAX_JOINT_BLOCK_INPUTS: usize = 10_000;
-pub const MAX_JOINT_REPLAY_MARKERS: usize = 100_000;
+pub const MAX_JOINT_REPLAY_MARKERS: usize = 1_048_576;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum JointOperation {

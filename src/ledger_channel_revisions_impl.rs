@@ -25,6 +25,8 @@ struct RevisionVerifyBudget {
     records: usize,
     ordinary_records: usize,
     enrollments: usize,
+    /// Bound on the replay-marker list; 0 selects the ordinary bound.
+    processed_limit: usize,
 }
 impl RevisionVerifyBudget {
     fn ordinary(&mut self, n: usize) -> Result<(), SnapshotError> {
@@ -778,6 +780,21 @@ fn revision_snapshot_count(
     budget: Option<&mut RevisionVerifyBudget>,
 ) -> Result<usize, SnapshotError> {
     let n = snapshot_count(reader)?;
+    if let Some(b) = budget {
+        b.ordinary(n)?;
+    }
+    Ok(n)
+}
+
+fn revision_snapshot_count_limited(
+    reader: &mut crate::codec::Cursor<'_>,
+    limit: usize,
+    budget: Option<&mut RevisionVerifyBudget>,
+) -> Result<usize, SnapshotError> {
+    let n = reader.u32().map_err(snapshot_codec_error)? as usize;
+    if n > limit {
+        return Err(SnapshotError::InvalidFormat("too many ledger records"));
+    }
     if let Some(b) = budget {
         b.ordinary(n)?;
     }

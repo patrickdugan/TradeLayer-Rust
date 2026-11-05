@@ -12,7 +12,7 @@ use core::{cmp::Ordering, fmt};
 use std::collections::{BTreeMap, BTreeSet};
 
 pub const MAX_CONTRACT_ORDERS: usize = 4096;
-pub const MAX_CONTRACT_ORDER_IDS: usize = 65_536;
+pub const MAX_CONTRACT_ORDER_IDS: usize = 524_288;
 pub const MAX_ORDER_DECIMAL_DIGITS: usize = 40;
 pub const MAX_ORDER_DECIMAL_SCALE: u32 = 20;
 pub const MAX_ORDER_HEIGHT: u64 = 9_007_199_254_740_991;
@@ -152,6 +152,28 @@ pub struct ContractOrderbook {
     seen: BTreeSet<TxId>,
     next_sequence: u64,
     processed_through: Option<u64>,
+    id_limit: IdLimit,
+}
+
+/// Retained-id bound of one book. It is the consensus constant outside of tests
+/// and is never compared, serialized or printed.
+#[derive(Clone, Copy)]
+struct IdLimit(usize);
+impl Default for IdLimit {
+    fn default() -> Self {
+        Self(MAX_CONTRACT_ORDER_IDS)
+    }
+}
+impl PartialEq for IdLimit {
+    fn eq(&self, _: &Self) -> bool {
+        true
+    }
+}
+impl Eq for IdLimit {}
+impl fmt::Debug for IdLimit {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "IdLimit")
+    }
 }
 
 impl ContractOrderbook {
@@ -164,10 +186,16 @@ impl ContractOrderbook {
             seen: BTreeSet::new(),
             next_sequence: 0,
             processed_through: None,
+            id_limit: IdLimit::default(),
         }
     }
     pub fn contract(&self) -> ContractId {
         self.contract
+    }
+    /// Test hook: a smaller retained-id bound than the consensus constant.
+    #[cfg(test)]
+    pub(crate) fn set_id_limit_for_test(&mut self, limit: usize) {
+        self.id_limit = IdLimit(limit);
     }
     pub fn queued(&self) -> &[Order] {
         &self.queued
@@ -251,6 +279,7 @@ impl ContractOrderbook {
             seen,
             next_sequence: snapshot.next_sequence,
             processed_through: snapshot.processed_through,
+            id_limit: IdLimit::default(),
         })
     }
     /// Order-level checks shared by `from_snapshot` and `verify_structure_unverified`.
@@ -302,7 +331,7 @@ impl ContractOrderbook {
     /// without copying the seen set, whose size grows with history.
     pub(crate) fn verify_structure_unverified(&self) -> Result<()> {
         if self.queued.len() + self.drained.len() + self.resting.len() > MAX_CONTRACT_ORDERS
-            || self.seen.len() > MAX_CONTRACT_ORDER_IDS
+            || self.seen.len() > self.id_limit.0
             || self.processed_through.is_some_and(|h| h > MAX_ORDER_HEIGHT)
             || self
                 .resting
@@ -330,7 +359,7 @@ impl ContractOrderbook {
             return Err(BookError::DuplicateInput);
         }
         if self.queued.len() + self.drained.len() + self.resting.len() >= MAX_CONTRACT_ORDERS
-            || self.seen.len() >= MAX_CONTRACT_ORDER_IDS
+            || self.seen.len() >= self.id_limit.0
         {
             return Err(BookError::Capacity);
         }

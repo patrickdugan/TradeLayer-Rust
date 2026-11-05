@@ -684,14 +684,17 @@ impl EconomicState {
                 return Err(EconomicError::Invariant);
             }
         } else {
-            entries.extend(self.receipts.iter().map(|r| {
+            // Receipts that left the state are folded into the archive's book.
+            let mut book = self.receipt_archive.fees.clone();
+            let insurance = book.accrue_all_unchecked(self.receipts.iter().map(|r| {
                 (
                     self.config.collateral,
                     self.config.fee_route,
                     r.retained_fee_atoms,
                     r.height,
                 )
-            }));
+            }))?;
+            return Ok((book, add(insurance, self.receipt_archive.insurance_atoms)?));
         }
         Ok(FeeBook::from_accruals(entries)?)
     }

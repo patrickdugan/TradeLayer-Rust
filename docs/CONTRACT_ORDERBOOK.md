@@ -100,7 +100,7 @@ The parent supplies a complete durable economic codec; this module introduces
 no separate economic persistence owner.
 
 Local limits are 4,096 live orders across queued, drained and resting states,
-65,536 retained IDs, and the JavaScript safe-integer maximum height. No source
+524,288 retained IDs, and the JavaScript safe-integer maximum height. No source
 acceptance claim is attached to those resource limits. One bounded iterative
 match operation replaces source recursion. Each iteration removes at least one
 order, so the complete operation is bounded by live orders. Cancellation frees

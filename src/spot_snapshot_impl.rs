@@ -257,10 +257,12 @@ impl SpotExchange {
         for p in &self.permitted {
             out.extend_from_slice(&p.get().to_be_bytes());
         }
-        let ledger = self
-            .ledger
-            .snapshot_bytes()
-            .map_err(SpotSnapshotError::Ledger)?;
+        let ledger = if allow_combined_clearing {
+            self.ledger.snapshot_bytes_economic()
+        } else {
+            self.ledger.snapshot_bytes()
+        }
+        .map_err(SpotSnapshotError::Ledger)?;
         spot_u32(&mut out, ledger.len())?;
         out.extend_from_slice(&ledger);
         spot_u32(&mut out, self.queued.len())?;
@@ -377,6 +379,7 @@ impl SpotExchange {
             .map_err(|_| spot_invalid("ledger truncated"))?;
         let ledger = match native_policy {
             Some(p) => Ledger::from_snapshot_bytes_with_native_policy(ledger_bytes, p),
+            None if allow_combined_clearing => Ledger::from_snapshot_bytes_economic(ledger_bytes),
             None => Ledger::from_snapshot_bytes(ledger_bytes),
         }
         .map_err(SpotSnapshotError::Ledger)?;
