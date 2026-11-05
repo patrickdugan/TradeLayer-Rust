@@ -260,3 +260,8 @@ pub mod source_main_step_kernel;
 pub mod source_rich_value;
 
 pub mod fees;
+
+pub mod node_config; // Strict source-consensus section of the tradelayer-node config.
+pub mod node_ingest; // Authenticated candidates to source blocks; fork rollback.
+pub mod node_runner; // Observe, admit, apply and serve in one process.
+pub mod node_service; // Loopback listener API that owns the node's economic chain.
