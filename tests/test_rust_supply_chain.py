@@ -84,7 +84,7 @@ class SupplyChainGateTests(unittest.TestCase):
             "\n[[package]]\nname = \"malicious-crate\"\nversion = \"1.0.0\"\n"
             "source = \"registry+https://github.com/rust-lang/crates.io-index\"\n"
             "checksum = \"0\"\n",
-            "\n[[package]]\nname = \"tradelayer-core\"\nversion = \"0.1.0-rc.1\"\n",
+            "\n[[package]]\nname = \"tradelayer-core\"\nversion = \"0.1.0-rc.2\"\n",
             "\n[metadata]\nextra = \"unreviewed\"\n",
         ]:
             with self.subTest(change=change):
@@ -116,8 +116,8 @@ class SupplyChainGateTests(unittest.TestCase):
             ("wasm/Cargo.toml", 'panic = "abort"', 'panic = "abort"\n\n[build-dependencies]\ncc = "1"'),
             (
                 "wasm/Cargo.lock",
-                'version = "0.1.0-rc.1"\n',
-                'version = "0.1.0-rc.1"\nsource = "registry+https://github.com/rust-lang/crates.io-index"\n',
+                'version = "0.1.0-rc.2"\n',
+                'version = "0.1.0-rc.2"\nsource = "registry+https://github.com/rust-lang/crates.io-index"\n',
             ),
         ]:
             with self.subTest(filename=filename, after=after):

@@ -1,6 +1,6 @@
 [package]
 name = "tradelayer-wasm"
-version = "0.1.0-rc.1"
+version = "0.1.0-rc.2"
 edition = "2021"
 rust-version = "1.90"
 description = "Raw-ABI WebAssembly binding of tradelayer-core: codec, block and economic playground operations"

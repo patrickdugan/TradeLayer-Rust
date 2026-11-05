@@ -1,7 +1,7 @@
 // Loader for tradelayer_wasm.wasm (raw ABI, no imports). Works in browsers and Node 18+.
 //
 //   const tl = await loadTradeLayer(bytesOrUrl);
-//   tl.call({ op: 'version' })  // -> { ok: true, crate: '0.1.0-rc.1' }
+//   tl.call({ op: 'version' })  // -> { ok: true, crate: '0.1.0-rc.2' }
 //
 // `call` throws only on ABI misuse; operation failures come back as { ok: false, code, message }.
 
