@@ -35,6 +35,14 @@ adds to without code changes):
   incremental audits (2,790 tests), node and listener queries (2,810), bounded receipts
   (2,819), the economic anchor (2,830) and the rollback window (2,837).
 
+After the tag, the desktop wallet ran `tradelayer-node` from this commit as its sidecar against a
+local Bitcoin Core 31.1 testnet4 node at height 159,367 (tradelayer-wallet `feat/rust-port`
+0b2a79a, `scripts/e2e-node-sidecar.mjs`): 14 of 14 checks passed. The node initialized at
+tip - 12, caught up with `authenticated_admission: true`, reported `maxProcessedHeight` 159,367
+(the absolute Core tip), answered `tl_check_kyc` and `tl_check_commits`, stopped on its stop file
+in 727 ms and restarted from its store. Testnet4 carries no TradeLayer candidates, so no candidate
+was applied.
+
 ## Known limits inside the freeze
 
 - **Admission scope.** Only input 0 is authenticated, and only P2PKH and P2WPKH under
@@ -56,6 +64,5 @@ adds to without code changes):
 - The Litecoin client (its own bundle, after the Bitcoin launch).
 - Admission of other inputs and templates, and an authenticated historical bootstrap.
 - Replay-marker archival beyond the capacity ceiling above.
-- A desktop-wallet run against a live `tradelayer-node`, code signing, and the overnight
-  sleep test (tradelayer-wallet `feat/rust-port`).
+- Code signing and the overnight sleep test (tradelayer-wallet `feat/rust-port`).
 - An independent second-model verification pass over admission and the wasm ABI.
