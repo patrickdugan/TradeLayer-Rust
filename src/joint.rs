@@ -19,6 +19,9 @@ use crate::spot::{
     CancelSelector, SpotError, SpotExchange, SpotIntent, UnverifiedSpotCancellation,
     UnverifiedSpotPlacement,
 };
+use crate::zk_verify::{
+    ZkBindingContext, ZkBlockBudget, ZkFeePolicy, ZkOutcome, ZkVerifier, ZkVerifyPayload,
+};
 use std::collections::BTreeSet;
 
 pub const MAX_JOINT_BLOCK_INPUTS: usize = 10_000;
@@ -90,6 +93,22 @@ pub struct UnverifiedJointTx {
     pub operation: JointOperation,
 }
 
+/// A type-36 `ZK Verify` transaction (`ZkVerifyV1`). `actor` is the authenticated sender.
+/// It is a separate item type, not a `JointOperation`, so no existing exhaustive match over
+/// operations changes; blocks carrying it use `JointChainState::apply_unverified_zk_block`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct UnverifiedJointZkTx {
+    pub txid: TxId,
+    pub actor: AccountId,
+    pub payload: ZkVerifyPayload,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum JointBlockItem {
+    Tx(UnverifiedJointTx),
+    Zk(UnverifiedJointZkTx),
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum JointError {
     WrongChain,
@@ -109,6 +128,8 @@ pub enum JointError {
     InconsistentComponents,
     Registry(RegistryError),
     Spot(SpotError),
+    /// Type 36 fee: the sender's available balance of the fee property is below the fee.
+    ZkFee(SpotError),
 }
 impl core::fmt::Display for JointError {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -465,6 +486,68 @@ impl JointProtocolState {
         }
         self.global_input_ids.insert(txid);
         Ok(())
+    }
+
+    pub fn enable_zk_verify_v1(&mut self, fee: ZkFeePolicy) -> Result<(), JointError> {
+        if self.finalized_height.is_some() || !self.global_input_ids.is_empty() {
+            return Err(JointError::Registry(RegistryError::ZkVerifyDisabled));
+        }
+        self.registry.enable_zk_verify_v1(fee)?;
+        Ok(())
+    }
+
+    /// Applies one type-36 transaction: activation gate, fee debit (kept on every later
+    /// rejection), then registry verification. A rejected proof is an `Ok(Rejected)` outcome;
+    /// `Err` means the transaction itself is invalid (not activated, replayed, fee unpaid) and the
+    /// caller discards the whole staged block.
+    pub(crate) fn apply_zk_unverified(
+        &mut self,
+        height: u64,
+        tx: UnverifiedJointZkTx,
+        ctx: &ZkBindingContext,
+        budget: &mut ZkBlockBudget,
+        verifier: &dyn ZkVerifier,
+    ) -> Result<ZkOutcome, JointError> {
+        self.reject_economic_activity_unverified()?;
+        self.check_new_input_unverified(height, tx.txid)?;
+        self.registry.zk_gate(height)?;
+        let fee = self
+            .registry
+            .zk_policy()
+            .cloned()
+            .ok_or(JointError::Registry(RegistryError::ZkVerifyDisabled))?;
+        if fee.amount_atoms > 0 && tx.actor != fee.sink {
+            let mut preimage = b"TradeLayer/ZkFee/v1/".to_vec();
+            preimage.extend_from_slice(&tx.txid.as_bytes());
+            let fee_txid = TxId::from_bytes(crate::hash256::sha256(&preimage));
+            if self.global_input_ids.contains(&fee_txid) {
+                return Err(JointError::Replay(fee_txid));
+            }
+            self.spot
+                .apply_joint_ledger_operation_unverified(
+                    fee_txid,
+                    Operation::Transfer {
+                        id: fee.property,
+                        from: tx.actor.clone(),
+                        to: fee.sink.clone(),
+                        amount_atoms: fee.amount_atoms,
+                    },
+                )
+                .map_err(JointError::ZkFee)?;
+            self.ledger_input_ids.insert(fee_txid);
+            self.global_input_ids.insert(fee_txid);
+        }
+        let outcome = self.registry.record_zk_verify(
+            tx.txid,
+            &tx.actor,
+            height,
+            &tx.payload,
+            ctx,
+            budget,
+            verifier,
+        )?;
+        self.global_input_ids.insert(tx.txid);
+        Ok(outcome)
     }
 
     /// End-of-block queue matching spends the exact same ledger balances

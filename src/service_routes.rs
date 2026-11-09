@@ -466,6 +466,27 @@ pub fn dispatch<B: ServiceBackend>(
                 unsigned(&required(request, "id")?, u64::from(u32::MAX), true)?,
             ],
         ),
+        // Not a pinned-listener route: ZkVerifyV1 statement receipts, by program and/or sender.
+        (true, _, "tl_getzkreceipts") => {
+            let program = match field(request, "programId")? {
+                Some(v) if v.as_json() != "null" => {
+                    let raw = text(&v, 64, false)?;
+                    if raw.len() != 64 || !raw.bytes().all(|b| b.is_ascii_hexdigit()) {
+                        return invalid();
+                    }
+                    string(&raw.to_ascii_lowercase())?
+                }
+                _ => RpcValue::null(),
+            };
+            let sender = match field(request, "address")? {
+                Some(v) if v.as_json() != "null" => address(&v)?,
+                _ => RpcValue::null(),
+            };
+            if program.as_json() == "null" && sender.as_json() == "null" {
+                return invalid();
+            }
+            ("registry.zk_receipts", vec![program, sender])
+        }
         (true, _, "tl_getissuanceintents") => {
             ("issuance.intents", vec![baddress(request, "address")?])
         }

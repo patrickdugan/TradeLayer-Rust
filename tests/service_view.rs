@@ -952,3 +952,31 @@ fn generic_facade_exposes_all_query_capabilities_with_exact_arguments() {
     assert_eq!(recorder.calls[23].arguments[2].as_json(), "null");
     assert_eq!(recorder.calls[24].target, "interface.audit_data");
 }
+
+#[test]
+fn zk_receipt_view_is_empty_without_the_policy_and_rejects_bad_arguments() {
+    let chain = opened(TradeLayerMainnet::Bitcoin, false);
+    let mut backend = EconomicReadBackend::from_chain(&chain).unwrap();
+    let program = text(&"ab".repeat(32));
+    for args in [
+        vec![program.clone(), RpcValue::null()],
+        vec![RpcValue::null(), text("alice")],
+    ] {
+        assert!(call(&mut backend, "registry.zk_receipts", args)
+            .as_array()
+            .unwrap()
+            .is_empty());
+    }
+    for args in [
+        vec![text("zz"), RpcValue::null()],
+        vec![program],
+        vec![RpcValue::null(), text("")],
+    ] {
+        assert!(backend
+            .call(ServiceCall {
+                target: "registry.zk_receipts",
+                arguments: args,
+            })
+            .is_err());
+    }
+}

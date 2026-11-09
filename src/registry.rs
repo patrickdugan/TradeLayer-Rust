@@ -7,7 +7,11 @@
 //! This module is not integrated with live chain consensus or the Rust ledger.
 
 use crate::ledger::{AccountId, TxId};
+use crate::zk_verify::{StatementReceipt, ZkEffect, ZkFeePolicy, ZkProgram, ZkSystem, ZK_TX_TYPE};
 use std::collections::{BTreeMap, BTreeSet};
+
+#[path = "registry_zk.rs"]
+mod zk;
 
 pub const MAX_REGISTRY_BATCH: usize = 10_000;
 pub const MAX_NAME_BYTES: usize = 64;
@@ -111,6 +115,17 @@ pub enum RegistryAction {
     CloseOracle {
         oracle_id: u32,
     },
+    /// `ZkVerifyV1` only. Admin only; entries are immutable and keyed by `program_id`, which is
+    /// the SHA-256 of the canonical encoding of every other field (`zk_verify::program_id_of`).
+    RegisterZkProgram {
+        system: ZkSystem,
+        program_id: [u8; 32],
+        key_bytes: Vec<u8>,
+        public_input_layout: u32,
+        effect: ZkEffect,
+        verifier_version: u32,
+        max_verify_ms: u32,
+    },
 }
 
 impl RegistryAction {
@@ -123,6 +138,7 @@ impl RegistryAction {
             Self::CreateOracle { .. } => 13,
             Self::PublishOracle { .. } => 14,
             Self::CloseOracle { .. } => 15,
+            Self::RegisterZkProgram { .. } => ZK_TX_TYPE,
         }
     }
 }
@@ -161,6 +177,11 @@ pub enum RegistryError {
     MissingAttestation,
     ClosedOracle(u32),
     InvalidPrice,
+    ZkVerifyDisabled,
+    DuplicateZkProgram,
+    ZkSystemReserved,
+    ZkProgramIdMismatch,
+    ZkRegistryFull,
 }
 
 impl core::fmt::Display for RegistryError {
@@ -180,6 +201,12 @@ pub struct Registry {
     whitelists: BTreeMap<u32, Whitelist>,
     attestations: BTreeMap<(u32, AccountId), Attestation>,
     oracles: BTreeMap<u32, Oracle>,
+    /// `ZkVerifyV1` state. `zk_fee` is `Some` exactly when the policy is on; with the policy off
+    /// all four stay empty and the snapshot is the unchanged v1 encoding.
+    zk_fee: Option<ZkFeePolicy>,
+    zk_activation: Option<Activation>,
+    zk_programs: BTreeMap<[u8; 32], ZkProgram>,
+    zk_receipts: Vec<StatementReceipt>,
     next_whitelist_id: u32,
     next_oracle_id: u32,
     processed: BTreeSet<TxId>,
@@ -196,6 +223,10 @@ impl Registry {
             whitelists: BTreeMap::new(),
             attestations: BTreeMap::new(),
             oracles: BTreeMap::new(),
+            zk_fee: None,
+            zk_activation: None,
+            zk_programs: BTreeMap::new(),
+            zk_receipts: Vec::new(),
             next_whitelist_id: 1,
             next_oracle_id: 1,
             processed: BTreeSet::new(),
@@ -204,6 +235,9 @@ impl Registry {
     }
 
     pub fn activation(&self, ty: u8) -> Option<Activation> {
+        if ty == ZK_TX_TYPE {
+            return self.zk_activation;
+        }
         self.activations.get(usize::from(ty)).copied().flatten()
     }
 
@@ -330,6 +364,9 @@ impl Registry {
         action: RegistryAction,
     ) -> Result<(), RegistryError> {
         let ty = action.tx_type();
+        if ty == ZK_TX_TYPE && self.zk_fee.is_none() {
+            return Err(RegistryError::ZkVerifyDisabled);
+        }
         if ty != 0 {
             self.check_active(ty, height)?;
         }
@@ -343,7 +380,10 @@ impl Registry {
                 }
                 let mut selected = BTreeSet::new();
                 for ty in &types {
-                    if *ty > MAX_ACTIVATION_TYPE {
+                    if *ty == ZK_TX_TYPE && self.zk_fee.is_some() {
+                        // ZkVerifyV1 opts type 36 into Activate; without the policy it stays
+                        // InvalidType below, exactly as before.
+                    } else if *ty > MAX_ACTIVATION_TYPE {
                         return Err(RegistryError::InvalidType(*ty));
                     }
                     if *ty == 34 {
@@ -357,6 +397,10 @@ impl Registry {
                     }
                 }
                 for ty in selected {
+                    if ty == ZK_TX_TYPE {
+                        self.zk_activation = Some(Activation { height, code_hash });
+                        continue;
+                    }
                     self.activations[usize::from(ty)] = Some(Activation { height, code_hash });
                 }
             }
@@ -544,6 +588,28 @@ impl Registry {
                     return Err(RegistryError::ClosedOracle(oracle_id));
                 }
                 oracle.closed = true;
+            }
+            RegistryAction::RegisterZkProgram {
+                system,
+                program_id,
+                key_bytes,
+                public_input_layout,
+                effect,
+                verifier_version,
+                max_verify_ms,
+            } => {
+                if actor != &self.protocol_admin {
+                    return Err(RegistryError::Unauthorized);
+                }
+                self.register_zk_program(ZkProgram {
+                    system,
+                    program_id,
+                    key_bytes,
+                    public_input_layout,
+                    effect,
+                    verifier_version,
+                    max_verify_ms,
+                })?;
             }
         }
         Ok(())

@@ -48,6 +48,12 @@ Regenerate: `cargo build --release --offline` then run `gen_basic`, `gen_core`, 
 Proof sets: `cubic_3steps`, `cubic_7steps` (step circuit `z' = z^3 + z + 5`, arity 1, z0 = 2 and 7),
 and `nhc1_ppsnark_*` (the NHC1 Bitcoin header-chain circuit; see the end).
 
+`cubic_bound_alice` (meta and proof only) is the cubic circuit over 3 steps from a type-36 binding
+element: `z0` is `binding_element` of the Bitcoin mainnet profile's genesis and anchor, sender
+`alice`, expiry 50 and the cubic program (layout 2, effect 1, version 1, `max_verify_ms` 1000), as
+`tests/zk_verify.rs` computes it. Its verifying key is byte-identical to `cubic_3steps.vk_nogens.hex`.
+Regenerate: `NOVA_CUBIC_Z0=<z0 hex> NOVA_CUBIC_NAME=cubic_bound_alice gen_proofs 3`.
+
 ## Serialization facts (bincode 1.3, `bincode::serialize`: fixint, little-endian, no limit)
 
 nova-snark derives `Serialize`/`Deserialize` (serde) on all key and proof types; nothing is hand-encoded

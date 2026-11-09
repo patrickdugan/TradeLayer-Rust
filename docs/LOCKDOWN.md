@@ -66,3 +66,6 @@ was applied.
 - Replay-marker archival beyond the capacity ceiling above.
 - Code signing and the overnight sleep test (tradelayer-wallet `feat/rust-port`).
 - An independent second-model verification pass over admission and the wasm ABI.
+- In-protocol ZK verification (type 36 `ZK Verify`, `RegisterZkProgram`, the Nova verifier in
+  `src/zk_nova/`), added after the tag behind the opt-in `ZkVerifyV1` registry policy. With the
+  policy off, frozen behaviour and every snapshot format are unchanged (`docs/ZK_VERIFIER.md`).

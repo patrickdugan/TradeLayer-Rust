@@ -603,6 +603,49 @@ impl ServiceBackend for EconomicReadBackend<'_> {
                         }),
                 )
             }
+            "registry.zk_receipts" => {
+                args.count(2)?;
+                let program = if args.value(0)?.as_json() == "null" {
+                    None
+                } else {
+                    let raw = args
+                        .value(0)?
+                        .as_string()
+                        .map_err(|_| ServiceError::InvalidRequest)?;
+                    let mut id = [0u8; 32];
+                    if raw.len() != 64 || !raw.is_ascii() {
+                        return Err(ServiceError::InvalidRequest);
+                    }
+                    for (i, byte) in id.iter_mut().enumerate() {
+                        *byte = u8::from_str_radix(&raw[2 * i..2 * i + 2], 16)
+                            .map_err(|_| ServiceError::InvalidRequest)?;
+                    }
+                    Some(id)
+                };
+                let sender = if args.value(1)?.as_json() == "null" {
+                    None
+                } else {
+                    Some(args.owner(1)?)
+                };
+                array(
+                    registry
+                        .zk_receipts()
+                        .iter()
+                        .filter(|r| {
+                            program.is_none_or(|p| p == r.program_id)
+                                && sender.as_ref().is_none_or(|a| *a == r.sender)
+                        })
+                        .map(|r| {
+                            object(vec![
+                                ("programId", string(&hex(&r.program_id))?),
+                                ("publicInputsHash", string(&hex(&r.public_inputs_hash))?),
+                                ("address", string(r.sender.as_str())?),
+                                ("height", num(r.height)),
+                                ("txid", string(&hex(&r.txid.as_bytes()))?),
+                            ])
+                        }),
+                )
+            }
             "contract.list" => {
                 args.count(0)?;
                 if s.config().contract_binding.is_none() {

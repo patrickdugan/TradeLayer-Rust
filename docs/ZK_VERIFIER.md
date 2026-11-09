@@ -1,7 +1,9 @@
 # In-protocol ZK verification: shared design
 
-Status: design, 2026-11-09. Nothing here is implemented. TradeLayer-Rust has no in-protocol proof
-verifier today: `src/zk_batch.rs` only inspects zkTL Cairo batch claims and prints
+Status: design 2026-11-09; rollout step 1 is built for the Nova profile (`src/zk_nova/`,
+[ZK_VERIFIER_NOVA.md](ZK_VERIFIER_NOVA.md)) and step 2 for phase 1 on the joint typed path
+(section "Phase 1 as built" below). The STARK profile is not built. Before this work
+TradeLayer-Rust had no in-protocol proof verifier: `src/zk_batch.rs` only inspects zkTL Cairo batch claims and prints
 `stwo_proof=UNVERIFIED`, and the legacy proof-related types (30, 32-35) are ported only as far as
 the pinned JavaScript goes (`docs/SOURCE_PROOF_LIFECYCLE.md`, `docs/ZK_CAIRO_INTEGRATION.md`).
 
@@ -120,3 +122,95 @@ Phase 2 is a consensus change to state commitments; it is not started until phas
 3. Testnet4 staging with `tradelayer-node`: register a test program, submit valid and invalid
    proofs, and check the deterministic verdicts across two nodes.
 4. Mainnet activation height set by the registry admin.
+
+## Phase 1 as built (`ZkVerifyV1`)
+
+Code: `src/zk_verify.rs` (types, frame codec, binding, budget, verifier trait, mock),
+`src/registry_zk.rs` (registry state, type-36 transition, snapshot section), `src/joint.rs` and
+`src/joint_chain.rs` (fee and block loop), `src/service_routes.rs` and `src/service_view.rs`
+(`tl_getZkReceipts`). Tests: `tests/zk_verify.rs`, one case in `tests/service_view.rs`.
+
+**Placement.** `ZkVerifyV1` is an opt-in policy of the registry, set before the first block
+(`Registry::new_zk_verify_v1`, `JointChainState::enable_zk_verify_v1`) with the fee configuration.
+Without it nothing changes: `Activate` still rejects type 36 as `InvalidType`, `MAX_ACTIVATION_TYPE`
+stays 35, the 36-slot activation array and `TRANSACTION_CATALOG` are untouched, and registry
+snapshots stay `TLRG\x01`. With it, `Activate` accepts type 36 (stored beside the array in
+`zk_activation`), and `RegisterZkProgram` and type 36 are checked against that activation like any
+other type (not active, or activated in the same block, is an invalid transaction).
+
+**Built as designed.**
+
+- `RegisterZkProgram { system, program_id, key_bytes, public_input_layout, effect,
+  verifier_version, max_verify_ms }`: admin only, immutable, keyed by `program_id` =
+  SHA-256(`TradeLayer/ZkProgram/v1/` || canonical encoding of the other fields). Duplicate
+  refused, id mismatch refused, system 1 (STARK) refused, `key_bytes` 1..4096 bytes, layout
+  1..64 elements, `max_verify_ms` 1..4000. `key_bytes` must decode as a Nova
+  `RegisteredNovaKey` whose generator counts equal its `N` and whose arity is half the layout
+  (`check_nova_key`); this needs no generator work.
+- Type 36 payload `{ system, program_id, public_inputs, proof, expiry }`, binary frame
+  `"tl" 0x24 | system | program_id | expiry u64 | n u32 | n*32 | proof_len u32 | proof`.
+  The legacy ASCII parser cannot express type 36 (one base-36 selector character) and still
+  rejects it.
+- Binding: public input 0 must equal `binding_element(genesis, anchor, sender, expiry, program_id)`,
+  derived by the node (genesis from the network profile, anchor from the chain's anchor tip,
+  sender from the transaction actor). Mismatch rejects. The verifier receives the inputs with the
+  binding element first.
+- Verifier boundary `ZkVerifier::verify(system, key_bytes, num_steps, public_inputs, proof) ->
+  Result<VerifiedStatement, ZkReject>`. `ZkNovaAdapter` is the Nova verifier: the public inputs
+  are `z0 || zn` (`F_arity` canonical Pallas-scalar elements each, binding element as `z0[0]`),
+  and it accepts only if `zk_nova::verify` takes exactly that `z0` to exactly that `zn` in
+  `num_steps` steps. Generator tables are derived once per process. `MockZkVerifier` accepts one
+  magic proof and serves the consensus tests that do not exercise proof math.
+- Budgets per block: `MAX_ZK_VERIFY_PER_BLOCK` = 8, `MAX_ZK_PROOF_BYTES` = 256 KiB summed,
+  `MAX_ZK_BLOCK_VERIFY_MS` = 4000 summed over `max_verify_ms`, plus `MAX_ZK_TX_PROOF_BYTES` =
+  64 KiB per transaction. Charged in block order immediately before the verifier runs; a
+  transaction over a cap is rejected and charges nothing.
+- Fee: a ledger transfer of `ZkFeePolicy.amount_atoms` of `ZkFeePolicy.property` from the sender to
+  `ZkFeePolicy.sink`, debited before verification and kept on every rejection. The joint owner has
+  no fee cache, and its sole ledger is the existing mechanism that moves property balances, so the
+  "activation's fee property" of the design is this configured property. The fee transfer's
+  replay id is SHA-256(`TradeLayer/ZkFee/v1/` || txid). An unpayable fee makes the transaction
+  invalid (the block is refused), like any other transfer that cannot be afforded.
+- Outcomes: after activation and fee, every failure is a typed `ZkRejectReason` (expired,
+  unknown program, system mismatch, oversize proof, public input count, the three budgets, binding
+  mismatch, proof envelope, receipt table full, verifier verdict, statement-hash mismatch). The
+  transaction is consumed (its txid is a replay marker) and the block continues. Rejections are
+  returned in `ZkTxReport`s and are not persisted.
+- Effect: a verified type 36 appends `StatementReceipt { program_id, public_inputs_hash, sender,
+  height, txid }` to the registry. No balance moves. At most 100,000 receipts.
+- Query: `POST /tl_getZkReceipts` with `programId` (64 hex) and/or `address`, target
+  `registry.zk_receipts`, reading `JointProtocolState::registry()` through the economic read view.
+- Snapshot: registries with the policy on write `TLRG\x02` (v1 body, then fee policy, type-36
+  activation, programs, receipts); all others write the unchanged v1. A v2 body under the v1 magic
+  is refused. Receipts roll back with the block (the registry is part of the cloned pre-block
+  state) and travel in `TLJP`/`TLJC` checkpoints inside the embedded registry bytes.
+
+**Differences from the design.**
+
+- No `num_steps` field exists in the designed payload and the Nova verifier needs one. The first
+  four bytes of `proof` carry it (big-endian, at least 1); the rest is the proof. Binding does not
+  cover it; a wrong value fails verification.
+- The binding prefix is one field element (a SHA-256 of the five values with the top three bits
+  cleared), not five, because genesis and anchor are 256-bit values and do not fit one Pallas
+  element.
+- Type-36 items travel as `JointBlockItem::Zk` in `UnverifiedJointZkBlock`
+  (`JointChainState::apply_unverified_zk_block`), not as a `JointOperation` variant, so no existing
+  exhaustive match over operations and no economic history format changed. The one edit outside
+  the registry and joint owners is an arm in `src/economic_snapshot_impl.rs`: the economic history
+  writer refuses `RegisterZkProgram` (no tag; format unchanged).
+- Only the joint typed path is integrated. The sequential source runner
+  (`src/consensus_source.rs`) and the Types decoder execute pinned JavaScript and have no type 36;
+  a `SourceConsensusPolicy` for it is not built. The economic owner (`EconomicState`) cannot enable
+  the policy, so `tl_getZkReceipts` over an economic state returns an empty list today.
+- `tradelayer-node` does not decode type-36 frames from Bitcoin transactions yet; the sender comes
+  from the caller-supplied actor, as for every other typed joint transaction.
+
+**Not built.** The STARK verifier, data availability through witnesses, state-root binding,
+receipt-consuming effects (clearlist attestation, checkpoints, oracle data), and all of phase 2.
+
+**End to end.** `tests/zk_verify.rs`
+(`bound_real_proof_records_a_receipt_and_cannot_be_reused_by_another_sender`, release build)
+registers the cubic test circuit, submits a real nova-snark proof whose `z0` is alice's binding
+element, and records her receipt; in the same block bob's unchanged copy is rejected for its
+binding and bob's copy with his own binding element is rejected by the verifier. All three pay the
+fee.

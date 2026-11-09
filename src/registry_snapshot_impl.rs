@@ -4,6 +4,8 @@ use crate::codec::{verify_crc, with_crc, Cursor};
 
 const MAX_ENTRIES: usize = 100_000;
 const REGISTRY_MAGIC: &[u8; 5] = b"TLRG\x01";
+/// Written only by registries with `ZkVerifyV1` on; v1 bytes stay unchanged for every other one.
+const REGISTRY_MAGIC_ZK: &[u8; 5] = b"TLRG\x02";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RegistrySnapshotError {
@@ -148,7 +150,11 @@ impl Registry {
     }
 
     pub fn snapshot_bytes(&self) -> Result<Vec<u8>, RegistrySnapshotError> {
-        let mut out = REGISTRY_MAGIC.to_vec();
+        let mut out = if self.zk_fee.is_some() {
+            REGISTRY_MAGIC_ZK.to_vec()
+        } else {
+            REGISTRY_MAGIC.to_vec()
+        };
         put_account(&mut out, &self.protocol_admin)?;
         for activation in &self.activations {
             match activation {
@@ -196,6 +202,9 @@ impl Registry {
         for id in &self.processed {
             out.extend_from_slice(&id.as_bytes());
         }
+        if self.zk_fee.is_some() {
+            self.put_zk_section(&mut out)?;
+        }
         with_crc(out).map_err(|_| err("registry snapshot too large"))
     }
 
@@ -207,12 +216,16 @@ impl Registry {
     ) -> Result<Self, RegistrySnapshotError> {
         let data = verify_crc(bytes).map_err(|_| err("registry checksum or size"))?;
         let mut r = Cursor::new(data);
-        if r.fixed::<5>()
-            .map_err(|_| err("registry magic truncated"))?
-            != *REGISTRY_MAGIC
-        {
+        let magic = r
+            .fixed::<5>()
+            .map_err(|_| err("registry magic truncated"))?;
+        let zk = if magic == *REGISTRY_MAGIC_ZK {
+            true
+        } else if magic == *REGISTRY_MAGIC {
+            false
+        } else {
             return Err(err("wrong registry magic"));
-        }
+        };
         if &read_account(&mut r)? != expected_admin {
             return Err(err("registry admin mismatch"));
         }
@@ -302,6 +315,9 @@ impl Registry {
                 return Err(err("duplicate processed id"));
             }
         }
+        if zk {
+            state.read_zk_section(&mut r)?;
+        }
         r.end().map_err(|_| err("trailing registry data"))?;
         let max_whitelist = state.whitelists.keys().next_back().copied().unwrap_or(0);
         let max_oracle = state.oracles.keys().next_back().copied().unwrap_or(0);
@@ -330,6 +346,9 @@ impl Registry {
                 .any(|q| q.height > latest)
         {
             return Err(err("registry history extends beyond tip"));
+        }
+        if !state.zk_history_consistent(latest) {
+            return Err(err("zk history extends beyond tip"));
         }
         if state.snapshot_bytes()? != bytes {
             return Err(err("noncanonical registry encoding"));

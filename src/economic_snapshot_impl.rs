@@ -2350,6 +2350,9 @@ fn econ_write_registry_action(
             out.byte(7)?;
             out.u32(*oracle_id)
         }
+        // ZkVerifyV1 lives in the joint owner; the economic history format has no tag for it,
+        // so it is not representable here and the format is unchanged.
+        RegistryAction::RegisterZkProgram { .. } => Err(econ_snapshot_bad()),
     }
 }
 fn econ_read_registry_action(

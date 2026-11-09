@@ -9,12 +9,14 @@
 use crate::chain::{BlockHeader, BlockId, Tip, MAX_REORG_HISTORY};
 use crate::codec::{verify_crc, with_crc, Cursor, MAX_CHECKPOINT_BYTES};
 use crate::joint::{
-    JointError, JointProtocolState, JointSnapshotError, UnverifiedJointTx, MAX_JOINT_BLOCK_INPUTS,
+    JointBlockItem, JointError, JointProtocolState, JointSnapshotError, UnverifiedJointTx,
+    MAX_JOINT_BLOCK_INPUTS,
 };
-use crate::ledger::{AccountId, Ledger, PropertyId};
+use crate::ledger::{AccountId, Ledger, PropertyId, TxId};
 use crate::network_bound::{NetworkBoundSpot, NetworkBoundUnified};
 use crate::network_profile::{NetworkProfileError, TradeLayerMainnet};
 use crate::registry::Registry;
+use crate::zk_verify::{ZkBindingContext, ZkBlockBudget, ZkFeePolicy, ZkOutcome, ZkVerifier};
 use std::collections::{BTreeSet, VecDeque};
 use std::fs::{self, File, OpenOptions};
 use std::io::{Read, Write};
@@ -28,6 +30,20 @@ pub struct UnverifiedJointBlock {
     pub network: TradeLayerMainnet,
     pub header: BlockHeader,
     pub transactions: Vec<UnverifiedJointTx>,
+}
+
+/// A block that may carry type-36 items among ordinary transactions, in block order.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct UnverifiedJointZkBlock {
+    pub network: TradeLayerMainnet,
+    pub header: BlockHeader,
+    pub items: Vec<JointBlockItem>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ZkTxReport {
+    pub txid: TxId,
+    pub outcome: ZkOutcome,
 }
 
 #[derive(Debug)]
@@ -269,6 +285,87 @@ impl JointChainState {
             id: block.header.id,
         };
         Ok(())
+    }
+
+    /// Opts the chain into `ZkVerifyV1` before its first block. The policy is then part of the
+    /// registry state and of every checkpoint.
+    pub fn enable_zk_verify_v1(&mut self, fee: ZkFeePolicy) -> Result<(), JointChainError> {
+        if !self.history.is_empty() || self.tip != self.anchor {
+            return Err(JointChainError::InvalidHeight);
+        }
+        self.state.enable_zk_verify_v1(fee)?;
+        Ok(())
+    }
+
+    /// Like `apply_unverified_block`, for blocks that may carry type-36 transactions in order with
+    /// ordinary ones. Per-block `ZkBlockBudget` counters start at zero. Returns the outcome of each
+    /// type-36 item in block order; rejected proofs keep their fee and write no receipt.
+    pub fn apply_unverified_zk_block(
+        &mut self,
+        block: &UnverifiedJointZkBlock,
+        verifier: &dyn ZkVerifier,
+    ) -> Result<Vec<ZkTxReport>, JointChainError> {
+        if block.network != self.network {
+            return Err(JointChainError::WrongNetwork);
+        }
+        if self.tip.height.checked_add(1) != Some(block.header.height) {
+            return Err(JointChainError::InvalidHeight);
+        }
+        if block.header.parent != self.tip.id {
+            return Err(JointChainError::ParentMismatch);
+        }
+        if block.header.id == self.tip.id
+            || self
+                .history
+                .iter()
+                .any(|prior| prior.tip.id == block.header.id)
+        {
+            return Err(JointChainError::DuplicateBlockId);
+        }
+        if block.items.len() > MAX_JOINT_BLOCK_INPUTS {
+            return Err(JointChainError::TooManyTransactions);
+        }
+        let ctx = ZkBindingContext {
+            genesis: self.network.genesis().0,
+            anchor: self.anchor.id.0,
+        };
+        let mut budget = ZkBlockBudget::default();
+        let mut reports = Vec::new();
+        let mut staged = self.state.clone();
+        for item in &block.items {
+            match item {
+                JointBlockItem::Tx(tx) => {
+                    staged.apply_one_unverified(block.header.height, tx.clone())?
+                }
+                JointBlockItem::Zk(tx) => {
+                    let outcome = staged.apply_zk_unverified(
+                        block.header.height,
+                        tx.clone(),
+                        &ctx,
+                        &mut budget,
+                        verifier,
+                    )?;
+                    reports.push(ZkTxReport {
+                        txid: tx.txid,
+                        outcome,
+                    });
+                }
+            }
+        }
+        staged.finalize_block_unverified(block.header.height)?;
+        self.history.push_back(PriorJoint {
+            tip: self.tip,
+            state: self.state.clone(),
+        });
+        while self.history.len() > self.history_limit {
+            self.history.pop_front();
+        }
+        self.state = staged;
+        self.tip = Tip {
+            height: block.header.height,
+            id: block.header.id,
+        };
+        Ok(reports)
     }
 
     pub fn rollback_tip(&mut self, expected: Tip) -> Result<(), JointChainError> {
