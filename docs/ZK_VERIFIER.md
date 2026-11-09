@@ -2,7 +2,9 @@
 
 Status: design 2026-11-09; rollout step 1 is built for the Nova profile (`src/zk_nova/`,
 [ZK_VERIFIER_NOVA.md](ZK_VERIFIER_NOVA.md)) and step 2 for phase 1 on the joint typed path and on
-the `tradelayer-node` path (section "Phase 1 as built" below). The STARK profile is not built. Before this work
+the `tradelayer-node` path (section "Phase 1 as built" below). Step 3 has a kit,
+[ops/zk-staging](../ops/zk-staging/README.md), dry-run on regtest; the testnet4 run has not happened.
+The STARK profile is not built. Before this work
 TradeLayer-Rust had no in-protocol proof verifier: `src/zk_batch.rs` only inspects zkTL Cairo batch claims and prints
 `stwo_proof=UNVERIFIED`, and the legacy proof-related types (30, 32-35) are ported only as far as
 the pinned JavaScript goes (`docs/SOURCE_PROOF_LIFECYCLE.md`, `docs/ZK_CAIRO_INTEGRATION.md`).
