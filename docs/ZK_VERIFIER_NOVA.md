@@ -139,9 +139,21 @@ The oracle is nova-snark 0.76.0 itself, through the vector generator (`fixtures/
   squeeze and transcript operation nova performs while verifying each fixture proof.
 - End to end (`tests/zk_nova_verify.rs`): the three real proofs verify and return nova's `zn`; the
   corrupted proofs, wrong step counts, wrong `z0`, a wrong key, every truncation, inflated length
-  prefixes and every spec section 11 shape are rejected without a panic. Two release-only sweeps
-  flip bit 0 of every byte of the cubic proof, and bit 7 of every byte outside the IPA vectors
-  plus every IPA point's sign bit: all rejected, none panic.
+  prefixes and every spec section 11 shape are rejected without a panic.
+- Type 36 (`tests/zk_verify.rs`): real proofs through `ZkNovaAdapter`, and a proof bound to one
+  sender recorded through a block while two copies by another sender are rejected.
+
+Where each runs: debug builds (`cargo test`, the CI `tests` job) skip the cases that derive large
+generator tables or verify full proofs; the CI `release` job runs all four suites on its release
+build. Three exhaustive checks are explicit `--ignored` runs
+(`cargo test --release --test zk_nova_math --test zk_nova_verify -- --ignored --skip bench_`).
+On commit 48ddd67 they took 31 minutes and passed:
+
+| check | result |
+|---|---|
+| `from_label` at 2^23 + 1 points (`MAX_N`), both curves, first 16 points and digests of the full tables | equal to nova's |
+| bit 0 flipped in each of the 11,456 bytes of the cubic proof | every proof rejected, no panic |
+| bit 7 flipped in every byte outside the IPA vectors and in every IPA point's sign byte | every proof rejected, no panic |
 
 ## Fit with existing work
 
