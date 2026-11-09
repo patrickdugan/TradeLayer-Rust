@@ -1,0 +1,20 @@
+# nhc1_ppsnark_k10x1.partial.tsv: NHC1 header circuit, ONE fold step of k=10 mainnet headers (959985..959994 from checkpoint 959984), ppsnark CompressedSNARK.
+# The run was stopped by the 45 minute watchdog while the generator was still post-processing (after nova's own prove and verify had succeeded), so no proof/vk bytes were dumped.
+# Measured values come from the run log; predicted values come from the exact size formulas in README.md (validated on the four measured proofs).
+status	nova prove ok, nova verify ok (CompressedSNARK::verify returned the expected zn); vectors not dumped (watchdog at 2701 s)
+r1cs_primary_constraints	842330
+r1cs_primary_variables	840814
+nnz_total_A+B+C	4811340
+padded_m	1048576
+N_generators_primary	8388608	(2^23; from_label n = 8388609, hash in generators.tsv)
+N_generators_secondary	131072
+measured_pp_setup_s	449.3
+measured_fold_step_s	1.0
+measured_compressed_setup_s	39.1
+measured_compressed_prove_s	1490.4
+measured_nova_verify_s	about 51 (log delta 1980.5 -> 2032.0 s, includes dropping the prover key)
+measured_peak_working_set_mib	14177
+measured_wall_to_verified_proof_s	2032
+predicted_proof_bytes	13600
+predicted_vk_bytes	273174184
+predicted_vk_bytes_without_generator_lists	544328

@@ -153,6 +153,7 @@ pub mod wire; // Read-only legacy ASCII format analysis; never auto-fallback.
 pub mod wire_v1;
 pub mod withdrawal_parity; // Read-only JS-like deferred queue oracle for differential tests.
 pub mod zk_batch; // zkTL/Cairo claim inspection; no proof verification or mutation. // Proposed versioned binary format.
+pub mod zk_nova; // Zero-dependency verifier for nova-snark 0.76 CompressedSNARK (Pallas/Vesta, Spartan ppsnark + IPA).
 
 /// Highest transaction type dispatched by the historical JavaScript
 /// implementation when this scaffold was created.

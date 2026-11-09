@@ -1,0 +1,187 @@
+# nhc1_ppsnark_k1x10: nova-snark 0.76.0 CompressedSNARK<Pallas, Vesta, C, ppsnark::RelaxedR1CSSNARK<_, ipa_pc::EvaluationEngine<_>>, same for Vesta>.
+# Circuit: NHC1 header-chain step circuit (nova-header-chain src/lib.rs copied verbatim), arity 17, 10 step(s) x 1 mainnet headers, checkpoint height 959984 (from fixtures checkpoint_958986.state + headers_958987_959994.txt)
+# Records <key> <value...>; hex is lowercase; field elements 32 B LE. Byte offsets are into the bincode 1.3 serialization (bincode::serialize).
+name	nhc1_ppsnark_k1x10
+nova_snark	0.76.0
+num_steps	10
+r1cs_primary_constraints	97049
+r1cs_primary_variables	96910
+r1cs_secondary_constraints	10349
+r1cs_secondary_variables	10331
+pp_digest	2b2d0c2c90a867d94a87c7d2bb62dc93c7ba582e7cc7d041594cb800521f7f00
+timing_pp_setup_s	73.95
+timing_fold_s	11.22
+timing_compressed_setup_s	8.50
+timing_compressed_prove_s	199.35
+timing_nova_verify_s	4.520
+peak_working_set_mib	2107
+z0	f0a50e0000000000000000000000000000000000000000000000000000000000,2b37167b9e543c20b22f0d9aa43a86f400000000000000000000000000000000,d2eb8e34990b0000000000000000000000000000000000000000000000000000,e74693b22409565801e6193b0100000000000000000000000000000000000000,d43a021700000000000000000000000000000000000000000000000000000000,da3d656a00000000000000000000000000000000000000000000000000000000,33a5686a00000000000000000000000000000000000000000000000000000000,96aa686a00000000000000000000000000000000000000000000000000000000,8fab686a00000000000000000000000000000000000000000000000000000000,52b0686a00000000000000000000000000000000000000000000000000000000,73b1686a00000000000000000000000000000000000000000000000000000000,bdba686a00000000000000000000000000000000000000000000000000000000,d1ba686a00000000000000000000000000000000000000000000000000000000,66bc686a00000000000000000000000000000000000000000000000000000000,25be686a00000000000000000000000000000000000000000000000000000000,90be686a00000000000000000000000000000000000000000000000000000000,57bf686a00000000000000000000000000000000000000000000000000000000
+zn	faa50e0000000000000000000000000000000000000000000000000000000000,b5798d3809995fd1fef62df52017e59000000000000000000000000000000000,fa550b0e21cf0000000000000000000000000000000000000000000000000000,cdfd41c29e4ad67517621e3b0100000000000000000000000000000000000000,d43a021700000000000000000000000000000000000000000000000000000000,da3d656a00000000000000000000000000000000000000000000000000000000,57bf686a00000000000000000000000000000000000000000000000000000000,5cc1686a00000000000000000000000000000000000000000000000000000000,2dc8686a00000000000000000000000000000000000000000000000000000000,5fc9686a00000000000000000000000000000000000000000000000000000000,12cb686a00000000000000000000000000000000000000000000000000000000,cfcb686a00000000000000000000000000000000000000000000000000000000,23d1686a00000000000000000000000000000000000000000000000000000000,0fd0686a00000000000000000000000000000000000000000000000000000000,23d1686a00000000000000000000000000000000000000000000000000000000,5bd1686a00000000000000000000000000000000000000000000000000000000,99d1686a00000000000000000000000000000000000000000000000000000000
+proof_bytes	12784
+proof_sha256	e0f0182a2cc9db6e920838ad91e21fea816917c7d90d37cdadd41a7434ec73ee
+vk_bytes	38293160
+vk_sha256	3377aec36e9f74335f16484d2dba472e2a82691f197a521717da6bb6a69ad770
+vk_f_arity	17
+vk_region	F_arity	0	8
+vk_region	ro_consts_primary	8	271800
+vk_region	ro_consts_secondary	271808	271800
+vk_region	pp_digest	543608	32
+vk_primary_num_cons	131072
+vk_primary_num_vars	131072
+vk_primary_ck_v_len	1048576
+vk_primary_ck_s_len	1
+vk_region	vk_primary.num_cons	543640	8
+vk_region	vk_primary.num_vars	543648	8
+vk_region	vk_primary.ck_v.generators(u64 count + 32B each)	543656	33554440
+vk_region	vk_primary.ck_v.h	34098096	32
+vk_region	vk_primary.ck_s.generators(u64 count + 32B each)	34098128	40
+vk_region	vk_primary.ck_s.h	34098168	32
+vk_region	vk_primary.S_comm.N	34098200	8
+vk_region	vk_primary.S_comm.comm_row	34098208	32
+vk_region	vk_primary.S_comm.comm_col	34098240	32
+vk_region	vk_primary.S_comm.comm_val_A	34098272	32
+vk_region	vk_primary.S_comm.comm_val_B	34098304	32
+vk_region	vk_primary.S_comm.comm_val_C	34098336	32
+vk_region	vk_primary.S_comm.comm_ts_row	34098368	32
+vk_region	vk_primary.S_comm.comm_ts_col	34098400	32
+vk_primary_region_total	33554792
+vk_secondary_num_cons	16384
+vk_secondary_num_vars	16384
+vk_secondary_ck_v_len	131072
+vk_secondary_ck_s_len	1
+vk_region	vk_secondary.num_cons	34098432	8
+vk_region	vk_secondary.num_vars	34098440	8
+vk_region	vk_secondary.ck_v.generators(u64 count + 32B each)	34098448	4194312
+vk_region	vk_secondary.ck_v.h	38292760	32
+vk_region	vk_secondary.ck_s.generators(u64 count + 32B each)	38292792	40
+vk_region	vk_secondary.ck_s.h	38292832	32
+vk_region	vk_secondary.S_comm.N	38292864	8
+vk_region	vk_secondary.S_comm.comm_row	38292872	32
+vk_region	vk_secondary.S_comm.comm_col	38292904	32
+vk_region	vk_secondary.S_comm.comm_val_A	38292936	32
+vk_region	vk_secondary.S_comm.comm_val_B	38292968	32
+vk_region	vk_secondary.S_comm.comm_val_C	38293000	32
+vk_region	vk_secondary.S_comm.comm_ts_row	38293032	32
+vk_region	vk_secondary.S_comm.comm_ts_col	38293064	32
+vk_secondary_region_total	4194664
+vk_region	dk_primary.h	38293096	32
+vk_region	dk_secondary.h	38293128	32
+ck_primary_generators	1048576
+ck_secondary_generators	131072
+from_label_n_primary_ck	1048577
+from_label_n_secondary_ck	131073
+sha256_concat_compressed_from_label_ck_primary	cca3ef0bc467ff3d81a5e72cb3988fbd9d0ebe132fad72a98b8a6b5440aa537b
+sha256_concat_compressed_from_label_ck_secondary	c6b23263f6d835a24161757bc6c615e5051713df5fe2a5b55f1024a246d06e5c
+vk_generators_checked_against_from_label	true
+vk_generator_list_bytes	37748832
+vk_without_generator_lists_bytes	544328
+vk_primary_digest	d4f73ccfcda6b5b52bc204629ea0aac6affbfb9d83e84487d04a3e381e830d01
+vk_primary_digest_input_sha3_256	d4f73ccfcda6b5b52bc204629ea0aac6affbfb9d83e84487d04a3e381e830dd9
+vk_secondary_digest	445f7ef18ca1376592ec0a4d5904663caba421ac782275e8a8b3c9ab6b118d01
+vk_secondary_digest_input_sha3_256	445f7ef18ca1376592ec0a4d5904663caba421ac782275e8a8b3c9ab6b118d7d
+proof_region	r_U_secondary	0	168
+proof_region	ri_secondary	168	32
+proof_region	l_u_secondary	200	104
+proof_region	nifs_Uf_secondary	304	32
+proof_region	l_ur_secondary	336	168
+proof_region	nifs_Un_secondary	504	32
+proof_region	r_U_primary	536	168
+proof_region	ri_primary	704	32
+proof_region	l_ur_primary	736	168
+proof_region	nifs_Un_primary	904	32
+proof_region	wit_blind_r_Wn_primary	936	32
+proof_region	err_blind_r_Wn_primary	968	32
+proof_region	wit_blind_r_Wn_secondary	1000	32
+proof_region	err_blind_r_Wn_secondary	1032	32
+proof_region	snark_primary.comm_L_row	1064	32
+proof_region	snark_primary.comm_L_col	1096	32
+proof_region	snark_primary.comm_t_plus_r_inv_row	1128	32
+proof_region	snark_primary.comm_w_plus_r_inv_row	1160	32
+proof_region	snark_primary.comm_t_plus_r_inv_col	1192	32
+proof_region	snark_primary.comm_w_plus_r_inv_col	1224	32
+proof_region	snark_primary.sc_outer	1256	1776
+proof_region	snark_primary.eval_Az_at_r_outer	3032	32
+proof_region	snark_primary.eval_Bz_at_r_outer	3064	32
+proof_region	snark_primary.eval_Cz_at_r_outer	3096	32
+proof_region	snark_primary.eval_E_at_r_outer	3128	32
+proof_region	snark_primary.sc_inner_batched	3160	2088
+proof_region	snark_primary.eval_E	5248	32
+proof_region	snark_primary.eval_L_row	5280	32
+proof_region	snark_primary.eval_L_col	5312	32
+proof_region	snark_primary.eval_val_A	5344	32
+proof_region	snark_primary.eval_val_B	5376	32
+proof_region	snark_primary.eval_val_C	5408	32
+proof_region	snark_primary.eval_W	5440	32
+proof_region	snark_primary.eval_t_plus_r_inv_row	5472	32
+proof_region	snark_primary.eval_row	5504	32
+proof_region	snark_primary.eval_w_plus_r_inv_row	5536	32
+proof_region	snark_primary.eval_ts_row	5568	32
+proof_region	snark_primary.eval_t_plus_r_inv_col	5600	32
+proof_region	snark_primary.eval_col	5632	32
+proof_region	snark_primary.eval_w_plus_r_inv_col	5664	32
+proof_region	snark_primary.eval_ts_col	5696	32
+proof_region	snark_primary.eval_arg.L_vec	5728	648
+proof_region	snark_primary.eval_arg.R_vec	6376	648
+proof_region	snark_primary.eval_arg.a_hat	7024	32
+proof_region	snark_primary	1064	5992
+proof_region	snark_secondary.comm_L_row	7056	32
+proof_region	snark_secondary.comm_L_col	7088	32
+proof_region	snark_secondary.comm_t_plus_r_inv_row	7120	32
+proof_region	snark_secondary.comm_w_plus_r_inv_row	7152	32
+proof_region	snark_secondary.comm_t_plus_r_inv_col	7184	32
+proof_region	snark_secondary.comm_w_plus_r_inv_col	7216	32
+proof_region	snark_secondary.sc_outer	7248	1464
+proof_region	snark_secondary.eval_Az_at_r_outer	8712	32
+proof_region	snark_secondary.eval_Bz_at_r_outer	8744	32
+proof_region	snark_secondary.eval_Cz_at_r_outer	8776	32
+proof_region	snark_secondary.eval_E_at_r_outer	8808	32
+proof_region	snark_secondary.sc_inner_batched	8840	1776
+proof_region	snark_secondary.eval_E	10616	32
+proof_region	snark_secondary.eval_L_row	10648	32
+proof_region	snark_secondary.eval_L_col	10680	32
+proof_region	snark_secondary.eval_val_A	10712	32
+proof_region	snark_secondary.eval_val_B	10744	32
+proof_region	snark_secondary.eval_val_C	10776	32
+proof_region	snark_secondary.eval_W	10808	32
+proof_region	snark_secondary.eval_t_plus_r_inv_row	10840	32
+proof_region	snark_secondary.eval_row	10872	32
+proof_region	snark_secondary.eval_w_plus_r_inv_row	10904	32
+proof_region	snark_secondary.eval_ts_row	10936	32
+proof_region	snark_secondary.eval_t_plus_r_inv_col	10968	32
+proof_region	snark_secondary.eval_col	11000	32
+proof_region	snark_secondary.eval_w_plus_r_inv_col	11032	32
+proof_region	snark_secondary.eval_ts_col	11064	32
+proof_region	snark_secondary.eval_arg.L_vec	11096	552
+proof_region	snark_secondary.eval_arg.R_vec	11648	552
+proof_region	snark_secondary.eval_arg.a_hat	12200	32
+proof_region	snark_secondary	7056	5176
+proof_region	zn	12232	552
+proof_sumcheck_outer_rounds_primary	17
+proof_sumcheck_inner_rounds_primary	20
+proof_ipa_rounds_primary	20
+proof_sumcheck_outer_rounds_secondary	14
+proof_sumcheck_inner_rounds_secondary	17
+proof_ipa_rounds_secondary	17
+formula_proof_bytes	536 + 400 + 128 + sum over {primary,secondary} of (864 + 104*(Ro+Ri) + 64*K) + 8 + 32*arity; Ro=log2(num_cons padded) Ri=K=log2(N)
+formula_vk_bytes	8 + 543600 + 32 + sum over {primary,secondary} of (16 + (8+32*n_ck+32) + 72 + 232) + 64; n_ck = N (generator count)
+log2_num_cons_primary	17
+log2_N_primary	20
+log2_num_cons_secondary	14
+log2_N_secondary	17
+corrupt	0	snark_primary.eval_W low bit	5440	xor 0x01	verify_error: InvalidSumcheckProof
+corrupt	1	snark_primary.comm_L_row sign bit	1095	xor 0x80	verify_error: InvalidSumcheckProof
+corrupt	2	snark_secondary.eval_Az_at_r_outer low bit	8712	xor 0x01	verify_error: InvalidSumcheckProof
+corrupt	3	zn low bit	12240	xor 0x01	verify_error: ProofVerifyError { reason: "Invalid output hash in R1CS instances" }
+corrupt	4	snark_primary.eval_arg.a_hat low bit	7024	xor 0x01	verify_error: InvalidPCS
+corrupt	5	r_U_primary.u low bit	672	xor 0x01	verify_error: ProofVerifyError { reason: "Invalid output hash in R1CS instances" }
+corrupt	6	nifs_Un_secondary.comm_T sign bit	535	xor 0x80	verify_error: InvalidSumcheckProof
+corrupt_decode	snark_primary.comm_L_row x low byte	1064	xor 0x01	decode_error: deserialized bytes don't encode a valid field element
+corrupt_truncated_by_1	decode_error: io error: unexpected end of file
+wrong_num_steps	11	verify_error: ProofVerifyError { reason: "Invalid output hash in R1CS instances" }
+wrong_z0	z0[0]+1	verify_error: ProofVerifyError { reason: "Invalid output hash in R1CS instances" }
+vk_nogens_sha256	3a003c2c05deb42a1b329d7d729bd2e7d2ab01dd1e463c9ff04fe78a22c3cecb
+vk_removed_generator_range	vk_primary.ck_v.generators	543656	33554440
+vk_removed_generator_range	vk_primary.ck_s.generators	34098128	40
+vk_removed_generator_range	vk_secondary.ck_v.generators	34098448	4194312
+vk_removed_generator_range	vk_secondary.ck_s.generators	38292792	40
+total_wall_s	552.0

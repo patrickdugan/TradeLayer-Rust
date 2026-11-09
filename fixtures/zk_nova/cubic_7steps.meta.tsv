@@ -1,0 +1,187 @@
+# cubic_7steps: nova-snark 0.76.0 CompressedSNARK<Pallas, Vesta, C, ppsnark::RelaxedR1CSSNARK<_, ipa_pc::EvaluationEngine<_>>, same for Vesta>.
+# Circuit: arity 1, z' = z^3 + z + 5 over the Pallas scalar field Fq (nova's CubicCircuit test circuit, written with nova_snark::frontend)
+# Records <key> <value...>; hex is lowercase; field elements 32 B LE. Byte offsets are into the bincode 1.3 serialization (bincode::serialize).
+name	cubic_7steps
+nova_snark	0.76.0
+num_steps	7
+r1cs_primary_constraints	9821
+r1cs_primary_variables	9813
+r1cs_secondary_constraints	10349
+r1cs_secondary_variables	10331
+pp_digest	842c97cd24db7848ca338b4191df6cf3134c9f48ac57784f0ee13c191bbfce03
+timing_pp_setup_s	16.35
+timing_fold_s	2.63
+timing_compressed_setup_s	1.75
+timing_compressed_prove_s	51.27
+timing_nova_verify_s	0.749
+peak_working_set_mib	504
+z0	0700000000000000000000000000000000000000000000000000000000000000
+zn	7ece610c661a83dcc750f2066240705a2907ad39c143b07cec8df23ea1006e0d
+proof_bytes	11456
+proof_sha256	6ec49f802ea0f2618d93c5f0c87a596dfd079adb6b47a2623fc99eb5a60f7a99
+vk_bytes	8933032
+vk_sha256	2c0a19a3d223949df82eb4a96a8cfb955939dfd33e2c4b5aae74ba88b14c6a16
+vk_f_arity	1
+vk_region	F_arity	0	8
+vk_region	ro_consts_primary	8	271800
+vk_region	ro_consts_secondary	271808	271800
+vk_region	pp_digest	543608	32
+vk_primary_num_cons	16384
+vk_primary_num_vars	16384
+vk_primary_ck_v_len	131072
+vk_primary_ck_s_len	1
+vk_region	vk_primary.num_cons	543640	8
+vk_region	vk_primary.num_vars	543648	8
+vk_region	vk_primary.ck_v.generators(u64 count + 32B each)	543656	4194312
+vk_region	vk_primary.ck_v.h	4737968	32
+vk_region	vk_primary.ck_s.generators(u64 count + 32B each)	4738000	40
+vk_region	vk_primary.ck_s.h	4738040	32
+vk_region	vk_primary.S_comm.N	4738072	8
+vk_region	vk_primary.S_comm.comm_row	4738080	32
+vk_region	vk_primary.S_comm.comm_col	4738112	32
+vk_region	vk_primary.S_comm.comm_val_A	4738144	32
+vk_region	vk_primary.S_comm.comm_val_B	4738176	32
+vk_region	vk_primary.S_comm.comm_val_C	4738208	32
+vk_region	vk_primary.S_comm.comm_ts_row	4738240	32
+vk_region	vk_primary.S_comm.comm_ts_col	4738272	32
+vk_primary_region_total	4194664
+vk_secondary_num_cons	16384
+vk_secondary_num_vars	16384
+vk_secondary_ck_v_len	131072
+vk_secondary_ck_s_len	1
+vk_region	vk_secondary.num_cons	4738304	8
+vk_region	vk_secondary.num_vars	4738312	8
+vk_region	vk_secondary.ck_v.generators(u64 count + 32B each)	4738320	4194312
+vk_region	vk_secondary.ck_v.h	8932632	32
+vk_region	vk_secondary.ck_s.generators(u64 count + 32B each)	8932664	40
+vk_region	vk_secondary.ck_s.h	8932704	32
+vk_region	vk_secondary.S_comm.N	8932736	8
+vk_region	vk_secondary.S_comm.comm_row	8932744	32
+vk_region	vk_secondary.S_comm.comm_col	8932776	32
+vk_region	vk_secondary.S_comm.comm_val_A	8932808	32
+vk_region	vk_secondary.S_comm.comm_val_B	8932840	32
+vk_region	vk_secondary.S_comm.comm_val_C	8932872	32
+vk_region	vk_secondary.S_comm.comm_ts_row	8932904	32
+vk_region	vk_secondary.S_comm.comm_ts_col	8932936	32
+vk_secondary_region_total	4194664
+vk_region	dk_primary.h	8932968	32
+vk_region	dk_secondary.h	8933000	32
+ck_primary_generators	131072
+ck_secondary_generators	131072
+from_label_n_primary_ck	131073
+from_label_n_secondary_ck	131073
+sha256_concat_compressed_from_label_ck_primary	c4fbce80a1ceca484b922a3c700afd2b5ec6efca1736fefc1b2fa565db169a63
+sha256_concat_compressed_from_label_ck_secondary	c6b23263f6d835a24161757bc6c615e5051713df5fe2a5b55f1024a246d06e5c
+vk_generators_checked_against_from_label	true
+vk_generator_list_bytes	8388704
+vk_without_generator_lists_bytes	544328
+vk_primary_digest	cda5f2516406f71c287f23cdc94b473e7a0c2f54ac339f926d3f0162444f3e02
+vk_primary_digest_input_sha3_256	cda5f2516406f71c287f23cdc94b473e7a0c2f54ac339f926d3f0162444f3e5e
+vk_secondary_digest	445f7ef18ca1376592ec0a4d5904663caba421ac782275e8a8b3c9ab6b118d01
+vk_secondary_digest_input_sha3_256	445f7ef18ca1376592ec0a4d5904663caba421ac782275e8a8b3c9ab6b118d7d
+proof_region	r_U_secondary	0	168
+proof_region	ri_secondary	168	32
+proof_region	l_u_secondary	200	104
+proof_region	nifs_Uf_secondary	304	32
+proof_region	l_ur_secondary	336	168
+proof_region	nifs_Un_secondary	504	32
+proof_region	r_U_primary	536	168
+proof_region	ri_primary	704	32
+proof_region	l_ur_primary	736	168
+proof_region	nifs_Un_primary	904	32
+proof_region	wit_blind_r_Wn_primary	936	32
+proof_region	err_blind_r_Wn_primary	968	32
+proof_region	wit_blind_r_Wn_secondary	1000	32
+proof_region	err_blind_r_Wn_secondary	1032	32
+proof_region	snark_primary.comm_L_row	1064	32
+proof_region	snark_primary.comm_L_col	1096	32
+proof_region	snark_primary.comm_t_plus_r_inv_row	1128	32
+proof_region	snark_primary.comm_w_plus_r_inv_row	1160	32
+proof_region	snark_primary.comm_t_plus_r_inv_col	1192	32
+proof_region	snark_primary.comm_w_plus_r_inv_col	1224	32
+proof_region	snark_primary.sc_outer	1256	1464
+proof_region	snark_primary.eval_Az_at_r_outer	2720	32
+proof_region	snark_primary.eval_Bz_at_r_outer	2752	32
+proof_region	snark_primary.eval_Cz_at_r_outer	2784	32
+proof_region	snark_primary.eval_E_at_r_outer	2816	32
+proof_region	snark_primary.sc_inner_batched	2848	1776
+proof_region	snark_primary.eval_E	4624	32
+proof_region	snark_primary.eval_L_row	4656	32
+proof_region	snark_primary.eval_L_col	4688	32
+proof_region	snark_primary.eval_val_A	4720	32
+proof_region	snark_primary.eval_val_B	4752	32
+proof_region	snark_primary.eval_val_C	4784	32
+proof_region	snark_primary.eval_W	4816	32
+proof_region	snark_primary.eval_t_plus_r_inv_row	4848	32
+proof_region	snark_primary.eval_row	4880	32
+proof_region	snark_primary.eval_w_plus_r_inv_row	4912	32
+proof_region	snark_primary.eval_ts_row	4944	32
+proof_region	snark_primary.eval_t_plus_r_inv_col	4976	32
+proof_region	snark_primary.eval_col	5008	32
+proof_region	snark_primary.eval_w_plus_r_inv_col	5040	32
+proof_region	snark_primary.eval_ts_col	5072	32
+proof_region	snark_primary.eval_arg.L_vec	5104	552
+proof_region	snark_primary.eval_arg.R_vec	5656	552
+proof_region	snark_primary.eval_arg.a_hat	6208	32
+proof_region	snark_primary	1064	5176
+proof_region	snark_secondary.comm_L_row	6240	32
+proof_region	snark_secondary.comm_L_col	6272	32
+proof_region	snark_secondary.comm_t_plus_r_inv_row	6304	32
+proof_region	snark_secondary.comm_w_plus_r_inv_row	6336	32
+proof_region	snark_secondary.comm_t_plus_r_inv_col	6368	32
+proof_region	snark_secondary.comm_w_plus_r_inv_col	6400	32
+proof_region	snark_secondary.sc_outer	6432	1464
+proof_region	snark_secondary.eval_Az_at_r_outer	7896	32
+proof_region	snark_secondary.eval_Bz_at_r_outer	7928	32
+proof_region	snark_secondary.eval_Cz_at_r_outer	7960	32
+proof_region	snark_secondary.eval_E_at_r_outer	7992	32
+proof_region	snark_secondary.sc_inner_batched	8024	1776
+proof_region	snark_secondary.eval_E	9800	32
+proof_region	snark_secondary.eval_L_row	9832	32
+proof_region	snark_secondary.eval_L_col	9864	32
+proof_region	snark_secondary.eval_val_A	9896	32
+proof_region	snark_secondary.eval_val_B	9928	32
+proof_region	snark_secondary.eval_val_C	9960	32
+proof_region	snark_secondary.eval_W	9992	32
+proof_region	snark_secondary.eval_t_plus_r_inv_row	10024	32
+proof_region	snark_secondary.eval_row	10056	32
+proof_region	snark_secondary.eval_w_plus_r_inv_row	10088	32
+proof_region	snark_secondary.eval_ts_row	10120	32
+proof_region	snark_secondary.eval_t_plus_r_inv_col	10152	32
+proof_region	snark_secondary.eval_col	10184	32
+proof_region	snark_secondary.eval_w_plus_r_inv_col	10216	32
+proof_region	snark_secondary.eval_ts_col	10248	32
+proof_region	snark_secondary.eval_arg.L_vec	10280	552
+proof_region	snark_secondary.eval_arg.R_vec	10832	552
+proof_region	snark_secondary.eval_arg.a_hat	11384	32
+proof_region	snark_secondary	6240	5176
+proof_region	zn	11416	40
+proof_sumcheck_outer_rounds_primary	14
+proof_sumcheck_inner_rounds_primary	17
+proof_ipa_rounds_primary	17
+proof_sumcheck_outer_rounds_secondary	14
+proof_sumcheck_inner_rounds_secondary	17
+proof_ipa_rounds_secondary	17
+formula_proof_bytes	536 + 400 + 128 + sum over {primary,secondary} of (864 + 104*(Ro+Ri) + 64*K) + 8 + 32*arity; Ro=log2(num_cons padded) Ri=K=log2(N)
+formula_vk_bytes	8 + 543600 + 32 + sum over {primary,secondary} of (16 + (8+32*n_ck+32) + 72 + 232) + 64; n_ck = N (generator count)
+log2_num_cons_primary	14
+log2_N_primary	17
+log2_num_cons_secondary	14
+log2_N_secondary	17
+corrupt	0	snark_primary.eval_W low bit	4816	xor 0x01	verify_error: InvalidSumcheckProof
+corrupt	1	snark_primary.comm_L_row sign bit	1095	xor 0x80	verify_error: InvalidSumcheckProof
+corrupt	2	snark_secondary.eval_Az_at_r_outer low bit	7896	xor 0x01	verify_error: InvalidSumcheckProof
+corrupt	3	zn low bit	11424	xor 0x01	verify_error: ProofVerifyError { reason: "Invalid output hash in R1CS instances" }
+corrupt	4	snark_primary.eval_arg.a_hat low bit	6208	xor 0x01	verify_error: InvalidPCS
+corrupt	5	r_U_primary.u low bit	672	xor 0x01	verify_error: ProofVerifyError { reason: "Invalid output hash in R1CS instances" }
+corrupt	6	nifs_Un_secondary.comm_T sign bit	535	xor 0x80	verify_error: InvalidSumcheckProof
+corrupt_decode	snark_primary.comm_L_row x low byte	1064	xor 0x01	decode_error: deserialized bytes don't encode a valid field element
+corrupt_truncated_by_1	decode_error: io error: unexpected end of file
+wrong_num_steps	8	verify_error: ProofVerifyError { reason: "Invalid output hash in R1CS instances" }
+wrong_z0	z0[0]+1	verify_error: ProofVerifyError { reason: "Invalid output hash in R1CS instances" }
+vk_nogens_sha256	421f1e4cb9a8b7696dc023bf1effbc2bcc579ff62c2c0b04fe1b5d9242a31285
+vk_removed_generator_range	vk_primary.ck_v.generators	543656	4194312
+vk_removed_generator_range	vk_primary.ck_s.generators	4738000	40
+vk_removed_generator_range	vk_secondary.ck_v.generators	4738320	4194312
+vk_removed_generator_range	vk_secondary.ck_s.generators	8932664	40
+total_wall_s	129.0
