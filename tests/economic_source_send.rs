@@ -241,6 +241,7 @@ fn fixture(scene: &Scene) -> EconomicState {
         native_entitlements: native,
         insurance: None,
         source_consensus: Some(SourceConsensusConfig {
+            zk_verify: None,
             bootstrap_commitment: EconomicState::source_bootstrap_commitment(&joint).unwrap(),
             catalog_bootstrap_commitment: Some(catalog_commitment(
                 &owners.checkpoint_bytes().unwrap(),

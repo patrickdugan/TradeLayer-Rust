@@ -155,6 +155,7 @@ fn fixture_with_policy(policy: SourceConsensusPolicy) -> EconomicState {
         native_entitlements: None,
         insurance: None,
         source_consensus: Some(SourceConsensusConfig {
+            zk_verify: None,
             bootstrap_commitment: EconomicState::source_bootstrap_commitment(&joint).unwrap(),
             catalog_bootstrap_commitment: Some(bootstrap_commitment(
                 &catalogs.checkpoint_bytes().unwrap(),

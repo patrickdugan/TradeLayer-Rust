@@ -27,7 +27,7 @@ use crate::bitcoin_witness_binding::{
 use crate::chain::{BlockId, Tip};
 use crate::hash160::hash160;
 use crate::hash256::double_sha256;
-use crate::read_only::{inspect_transaction, Carrier, ScanError};
+use crate::read_only::{inspect_transaction, Carrier, CarrierFormat, ScanError};
 
 /// Candidates examined per block. Later candidates are refused, not skipped.
 pub const MAX_ADMISSION_CANDIDATES: usize = 20_000;
@@ -217,6 +217,19 @@ pub fn admit_block<S: ParentOutputSource + ?Sized>(
     context: &AdmissionContext,
     source: &mut S,
 ) -> Result<Vec<CandidateOutcome>, AdmissionError> {
+    admit_block_with_zk_frames(raw_block, context, source, false)
+}
+
+/// `admit_block`, optionally also admitting carriers that are `ZkVerifyV1` frames (`"tl"` and one
+/// of the bytes 0x24 to 0x26, `zk_verify::ZkNodeFrame::is_zk_frame`). Their payload is binary,
+/// so the carrier classifier marks them malformed; with `zk_frames` set they are authenticated
+/// like any other candidate and the caller decodes them. With it unset nothing differs.
+pub fn admit_block_with_zk_frames<S: ParentOutputSource + ?Sized>(
+    raw_block: &[u8],
+    context: &AdmissionContext,
+    source: &mut S,
+    zk_frames: bool,
+) -> Result<Vec<CandidateOutcome>, AdmissionError> {
     let header_bytes = raw_block
         .get(..80)
         .ok_or(AdmissionError::Header(InclusionError::HeaderSize))?;
@@ -276,12 +289,13 @@ pub fn admit_block<S: ParentOutputSource + ?Sized>(
             continue;
         }
         let proof = merkle_path(&levels, position);
-        outcomes.push(admit_included_transaction(
+        outcomes.push(admit_included_transaction_with_zk_frames(
             &header,
             context.network,
             raw,
             &proof,
             source,
+            zk_frames,
         ));
     }
     Ok(outcomes)
@@ -298,6 +312,18 @@ pub fn admit_included_transaction<S: ParentOutputSource + ?Sized>(
     raw_tx: &[u8],
     proof: &MerklePath,
     source: &mut S,
+) -> CandidateOutcome {
+    admit_included_transaction_with_zk_frames(header, network, raw_tx, proof, source, false)
+}
+
+/// `admit_included_transaction` with the `zk_frames` option of [`admit_block_with_zk_frames`].
+pub fn admit_included_transaction_with_zk_frames<S: ParentOutputSource + ?Sized>(
+    header: &CheckedHeader,
+    network: AdmissionNetwork,
+    raw_tx: &[u8],
+    proof: &MerklePath,
+    source: &mut S,
+    zk_frames: bool,
 ) -> CandidateOutcome {
     let position = proof.tx_index;
     let observation = match inspect_transaction(raw_tx) {
@@ -323,7 +349,10 @@ pub fn admit_included_transaction<S: ParentOutputSource + ?Sized>(
             )
         }
     };
-    if !matches!(carrier.status, "typed-syntax" | "opaque-type") {
+    let zk_frame = zk_frames
+        && carrier.format == CarrierFormat::LegacyAscii
+        && crate::zk_verify::ZkNodeFrame::is_zk_frame(&carrier.payload);
+    if !zk_frame && !matches!(carrier.status, "typed-syntax" | "opaque-type") {
         return refuse(
             txid,
             position,

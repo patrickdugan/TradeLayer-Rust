@@ -115,6 +115,19 @@ impl EconomicConfig {
             }
         }
         self.validate_insurance()?;
+        if let Some(zk) = self
+            .source_consensus
+            .as_ref()
+            .and_then(|s| s.zk_verify.as_ref())
+        {
+            if self.native_entitlements.is_some()
+                || self.contract_binding.is_some()
+                || self.insurance.is_some()
+                || zk.sink.as_str().starts_with('~')
+            {
+                return Err(EconomicError::InvalidConfig);
+            }
+        }
         Ok(())
     }
 }
@@ -280,7 +293,7 @@ impl EconomicState {
     }
     fn from_joint_native_mode_unverified(
         config: EconomicConfig,
-        joint: JointProtocolState,
+        mut joint: JointProtocolState,
         replaying_native: bool,
     ) -> Result<Self> {
         config.validate()?;
@@ -341,6 +354,17 @@ impl EconomicState {
         } else {
             SourceConsensusState::default()
         };
+        // The retained bootstrap above is the pristine joint the deployment pinned; the policy
+        // is part of the chain's configuration from its first block.
+        if let Some(fee) = config
+            .source_consensus
+            .as_ref()
+            .and_then(|s| s.zk_verify.clone())
+        {
+            joint
+                .enable_zk_verify_v1(fee)
+                .map_err(|_| EconomicError::InvalidConfig)?;
+        }
         let state = Self {
             book: ContractOrderbook::new(config.contract),
             positions: MarginMap::new(config.contract),
@@ -972,6 +996,7 @@ impl EconomicState {
         self.verify_native_entitlements()?;
         let replay = self.verify_contract_binding_audit(delta)?;
         self.verify_source_consensus()?;
+        self.verify_zk_policy()?;
         self.verify_insurance()?;
         if delta.is_none() {
             // A delta audit runs after `finalize_block_for_economic_unverified`,
@@ -1314,6 +1339,7 @@ include!("economic_source_send_impl.rs");
 include!("economic_source_oracle_impl.rs");
 include!("economic_source_catalog_impl.rs");
 include!("economic_source_catalog_snapshot_impl.rs");
+include!("economic_zk_impl.rs");
 
 include!("economic_native_impl.rs");
 include!("economic_insurance_impl.rs");

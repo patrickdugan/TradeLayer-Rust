@@ -37,6 +37,10 @@ pub struct SourceConsensusConfig {
     pub policy: SourceConsensusPolicy,
     /// Independent pin for complete actual property/clearlist bootstrap state.
     pub catalog_bootstrap_commitment: Option<[u8; 32]>,
+    /// `ZkVerifyV1` on the node path (`docs/ZK_VERIFIER.md`). When set, the owner's registry is
+    /// created with the policy before the first block and rows whose payload starts with
+    /// `zk_verify::ZK_ROW_PREFIX` are type-36 family frames. `None` changes nothing.
+    pub zk_verify: Option<crate::zk_verify::ZkFeePolicy>,
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SourceBlockMode {
@@ -263,11 +267,23 @@ fn raw_value_size(value: &SourceValue) -> Result<usize> {
 /// Executes source decode/validation afresh over each pending owner view.
 /// Candidate failures retain evidence and continue; end-phase failures abort
 /// the entire block. There is no mutable caller backend or supplied verdict.
+/// Where the verdict of a `ZkVerifyV1` proof comes from.
+#[derive(Clone, Copy)]
+pub(crate) enum ZkExec<'a> {
+    /// No verifier: a block holding a ZK row is refused.
+    Absent,
+    /// The first application of a block runs this verifier.
+    Live(&'a dyn crate::zk_verify::ZkVerifier),
+    /// A rebuild takes each proof verdict from the receipts the first application recorded.
+    Recorded(&'a [SourceReceipt]),
+}
+
 pub(crate) fn execute_block_unverified(
     state: &EconomicState,
     header: BlockHeader,
     mode: SourceBlockMode,
     transactions: &[SourceTransaction],
+    zk: ZkExec<'_>,
 ) -> Result<(EconomicState, SourceBlockReport)> {
     state
         .config()
@@ -305,6 +321,16 @@ pub(crate) fn execute_block_unverified(
         .flat_map(|f| f.transactions.iter().map(|tx| tx.txid))
         .collect();
     let mut receipts = Vec::with_capacity(transactions.len());
+    let zk_on = state
+        .config()
+        .source_consensus
+        .as_ref()
+        .is_some_and(|s| s.zk_verify.is_some());
+    let zk_ctx = crate::zk_verify::ZkBindingContext {
+        genesis: state.config().network.genesis().0,
+        anchor: state.config().anchor.id.0,
+    };
+    let mut zk_budget = crate::zk_verify::ZkBlockBudget::default();
     for funding in [true, false] {
         for tx in transactions
             .iter()
@@ -318,6 +344,31 @@ pub(crate) fn execute_block_unverified(
                 reason: String::new(),
             };
             if !processed.insert(tx.txid) {
+                receipts.push(receipt);
+                continue;
+            }
+            if zk_on && tx.payload.starts_with(crate::zk_verify::ZK_ROW_PREFIX) {
+                let (disposition, reason) = match zk {
+                    ZkExec::Absent => return Err(ConsensusSourceError::InvalidInput),
+                    ZkExec::Live(verifier) => {
+                        stage.apply_zk_row_unverified(tx, &zk_ctx, &mut zk_budget, verifier)
+                    }
+                    ZkExec::Recorded(recorded) => {
+                        let verdict = recorded
+                            .iter()
+                            .find(|r| r.position == tx.position && r.txid == tx.txid)
+                            .map_or("", |r| r.reason.as_str());
+                        stage.apply_zk_row_unverified(
+                            tx,
+                            &zk_ctx,
+                            &mut zk_budget,
+                            &crate::zk_verify::RecordedZkVerifier::from_reason(verdict),
+                        )
+                    }
+                };
+                receipt.disposition = disposition;
+                receipt.evaluation_commitment = evaluation_commitment(reason.as_bytes());
+                receipt.reason = bounded_reason(&reason);
                 receipts.push(receipt);
                 continue;
             }

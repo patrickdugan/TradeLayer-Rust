@@ -681,7 +681,7 @@ jobs:
       # The Nova verifier suites derive 2^17 to 2^20 curve generators and verify real proofs;
       # the debug `tests` job ignores those cases, so they run here on the release build.
       - name: Nova verifier and type 36 suites (release)
-        run: cargo test --release --frozen --test zk_nova_math --test zk_nova_parts --test zk_nova_verify --test zk_verify
+        run: cargo test --release --frozen --test zk_nova_math --test zk_nova_parts --test zk_nova_verify --test zk_verify --test zk_node --test node_ingest
       - name: Release synthetic 8000-TX CPU preindex throughput measurement (no speedup gate)
         run: |
           target/release/tradelayer-index-bench 8000 512 4 512 3 > /tmp/txindex-release-perf.log

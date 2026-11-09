@@ -208,6 +208,7 @@ impl EconomicState {
                     frame.header,
                     frame.mode,
                     &frame.transactions,
+                    consensus_source::ZkExec::Recorded(&frame.receipts),
                 )
                 .map_err(|_| econ_snapshot_bad())?;
                 replay = next;

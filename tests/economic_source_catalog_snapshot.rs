@@ -184,6 +184,7 @@ fn fixture(native: bool, label: &str) -> (EconomicState, EconomicConfig, BTreeSe
         native_entitlements: native_policy,
         insurance: None,
         source_consensus: Some(SourceConsensusConfig {
+            zk_verify: None,
             bootstrap_commitment: EconomicState::source_bootstrap_commitment(&joint).unwrap(),
             policy: SourceConsensusPolicy::ConservingSequentialV1,
             catalog_bootstrap_commitment: Some(source_catalogs::bootstrap_commitment(

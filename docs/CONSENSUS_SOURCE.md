@@ -95,6 +95,17 @@ preventing a caller from bypassing the rejected-input replay set. When disabled,
 the typed path retains its single staging copy and original once-per-block money
 logic; it does not incur a candidate-owner clone for every ordinary command.
 
+## ZkVerifyV1 rows
+
+`SourceConsensusConfig.zk_verify = Some(ZkFeePolicy)` (default `None`) opts the owner into
+`ZkVerifyV1`: its registry carries the policy from the first block, and a source row whose payload
+starts with `~zk:` is a type-36 family frame (`ZK_VERIFIER.md`, "Node path") instead of a Types
+payload. The row keeps its place in the transaction list, its txid in the replay set and a receipt
+in the frame; the retained state and the TLEC v7 and v10 encodings are unchanged. A rebuild of the
+state (checkpoint verification, rollback, window eviction) takes each proof verdict from the recorded
+receipt (`consensus_source::ZkExec::Recorded`) so that no replay repeats a proof verification. With the
+field `None`, the `~zk:` prefix is not interpreted and every byte of behavior is as before.
+
 ## Source scheduler behavior and explicit repairs
 
 The pinned `consensus.js` is chiefly database/hash/handshake metadata. The actual

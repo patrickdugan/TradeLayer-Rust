@@ -76,8 +76,13 @@ impl EconomicState {
         mode: SourceBlockMode,
         transactions: &[SourceTransaction],
     ) -> core::result::Result<SourceBlockReport, consensus_source::ConsensusSourceError> {
-        let (next, report) =
-            consensus_source::execute_block_unverified(self, header, mode, transactions)?;
+        let (next, report) = consensus_source::execute_block_unverified(
+            self,
+            header,
+            mode,
+            transactions,
+            consensus_source::ZkExec::Absent,
+        )?;
         *self = next;
         Ok(report)
     }
@@ -141,6 +146,7 @@ impl EconomicState {
         base_config.source_consensus = None;
         let mut replay = Self::from_joint_unverified(base_config, bootstrap)?;
         replay.config = self.config.clone();
+        replay.enable_zk_policy_from_config()?;
         replay.source_consensus = SourceConsensusState {
             bootstrap: self.source_consensus.bootstrap.clone(),
             frames: Vec::new(),
@@ -154,6 +160,7 @@ impl EconomicState {
                 frame.header,
                 frame.mode,
                 &frame.transactions,
+                consensus_source::ZkExec::Recorded(&frame.receipts),
             )
             .map_err(|_| EconomicError::InvalidSnapshot)?;
             replay = next;
@@ -216,6 +223,7 @@ impl EconomicState {
         }
         let config = SourceConsensusConfig {
             catalog_bootstrap_commitment: None,
+            zk_verify: expected_source.zk_verify.clone(),
             bootstrap_commitment: reader.fixed().map_err(|_| econ_snapshot_bad())?,
             policy: match reader.u8().map_err(|_| econ_snapshot_bad())? {
                 1 => SourceConsensusPolicy::ConservingSequentialV1,
@@ -581,6 +589,7 @@ mod source_consensus_poison_tests {
         .unwrap();
         let source = SourceConsensusConfig {
             catalog_bootstrap_commitment: None,
+            zk_verify: None,
             bootstrap_commitment: EconomicState::source_bootstrap_commitment(&joint).unwrap(),
             policy: SourceConsensusPolicy::ConservingSequentialV1,
         };

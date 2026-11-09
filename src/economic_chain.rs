@@ -893,10 +893,17 @@ fn replay_block(
                 .and_then(|index| current.source_consensus_state().frames.get(index as usize))
                 .filter(|source| source.header == frame.header)
                 .ok_or(EconomicError::Invariant)?;
-            prior
-                .apply_source_block_unverified(source.header, source.mode, &source.transactions)
-                .map_err(|_| EconomicError::Invariant)?;
-            Ok(prior)
+            // A rebuild takes proof verdicts from the receipts recorded when the block was first
+            // applied; every other rule runs again.
+            let (next, _) = crate::consensus_source::execute_block_unverified(
+                &prior,
+                source.header,
+                source.mode,
+                &source.transactions,
+                crate::consensus_source::ZkExec::Recorded(&source.receipts),
+            )
+            .map_err(|_| EconomicError::Invariant)?;
+            Ok(next)
         }
         None => match known {
             Known::Bytes(bytes) => config.decode(bytes),
@@ -949,6 +956,30 @@ impl EconomicChain {
         crate::consensus_source::SourceBlockReport,
         crate::consensus_source::ConsensusSourceError,
     > {
+        self.apply_source_block_inner(block, crate::consensus_source::ZkExec::Absent)
+    }
+
+    /// Like `apply_source_unverified_block` for a chain whose config enables `ZkVerifyV1`: ZK rows
+    /// are verified by `verifier` and the verdicts are recorded in the block's receipts.
+    pub fn apply_source_zk_unverified_block(
+        &mut self,
+        block: &crate::consensus_source::UnverifiedSourceBlock,
+        verifier: &dyn crate::zk_verify::ZkVerifier,
+    ) -> core::result::Result<
+        crate::consensus_source::SourceBlockReport,
+        crate::consensus_source::ConsensusSourceError,
+    > {
+        self.apply_source_block_inner(block, crate::consensus_source::ZkExec::Live(verifier))
+    }
+
+    fn apply_source_block_inner(
+        &mut self,
+        block: &crate::consensus_source::UnverifiedSourceBlock,
+        zk: crate::consensus_source::ZkExec<'_>,
+    ) -> core::result::Result<
+        crate::consensus_source::SourceBlockReport,
+        crate::consensus_source::ConsensusSourceError,
+    > {
         use crate::consensus_source::{preflight_transactions, ConsensusSourceError};
         preflight_transactions(&block.transactions)?;
         let h = block.header;
@@ -969,9 +1000,14 @@ impl EconomicChain {
         }
         self.state
             .preflight_source_frame(h, block.mode, &block.transactions)?;
-        let mut state = self.state.clone();
-        let report = state.apply_source_block_unverified(h, block.mode, &block.transactions)?;
-        self.commit_block(state, h, Replay::Source)?;
+        let (next, report) = crate::consensus_source::execute_block_unverified(
+            &self.state,
+            h,
+            block.mode,
+            &block.transactions,
+            zk,
+        )?;
+        self.commit_block(next, h, Replay::Source)?;
         Ok(report)
     }
 }
@@ -985,6 +1021,31 @@ impl DurableEconomicChain {
         block: &crate::consensus_source::UnverifiedSourceBlock,
     ) -> Result<(EconomicHead, crate::consensus_source::SourceBlockReport), DurableEconomicError>
     {
+        self.apply_source_block_inner(expected, block, crate::consensus_source::ZkExec::Absent)
+    }
+
+    /// `apply_source_unverified_block` with a proof verifier for `ZkVerifyV1` rows.
+    pub fn apply_source_zk_unverified_block(
+        &mut self,
+        expected: EconomicHead,
+        block: &crate::consensus_source::UnverifiedSourceBlock,
+        verifier: &dyn crate::zk_verify::ZkVerifier,
+    ) -> Result<(EconomicHead, crate::consensus_source::SourceBlockReport), DurableEconomicError>
+    {
+        self.apply_source_block_inner(
+            expected,
+            block,
+            crate::consensus_source::ZkExec::Live(verifier),
+        )
+    }
+
+    fn apply_source_block_inner(
+        &mut self,
+        expected: EconomicHead,
+        block: &crate::consensus_source::UnverifiedSourceBlock,
+        zk: crate::consensus_source::ZkExec<'_>,
+    ) -> Result<(EconomicHead, crate::consensus_source::SourceBlockReport), DurableEconomicError>
+    {
         self.check_head(expected)?;
         crate::consensus_source::preflight_transactions(&block.transactions)
             .map_err(|_| EconomicError::Capacity)?;
@@ -993,7 +1054,7 @@ impl DurableEconomicChain {
             .preflight_source_frame(block.header, block.mode, &block.transactions)?;
         let mut next = self.chain.clone();
         let report = next
-            .apply_source_unverified_block(block)
+            .apply_source_block_inner(block, zk)
             .map_err(|error| match error {
                 crate::consensus_source::ConsensusSourceError::Economic(error) => error,
                 crate::consensus_source::ConsensusSourceError::Capacity => EconomicError::Capacity,

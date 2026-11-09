@@ -509,6 +509,34 @@ impl JointProtocolState {
         verifier: &dyn ZkVerifier,
     ) -> Result<ZkOutcome, JointError> {
         self.reject_economic_activity_unverified()?;
+        self.apply_zk_inner_unverified(height, tx, ctx, budget, verifier)
+    }
+
+    /// The same rules on the economic owner's staged block: the owner may already hold economic
+    /// inputs, so the typed path's activity fence does not apply. `Err` leaves `self` in an
+    /// unspecified state; the caller applies this to a clone and discards it on `Err`.
+    pub(crate) fn apply_zk_for_economic_unverified(
+        &mut self,
+        height: u64,
+        tx: UnverifiedJointZkTx,
+        ctx: &ZkBindingContext,
+        budget: &mut ZkBlockBudget,
+        verifier: &dyn ZkVerifier,
+    ) -> Result<ZkOutcome, JointError> {
+        self.check_economic_pending_height(height)?;
+        let outcome = self.apply_zk_inner_unverified(height, tx, ctx, budget, verifier)?;
+        self.economic_pending_height = Some(height);
+        Ok(outcome)
+    }
+
+    fn apply_zk_inner_unverified(
+        &mut self,
+        height: u64,
+        tx: UnverifiedJointZkTx,
+        ctx: &ZkBindingContext,
+        budget: &mut ZkBlockBudget,
+        verifier: &dyn ZkVerifier,
+    ) -> Result<ZkOutcome, JointError> {
         self.check_new_input_unverified(height, tx.txid)?;
         self.registry.zk_gate(height)?;
         let fee = self

@@ -33,6 +33,7 @@ impl EconomicState {
         base.source_consensus = None;
         let mut state = Self::from_joint_unverified(base, joint)?;
         state.config = config;
+        state.enable_zk_policy_from_config()?;
         state.source_consensus = SourceConsensusState {
             bootstrap,
             frames: Vec::new(),

@@ -32,7 +32,7 @@ use tradelayer_core::node_config::{
     MAX_SOURCE_CONFIG_BYTES,
 };
 use tradelayer_core::node_ingest::{
-    IngestError, NodeBinding, NodeIngest, NodeIngestConfig, PrevoutProvider,
+    IngestError, NodeBinding, NodeIngest, NodeIngestConfig, PrevoutProvider, ZkIngest,
 };
 use tradelayer_core::node_runner::{
     head_log_sink, last_economic_head, observer_head_candidates, observer_head_sink, NodeError,
@@ -41,6 +41,10 @@ use tradelayer_core::node_runner::{
 use tradelayer_core::node_service::{NodeHttpService, NodeStatus};
 use tradelayer_core::runtime::{block_id_text, parse_block_id, RpcObservationClient};
 use tradelayer_core::storage::Recovery;
+use tradelayer_core::zk_verify::ZkNovaAdapter;
+
+/// The proof verifier of `ZkVerifyV1`, used only when the source config enables the policy.
+static ZK_VERIFIER: ZkNovaAdapter = ZkNovaAdapter;
 
 const USAGE: &str = "tradelayer-node --root ABS_DIR --network BTC|BTC-TESTNET4 --rpc-address IP:PORT [--cookie-file PATH] --config ABS_FILE --source-config ABS_FILE --bind 127.0.0.1:PORT --stop-file ABS_PATH --head-log ABS_PATH (--initialize | [--economic-head-log ABS_PATH | --economic-expected-head SEQ:HEIGHT:HASH:COMMITMENT] [--resume]) [--anchor-height H --anchor-hash HASH] [--max-blocks N] [--rpc-timeout-ms MS] [--timeout-ms MS]\n       tradelayer-node --print-bootstrap-commitments --config ABS_FILE --collateral-seed-atoms N";
 const FLAGS: [&str; 2] = ["--initialize", "--resume"];
@@ -586,6 +590,12 @@ fn run() -> Result<(), Failure> {
         rules: BitcoinWitnessRules::SegwitActive,
         mode: source.block_mode,
     });
+    let zk_enabled = source.zk_verify.is_some();
+    let ingest = if zk_enabled {
+        ingest.with_zk(ZkIngest::new(&ZK_VERIFIER))
+    } else {
+        ingest
+    };
     let service = NodeHttpService::new(
         owner,
         Some(bind),
@@ -665,8 +675,14 @@ fn run() -> Result<(), Failure> {
                         })
                         .collect::<Result<Vec<_>, Failure>>()?
                         .join(",");
+                    // The ZK count appears only when the policy is on.
+                    let zk_items = if zk_enabled {
+                        format!(",\"zk_items\":{}", report.zk_items)
+                    } else {
+                        String::new()
+                    };
                     emit(&format!(
-                        "{{\"event\":\"block\",\"observed\":{},\"economic_height\":{},\"candidates\":{},\"authenticated\":{},\"refused\":{},\"unrepresentable\":{},\"submitted\":{},\"accepted\":{},\"rejected\":{},\"already_processed\":{},\"refusals\":[{refused}],\"economic_head\":{}}}",
+                        "{{\"event\":\"block\",\"observed\":{},\"economic_height\":{},\"candidates\":{},\"authenticated\":{},\"refused\":{},\"unrepresentable\":{},\"submitted\":{}{zk_items},\"accepted\":{},\"rejected\":{},\"already_processed\":{},\"refusals\":[{refused}],\"economic_head\":{}}}",
                         quote(&tip_text(report.observed))?,
                         report.economic_height,
                         report.candidates,

@@ -16,6 +16,17 @@ use crate::zk_nova::{self, field::Fq, GeneratorCache, NovaVerifyError, Registere
 /// one base-36 digit), so type 36 has its own binary frame: `"tl"`, the raw byte 0x24, the body.
 pub const ZK_TX_TYPE: u8 = 36;
 pub const ZK_FRAME_TYPE_BYTE: u8 = 0x24;
+/// Admin-only binary frame for `RegisterZkProgram`: `"tl"`, the raw byte 0x25, the body.
+pub const ZK_REGISTER_FRAME_BYTE: u8 = 0x25;
+/// Admin-only binary frame that activates type 36: `"tl"`, the raw byte 0x26, the code hash. The
+/// source activation rule (`txTypesToActivate`) rejects any type above 35, so it cannot name 36.
+pub const ZK_ACTIVATE_FRAME_BYTE: u8 = 0x26;
+/// Prefix of the source-runner row that carries a ZK frame: `"~zk:"` then the frame in lowercase
+/// hex. `~` is no base-36 digit, so no source type uses it.
+pub const ZK_ROW_PREFIX: &str = "~zk:";
+/// Largest frame the node path carries. The source runner bounds a retained row to 64 KiB and the
+/// row holds the frame in hex.
+pub const MAX_ZK_NODE_FRAME_BYTES: usize = 30_000;
 
 /// At most this many type-36 transactions are charged against one block.
 pub const MAX_ZK_VERIFY_PER_BLOCK: usize = 8;
@@ -197,6 +208,198 @@ impl ZkVerifyPayload {
     }
 }
 
+/// `RegisterZkProgram` as it travels on the node path. The registry derives `program_id` from the
+/// other fields and refuses a mismatch.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ZkRegisterPayload {
+    pub system: u8,
+    pub program_id: [u8; 32],
+    pub key_bytes: Vec<u8>,
+    pub public_input_layout: u32,
+    pub effect: u8,
+    pub verifier_version: u32,
+    pub max_verify_ms: u32,
+}
+
+impl ZkRegisterPayload {
+    /// `"tl" 0x25 | system u8 | program_id 32 | layout u32 | effect u8 | verifier_version u32 |
+    /// max_verify_ms u32 | key_len u32 | key` (all integers big-endian).
+    pub fn encode_frame(&self) -> Vec<u8> {
+        let mut out = vec![b't', b'l', ZK_REGISTER_FRAME_BYTE, self.system];
+        out.extend_from_slice(&self.program_id);
+        out.extend_from_slice(&self.public_input_layout.to_be_bytes());
+        out.push(self.effect);
+        out.extend_from_slice(&self.verifier_version.to_be_bytes());
+        out.extend_from_slice(&self.max_verify_ms.to_be_bytes());
+        out.extend_from_slice(&(self.key_bytes.len() as u32).to_be_bytes());
+        out.extend_from_slice(&self.key_bytes);
+        out
+    }
+
+    pub fn decode_frame(raw: &[u8]) -> Result<Self, ZkWireError> {
+        if raw.len() > MAX_ZK_FRAME_BYTES {
+            return Err(ZkWireError::TooLong);
+        }
+        if raw.len() < 3 || &raw[..2] != b"tl" || raw[2] != ZK_REGISTER_FRAME_BYTE {
+            return Err(ZkWireError::NotZkFrame);
+        }
+        let mut at = 3usize;
+        let mut take = |n: usize| -> Result<&[u8], ZkWireError> {
+            let end = at.checked_add(n).ok_or(ZkWireError::Truncated)?;
+            let slice = raw.get(at..end).ok_or(ZkWireError::Truncated)?;
+            at = end;
+            Ok(slice)
+        };
+        let be32 = |b: &[u8]| -> Result<u32, ZkWireError> {
+            Ok(u32::from_be_bytes(
+                b.try_into().map_err(|_| ZkWireError::Truncated)?,
+            ))
+        };
+        let system = take(1)?[0];
+        let program_id: [u8; 32] = take(32)?.try_into().map_err(|_| ZkWireError::Truncated)?;
+        let public_input_layout = be32(take(4)?)?;
+        let effect = take(1)?[0];
+        let verifier_version = be32(take(4)?)?;
+        let max_verify_ms = be32(take(4)?)?;
+        let key_len = be32(take(4)?)? as usize;
+        if key_len > MAX_ZK_KEY_BYTES {
+            return Err(ZkWireError::TooLong);
+        }
+        let key_bytes = take(key_len)?.to_vec();
+        if at != raw.len() {
+            return Err(ZkWireError::TrailingBytes);
+        }
+        Ok(Self {
+            system,
+            program_id,
+            key_bytes,
+            public_input_layout,
+            effect,
+            verifier_version,
+            max_verify_ms,
+        })
+    }
+
+    /// The registry action, or `None` when `system` or `effect` is no known code.
+    pub fn into_action(self) -> Option<crate::registry::RegistryAction> {
+        Some(crate::registry::RegistryAction::RegisterZkProgram {
+            system: ZkSystem::from_code(self.system)?,
+            program_id: self.program_id,
+            key_bytes: self.key_bytes,
+            public_input_layout: self.public_input_layout,
+            effect: ZkEffect::from_code(self.effect)?,
+            verifier_version: self.verifier_version,
+            max_verify_ms: self.max_verify_ms,
+        })
+    }
+}
+
+/// Activation of type 36 as it travels on the node path: `"tl" 0x26 | code_hash 32`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ZkActivatePayload {
+    pub code_hash: [u8; 32],
+}
+
+impl ZkActivatePayload {
+    pub fn encode_frame(&self) -> Vec<u8> {
+        let mut out = vec![b't', b'l', ZK_ACTIVATE_FRAME_BYTE];
+        out.extend_from_slice(&self.code_hash);
+        out
+    }
+
+    pub fn decode_frame(raw: &[u8]) -> Result<Self, ZkWireError> {
+        if raw.len() < 3 || &raw[..2] != b"tl" || raw[2] != ZK_ACTIVATE_FRAME_BYTE {
+            return Err(ZkWireError::NotZkFrame);
+        }
+        let body = &raw[3..];
+        let code_hash: [u8; 32] = body
+            .get(..32)
+            .ok_or(ZkWireError::Truncated)?
+            .try_into()
+            .map_err(|_| ZkWireError::Truncated)?;
+        if body.len() != 32 {
+            return Err(ZkWireError::TrailingBytes);
+        }
+        Ok(Self { code_hash })
+    }
+
+    pub fn into_action(self) -> crate::registry::RegistryAction {
+        crate::registry::RegistryAction::Activate {
+            types: vec![ZK_TX_TYPE],
+            code_hash: self.code_hash,
+        }
+    }
+}
+
+/// Any frame of the type-36 family.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ZkNodeFrame {
+    Verify(ZkVerifyPayload),
+    Register(ZkRegisterPayload),
+    Activate(ZkActivatePayload),
+}
+
+impl ZkNodeFrame {
+    /// True when `raw` starts with `"tl"` and one of the three frame bytes.
+    pub fn is_zk_frame(raw: &[u8]) -> bool {
+        raw.len() >= 3
+            && &raw[..2] == b"tl"
+            && matches!(
+                raw[2],
+                ZK_FRAME_TYPE_BYTE | ZK_REGISTER_FRAME_BYTE | ZK_ACTIVATE_FRAME_BYTE
+            )
+    }
+
+    pub fn decode(raw: &[u8]) -> Result<Self, ZkWireError> {
+        if raw.len() < 3 || &raw[..2] != b"tl" {
+            return Err(ZkWireError::NotZkFrame);
+        }
+        match raw[2] {
+            ZK_FRAME_TYPE_BYTE => ZkVerifyPayload::decode_frame(raw).map(Self::Verify),
+            ZK_REGISTER_FRAME_BYTE => ZkRegisterPayload::decode_frame(raw).map(Self::Register),
+            ZK_ACTIVATE_FRAME_BYTE => ZkActivatePayload::decode_frame(raw).map(Self::Activate),
+            _ => Err(ZkWireError::NotZkFrame),
+        }
+    }
+
+    pub fn encode(&self) -> Vec<u8> {
+        match self {
+            Self::Verify(p) => p.encode_frame(),
+            Self::Register(p) => p.encode_frame(),
+            Self::Activate(p) => p.encode_frame(),
+        }
+    }
+}
+
+/// The source-runner payload of a frame: [`ZK_ROW_PREFIX`] and the frame in lowercase hex.
+pub fn zk_row_payload(frame: &[u8]) -> String {
+    const HEX: &[u8; 16] = b"0123456789abcdef";
+    let mut out = String::with_capacity(ZK_ROW_PREFIX.len() + frame.len() * 2);
+    out.push_str(ZK_ROW_PREFIX);
+    for byte in frame {
+        out.push(HEX[usize::from(byte >> 4)] as char);
+        out.push(HEX[usize::from(byte & 15)] as char);
+    }
+    out
+}
+
+/// The frame bytes of a row payload, or `None` when it lacks the prefix or the hex is not
+/// canonical lowercase.
+pub fn parse_zk_row_payload(payload: &str) -> Option<Vec<u8>> {
+    let hex = payload.strip_prefix(ZK_ROW_PREFIX)?.as_bytes();
+    if hex.len() % 2 != 0 {
+        return None;
+    }
+    let nibble = |b: u8| match b {
+        b'0'..=b'9' => Some(b - b'0'),
+        b'a'..=b'f' => Some(b - b'a' + 10),
+        _ => None,
+    };
+    hex.chunks(2)
+        .map(|pair| Some((nibble(pair[0])? << 4) | nibble(pair[1])?))
+        .collect()
+}
+
 /// Splits the payload's `proof` into the Nova step count and the proof proper.
 pub fn split_proof_envelope(proof: &[u8]) -> Option<(u32, &[u8])> {
     let head: [u8; 4] = proof.get(..4)?.try_into().ok()?;
@@ -310,6 +513,73 @@ impl ZkVerifier for MockZkVerifier {
         Ok(VerifiedStatement {
             public_inputs_hash: public_inputs_hash(public_inputs),
         })
+    }
+}
+
+/// Receipt reason of a verified type 36 on the node path.
+pub const ZK_REASON_VERIFIED: &str = "zk:verified";
+
+/// Receipt reason of a type 36 that was consumed and rejected (the fee is kept).
+pub fn zk_reason_rejected(reason: &ZkRejectReason) -> String {
+    format!("zk:rejected:{reason:?}")
+}
+
+/// Replays the verifier's recorded verdict. The node verifies a proof once, when it first applies
+/// the block, and writes the verdict into the receipt's reason. Rebuilding a state (checkpoint
+/// verification, rollback) runs every other rule again and takes only the proof math from this
+/// record, so no replay repeats a multi-second verification.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct RecordedZkVerifier {
+    verdict: RecordedVerdict,
+}
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum RecordedVerdict {
+    Accept,
+    Reject(ZkReject),
+    /// The recorded outcome was `StatementMismatch`: the verifier answered with another hash.
+    WrongStatement,
+    /// The record shows the verifier was not reached; a call now contradicts it.
+    NotReached,
+}
+impl RecordedZkVerifier {
+    pub fn from_reason(reason: &str) -> Self {
+        let verdict = if reason == ZK_REASON_VERIFIED {
+            RecordedVerdict::Accept
+        } else if reason == zk_reason_rejected(&ZkRejectReason::StatementMismatch) {
+            RecordedVerdict::WrongStatement
+        } else {
+            [
+                ZkReject::UnsupportedSystem,
+                ZkReject::MalformedKey,
+                ZkReject::MalformedProof,
+                ZkReject::InvalidProof,
+            ]
+            .into_iter()
+            .find(|r| reason == zk_reason_rejected(&ZkRejectReason::Verifier(*r)))
+            .map_or(RecordedVerdict::NotReached, RecordedVerdict::Reject)
+        };
+        Self { verdict }
+    }
+}
+impl ZkVerifier for RecordedZkVerifier {
+    fn verify(
+        &self,
+        _system: ZkSystem,
+        _key_bytes: &[u8],
+        _num_steps: u32,
+        public_inputs: &[[u8; 32]],
+        _proof: &[u8],
+    ) -> Result<VerifiedStatement, ZkReject> {
+        match self.verdict {
+            RecordedVerdict::Accept => Ok(VerifiedStatement {
+                public_inputs_hash: public_inputs_hash(public_inputs),
+            }),
+            RecordedVerdict::Reject(reject) => Err(reject),
+            RecordedVerdict::WrongStatement => Ok(VerifiedStatement {
+                public_inputs_hash: [0; 32],
+            }),
+            RecordedVerdict::NotReached => Err(ZkReject::MalformedProof),
+        }
     }
 }
 

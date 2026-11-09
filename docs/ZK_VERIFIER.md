@@ -1,8 +1,8 @@
 # In-protocol ZK verification: shared design
 
 Status: design 2026-11-09; rollout step 1 is built for the Nova profile (`src/zk_nova/`,
-[ZK_VERIFIER_NOVA.md](ZK_VERIFIER_NOVA.md)) and step 2 for phase 1 on the joint typed path
-(section "Phase 1 as built" below). The STARK profile is not built. Before this work
+[ZK_VERIFIER_NOVA.md](ZK_VERIFIER_NOVA.md)) and step 2 for phase 1 on the joint typed path and on
+the `tradelayer-node` path (section "Phase 1 as built" below). The STARK profile is not built. Before this work
 TradeLayer-Rust had no in-protocol proof verifier: `src/zk_batch.rs` only inspects zkTL Cairo batch claims and prints
 `stwo_proof=UNVERIFIED`, and the legacy proof-related types (30, 32-35) are ported only as far as
 the pinned JavaScript goes (`docs/SOURCE_PROOF_LIFECYCLE.md`, `docs/ZK_CAIRO_INTEGRATION.md`).
@@ -198,12 +198,82 @@ other type (not active, or activated in the same block, is an invalid transactio
   exhaustive match over operations and no economic history format changed. The one edit outside
   the registry and joint owners is an arm in `src/economic_snapshot_impl.rs`: the economic history
   writer refuses `RegisterZkProgram` (no tag; format unchanged).
-- Only the joint typed path is integrated. The sequential source runner
-  (`src/consensus_source.rs`) and the Types decoder execute pinned JavaScript and have no type 36;
-  a `SourceConsensusPolicy` for it is not built. The economic owner (`EconomicState`) cannot enable
-  the policy, so `tl_getZkReceipts` over an economic state returns an empty list today.
-- `tradelayer-node` does not decode type-36 frames from Bitcoin transactions yet; the sender comes
-  from the caller-supplied actor, as for every other typed joint transaction.
+- The Types decoder and the source validity rules execute pinned JavaScript and have no type 36
+  (the activation rule refuses any type above 35), so the node path below carries type 36 beside
+  them as source rows, not through the Types decoder.
+
+**Node path.** `tradelayer-node` reaches type 36 through the economic owner, behind the same
+opt-in policy.
+
+- Config: `SourceConsensusConfig.zk_verify: Option<ZkFeePolicy>` (inside `EconomicConfig.source_consensus`;
+  the node config carries it as the optional `zk_verify` section, `docs/NODE.md`). When set, the owner
+  creates its registry with `ZkVerifyV1` before the first block. The retained bootstrap, and so both
+  pinned commitments, stay the pristine joint's. The policy needs a source owner without native
+  entitlements, contract binding or insurance, and a fee sink outside the `~` namespace. Unset, no
+  config, snapshot, checkpoint or fixture byte differs: the registry stays `TLRG\x01`, the source state
+  encoding never changes, and the source runner treats a `~zk:` payload as the unknown payload it is.
+- Wire. Three binary frames, all `"tl"` then one raw byte, integers big-endian:
+
+  | byte | frame | body |
+  |---|---|---|
+  | 0x24 | type 36 `ZK Verify` | the payload above |
+  | 0x25 | `RegisterZkProgram`, admin only | `system u8 | program_id 32 | layout u32 | effect u8 | verifier_version u32 | max_verify_ms u32 | key_len u32 | key` (key at most 4096 bytes, no trailing byte) |
+  | 0x26 | activation of type 36, admin only | `code_hash 32` |
+
+  The source activation rule cannot name type 36, so 0x26 is the activation path; `Activate { types: [36] }`
+  is what it applies. Codec: `ZkNodeFrame`, `ZkRegisterPayload`, `ZkActivatePayload` in
+  `src/zk_verify.rs`. A frame is carried in one OP_RETURN push (OP_PUSHDATA1 or OP_PUSHDATA2).
+- Admission. `admission::admit_block_with_zk_frames(.., true)` also authenticates a carrier that is one of
+  the three frames; the sender is the input-0 address, as for every candidate. `node_ingest` asks for it only
+  when the node has the policy on. Without the policy admission refuses these carriers as `MalformedCarrier`,
+  as before.
+- Rows. `node_ingest` turns an authenticated frame that decodes and is at most `MAX_ZK_NODE_FRAME_BYTES`
+  (30,000) into a `SourceTransaction` with `payload = "~zk:" + frame in lowercase hex`, the block
+  position, the txid and the admitted sender. Rows keep block order, so ZK rows and source
+  transactions interleave by position. `~` is no base-36 digit, so a row is never a funding payload:
+  ZK rows run in the second partition, in position order, after the funding transactions.
+- Execution (`EconomicBlockStage::apply_zk_row_unverified`, `consensus_source::execute_block_unverified`):
+  a repeated txid is `AlreadyProcessed`. Otherwise the row is applied to a clone of the joint state with the
+  rules of the joint path: activation gate, fee debit (kept on every later rejection), the per-block
+  `ZkBlockBudget` (one per block, charged in position order), the binding computed from the network genesis,
+  the owner's anchor (`config.anchor.id`), the admitted sender, the expiry and the program id, then the
+  verifier. Frames 0x25 and 0x26 are `Registry` actions by the sender, so only the admin succeeds, and a
+  registration needs type 36 activated in an earlier block.
+  Receipt dispositions: `Applied` with reason `zk:verified`, `zk:registered` or `zk:activated`;
+  `EconomicRejected` with `zk:rejected:<ZkRejectReason>` (the fee is kept, the txid is consumed) or
+  `zk:invalid:<error>` (the transaction is invalid: not activated, not admin, fee unpayable, replay; the
+  clone is dropped, nothing changes); `Invalid` with `zk:invalid:payload|frame|sender|register` for a row that
+  cannot be decoded. A block never fails because of a ZK row.
+- Verifier. The verifier is injected: `NodeIngest::with_zk(ZkIngest::new(verifier))`, and the chain methods
+  `apply_source_zk_unverified_block(.., verifier)` (`EconomicChain`, `DurableEconomicChain`) and
+  `EconomicState::apply_source_block_zk_unverified`. `tradelayer-node` uses `ZkNovaAdapter`. The older entry
+  points have no verifier and refuse a block that holds a ZK row. `apply` refuses a ZK ingest over a chain whose
+  config lacks the policy.
+- Rollback and restart. The source frame retains every row and every receipt, and the rollback window replays
+  frames, so the window's block inputs include the ZK rows. A replay (checkpoint verification, rollback,
+  window eviction) runs every rule again and takes only the proof verdict from the recorded receipt reason
+  (`RecordedZkVerifier`): the multi-second verification runs once, when the block is first applied. The
+  registry (programs, receipts, fee policy, type-36 activation) is inside the embedded owner snapshot as
+  `TLRG\x02`, and `verify` requires the registry policy to equal the config's. A checkpoint is as
+  trustworthy as the process that wrote it, like every other recorded verdict.
+- Query. `tl_getZkReceipts` reads `registry().zk_receipts()` of the node's economic state.
+- Cost. The source history keeps a frame in hex, so a 12 KB Nova proof takes about 24 KB of the 16 MiB
+  source-history budget (`MAX_SOURCE_HISTORY_BYTES`), which covers the frames retained in the rollback
+  window (they are evicted as the window advances): about 650 such proofs per window. A retained row is
+  bounded to 64 KiB, which bounds a frame to `MAX_ZK_NODE_FRAME_BYTES`. Rows count against the budget
+  whatever their outcome, as legacy rows do.
+
+**Node path tests.** `tests/zk_node.rs` (economic owner over rows, both source snapshot variants, mock
+verifier): frame codecs, policy on and off, activation, registration, fee order, budgets, replay marker,
+malformed rows, checkpoint restore, rollback through window eviction, reorg, durable restart and the
+receipt query. `tests/node_ingest.rs` (signed transactions, admission, runner): activation, registration,
+verified and rejected proofs with the mock verifier, the policy-off refusal, a reorg that equals the winning
+branch from scratch, restart, the strict config section, and
+`a_real_bound_proof_is_verified_by_the_node` (release build, `ZkNovaAdapter`). Fixtures:
+`fixtures/node_zk_frames.tsv` (written by `write_zk_frames`), `fixtures/node_zk_vectors.tsv` (signed by
+`scripts/generate_node_zk_vectors.py`, `--check` compares bytes) and
+`fixtures/zk_nova/cubic_bound_node.{meta.tsv,proof.hex}`, a proof of the cubic circuit whose `z0` is the
+binding element of the holder, the Bitcoin genesis and the test anchor (`gen_proofs`, `NOVA_CUBIC_Z0`).
 
 **Not built.** The STARK verifier, data availability through witnesses, state-root binding,
 receipt-consuming effects (clearlist attestation, checkpoints, oracle data), and all of phase 2.

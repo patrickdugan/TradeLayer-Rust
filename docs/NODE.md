@@ -43,7 +43,8 @@ runner, and the scope of that authentication is exactly this:
   node's word, observed through the daemon.
 - **Carrier format.** The legacy ASCII `tl` carrier only. A `TLR` binary carrier, and a
   legacy payload that is not ASCII, are counted as `unrepresentable` and not submitted: the
-  source runner has no input form for them.
+  source runner has no input form for them. With `ZkVerifyV1` on (below), the three binary
+  type-36 frames are admitted as well.
 
 `authenticated_admission` is `true` in the status of a process only after that process
 applied a block through admission, and it describes that tip. A store restored from disk
@@ -80,6 +81,32 @@ If the parent-output source fails (RPC error, response above the 16 MiB RPC body
 the block is not applied and the node exits with code 7. Treating the outage as a refusal
 would make the state depend on it. The source is asked only when the block holds a
 candidate.
+
+## ZkVerifyV1 (type 36)
+
+An optional section of the source config turns on in-protocol proof verification
+(`ZK_VERIFIER.md`, "Node path"). It is off unless all four keys are present:
+
+```text
+zk_verify = zk-verify-v1
+zk_fee_property = <property id>
+zk_fee_atoms = <atoms charged per type 36>
+zk_fee_sink = <address that receives the fee>
+```
+
+The keys appear together or not at all; `zk_fee_*` without `zk_verify` is refused. With the
+section the node creates the economic registry with the policy before the first block and
+verifies proofs with `ZkNovaAdapter`; the pinned commitments are unchanged. Three carriers become
+source rows, in block order with the other candidates: `"tl" 0x24` (type 36), `"tl" 0x25`
+(`RegisterZkProgram`, admin) and `"tl" 0x26` (activate type 36, admin). The sender is the
+admission-authenticated address. The block event gains `"zk_items":N` (rows submitted that are frames)
+only when the section is on. Without the section a binary frame is refused by admission as
+`MalformedCarrier`, exactly as before, and nothing else differs.
+
+A verified proof writes a receipt that `tl_getZkReceipts` returns from the node's economic state.
+A rejected proof keeps its fee. Receipts, fees and registrations roll back with the block and are
+rebuilt by the same replay as every other source row; the proof is verified once, when the block is
+first applied, and the replay reads the verdict from the receipt.
 
 ## Heights and the economic chain
 
@@ -297,6 +324,7 @@ build. Bounding the retained history belongs to the economic snapshot format, no
 - Complete Bitcoin block and transaction consensus; the active chain is Core's word.
 - An authenticated historical bootstrap, so a node can start at a launch height with the
   state that height implies; the anchor fixes the heights, not the bootstrap state.
-- The `TLR` binary carrier and the legacy non-canonical `746c` layouts.
+- The `TLR` binary carrier and the legacy non-canonical `746c` layouts. (The type-36 frames above
+  are a separate, opt-in carrier.)
 - A prepared line for the economic head log, which would remove the one-commit crash window.
 - Parent-output responses above the RPC body limit (very large mainnet blocks).

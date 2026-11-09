@@ -239,6 +239,7 @@ fn fixture(native: bool) -> (EconomicState, EconomicConfig, BTreeSet<PropertyId>
         native_entitlements: policy,
         insurance: None,
         source_consensus: Some(SourceConsensusConfig {
+            zk_verify: None,
             bootstrap_commitment: EconomicState::source_bootstrap_commitment(&joint).unwrap(),
             catalog_bootstrap_commitment: Some(bootstrap_commitment(
                 &owners.checkpoint_bytes().unwrap(),

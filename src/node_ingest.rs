@@ -21,7 +21,7 @@
 //! chain. Any other state is `IngestError::Misaligned` and nothing is applied.
 
 use crate::admission::{
-    admit_block, sender_address, AdmissionContext, AdmissionError, AdmissionNetwork,
+    admit_block_with_zk_frames, sender_address, AdmissionContext, AdmissionError, AdmissionNetwork,
     CandidateOutcome, ParentOutpoint, ParentOutput, ParentOutputSource, ParentSourceError,
 };
 use crate::bitcoin_inclusion::BitcoinPowProfile;
@@ -41,6 +41,7 @@ use crate::ledger::TxId;
 use crate::network_profile::TradeLayerMainnet;
 use crate::read_only::{hex_bytes, CarrierFormat};
 use crate::validity_source::SourceValue;
+use crate::zk_verify::{zk_row_payload, ZkNodeFrame, ZkVerifier, MAX_ZK_NODE_FRAME_BYTES};
 
 /// The sender scope the node admits, reported by every status surface.
 pub const ADMISSION_SCOPE: &str = "input0-p2pkh-p2wpkh-sighash-all";
@@ -195,6 +196,8 @@ pub struct BlockReport {
     /// binary `TLR` carrier format and non-ASCII legacy payloads.
     pub unrepresentable: usize,
     pub submitted: usize,
+    /// Of the submitted rows, those that are `ZkVerifyV1` frames (always 0 with the policy off).
+    pub zk_items: usize,
     pub source: SourceBlockReport,
 }
 
@@ -286,6 +289,7 @@ fn source_transaction(
     network: AdmissionNetwork,
     outcome: &CandidateOutcome,
     outputs: &[(u64, &[u8])],
+    zk_frames: bool,
 ) -> Option<SourceTransaction> {
     let CandidateOutcome::Authenticated {
         txid,
@@ -297,6 +301,12 @@ fn source_transaction(
     else {
         return None;
     };
+    if zk_frames
+        && payload.format == CarrierFormat::LegacyAscii
+        && ZkNodeFrame::is_zk_frame(&payload.payload)
+    {
+        return zk_transaction(*txid, *position, &sender.address, &payload.payload);
+    }
     if payload.format != CarrierFormat::LegacyAscii || !payload.payload.starts_with(b"tl") {
         return None;
     }
@@ -331,6 +341,46 @@ fn source_transaction(
     })
 }
 
+/// The source-runner row of an authenticated `ZkVerifyV1` frame: the position, the display-order
+/// txid and the admitted sender, with the frame in hex behind `ZK_ROW_PREFIX`. A frame that does
+/// not decode, or that is too large for a retained row, has no row.
+fn zk_transaction(
+    txid: [u8; 32],
+    position: u32,
+    sender: &str,
+    frame: &[u8],
+) -> Option<SourceTransaction> {
+    if frame.len() > MAX_ZK_NODE_FRAME_BYTES || ZkNodeFrame::decode(frame).is_err() {
+        return None;
+    }
+    Some(SourceTransaction {
+        position,
+        txid: TxId::from_bytes(txid),
+        payload: zk_row_payload(frame),
+        marker: SourceValue::String("tl".into()),
+        sender: SourceValue::String(sender.to_owned()),
+        reference: SourceValue::Array(Vec::new()),
+        sender_amount: number(0.0),
+        reference_amount: number(0.0),
+    })
+}
+
+/// Proof verification for the node: the verifier `NodeIngest` hands to the economic chain.
+#[derive(Clone, Copy)]
+pub struct ZkIngest {
+    verifier: &'static (dyn ZkVerifier + Sync),
+}
+impl ZkIngest {
+    pub const fn new(verifier: &'static (dyn ZkVerifier + Sync)) -> Self {
+        Self { verifier }
+    }
+}
+impl core::fmt::Debug for ZkIngest {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.write_str("ZkIngest")
+    }
+}
+
 /// See `NodeIngest::locate`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Locate {
@@ -342,10 +392,21 @@ pub enum Locate {
 #[derive(Debug, Clone, Copy)]
 pub struct NodeIngest {
     config: NodeIngestConfig,
+    zk: Option<ZkIngest>,
 }
 impl NodeIngest {
     pub const fn new(config: NodeIngestConfig) -> Self {
-        Self { config }
+        Self { config, zk: None }
+    }
+    /// Turns on `ZkVerifyV1` ingest: authenticated type-36 family frames become ZK rows and the
+    /// economic chain verifies their proofs with `zk`. The chain's config must enable the policy
+    /// (`SourceConsensusConfig::zk_verify`); `apply` refuses a chain that does not.
+    pub const fn with_zk(mut self, zk: ZkIngest) -> Self {
+        self.zk = Some(zk);
+        self
+    }
+    pub const fn zk_enabled(&self) -> bool {
+        self.zk.is_some()
     }
     pub const fn config(&self) -> &NodeIngestConfig {
         &self.config
@@ -451,7 +512,8 @@ impl NodeIngest {
             failure: None,
         };
         let outcomes =
-            admit_block(record.raw(), &context, &mut parents).map_err(IngestError::Admission)?;
+            admit_block_with_zk_frames(record.raw(), &context, &mut parents, self.zk.is_some())
+                .map_err(IngestError::Admission)?;
         if let Some(why) = parents.failure {
             return Err(IngestError::PrevoutsUnavailable(why));
         }
@@ -500,15 +562,22 @@ impl NodeIngest {
                     ))?;
                 let outputs = transaction_outputs(raw)
                     .ok_or(IngestError::Misaligned("candidate outputs do not parse"))?;
-                if let Some(row) =
-                    source_transaction(self.config.admission_network, outcome, &outputs)
-                {
+                if let Some(row) = source_transaction(
+                    self.config.admission_network,
+                    outcome,
+                    &outputs,
+                    self.zk.is_some(),
+                ) {
                     transactions.push(row);
                 }
             }
         }
         let unrepresentable = authenticated - transactions.len();
         let submitted = transactions.len();
+        let zk_items = transactions
+            .iter()
+            .filter(|row| row.payload.starts_with(crate::zk_verify::ZK_ROW_PREFIX))
+            .count();
         let block = UnverifiedSourceBlock {
             network: self.config.binding.network,
             header: economic,
@@ -528,6 +597,7 @@ impl NodeIngest {
                 refused_total,
                 unrepresentable,
                 submitted,
+                zk_items,
                 source: SourceBlockReport {
                     header: economic,
                     accepted: 0,
@@ -561,7 +631,24 @@ impl NodeIngest {
         }
         let mut admitted = self.admit(record, provider)?;
         let head = durable.head()?;
-        let (head, source) = durable.apply_source_unverified_block(head, &admitted.block)?;
+        let (head, source) = match self.zk {
+            None => durable.apply_source_unverified_block(head, &admitted.block)?,
+            Some(zk) => {
+                let enabled = durable
+                    .chain()?
+                    .config()
+                    .economics
+                    .source_consensus
+                    .as_ref()
+                    .is_some_and(|s| s.zk_verify.is_some());
+                if !enabled {
+                    return Err(IngestError::Misaligned(
+                        "zk ingest is on but the economic config does not enable ZkVerifyV1",
+                    ));
+                }
+                durable.apply_source_zk_unverified_block(head, &admitted.block, zk.verifier)?
+            }
+        };
         admitted.report.source = source;
         Ok((head, admitted.report))
     }

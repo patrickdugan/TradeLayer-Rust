@@ -54,6 +54,12 @@ element: `z0` is `binding_element` of the Bitcoin mainnet profile's genesis and 
 `tests/zk_verify.rs` computes it. Its verifying key is byte-identical to `cubic_3steps.vk_nogens.hex`.
 Regenerate: `NOVA_CUBIC_Z0=<z0 hex> NOVA_CUBIC_NAME=cubic_bound_alice gen_proofs 3`.
 
+`cubic_bound_node` (meta and proof only) is the same circuit for the node test
+`a_real_bound_proof_is_verified_by_the_node` in `tests/node_ingest.rs`: `z0` is `binding_element` of the Bitcoin
+genesis, the test anchor (height 100, block id 0x44 repeated), the Regtest P2PKH address of the `holder-key`
+vector, expiry 1000 and the cubic program. `cargo test --test node_ingest write_zk_frames -- --ignored --nocapture`
+prints the `z0`; `NOVA_CUBIC_Z0=<z0 hex> NOVA_CUBIC_NAME=cubic_bound_node gen_proofs 3` regenerates the files.
+
 ## Serialization facts (bincode 1.3, `bincode::serialize`: fixint, little-endian, no limit)
 
 nova-snark derives `Serialize`/`Deserialize` (serde) on all key and proof types; nothing is hand-encoded

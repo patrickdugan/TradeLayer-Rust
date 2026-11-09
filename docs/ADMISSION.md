@@ -34,6 +34,8 @@ Bounds: the raw block is at most 4,000,000 bytes (`MAX_UNVERIFIED_RAW_BLOCK_BYTE
 
 A candidate is a transaction in the block with exactly one `OP_RETURN <canonical push>` carrier that starts with `tl` or `TLR` and whose syntax status is `typed-syntax` or `opaque-type` (`src/read_only.rs`, the detection `candidate_evidence.rs` and the txindex code use). More than one carrier is `AmbiguousCarriers`; an invalid frame or body is `MalformedCarrier`. The legacy decoder's non-canonical `746c` layouts are outside this slice.
 
+`admit_block_with_zk_frames(.., true)` (and `admit_included_transaction_with_zk_frames`) additionally treats a carrier that starts with `"tl"` and the byte 0x24, 0x25 or 0x26 as a candidate whatever its syntax status: these are the binary `ZkVerifyV1` frames (`ZK_VERIFIER.md`, "Node path"), which the classifier marks malformed. `admit_block` is the same function with the option off, so the default behavior is unchanged. The frame is not decoded here; the sender rule and the inclusion proof are the ones above.
+
 ## Sender rule
 
 The legacy source (`tradelayer.js@dca0888b`, `src/txUtils.js::getSender`, ported in `src/txindex_source_owner.rs::sender` and described in `docs/LITECOIN_SOURCE_TRACE.md`) selects input 0, follows its outpoint to the parent output, and takes that output's `scriptPubKey` address as the sender, with the output value as the amount. Admission applies the same rule: input 0 selects the parent, and the sender is the address of the parent scriptPubKey. It adds the requirement that the key behind that address signed the spending transaction.

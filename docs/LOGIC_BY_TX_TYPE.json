@@ -70,7 +70,7 @@
     },
     {
       "path": "src/consensus_source.rs",
-      "sha256": "b2bedcf9f58a94475ddc2e9228927d14a1b3ae528ad202ee717bb3bc14422796",
+      "sha256": "fa1995978c1462766478c0d6555d84fa3cd1cfe39208702b3c5a6e0962a47dfa",
       "lfNormalized": true
     },
     {
@@ -80,12 +80,12 @@
     },
     {
       "path": "src/economic_source_catalog_impl.rs",
-      "sha256": "64beec9b7e48e1ecee9181257ebed80ddc735ff47068ebd2b764d862e81e4332",
+      "sha256": "67b16063a91eb109400e88b9903d9da8cab270685a6b424431834b86b6f0e685",
       "lfNormalized": true
     },
     {
       "path": "src/economic_source_catalog_snapshot_impl.rs",
-      "sha256": "2a434550d3b662c58cf563d6b64b92b602d5763ba2836b5ef9c2bdb3d411a708",
+      "sha256": "09d34397fa5fbca4115bb2fdc756441cb479f57ed3c7fdcb1e46c5564bbf8670",
       "lfNormalized": true
     },
     {
@@ -120,7 +120,7 @@
     },
     {
       "path": "src/economic_chain.rs",
-      "sha256": "f3f60a2209ed67830dc79062055cc7b82cd9c2585d4d771478ec5d8dbd7a01c7",
+      "sha256": "d4f51443013bcd6d765f87efcb7731255db0a8b335b3279977191bd793705b95",
       "lfNormalized": true
     },
     {

@@ -214,6 +214,7 @@ fn actual_catalog_state() -> EconomicState {
     let owners = SourceCatalogOwners::new(properties, clearlists);
     let mut economics = base.config().economics.clone();
     economics.source_consensus = Some(SourceConsensusConfig {
+        zk_verify: None,
         bootstrap_commitment: EconomicState::source_bootstrap_commitment(&joint).unwrap(),
         policy: SourceConsensusPolicy::ConservingSequentialV1,
         catalog_bootstrap_commitment: Some(bootstrap_commitment(

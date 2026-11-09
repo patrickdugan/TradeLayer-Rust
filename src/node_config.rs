@@ -16,6 +16,18 @@
 //! catalog_bootstrap_commitment = <64 hex>
 //! ```
 //!
+//! Four further keys form an optional section that turns on `ZkVerifyV1` (type 36 and
+//! `RegisterZkProgram`, `docs/ZK_VERIFIER.md`) at bootstrap. They appear together or not at all:
+//!
+//! ```text
+//! zk_verify = zk-verify-v1
+//! zk_fee_property = <property id>
+//! zk_fee_atoms = <atoms charged per type 36>
+//! zk_fee_sink = <address that receives the fee>
+//! ```
+//!
+//! Without the section the config, the economic config and every snapshot are as before.
+//!
 //! `bootstrap = collateral-seed` is the only bootstrap the node can start
 //! from. The economic state refuses a Ledger without its collateral property
 //! (`EconomicConfig::collateral`), and a property needs a nonzero supply, so
@@ -36,15 +48,16 @@ use crate::economic::{EconomicError, EconomicState};
 use crate::economic_chain::{EconomicChain, EconomicChainConfig};
 use crate::hash256::double_sha256;
 use crate::joint::JointProtocolState;
-use crate::ledger::{Ledger, Operation, PropertyKind, TxId};
+use crate::ledger::{AccountId, Ledger, Operation, PropertyId, PropertyKind, TxId};
 use crate::property_catalog::PropertyCatalog;
 use crate::runtime::{block_id_text, parse_block_id};
 use crate::source_catalogs::{bootstrap_commitment as catalog_commitment, SourceCatalogOwners};
+use crate::zk_verify::ZkFeePolicy;
 use std::collections::BTreeMap;
 
 pub const SOURCE_CONFIG_FORMAT: &str = "tradelayer-node-source-v1";
 pub const MAX_SOURCE_CONFIG_BYTES: usize = 4096;
-const KEYS: [&str; 7] = [
+const KEYS: [&str; 11] = [
     "format",
     "policy",
     "block_mode",
@@ -52,7 +65,12 @@ const KEYS: [&str; 7] = [
     "collateral_seed_atoms",
     "bootstrap_commitment",
     "catalog_bootstrap_commitment",
+    "zk_verify",
+    "zk_fee_property",
+    "zk_fee_atoms",
+    "zk_fee_sink",
 ];
+const ZK_KEYS: [&str; 3] = ["zk_fee_property", "zk_fee_atoms", "zk_fee_sink"];
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum NodeConfigError {
@@ -104,7 +122,7 @@ impl From<EconomicError> for NodeConfigError {
 
 type Result<T> = core::result::Result<T, NodeConfigError>;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NodeSourceConfig {
     pub policy: SourceConsensusPolicy,
     pub block_mode: SourceBlockMode,
@@ -112,6 +130,8 @@ pub struct NodeSourceConfig {
     pub collateral_seed_atoms: u128,
     pub bootstrap_commitment: [u8; 32],
     pub catalog_bootstrap_commitment: [u8; 32],
+    /// The optional `ZkVerifyV1` section; `None` leaves the node as it was.
+    pub zk_verify: Option<ZkFeePolicy>,
 }
 
 pub fn parse_source_config(text: &str) -> Result<NodeSourceConfig> {
@@ -181,12 +201,52 @@ pub fn parse_source_config(text: &str) -> Result<NodeSourceConfig> {
             .map(|id| id.0)
             .map_err(|_| NodeConfigError::Value(key))
     };
+    let zk_verify = if pairs.contains_key("zk_verify") {
+        if get("zk_verify")? != "zk-verify-v1" {
+            return Err(NodeConfigError::Value("zk_verify"));
+        }
+        let number = |key: &'static str, max_len: usize| -> Result<&str> {
+            let text = get(key)?;
+            if text.len() > max_len
+                || !text.bytes().all(|b| b.is_ascii_digit())
+                || (text.len() > 1 && text.starts_with('0'))
+            {
+                return Err(NodeConfigError::Value(key));
+            }
+            Ok(text)
+        };
+        let property = number("zk_fee_property", 10)?
+            .parse::<u32>()
+            .ok()
+            .and_then(|id| PropertyId::try_from(id).ok())
+            .ok_or(NodeConfigError::Value("zk_fee_property"))?;
+        let amount_atoms = number("zk_fee_atoms", 30)?
+            .parse::<u128>()
+            .map_err(|_| NodeConfigError::Value("zk_fee_atoms"))?;
+        let sink = AccountId::try_from(get("zk_fee_sink")?)
+            .map_err(|_| NodeConfigError::Value("zk_fee_sink"))?;
+        if sink.as_str().starts_with('~') {
+            return Err(NodeConfigError::Value("zk_fee_sink"));
+        }
+        Some(ZkFeePolicy {
+            property,
+            amount_atoms,
+            sink,
+        })
+    } else {
+        // The fee keys mean nothing without the switch.
+        if let Some(key) = ZK_KEYS.iter().find(|k| pairs.contains_key(**k)) {
+            return Err(NodeConfigError::Value(key));
+        }
+        None
+    };
     Ok(NodeSourceConfig {
         policy,
         block_mode,
         collateral_seed_atoms,
         bootstrap_commitment: commitment("bootstrap_commitment")?,
         catalog_bootstrap_commitment: commitment("catalog_bootstrap_commitment")?,
+        zk_verify,
     })
 }
 
@@ -199,12 +259,21 @@ pub fn render_source_config(config: &NodeSourceConfig) -> String {
         SourceBlockMode::Realtime => "realtime",
         SourceBlockMode::IndexedReplay => "indexed-replay",
     };
-    format!(
+    let mut text = format!(
         "format = {SOURCE_CONFIG_FORMAT}\npolicy = {policy}\nblock_mode = {mode}\nbootstrap = collateral-seed\ncollateral_seed_atoms = {}\nbootstrap_commitment = {}\ncatalog_bootstrap_commitment = {}\n",
         config.collateral_seed_atoms,
         block_id_text(BlockId(config.bootstrap_commitment)),
         block_id_text(BlockId(config.catalog_bootstrap_commitment)),
-    )
+    );
+    if let Some(zk) = &config.zk_verify {
+        text.push_str(&format!(
+            "zk_verify = zk-verify-v1\nzk_fee_property = {}\nzk_fee_atoms = {}\nzk_fee_sink = {}\n",
+            zk.property.get(),
+            zk.amount_atoms,
+            zk.sink.as_str()
+        ));
+    }
+    text
 }
 
 fn empty_owners() -> SourceCatalogOwners {
@@ -264,6 +333,7 @@ pub fn apply_source_config(
         return Err(NodeConfigError::SourceAlreadyConfigured);
     }
     config.economics.source_consensus = Some(SourceConsensusConfig {
+        zk_verify: source.zk_verify.clone(),
         bootstrap_commitment: source.bootstrap_commitment,
         policy: source.policy,
         catalog_bootstrap_commitment: Some(source.catalog_bootstrap_commitment),

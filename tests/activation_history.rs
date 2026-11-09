@@ -75,6 +75,7 @@ fn fixture(network: Network, source: bool) -> EconomicChain {
         amm: None,
         contract_binding: None,
         source_consensus: source.then(|| SourceConsensusConfig {
+            zk_verify: None,
             catalog_bootstrap_commitment: None,
             bootstrap_commitment: EconomicState::source_bootstrap_commitment(&joint).unwrap(),
             policy: SourceConsensusPolicy::ConservingSequentialV1,

@@ -537,6 +537,7 @@ fn original_source_policy_keeps_the_three_dependencies_unavailable() {
     let pristine = pristine(false, "1", 1000, 1000);
     let mut config = pristine.config().clone();
     config.source_consensus = Some(SourceConsensusConfig {
+        zk_verify: None,
         bootstrap_commitment: EconomicState::source_bootstrap_commitment(pristine.joint()).unwrap(),
         policy: SourceConsensusPolicy::ConservingSequentialV1,
         catalog_bootstrap_commitment: None,

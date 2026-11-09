@@ -36,7 +36,7 @@ use tradelayer_core::node_config::{
     render_source_config, NodeConfigError, NodeSourceConfig,
 };
 use tradelayer_core::node_ingest::{
-    IngestError, NodeBinding, NodeIngest, NodeIngestConfig, PrevoutProvider,
+    IngestError, NodeBinding, NodeIngest, NodeIngestConfig, PrevoutProvider, ZkIngest,
 };
 use tradelayer_core::node_runner::{NodeError, NodeEvent, NodeRunner};
 use tradelayer_core::node_service::{NodeHttpService, NodeStatus};
@@ -51,8 +51,15 @@ use tradelayer_core::tally::FeeRoute;
 use tradelayer_core::validity_source::{
     DependencyCall, DependencyReturn, SourceBackend, SourceRuleError, SourceValue as V,
 };
+use tradelayer_core::zk_nova::RegisteredNovaKey;
+use tradelayer_core::zk_verify::{
+    binding_element, program_id_of, public_inputs_hash, MockZkVerifier, ZkActivatePayload,
+    ZkBindingContext, ZkEffect, ZkFeePolicy, ZkNovaAdapter, ZkRegisterPayload, ZkSystem,
+    ZkVerifier, ZkVerifyPayload, MOCK_PROOF_MAGIC,
+};
 
 const FIXTURE: &str = include_str!("../fixtures/node_vectors.tsv");
+const ZK_FIXTURE: &str = include_str!("../fixtures/node_zk_vectors.tsv");
 const RESERVED: [u8; 32] = [7; 32];
 const U: u128 = 100_000_000;
 const RECIPIENT: &str = "1BitcoinEaterAddressDontSendf59kuE";
@@ -73,7 +80,10 @@ struct Vector {
     script: Vec<u8>,
 }
 fn vector(name: &str) -> Vector {
-    let row: Vec<&str> = FIXTURE
+    vector_in(FIXTURE, name)
+}
+fn vector_in(fixture: &str, name: &str) -> Vector {
+    let row: Vec<&str> = fixture
         .lines()
         .find(|line| line.starts_with(&format!("{name}\t")))
         .unwrap()
@@ -355,6 +365,13 @@ fn actors() -> Actors {
 /// The economic chain a node would build: property 7 held by the admin
 /// address and the P2PKH holder, listed in the property catalog.
 fn economic_chain(actors: &Actors, network: TradeLayerMainnet) -> EconomicChain {
+    economic_chain_with(actors, network, None)
+}
+fn economic_chain_with(
+    actors: &Actors,
+    network: TradeLayerMainnet,
+    zk_verify: Option<ZkFeePolicy>,
+) -> EconomicChain {
     let admin = actors.admin.address();
     let holder = actors.holder.address();
     let mut ledger = Ledger::new();
@@ -424,6 +441,7 @@ fn economic_chain(actors: &Actors, network: TradeLayerMainnet) -> EconomicChain 
         amm: None,
         contract_binding: None,
         source_consensus: Some(SourceConsensusConfig {
+            zk_verify,
             bootstrap_commitment: EconomicState::source_bootstrap_commitment(&joint).unwrap(),
             catalog_bootstrap_commitment: Some(catalog_commitment(
                 &owners.checkpoint_bytes().unwrap(),
@@ -507,8 +525,18 @@ fn new_runner(
     provider: MapProvider,
     mode: SourceBlockMode,
 ) -> Runner {
+    new_runner_with(dirs, node, provider, mode, None)
+}
+/// `zk` turns `ZkVerifyV1` on for both the economic config and the ingest.
+fn new_runner_with(
+    dirs: &Dirs,
+    node: &MockNode,
+    provider: MapProvider,
+    mode: SourceBlockMode,
+    zk: Option<&'static (dyn ZkVerifier + Sync)>,
+) -> Runner {
     let actors = actors();
-    let chain = economic_chain(&actors, TradeLayerMainnet::Bitcoin);
+    let chain = economic_chain_with(&actors, TradeLayerMainnet::Bitcoin, zk.map(|_| zk_fee()));
     let tip = chain.tip();
     let durable = DurableEconomicChain::initialize(&dirs.economic(), chain, tip).unwrap();
     let store = ObservationStore::initialize(&dirs.observer(), observer_config()).unwrap();
@@ -522,12 +550,11 @@ fn new_runner(
         }),
     )
     .unwrap();
-    NodeRunner::new(
-        Daemon::new(node.clone(), store),
-        service,
-        provider,
-        ingest(mode),
-    )
+    let ingest = match zk {
+        Some(verifier) => ingest(mode).with_zk(ZkIngest::new(verifier)),
+        None => ingest(mode),
+    };
+    NodeRunner::new(Daemon::new(node.clone(), store), service, provider, ingest)
 }
 
 /// Steps until the economic chain stands at `observed_height`, or panics.
@@ -1345,6 +1372,7 @@ fn source_config_is_strict_and_pins_the_collateral_seed_bootstrap() {
     let seed = 5 * U;
     let (ledger, catalogs) = commitments_for_bootstrap(&chain_config, seed).unwrap();
     let config = NodeSourceConfig {
+        zk_verify: None,
         policy: SourceConsensusPolicy::ConservingSequentialV2,
         block_mode: SourceBlockMode::Realtime,
         collateral_seed_atoms: seed,
@@ -1488,4 +1516,567 @@ fn run_to_reorg(runner: &mut Runner, now: &mut u64, control: &BootstrapControl) 
         }
     }
     panic!("no reorganization");
+}
+
+// --- ZkVerifyV1 on the node path ---------------------------------------------------------
+
+const ZK_FRAMES_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/fixtures/node_zk_frames.tsv");
+const ZK_EXPIRY: u64 = 1000;
+const ZK_FEE_ATOMS: u128 = U / 10;
+
+fn zk_fee() -> ZkFeePolicy {
+    ZkFeePolicy {
+        property: property(),
+        amount_atoms: ZK_FEE_ATOMS,
+        sink: account(RECIPIENT),
+    }
+}
+fn zk_ctx() -> ZkBindingContext {
+    ZkBindingContext {
+        genesis: TradeLayerMainnet::Bitcoin.genesis().0,
+        anchor: BASE_ID.0,
+    }
+}
+fn fixture_path(name: &str) -> String {
+    format!("{}/fixtures/zk_nova/{name}", env!("CARGO_MANIFEST_DIR"))
+}
+fn fixture_hex(name: &str) -> Option<Vec<u8>> {
+    std::fs::read_to_string(fixture_path(name))
+        .ok()
+        .map(|text| unhex(text.trim()))
+}
+fn cubic_key() -> Vec<u8> {
+    RegisteredNovaKey::from_vk_nogens(&fixture_hex("cubic_3steps.vk_nogens.hex").unwrap())
+        .unwrap()
+        .encode()
+}
+fn zk_program() -> (ZkRegisterPayload, [u8; 32]) {
+    let key = cubic_key();
+    let id = program_id_of(ZkSystem::Nova, &key, 2, ZkEffect::StatementReceipt, 1, 1000);
+    (
+        ZkRegisterPayload {
+            system: ZkSystem::Nova.code(),
+            program_id: id,
+            key_bytes: key,
+            public_input_layout: 2,
+            effect: ZkEffect::StatementReceipt.code(),
+            verifier_version: 1,
+            max_verify_ms: 1000,
+        },
+        id,
+    )
+}
+/// A type-36 frame for `holder`, with the binding element of `bound_to` (the holder's own unless a
+/// test wants a mismatch) and the mock proof.
+fn mock_verify_frame(bound_to: &str) -> Vec<u8> {
+    let id = zk_program().1;
+    let mut proof = 3u32.to_be_bytes().to_vec();
+    proof.extend_from_slice(MOCK_PROOF_MAGIC);
+    ZkVerifyPayload {
+        system: ZkSystem::Nova.code(),
+        program_id: id,
+        public_inputs: vec![
+            binding_element(&zk_ctx(), &account(bound_to), ZK_EXPIRY, &id),
+            [9; 32],
+        ],
+        proof,
+        expiry: ZK_EXPIRY,
+    }
+    .encode_frame()
+}
+/// The holder's binding element for the real proof, and the proof when its fixture exists.
+fn real_verify_frame(holder: &str) -> Option<Vec<u8>> {
+    let id = zk_program().1;
+    let binding = binding_element(&zk_ctx(), &account(holder), ZK_EXPIRY, &id);
+    let meta = std::fs::read_to_string(fixture_path("cubic_bound_node.meta.tsv")).ok()?;
+    let field = |key: &str| {
+        meta.lines()
+            .find_map(|l| l.strip_prefix(&format!("{key}\t")))
+            .map(unhex)
+    };
+    assert_eq!(
+        field("z0").unwrap(),
+        binding.to_vec(),
+        "fixtures/zk_nova/cubic_bound_node.* must be a proof from z0 = {}",
+        binding
+            .iter()
+            .map(|b| format!("{b:02x}"))
+            .collect::<String>()
+    );
+    let zn: [u8; 32] = field("zn")?.try_into().unwrap();
+    let mut proof = 3u32.to_be_bytes().to_vec();
+    proof.extend(fixture_hex("cubic_bound_node.proof.hex")?);
+    Some(
+        ZkVerifyPayload {
+            system: ZkSystem::Nova.code(),
+            program_id: id,
+            public_inputs: vec![binding, zn],
+            proof,
+            expiry: ZK_EXPIRY,
+        }
+        .encode_frame(),
+    )
+}
+/// `(name, template, key label, parent label, vout, frame)` of a ZK transaction.
+type ZkFrameRow = (String, &'static str, &'static str, String, u32, Vec<u8>);
+fn zk_frame_rows() -> Vec<ZkFrameRow> {
+    let actors = actors();
+    let holder = actors.holder.address();
+    let mut rows = vec![
+        (
+            "zk-activate".to_owned(),
+            "P2wpkh",
+            "admin-key",
+            "zk-activate".to_owned(),
+            0,
+            ZkActivatePayload { code_hash: [7; 32] }.encode_frame(),
+        ),
+        (
+            "zk-register".to_owned(),
+            "P2wpkh",
+            "admin-key",
+            "zk-register".to_owned(),
+            0,
+            zk_program().0.encode_frame(),
+        ),
+        (
+            "zk-verify-mock".to_owned(),
+            "P2pkh",
+            "holder-key",
+            "zk-verify-mock".to_owned(),
+            0,
+            mock_verify_frame(&holder),
+        ),
+        (
+            "zk-verify-bad-binding".to_owned(),
+            "P2pkh",
+            "holder-key",
+            "zk-verify-bad".to_owned(),
+            0,
+            mock_verify_frame(&actors.admin.address()),
+        ),
+    ];
+    if let Some(frame) = real_verify_frame(&holder) {
+        rows.push((
+            "zk-verify-real".to_owned(),
+            "P2pkh",
+            "holder-key",
+            "zk-verify-real".to_owned(),
+            0,
+            frame,
+        ));
+    }
+    rows
+}
+fn hex(bytes: &[u8]) -> String {
+    bytes.iter().map(|b| format!("{b:02x}")).collect()
+}
+
+/// Regenerates `fixtures/node_zk_frames.tsv`; then run `scripts/generate_node_zk_vectors.py`.
+/// `cargo test --test node_ingest write_zk_frames -- --ignored --nocapture`
+#[test]
+#[ignore = "writes fixtures/node_zk_frames.tsv"]
+fn write_zk_frames() {
+    let holder = actors().holder.address();
+    let id = zk_program().1;
+    eprintln!(
+        "z0 of the holder's real proof: {}",
+        hex(&binding_element(
+            &zk_ctx(),
+            &account(&holder),
+            ZK_EXPIRY,
+            &id
+        ))
+    );
+    let mut text = String::from("# name\ttemplate\tkey_label\tparent_label\tvout\tframe\n");
+    for (name, template, key, parent, vout, frame) in zk_frame_rows() {
+        text.push_str(&format!(
+            "{name}\t{template}\t{key}\t{parent}\t{vout}\t{}\n",
+            hex(&frame)
+        ));
+    }
+    std::fs::write(ZK_FRAMES_PATH, text).unwrap();
+}
+
+#[test]
+fn zk_fixture_transactions_carry_the_frames_the_tests_derive() {
+    for (name, _, _, _, _, frame) in zk_frame_rows() {
+        let row = ZK_FIXTURE
+            .lines()
+            .find(|l| l.starts_with(&format!("{name}\t")))
+            .unwrap_or_else(|| panic!("fixtures/node_zk_vectors.tsv has no row {name}"));
+        assert_eq!(
+            row.split('\t').nth(6).unwrap(),
+            hex(&frame),
+            "{name} is stale: run write_zk_frames (--ignored), then scripts/generate_node_zk_vectors.py"
+        );
+    }
+}
+
+fn zk_vector(name: &str) -> Vector {
+    vector_in(ZK_FIXTURE, name)
+}
+fn zk_provider(names: &[&str]) -> MapProvider {
+    let mut provider = provider_for(&["admin-activate"]);
+    for name in names {
+        provider.claim(&zk_vector(name), zk_vector(name).amount);
+    }
+    provider
+}
+fn zk_block(source: &[&str], zk: &[&str]) -> Vec<Vec<u8>> {
+    let mut txs = tx_block(source);
+    txs.extend(zk.iter().map(|n| zk_vector(n).spending));
+    txs
+}
+fn leak_mock() -> &'static MockZkVerifier {
+    Box::leak(Box::new(MockZkVerifier::new()))
+}
+fn zk_receipts_of(runner: &Runner) -> Vec<tradelayer_core::zk_verify::StatementReceipt> {
+    runner
+        .service()
+        .economic_chain()
+        .unwrap()
+        .state()
+        .joint()
+        .registry()
+        .zk_receipts()
+        .to_vec()
+}
+fn applied_reports(events: &[NodeEvent]) -> Vec<tradelayer_core::node_ingest::BlockReport> {
+    events
+        .iter()
+        .filter_map(|event| match event {
+            NodeEvent::Applied(report) => Some(report.clone()),
+            _ => None,
+        })
+        .collect()
+}
+fn reasons(report: &tradelayer_core::node_ingest::BlockReport) -> Vec<String> {
+    report
+        .source
+        .receipts
+        .iter()
+        .map(|r| r.reason.clone())
+        .collect()
+}
+
+/// Activation and registration frames, then proofs, through admission, ingest and the owner.
+fn zk_branch() -> Branch {
+    Branch::build(
+        &[],
+        0,
+        &[
+            // Source activation of type 2 and the admin-only activation of type 36.
+            zk_block(&["admin-activate"], &["zk-activate"]),
+            zk_block(&[], &["zk-register"]),
+            zk_block(&[], &["zk-verify-mock", "zk-verify-bad-binding"]),
+        ],
+    )
+}
+const ZK_NAMES: [&str; 4] = [
+    "zk-activate",
+    "zk-register",
+    "zk-verify-mock",
+    "zk-verify-bad-binding",
+];
+
+#[test]
+fn zk_frames_become_rows_and_reach_the_owner_with_the_mock_verifier() {
+    let actors = actors();
+    let holder = actors.holder.address();
+    let node = MockNode::default();
+    node.follow(&zk_branch());
+    let dirs = Dirs::new();
+    let verifier = leak_mock();
+    let mut runner = new_runner_with(
+        &dirs,
+        &node,
+        zk_provider(&ZK_NAMES),
+        SourceBlockMode::Realtime,
+        Some(verifier),
+    );
+    let mut now = 0;
+    let events = run_to(&mut runner, BASE_HEIGHT + 3, &mut now);
+    let reports = applied_reports(&events);
+    assert_eq!(reports.len(), 3);
+    // Block 1: a source activation and the type-36 activation, in block order.
+    assert_eq!((reports[0].authenticated, reports[0].submitted), (2, 2));
+    assert_eq!((reports[0].zk_items, reports[0].unrepresentable), (1, 0));
+    assert_eq!(reasons(&reports[0])[1], "zk:activated");
+    assert_eq!(reasons(&reports[1]), ["zk:registered"]);
+    // Block 3: the proof is verified, the one bound to someone else is rejected after its fee.
+    assert_eq!(reports[2].zk_items, 2);
+    assert_eq!(
+        reasons(&reports[2]),
+        ["zk:verified", "zk:rejected:BindingMismatch"]
+    );
+    assert_eq!(reports[2].source.accepted, 1);
+    assert_eq!(verifier.calls(), 1);
+    // Both paid the fee to the sink; the receipt names the holder and the transaction.
+    assert_eq!(balance(&runner, &holder), 40 * U - 2 * ZK_FEE_ATOMS);
+    assert_eq!(balance(&runner, RECIPIENT), 2 * ZK_FEE_ATOMS);
+    let receipts = zk_receipts_of(&runner);
+    assert_eq!(receipts.len(), 1);
+    assert_eq!(receipts[0].sender, account(&holder));
+    assert_eq!(receipts[0].height, BASE_HEIGHT + 3);
+    let mut display = inspect_transaction(&zk_vector("zk-verify-mock").spending)
+        .unwrap()
+        .txid;
+    display.reverse();
+    assert_eq!(receipts[0].txid, TxId::from_bytes(display));
+    // `tl_getZkReceipts` reads the node's economic state.
+    let chain = runner.service().economic_chain().unwrap();
+    let mut backend =
+        tradelayer_core::service_view::EconomicReadBackend::from_chain(chain).unwrap();
+    use tradelayer_core::service::{ServiceBackend, ServiceCall};
+    let rows = backend
+        .call(ServiceCall {
+            target: "registry.zk_receipts",
+            arguments: vec![
+                tradelayer_core::client::RpcValue::null(),
+                tradelayer_core::client::RpcValue::string(&holder).unwrap(),
+            ],
+        })
+        .unwrap();
+    assert!(
+        rows.as_json().contains("\"height\":103"),
+        "{}",
+        rows.as_json()
+    );
+}
+
+#[test]
+fn zk_frames_are_refused_by_admission_when_the_policy_is_off() {
+    let node = MockNode::default();
+    // Admission refuses a binary carrier as malformed, so without the policy it is not even a
+    // candidate: nothing is authenticated, submitted or counted unrepresentable.
+    node.follow(&Branch::build(
+        &[],
+        0,
+        &[zk_block(&["admin-activate"], &["zk-activate"])],
+    ));
+    let dirs = Dirs::new();
+    let mut runner = new_runner(
+        &dirs,
+        &node,
+        zk_provider(&ZK_NAMES),
+        SourceBlockMode::Realtime,
+    );
+    let mut now = 0;
+    let events = run_to(&mut runner, BASE_HEIGHT + 1, &mut now);
+    let report = &applied_reports(&events)[0];
+    assert_eq!((report.candidates, report.authenticated), (2, 1));
+    assert_eq!(
+        (report.submitted, report.zk_items, report.unrepresentable),
+        (1, 0, 0)
+    );
+    assert_eq!(report.refused_total, 1);
+    assert!(report.refused[0].reason.contains("MalformedCarrier"));
+    assert!(zk_receipts_of(&runner).is_empty());
+}
+
+#[test]
+fn zk_reorg_and_restart_reproduce_the_receipts() {
+    let node = MockNode::default();
+    let shared = Branch::build(
+        &[],
+        0,
+        &[
+            zk_block(&["admin-activate"], &["zk-activate"]),
+            zk_block(&[], &["zk-register"]),
+        ],
+    );
+    let losing = Branch::build(&shared.blocks, 1, &[zk_block(&[], &["zk-verify-mock"])]);
+    let winning = Branch::build(
+        &shared.blocks,
+        2,
+        &[zk_block(&[], &["zk-verify-bad-binding"]), Vec::new()],
+    );
+    node.follow(&losing);
+    let dirs = Dirs::new();
+    let verifier = leak_mock();
+    let mut runner = new_runner_with(
+        &dirs,
+        &node,
+        zk_provider(&ZK_NAMES),
+        SourceBlockMode::Realtime,
+        Some(verifier),
+    );
+    let mut now = 0;
+    run_to(&mut runner, BASE_HEIGHT + 3, &mut now);
+    assert_eq!(zk_receipts_of(&runner).len(), 1);
+
+    node.follow(&winning);
+    let control = BootstrapControl::default();
+    for _ in 0..200 {
+        now += 11_000;
+        runner.step(now, &control).unwrap();
+        if runner.service().economic_chain().unwrap().tip().height == BASE_HEIGHT + 4 {
+            break;
+        }
+    }
+    assert_eq!(
+        runner.service().economic_chain().unwrap().tip().id,
+        winning.tip().id
+    );
+    // The losing branch's receipt is gone; the winning branch's rejection kept its fee.
+    assert!(zk_receipts_of(&runner).is_empty());
+    let holder = actors().holder.address();
+    assert_eq!(balance(&runner, &holder), 40 * U - ZK_FEE_ATOMS);
+
+    // The winning branch from scratch gives the same state, receipts and fees included.
+    let scratch_dirs = Dirs::new();
+    let scratch_node = MockNode::default();
+    scratch_node.follow(&winning);
+    let mut scratch = new_runner_with(
+        &scratch_dirs,
+        &scratch_node,
+        zk_provider(&ZK_NAMES),
+        SourceBlockMode::Realtime,
+        Some(leak_mock()),
+    );
+    let mut scratch_now = 0;
+    run_to(&mut scratch, BASE_HEIGHT + 4, &mut scratch_now);
+    assert_eq!(state_bytes(&runner), state_bytes(&scratch));
+
+    // Restart: both durable stores reload and the state is what it was.
+    let (daemon, service) = runner.into_parts();
+    let observer_head = daemon.head().unwrap();
+    let owner = service.into_owner();
+    let economic_head: EconomicHead = owner.head().unwrap();
+    let config = owner.chain().unwrap().config().clone();
+    let before = owner.chain().unwrap().state().clone();
+    drop(daemon);
+    drop(owner);
+    let (owner, _) = DurableEconomicChain::load(
+        &dirs.economic(),
+        config,
+        economic_head,
+        Recovery::RejectIncompleteTail,
+    )
+    .unwrap();
+    assert_eq!(owner.chain().unwrap().state(), &before);
+    let _ = observer_head;
+}
+
+/// A real nova-snark proof bound to the holder, the network and the anchor, through admission,
+/// ingest and the owner with `ZkNovaAdapter`.
+#[test]
+#[cfg_attr(
+    debug_assertions,
+    ignore = "release-only (debug derives 2^17 generators slowly): cargo test --release --test node_ingest"
+)]
+fn a_real_bound_proof_is_verified_by_the_node() {
+    let holder = actors().holder.address();
+    assert!(
+        real_verify_frame(&holder).is_some(),
+        "fixtures/zk_nova/cubic_bound_node.* are missing"
+    );
+    let node = MockNode::default();
+    node.follow(&Branch::build(
+        &[],
+        0,
+        &[
+            zk_block(&["admin-activate"], &["zk-activate"]),
+            zk_block(&[], &["zk-register"]),
+            zk_block(&[], &["zk-verify-real"]),
+        ],
+    ));
+    let dirs = Dirs::new();
+    static ADAPTER: ZkNovaAdapter = ZkNovaAdapter;
+    let mut names = ZK_NAMES.to_vec();
+    names.push("zk-verify-real");
+    let mut runner = new_runner_with(
+        &dirs,
+        &node,
+        zk_provider(&names),
+        SourceBlockMode::Realtime,
+        Some(&ADAPTER),
+    );
+    let mut now = 0;
+    let events = run_to(&mut runner, BASE_HEIGHT + 3, &mut now);
+    let reports = applied_reports(&events);
+    assert_eq!(reasons(&reports[2]), ["zk:verified"]);
+    let receipts = zk_receipts_of(&runner);
+    assert_eq!(receipts.len(), 1);
+    assert_eq!(receipts[0].sender, account(&holder));
+    let zn = real_verify_frame(&holder).map(|f| {
+        let payload = ZkVerifyPayload::decode_frame(&f).unwrap();
+        public_inputs_hash(&payload.public_inputs)
+    });
+    assert_eq!(Some(receipts[0].public_inputs_hash), zn);
+    assert_eq!(balance(&runner, &holder), 40 * U - ZK_FEE_ATOMS);
+}
+
+#[test]
+fn source_config_zk_section_is_all_or_nothing() {
+    let base = NodeSourceConfig {
+        policy: SourceConsensusPolicy::ConservingSequentialV2,
+        block_mode: SourceBlockMode::Realtime,
+        collateral_seed_atoms: 5 * U,
+        bootstrap_commitment: [1; 32],
+        catalog_bootstrap_commitment: [2; 32],
+        zk_verify: None,
+    };
+    // Without the section the rendered config has none of its keys.
+    let plain = render_source_config(&base);
+    assert!(!plain.contains("zk_"));
+    assert_eq!(parse_source_config(&plain).unwrap(), base);
+
+    let on = NodeSourceConfig {
+        zk_verify: Some(zk_fee()),
+        ..base.clone()
+    };
+    let text = render_source_config(&on);
+    assert!(text.contains(
+        "zk_verify = zk-verify-v1
+"
+    ));
+    assert_eq!(parse_source_config(&text).unwrap(), on);
+    // Every key of the section is required once the switch is on.
+    for key in ["zk_fee_property", "zk_fee_atoms", "zk_fee_sink"] {
+        let without: String = text
+            .lines()
+            .filter(|l| !l.starts_with(key))
+            .map(|l| {
+                format!(
+                    "{l}
+"
+                )
+            })
+            .collect();
+        assert!(
+            matches!(parse_source_config(&without), Err(NodeConfigError::MissingKey(k)) if k == key),
+            "{key}"
+        );
+        // And the fee keys mean nothing without the switch.
+        let orphan = format!(
+            "{plain}{}
+",
+            text.lines().find(|l| l.starts_with(key)).unwrap()
+        );
+        assert!(
+            matches!(parse_source_config(&orphan), Err(NodeConfigError::Value(k)) if k == key),
+            "{key}"
+        );
+    }
+    for (from, to) in [
+        ("zk-verify-v1", "zk-verify-v2"),
+        ("zk_fee_atoms = 10000000", "zk_fee_atoms = 010000000"),
+        ("zk_fee_atoms = 10000000", "zk_fee_atoms = -1"),
+        ("zk_fee_property = 7", "zk_fee_property = 0"),
+        ("zk_fee_property = 7", "zk_fee_property = x"),
+        (RECIPIENT, "~econ:sink"),
+    ] {
+        assert!(text.contains(from), "{from}");
+        assert!(
+            parse_source_config(&text.replace(from, to)).is_err(),
+            "{to}"
+        );
+    }
+    assert!(parse_source_config(&format!(
+        "{text}zk_verify = zk-verify-v1
+"
+    ))
+    .is_err());
 }

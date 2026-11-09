@@ -357,6 +357,7 @@ fn kyc_reads_tradelayer_js_clearlist_rows_when_the_state_carries_them() {
     .unwrap();
     let mut economics = config();
     economics.source_consensus = Some(SourceConsensusConfig {
+        zk_verify: None,
         bootstrap_commitment: EconomicState::source_bootstrap_commitment(&joint).unwrap(),
         policy: SourceConsensusPolicy::ConservingSequentialV1,
         catalog_bootstrap_commitment: Some(source_catalogs::bootstrap_commitment(
