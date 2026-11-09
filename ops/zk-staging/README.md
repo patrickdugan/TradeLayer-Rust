@@ -26,7 +26,7 @@ block in this order. At 1 sat/vB the five cost 35,994 sats in fees.
 | tool | what it does |
 |---|---|
 | `examples/zk_stage_frames.rs` | `binding`: the admin's binding element. `frames`: checks the proof starts from it and verifies it with `ZkNovaAdapter`, checks the corrupted copy is rejected, writes `frames.tsv`. `check-tx`: parses each signed transaction with the node's `inspect_transaction` and requires exactly one carrier holding exactly its frame. |
-| `tools/nova-vectors` (`gen_proofs`) | nova-snark 0.76.0 prover; writes the bound proof. |
+| `gen_proofs` of zk-rusto-no-bitcoino's `integrations/tradelayer-nova-vectors` (20b9e1f or later) | nova-snark 0.76.0 prover; writes the bound proof. It links nova-snark, so it lives outside this zero-crate repository. |
 | `ops/zk-staging/stage.py` | `build`: signs the chain and runs `testmempoolaccept` on it as one package; broadcasts nothing. `send`: broadcasts one round; refuses round 2 until round 1 has a confirmation. `compare`: two nodes' standard outputs must have the same economic head at every shared height. |
 
 `stage.py` passes `bitcoin-cli` parameters on standard input (`-stdin`), since a proof transaction
@@ -36,7 +36,8 @@ is 23 KB of hex. Options that start with `-` go as `--cli-arg=-datadir=...`.
 
 Commands run from the repository root. `$CLI` is `bitcoin-cli` with the testnet4 node's options,
 for example `bitcoin-cli -datadir=C:/BitcoinTestnet -testnet4 -rpcport=48332`; `$S` is a staging
-directory outside the repository.
+directory outside the repository; `$NV` is a clone of
+[zk-rusto-no-bitcoino](https://github.com/patrickdugan/zk-rusto-no-bitcoino).
 
 **1. Admin wallet** (Bitcoin Core 30 or later: older nodes refuse OP_RETURN data above 83 bytes).
 
@@ -57,10 +58,10 @@ H=$($CLI getblockcount); A=$($CLI getblockhash $H); E=$((H + 4032))
 
 ```bash
 cargo build --release --example zk_stage_frames --bin tradelayer-node
-(cd tools/nova-vectors && cargo build --release --locked)
+(cd $NV/integrations/tradelayer-nova-vectors && cargo build --release --locked)
 Z0=$(target/release/examples/zk_stage_frames binding --anchor-hash $A --sender $ADMIN --expiry $E)
 NOVA_VEC_OUT=$S NOVA_CUBIC_Z0=$Z0 NOVA_CUBIC_NAME=stage \
-  tools/nova-vectors/target/release/gen_proofs 3
+  $NV/integrations/tradelayer-nova-vectors/target/release/gen_proofs 3
 target/release/examples/zk_stage_frames frames --anchor-hash $A --admin $ADMIN --other $OTHER \
   --expiry $E --code-hash $(git rev-parse HEAD | tr -d '\n' | sha256sum | cut -c1-64) \
   --proof-meta $S/stage.meta.tsv --proof $S/stage.proof.hex --out $S/frames.tsv

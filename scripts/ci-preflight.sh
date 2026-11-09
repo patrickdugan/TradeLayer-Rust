@@ -12,6 +12,9 @@ if (( $# > 1 )); then
   exit 2
 fi
 
+# CI's tests, release and wasm_binding jobs open with the zero-crate gate.
+python3 scripts/check_rust_supply_chain.py
+
 # cargo fmt hands every target root (lib, 16 bins, 300 tests) to one rustfmt
 # command, which exceeds the Windows command-line limit (os error 206). Check
 # the same roots in batches; rustfmt follows their mod declarations as cargo fmt does.
