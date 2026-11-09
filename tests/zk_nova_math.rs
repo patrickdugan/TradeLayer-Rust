@@ -1095,7 +1095,26 @@ fn svdw_properties() {
 }
 
 #[test]
+#[cfg_attr(
+    debug_assertions,
+    ignore = "release-only (debug build is too slow): cargo test --release --test zk_nova_math"
+)]
 fn from_label_matches_generators_tsv() {
+    // Tables up to 2^20 + 1 points (the NHC1 key); the 2^23 + 1 tables are checked separately.
+    let (gens, digests) = check_generator_rows(|n| n <= (1 << 20) + 1);
+    assert!(gens >= 32 && digests >= 6, "gens {gens} digests {digests}");
+}
+
+#[test]
+#[ignore = "derives two 2^23 + 1 point tables, about 6 min in release: cargo test --release --test zk_nova_math -- --ignored"]
+fn from_label_matches_generators_tsv_at_max_n() {
+    let (gens, digests) = check_generator_rows(|n| n > (1 << 20) + 1);
+    assert!(gens >= 32 && digests >= 2, "gens {gens} digests {digests}");
+}
+
+/// Checks the `generators.tsv` rows whose table size `n` passes `select`; returns the counts of
+/// point and digest records checked.
+fn check_generator_rows(select: impl Fn(usize) -> bool) -> (usize, usize) {
     let rows = fixture_rows("generators.tsv");
     let mut cache: BTreeMap<(String, String, usize), Vec<String>> = BTreeMap::new();
     let mut gens = 0;
@@ -1104,6 +1123,9 @@ fn from_label_matches_generators_tsv() {
         let curve = row[0].as_str();
         let label = row[2].clone();
         let n: usize = row[3].parse().unwrap();
+        if !select(n) {
+            continue;
+        }
         let key = (curve.to_string(), label.clone(), n);
         match row[1].as_str() {
             "gen" => {
@@ -1128,7 +1150,7 @@ fn from_label_matches_generators_tsv() {
             other => panic!("unknown generators record {other}"),
         }
     }
-    assert!(gens >= 32 && digests >= 6, "gens {gens} digests {digests}");
+    (gens, digests)
 }
 
 fn compute_generators(curve: &str, label: &str, n: usize) -> Vec<String> {
