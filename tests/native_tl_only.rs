@@ -1,11 +1,11 @@
-//! Bitcoin TL-only native token policy. Legacy four-property source fixtures
-//! remain frozen separately for replay and compatibility tests.
+//! Bitcoin TL + TLVEST native policy. Source four-asset fixtures remain frozen.
 use tradelayer_core::chain::Tip;
 use tradelayer_core::ledger::{AccountId, Ledger, Operation, PropertyId, PropertyKind, TxId};
 use tradelayer_core::native_entitlement::{
     bootstrap_commitment, canonical_policy_bytes, parse_policy, NativeCoverage, NativeDriver,
-    NativeEntitlementPolicy, NativeRole, ATOMS_PER_TOKEN, BITCOIN_TL_PROPERTY_ID,
-    BITCOIN_TL_TICKER,
+    NativeEntitlementPolicy, NativeEventContext, NativeMarkerRow, NativeRole, UnverifiedNativeTarget,
+    ATOMS_PER_TOKEN, BITCOIN_TLVEST_PROPERTY_ID, BITCOIN_TLVEST_TICKER,
+    BITCOIN_TL_PROPERTY_ID, BITCOIN_TL_TICKER,
 };
 use tradelayer_core::network_profile::TradeLayerMainnet;
 
@@ -20,18 +20,27 @@ fn tx(n: u8) -> TxId {
 }
 fn fixture() -> (Ledger, NativeEntitlementPolicy) {
     let mut ledger = Ledger::new();
-    ledger
-        .apply(
-            tx(1),
-            Operation::CreateProperty {
-                id: property(BITCOIN_TL_PROPERTY_ID),
-                issuer: account("issuer"),
-                kind: PropertyKind::Fixed,
-                initial_atoms: 100 * ATOMS_PER_TOKEN,
-            },
-        )
-        .unwrap();
-    let policy = NativeEntitlementPolicy::bitcoin_tl_only(
+    for (id, kind, atoms) in [
+        (BITCOIN_TL_PROPERTY_ID, PropertyKind::Fixed, 100 * ATOMS_PER_TOKEN),
+        (
+            BITCOIN_TLVEST_PROPERTY_ID,
+            PropertyKind::Managed,
+            20 * ATOMS_PER_TOKEN,
+        ),
+    ] {
+        ledger
+            .apply(
+                tx(id as u8),
+                Operation::CreateProperty {
+                    id: property(id),
+                    issuer: account("issuer"),
+                    kind,
+                    initial_atoms: atoms,
+                },
+            )
+            .unwrap();
+    }
+    let policy = NativeEntitlementPolicy::bitcoin_tl_with_vesting(
         Tip {
             height: 0,
             id: TradeLayerMainnet::Bitcoin.genesis(),
@@ -40,21 +49,30 @@ fn fixture() -> (Ledger, NativeEntitlementPolicy) {
         account("operator"),
         account("issuer"),
         100 * ATOMS_PER_TOKEN,
+        20 * ATOMS_PER_TOKEN,
+        account("issuer"),
+        20 * ATOMS_PER_TOKEN,
+        vec![NativeMarkerRow {
+            owner: account("issuer"),
+            atoms: 20 * ATOMS_PER_TOKEN,
+        }],
     )
     .unwrap();
     (ledger, policy)
 }
 
 #[test]
-fn bitcoin_tl_only_has_one_asset_no_coupon_and_distinct_v2_encoding() {
+fn bitcoin_tl_and_vesting_have_two_assets_one_binding_and_distinct_v2_encoding() {
     let (mut ledger, policy) = fixture();
     assert_eq!(BITCOIN_TL_TICKER, "TL");
-    assert!(policy.is_bitcoin_tl_only());
-    assert_eq!(policy.assets.len(), 1);
+    assert_eq!(BITCOIN_TLVEST_TICKER, "TLVEST");
+    assert!(policy.is_bitcoin_tl_with_vesting());
+    assert_eq!(policy.assets.len(), 2);
     assert_eq!(policy.assets[0].role, NativeRole::Base);
-    assert_eq!(policy.assets[0].property.get(), BITCOIN_TL_PROPERTY_ID);
-    assert!(policy.bindings.is_empty());
-    assert!(ledger.property(property(2)).is_none());
+    assert_eq!(policy.assets[1].role, NativeRole::VestingBase);
+    assert_eq!(policy.bindings.len(), 1);
+    assert_eq!(policy.bindings[0].coupon.get(), BITCOIN_TLVEST_PROPERTY_ID);
+    assert_eq!(policy.bindings[0].target.get(), BITCOIN_TL_PROPERTY_ID);
     assert!(ledger.property(property(3)).is_none());
     assert!(ledger.property(property(4)).is_none());
 
@@ -68,7 +86,11 @@ fn bitcoin_tl_only_has_one_asset_no_coupon_and_distinct_v2_encoding() {
     assert_eq!(ledger.native_policy(), Some(&policy));
     assert_eq!(
         ledger.available_atoms(property(1), &account("issuer")),
-        100 * ATOMS_PER_TOKEN,
+        80 * ATOMS_PER_TOKEN
+    );
+    assert_eq!(
+        ledger.native_remaining_atoms(property(2), &account("issuer")),
+        20 * ATOMS_PER_TOKEN
     );
     let saved = ledger.snapshot_bytes().unwrap();
     assert_eq!(
@@ -77,23 +99,52 @@ fn bitcoin_tl_only_has_one_asset_no_coupon_and_distinct_v2_encoding() {
     );
 
     ledger
-        .apply(
-            tx(2),
-            Operation::Transfer {
-                id: property(1),
-                from: account("issuer"),
-                to: account("alice"),
-                amount_atoms: 25 * ATOMS_PER_TOKEN,
+        .send_native_coupon_unverified(
+            tx(3),
+            NativeEventContext {
+                network: TradeLayerMainnet::Bitcoin,
+                height: 1,
+            },
+            property(2),
+            account("issuer"),
+            account("alice"),
+            5 * ATOMS_PER_TOKEN,
+        )
+        .unwrap();
+    assert_eq!(
+        ledger.available_atoms(property(2), &account("alice")),
+        5 * ATOMS_PER_TOKEN
+    );
+    assert_eq!(
+        ledger.native_remaining_atoms(property(2), &account("alice")),
+        5 * ATOMS_PER_TOKEN
+    );
+
+    ledger
+        .apply_native_target_unverified(
+            &UnverifiedNativeTarget {
+                txid: tx(4),
+                claimed_actor: account("operator"),
+                coupon: property(2),
+                requested_target_atoms: 20 * ATOMS_PER_TOKEN,
+            },
+            NativeEventContext {
+                network: TradeLayerMainnet::Bitcoin,
+                height: 2,
             },
         )
         .unwrap();
     assert_eq!(
         ledger.available_atoms(property(1), &account("alice")),
-        25 * ATOMS_PER_TOKEN
+        5 * ATOMS_PER_TOKEN
     );
     assert_eq!(
         ledger.available_atoms(property(1), &account("issuer")),
-        75 * ATOMS_PER_TOKEN
+        95 * ATOMS_PER_TOKEN
+    );
+    assert_eq!(
+        ledger.native_remaining_atoms(property(2), &account("alice")),
+        0
     );
     let saved = ledger.snapshot_bytes().unwrap();
     assert_eq!(
@@ -103,7 +154,7 @@ fn bitcoin_tl_only_has_one_asset_no_coupon_and_distinct_v2_encoding() {
 }
 
 #[test]
-fn tl_only_rejects_extra_token_roles_and_supply_changes() {
+fn tl_vesting_rejects_extra_roles_supply_changes_and_noncanonical_modes() {
     let (_, policy) = fixture();
     let mut extra = policy.clone();
     let mut ghost = extra.assets[0].clone();
@@ -113,7 +164,7 @@ fn tl_only_rejects_extra_token_roles_and_supply_changes() {
     assert!(extra.validate().is_err());
 
     let mut wrong_id = policy.clone();
-    wrong_id.assets[0].property = property(3);
+    wrong_id.assets[1].property = property(3);
     assert!(wrong_id.validate().is_err());
 
     let mut expanded_supply = policy.clone();
@@ -135,6 +186,10 @@ fn tl_only_rejects_extra_token_roles_and_supply_changes() {
     let mut late_bootstrap = policy.clone();
     late_bootstrap.bootstrap.height = 1;
     assert!(late_bootstrap.validate().is_err());
+
+    let mut mismatched_claims = policy.clone();
+    mismatched_claims.bindings[0].initial_markers[0].atoms = 25 * ATOMS_PER_TOKEN;
+    assert!(mismatched_claims.validate().is_err());
 
     let mut legacy_tag = canonical_policy_bytes(&policy).unwrap();
     let v2 = b"TradeLayer/NativeEntitlementPolicy/v2/";
