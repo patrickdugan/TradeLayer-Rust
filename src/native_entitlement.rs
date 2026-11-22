@@ -236,7 +236,11 @@ impl NativeEntitlementPolicy {
                 return Err(NativeError::InvalidPolicy);
             }
             for (a, expected_kind, expected_class) in [
-                (&self.assets[0], PropertyKind::Fixed, SourceCatalogClass::Fixed),
+                (
+                    &self.assets[0],
+                    PropertyKind::Fixed,
+                    SourceCatalogClass::Fixed,
+                ),
                 (
                     &self.assets[1],
                     PropertyKind::Managed,
@@ -273,7 +277,9 @@ impl NativeEntitlementPolicy {
                     return Err(NativeError::InvalidPolicy);
                 }
                 prior = Some(&row.owner);
-                total = total.checked_add(row.atoms).ok_or(NativeError::Arithmetic)?;
+                total = total
+                    .checked_add(row.atoms)
+                    .ok_or(NativeError::Arithmetic)?;
             }
             if total > self.assets[1].expected_initial_issued_atoms
                 || total > b.funding.target_atoms
