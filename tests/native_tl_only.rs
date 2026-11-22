@@ -3,8 +3,9 @@ use tradelayer_core::chain::Tip;
 use tradelayer_core::ledger::{AccountId, Ledger, Operation, PropertyId, PropertyKind, TxId};
 use tradelayer_core::native_entitlement::{
     bootstrap_commitment, canonical_policy_bytes, parse_policy, NativeCoverage, NativeDriver,
-    NativeEntitlementPolicy, NativeEventContext, NativeMarkerRow, NativeRole,
-    UnverifiedNativeTarget, ATOMS_PER_TOKEN, BITCOIN_TLVEST_PROPERTY_ID, BITCOIN_TLVEST_TICKER,
+    BitcoinTlVestingSpec, NativeEntitlementPolicy, NativeEventContext, NativeMarkerRow,
+    NativeRole, UnverifiedNativeTarget, ATOMS_PER_TOKEN, BITCOIN_TLVEST_PROPERTY_ID,
+    BITCOIN_TLVEST_TICKER,
     BITCOIN_TL_PROPERTY_ID, BITCOIN_TL_TICKER,
 };
 use tradelayer_core::network_profile::TradeLayerMainnet;
@@ -44,23 +45,23 @@ fn fixture() -> (Ledger, NativeEntitlementPolicy) {
             )
             .unwrap();
     }
-    let policy = NativeEntitlementPolicy::bitcoin_tl_with_vesting(
-        Tip {
+    let policy = NativeEntitlementPolicy::bitcoin_tl_with_vesting(BitcoinTlVestingSpec {
+        bootstrap: Tip {
             height: 0,
             id: TradeLayerMainnet::Bitcoin.genesis(),
         },
-        bootstrap_commitment(&ledger.snapshot_bytes().unwrap()),
-        account("operator"),
-        account("issuer"),
-        100 * ATOMS_PER_TOKEN,
-        20 * ATOMS_PER_TOKEN,
-        account("issuer"),
-        20 * ATOMS_PER_TOKEN,
-        vec![NativeMarkerRow {
+        bootstrap_ledger_commitment: bootstrap_commitment(&ledger.snapshot_bytes().unwrap()),
+        target_operator: account("operator"),
+        issuer: account("issuer"),
+        tl_issued_atoms: 100 * ATOMS_PER_TOKEN,
+        tlvest_issued_atoms: 20 * ATOMS_PER_TOKEN,
+        vesting_funding_owner: account("issuer"),
+        prefunded_tl_atoms: 20 * ATOMS_PER_TOKEN,
+        initial_markers: vec![NativeMarkerRow {
             owner: account("issuer"),
             atoms: 20 * ATOMS_PER_TOKEN,
         }],
-    )
+    })
     .unwrap();
     (ledger, policy)
 }
