@@ -7,6 +7,9 @@ use crate::network_profile::TradeLayerMainnet;
 use core::str::FromStr;
 use std::collections::BTreeSet;
 pub const ATOMS_PER_TOKEN: u128 = 100_000_000;
+/// Canonical Bitcoin TradeLayer token symbol. A TL-only policy has one ledger asset.
+pub const BITCOIN_TL_TICKER: &str = "TL";
+pub const BITCOIN_TL_PROPERTY_ID: u32 = 1;
 pub const MAX_NATIVE_MARKERS: usize = 4096;
 pub const MAX_NATIVE_EVENTS: usize = 4096;
 pub const MAX_NATIVE_ROWS: usize = 16_384;
@@ -118,6 +121,51 @@ pub struct NativeEntitlementPolicy {
     pub coverage: NativeCoverage,
 }
 impl NativeEntitlementPolicy {
+    /// A fresh Bitcoin TL-only policy. All supply comes from the existing
+    /// independently committed Ledger; this constructor does not issue atoms.
+    /// Reward/vesting claims require a separate, explicitly approved mechanism.
+    pub fn bitcoin_tl_only(
+        bootstrap: Tip,
+        bootstrap_ledger_commitment: [u8; 32],
+        target_operator: AccountId,
+        issuer: AccountId,
+        issued_atoms: u128,
+    ) -> NativeResult<Self> {
+        let property =
+            PropertyId::try_from(BITCOIN_TL_PROPERTY_ID).map_err(|_| NativeError::InvalidPolicy)?;
+        let policy = Self {
+            network: TradeLayerMainnet::Bitcoin,
+            bootstrap,
+            bootstrap_ledger_commitment,
+            target_operator,
+            assets: vec![NativeAssetSpec {
+                role: NativeRole::Base,
+                property,
+                issuer,
+                ledger_kind: PropertyKind::Fixed,
+                catalog_class: SourceCatalogClass::Fixed,
+                declared_figure_atoms: issued_atoms,
+                issuance_ceiling_atoms: Some(issued_atoms),
+                expected_initial_issued_atoms: issued_atoms,
+            }],
+            bindings: Vec::new(),
+            quote_policy: NativeQuotePolicy::SourceQuoteExactOrRejectV1,
+            driver: NativeDriver::MonotonicDeltaV1,
+            payout_order: NativePayoutOrder::AsciiAccountV1,
+            coverage: NativeCoverage::CoverInitialMarkersV1,
+        };
+        policy.validate()?;
+        Ok(policy)
+    }
+
+    pub fn is_bitcoin_tl_only(&self) -> bool {
+        self.network == TradeLayerMainnet::Bitcoin
+            && self.assets.len() == 1
+            && self.bindings.is_empty()
+            && self.assets[0].property.get() == BITCOIN_TL_PROPERTY_ID
+            && self.assets[0].role == NativeRole::Base
+    }
+
     pub fn asset(&self, id: PropertyId) -> Option<&NativeAssetSpec> {
         self.assets.iter().find(|a| a.property == id)
     }
@@ -137,16 +185,33 @@ impl NativeEntitlementPolicy {
         Err(NativeError::UnavailableSourceSchedule)
     }
     pub fn validate(&self) -> NativeResult<()> {
-        if self.assets.len() != 4
-            || self.bindings.len() != 2
-            || self.bootstrap.height > MAX_NATIVE_HEIGHT
-        {
+        if self.bootstrap.height > MAX_NATIVE_HEIGHT {
             return Err(NativeError::InvalidPolicy);
         }
         self.network
             .check_genesis_if_applicable(self.bootstrap)
             .map_err(|_| NativeError::InvalidPolicy)?;
         normal(&self.target_operator)?;
+        if self.assets.len() == 1 && self.bindings.is_empty() {
+            // Bitcoin TL is the only spendable native asset in v2. Source
+            // coupon tokens and income-token liabilities are not remapped
+            // to property 1 or minted into the existing TL supply.
+            let a = &self.assets[0];
+            normal(&a.issuer)?;
+            if !self.is_bitcoin_tl_only()
+                || a.ledger_kind != PropertyKind::Fixed
+                || a.catalog_class != SourceCatalogClass::Fixed
+                || a.expected_initial_issued_atoms == 0
+                || a.declared_figure_atoms != a.expected_initial_issued_atoms
+                || a.issuance_ceiling_atoms != Some(a.expected_initial_issued_atoms)
+            {
+                return Err(NativeError::InvalidPolicy);
+            }
+            return Ok(());
+        }
+        if self.assets.len() != 4 || self.bindings.len() != 2 {
+            return Err(NativeError::InvalidPolicy);
+        }
         let mut properties = BTreeSet::new();
         let roles = [
             NativeRole::Base,
@@ -492,8 +557,13 @@ impl<'a> NativeReader<'a> {
 }
 pub fn canonical_policy_bytes(p: &NativeEntitlementPolicy) -> NativeResult<Vec<u8>> {
     p.validate()?;
-    let mut w = NativeWriter(b"TradeLayer/NativeEntitlementPolicy/v1/".to_vec());
-    w.byte(1)?;
+    let tl_only = p.is_bitcoin_tl_only();
+    let mut w = NativeWriter(if tl_only {
+        b"TradeLayer/NativeEntitlementPolicy/v2/".to_vec()
+    } else {
+        b"TradeLayer/NativeEntitlementPolicy/v1/".to_vec()
+    });
+    w.byte(if tl_only { 2 } else { 1 })?;
     w.byte(p.network.tag())?;
     w.put(&p.network.genesis().0)?;
     w.u64(p.bootstrap.height)?;
@@ -553,11 +623,14 @@ pub fn parse_policy(bytes: &[u8]) -> NativeResult<NativeEntitlementPolicy> {
     if bytes.len() > MAX_NATIVE_POLICY_BYTES {
         return Err(NativeError::Capacity);
     }
+    let (prefix, expected_version): (&[u8], u8) =
+        if bytes.starts_with(b"TradeLayer/NativeEntitlementPolicy/v2/") {
+            (b"TradeLayer/NativeEntitlementPolicy/v2/", 2)
+        } else {
+            (b"TradeLayer/NativeEntitlementPolicy/v1/", 1)
+        };
     let mut r = NativeReader(crate::codec::Cursor::new(bytes));
-    if r.take(b"TradeLayer/NativeEntitlementPolicy/v1/".len())?
-        != b"TradeLayer/NativeEntitlementPolicy/v1/"
-        || r.byte()? != 1
-    {
+    if r.take(prefix.len())? != prefix || r.byte()? != expected_version {
         return Err(NativeError::InvalidPolicy);
     }
     let network = TradeLayerMainnet::from_tag(r.byte()?).map_err(|_| NativeError::InvalidPolicy)?;
@@ -671,7 +744,9 @@ pub fn parse_policy(bytes: &[u8]) -> NativeResult<NativeEntitlementPolicy> {
         payout_order: NativePayoutOrder::AsciiAccountV1,
         coverage,
     };
-    if canonical_policy_bytes(&p)?.as_slice() != bytes {
+    if (expected_version == 2) != p.is_bitcoin_tl_only()
+        || canonical_policy_bytes(&p)?.as_slice() != bytes
+    {
         return Err(NativeError::NonCanonical);
     }
     Ok(p)
