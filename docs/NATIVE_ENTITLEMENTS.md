@@ -37,3 +37,38 @@ sends, target payouts, real book closeout and a funded backstop through v9
 restart, independently wrong policy rejection, rollback/rebranch and synced
 durable recovery. Repository gate results are recorded in
 [roadmap progress](ROADMAP_PROGRESS.md).
+
+## Bitcoin TL-only token structure (opt-in policy v2)
+
+A new, explicitly constructed Bitcoin native policy uses **TL** as the sole
+ledger asset, with canonical property ID **1**. The factory is
+`NativeEntitlementPolicy::bitcoin_tl_only`, and its caller supplies the
+genesis Tip, preexisting Ledger commitment, issuer, operator and exact issued
+supply. It verifies one Fixed ledger property, one Fixed catalog role, a
+matching declared figure and a hard ceiling equal to issued supply.
+The resulting policy contains exactly one `Base` asset and zero coupon
+bindings. It carries the domain-separated
+`TradeLayer/NativeEntitlementPolicy/v2/` encoding, so the policy commitment
+and native adoption ID differ from the four-asset source model.
+
+In this model, normal TL transfers and existing TL balances continue through
+the sole Ledger. There is no new TLI asset, TLIVEST asset, native coupon
+property, synthetic payout or additional issuance. Native-target requests
+have no supported coupon binding. Vesting, fee rebates and income distribution
+must obtain a separately authorized TL-denominated funding schedule and
+non-token claim accounting before activation. This implementation does not
+convert unvested source coupons into transferable TL.
+
+Historical source fixtures record the original four-property createToken
+sequence (TL, TLVEST, TLI, TLIVEST). They stay byte-for-byte pinned for
+reference tests. Native policy v1 decoding and replay likewise stay
+compatible with existing archived commitments. **Switching an existing
+four-property state to the TL-only v2 policy is a consensus migration**, not a
+ticker rename. No live migration, token swap rate, burn, or reassignment of
+historical property IDs is defined here. An activation plan would need
+independently approved supply accounting and treatment of outstanding
+coupon entitlements, plus authenticated chain anchoring and replay tests.
+
+Tests: `cargo test --locked --test native_tl_only`; the existing
+`native_ledger`, `native_joint`, `native_economic` and
+`native_insurance_composition` suites exercise the retained v1 path.
