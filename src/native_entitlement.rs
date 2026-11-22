@@ -199,6 +199,9 @@ impl NativeEntitlementPolicy {
             let a = &self.assets[0];
             normal(&a.issuer)?;
             if !self.is_bitcoin_tl_only()
+                || self.bootstrap.height != 0
+                || self.driver != NativeDriver::MonotonicDeltaV1
+                || self.coverage != NativeCoverage::CoverInitialMarkersV1
                 || a.ledger_kind != PropertyKind::Fixed
                 || a.catalog_class != SourceCatalogClass::Fixed
                 || a.expected_initial_issued_atoms == 0
