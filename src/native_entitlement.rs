@@ -122,21 +122,35 @@ pub struct NativeEntitlementPolicy {
     pub payout_order: NativePayoutOrder,
     pub coverage: NativeCoverage,
 }
+/// Explicit inputs for a fresh, independently funded Bitcoin TL/TLVEST policy.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BitcoinTlVestingSpec {
+    pub bootstrap: Tip,
+    pub bootstrap_ledger_commitment: [u8; 32],
+    pub target_operator: AccountId,
+    pub issuer: AccountId,
+    pub tl_issued_atoms: u128,
+    pub tlvest_issued_atoms: u128,
+    pub vesting_funding_owner: AccountId,
+    pub prefunded_tl_atoms: u128,
+    pub initial_markers: Vec<NativeMarkerRow>,
+}
 impl NativeEntitlementPolicy {
     /// Fresh Bitcoin TL + TLVEST policy with independently committed supplies.
     /// TLVEST carries a prefunded TL entitlement. The caller must provide
     /// genuine preexisting ledger balances; this does not mint either asset.
-    pub fn bitcoin_tl_with_vesting(
-        bootstrap: Tip,
-        bootstrap_ledger_commitment: [u8; 32],
-        target_operator: AccountId,
-        issuer: AccountId,
-        tl_issued_atoms: u128,
-        tlvest_issued_atoms: u128,
-        vesting_funding_owner: AccountId,
-        prefunded_tl_atoms: u128,
-        initial_markers: Vec<NativeMarkerRow>,
-    ) -> NativeResult<Self> {
+    pub fn bitcoin_tl_with_vesting(spec: BitcoinTlVestingSpec) -> NativeResult<Self> {
+        let BitcoinTlVestingSpec {
+            bootstrap,
+            bootstrap_ledger_commitment,
+            target_operator,
+            issuer,
+            tl_issued_atoms,
+            tlvest_issued_atoms,
+            vesting_funding_owner,
+            prefunded_tl_atoms,
+            initial_markers,
+        } = spec;
         let tl =
             PropertyId::try_from(BITCOIN_TL_PROPERTY_ID).map_err(|_| NativeError::InvalidPolicy)?;
         let tlvest = PropertyId::try_from(BITCOIN_TLVEST_PROPERTY_ID)
