@@ -11,7 +11,7 @@
 //! an integer-certified schedule and authenticated BTC/TL VWAP inputs.
 
 use crate::native_entitlement::{
-    BITCOIN_TLVEST_PROPERTY_ID, BITCOIN_TL_PROPERTY_ID, ATOMS_PER_TOKEN,
+    ATOMS_PER_TOKEN, BITCOIN_TLVEST_PROPERTY_ID, BITCOIN_TL_PROPERTY_ID,
 };
 
 /// 0.001 BTC/TL, mirroring the source's numeric 0.001 LTC/TL fallback
@@ -76,9 +76,10 @@ pub struct RewardQuote {
 pub fn source_fee_share_ppm(cumulative_btc_atoms: u128) -> u128 {
     let cumulative = (cumulative_btc_atoms as f64) / (ATOMS_PER_TOKEN as f64);
     let scaled = cumulative / SOURCE_PIVOT_BTC;
-    let attenuation =
-        SOURCE_MAX_SHARE / (1.0 + (1.0 + scaled).log10() * SOURCE_SLOPE);
-    let share = attenuation.clamp(SOURCE_MIN_SHARE, SOURCE_MAX_SHARE).min(0.99);
+    let attenuation = SOURCE_MAX_SHARE / (1.0 + (1.0 + scaled).log10() * SOURCE_SLOPE);
+    let share = attenuation
+        .clamp(SOURCE_MIN_SHARE, SOURCE_MAX_SHARE)
+        .min(0.99);
     (share * SHARE_SCALE as f64).floor() as u128
 }
 
@@ -104,10 +105,7 @@ fn mul_div_floor(a: u128, b: u128, denominator: u128) -> Result<u128, RewardErro
     let whole = a / denominator;
     let remainder = a % denominator;
     let first = whole.checked_mul(b).ok_or(RewardError::Arithmetic)?;
-    let second = remainder
-        .checked_mul(b)
-        .ok_or(RewardError::Arithmetic)?
-        / denominator;
+    let second = remainder.checked_mul(b).ok_or(RewardError::Arithmetic)? / denominator;
     first.checked_add(second).ok_or(RewardError::Arithmetic)
 }
 
@@ -119,7 +117,9 @@ pub fn quote_reward(o: RewardObservation) -> Result<RewardQuote, RewardError> {
     {
         return Err(RewardError::InvalidInput);
     }
-    let price = o.tl_vwap_price_btc_atoms.unwrap_or(FALLBACK_TL_PRICE_BTC_ATOMS);
+    let price = o
+        .tl_vwap_price_btc_atoms
+        .unwrap_or(FALLBACK_TL_PRICE_BTC_ATOMS);
     let origin = if o.tl_vwap_price_btc_atoms.is_some() {
         PriceOrigin::ProvidedVwap
     } else {
