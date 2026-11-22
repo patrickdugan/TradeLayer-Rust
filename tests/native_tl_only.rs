@@ -1,12 +1,10 @@
 //! Bitcoin TL-only native token policy. Legacy four-property source fixtures
 //! remain frozen separately for replay and compatibility tests.
 use tradelayer_core::chain::Tip;
-use tradelayer_core::ledger::{
-    AccountId, Ledger, Operation, PropertyId, PropertyKind, TxId,
-};
+use tradelayer_core::ledger::{AccountId, Ledger, Operation, PropertyId, PropertyKind, TxId};
 use tradelayer_core::native_entitlement::{
     bootstrap_commitment, canonical_policy_bytes, parse_policy, NativeEntitlementPolicy,
-    NativeRole, BITCOIN_TL_PROPERTY_ID, BITCOIN_TL_TICKER, ATOMS_PER_TOKEN,
+    NativeRole, ATOMS_PER_TOKEN, BITCOIN_TL_PROPERTY_ID, BITCOIN_TL_TICKER,
 };
 use tradelayer_core::network_profile::TradeLayerMainnet;
 
@@ -63,7 +61,9 @@ fn bitcoin_tl_only_has_one_asset_no_coupon_and_distinct_v2_encoding() {
     assert!(bytes.starts_with(b"TradeLayer/NativeEntitlementPolicy/v2/\x02"));
     assert_eq!(parse_policy(&bytes).unwrap(), policy);
 
-    ledger.adopt_native_entitlements_unverified(&policy).unwrap();
+    ledger
+        .adopt_native_entitlements_unverified(&policy)
+        .unwrap();
     assert_eq!(ledger.native_policy(), Some(&policy));
     assert_eq!(
         ledger.available_atoms(property(1), &account("issuer")),
@@ -86,8 +86,14 @@ fn bitcoin_tl_only_has_one_asset_no_coupon_and_distinct_v2_encoding() {
             },
         )
         .unwrap();
-    assert_eq!(ledger.available_atoms(property(1), &account("alice")), 25 * ATOMS_PER_TOKEN);
-    assert_eq!(ledger.available_atoms(property(1), &account("issuer")), 75 * ATOMS_PER_TOKEN);
+    assert_eq!(
+        ledger.available_atoms(property(1), &account("alice")),
+        25 * ATOMS_PER_TOKEN
+    );
+    assert_eq!(
+        ledger.available_atoms(property(1), &account("issuer")),
+        75 * ATOMS_PER_TOKEN
+    );
     let saved = ledger.snapshot_bytes().unwrap();
     assert_eq!(
         Ledger::from_snapshot_bytes_with_native_policy(&saved, &policy).unwrap(),
