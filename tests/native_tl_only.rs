@@ -4,7 +4,8 @@ use tradelayer_core::chain::Tip;
 use tradelayer_core::ledger::{AccountId, Ledger, Operation, PropertyId, PropertyKind, TxId};
 use tradelayer_core::native_entitlement::{
     bootstrap_commitment, canonical_policy_bytes, parse_policy, NativeCoverage, NativeDriver,
-    NativeEntitlementPolicy, NativeRole, ATOMS_PER_TOKEN, BITCOIN_TL_PROPERTY_ID, BITCOIN_TL_TICKER,
+    NativeEntitlementPolicy, NativeRole, ATOMS_PER_TOKEN, BITCOIN_TL_PROPERTY_ID,
+    BITCOIN_TL_TICKER,
 };
 use tradelayer_core::network_profile::TradeLayerMainnet;
 
