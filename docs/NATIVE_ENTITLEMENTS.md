@@ -38,37 +38,69 @@ restart, independently wrong policy rejection, rollback/rebranch and synced
 durable recovery. Repository gate results are recorded in
 [roadmap progress](ROADMAP_PROGRESS.md).
 
-## Bitcoin TL-only token structure (opt-in policy v2)
+## Bitcoin TL + TLVEST token structure (opt-in policy v2)
 
-A new, explicitly constructed Bitcoin native policy uses **TL** as the sole
-ledger asset, with canonical property ID **1**. The factory is
-`NativeEntitlementPolicy::bitcoin_tl_only`, and its caller supplies the
-genesis Tip, preexisting Ledger commitment, issuer, operator and exact issued
-supply. It verifies one Fixed ledger property, one Fixed catalog role, a
-matching declared figure and a hard ceiling equal to issued supply.
-The resulting policy contains exactly one `Base` asset and zero coupon
-bindings. It carries the domain-separated
-`TradeLayer/NativeEntitlementPolicy/v2/` encoding, so the policy commitment
-and native adoption ID differ from the four-asset source model.
+The Bitcoin native policy is now **TL** (property ID 1) plus **TLVEST**
+(property ID 2). Only TL is the liquid native token. TLVEST is the
+coupon/vesting entitlement backed by a committed pool of already issued TL.
+Both balances are independently pinned at genesis. The constructor
+`NativeEntitlementPolicy::bitcoin_tl_with_vesting` requires the exact
+supply of each, the issuer, a pre-Ledger commitment, the vesting funding
+owner, the prefunded TL amount and the initial TLVEST marker owners. It
+creates one source-compatible TLVEST→TL binding with full coverage,
+without minting tokens.
 
-In this model, normal TL transfers and existing TL balances continue through
-the sole Ledger. There is no new TLI asset, TLIVEST asset, native coupon
-property, synthetic payout or additional issuance. Native-target requests
-have no supported coupon binding. Vesting, fee rebates and income distribution
-must obtain a separately authorized TL-denominated funding schedule and
-non-token claim accounting before activation. This implementation does not
-convert unvested source coupons into transferable TL.
+TLI and TLIVEST are absent from this v2 native policy. In the preserved
+historical source, property 3 is an income coupon and property 4 is its
+payout asset; those original four-property fixtures and the v1 policy
+decoder remain unchanged for archival replay. The v2 policy has a distinct
+`TradeLayer/NativeEntitlementPolicy/v2/` commitment and cannot be read
+as v1. Existing four-property deployments require a separately approved
+consensus migration; the v2 path supports fresh, independently funded
+configurations only.
 
-Historical source fixtures record the original four-property createToken
-sequence (TL, TLVEST, TLI, TLIVEST). They stay byte-for-byte pinned for
-reference tests. Native policy v1 decoding and replay likewise stay
-compatible with existing archived commitments. **Switching an existing
-four-property state to the TL-only v2 policy is a consensus migration**, not a
-ticker rename. No live migration, token swap rate, burn, or reassignment of
-historical property IDs is defined here. An activation plan would need
-independently approved supply accounting and treatment of outstanding
-coupon entitlements, plus authenticated chain anchoring and replay tests.
+### Liquidity reward and BTC volume
 
-Tests: `cargo test --locked --test native_tl_only`; the existing
-`native_ledger`, `native_joint`, `native_economic` and
-`native_insurance_composition` suites exercise the retained v1 path.
+`src/tl_liquidity_reward.rs` implements a **read-only quote**, derived
+from `tradelayer.js/src/volumeIndex.js`. Its inputs are one executed trade
+in BTC atoms, the amount of TL traded, net fee paid in BTC atoms, cumulative
+BTC volume, an explicit BTC-volume threshold at which TLVEST becomes fully
+vested, and the observed BTC-per-TL VWAP. The caller must authenticate
+the trade, fee, volume and price, and ensure a matching funded reserve
+before any settlement.
+
+When a BTC/TL VWAP is missing, the source's numeric low fallback of
+`0.001` base coin per TL becomes `0.001 BTC/TL` in this Bitcoin
+profile. An explicit zero price is invalid. Effective trade notional is
+capped by TL quantity priced at VWAP so an inflated execution price
+cannot inflate the reward. Before full vesting, the quoted reward asset
+is TLVEST (property 2). From the full-vesting volume threshold onward,
+it is TL (property 1). Both outputs are nominal TL units converted using
+the TL price, and both require existing funded custody.
+
+The source fee share is `clamp(0.35 / (1 + log10(1 + V/1000)), 0.02, 0.35)`,
+where V is cumulative BTC volume in whole BTC. The quote multiplies the
+**actually paid net fee** by this share, with a further VWAP-based
+notional cap. At the full-vesting volume, the share is frozen at its
+then-current level, which is below 100% of net fees. Thereafter the
+share halves at each completed tenfold increase relative to the
+full-vesting threshold: a decade counter of 0, 1, 2, … applies factors
+1, 1/2, 1/4, … . There is no 2% floor after full vesting, allowing
+the post-vest reward rate to continue to decay.
+
+The JavaScript baseline currently bases its attenuation on cumulative
+**LTC** volume and credits property **3**. Those source details are
+recorded as historical evidence; the new policy uses BTC and removes
+TLI from reward issuance. The JavaScript `vesting.js` also retains an
+older TLI conversion-value parameter, which must be retired from any
+subsequent source-consensus upgrade.
+
+The floating-point logarithm in this module mirrors the JavaScript
+preview and is not a consensus-safe computation. It authorizes no
+balance movement, fee diversion, reward issuance or automatic release
+of TLVEST. A production transition needs an integer-specified
+logarithmic share, a finalized BTC/TL VWAP source, a vested-volume
+commitment, token/fee escrow debits, replay, rollback and funding tests.
+
+New tests: `cargo test --locked --test native_tl_only` and
+`cargo test --locked --test tl_liquidity_reward`.
