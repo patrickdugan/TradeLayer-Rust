@@ -83,9 +83,11 @@ where V is cumulative BTC volume in whole BTC. The quote multiplies the
 **actually paid net fee** by this share, with a further VWAP-based
 notional cap. At the full-vesting volume, the share is frozen at its
 then-current level, which is below 100% of net fees. Thereafter the
-share halves at each completed tenfold increase relative to the
-full-vesting threshold: a decade counter of 0, 1, 2, … applies factors
-1, 1/2, 1/4, … . There is no 2% floor after full vesting, allowing
+share halves at each *new absolute base-10 BTC-volume level*
+after vesting: a decade counter of 0, 1, 2, … applies factors
+1, 1/2, 1/4, … . For a 21 million BTC vesting threshold, the first
+two halvings arrive at 100 million and 1 billion cumulative BTC.
+There is no 2% floor after full vesting, allowing
 the post-vest reward rate to continue to decay.
 
 The JavaScript baseline currently bases its attenuation on cumulative
