@@ -83,19 +83,26 @@ pub fn source_fee_share_ppm(cumulative_btc_atoms: u128) -> u128 {
     (share * SHARE_SCALE as f64).floor() as u128
 }
 
-/// Exact integer base-10 thresholds: the first halving is at 10 times
-/// full-vesting volume, the second at 100 times, and so on.
+/// Exact absolute base-10 BTC-volume boundaries. When vesting ends at
+/// 21 million BTC, rewards first halve at 100 million BTC, then 1 billion BTC.
+/// Both inputs use the same BTC atomic units, so their decimal order differs
+/// by exactly the same number as the order of their whole-BTC values.
 pub fn decade_halvings(cumulative: u128, full_vest: u128) -> Result<u32, RewardError> {
     if full_vest == 0 {
         return Err(RewardError::InvalidInput);
     }
-    let mut ratio = cumulative / full_vest;
-    let mut count = 0;
-    while ratio >= 10 {
-        ratio /= 10;
-        count += 1;
+    if cumulative < full_vest {
+        return Ok(0);
     }
-    Ok(count)
+    fn decimal_order(mut n: u128) -> u32 {
+        let mut count = 0;
+        while n >= 10 {
+            n /= 10;
+            count += 1;
+        }
+        count
+    }
+    Ok(decimal_order(cumulative).saturating_sub(decimal_order(full_vest)))
 }
 
 fn mul_div_floor(a: u128, b: u128, denominator: u128) -> Result<u128, RewardError> {
