@@ -75,6 +75,7 @@ pub mod joint; // Stage 22 independent registry + sole spot-owned ledger in one 
 pub mod joint_chain; // Stage 22 mixed unverified block replay and TLJC checkpoints.
 mod journal_move; // Fail-closed single-use settlement journal movement; Kani harness.
 pub mod ledger;
+pub mod tl_liquidity_reward; // Read-only VWAP/fee-linked TLVEST and TL reward quotes.
 pub mod legacy_activation_audit; // Pinned activation.js read-only source semantics; genesis and authority denied.
 pub mod legacy_base; // Bounded historical Base94/custom Base256 string compatibility.
 pub mod legacy_channel_audit; // Pinned channels.js direct A/B commit projections, never signed-state authority.
