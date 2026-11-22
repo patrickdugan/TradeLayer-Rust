@@ -4,7 +4,8 @@ use tradelayer_core::chain::Tip;
 use tradelayer_core::ledger::{AccountId, Ledger, Operation, PropertyId, PropertyKind, TxId};
 use tradelayer_core::native_entitlement::{
     bootstrap_commitment, canonical_policy_bytes, parse_policy, NativeEntitlementPolicy,
-    NativeRole, ATOMS_PER_TOKEN, BITCOIN_TL_PROPERTY_ID, BITCOIN_TL_TICKER,
+    NativeCoverage, NativeDriver, NativeRole, ATOMS_PER_TOKEN, BITCOIN_TL_PROPERTY_ID,
+    BITCOIN_TL_TICKER,
 };
 use tradelayer_core::network_profile::TradeLayerMainnet;
 
@@ -122,6 +123,18 @@ fn tl_only_rejects_extra_token_roles_and_supply_changes() {
     let mut wrong_network = policy.clone();
     wrong_network.network = TradeLayerMainnet::Litecoin;
     assert!(wrong_network.validate().is_err());
+
+    let mut noncanonical_driver = policy.clone();
+    noncanonical_driver.driver = NativeDriver::SourcePerCallV1;
+    assert!(noncanonical_driver.validate().is_err());
+
+    let mut noncanonical_coverage = policy.clone();
+    noncanonical_coverage.coverage = NativeCoverage::PerRequestOnlyV1;
+    assert!(noncanonical_coverage.validate().is_err());
+
+    let mut late_bootstrap = policy.clone();
+    late_bootstrap.bootstrap.height = 1;
+    assert!(late_bootstrap.validate().is_err());
 
     let mut legacy_tag = canonical_policy_bytes(&policy).unwrap();
     let v2 = b"TradeLayer/NativeEntitlementPolicy/v2/";
