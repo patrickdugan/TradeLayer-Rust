@@ -64,8 +64,8 @@ fn vwap_caps_executed_trade_value_and_both_quotes_are_fee_bounded() {
 fn fully_vested_rewards_are_tl_and_halve_at_each_btc_decade() {
     let full = 21_000_000 * U;
     let a = quote_reward(observation(full)).unwrap();
-    let b = quote_reward(observation(full * 10)).unwrap();
-    let c = quote_reward(observation(full * 100)).unwrap();
+    let b = quote_reward(observation(100_000_000 * U)).unwrap();
+    let c = quote_reward(observation(1_000_000_000 * U)).unwrap();
     assert_eq!(a.reward_property_id, BITCOIN_TL_PROPERTY_ID);
     assert_eq!(a.phase, RewardPhase::FullyVested);
     assert_eq!(a.decade_halvings, 0);
@@ -76,9 +76,10 @@ fn fully_vested_rewards_are_tl_and_halve_at_each_btc_decade() {
     assert_eq!(a.reward_value_btc_atoms, a.fee_share_ppm / 10);
     assert!(a.reward_value_btc_atoms < observation(full).net_fee_btc_atoms);
 
-    let before_decade = quote_reward(observation(full * 10 - 1)).unwrap();
+    let before_decade = quote_reward(observation(100_000_000 * U - 1)).unwrap();
     assert_eq!(before_decade.decade_halvings, 0);
-    assert_eq!(decade_halvings(full * 100, full).unwrap(), 2);
+    assert_eq!(decade_halvings(100_000_000 * U, full).unwrap(), 1);
+    assert_eq!(decade_halvings(1_000_000_000 * U, full).unwrap(), 2);
 }
 
 #[test]
