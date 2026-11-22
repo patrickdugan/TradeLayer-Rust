@@ -2,11 +2,10 @@
 use tradelayer_core::chain::Tip;
 use tradelayer_core::ledger::{AccountId, Ledger, Operation, PropertyId, PropertyKind, TxId};
 use tradelayer_core::native_entitlement::{
-    bootstrap_commitment, canonical_policy_bytes, parse_policy, NativeCoverage, NativeDriver,
-    BitcoinTlVestingSpec, NativeEntitlementPolicy, NativeEventContext, NativeMarkerRow,
+    bootstrap_commitment, canonical_policy_bytes, parse_policy, BitcoinTlVestingSpec,
+    NativeCoverage, NativeDriver, NativeEntitlementPolicy, NativeEventContext, NativeMarkerRow,
     NativeRole, UnverifiedNativeTarget, ATOMS_PER_TOKEN, BITCOIN_TLVEST_PROPERTY_ID,
-    BITCOIN_TLVEST_TICKER,
-    BITCOIN_TL_PROPERTY_ID, BITCOIN_TL_TICKER,
+    BITCOIN_TLVEST_TICKER, BITCOIN_TL_PROPERTY_ID, BITCOIN_TL_TICKER,
 };
 use tradelayer_core::network_profile::TradeLayerMainnet;
 
