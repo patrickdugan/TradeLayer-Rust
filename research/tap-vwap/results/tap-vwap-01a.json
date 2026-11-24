@@ -1,0 +1,67 @@
+{
+  "stage": "TAP-VWAP-01A",
+  "scope": "Synthetic normalization/arithmetic only; all receipt authenticity is assumed by fixtures. Group floor alone is not production publication authorization.",
+  "tests": [
+    "exact unit normalization",
+    "q8 half-up tie",
+    "weighted aggregate",
+    "equal-group median under honest majority",
+    "sybil attack preserves raw and breaks group median",
+    "withholding fails group floor",
+    "empty window unavailable",
+    "row order invariance",
+    "duplicate same report",
+    "duplicate alternate reporter",
+    "duplicate across epochs",
+    "wrong asset",
+    "wrong chain",
+    "wrong epoch",
+    "epoch gap",
+    "failed HTLC",
+    "unknown fee attribution",
+    "unknown group",
+    "zero amount",
+    "out-of-range amount",
+    "quote split across epochs",
+    "quote cap altered",
+    "atomic batch rejection"
+  ],
+  "scenarios": {
+    "baseline": {
+      "base_msat": "500000000000",
+      "asset_atoms": "300000000000",
+      "raw_q8": "60000.00000000",
+      "group_median_q8": "60000.00000000",
+      "groups": 5,
+      "receipt_count": 5,
+      "group_floor_pass": true
+    },
+    "single_control_group": {
+      "base_msat": "1700000000000",
+      "asset_atoms": "1164000000000",
+      "raw_q8": "68470.58823529",
+      "group_median_q8": "60000.00000000",
+      "groups": 6,
+      "receipt_count": 11,
+      "group_floor_pass": true
+    },
+    "sybil_misregistration": {
+      "base_msat": "1700000000000",
+      "asset_atoms": "1164000000000",
+      "raw_q8": "68470.58823529",
+      "group_median_q8": "72000.00000000",
+      "groups": 11,
+      "receipt_count": 11,
+      "group_floor_pass": true
+    },
+    "withheld_honest_groups": {
+      "base_msat": "1400000000000",
+      "asset_atoms": "984000000000",
+      "raw_q8": "70285.71428571",
+      "group_median_q8": "60000.00000000",
+      "groups": 3,
+      "receipt_count": 8,
+      "group_floor_pass": false
+    }
+  }
+}
