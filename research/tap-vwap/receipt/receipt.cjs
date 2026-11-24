@@ -47,7 +47,12 @@ function u64(s,name,positive=false) {
   if(n>0xffffffffffffffffn || (positive && n===0n)) throw Error("invalid "+name);
   const b=Buffer.alloc(8); b.writeBigUInt64BE(n); return b;
 }
-function outpoint(s,name) { return hex(s,36,name); }
+function outpoint(s,name) {
+  const b=hex(s,36,name);
+  if(b.subarray(0,32).every(x=>x===0)||b.readUInt32BE(32)===0xffffffff)
+    throw Error("unresolved "+name);
+  return b;
+}
 function bit(n,name) {
   if(n!==0 && n!==1) throw Error("invalid "+name);
   return Buffer.from([n]);
@@ -73,6 +78,9 @@ function verifySchnorr(pub,msg,sig) {
 const fields32=["genesis","policy","asset","edgeKey","btcPeerKey","assetPeerKey",
   "rfqId","quoteTranscript","paymentHash","assetPre","assetPost","btcPre","btcPost"];
 function encode(r) {
+  if(!r||typeof r!=="object") throw Error("invalid receipt");
+  if(r.splicePending===true||r.spliceUnresolved===true||(Object.hasOwn(r,"fundingResolved")&&r.fundingResolved!==true))
+    throw Error("unresolved funding/splice identity");
   const a=fields32.map(k=>hex(r[k],32,k));
   const keys=[r.edgeKey,r.btcPeerKey,r.assetPeerKey];
   if(new Set(keys).size!==3) throw Error("distinct roles required");

@@ -1,29 +1,62 @@
-# TAP-VWAP-02A: pinned native evidence audit
+# TAP-VWAP-02B: Pinned Native Regtest & Three-Party Receipt Evidence Audit
 
-Status: source-inspected; native run pending. No ZK or authenticated settlement claim.
+Status: **Gate 0 + Gate 1 + Gate 2 + Gate 3 PASS on live disposable regtest** (`taproot-assets` `734ce74dd1e816a833a9727bba741718019fef18`, `lnd` `v0.21.3-beta`, `go1.26.3`). Evidence Tier = **1** (`eligible_for_index: false`). No consensus integration, no dependency changes to `tradelayer-core`, and no live funds/wallets.
 
-Upstream: [tapd v0.8.6](https://github.com/lightninglabs/taproot-assets/tree/734ce74dd1e816a833a9727bba741718019fef18), exact commit 734ce74dd1e816a833a9727bba741718019fef18. [go.mod](https://github.com/lightninglabs/taproot-assets/blob/734ce74dd1e816a833a9727bba741718019fef18/go.mod#L34) requires lnd v0.21.3-beta. The release Makefile sets Go 1.26.3; retain module checksums and build only in an isolated disposable environment. No new consensus dependency.
+---
 
-## Native test to reuse
-[forwarding_history_test.go](https://github.com/lightninglabs/taproot-assets/blob/734ce74dd1e816a833a9727bba741718019fef18/itest/custom_channels/forwarding_history_test.go#L113-L192) sets up Charlie -> Dave -> Erin -> Fabia, with asset channels at the ends and BTC in the middle. A real regtest payment should create a purchase event at Dave (asset in, BTC out) and sale event at Erin (BTC in, asset out). It checks successful final records and quote/asset metadata, plus endpoint absence and filters. This is a better primary smoke test than the standalone RFQ interception tests: the pinned buy test stops its explicit assertions at HTLC acceptance. The sell test separately asserts successful payment and rejection on an unbacked channel.
+## 1. Pinned Upstream Revisions & Build Hashes
 
-Source audit:
-- [accept.go](https://github.com/lightninglabs/taproot-assets/blob/734ce74dd1e816a833a9727bba741718019fef18/rfqmsg/accept.go#L28-L46): V1 accept includes ID, expiry, signature, two rates and optional max-in-asset. Direction and asset identity require the matching request (session lookup at L237-L290). Do not assume the optional max or the request is signed without tracing the actual signature digest and testing mutations.
-- [order.go: computeHtlcAssetAmount](https://github.com/lightninglabs/taproot-assets/blob/734ce74dd1e816a833a9727bba741718019fef18/rfq/order.go#L103-L147): sale uses outgoing nominal msat converted at the ask; purchase sums incoming custom-record asset balances. Asset forwarding is a different policy and is excluded.
-- [order.go: logForwardingEvent](https://github.com/lightninglabs/taproot-assets/blob/734ce74dd1e816a833a9727bba741718019fef18/rfq/order.go#L1556-L1594): log first opens with incoming circuit ID, outgoing channel ID, local timestamp and quantities. The stored HTLC ID is **incoming**, not necessarily the asset-side ID. Need outgoing HTLC ID for sale, canonical outpoint and offerer orientation, and full RFQ ID rather than 64-bit alias. Logging failures can omit records.
-- [order.go: subscribeHtlcs/handleHtlcSettle](https://github.com/lightninglabs/taproot-assets/blob/734ce74dd1e816a833a9727bba741718019fef18/rfq/order.go#L1694-L1817): local LND event moves the fill to settled, then updates local DB with local clock time. On-chain final resolution also enters this handler. A local RPC record does not provide publicly verifiable channel state, a signed event time, or a guarantee of completeness.
-- [rfq.proto](https://github.com/lightninglabs/taproot-assets/blob/734ce74dd1e816a833a9727bba741718019fef18/taprpc/rfqrpc/rfq.proto#L565-L615): API reports amounts and quote metadata. Regtest test asserts real outgoing BTC > asset anchor msat for purchase; for sale, incoming BTC > outgoing asset-channel anchor. A single universal choice of incoming/outgoing quantity is wrong.
-- [order.go: quote caps](https://github.com/lightninglabs/taproot-assets/blob/734ce74dd1e816a833a9727bba741718019fef18/rfq/order.go#L399-L419) and [purchase](https://github.com/lightninglabs/taproot-assets/blob/734ce74dd1e816a833a9727bba741718019fef18/rfq/order.go#L750-L770): lifetime settled plus in-flight reservation checks consume AmountOutMsat according to policy, even when the outward channel's nominal amount differs from actual BTC leg. Reproduce pinned exact policy semantics separately from spot volume, including partial limits, failure release and restart persistence.
+| Component | Exact Revision / Value | Verification Source |
+| :--- | :--- | :--- |
+| `lightninglabs/taproot-assets` | `734ce74dd1e816a833a9727bba741718019fef18` (`v0.8.6`) | `git rev-parse HEAD` |
+| `lightningnetwork/lnd` | `v0.21.3-beta` | `go.mod` line 34 |
+| Go toolchain | `go1.26.3` (`-mod=readonly`) | `go env GOVERSION` |
+| `btcd-itest` SHA-256 | `710b29a97e9c5f8688a43480ba7036f1e312d3df1167f135060f47226490b56f` | `github.com/btcsuite/btcd` |
+| `tapd-integrated-itest` SHA-256 | `a8df2c5ae99baad2f059c19db314f905e3f1aa61802a3c45ef907f03cc4a3830` | `./cmd/tapd -tags=itest` |
 
-## Candidate gross index
-For purchase P (assets in, BTC out), B=AmtOutMsat. For sale S (BTC in, assets out), B=AmtInMsat. U=AssetAmt for both, with the caveat that sale U is derived from the quote at interception and must be reconciled to actual settled asset balance change. Do not use the asset anchor's nominal msat as BTC volume. Two different genuine edge conversions on the same payment may both count; two observations of one conversion may not. This gives a *gross delivered BTC-leg ratio*, including conversion spreads and potentially routing fees. Principal-only price in SPEC.md remains blocked until explicit fee decomposition is authenticated. USDT/BTC is still asset-denominated; use test asset decimals rather than assume 6.
+---
 
-## Evidence tiers / next instrument
-Tier 0: untrusted RPC reports; current smoke runner emits only numeric quantities, policy, and local settled/failed flags for disposable nodes. Tier 1: separately signed receipt by BTC-side and asset-side peers and edge, with independently observed leg states; signatures prove assertions and agreement, not economic truth. Tier 2: authenticated commitment transitions and linkage across both channels, pinned asset issuance and funding proofs, fulfillment and latest-state model. A ZK proof at a given tier preserves that tier's trust assumptions. Never upgrade from tier 0 on a successful upstream test.
+## 2. Diagnosis & Resolution of Initial CI Native Smoke Failures
 
-A two-peer receipt on the asset channel alone cannot independently attest the BTC leg. For next experiment collect the two leg state transitions and peer signatures on their respective leg commitment; edge binds them in a common conversion commitment, with policy domain and explicit fee semantics. Define a stable identifier from canonical asset funding outpoint plus actual asset-channel HTLC ID and offerer. RPC timestamps and incoming circuit IDs are insufficient. Obtain signatures only after both parties confirm durable settlement and validate no reorg/revocation assumption is hidden.
+Inspecting the prior failing CI runs on `c833e30` (`TAP VWAP receipt reference` and `TAP VWAP native regtest smoke`) uncovered three concrete defects, each fixed with exact source evidence:
 
-## Smoke acceptance
-Run `bash run-native.sh` in this directory on Linux with Git, Go, make, Python3, and upstream test prerequisites. It clones the exact revision, instruments only two numeric observations in the upstream test, executes the upstream custom-channel test, validates both markers and test exit, and outputs sanitized candidate quantities. Its successful exit certifies the upstream smoke and marker checks only. Raw logs stay in private temporary storage and are not uploaded. Failure/timeout/missing marker yields nonzero exit. No RPC credential, key, invoice, preimage or full channel commitment should be committed. No mainnet/testnet wallets needed.
+1. **BIP-340 Vector 0 Byte Typo (`receipt.test.cjs`)**:
+   - Byte 32 of `s` in official BIP-340 vector 0 had `26` (`526f66a4...`) instead of official `25` (`525f66a4...`). Fixed and expanded to all **15 official 32-byte BIP-340 test vectors (`0..14`)** plus boundary negatives (`pub >= p`, non-residue `x=5`, `r >= p`, `s >= n`, `R = infinity`, odd-`y` `R`, buffer lengths) and frozen golden 526-byte fixtures (`receipt/independent_encoder.py` -> `receipt/golden-fixtures.json`).
+2. **Missing `btcd -> btcd-itest` Symlink in Upstream `Makefile` (`itest-cc`)**:
+   - Upstream `Makefile:274` runs `go test ./itest/custom_channels` directly without creating `itest/btcd -> itest/btcd-itest` on `PATH` (whereas upstream CI script `scripts/itest_cc_part.sh:31-35` creates that symlink explicitly).
+3. **Strict 1-Atom Rounding Shortfall in `734ce74` (`tapchannel/aux_invoice_manager.go:345-366`)**:
+   - Commit `734ce74dd1e816a833a9727bba741718019fef18` removed the +1 asset-unit rounding tolerance in `aux_invoice_manager.go`. At mock oracle rate `5,820,600` units/BTC, `forwarding_history_test.go`'s `20_000` units converts to `343,607,188 msat`, whose floor back to asset units is `19,999` units (`343,590,007 msat` — a `17,181 msat` shortfall that stalls in LND MPP partial-payment hold until the 60s test context expires).
+   - Using rate-divisible `29,103` units (`5,820,600 / gcd(5,820,600, 10^11) = 29,103` units = `500,000,000 msat` exact) passes `TestCustomChannels/forwarding_history` cleanly on the **unmodified** `tapd-integrated-itest` binary (`purchase`: `29,103` atoms, `500,001,500 msat` out; `sale`: `29,103` atoms, `500,001,500 msat` in, `500,000,000 msat` out).
 
-Open gates: actual native run; independent leg state extraction, precise signature preimage audit, duplicate mapping, fee decomposition, quote overfill/failure/restart native coverage and authentication circuit. Do not move to tier-2 proof production until all relevant witness predicates are supported or explicitly redesign the receipt.
+---
+
+## 3. Upstream Source & Live Regtest Instrumentation Findings
+
+1. **RFQ Quote Signatures (`rfqmsg/accept.go`, `buy_accept.go`, `sell_accept.go`, `rfq/stream.go`)**:
+   - **Audit conclusion: ABSENT / ZERO / UNVERIFIED in upstream `tapd v0.8.6`.**
+   - `BuyAccept.ToWire()` (`buy_accept.go:114`) and `SellAccept.ToWire()` (`sell_accept.go:119`) leave `Sig` (TLV type 6) populated with 64 zero bytes (`TODO(ffranr)`), and `acceptWireMsgData.Validate()` (`accept.go:263`) never verifies `Sig`.
+   - Verified in `TestUpstreamTapdRfqAcceptSignatureAuditAndMutations`: raw wire `Sig == [64]byte{}`; mutating any of the 7 quote fields (`rfq_id`, `direction`, `rate`, `expiry`, `fill_cap`, `asset_id`, `counterparty`) is only caught when wrapped in our separate 2-party BIP-340 signed `QuoteTranscriptV1` (`TradeLayer/TAP-VWAP/QuoteTranscript/v1`, 283 bytes).
+2. **Canonical HTLC Identity & SCID Alias Resolution**:
+   - `rfq/order.go:1556-1568` (`logForwardingEvent`) records only `IncomingCircuitKey.HtlcID`, which on a sale edge (`Erin`) is the BTC-channel HTLC ID rather than the asset-channel HTLC ID.
+   - `native/itest/tap_vwap_02b_test.go` subscribes to live `routerrpc.SubscribeHtlcEvents` across `Charlie`, `Dave`, `Erin`, and `Fabia`, resolves custom-channel SCID aliases (`AliasScids`) to confirmed 36-byte funding outpoints, extracts `IncomingHtlcId` for purchases and `OutgoingHtlcId` for sales, and proves that both observers on each asset channel derive the **identical** 32-byte `AssetHTLC/v1` nullifier.
+3. **Channel Commitments, Revocation & BOLT-3 Whole-Satoshi Truncation**:
+   - Every settled conversion advances `lnrpc.Channel.NumUpdates` by `>= 2` (`UpdateAddHtlc` + `CommitSig`/`RevokeAndAck`, then `UpdateFulfillHtlc` + `CommitSig`/`RevokeAndAck`) with zero remaining `PendingHtlcs` or `UnsettledBalance`.
+   - Custom asset channel balances (`tapchannelmsg.ChannelCustomData.LocalCommit`) conserve exact integer asset atoms across peers (`AssetDeltaEdge == AssetDeltaPeer == fwd.AssetAmt`).
+   - On standard BTC channels, `lnrpc.ListChannels.LocalBalance` reflects BOLT-3 whole-satoshi commitment outputs (`1,000 msat` granularity): on reverse purchase `rev_erin_purchase` (`500,001,500 msat` exact HTLC settlement), `LocalBalance * 1000` shifts by `500,002,000 msat` (`500 msat` sub-satoshi rounding into commitment fee weight).
+   - `lnrpc.ListChannels` state hashes are local RPC summaries, **not** transferable cryptographic proofs; raw MuSig2 `CommitSig` and `AssetSig` (`tapchannel/aux_leaf_signer.go`) stay inside `channeldb`.
+4. **Quote Capacity vs Gross BTC Leg**:
+   - `rfq/order.go:402` & `753` enforce `inFlight + settled + htlc.AmountOutMsat <= policyMaxOutMsat`.
+   - Verified on live regtest (`quoteCapMsat = 600,000,000` on `sharedQuoteID`): partial fill #1 (`350,000,000 msat`) succeeds; aggregate overfill (`+350,000,000 = 700,000,000 > 600,000,000`) is rejected live by `tapd` (`HTLC out amount is more than the maximum agreed BTC payment`); partial fill #2 (`+200,000,000 = 550,000,000 <= 600,000,000`) succeeds on the same quote.
+
+---
+
+## 4. Explicit Native vs Synthetic Negative Matrix Split
+
+| Suite | Kind | Passing Cases | Coverage Summary |
+| :--- | :--- | :---: | :--- |
+| `receipt/receipt.test.cjs` | Reference JS | **13** | 15 official BIP-340 vectors, 8 curve/scalar boundary negatives (`pub>=p`, `x=5`, `r>=p`, `s>=n`, `infinity`, odd-`y`, lengths), golden 526B purchase/sale byte/digest/nullifier parity, key-rotation nullifier invariance, unresolved funding/splice rejection |
+| `native/adapter` (`go test ./tapvwapadapter`) | Synthetic Go + upstream wire | **21** | Upstream `Accept` zero-sig audit, 7 quote-transcript field mutations + expiry + forged sigs, peer role-scope verification (`AssetPeer`, `BtcPeer`, `Edge`), on-chain resolution exclusion, unrevoked state rejection, wrong channel/asset/amount mismatch, key rotation, exact msat parity with `rfq.AssetPurchasePolicy` |
+| `native/itest` (`forwarding_history` + `tap_vwap_02b_matrix`) | **Live 5-node regtest** (`btcd` + `lnd` + `tapd`) | **15** | Smoke forward (`29,103` units) + bidirectional forward (`58,206` units) & reverse (`29,103` units) conversions (6 3-party signed receipts), dual-observer canonical HTLC identity, SCID alias resolution, HODL invoice in-flight hold + cancel failure & balance/quote restoration, constrained quote partial fill #1 + live overfill rejection + partial fill #2, foreign minted asset unbacked-channel rejection, receipt key rotation, and Node `receipt.cjs` cross-verification |
+| `prover` (`tap-vwap-nova-prover`) | Native Rust + R1CS `CheckCS` + Nova IVC | **18+** | All 15 official BIP-340 vectors in R1CS (`0..4` sat, `5..14` unsat), tagged SHA-256 midstate parity, golden 526B fixtures, forged sig, rogue unregistered peer key, unregistered channel, same-epoch & cross-epoch nullifier replay, cross-epoch quote overfill, exact `q8` half-up rounding tie boundary, tampered `z_0` SNARK rejection, and real Nova + CompressedSNARK proof over all 6 regtest receipts |
+
+See [TRUST_MODEL.md](../TRUST_MODEL.md) for the complete enumeration of remaining Tier-1 trust assumptions and Tier-2 channel-state proof requirements, and [tap-vwap-02b-native.json](../results/tap-vwap-02b-native.json) for the redacted numeric & SHA-256 artifact manifest.
