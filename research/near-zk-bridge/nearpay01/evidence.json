@@ -1,0 +1,13 @@
+{
+  "checks": 28,
+  "published_shard_root": "1bcf0beeb03e09202a6cb89211f92ae72d7ff82851990e66878ab1b2dfa27dbc",
+  "synthetic_head_root": "c771371aaeb00852b695558e3e1a4d4ae0e61d90913f286332701cee99c73164",
+  "partial_refund_atoms": "8000000",
+  "deposit_id": "ed525ba5725f38369b23c7ebeab17f4a02653204ee6a75fa499a7f7b07cd438f",
+  "candidate_nullifier": "a88221359efe88716ab2a62527ba6581575d7cdbdb4a63f8d8beb08d21e4e6bb",
+  "near_finality_verified": false,
+  "action_authentication_verified": false,
+  "nova_verified": false,
+  "can_mint": false,
+  "production_ready": false
+}
