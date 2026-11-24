@@ -67,9 +67,9 @@ function verifySchnorr(pub,msg,sig) {
 // Direction: 0 = edge purchases asset (asset in, BTC out).
 //            1 = edge sells asset (BTC in, asset out).
 // Outpoint bytes: displayed txid in lexical byte order, then vout u32 BE.
-// Offerer bit: 0 for smaller x-only channel peer key, 1 for larger.
-// Channel keys used here are dedicated registered receipt keys; Carbon must
-// specify how they bind to actual channel peer/funding identities.
+// Offerer bit: immutable funding-peer ordering from the independently
+// authenticated channel registry, NOT ordering of rotating receipt keys.
+// assetEdgeSide and btcEdgeSide are registry-bound edge positions (0/1).
 const fields32=["genesis","policy","asset","edgeKey","btcPeerKey","assetPeerKey",
   "rfqId","quoteTranscript","paymentHash","assetPre","assetPost","btcPre","btcPost"];
 function encode(r) {
@@ -80,12 +80,12 @@ function encode(r) {
   if(r.assetOutpoint===r.btcOutpoint) throw Error("distinct channels required");
   if(r.assetPre===r.assetPost||r.btcPre===r.btcPost) throw Error("unchanged state commitment");
   const d=bit(r.direction,"direction");
-  const assetSender=r.direction===0?r.assetPeerKey:r.edgeKey;
-  const btcSender=r.direction===0?r.edgeKey:r.btcPeerKey;
-  const wantAsset=assetSender===[r.edgeKey,r.assetPeerKey].sort()[0]?0:1;
-  const wantBtc=btcSender===[r.edgeKey,r.btcPeerKey].sort()[0]?0:1;
+  const aes=bit(r.assetEdgeSide,"asset edge side");
+  const bes=bit(r.btcEdgeSide,"btc edge side");
+  const wantAsset=r.direction===0?1-r.assetEdgeSide:r.assetEdgeSide;
+  const wantBtc=r.direction===0?r.btcEdgeSide:1-r.btcEdgeSide;
   if(r.assetOfferer!==wantAsset||r.btcOfferer!==wantBtc) throw Error("offerer/direction");
-  return Buffer.concat([Buffer.from([1]),...a,d,
+  return Buffer.concat([Buffer.from([1]),...a,d,aes,bes,
     outpoint(r.assetOutpoint,"asset outpoint"),bit(r.assetOfferer,"asset offerer"),
     u64(r.assetHtlc,"asset htlc"),outpoint(r.btcOutpoint,"btc outpoint"),
     bit(r.btcOfferer,"btc offerer"),u64(r.btcHtlc,"btc htlc"),
@@ -95,14 +95,14 @@ function digest(r) { return tagged("TradeLayer/TAP-VWAP/Receipt/v1",encode(r)); 
 function nullifier(r) {
   encode(r);
   // No policy, reporter, epoch, RFQ, amount or signature salt: replay identity
-  // survives index windows. Canonical registered key orientation must be
-  // immutable across receipt-key rotation; unresolved rotations/splices blocked.
+  // survives index windows. Funding peer orientation must remain
+  // immutable across receipt-key rotation; unresolved splices blocked.
   return tagged("TradeLayer/TAP-VWAP/AssetHTLC/v1",Buffer.concat([
     hex(r.genesis,32,"genesis"),outpoint(r.assetOutpoint,"asset outpoint"),
     bit(r.assetOfferer,"asset offerer"),u64(r.assetHtlc,"asset htlc")]));
 }
 const bindings=["genesis","policy","asset","edgeKey","btcPeerKey","assetPeerKey",
-  "assetOutpoint","btcOutpoint"];
+  "assetOutpoint","btcOutpoint","assetEdgeSide","btcEdgeSide"];
 function verifyTier1(r,signatures,expected) {
   // Expected bindings must come from an independently trusted registry adapter.
   // This function does not establish registry membership, funding, channel
