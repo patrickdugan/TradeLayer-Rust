@@ -1,0 +1,66 @@
+{
+  "experiment": "BRIDGE-SEC-02",
+  "checks": 68,
+  "categories": {
+    "benign": 11,
+    "authority": 6,
+    "upgrade": 4,
+    "binding": 13,
+    "execution": 5,
+    "replay": 6,
+    "checkpoint": 3,
+    "anchor": 4,
+    "payout": 5,
+    "containment": 3,
+    "counterexample": 4,
+    "agent": 4
+  },
+  "counterexamples": [
+    {
+      "id": "X1",
+      "assumption": "NEAR finality: < 1/3 Byzantine stake (2/3 honest quorum)",
+      "accepted_forgery": true,
+      "loss_atoms": "900000",
+      "bounded_by_window_cap": "1000000"
+    },
+    {
+      "id": "X2",
+      "assumption": "custody: no vault release path outside the payout relation",
+      "accepted_forgery": true,
+      "remaining": "905"
+    },
+    {
+      "id": "X3",
+      "assumption": "Bitcoin: no reorg deeper than K after payout (hash-majority honest)",
+      "accepted_forgery": true,
+      "K": 3,
+      "effect": "burn erased from TL history after the vault paid; liability returns while reserve is gone"
+    },
+    {
+      "id": "X4",
+      "assumption": "upgrade continuity: consumed identities (bridge set AND ledger deposit map) persist",
+      "accepted_forgery": true
+    }
+  ],
+  "pins": {
+    "domain": "265cbd93a362c218b6b6074bef8be9317d9daa3948576fc7c6355e56bf77c65b",
+    "program": "7e124d942913c65fa25aeb171ee59e6077bd03761798b187b2495215f9ba37eb",
+    "epoch0_bp": "fbd9029a85129a29cda93362ec5f10bf398cf9f6fad44171c4f000add3af3a14",
+    "epoch1_bp": "7299aaa491afa82d53a4330015e8db7432e10aa261034ba542644292cc606813",
+    "btc_anchor": "003911f79a9907eb286efe512a88c0933f9ada7d99e2bb46ef1b8d06e37504e0",
+    "nullifier_root_after": "4760013be7590c90045a6ebcfdaef685d064c589a92a54726ff6da0849f1e5b2"
+  },
+  "final": {
+    "outstanding": "28000000",
+    "vault_holdings": "28000000",
+    "paid": "2000000"
+  },
+  "source_event_oracle": "replaced by fixture light client (Ed25519 2/3 stake, epoch hand-off); NOT NEAR's header format",
+  "tl_state_validity": "TRUSTED FIXTURE (TLSTATE01 unproven)",
+  "native_finality_verified": false,
+  "nova_verified": false,
+  "near_decider_verified": false,
+  "btc_anchor_verified": false,
+  "economic_authorized": false,
+  "production_ready": false
+}
