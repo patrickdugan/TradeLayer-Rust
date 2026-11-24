@@ -1,0 +1,6 @@
+name = "bridge_security"
+version = "0.1.0"
+defaultTargets = ["BRIDGE_SECURITY"]
+
+[[lean_lib]]
+name = "BRIDGE_SECURITY"
