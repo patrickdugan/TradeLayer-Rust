@@ -130,6 +130,7 @@ fn register_action(layout: u32, ms: u32, key: &[u8]) -> RegistryAction {
         effect: ZkEffect::StatementReceipt,
         verifier_version: 1,
         max_verify_ms: ms,
+        ext: ZkProgramExt::default(),
     }
 }
 fn program(layout: u32, ms: u32) -> [u8; 32] {
@@ -233,6 +234,7 @@ fn registration_is_admin_only_immutable_and_rejects_system_one() {
         effect: ZkEffect::StatementReceipt,
         verifier_version: 1,
         max_verify_ms: 100,
+        ext: ZkProgramExt::default(),
     };
     assert_eq!(
         registry_err(run(&mut chain, 2, vec![admin_tx(12, stark)], &v)),
@@ -259,6 +261,7 @@ fn registration_is_admin_only_immutable_and_rejects_system_one() {
         effect,
         verifier_version,
         max_verify_ms,
+        ext: ZkProgramExt::default(),
     };
     assert_eq!(
         registry_err(run(&mut chain, 2, vec![admin_tx(13, forged)], &v)),
@@ -897,4 +900,503 @@ fn route_dispatch_validates_receipt_queries() {
             "{bad}"
         );
     }
+}
+
+// ---- Initial-state pins and statement keys (`ZkProgramExt`) ----
+
+/// The NHC1 header-chain key: arity 17, layout 34. Registration needs only its structure; the
+/// mock verifier stands in for proof math, so pins and keys are tested apart from Nova itself.
+fn wide_key() -> Vec<u8> {
+    RegisteredNovaKey::from_vk_nogens(&fixture_hex("nhc1_ppsnark_k1x10.vk_nogens.hex"))
+        .expect("nhc1 key")
+        .encode()
+}
+const WIDE: u32 = 34;
+fn canon(n: u8) -> [u8; 32] {
+    let mut v = [0u8; 32];
+    v[0] = n;
+    v
+}
+fn pins(entries: &[(u32, u8)]) -> Vec<ZkInputPin> {
+    entries
+        .iter()
+        .map(|&(index, n)| ZkInputPin {
+            index,
+            value: canon(n),
+        })
+        .collect()
+}
+fn ext_id(ext: &ZkProgramExt) -> [u8; 32] {
+    program_id_of_ext(
+        ZkSystem::Nova,
+        &wide_key(),
+        WIDE,
+        ZkEffect::StatementReceipt,
+        1,
+        100,
+        ext,
+    )
+}
+fn register_ext(ext: &ZkProgramExt) -> RegistryAction {
+    RegistryAction::RegisterZkProgram {
+        system: ZkSystem::Nova,
+        program_id: ext_id(ext),
+        key_bytes: wide_key(),
+        public_input_layout: WIDE,
+        effect: ZkEffect::StatementReceipt,
+        verifier_version: 1,
+        max_verify_ms: 100,
+        ext: ext.clone(),
+    }
+}
+/// Policy on, type 36 active at height 1, the extended program registered at height 2.
+fn ready_ext(ext: &ZkProgramExt) -> JointChainState {
+    let mut chain = chain_with(true);
+    let v = MockZkVerifier::new();
+    run(&mut chain, 1, vec![activate_36()], &v).unwrap();
+    run(&mut chain, 2, vec![admin_tx(11, register_ext(ext))], &v).unwrap();
+    chain
+}
+/// Public inputs for `sender`: binding element, then `fill` everywhere except `set`.
+fn wide_payload(sender: &str, id: [u8; 32], expiry: u64, set: &[(usize, u8)]) -> ZkVerifyPayload {
+    let mut public_inputs = vec![canon(9); WIDE as usize];
+    public_inputs[0] = binding_element(&ctx(), &a(sender), expiry, &id);
+    for &(i, n) in set {
+        public_inputs[i] = canon(n);
+    }
+    ZkVerifyPayload {
+        system: ZkSystem::Nova.code(),
+        program_id: id,
+        public_inputs,
+        proof: good_proof(),
+        expiry,
+    }
+}
+
+#[test]
+fn empty_extension_keeps_program_ids_and_frames_unchanged() {
+    let key = cubic_key();
+    let plain = program_id_of(ZkSystem::Nova, &key, 2, ZkEffect::StatementReceipt, 1, 100);
+    assert_eq!(
+        program_id_of_ext(
+            ZkSystem::Nova,
+            &key,
+            2,
+            ZkEffect::StatementReceipt,
+            1,
+            100,
+            &ZkProgramExt::default()
+        ),
+        plain
+    );
+    let pinned = ZkProgramExt {
+        z0_pins: pins(&[(1, 4)]),
+        statement_key: vec![],
+    };
+    let keyed = ZkProgramExt {
+        z0_pins: vec![],
+        statement_key: vec![1],
+    };
+    let ids = [
+        ext_id(&ZkProgramExt::default()),
+        ext_id(&pinned),
+        ext_id(&keyed),
+    ];
+    assert!(ids[0] != ids[1] && ids[1] != ids[2] && ids[0] != ids[2]);
+
+    // A plain register frame is the pre-extension encoding byte for byte.
+    let plain_frame = ZkRegisterPayload {
+        system: ZkSystem::Nova.code(),
+        program_id: plain,
+        key_bytes: key.clone(),
+        public_input_layout: 2,
+        effect: ZkEffect::StatementReceipt.code(),
+        verifier_version: 1,
+        max_verify_ms: 100,
+        ext: ZkProgramExt::default(),
+    }
+    .encode_frame();
+    assert_eq!(
+        plain_frame.len(),
+        3 + 1 + 32 + 4 + 1 + 4 + 4 + 4 + key.len()
+    );
+    // An extended frame round-trips.
+    let ext = ZkProgramExt {
+        z0_pins: pins(&[(1, 4), (5, 6)]),
+        statement_key: vec![2, 20],
+    };
+    let payload = ZkRegisterPayload {
+        system: ZkSystem::Nova.code(),
+        program_id: ext_id(&ext),
+        key_bytes: wide_key(),
+        public_input_layout: WIDE,
+        effect: ZkEffect::StatementReceipt.code(),
+        verifier_version: 1,
+        max_verify_ms: 100,
+        ext: ext.clone(),
+    };
+    let frame = payload.encode_frame();
+    assert_eq!(ZkRegisterPayload::decode_frame(&frame).unwrap(), payload);
+    // Explicit empty extension: refused (one encoding per program).
+    let mut empty = plain_frame.clone();
+    empty.extend_from_slice(&[0, 0, 0, 0]);
+    assert_eq!(
+        ZkRegisterPayload::decode_frame(&empty),
+        Err(ZkWireError::TrailingBytes)
+    );
+    assert_eq!(
+        ZkRegisterPayload::decode_frame(&frame[..frame.len() - 1]),
+        Err(ZkWireError::Truncated)
+    );
+    let mut trailing = frame.clone();
+    trailing.push(0);
+    assert_eq!(
+        ZkRegisterPayload::decode_frame(&trailing),
+        Err(ZkWireError::TrailingBytes)
+    );
+    let mut many = plain_frame;
+    many.extend_from_slice(&1000u16.to_be_bytes());
+    assert_eq!(
+        ZkRegisterPayload::decode_frame(&many),
+        Err(ZkWireError::TooManyInputs)
+    );
+}
+
+#[test]
+fn registration_validates_pins_and_statement_keys() {
+    let cases: [(ZkProgramExt, &str); 8] = [
+        (
+            ZkProgramExt {
+                z0_pins: pins(&[(0, 1)]),
+                statement_key: vec![],
+            },
+            "zk z0 pin index",
+        ),
+        // Index 17 is zn[0]: the proved output, not the start state.
+        (
+            ZkProgramExt {
+                z0_pins: pins(&[(17, 1)]),
+                statement_key: vec![],
+            },
+            "zk z0 pin index",
+        ),
+        (
+            ZkProgramExt {
+                z0_pins: pins(&[(3, 1), (2, 1)]),
+                statement_key: vec![],
+            },
+            "zk z0 pin index",
+        ),
+        (
+            ZkProgramExt {
+                z0_pins: pins(&[(3, 1), (3, 2)]),
+                statement_key: vec![],
+            },
+            "zk z0 pin index",
+        ),
+        (
+            ZkProgramExt {
+                z0_pins: vec![ZkInputPin {
+                    index: 1,
+                    value: [0xff; 32],
+                }],
+                statement_key: vec![],
+            },
+            "zk z0 pin value",
+        ),
+        (
+            ZkProgramExt {
+                z0_pins: vec![],
+                statement_key: vec![0],
+            },
+            "zk statement key index",
+        ),
+        (
+            ZkProgramExt {
+                z0_pins: vec![],
+                statement_key: vec![WIDE],
+            },
+            "zk statement key index",
+        ),
+        (
+            ZkProgramExt {
+                z0_pins: vec![],
+                statement_key: vec![5, 5],
+            },
+            "zk statement key index",
+        ),
+    ];
+    let mut chain = chain_with(true);
+    let v = MockZkVerifier::new();
+    run(&mut chain, 1, vec![activate_36()], &v).unwrap();
+    for (n, (ext, rule)) in cases.iter().enumerate() {
+        assert_eq!(ext.check(WIDE), Err(*rule), "{ext:?}");
+        assert_eq!(
+            registry_err(run(
+                &mut chain,
+                2,
+                vec![admin_tx(40 + n as u8, register_ext(ext))],
+                &v
+            )),
+            RegistryError::InvalidField(rule),
+        );
+    }
+    // The cubic key (arity 1) has no pinnable z0 element besides the binding.
+    assert_eq!(
+        ZkProgramExt {
+            z0_pins: pins(&[(1, 1)]),
+            statement_key: vec![]
+        }
+        .check(2),
+        Err("zk z0 pin index")
+    );
+    // The extension is part of the program id: dropping it from the id is a mismatch.
+    let ext = ZkProgramExt {
+        z0_pins: pins(&[(1, 4)]),
+        statement_key: vec![],
+    };
+    let RegistryAction::RegisterZkProgram {
+        system,
+        key_bytes,
+        public_input_layout,
+        effect,
+        verifier_version,
+        max_verify_ms,
+        ext,
+        ..
+    } = register_ext(&ext)
+    else {
+        unreachable!()
+    };
+    let stale_id = RegistryAction::RegisterZkProgram {
+        system,
+        program_id: ext_id(&ZkProgramExt::default()),
+        key_bytes,
+        public_input_layout,
+        effect,
+        verifier_version,
+        max_verify_ms,
+        ext,
+    };
+    assert_eq!(
+        registry_err(run(&mut chain, 2, vec![admin_tx(60, stale_id)], &v)),
+        RegistryError::ZkProgramIdMismatch
+    );
+    assert_eq!(chain.state().registry().zk_program_count(), 0);
+}
+
+#[test]
+fn z0_pins_refuse_any_other_start_state_before_the_verifier() {
+    let ext = ZkProgramExt {
+        z0_pins: pins(&[(1, 4), (16, 6)]),
+        statement_key: vec![],
+    };
+    let mut chain = ready_ext(&ext);
+    let v = MockZkVerifier::new();
+    let id = ext_id(&ext);
+    let good = wide_payload("alice", id, 50, &[(1, 4), (16, 6)]);
+    // A prover-chosen checkpoint, one pinned element off each time.
+    let forged_first = wide_payload("alice", id, 50, &[(1, 5), (16, 6)]);
+    let forged_last = wide_payload("alice", id, 50, &[(1, 4), (16, 7)]);
+    // zn may hold anything: pins cover only the start state.
+    let other_result = wide_payload("alice", id, 50, &[(1, 4), (16, 6), (20, 77)]);
+    let reports = run(
+        &mut chain,
+        3,
+        vec![
+            zk(20, "alice", forged_first),
+            zk(21, "alice", forged_last),
+            zk(22, "alice", good),
+            zk(23, "alice", other_result),
+        ],
+        &v,
+    )
+    .unwrap();
+    let outcomes: Vec<_> = reports.iter().map(|r| r.outcome.clone()).collect();
+    assert_eq!(
+        outcomes[0],
+        ZkOutcome::Rejected(ZkRejectReason::InitialStatePin)
+    );
+    assert_eq!(
+        outcomes[1],
+        ZkOutcome::Rejected(ZkRejectReason::InitialStatePin)
+    );
+    assert!(matches!(outcomes[2], ZkOutcome::Verified(_)));
+    assert!(matches!(outcomes[3], ZkOutcome::Verified(_)));
+    // Only the two pinned payloads reached the verifier; the rejected ones paid the fee.
+    assert_eq!(v.calls(), 2);
+    assert_eq!(balance(&chain, "alice"), 1000 - 4 * 5);
+    assert_eq!(chain.state().registry().zk_receipts().len(), 2);
+}
+
+#[test]
+fn statement_key_accepts_each_statement_once_across_senders_bindings_and_blocks() {
+    // Key = z0[1] and zn[3]: the statement, not the binding lane.
+    let ext = ZkProgramExt {
+        z0_pins: vec![],
+        statement_key: vec![1, 20],
+    };
+    let mut chain = ready_ext(&ext);
+    let v = MockZkVerifier::new();
+    let id = ext_id(&ext);
+    // Activate Send (type 2) and fund bob and carol so they can pay the fee.
+    let activate_send = admin_tx(
+        41,
+        RegistryAction::Activate {
+            types: vec![2],
+            code_hash: [7; 32],
+        },
+    );
+    run(&mut chain, 3, vec![activate_send], &v).unwrap();
+    let send = |n: u8, to: &str| {
+        JointBlockItem::Tx(UnverifiedJointTx {
+            txid: tx(n),
+            actor: a("alice"),
+            operation: JointOperation::Send {
+                id: p(7),
+                recipient: a(to),
+                amount_atoms: 100,
+            },
+        })
+    };
+    run(&mut chain, 4, vec![send(42, "bob"), send(43, "carol")], &v).unwrap();
+    let s1 = [(1, 4), (20, 8)];
+    let s2 = [(1, 4), (20, 9)];
+    let nullifier = ext
+        .statement_nullifier(&id, &wide_payload("alice", id, 50, &s1).public_inputs)
+        .unwrap();
+    // Same block: the first proof consumes the statement, the second is refused.
+    let reports = run(
+        &mut chain,
+        5,
+        vec![
+            zk(20, "alice", wide_payload("alice", id, 50, &s1)),
+            zk(21, "bob", wide_payload("bob", id, 50, &s1)),
+        ],
+        &v,
+    )
+    .unwrap();
+    assert!(matches!(reports[0].outcome, ZkOutcome::Verified(_)));
+    assert_eq!(
+        reports[1].outcome,
+        ZkOutcome::Rejected(ZkRejectReason::StatementConsumed)
+    );
+    assert_eq!(v.calls(), 1);
+    assert!(chain.state().registry().zk_statement_consumed(&nullifier));
+    let tip_after_first = chain.tip();
+    // Later block: a fresh binding (new expiry) or another sender cannot renew it.
+    let reports = run(
+        &mut chain,
+        6,
+        vec![
+            zk(22, "alice", wide_payload("alice", id, 60, &s1)),
+            zk(23, "carol", wide_payload("carol", id, 60, &s1)),
+            zk(24, "alice", wide_payload("alice", id, 60, &s2)),
+        ],
+        &v,
+    )
+    .unwrap();
+    assert_eq!(
+        reports[0].outcome,
+        ZkOutcome::Rejected(ZkRejectReason::StatementConsumed)
+    );
+    assert_eq!(
+        reports[1].outcome,
+        ZkOutcome::Rejected(ZkRejectReason::StatementConsumed)
+    );
+    assert!(matches!(reports[2].outcome, ZkOutcome::Verified(_)));
+    assert_eq!(v.calls(), 2);
+    assert_eq!(chain.state().registry().zk_statement_count(), 2);
+    assert_eq!(chain.state().registry().zk_receipts().len(), 2);
+    // Fees are kept on every refusal: alice paid 3 fees after funding bob and carol, bob and
+    // carol one each.
+    assert_eq!(balance(&chain, "alice"), 1000 - 200 - 3 * 5);
+    assert_eq!(balance(&chain, "bob"), 100 - 5);
+    assert_eq!(balance(&chain, "carol"), 100 - 5);
+
+    // Snapshot v3 carries the consumed set; a restored registry refuses the same statement.
+    let registry = chain.state().registry();
+    let bytes = registry.snapshot_bytes().unwrap();
+    assert_eq!(&bytes[..5], b"TLRG\x03");
+    let restored = Registry::from_snapshot_bytes(&bytes, &a("admin")).unwrap();
+    assert_eq!(&restored, registry);
+    assert!(restored.zk_statement_consumed(&nullifier));
+    let checkpoint = chain.checkpoint_bytes().unwrap();
+    let from_checkpoint = JointChainState::from_checkpoint_bytes(
+        &checkpoint,
+        NET,
+        anchor(),
+        &a("admin"),
+        &BTreeSet::from([p(7)]),
+        4,
+    )
+    .unwrap();
+    assert_eq!(from_checkpoint, chain);
+
+    // Rolling back the block that consumed s2 frees s2 again, and only s2.
+    let tip_second = chain.tip();
+    chain.rollback_tip(tip_second).unwrap();
+    assert_eq!(chain.tip(), tip_after_first);
+    assert_eq!(chain.state().registry().zk_statement_count(), 1);
+    let reports = run(
+        &mut chain,
+        9,
+        vec![
+            zk(25, "alice", wide_payload("alice", id, 60, &s2)),
+            zk(26, "alice", wide_payload("alice", id, 61, &s1)),
+        ],
+        &v,
+    )
+    .unwrap();
+    assert!(matches!(reports[0].outcome, ZkOutcome::Verified(_)));
+    assert_eq!(
+        reports[1].outcome,
+        ZkOutcome::Rejected(ZkRejectReason::StatementConsumed)
+    );
+}
+
+#[test]
+fn registry_snapshot_v3_is_written_only_for_extended_programs_and_is_canonical() {
+    // A plain program keeps the v2 encoding.
+    let plain = ready(2, 100);
+    assert_eq!(
+        &plain.state().registry().snapshot_bytes().unwrap()[..5],
+        b"TLRG\x02"
+    );
+    // Pins alone (no consumed statements yet) already select v3.
+    let ext = ZkProgramExt {
+        z0_pins: pins(&[(1, 4)]),
+        statement_key: vec![2],
+    };
+    let chain = ready_ext(&ext);
+    let registry = chain.state().registry();
+    let v3 = registry.snapshot_bytes().unwrap();
+    assert_eq!(&v3[..5], b"TLRG\x03");
+    let back = Registry::from_snapshot_bytes(&v3, &a("admin")).unwrap();
+    assert_eq!(&back, registry);
+    assert_eq!(back.zk_program(&ext_id(&ext)).unwrap().ext, ext);
+    // The v3 body under the v2 magic, and a v2 body under the v3 magic, are refused.
+    let reframe = |bytes: &[u8], magic: u8| {
+        let body = &bytes[..bytes.len() - 4];
+        let mut forged = body.to_vec();
+        forged[4] = magic;
+        let crc = snapshot_crc(&forged);
+        forged.extend_from_slice(&crc);
+        forged
+    };
+    assert!(Registry::from_snapshot_bytes(&reframe(&v3, 2), &a("admin")).is_err());
+    let v2 = plain.state().registry().snapshot_bytes().unwrap();
+    assert!(Registry::from_snapshot_bytes(&reframe(&v2, 3), &a("admin")).is_err());
+}
+
+/// The snapshot frame's checksum (IEEE CRC-32, big-endian), so a test can re-frame a body.
+fn snapshot_crc(data: &[u8]) -> [u8; 4] {
+    let mut crc: u32 = !0;
+    for &byte in data {
+        crc ^= u32::from(byte);
+        for _ in 0..8 {
+            crc = (crc >> 1) ^ (0xedb8_8320 & (0u32.wrapping_sub(crc & 1)));
+        }
+    }
+    (!crc).to_be_bytes()
 }

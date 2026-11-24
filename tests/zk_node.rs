@@ -190,6 +190,7 @@ fn program() -> (ZkRegisterPayload, [u8; 32]) {
             effect: ZkEffect::StatementReceipt.code(),
             verifier_version: 1,
             max_verify_ms: 1000,
+            ext: ZkProgramExt::default(),
         },
         id,
     )

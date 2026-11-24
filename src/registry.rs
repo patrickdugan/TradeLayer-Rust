@@ -7,7 +7,9 @@
 //! This module is not integrated with live chain consensus or the Rust ledger.
 
 use crate::ledger::{AccountId, TxId};
-use crate::zk_verify::{StatementReceipt, ZkEffect, ZkFeePolicy, ZkProgram, ZkSystem, ZK_TX_TYPE};
+use crate::zk_verify::{
+    StatementReceipt, ZkEffect, ZkFeePolicy, ZkProgram, ZkProgramExt, ZkSystem, ZK_TX_TYPE,
+};
 use std::collections::{BTreeMap, BTreeSet};
 
 #[path = "registry_zk.rs"]
@@ -125,6 +127,8 @@ pub enum RegistryAction {
         effect: ZkEffect,
         verifier_version: u32,
         max_verify_ms: u32,
+        /// Optional z0 pins and statement key; empty for a plain phase-1 program.
+        ext: ZkProgramExt,
     },
 }
 
@@ -202,11 +206,13 @@ pub struct Registry {
     attestations: BTreeMap<(u32, AccountId), Attestation>,
     oracles: BTreeMap<u32, Oracle>,
     /// `ZkVerifyV1` state. `zk_fee` is `Some` exactly when the policy is on; with the policy off
-    /// all four stay empty and the snapshot is the unchanged v1 encoding.
+    /// all five stay empty and the snapshot is the unchanged v1 encoding.
     zk_fee: Option<ZkFeePolicy>,
     zk_activation: Option<Activation>,
     zk_programs: BTreeMap<[u8; 32], ZkProgram>,
     zk_receipts: Vec<StatementReceipt>,
+    /// Statement nullifiers consumed by verified proofs of programs with a statement key.
+    zk_statements: BTreeSet<[u8; 32]>,
     next_whitelist_id: u32,
     next_oracle_id: u32,
     processed: BTreeSet<TxId>,
@@ -227,6 +233,7 @@ impl Registry {
             zk_activation: None,
             zk_programs: BTreeMap::new(),
             zk_receipts: Vec::new(),
+            zk_statements: BTreeSet::new(),
             next_whitelist_id: 1,
             next_oracle_id: 1,
             processed: BTreeSet::new(),
@@ -597,6 +604,7 @@ impl Registry {
                 effect,
                 verifier_version,
                 max_verify_ms,
+                ext,
             } => {
                 if actor != &self.protocol_admin {
                     return Err(RegistryError::Unauthorized);
@@ -609,6 +617,7 @@ impl Registry {
                     effect,
                     verifier_version,
                     max_verify_ms,
+                    ext,
                 })?;
             }
         }

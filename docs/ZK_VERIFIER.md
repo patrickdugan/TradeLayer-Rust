@@ -143,8 +143,9 @@ other type (not active, or activated in the same block, is an invalid transactio
 **Built as designed.**
 
 - `RegisterZkProgram { system, program_id, key_bytes, public_input_layout, effect,
-  verifier_version, max_verify_ms }`: admin only, immutable, keyed by `program_id` =
-  SHA-256(`TradeLayer/ZkProgram/v1/` || canonical encoding of the other fields). Duplicate
+  verifier_version, max_verify_ms, ext }`: admin only, immutable, keyed by `program_id` =
+  SHA-256(`TradeLayer/ZkProgram/v1/` || canonical encoding of the other fields). `ext` (z0 pins
+  and a statement key, below) is empty for a plain program and then adds nothing to the id. Duplicate
   refused, id mismatch refused, system 1 (STARK) refused, `key_bytes` 1..4096 bytes, layout
   1..64 elements, `max_verify_ms` 1..4000. `key_bytes` must decode as a Nova
   `RegisteredNovaKey` whose generator counts equal its `N` and whose arity is half the layout
@@ -175,7 +176,8 @@ other type (not active, or activated in the same block, is an invalid transactio
   invalid (the block is refused), like any other transfer that cannot be afforded.
 - Outcomes: after activation and fee, every failure is a typed `ZkRejectReason` (expired,
   unknown program, system mismatch, oversize proof, public input count, the three budgets, binding
-  mismatch, proof envelope, receipt table full, verifier verdict, statement-hash mismatch). The
+  mismatch, proof envelope, receipt table full, verifier verdict, statement-hash mismatch,
+  initial-state pin, statement consumed). The
   transaction is consumed (its txid is a replay marker) and the block continues. Rejections are
   returned in `ZkTxReport`s and are not persisted.
 - Effect: a verified type 36 appends `StatementReceipt { program_id, public_inputs_hash, sender,
@@ -184,8 +186,41 @@ other type (not active, or activated in the same block, is an invalid transactio
   `registry.zk_receipts`, reading `JointProtocolState::registry()` through the economic read view.
 - Snapshot: registries with the policy on write `TLRG\x02` (v1 body, then fee policy, type-36
   activation, programs, receipts); all others write the unchanged v1. A v2 body under the v1 magic
-  is refused. Receipts roll back with the block (the registry is part of the cloned pre-block
+  is refused. A registry holding at least one program with a nonempty `ext` writes `TLRG\x03`
+  instead: the v2 body with each program's extension after its fields and the consumed statement
+  nullifiers (ascending, at most one per receipt) after the receipts. Each state has exactly one
+  encoding: v3 is refused when no program is extended and v2 when one is. Receipts roll back with the block (the registry is part of the cloned pre-block
   state) and travel in `TLJP`/`TLJC` checkpoints inside the embedded registry bytes.
+
+**Initial-state pins and statement keys (`ZkProgramExt`).** Two optional program constraints for
+programs whose statements must mean something beyond "some proof exists"
+(`research/near-zk-bridge/mythos/NOVA_STATEMENT_V2.md` section 6, audit findings C2 and H1).
+
+- `z0_pins: [(index, value)]`. Nova proves `zn = F^n(z0)` for whatever `z0` the prover supplies,
+  so a header-chain or light-client program is only as good as the start state the verifier
+  insists on. A pinned program accepts a proof only if `public_inputs[index] == value` for every
+  pin; otherwise the transaction is rejected with `InitialStatePin` before budget or verifier.
+  Indices are strictly increasing in `1..layout/2` (the `z0` half; index 0 is the binding
+  element), values canonical Pallas scalars, at most 64 pins.
+- `statement_key: [index]`. Indices (strictly increasing, in `1..layout`) whose values identify a
+  statement. After a proof of such a program verifies, the registry records the statement
+  nullifier SHA-256(`TradeLayer/ZkStatementKey/v1/` || program_id || u32 count || (u32 index ||
+  input)*). A later proof with the same key values is rejected with `StatementConsumed` before
+  budget or verifier, whichever sender submits it and whatever its binding element, expiry or
+  block. Index 0 cannot be in a key, so a fresh binding cannot renew a statement. A program
+  without a key keeps phase-1 behavior: the same statement may be receipted more than once
+  (replay protection is per txid only). Any future custody effect must use a key.
+- Encoding. `ext` = `pins u16 | (index u32 | value 32)* | keys u16 | index u32*`. It is appended
+  to the `program_id` preimage as `"ext/v1/" || ext` only when nonempty; the v1 preimage's length
+  is fixed by its key length, so plain and extended ids never share a preimage. The 0x25 frame
+  carries `ext` after the key, present exactly when nonempty (an explicit empty extension is
+  refused as trailing bytes). Consumed nullifiers roll back with the block like receipts.
+- Tests (`tests/zk_verify.rs`, mock verifier over the NHC1 key's arity-17 layout):
+  `empty_extension_keeps_program_ids_and_frames_unchanged`,
+  `registration_validates_pins_and_statement_keys`,
+  `z0_pins_refuse_any_other_start_state_before_the_verifier`,
+  `statement_key_accepts_each_statement_once_across_senders_bindings_and_blocks`,
+  `registry_snapshot_v3_is_written_only_for_extended_programs_and_is_canonical`.
 
 **Differences from the design.**
 
@@ -219,7 +254,7 @@ opt-in policy.
   | byte | frame | body |
   |---|---|---|
   | 0x24 | type 36 `ZK Verify` | the payload above |
-  | 0x25 | `RegisterZkProgram`, admin only | `system u8 | program_id 32 | layout u32 | effect u8 | verifier_version u32 | max_verify_ms u32 | key_len u32 | key` (key at most 4096 bytes, no trailing byte) |
+  | 0x25 | `RegisterZkProgram`, admin only | `system u8 | program_id 32 | layout u32 | effect u8 | verifier_version u32 | max_verify_ms u32 | key_len u32 | key [| ext]` (key at most 4096 bytes; `ext` present exactly when nonempty, nothing after it) |
   | 0x26 | activation of type 36, admin only | `code_hash 32` |
 
   The source activation rule cannot name type 36, so 0x26 is the activation path; `Activate { types: [36] }`
@@ -255,8 +290,8 @@ opt-in policy.
   frames, so the window's block inputs include the ZK rows. A replay (checkpoint verification, rollback,
   window eviction) runs every rule again and takes only the proof verdict from the recorded receipt reason
   (`RecordedZkVerifier`): the multi-second verification runs once, when the block is first applied. The
-  registry (programs, receipts, fee policy, type-36 activation) is inside the embedded owner snapshot as
-  `TLRG\x02`, and `verify` requires the registry policy to equal the config's. A checkpoint is as
+  registry (programs, receipts, fee policy, type-36 activation, consumed statement keys) is inside the
+  embedded owner snapshot as `TLRG\x02` (`TLRG\x03` once a program carries an extension), and `verify` requires the registry policy to equal the config's. A checkpoint is as
   trustworthy as the process that wrote it, like every other recorded verdict.
 - Query. `tl_getZkReceipts` reads `registry().zk_receipts()` of the node's economic state.
 - Cost. The source history keeps a frame in hex, so a 12 KB Nova proof takes about 24 KB of the 16 MiB

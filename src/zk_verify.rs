@@ -93,9 +93,152 @@ pub struct ZkProgram {
     pub effect: ZkEffect,
     pub verifier_version: u32,
     pub max_verify_ms: u32,
+    pub ext: ZkProgramExt,
 }
 
-/// `program_id` = SHA-256 over the canonical encoding of every other field.
+/// One public input the program fixes at registration: a proof is accepted only if
+/// `public_inputs[index] == value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub struct ZkInputPin {
+    pub index: u32,
+    pub value: [u8; 32],
+}
+
+/// Optional program constraints (`docs/ZK_VERIFIER.md`, "Initial-state pins and statement keys").
+/// Empty means a plain phase-1 program, whose id, frame and snapshot encodings are unchanged.
+///
+/// - `z0_pins`: Nova proves `zn = F^n(z0)` for whatever `z0` the prover picks. Pinning the
+///   meaningful part of `z0` (a genesis or checkpoint state) makes the start state part of the
+///   program instead of the prover's choice. Indices lie in `1..layout/2` (the `z0` half; index 0
+///   is the binding element), strictly increasing, values canonical Pallas scalars.
+/// - `statement_key`: public-input indices (strictly increasing, in `1..layout`) whose values
+///   identify the statement. A program with a key accepts each statement at most once: a second
+///   verified proof of the same key values is rejected (`StatementConsumed`), whoever sends it.
+///   The binding lane (index 0) cannot be part of the key, so a fresh binding cannot renew it.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct ZkProgramExt {
+    pub z0_pins: Vec<ZkInputPin>,
+    pub statement_key: Vec<u32>,
+}
+
+impl ZkProgramExt {
+    pub fn is_empty(&self) -> bool {
+        self.z0_pins.is_empty() && self.statement_key.is_empty()
+    }
+
+    /// Canonical encoding used inside `program_id`, the 0x25 frame and snapshot v3:
+    /// `pins u16 | (index u32 | value 32)* | keys u16 | index u32*`, big-endian.
+    pub fn encode_into(&self, out: &mut Vec<u8>) {
+        out.extend_from_slice(&(self.z0_pins.len() as u16).to_be_bytes());
+        for pin in &self.z0_pins {
+            out.extend_from_slice(&pin.index.to_be_bytes());
+            out.extend_from_slice(&pin.value);
+        }
+        out.extend_from_slice(&(self.statement_key.len() as u16).to_be_bytes());
+        for index in &self.statement_key {
+            out.extend_from_slice(&index.to_be_bytes());
+        }
+    }
+
+    /// Inverse of [`Self::encode_into`] over exactly `raw` (no trailing bytes).
+    pub fn decode(raw: &[u8]) -> Result<Self, ZkWireError> {
+        let mut at = 0usize;
+        let mut take = |n: usize| -> Result<&[u8], ZkWireError> {
+            let end = at.checked_add(n).ok_or(ZkWireError::Truncated)?;
+            let slice = raw.get(at..end).ok_or(ZkWireError::Truncated)?;
+            at = end;
+            Ok(slice)
+        };
+        let be16 = |b: &[u8]| -> Result<usize, ZkWireError> {
+            Ok(usize::from(u16::from_be_bytes(
+                b.try_into().map_err(|_| ZkWireError::Truncated)?,
+            )))
+        };
+        let be32 = |b: &[u8]| -> Result<u32, ZkWireError> {
+            Ok(u32::from_be_bytes(
+                b.try_into().map_err(|_| ZkWireError::Truncated)?,
+            ))
+        };
+        let mut ext = Self::default();
+        let pins = be16(take(2)?)?;
+        if pins > MAX_ZK_PUBLIC_INPUTS {
+            return Err(ZkWireError::TooManyInputs);
+        }
+        for _ in 0..pins {
+            let index = be32(take(4)?)?;
+            let value: [u8; 32] = take(32)?.try_into().map_err(|_| ZkWireError::Truncated)?;
+            ext.z0_pins.push(ZkInputPin { index, value });
+        }
+        let keys = be16(take(2)?)?;
+        if keys > MAX_ZK_PUBLIC_INPUTS {
+            return Err(ZkWireError::TooManyInputs);
+        }
+        for _ in 0..keys {
+            ext.statement_key.push(be32(take(4)?)?);
+        }
+        if at != raw.len() {
+            return Err(ZkWireError::TrailingBytes);
+        }
+        Ok(ext)
+    }
+
+    /// Structural check against a layout. `Err` names the violated rule.
+    pub fn check(&self, public_input_layout: u32) -> Result<(), &'static str> {
+        if self.z0_pins.len() > MAX_ZK_PUBLIC_INPUTS
+            || self.statement_key.len() > MAX_ZK_PUBLIC_INPUTS
+        {
+            return Err("zk extension too long");
+        }
+        let z0_len = public_input_layout / 2;
+        let mut prior = 0u32;
+        for pin in &self.z0_pins {
+            if pin.index <= prior || pin.index >= z0_len {
+                return Err("zk z0 pin index");
+            }
+            if Fq::from_repr(&pin.value).is_err() {
+                return Err("zk z0 pin value");
+            }
+            prior = pin.index;
+        }
+        let mut prior = 0u32;
+        for &index in &self.statement_key {
+            if index <= prior || index >= public_input_layout {
+                return Err("zk statement key index");
+            }
+            prior = index;
+        }
+        Ok(())
+    }
+
+    /// True when every pinned input matches.
+    pub fn pins_hold(&self, public_inputs: &[[u8; 32]]) -> bool {
+        self.z0_pins
+            .iter()
+            .all(|pin| public_inputs.get(pin.index as usize) == Some(&pin.value))
+    }
+
+    /// The statement nullifier of a program with a key, else `None`.
+    pub fn statement_nullifier(
+        &self,
+        program_id: &[u8; 32],
+        public_inputs: &[[u8; 32]],
+    ) -> Option<[u8; 32]> {
+        if self.statement_key.is_empty() {
+            return None;
+        }
+        let mut out = b"TradeLayer/ZkStatementKey/v1/".to_vec();
+        out.extend_from_slice(program_id);
+        out.extend_from_slice(&(self.statement_key.len() as u32).to_be_bytes());
+        for &index in &self.statement_key {
+            out.extend_from_slice(&index.to_be_bytes());
+            out.extend_from_slice(public_inputs.get(index as usize)?);
+        }
+        Some(sha256(&out))
+    }
+}
+
+/// `program_id` = SHA-256 over the canonical encoding of every other field, for a program with no
+/// extension.
 pub fn program_id_of(
     system: ZkSystem,
     key_bytes: &[u8],
@@ -103,6 +246,29 @@ pub fn program_id_of(
     effect: ZkEffect,
     verifier_version: u32,
     max_verify_ms: u32,
+) -> [u8; 32] {
+    program_id_of_ext(
+        system,
+        key_bytes,
+        public_input_layout,
+        effect,
+        verifier_version,
+        max_verify_ms,
+        &ZkProgramExt::default(),
+    )
+}
+
+/// `program_id` including the extension. An empty extension gives exactly [`program_id_of`]'s
+/// preimage; a nonempty one appends `"ext/v1/"` and its encoding. The v1 preimage's length is
+/// fixed by its own key length, so the two forms never share a preimage.
+pub fn program_id_of_ext(
+    system: ZkSystem,
+    key_bytes: &[u8],
+    public_input_layout: u32,
+    effect: ZkEffect,
+    verifier_version: u32,
+    max_verify_ms: u32,
+    ext: &ZkProgramExt,
 ) -> [u8; 32] {
     let mut out = b"TradeLayer/ZkProgram/v1/".to_vec();
     out.push(system.code());
@@ -112,6 +278,10 @@ pub fn program_id_of(
     out.push(effect.code());
     out.extend_from_slice(&verifier_version.to_be_bytes());
     out.extend_from_slice(&max_verify_ms.to_be_bytes());
+    if !ext.is_empty() {
+        out.extend_from_slice(b"ext/v1/");
+        ext.encode_into(&mut out);
+    }
     sha256(&out)
 }
 
@@ -219,11 +389,13 @@ pub struct ZkRegisterPayload {
     pub effect: u8,
     pub verifier_version: u32,
     pub max_verify_ms: u32,
+    pub ext: ZkProgramExt,
 }
 
 impl ZkRegisterPayload {
     /// `"tl" 0x25 | system u8 | program_id 32 | layout u32 | effect u8 | verifier_version u32 |
-    /// max_verify_ms u32 | key_len u32 | key` (all integers big-endian).
+    /// max_verify_ms u32 | key_len u32 | key [| extension]` (all integers big-endian). The
+    /// extension ([`ZkProgramExt::encode_into`]) is present exactly when it is nonempty.
     pub fn encode_frame(&self) -> Vec<u8> {
         let mut out = vec![b't', b'l', ZK_REGISTER_FRAME_BYTE, self.system];
         out.extend_from_slice(&self.program_id);
@@ -233,6 +405,9 @@ impl ZkRegisterPayload {
         out.extend_from_slice(&self.max_verify_ms.to_be_bytes());
         out.extend_from_slice(&(self.key_bytes.len() as u32).to_be_bytes());
         out.extend_from_slice(&self.key_bytes);
+        if !self.ext.is_empty() {
+            self.ext.encode_into(&mut out);
+        }
         out
     }
 
@@ -266,9 +441,17 @@ impl ZkRegisterPayload {
             return Err(ZkWireError::TooLong);
         }
         let key_bytes = take(key_len)?.to_vec();
-        if at != raw.len() {
-            return Err(ZkWireError::TrailingBytes);
-        }
+        let rest = &raw[at..];
+        let ext = if rest.is_empty() {
+            ZkProgramExt::default()
+        } else {
+            let ext = ZkProgramExt::decode(rest)?;
+            // An empty extension has exactly one encoding: absent.
+            if ext.is_empty() {
+                return Err(ZkWireError::TrailingBytes);
+            }
+            ext
+        };
         Ok(Self {
             system,
             program_id,
@@ -277,6 +460,7 @@ impl ZkRegisterPayload {
             effect,
             verifier_version,
             max_verify_ms,
+            ext,
         })
     }
 
@@ -290,6 +474,7 @@ impl ZkRegisterPayload {
             effect: ZkEffect::from_code(self.effect)?,
             verifier_version: self.verifier_version,
             max_verify_ms: self.max_verify_ms,
+            ext: self.ext,
         })
     }
 }
@@ -712,6 +897,10 @@ pub enum ZkRejectReason {
     ReceiptsExhausted,
     Verifier(ZkReject),
     StatementMismatch,
+    /// A public input the program pins (`ZkProgramExt::z0_pins`) differs from its pinned value.
+    InitialStatePin,
+    /// The program's statement key was already consumed by an earlier verified proof.
+    StatementConsumed,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

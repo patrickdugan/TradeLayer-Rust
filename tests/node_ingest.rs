@@ -54,8 +54,8 @@ use tradelayer_core::validity_source::{
 use tradelayer_core::zk_nova::RegisteredNovaKey;
 use tradelayer_core::zk_verify::{
     binding_element, program_id_of, public_inputs_hash, MockZkVerifier, ZkActivatePayload,
-    ZkBindingContext, ZkEffect, ZkFeePolicy, ZkNovaAdapter, ZkRegisterPayload, ZkSystem,
-    ZkVerifier, ZkVerifyPayload, MOCK_PROOF_MAGIC,
+    ZkBindingContext, ZkEffect, ZkFeePolicy, ZkNovaAdapter, ZkProgramExt, ZkRegisterPayload,
+    ZkSystem, ZkVerifier, ZkVerifyPayload, MOCK_PROOF_MAGIC,
 };
 
 const FIXTURE: &str = include_str!("../fixtures/node_vectors.tsv");
@@ -1562,6 +1562,7 @@ fn zk_program() -> (ZkRegisterPayload, [u8; 32]) {
             effect: ZkEffect::StatementReceipt.code(),
             verifier_version: 1,
             max_verify_ms: 1000,
+            ext: ZkProgramExt::default(),
         },
         id,
     )

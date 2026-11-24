@@ -1,12 +1,12 @@
-// `ZkVerifyV1` registry state: programs, receipts, the type-36 state transition and the v2
-// snapshot section. A child module of `registry` so it reads the private fields.
+// `ZkVerifyV1` registry state: programs, receipts, consumed statement keys, the type-36 state
+// transition and the v2/v3 snapshot section. A child module of `registry` so it reads the private fields.
 use super::*;
 use crate::codec::Cursor;
 use crate::ledger::PropertyId;
 use crate::zk_verify::{
-    binding_element, check_nova_key, program_id_of, public_inputs_hash, split_proof_envelope,
-    ZkBindingContext, ZkBlockBudget, ZkBudgetError, ZkOutcome, ZkRejectReason, ZkVerifier,
-    ZkVerifyPayload, MAX_ZK_BLOCK_VERIFY_MS, MAX_ZK_KEY_BYTES, MAX_ZK_PROGRAMS,
+    binding_element, check_nova_key, program_id_of_ext, public_inputs_hash, split_proof_envelope,
+    ZkBindingContext, ZkBlockBudget, ZkBudgetError, ZkOutcome, ZkProgramExt, ZkRejectReason,
+    ZkVerifier, ZkVerifyPayload, MAX_ZK_BLOCK_VERIFY_MS, MAX_ZK_KEY_BYTES, MAX_ZK_PROGRAMS,
     MAX_ZK_PUBLIC_INPUTS, MAX_ZK_RECEIPTS, MAX_ZK_TX_PROOF_BYTES,
 };
 
@@ -52,6 +52,20 @@ impl Registry {
             .filter(move |r| &r.program_id == program_id)
     }
 
+    /// True when a verified proof already consumed this statement nullifier.
+    pub fn zk_statement_consumed(&self, nullifier: &[u8; 32]) -> bool {
+        self.zk_statements.contains(nullifier)
+    }
+
+    pub fn zk_statement_count(&self) -> usize {
+        self.zk_statements.len()
+    }
+
+    /// True when some program carries z0 pins or a statement key (snapshot v3).
+    pub(super) fn zk_extended(&self) -> bool {
+        self.zk_programs.values().any(|p| !p.ext.is_empty())
+    }
+
     pub fn zk_receipts_for_sender<'a>(
         &'a self,
         sender: &'a AccountId,
@@ -75,19 +89,24 @@ impl Registry {
         if check_nova_key(&program.key_bytes, program.public_input_layout).is_err() {
             return Err(RegistryError::InvalidField("zk nova key"));
         }
+        program
+            .ext
+            .check(program.public_input_layout)
+            .map_err(RegistryError::InvalidField)?;
         if program.verifier_version == 0 {
             return Err(RegistryError::InvalidField("zk verifier version"));
         }
         if program.max_verify_ms == 0 || u64::from(program.max_verify_ms) > MAX_ZK_BLOCK_VERIFY_MS {
             return Err(RegistryError::InvalidField("zk max verify ms"));
         }
-        let expected = program_id_of(
+        let expected = program_id_of_ext(
             program.system,
             &program.key_bytes,
             program.public_input_layout,
             program.effect,
             program.verifier_version,
             program.max_verify_ms,
+            &program.ext,
         );
         if expected != program.program_id {
             return Err(RegistryError::ZkProgramIdMismatch);
@@ -139,6 +158,12 @@ impl Registry {
         self.last_height = Some(height);
         let outcome = self.zk_outcome(txid, actor, height, payload, ctx, budget, verifier);
         if let ZkOutcome::Verified(receipt) = &outcome {
+            if let Some(nullifier) = self.zk_programs.get(&payload.program_id).and_then(|p| {
+                p.ext
+                    .statement_nullifier(&payload.program_id, &payload.public_inputs)
+            }) {
+                self.zk_statements.insert(nullifier);
+            }
             self.zk_receipts.push(receipt.clone());
         }
         Ok(outcome)
@@ -179,6 +204,16 @@ impl Registry {
         if payload.public_inputs.first() != Some(&binding) {
             return reject(R::BindingMismatch);
         }
+        if !program.ext.pins_hold(&payload.public_inputs) {
+            return reject(R::InitialStatePin);
+        }
+        if program
+            .ext
+            .statement_nullifier(&program.program_id, &payload.public_inputs)
+            .is_some_and(|n| self.zk_statements.contains(&n))
+        {
+            return reject(R::StatementConsumed);
+        }
         let Some((num_steps, proof)) = split_proof_envelope(&payload.proof) else {
             return reject(R::ProofEnvelope);
         };
@@ -211,8 +246,14 @@ impl Registry {
         }
     }
 
-    /// Snapshot v2 tail: fee policy, type-36 activation, programs, receipts.
-    pub(super) fn put_zk_section(&self, out: &mut Vec<u8>) -> Result<(), RegistrySnapshotError> {
+    /// Snapshot v2 tail: fee policy, type-36 activation, programs, receipts. `extended` (v3) adds
+    /// each program's extension after its fields and the consumed statement keys after the
+    /// receipts.
+    pub(super) fn put_zk_section(
+        &self,
+        out: &mut Vec<u8>,
+        extended: bool,
+    ) -> Result<(), RegistrySnapshotError> {
         let fee = self
             .zk_fee
             .as_ref()
@@ -238,6 +279,9 @@ impl Registry {
             out.push(p.effect.code());
             out.extend_from_slice(&p.verifier_version.to_be_bytes());
             out.extend_from_slice(&p.max_verify_ms.to_be_bytes());
+            if extended {
+                p.ext.encode_into(out);
+            }
         }
         put_u32(out, self.zk_receipts.len())?;
         for r in &self.zk_receipts {
@@ -247,12 +291,19 @@ impl Registry {
             out.extend_from_slice(&r.height.to_be_bytes());
             out.extend_from_slice(&r.txid.as_bytes());
         }
+        if extended {
+            put_u32(out, self.zk_statements.len())?;
+            for nullifier in &self.zk_statements {
+                out.extend_from_slice(nullifier);
+            }
+        }
         Ok(())
     }
 
     pub(super) fn read_zk_section(
         &mut self,
         r: &mut Cursor<'_>,
+        extended: bool,
     ) -> Result<(), RegistrySnapshotError> {
         let property = PropertyId::try_from(r.u32().map_err(|_| err("zk fee property"))?)
             .map_err(|_| err("zk fee property"))?;
@@ -289,6 +340,11 @@ impl Registry {
                 .ok_or_else(|| err("zk effect"))?;
             let verifier_version = r.u32().map_err(|_| err("zk verifier version"))?;
             let max_verify_ms = r.u32().map_err(|_| err("zk max verify ms"))?;
+            let ext = if extended {
+                read_zk_ext(r)?
+            } else {
+                ZkProgramExt::default()
+            };
             let program = ZkProgram {
                 system,
                 program_id,
@@ -297,6 +353,7 @@ impl Registry {
                 effect,
                 verifier_version,
                 max_verify_ms,
+                ext,
             };
             self.register_zk_program(program)
                 .map_err(|_| err("invalid zk program"))?;
@@ -322,6 +379,24 @@ impl Registry {
                 txid,
             });
         }
+        if extended {
+            let statements = read_count(r)?;
+            if statements > self.zk_receipts.len() {
+                return Err(err("zk statement count exceeds receipts"));
+            }
+            for _ in 0..statements {
+                let nullifier = r.fixed::<32>().map_err(|_| err("zk statement"))?;
+                // Strictly ascending: the canonical BTreeSet order, no duplicates.
+                if self
+                    .zk_statements
+                    .last()
+                    .is_some_and(|prior| prior >= &nullifier)
+                {
+                    return Err(err("noncanonical zk statements"));
+                }
+                self.zk_statements.insert(nullifier);
+            }
+        }
         Ok(())
     }
 
@@ -337,4 +412,32 @@ impl Registry {
                 .windows(2)
                 .all(|w| w[0].height <= w[1].height)
     }
+}
+
+/// One program extension as stored in snapshot v3: [`ZkProgramExt::encode_into`].
+fn read_zk_ext(r: &mut Cursor<'_>) -> Result<ZkProgramExt, RegistrySnapshotError> {
+    let mut ext = ZkProgramExt::default();
+    let pins = usize::from(u16::from_be_bytes(
+        r.fixed::<2>().map_err(|_| err("zk pin count"))?,
+    ));
+    if pins > MAX_ZK_PUBLIC_INPUTS {
+        return Err(err("zk pin count exceeds limit"));
+    }
+    for _ in 0..pins {
+        let index = r.u32().map_err(|_| err("zk pin index"))?;
+        let value = r.fixed::<32>().map_err(|_| err("zk pin value"))?;
+        ext.z0_pins
+            .push(crate::zk_verify::ZkInputPin { index, value });
+    }
+    let keys = usize::from(u16::from_be_bytes(
+        r.fixed::<2>().map_err(|_| err("zk statement key count"))?,
+    ));
+    if keys > MAX_ZK_PUBLIC_INPUTS {
+        return Err(err("zk statement key count exceeds limit"));
+    }
+    for _ in 0..keys {
+        ext.statement_key
+            .push(r.u32().map_err(|_| err("zk statement key index"))?);
+    }
+    Ok(ext)
 }

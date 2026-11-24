@@ -35,8 +35,8 @@ use tradelayer_core::runtime::parse_block_id;
 use tradelayer_core::zk_nova::RegisteredNovaKey;
 use tradelayer_core::zk_verify::{
     binding_element, program_id_of, zk_reason_rejected, ZkActivatePayload, ZkBindingContext,
-    ZkEffect, ZkNodeFrame, ZkNovaAdapter, ZkRegisterPayload, ZkReject, ZkRejectReason, ZkSystem,
-    ZkVerifier, ZkVerifyPayload, ZK_REASON_VERIFIED,
+    ZkEffect, ZkNodeFrame, ZkNovaAdapter, ZkProgramExt, ZkRegisterPayload, ZkReject,
+    ZkRejectReason, ZkSystem, ZkVerifier, ZkVerifyPayload, ZK_REASON_VERIFIED,
 };
 
 const KEY_FIXTURE: &str = concat!(
@@ -195,6 +195,7 @@ fn run() -> Result<(), String> {
                         effect: ZkEffect::StatementReceipt.code(),
                         verifier_version: VERIFIER_VERSION,
                         max_verify_ms: MAX_VERIFY_MS,
+                        ext: ZkProgramExt::default(),
                     }),
                 ),
                 (

@@ -6,6 +6,9 @@ const MAX_ENTRIES: usize = 100_000;
 const REGISTRY_MAGIC: &[u8; 5] = b"TLRG\x01";
 /// Written only by registries with `ZkVerifyV1` on; v1 bytes stay unchanged for every other one.
 const REGISTRY_MAGIC_ZK: &[u8; 5] = b"TLRG\x02";
+/// Written only when some type-36 program carries z0 pins or a statement key: the v2 body plus each
+/// program's extension and the consumed statement keys. v2 bytes stay unchanged otherwise.
+const REGISTRY_MAGIC_ZK_EXT: &[u8; 5] = b"TLRG\x03";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RegistrySnapshotError {
@@ -150,7 +153,10 @@ impl Registry {
     }
 
     pub fn snapshot_bytes(&self) -> Result<Vec<u8>, RegistrySnapshotError> {
-        let mut out = if self.zk_fee.is_some() {
+        let zk_extended = self.zk_fee.is_some() && self.zk_extended();
+        let mut out = if zk_extended {
+            REGISTRY_MAGIC_ZK_EXT.to_vec()
+        } else if self.zk_fee.is_some() {
             REGISTRY_MAGIC_ZK.to_vec()
         } else {
             REGISTRY_MAGIC.to_vec()
@@ -203,7 +209,7 @@ impl Registry {
             out.extend_from_slice(&id.as_bytes());
         }
         if self.zk_fee.is_some() {
-            self.put_zk_section(&mut out)?;
+            self.put_zk_section(&mut out, zk_extended)?;
         }
         with_crc(out).map_err(|_| err("registry snapshot too large"))
     }
@@ -219,10 +225,12 @@ impl Registry {
         let magic = r
             .fixed::<5>()
             .map_err(|_| err("registry magic truncated"))?;
-        let zk = if magic == *REGISTRY_MAGIC_ZK {
-            true
+        let (zk, zk_extended) = if magic == *REGISTRY_MAGIC_ZK_EXT {
+            (true, true)
+        } else if magic == *REGISTRY_MAGIC_ZK {
+            (true, false)
         } else if magic == *REGISTRY_MAGIC {
-            false
+            (false, false)
         } else {
             return Err(err("wrong registry magic"));
         };
@@ -316,7 +324,11 @@ impl Registry {
             }
         }
         if zk {
-            state.read_zk_section(&mut r)?;
+            state.read_zk_section(&mut r, zk_extended)?;
+            // v3 exactly when some program is extended, so each state has one encoding.
+            if zk_extended != state.zk_extended() {
+                return Err(err("registry zk snapshot version"));
+            }
         }
         r.end().map_err(|_| err("trailing registry data"))?;
         let max_whitelist = state.whitelists.keys().next_back().copied().unwrap_or(0);
