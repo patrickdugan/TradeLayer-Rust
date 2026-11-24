@@ -22,6 +22,19 @@ dependencies. Keep every authority flag false until W10.
 | W11 | Settlement and BitVM3 prerequisites | UTXO-Ref U1; BVA findings 1-10 | oracle nonce PoP with PoC regression; netting-to-zero Kani/Lean for the exact encoder; BitVM3 kept out of custody path until bond + anchor + key deletion + z0 pin + vault-bound statement exist | UTXO-Ref CI; zk-rusto CI | H7, H8 |
 | W12 | Containment wiring | Lean Theorem 3; audit section 6 | window cap, independent reconciliation source, quarantine, haircut proposal (never auto-executed); BitAgent propose-only policy as a host check | research workflow | M6, M7 |
 
+## Status
+
+- W3 landed on main in `7f283e1` (2026-11-24). Two pieces went in:
+  - `ZkProgramExt { z0_pins, statement_key }` on `RegisterZkProgram`. The pins gate refuses a
+    mismatch as `InitialStatePin`. The consumed statement nullifier refuses a repeat as
+    `StatementConsumed`.
+  - Snapshot `TLRG\x03`. An empty extension leaves ids, frames and v2 snapshots byte-identical.
+- The statement nullifier differs from NOVA_STATEMENT_V2 section 6.2. Section 6.2 hashes all
+  inputs except the binding element. The implementation takes an explicit `statement_key` index
+  list, because a circuit may copy the binding lane into `zn`.
+- Tests: five new cases in `tests/zk_verify.rs`.
+- W0 is done on this branch (`ztb-bridge-research.yml`, run 45379269714 green).
+
 ## Ordering rationale
 
 W0 first (evidence in CI). W1-W2 replace the one trusted fixture that matters most (C1). W3-W6
