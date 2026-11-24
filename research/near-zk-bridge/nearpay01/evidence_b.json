@@ -1,0 +1,19 @@
+{
+  "checks": 526,
+  "indexed_merkle_cases": 496,
+  "fixture_receipt_list_bytes": [
+    375,
+    325,
+    125
+  ],
+  "synthetic_head_root": "b15f8a2dbedfaf668d0e077ce3320bc9aece0e031e4ae6b8eeba4a0ddf48c1a9",
+  "synthetic_block_hash": "5f3d5d20b8c9bb18aba8b9d31ccb4c82ad3f9c922514a62ecd9be085fe7e7386",
+  "synthetic_receipt_root": "f2098de757c8b3f6c958b24346ebee2396ecf7a5b783122d8ea8582e55c2af98",
+  "nearcore_source_pin": "440567f0a21df411a54b28fef2ebe586920b599d",
+  "live_receipt_fixture_verified": false,
+  "near_finality_verified": false,
+  "action_authentication_verified": false,
+  "nova_verified": false,
+  "can_mint": false,
+  "production_ready": false
+}
