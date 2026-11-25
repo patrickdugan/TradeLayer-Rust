@@ -1,0 +1,25 @@
+name: TAP VWAP receipt reference
+on:
+  pull_request:
+    paths:
+      - 'research/tap-vwap/receipt/**'
+      - 'research/tap-vwap/benchmark.cjs'
+      - 'research/tap-vwap/results/**'
+      - '.github/workflows/tap-vwap-receipt.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  receipt-reference:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Run reference receipt tests
+        run: node --test research/tap-vwap/receipt/receipt.test.cjs
+      - name: Replay arithmetic benchmark
+        run: |
+          node research/tap-vwap/benchmark.cjs > /tmp/tap-vwap.json
+          diff -u research/tap-vwap/results/tap-vwap-01a.json /tmp/tap-vwap.json

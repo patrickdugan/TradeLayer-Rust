@@ -1,0 +1,19 @@
+name: TAP VWAP native regtest smoke
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'research/tap-vwap/native/**'
+      - '.github/workflows/tap-vwap-native.yml'
+permissions:
+  contents: read
+jobs:
+  native-rfq-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Pinned disposable regtest
+        run: bash research/tap-vwap/native/run-native.sh
