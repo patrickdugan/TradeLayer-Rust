@@ -7,6 +7,11 @@ use crate::network_profile::TradeLayerMainnet;
 use core::str::FromStr;
 use std::collections::BTreeSet;
 pub const ATOMS_PER_TOKEN: u128 = 100_000_000;
+/// Bitcoin TradeLayer's two canonical native assets.
+pub const BITCOIN_TL_TICKER: &str = "TL";
+pub const BITCOIN_TL_PROPERTY_ID: u32 = 1;
+pub const BITCOIN_TLVEST_TICKER: &str = "TLVEST";
+pub const BITCOIN_TLVEST_PROPERTY_ID: u32 = 2;
 pub const MAX_NATIVE_MARKERS: usize = 4096;
 pub const MAX_NATIVE_EVENTS: usize = 4096;
 pub const MAX_NATIVE_ROWS: usize = 16_384;
@@ -117,7 +122,97 @@ pub struct NativeEntitlementPolicy {
     pub payout_order: NativePayoutOrder,
     pub coverage: NativeCoverage,
 }
+/// Explicit inputs for a fresh, independently funded Bitcoin TL/TLVEST policy.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BitcoinTlVestingSpec {
+    pub bootstrap: Tip,
+    pub bootstrap_ledger_commitment: [u8; 32],
+    pub target_operator: AccountId,
+    pub issuer: AccountId,
+    pub tl_issued_atoms: u128,
+    pub tlvest_issued_atoms: u128,
+    pub vesting_funding_owner: AccountId,
+    pub prefunded_tl_atoms: u128,
+    pub initial_markers: Vec<NativeMarkerRow>,
+}
 impl NativeEntitlementPolicy {
+    /// Fresh Bitcoin TL + TLVEST policy with independently committed supplies.
+    /// TLVEST carries a prefunded TL entitlement. The caller must provide
+    /// genuine preexisting ledger balances; this does not mint either asset.
+    pub fn bitcoin_tl_with_vesting(spec: BitcoinTlVestingSpec) -> NativeResult<Self> {
+        let BitcoinTlVestingSpec {
+            bootstrap,
+            bootstrap_ledger_commitment,
+            target_operator,
+            issuer,
+            tl_issued_atoms,
+            tlvest_issued_atoms,
+            vesting_funding_owner,
+            prefunded_tl_atoms,
+            initial_markers,
+        } = spec;
+        let tl =
+            PropertyId::try_from(BITCOIN_TL_PROPERTY_ID).map_err(|_| NativeError::InvalidPolicy)?;
+        let tlvest = PropertyId::try_from(BITCOIN_TLVEST_PROPERTY_ID)
+            .map_err(|_| NativeError::InvalidPolicy)?;
+        let policy = Self {
+            network: TradeLayerMainnet::Bitcoin,
+            bootstrap,
+            bootstrap_ledger_commitment,
+            target_operator,
+            assets: vec![
+                NativeAssetSpec {
+                    role: NativeRole::Base,
+                    property: tl,
+                    issuer: issuer.clone(),
+                    ledger_kind: PropertyKind::Fixed,
+                    catalog_class: SourceCatalogClass::Fixed,
+                    declared_figure_atoms: tl_issued_atoms,
+                    issuance_ceiling_atoms: Some(tl_issued_atoms),
+                    expected_initial_issued_atoms: tl_issued_atoms,
+                },
+                NativeAssetSpec {
+                    role: NativeRole::VestingBase,
+                    property: tlvest,
+                    issuer,
+                    ledger_kind: PropertyKind::Managed,
+                    catalog_class: SourceCatalogClass::Vesting,
+                    declared_figure_atoms: tlvest_issued_atoms,
+                    issuance_ceiling_atoms: Some(tlvest_issued_atoms),
+                    expected_initial_issued_atoms: tlvest_issued_atoms,
+                },
+            ],
+            bindings: vec![NativeBindingSpec {
+                coupon: tlvest,
+                target: tl,
+                curve_scale_atoms: tlvest_issued_atoms,
+                initial_markers,
+                funding: PrefundedTargetSpec {
+                    funding_owner: vesting_funding_owner,
+                    target_atoms: prefunded_tl_atoms,
+                },
+            }],
+            quote_policy: NativeQuotePolicy::SourceQuoteExactOrRejectV1,
+            driver: NativeDriver::MonotonicDeltaV1,
+            payout_order: NativePayoutOrder::AsciiAccountV1,
+            coverage: NativeCoverage::CoverInitialMarkersV1,
+        };
+        policy.validate()?;
+        Ok(policy)
+    }
+
+    pub fn is_bitcoin_tl_with_vesting(&self) -> bool {
+        self.network == TradeLayerMainnet::Bitcoin
+            && self.assets.len() == 2
+            && self.bindings.len() == 1
+            && self.assets[0].property.get() == BITCOIN_TL_PROPERTY_ID
+            && self.assets[0].role == NativeRole::Base
+            && self.assets[1].property.get() == BITCOIN_TLVEST_PROPERTY_ID
+            && self.assets[1].role == NativeRole::VestingBase
+            && self.bindings[0].coupon == self.assets[1].property
+            && self.bindings[0].target == self.assets[0].property
+    }
+
     pub fn asset(&self, id: PropertyId) -> Option<&NativeAssetSpec> {
         self.assets.iter().find(|a| a.property == id)
     }
@@ -137,16 +232,80 @@ impl NativeEntitlementPolicy {
         Err(NativeError::UnavailableSourceSchedule)
     }
     pub fn validate(&self) -> NativeResult<()> {
-        if self.assets.len() != 4
-            || self.bindings.len() != 2
-            || self.bootstrap.height > MAX_NATIVE_HEIGHT
-        {
+        if self.bootstrap.height > MAX_NATIVE_HEIGHT {
             return Err(NativeError::InvalidPolicy);
         }
         self.network
             .check_genesis_if_applicable(self.bootstrap)
             .map_err(|_| NativeError::InvalidPolicy)?;
         normal(&self.target_operator)?;
+        if self.assets.len() == 2 && self.bindings.len() == 1 {
+            // TLVEST is an entitlement attached to the existing TL supply.
+            // The legacy TLI and TLIVEST roles stay in archived v1 replay.
+            if !self.is_bitcoin_tl_with_vesting()
+                || self.bootstrap.height != 0
+                || self.driver != NativeDriver::MonotonicDeltaV1
+                || self.coverage != NativeCoverage::CoverInitialMarkersV1
+            {
+                return Err(NativeError::InvalidPolicy);
+            }
+            for (a, expected_kind, expected_class) in [
+                (
+                    &self.assets[0],
+                    PropertyKind::Fixed,
+                    SourceCatalogClass::Fixed,
+                ),
+                (
+                    &self.assets[1],
+                    PropertyKind::Managed,
+                    SourceCatalogClass::Vesting,
+                ),
+            ] {
+                normal(&a.issuer)?;
+                if a.ledger_kind != expected_kind
+                    || a.catalog_class != expected_class
+                    || a.expected_initial_issued_atoms == 0
+                    || a.declared_figure_atoms != a.expected_initial_issued_atoms
+                    || a.issuance_ceiling_atoms != Some(a.expected_initial_issued_atoms)
+                {
+                    return Err(NativeError::InvalidPolicy);
+                }
+            }
+            let b = &self.bindings[0];
+            normal(&b.funding.funding_owner)?;
+            if b.curve_scale_atoms != self.assets[1].expected_initial_issued_atoms
+                || b.funding.target_atoms == 0
+            {
+                return Err(NativeError::InvalidPolicy);
+            }
+            source_tokens(b.curve_scale_atoms)?;
+            let mut total = 0u128;
+            let mut prior = None;
+            if b.initial_markers.len() > MAX_NATIVE_MARKERS {
+                return Err(NativeError::Capacity);
+            }
+            for row in &b.initial_markers {
+                normal(&row.owner)?;
+                source_tokens(row.atoms)?;
+                if row.atoms == 0 || prior.is_some_and(|p: &AccountId| p >= &row.owner) {
+                    return Err(NativeError::InvalidPolicy);
+                }
+                prior = Some(&row.owner);
+                total = total
+                    .checked_add(row.atoms)
+                    .ok_or(NativeError::Arithmetic)?;
+            }
+            if total > self.assets[1].expected_initial_issued_atoms
+                || total > b.funding.target_atoms
+                || b.funding.target_atoms > self.assets[0].expected_initial_issued_atoms
+            {
+                return Err(NativeError::InsufficientFunding);
+            }
+            return Ok(());
+        }
+        if self.assets.len() != 4 || self.bindings.len() != 2 {
+            return Err(NativeError::InvalidPolicy);
+        }
         let mut properties = BTreeSet::new();
         let roles = [
             NativeRole::Base,
@@ -492,8 +651,13 @@ impl<'a> NativeReader<'a> {
 }
 pub fn canonical_policy_bytes(p: &NativeEntitlementPolicy) -> NativeResult<Vec<u8>> {
     p.validate()?;
-    let mut w = NativeWriter(b"TradeLayer/NativeEntitlementPolicy/v1/".to_vec());
-    w.byte(1)?;
+    let tl_vesting = p.is_bitcoin_tl_with_vesting();
+    let mut w = NativeWriter(if tl_vesting {
+        b"TradeLayer/NativeEntitlementPolicy/v2/".to_vec()
+    } else {
+        b"TradeLayer/NativeEntitlementPolicy/v1/".to_vec()
+    });
+    w.byte(if tl_vesting { 2 } else { 1 })?;
     w.byte(p.network.tag())?;
     w.put(&p.network.genesis().0)?;
     w.u64(p.bootstrap.height)?;
@@ -553,11 +717,14 @@ pub fn parse_policy(bytes: &[u8]) -> NativeResult<NativeEntitlementPolicy> {
     if bytes.len() > MAX_NATIVE_POLICY_BYTES {
         return Err(NativeError::Capacity);
     }
+    let (prefix, expected_version): (&[u8], u8) =
+        if bytes.starts_with(b"TradeLayer/NativeEntitlementPolicy/v2/") {
+            (b"TradeLayer/NativeEntitlementPolicy/v2/", 2)
+        } else {
+            (b"TradeLayer/NativeEntitlementPolicy/v1/", 1)
+        };
     let mut r = NativeReader(crate::codec::Cursor::new(bytes));
-    if r.take(b"TradeLayer/NativeEntitlementPolicy/v1/".len())?
-        != b"TradeLayer/NativeEntitlementPolicy/v1/"
-        || r.byte()? != 1
-    {
+    if r.take(prefix.len())? != prefix || r.byte()? != expected_version {
         return Err(NativeError::InvalidPolicy);
     }
     let network = TradeLayerMainnet::from_tag(r.byte()?).map_err(|_| NativeError::InvalidPolicy)?;
@@ -671,7 +838,9 @@ pub fn parse_policy(bytes: &[u8]) -> NativeResult<NativeEntitlementPolicy> {
         payout_order: NativePayoutOrder::AsciiAccountV1,
         coverage,
     };
-    if canonical_policy_bytes(&p)?.as_slice() != bytes {
+    if (expected_version == 2) != p.is_bitcoin_tl_with_vesting()
+        || canonical_policy_bytes(&p)?.as_slice() != bytes
+    {
         return Err(NativeError::NonCanonical);
     }
     Ok(p)
